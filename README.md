@@ -1,5 +1,5 @@
 # About
-Youtui - a simple TUI YouTube Music player written in Rust.
+Youtui - a simple TUI YouTube Music player written in Rust. Inspired by https://github.com/ccgauche/ytermusic/.
 
 Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API. Inspired by https://github.com/sigma67/ytmusicapi/.
 
