@@ -26,8 +26,8 @@ Where a command is not default, or does not follow the principle of least surpri
 ### API
 - [ ] Implement all endpoints
 - [ ] OAuth authentication
-|Endpoint|Implemented|
-|---|---|
-|Get|[ ]|
-|Search|[ ]|
-|||
+| Endpoint | Implemented |
+| --- | --- |
+| Get | [ ] |
+| Search | [ ] |
+| | |
