@@ -8,14 +8,10 @@ This project is not supported by Google.
 - Clone the repository
 - Build - note nightly rust required
 - Give the application an authorisation header:
-  1. Open the https://music.youtube.com website in your browser
-  2. Open the developer tools (F12)
-  3. Go to the Network tab
-  4. Find the request to the `music.youtube.com` document / page
-  5. Copy the `Cookie` header from the associated response request
-  6. Create a file in the same directory as the binary called `headers.txt`
-  7. Create an entry like this `Cookie: <cookie>`
-  8. Add a valid "User Agent" below the cookie, like `User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36`
+  1. Open YouTube Music in your browser (Firefox preferred) - ensure you are logged in.
+  1. Open web developer tools.
+  1. Open Network tab and locate a POST request to `music.youtube.com`.
+  1. Copy the `Cookie` and `User-Agent` headers into a text file named `headers.txt` in the same directory as the binary.
 - The following libraries are required for sound on linux (note debian/ubuntu package names):
 - - `alsa-tools` `libasound2-dev` `libdbus-1-dev` `pkg-config`
 ### Limitations
