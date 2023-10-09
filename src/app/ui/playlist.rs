@@ -142,7 +142,7 @@ impl Scrollable for Playlist {
 impl TableView for Playlist {
     type Item = ListSong;
     fn get_title(&self) -> Cow<str> {
-        "Local playlist".into()
+        format!("Local playlist - {} songs", self.list.list.len()).into()
     }
     fn get_layout(&self) -> Vec<Constraint> {
         // Not perfect as this method doesn't know the size of the parent.
@@ -533,68 +533,4 @@ fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
         Keybind::new_from_code(KeyCode::Enter, PlaylistAction::PlaySelected),
     ]
     // KeyCode::Char(c) => self.handle_char_pressed(c).await,
-}
-
-#[deprecated]
-pub fn draw_playlist<B>(f: &mut Frame<B>, w: &Playlist, chunk: Rect)
-where
-    B: Backend,
-{
-    // XXX: Should be a more idiomatic way to do this. Tie lifetime of return to lifetime if input
-    // reference?
-    let mut t = Vec::new();
-    for s in w.list.list.clone() {
-        let download_status = s.download_status.list_icon().to_string();
-        let download_amend = match s.download_status {
-            crate::app::ui::structures::DownloadStatus::Downloading(p) => {
-                format!("{}[{}]%", download_status, p.0)
-            }
-            _ => download_status,
-        };
-        t.push(Row::new(vec![
-            download_amend,
-            "".to_owned(),
-            s.get_year().to_string(),
-            // Allocation due to API change
-            s.get_album().to_owned(),
-            // Allocation due to api change.
-            s.raw.get_title().to_string(),
-            // Allocation due to api change.
-            s.raw
-                .get_duration()
-                .as_ref()
-                .map(|d| d.to_owned())
-                .unwrap_or(String::new()),
-        ]))
-    }
-    // Hack - we should be checking our input_routing when rendering highlights
-    // TODO: theming
-    let border_colour = Color::Cyan;
-    let title = format!("Playlist - {} songs", w.list.list.len());
-    let mut state = TableState::default();
-    state.select(w.list.cur_selected);
-    let songs = Table::new(t)
-        .highlight_style(Style::default().bg(Color::Blue))
-        .header(
-            Row::new(vec!["", "Artist", "Year", "Album", "Song", "Duration"])
-                .style(Style::default().add_modifier(Modifier::BOLD)),
-        )
-        .style(Style::default().fg(Color::White))
-        .widths(&[
-            Constraint::Min(6),
-            Constraint::Percentage(20),
-            Constraint::Min(5),
-            Constraint::Percentage(20),
-            Constraint::Percentage(60),
-            Constraint::Min(9),
-        ])
-        .column_spacing(1)
-        .block(
-            Block::default()
-                // Allocation required due to hack below.
-                .title(title.clone())
-                .borders(Borders::ALL)
-                .border_style(Style::default().fg(border_colour)),
-        );
-    f.render_stateful_widget(songs, chunk, &mut state);
 }

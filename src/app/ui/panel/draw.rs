@@ -65,9 +65,7 @@ where
     B: Backend,
     T: TableView,
 {
-    // TODO: Scrollbar widget.
     // TODO: theming
-    let title = table.get_title();
     let len = table.len();
     let layout = table.get_layout();
     // We are allocating here, as list item only implements Display (not Into<Cow>). Consider changing this.
@@ -82,7 +80,6 @@ where
             Row::new(row)
         })
         .collect();
-    let _title = format!("{title} - {len} items");
     // May be able to reuse below.
     let number_items = table_items.len();
     let mut table_state = TableState::default()

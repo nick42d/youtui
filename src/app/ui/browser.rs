@@ -457,31 +457,6 @@ pub mod draw {
 
     use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 
-    #[deprecated]
-    pub fn _draw_artist_songs<B>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect)
-    where
-        B: Backend,
-    {
-        let mut title = format!(
-            "Songs - {} results",
-            w.browser.album_songs_list.list.list.len()
-        );
-        // Hack to change display when done loading
-        if let ListStatus::InProgress = w.browser.album_songs_list.list.state {
-            title.push_str(" - Loading ");
-        }
-        let chunks = Layout::new()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Min(0), Constraint::Length(1)])
-            .split(chunk);
-        let scroll = Scrollbar::new(ratatui::widgets::ScrollbarOrientation::VerticalRight)
-            .symbols(scrollbar::VERTICAL);
-        let mut scrollstate = ScrollbarState::default()
-            .position(5)
-            .content_length(w.browser.album_songs_list.list.list.len() as u16);
-        f.render_stateful_widget(scroll, chunks[1], &mut scrollstate);
-    }
-
     pub fn draw_browser<B>(f: &mut Frame<B>, browser: &Browser, chunk: Rect)
     where
         B: Backend,

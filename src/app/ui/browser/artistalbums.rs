@@ -8,7 +8,7 @@ use crate::app::ui::{
     actionhandler::{Action, KeyHandler, KeyRouter, Keybind, TextHandler},
     browser::BrowserAction,
     panel::{Drawable, List, ListView, Loadable, Scrollable, SortableList, TableView},
-    structures::{AlbumSongsList, ListSong},
+    structures::{AlbumSongsList, ListSong, ListStatus},
 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -249,7 +249,15 @@ impl Drawable for AlbumSongsPanel {
 impl TableView for AlbumSongsPanel {
     type Item = ListSong;
     fn get_title(&self) -> Cow<str> {
-        "Albums songs list".into()
+        match self.list.state {
+            ListStatus::New => "Songs".into(),
+            ListStatus::Loading => "Songs - loading".into(),
+            ListStatus::InProgress => {
+                format!("Songs - {} results - loading", self.list.list.len()).into()
+            }
+            ListStatus::Loaded => format!("Songs - {} results", self.list.list.len()).into(),
+            ListStatus::Error => "Songs - Error receieved".into(),
+        }
     }
     fn get_layout(&self) -> Vec<ratatui::prelude::Constraint> {
         vec![
