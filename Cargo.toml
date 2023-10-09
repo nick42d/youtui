@@ -26,5 +26,6 @@ rustube = { version = "0.6.0", features = ["callback"] }
 # Not the current version - this is required for Player
 flume = "0.10.14"
 anyhow = "1.0.75"
+rusty_ytdl = { version = "0.6.3", features = ["tokio"] }
 # it would be nice to use rodio but currently missing 
 # rodio = { version = "0.17.1", features = ["symphonia-aac", "symphonia-isomp4"] }

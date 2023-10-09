@@ -1,7 +1,11 @@
+use rusty_ytdl::DownloadOptions;
+use rusty_ytdl::Video;
+use rusty_ytdl::VideoOptions;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
 use anyhow::Result;
+use std::path::Path;
 use std::path::PathBuf;
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
@@ -122,48 +126,23 @@ impl Server {
                     Response::SongProgressUpdate(SongProgressUpdateType::Started, playlist_id, id),
                 )
                 .await;
-                // Allocation due to API change
-                let rustube_id =
-                    rustube::Id::from_string(song_video_id.get_raw().to_string()).unwrap();
-                let video = rustube::Video::from_id(rustube_id.to_owned())
-                    .await
-                    .unwrap();
-                // Player will only play the below mime type.
-                // I pick lowest bitrate to improve dl speed.
-                let binding = video
-                    .streams()
-                    .iter()
-                    .filter(|stream| {
-                        stream.mime == "audio/mp4"
-                            && stream.includes_audio_track
-                            && !stream.includes_video_track
-                    })
-                    .min_by_key(|stream| stream.bitrate)
-                    .unwrap();
-                let sender_clone = tx.clone();
-                let path_to_video = binding
-                    .download_to_dir_with_callback(
-                        TEMP_MUSIC_DIR,
-                        rustube::Callback::new().connect_on_progress_closure(move |p| {
-                            let perc =
-                                (p.current_chunk * 100 / p.content_length.unwrap() as usize) as u8;
-                            let _ = sender_clone
-                                // Blocking send as sharing async between threads has
-                                // been a challenge.
-                                .try_send(Response::SongProgressUpdate(
-                                    SongProgressUpdateType::Downloading(perc),
-                                    playlist_id,
-                                    id,
-                                ));
-                        }),
-                    )
-                    .await;
-                match path_to_video {
-                    Ok(path) => {
+                let options = VideoOptions {
+                    quality: rusty_ytdl::VideoQuality::LowestAudio,
+                    filter: rusty_ytdl::VideoSearchOptions::Audio,
+                    ..Default::default()
+                };
+                let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options) else {
+                    error!("Error received finding song");
+                    return;
+                };
+                let path_string = format!("music/{}.mp4", song_video_id.get_raw());
+                let path = Path::new(&path_string);
+                match video.download(path).await {
+                    Ok(_) => {
                         send_or_error(
                             &tx,
                             Response::SongProgressUpdate(
-                                SongProgressUpdateType::Completed(path),
+                                SongProgressUpdateType::Completed(path.into()),
                                 playlist_id,
                                 id,
                             ),
