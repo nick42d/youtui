@@ -17,7 +17,7 @@ use super::{
         Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     contextpane::ContextPane,
-    panel::Drawable,
+    view::Drawable,
     UIMessage,
 };
 

@@ -7,8 +7,8 @@ use ytmapi_rs::parse::SearchResultArtist;
 use crate::app::ui::{
     actionhandler::{Action, KeyHandler, KeyRouter, Keybind, TextHandler},
     browser::BrowserAction,
-    panel::{Drawable, List, ListView, Loadable, Scrollable, SortableList, TableView},
     structures::{AlbumSongsList, ListSong, ListStatus},
+    view::{Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -183,18 +183,6 @@ impl SortableList for ArtistSearchPanel {
         self.sort_commands_list.clear();
     }
 }
-impl List for ArtistSearchPanel {
-    type Item = String;
-    fn get_items(&self) -> Vec<&Self::Item> {
-        self.list
-            .iter()
-            .map(|search_result| &search_result.artist)
-            .collect()
-    }
-    fn get_title(&self) -> Cow<str> {
-        "Artists".into()
-    }
-}
 impl Loadable for ArtistSearchPanel {
     fn is_loading(&self) -> bool {
         // This is just a basic list without a loading function.
@@ -208,6 +196,9 @@ impl ListView for ArtistSearchPanel {
             .iter()
             .map(|search_result| &search_result.artist)
             .collect()
+    }
+    fn get_title(&self) -> Cow<str> {
+        "Artists".into()
     }
 }
 
@@ -262,7 +253,7 @@ impl TableView for AlbumSongsPanel {
     fn get_layout(&self) -> Vec<ratatui::prelude::Constraint> {
         vec![
             Constraint::Min(6),
-            Constraint::Min(2),
+            Constraint::Min(3),
             Constraint::Max(30),
             Constraint::Max(30),
             Constraint::Min(9),

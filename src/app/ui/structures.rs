@@ -4,7 +4,7 @@ use tracing::warn;
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::SongResult;
 
-use super::panel::{Scrollable, TableItem};
+use super::view::{Scrollable, TableItem};
 
 #[derive(Clone)]
 pub struct AlbumSongsList {

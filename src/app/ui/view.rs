@@ -21,7 +21,7 @@ enum _TableFilter {
 enum Filter {
     Contains(String),
 }
-// A list of items. An item will always be selected.
+// A struct that is able to be "scrolled". An item will always be selected.
 // XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
 pub trait Scrollable {
     // Get the current position in the list.
@@ -47,18 +47,14 @@ pub trait TableView: Scrollable + Loadable {
         self.get_items().len()
     }
 }
-pub trait List {
-    type Item;
-    fn get_title(&self) -> Cow<str>;
-    fn get_items(&self) -> Vec<&Self::Item>;
-    fn len(&self) -> usize {
-        self.get_items().len()
-    }
-}
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: Scrollable + SortableList + List + Loadable {
+pub trait ListView: Scrollable + SortableList + Loadable {
     type DisplayItem: Display;
+    fn get_title(&self) -> Cow<str>;
     fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
+    fn len(&self) -> usize {
+        self.get_items_display().len()
+    }
 }
 pub trait SortableList {
     fn push_sort_command(&mut self, list_sort_command: String);

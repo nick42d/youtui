@@ -1,13 +1,13 @@
 use std::borrow::Cow;
 
-use crate::app::ui::panel::ListView;
+use crate::app::ui::view::ListView;
 use ratatui::{
-    prelude::{Backend, Constraint, Direction, Layout, Margin, Rect},
+    prelude::{Backend, Margin, Rect},
     style::{Color, Modifier, Style},
     symbols::{block, line},
     widgets::{
-        scrollbar, Block, Borders, List, ListItem, ListState, Paragraph, Row, Scrollbar,
-        ScrollbarOrientation, ScrollbarState, Table, TableState,
+        Block, Borders, List, ListItem, ListState, Paragraph, Row, Scrollbar, ScrollbarOrientation,
+        ScrollbarState, Table, TableState,
     },
     Frame,
 };

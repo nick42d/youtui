@@ -13,25 +13,22 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Rect},
-    style::{Color, Modifier, Style},
     terminal::Frame,
-    widgets::{Block, Borders, Row, Table, TableState},
 };
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
-use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
-use super::panel::draw::draw_table;
-use super::panel::{Loadable, Scrollable, TableView};
 use super::structures::Percentage;
+use super::view::draw::draw_table;
+use super::view::{Loadable, Scrollable, TableView};
 use super::{
     actionhandler::{
         Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     contextpane::ContextPane,
-    panel::Drawable,
     structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
     taskregister::TaskID,
+    view::Drawable,
     UIMessage, WindowContext,
 };
 

@@ -16,9 +16,9 @@ use self::{
 use super::{
     actionhandler::{Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, TextHandler},
     contextpane::ContextPane,
-    panel::{Drawable, Scrollable},
     structures::ListStatus,
     taskregister::TaskID,
+    view::{Drawable, Scrollable},
     UIMessage, WindowContext,
 };
 
@@ -445,15 +445,11 @@ pub mod draw {
     use ratatui::{
         prelude::{Backend, Constraint, Direction, Layout, Rect},
         style::{Color, Style},
-        widgets::{scrollbar, Block, Borders, Paragraph, Scrollbar, ScrollbarState},
+        widgets::{Block, Borders, Paragraph},
         Frame,
     };
 
-    use crate::app::ui::{
-        panel::draw::{draw_list, draw_table},
-        structures::ListStatus,
-        YoutuiWindow,
-    };
+    use crate::app::ui::view::draw::{draw_list, draw_table};
 
     use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 

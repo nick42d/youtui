@@ -9,7 +9,7 @@ use ratatui::{
 
 use super::{
     actionhandler::{Action, EventHandler, KeyRouter},
-    panel::Drawable,
+    view::Drawable,
 };
 
 // A pane of the application. This is the place that renders in the app and handles key events.

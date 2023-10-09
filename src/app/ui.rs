@@ -6,9 +6,9 @@ mod header;
 mod help;
 mod logger;
 mod messagehandler;
-mod panel;
 mod playlist;
 pub mod structures;
+mod view;
 // Public due to task register
 pub mod taskregister;
 
