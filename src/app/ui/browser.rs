@@ -142,7 +142,6 @@ impl KeyHandler<BrowserAction> for Browser {
         let additional_binds = match self.input_routing {
             InputRouting::Song => Some(self.album_songs_list.get_keybinds()),
             InputRouting::Artist => Some(self.artist_list.get_keybinds()),
-            _ => None,
         }
         .into_iter()
         .flatten();

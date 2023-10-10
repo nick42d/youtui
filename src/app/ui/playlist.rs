@@ -33,7 +33,7 @@ use super::{
 };
 
 const SONGS_AHEAD_TO_BUFFER: usize = 5;
-const VOL_TICK: i8 = 5;
+const VOL_TICK: u8 = 5;
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_secs: Option<f64>,
@@ -326,10 +326,26 @@ impl Playlist {
         self.play_prev().await;
     }
     pub async fn handle_increase_volume(&mut self) {
-        send_or_error(&self.request_tx, Request::IncreaseVolume(VOL_TICK)).await;
+        // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
+        // NOTE: could cause same visual race conditions.
+        self.volume.0 = self
+            .volume
+            .0
+            .checked_add(VOL_TICK)
+            .unwrap_or(100)
+            .clamp(0, 100);
+        send_or_error(&self.request_tx, Request::IncreaseVolume(VOL_TICK as i8)).await;
     }
     pub async fn handle_decrease_volume(&mut self) {
-        send_or_error(&self.request_tx, Request::IncreaseVolume(-VOL_TICK)).await;
+        // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
+        // NOTE: could cause same visual race conditions.
+        self.volume.0 = self
+            .volume
+            .0
+            .checked_sub(VOL_TICK)
+            .unwrap_or(0)
+            .clamp(0, 100);
+        send_or_error(&self.request_tx, Request::IncreaseVolume(-(VOL_TICK as i8))).await;
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
@@ -340,7 +356,6 @@ impl Playlist {
         self.list.push_clone_listsong(song)
     }
     pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
-        info!("Got to play_if was buffering");
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
                 info!("playing");

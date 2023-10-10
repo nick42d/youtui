@@ -14,7 +14,10 @@ pub mod taskregister;
 
 use crate::core::send_or_error;
 
+use self::actionhandler::{Action, ActionHandler, KeyHandler, Keybind, TextHandler};
+use self::browser::BrowserAction;
 use self::contextpane::ContextPane;
+use self::playlist::PlaylistAction;
 use self::{
     actionhandler::EventHandler,
     browser::Browser,
@@ -79,6 +82,15 @@ pub enum UIMessage {
     AddSongsToPlaylist(Vec<ListSong>),
     PlaySongs(Vec<ListSong>),
 }
+#[derive(Clone, Debug, PartialEq)]
+pub enum UIAction {
+    Next,
+    Prev,
+    StepVolUp,
+    StepVolDown,
+    Browser(BrowserAction),
+    Playlist(PlaylistAction),
+}
 
 pub struct YoutuiWindow {
     pub status: AppStatus,
@@ -91,7 +103,11 @@ pub struct YoutuiWindow {
     _ui_tx: mpsc::Sender<UIMessage>,
     ui_rx: mpsc::Receiver<UIMessage>,
     primary_commands: Vec<BasicCommand>,
+    keybinds: Vec<Keybind<UIAction>>,
+    key_stack: Vec<KeyEvent>,
+    help_shown: bool,
 }
+
 #[deprecated]
 fn get_primary_commands() -> Vec<BasicCommand> {
     vec![
@@ -105,6 +121,85 @@ fn get_primary_commands() -> Vec<BasicCommand> {
         },
     ]
 }
+
+fn global_keybinds() -> Vec<Keybind<UIAction>> {
+    vec![
+        Keybind::new_global_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
+        Keybind::new_global_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
+    ]
+}
+
+impl ActionHandler<UIAction> for YoutuiWindow {
+    async fn handle_action(&mut self, action: &UIAction) {
+        match action {
+            UIAction::Next => todo!(),
+            UIAction::Prev => todo!(),
+            UIAction::StepVolUp => todo!(),
+            UIAction::StepVolDown => todo!(),
+            UIAction::Browser(b) => self.browser.handle_action(b).await,
+            UIAction::Playlist(b) => self.playlist.handle_action(b).await,
+        }
+    }
+}
+
+impl Action for UIAction {
+    fn context(&self) -> std::borrow::Cow<str> {
+        match self {
+            UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
+                "".into()
+            }
+            UIAction::Browser(a) => a.context(),
+            UIAction::Playlist(a) => a.context(),
+        }
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        format!("{:?}", self).into()
+    }
+}
+
+impl TextHandler for YoutuiWindow {
+    fn push_text(&mut self, c: char) {
+        match self.context {
+            WindowContext::Browser => self.browser.push_text(c),
+            WindowContext::Playlist => self.playlist.push_text(c),
+            WindowContext::Logs => self.logger.push_text(c),
+        }
+    }
+    fn pop_text(&mut self) {
+        match self.context {
+            WindowContext::Browser => self.browser.pop_text(),
+            WindowContext::Playlist => self.playlist.pop_text(),
+            WindowContext::Logs => self.logger.pop_text(),
+        }
+    }
+    fn is_text_handling(&self) -> bool {
+        match self.context {
+            WindowContext::Browser => self.browser.is_text_handling(),
+            WindowContext::Playlist => self.playlist.is_text_handling(),
+            WindowContext::Logs => self.logger.is_text_handling(),
+        }
+    }
+}
+
+impl KeyHandler<UIAction> for YoutuiWindow {
+    // XXX: Need to determine how this should really be implemented.
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<UIAction>> + 'a> {
+        Box::new(self.keybinds.iter())
+    }
+}
+
+impl EventHandler<UIAction> for YoutuiWindow {
+    fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent> {
+        &mut self.key_stack
+    }
+    fn get_key_stack(&self) -> &[KeyEvent] {
+        &self.key_stack
+    }
+    fn get_global_sender(&self) -> &Sender<UIMessage> {
+        &self._ui_tx
+    }
+}
+
 impl YoutuiWindow {
     pub fn new(
         player_request_tx: mpsc::Sender<super::player::Request>,
@@ -123,6 +218,9 @@ impl YoutuiWindow {
             _ui_tx: ui_tx,
             ui_rx,
             primary_commands: get_primary_commands(),
+            keybinds: global_keybinds(),
+            key_stack: Vec::new(),
+            help_shown: false,
         }
     }
     pub async fn handle_tick(&mut self) {

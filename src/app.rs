@@ -16,6 +16,7 @@ mod server;
 mod ui;
 
 const EVENT_CHANNEL_SIZE: usize = 256;
+const PLAYER_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_PATH: &str = "debug.log";
 
 enum EventType<I> {
@@ -60,8 +61,8 @@ impl Youtui {
             println!("{}", panic_info);
         }));
         // First cut at setting up Player
-        let (request_tx, request_rx) = tokio::sync::mpsc::channel(256);
-        let (response_tx, response_rx) = tokio::sync::mpsc::channel(256);
+        let (request_tx, request_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
+        let (response_tx, response_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
         let player = player::PlayerManager::new(response_tx, request_rx).unwrap();
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend).unwrap();

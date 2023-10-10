@@ -31,7 +31,7 @@ The app should limit the cognitive load required to memorise commands and should
 ## Roadmap
 ### Application
 - [ ] Offline cache
-- [ ] Implement improved download speed
+- [x] Implement improved download speed
 - [ ] Real time streaming
 - [ ] Theming
 ### API
