@@ -50,8 +50,10 @@ pub enum ArtistAction {
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistSongsAction {
     PlaySong,
+    PlaySongs,
     PlayAlbum,
     AddSongToPlaylist,
+    AddSongsToPlaylist,
     AddAlbumToPlaylist,
     Up,
     Down,
@@ -135,8 +137,10 @@ impl Action for ArtistSongsAction {
     fn describe(&self) -> Cow<str> {
         match &self {
             Self::PlaySong => "Play song",
+            Self::PlaySongs => "Play songs",
             Self::PlayAlbum => "Play album",
             Self::AddSongToPlaylist => "Add song to playlist",
+            Self::AddSongsToPlaylist => "Add songs to playlist",
             Self::AddAlbumToPlaylist => "Add album to playlist",
             Self::Up => "Up",
             Self::Down => "Down",
@@ -317,12 +321,20 @@ pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
         Keybind::new_action_only_mode(
             vec![
                 (
-                    KeyCode::Char('p'),
+                    KeyCode::Enter,
                     BrowserAction::ArtistSongs(ArtistSongsAction::PlaySong),
+                ),
+                (
+                    KeyCode::Char('p'),
+                    BrowserAction::ArtistSongs(ArtistSongsAction::PlaySongs),
                 ),
                 (
                     KeyCode::Char('a'),
                     BrowserAction::ArtistSongs(ArtistSongsAction::PlayAlbum),
+                ),
+                (
+                    KeyCode::Char(' '),
+                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongToPlaylist),
                 ),
                 (
                     KeyCode::Char('P'),

@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Display};
+use std::{borrow::Cow, fmt::Display, rc::Rc};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use tokio::sync::mpsc::Sender;
@@ -165,6 +165,11 @@ pub trait TextHandler {
         }
     }
 }
+pub enum _KeyHandleOutcome {
+    Handled,
+    Mode,
+    Ignored,
+}
 // A component of the application that handles events.
 // XXX: Not fully implemented yet, as ignores many event types by default.
 pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + TextHandler {
@@ -181,10 +186,33 @@ pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Te
         let first = index_keybinds(self.get_keybinds(), self.get_key_stack().get(0)?)?;
         index_keymap(first, self.get_key_stack().get(1..)?)
     }
+    // Return a list of the current available for the current stack of key_codes.
+    // Note, if multiple options are available returns the first one.
+    fn _get_key_subset(&self, key_stack: &[KeyEvent]) -> Option<&Keymap<A>> {
+        let first = index_keybinds(self.get_keybinds(), key_stack.get(0)?)?;
+        index_keymap(first, key_stack.get(1..)?)
+    }
 
     // Check if there is a pending key event.
     fn key_pending(&self) -> bool {
         !self.get_key_stack().is_empty()
+    }
+    // Check the passed key_stack to see if an action would be taken.
+    // If an action was taken, return true.
+    async fn _handle_key_stack(&mut self, key_stack: Rc<Vec<KeyEvent>>) -> _KeyHandleOutcome {
+        if let Some(subset) = self._get_key_subset(&*key_stack) {
+            match &subset {
+                Keymap::Action(a) => {
+                    // As Action is simply a message that is being passed around
+                    // I am comfortable to clone it. Receiver should own the message.
+                    // We may be able to improve on this using GATs or reference counting.
+                    self.handle_action(&a.clone()).await;
+                    return _KeyHandleOutcome::Handled;
+                }
+                Keymap::Mode(_) => return _KeyHandleOutcome::Mode,
+            }
+        }
+        _KeyHandleOutcome::Ignored
     }
     async fn handle_key_stack(&mut self) {
         if let Some(subset) = self.get_key_subset() {
@@ -235,7 +263,7 @@ pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Te
     }
 }
 /// If a list of Keybinds contains a binding for the index KeyEvent, return that KeyEvent.
-fn index_keybinds<'a, A: Action>(
+pub fn index_keybinds<'a, A: Action>(
     binds: Box<dyn Iterator<Item = &'a Keybind<A>> + 'a>,
     index: &KeyEvent,
 ) -> Option<&'a Keymap<A>> {
@@ -245,7 +273,10 @@ fn index_keybinds<'a, A: Action>(
         .map(|kb| &kb.key_map)
 }
 /// Recursively indexes into a Keymap using a list of KeyEvents. Yields the presented Keymap, or none if one of the indexes fails to return a value.
-fn index_keymap<'a, A: Action>(map: &'a Keymap<A>, indexes: &[KeyEvent]) -> Option<&'a Keymap<A>> {
+pub fn index_keymap<'a, A: Action>(
+    map: &'a Keymap<A>,
+    indexes: &[KeyEvent],
+) -> Option<&'a Keymap<A>> {
     indexes
         .iter()
         .try_fold(map, move |target, i| match &target {

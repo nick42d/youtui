@@ -69,6 +69,8 @@ pub struct AlbumID<'a>(Cow<'a, str>);
 pub struct ChannelID<'a>(Cow<'a, str>);
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
     fn get_raw(&self) -> &str {
@@ -125,6 +127,24 @@ impl TryFrom<&str> for AlbumType {
             "EP" => Ok(AlbumType::EP),
             "Single" => Ok(AlbumType::Single),
             x => Err(Error::other(format!("Error parsing AlbumType from {x}"))),
+        }
+    }
+}
+
+pub mod browsing {
+    pub struct Lyrics {
+        lyrics: String,
+        source: String,
+    }
+    impl Lyrics {
+        pub fn get_lyrics(&self) -> &str {
+            self.lyrics.as_str()
+        }
+        pub fn get_source(&self) -> &str {
+            self.source.as_str()
+        }
+        pub fn new(lyrics: String, source: String) -> Self {
+            Self { lyrics, source }
         }
     }
 }

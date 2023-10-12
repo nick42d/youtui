@@ -10,13 +10,14 @@ pub mod parse;
 mod process;
 pub mod query;
 
+use common::browsing::Lyrics;
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
-    continuations::GetContinuationsQuery, FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery,
-    GetArtistQuery, Query, SearchQuery, SearchType,
+    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, FilteredSearch, GetAlbumQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 use serde_json::json;
@@ -97,15 +98,19 @@ impl YtMusic {
         // TODO: Handle errors
         // TODO: Continuations - as Stream?
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
+        let test = json!({"test" : false});
         let mut body = json!({
             "context" : {
                 "client" : {
                     "clientName" : "WEB_REMIX",
                     "clientVersion" : self.client_version,
+                    "test" : test,
                 }
             },
-            query.header().key : query.header().value,
         });
+        body.as_object_mut()
+            .expect("I created body as an object")
+            .append(&mut query.header());
         if let Some(q) = query.params() {
             body.as_object_mut()
                 .expect("Body is an object")
@@ -146,6 +151,10 @@ impl YtMusic {
     pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
         self.raw_query(query).await?.process()?.parse()
     }
+    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    #[deprecated = "In progress, not complete"]
     pub async fn get_continuations<S: SearchType>(
         &self,
         query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,

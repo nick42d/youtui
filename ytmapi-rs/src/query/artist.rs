@@ -1,4 +1,6 @@
-use super::{Header, Query};
+use serde_json::json;
+
+use super::Query;
 use crate::common::{BrowseParams, ChannelID, YoutubeID};
 use std::borrow::Cow;
 
@@ -23,15 +25,17 @@ impl<'a> GetArtistAlbumsQuery<'a> {
 }
 
 impl<'a> Query for GetArtistQuery<'a> {
-    fn header(&self) -> Header {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
         // or even better, could do this first time called, and store state so not required
         // after that.
-        let value = self.channel_id.get_raw().replacen("MPLA", "", 1).into();
-        Header {
-            key: "browseId".into(),
-            value,
-        }
+        let value = self.channel_id.get_raw().replacen("MPLA", "", 1);
+        let serde_json::Value::Object(map) = json!({
+            "browseId" : value,
+        }) else {
+            unreachable!()
+        };
+        map
     }
     fn path(&self) -> &str {
         "browse"
@@ -42,14 +46,16 @@ impl<'a> Query for GetArtistQuery<'a> {
 }
 // TODO: Check if the MPLA strip is correct for both of these.
 impl<'a> Query for GetArtistAlbumsQuery<'a> {
-    fn header(&self) -> Header {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: should do in new
         // XXX: Think I could remove allocation here
-        let value = self.channel_id.get_raw().replacen("MPLA", "", 1).into();
-        Header {
-            key: "browseId".into(),
-            value,
-        }
+        let value = self.channel_id.get_raw().replacen("MPLA", "", 1);
+        let serde_json::Value::Object(map) = json!({
+            "browseId" : value,
+        }) else {
+            unreachable!()
+        };
+        map
     }
     fn path(&self) -> &str {
         "browse"

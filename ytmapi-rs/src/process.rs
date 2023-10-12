@@ -70,3 +70,48 @@ mod tests {
         assert_eq!(&json, raw.get_json());
     }
 }
+
+pub mod lyrics {
+
+    use crate::crawler::JsonCrawler;
+    use crate::parse::ProcessedResult;
+    use crate::query::lyrics::GetLyricsQuery;
+    use crate::Result;
+
+    use super::RawResult;
+
+    impl<'a> RawResult<GetLyricsQuery<'a>> {
+        pub fn process(self) -> Result<ProcessedResult<GetLyricsQuery<'a>>> {
+            match self {
+                RawResult { query, json } => Ok(ProcessedResult::from_raw(
+                    JsonCrawler::from_json(json),
+                    query,
+                )),
+            }
+        }
+    }
+}
+
+pub mod watch {
+    use crate::{
+        crawler::JsonCrawler,
+        parse::ProcessedResult,
+        query::{watch::GetWatchPlaylistQuery, Query},
+        Result,
+    };
+
+    use super::RawResult;
+    impl<T> RawResult<GetWatchPlaylistQuery<T>>
+    where
+        GetWatchPlaylistQuery<T>: Query,
+    {
+        pub fn process(self) -> Result<ProcessedResult<GetWatchPlaylistQuery<T>>> {
+            match self {
+                RawResult { query, json } => Ok(ProcessedResult::from_raw(
+                    JsonCrawler::from_json(json),
+                    query,
+                )),
+            }
+        }
+    }
+}

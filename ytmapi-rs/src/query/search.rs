@@ -1,3 +1,5 @@
+use serde_json::json;
+
 use super::*;
 use std::borrow::Cow;
 
@@ -27,12 +29,14 @@ pub struct SearchQuery<'a, S: SearchType> {
     searchtype: S,
 }
 impl<'a, S: SearchType> Query for SearchQuery<'a, S> {
-    fn header(&self) -> Header {
-        Header {
-            key: "query".into(),
-            // TODO: Remove allocation
-            value: self.query.as_ref().into(),
-        }
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        let value = self.query.as_ref();
+        let serde_json::Value::Object(map) = json!({
+            "query" : value,
+        }) else {
+            unreachable!()
+        };
+        map
     }
     fn path(&self) -> &str {
         "search"

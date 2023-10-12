@@ -12,9 +12,11 @@ mod view;
 // Public due to task register
 pub mod taskregister;
 
+use std::rc::Rc;
+
 use crate::core::send_or_error;
 
-use self::actionhandler::{Action, ActionHandler, KeyHandler, Keybind, TextHandler};
+use self::actionhandler::{Action, ActionHandler, KeyHandler, Keybind, Keymap, TextHandler};
 use self::browser::BrowserAction;
 use self::contextpane::ContextPane;
 use self::playlist::PlaylistAction;
@@ -105,7 +107,44 @@ pub struct YoutuiWindow {
     primary_commands: Vec<BasicCommand>,
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
+    _ks: _KeyStack,
     help_shown: bool,
+}
+
+#[derive(Default)]
+pub struct _KeyStack {
+    stack: Rc<Vec<KeyEvent>>,
+}
+
+impl _KeyStack {
+    fn check_keybind<'a, A: Action>(
+        &self,
+        binds: Box<dyn Iterator<Item = &'a Keybind<A>> + 'a>,
+    ) -> Option<&'a Keymap<A>> {
+        let first = actionhandler::index_keybinds(binds, self.stack.get(0)?)?;
+        actionhandler::index_keymap(first, self.stack.get(1..)?)
+    }
+    fn clear(&mut self) {
+        self.stack = Rc::new(Vec::new())
+    }
+}
+
+impl YoutuiWindow {
+    async fn handle_key_stack(&mut self) {
+        // XXX: is the process - first handle my own keybinds, otherwise forward?
+        if let actionhandler::_KeyHandleOutcome::Handled =
+            self._handle_key_stack(self._ks.stack.clone()).await
+        {
+            self._ks.clear()
+        } else if let actionhandler::_KeyHandleOutcome::Mode = match self.context {
+            WindowContext::Browser => self.browser._handle_key_stack(self._ks.stack.clone()).await,
+            WindowContext::Playlist => todo!(),
+            WindowContext::Logs => todo!(),
+        } {
+        } else {
+            self._ks.clear()
+        }
+    }
 }
 
 #[deprecated]
@@ -221,6 +260,7 @@ impl YoutuiWindow {
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help_shown: false,
+            _ks: _KeyStack::default(),
         }
     }
     pub async fn handle_tick(&mut self) {

@@ -180,6 +180,8 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             // XXX: This is incorrect as it actually plays all songs.
             ArtistSongsAction::PlaySong => self.play_songs().await,
             ArtistSongsAction::AddSongToPlaylist => self.add_to_playlist().await,
+            ArtistSongsAction::PlaySongs => self.play_songs().await,
+            ArtistSongsAction::AddSongsToPlaylist => self.add_all_to_playlist().await,
             ArtistSongsAction::Up => self.album_songs_list.increment_list(-1),
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-10),

@@ -390,3 +390,29 @@ mod tests {
         assert_eq!(&json_crawler_clone, raw.get_crawler());
     }
 }
+
+mod lyrics {
+    use const_format::concatcp;
+
+    use crate::common::browsing::Lyrics;
+    use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
+    use crate::query::lyrics::GetLyricsQuery;
+    use crate::Result;
+
+    use super::ProcessedResult;
+
+    impl<'a> ProcessedResult<GetLyricsQuery<'a>> {
+        pub fn parse(self) -> Result<Lyrics> {
+            let ProcessedResult { json_crawler, .. } = self;
+            let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
+                "/contents",
+                SECTION_LIST_ITEM,
+                DESCRIPTION_SHELF
+            ))?;
+            Ok(Lyrics::new(
+                description_shelf.take_value_pointer(DESCRIPTION)?,
+                description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
+            ))
+        }
+    }
+}
