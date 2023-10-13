@@ -4,6 +4,9 @@ Youtui - a simple TUI YouTube Music player written in Rust. Inspired by https://
 Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API. Inspired by https://github.com/sigma67/ytmusicapi/.
 
 This project is not supported by Google.
+## Demo
+Version as of 13/10/23 and is still a work in progress.
+[![asciicast](https://asciinema.org/a/45pZtoZ6285S1bOKRTyNFhlIK.svg)](https://asciinema.org/a/45pZtoZ6285S1bOKRTyNFhlIK)
 ## How to install and run
 - Clone the repository
 - Build - note nightly rust required for async traits
@@ -13,7 +16,7 @@ This project is not supported by Google.
   1. Open Network tab and locate a POST request to `music.youtube.com`.
   1. Copy the `Cookie` and `User-Agent` headers into a text file named `headers.txt` in the same directory as the binary.
 - The following libraries are required for sound on linux (note debian/ubuntu package names):
-- - `alsa-tools` `libasound2-dev` `libdbus-1-dev` `pkg-config`
+ - `alsa-tools` `libasound2-dev` `libdbus-1-dev` `pkg-config`
 ### Limitations
 - Song files will be downloaded in the ./music directory from where the binary is located until a better caching system is built.
 ## Coding constraints
