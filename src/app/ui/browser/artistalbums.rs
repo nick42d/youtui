@@ -27,8 +27,14 @@ pub struct ArtistSearchPanel {
     keybinds: Vec<Keybind<BrowserAction>>,
     search_keybinds: Vec<Keybind<BrowserAction>>,
     pub search_popped: bool,
+    pub search: SearchBlock,
+}
+
+#[derive(Default, Clone)]
+pub struct SearchBlock {
     pub search_contents: String,
     pub search_suggestions: Vec<String>,
+    pub cur: usize,
 }
 
 #[derive(Default, Clone)]
@@ -119,12 +125,26 @@ impl Action for ArtistAction {
     }
 }
 
-impl TextHandler for ArtistSearchPanel {
+impl TextHandler for SearchBlock {
     fn push_text(&mut self, c: char) {
         self.search_contents.push(c);
+        self.cur += 1;
     }
     fn pop_text(&mut self) {
         self.search_contents.pop();
+        self.cur -= 1;
+    }
+    fn is_text_handling(&self) -> bool {
+        true
+    }
+}
+
+impl TextHandler for ArtistSearchPanel {
+    fn push_text(&mut self, c: char) {
+        self.search.push_text(c);
+    }
+    fn pop_text(&mut self) {
+        self.search.pop_text();
     }
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
@@ -133,10 +153,10 @@ impl TextHandler for ArtistSearchPanel {
 
 impl Suggestable for ArtistSearchPanel {
     fn get_search_suggestions(&self) -> &[String] {
-        self.search_suggestions.as_slice()
+        self.search.search_suggestions.as_slice()
     }
     fn has_search_suggestions(&self) -> bool {
-        self.search_suggestions.len() > 0
+        self.search.search_suggestions.len() > 0
     }
 }
 

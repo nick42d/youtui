@@ -264,12 +264,12 @@ impl Browser {
     // Proposal: When recieving a message from the app validate against query string.
     fn fetch_search_suggestions(&mut self) {
         // No need to fetch search suggestions
-        if self.artist_list.search_contents.is_empty() {
-            self.artist_list.search_suggestions.clear();
+        if self.artist_list.search.search_contents.is_empty() {
+            self.artist_list.search.search_suggestions.clear();
             return;
         }
         if let Err(e) = self.ui_tx.try_send(UIMessage::GetSearchSuggestions(
-            self.artist_list.search_contents.clone(),
+            self.artist_list.search.search_contents.clone(),
         )) {
             error!("Error <{e}> recieved sending message")
         };
@@ -400,7 +400,7 @@ impl Browser {
         self.artist_list.close_search();
         send_or_error(&self.ui_tx, UIMessage::KillPendingSearchTasks).await;
         tracing::info!("Sent request to UI to kill pending search tasks");
-        let search_query = std::mem::take(&mut self.artist_list.search_contents);
+        let search_query = std::mem::take(&mut self.artist_list.search.search_contents);
         send_or_error(&self.ui_tx, UIMessage::SearchArtist(search_query)).await;
         tracing::info!("Sent request to UI to search");
     }
@@ -428,7 +428,7 @@ impl Browser {
         search_suggestions: Vec<String>,
         _id: TaskID,
     ) {
-        self.artist_list.search_suggestions = search_suggestions;
+        self.artist_list.search.search_suggestions = search_suggestions;
     }
     pub fn handle_no_songs_found(&mut self, _id: TaskID) {
         self.album_songs_list.list.state = ListStatus::Loaded;
@@ -520,13 +520,18 @@ pub mod draw {
                 .margin(0)
                 .constraints([Constraint::Length(3), Constraint::Min(0)])
                 .split(layout[0]);
-            let search_widget = Paragraph::new(browser.artist_list.search_contents.as_str()).block(
-                Block::default()
-                    .borders(Borders::ALL)
-                    .border_style(Style::default().fg(Color::Cyan))
-                    .title("Search"),
-            );
+            let search_widget = Paragraph::new(browser.artist_list.search.search_contents.as_str())
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .border_style(Style::default().fg(Color::Cyan))
+                        .title("Search"),
+                );
             f.render_widget(search_widget, s[0]);
+            f.set_cursor(
+                s[0].x + browser.artist_list.search.cur as u16 + 1,
+                s[0].y + 1,
+            );
             draw_list(f, &browser.artist_list, s[1], _artistselected);
             if browser.has_search_suggestions() {
                 let suggestions = browser.get_search_suggestions();
