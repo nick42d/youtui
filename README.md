@@ -44,8 +44,8 @@ The app should limit the cognitive load required to memorise commands and should
 |GetArtist | [x] |
 |GetAlbum | [x] |
 |GetArtistAlbums | [x] |
-|Search | [ ]* |
-|GetSearchSuggestions|[ ]|
+|Search | [ ]\* |
+|GetSearchSuggestions|[x]|
 |GetHome|[ ]|
 |GetAlbumBrowseId|[ ]|
 |GetUser|[ ]|
@@ -86,6 +86,6 @@ The app should limit the cognitive load required to memorise commands and should
 |GetLibraryUploadAlbum|[ ]|
 |UploadAlbum|[ ]|
 |DeleteUploadEntity|[ ]|
-* search is partially implemented only 
+\* search is partially implemented only 
 - only returns artists
 - does not implement continuations - only first x results returned.
