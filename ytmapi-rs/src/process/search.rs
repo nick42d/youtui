@@ -12,3 +12,13 @@ impl<'a, S: SearchType> RawResult<SearchQuery<'a, S>> {
         }
     }
 }
+impl<'a> RawResult<GetSearchSuggestionsQuery<'a>> {
+    pub fn process(self) -> Result<ProcessedResult<GetSearchSuggestionsQuery<'a>>> {
+        match self {
+            RawResult { json, query } => Ok(ProcessedResult::from_raw(
+                JsonCrawler::from_json(json),
+                query,
+            )),
+        }
+    }
+}

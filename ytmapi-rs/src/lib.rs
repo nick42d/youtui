@@ -17,7 +17,8 @@ use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, FilteredSearch, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, Query, SearchQuery, SearchType,
+    GetArtistAlbumsQuery, GetArtistQuery, GetSearchSuggestionsQuery, Query, SearchQuery,
+    SearchType,
 };
 use reqwest::Client;
 use serde_json::json;
@@ -142,6 +143,13 @@ impl YtMusic {
     ) -> Result<Vec<SearchResult<'a>>> {
         self.raw_query(query).await?.process()?.parse()
     }
+    #[deprecated = "In progress, not complete"]
+    pub async fn get_continuations<S: SearchType>(
+        &self,
+        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
+    ) -> Result<()> {
+        self.raw_query(query).await?.process()?.parse()
+    }
     pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
         self.raw_query(query).await?.process()?.parse()
     }
@@ -154,11 +162,11 @@ impl YtMusic {
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
         self.raw_query(query).await?.process()?.parse()
     }
-    #[deprecated = "In progress, not complete"]
-    pub async fn get_continuations<S: SearchType>(
+    // TODO: Implement detailed runs function that highlights some parts of text bold.
+    pub async fn get_search_suggestions(
         &self,
-        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
-    ) -> Result<()> {
+        query: GetSearchSuggestionsQuery<'_>,
+    ) -> Result<Vec<String>> {
         self.raw_query(query).await?.process()?.parse()
     }
 }
@@ -192,6 +200,21 @@ mod tests {
         println!("Search took {} ms", now.elapsed().as_millis());
         let now = std::time::Instant::now();
         println!("Parse search took {} ms", now.elapsed().as_millis());
+    }
+    #[tokio::test]
+    async fn test_search_suggestions() {
+        let api = YtMusic::from_header_file(Path::new("headers.txt"))
+            .await
+            .unwrap();
+        let res = api.get_search_suggestions("faded".into()).await.unwrap();
+        let example = vec![
+            "faded",
+            "faded alan walker",
+            "faded zhu",
+            "faded remix",
+            "faded kerser",
+        ];
+        assert_eq!(res, example)
     }
     #[tokio::test]
     async fn test_get_artist() {

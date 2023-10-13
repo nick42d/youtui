@@ -28,6 +28,34 @@ pub struct SearchQuery<'a, S: SearchType> {
     spelling_mode: SpellingMode,
     searchtype: S,
 }
+#[derive(PartialEq, Debug, Clone)]
+pub struct GetSearchSuggestionsQuery<'a> {
+    query: Cow<'a, str>,
+}
+#[derive(PartialEq, Debug, Clone)]
+pub enum Filter {
+    Songs,
+    Videos,
+    Albums,
+    Artists,
+    Playlists,
+    CommunityPlaylists,
+    FeaturedPlaylists,
+    None,
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum Scope {
+    Library,
+    Uploads,
+    All,
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum SpellingMode {
+    ExactMatch,
+    WithSuggestions,
+}
 impl<'a, S: SearchType> Query for SearchQuery<'a, S> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let value = self.query.as_ref();
@@ -119,29 +147,35 @@ impl<'a, S: SearchType> Query for SearchQuery<'a, S> {
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum Filter {
-    Songs,
-    Videos,
-    Albums,
-    Artists,
-    Playlists,
-    CommunityPlaylists,
-    FeaturedPlaylists,
-    None,
+impl<'a> GetSearchSuggestionsQuery<'a> {
+    fn new<S: Into<Cow<'a, str>>>(value: S) -> GetSearchSuggestionsQuery<'a> {
+        GetSearchSuggestionsQuery {
+            query: value.into(),
+        }
+    }
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum Scope {
-    Library,
-    Uploads,
-    All,
+impl<'a, S: Into<Cow<'a, str>>> From<S> for GetSearchSuggestionsQuery<'a> {
+    fn from(value: S) -> GetSearchSuggestionsQuery<'a> {
+        GetSearchSuggestionsQuery::new(value)
+    }
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum SpellingMode {
-    ExactMatch,
-    WithSuggestions,
+impl<'a> Query for GetSearchSuggestionsQuery<'a> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        let serde_json::Value::Object(map) = json!({
+            "input" : self.query,
+        }) else {
+            unreachable!()
+        };
+        map
+    }
+    fn path(&self) -> &str {
+        "music/get_search_suggestions"
+    }
+    fn params(&self) -> Option<Cow<str>> {
+        None
+    }
 }
 
 impl Filter {

@@ -174,9 +174,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
+    pub fn get_source(&self) -> &serde_json::Value {
+        &*self.source
+    }
 }
 
 impl JsonCrawler {
+    // TODO: Implement into_array_iter_mut.
     pub fn as_array_iter_mut(&mut self) -> Result<JsonCrawlerArrayIterMut<'_>> {
         let json_array = self
             .crawler
@@ -266,5 +270,8 @@ impl JsonCrawler {
             .pointer_mut(path)
             .map(|v| v.take())
             .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
+    }
+    pub fn get_source(&self) -> &serde_json::Value {
+        &*self.source
     }
 }

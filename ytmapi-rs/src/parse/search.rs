@@ -116,6 +116,25 @@ impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
     }
 }
 
+impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
+    pub fn parse(self) -> Result<Vec<String>> {
+        let ProcessedResult {
+            mut json_crawler, ..
+        } = self;
+        let mut raw_suggestions = json_crawler
+            .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
+        // TODO: implement detailed runs
+        raw_suggestions
+            .as_array_iter_mut()?
+            .map(|mut s| {
+                s.take_value_pointer(
+                    "/searchSuggestionRenderer/navigationEndpoint/searchEndpoint/query",
+                )
+            })
+            .collect()
+    }
+}
+
 fn get_continuations(res: &SearchResult) {}
 
 fn get_reloadable_continuation_params(json: &mut JsonCrawlerBorrowed) -> Result<String> {
