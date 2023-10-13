@@ -204,7 +204,7 @@ pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Te
     }
     // Check the passed key_stack to see if an action would be taken.
     // If an action was taken, return true.
-    async fn _handle_key_stack(&mut self, key_stack: Rc<Vec<KeyEvent>>) -> _KeyHandleOutcome {
+    async fn _handle_key_stack(&mut self, key_stack: Vec<KeyEvent>) -> _KeyHandleOutcome {
         if let Some(subset) = self._get_key_subset(&*key_stack) {
             match &subset {
                 Keymap::Action(a) => {

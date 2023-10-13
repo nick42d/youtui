@@ -87,6 +87,7 @@ pub enum UIMessage {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub enum UIAction {
+    Quit,
     Next,
     Prev,
     StepVolUp,
@@ -105,7 +106,6 @@ pub struct YoutuiWindow {
     logger: Logger,
     _ui_tx: mpsc::Sender<UIMessage>,
     ui_rx: mpsc::Receiver<UIMessage>,
-    primary_commands: Vec<BasicCommand>,
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
     _ks: _KeyStack,
@@ -114,7 +114,7 @@ pub struct YoutuiWindow {
 
 #[derive(Default)]
 pub struct _KeyStack {
-    stack: Rc<Vec<KeyEvent>>,
+    stack: Vec<KeyEvent>,
 }
 
 impl _KeyStack {
@@ -126,7 +126,10 @@ impl _KeyStack {
         actionhandler::index_keymap(first, self.stack.get(1..)?)
     }
     fn clear(&mut self) {
-        self.stack = Rc::new(Vec::new())
+        self.stack.clear();
+    }
+    fn push(&mut self, k: KeyEvent) {
+        self.stack.push(k);
     }
 }
 
@@ -146,26 +149,19 @@ impl YoutuiWindow {
             self._ks.clear()
         }
     }
-}
-
-#[deprecated]
-fn get_primary_commands() -> Vec<BasicCommand> {
-    vec![
-        BasicCommand {
-            key: KeyCode::F(10),
-            name: "Quit".to_string(),
-        },
-        BasicCommand {
-            key: KeyCode::F(12),
-            name: "Logs".to_string(),
-        },
-    ]
+    async fn handle_key_press(&mut self, k: KeyEvent) {
+        self._ks.push(k);
+        self.handle_key_stack().await;
+    }
 }
 
 fn global_keybinds() -> Vec<Keybind<UIAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
-        Keybind::new_global_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
+        Keybind::new_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
+        Keybind::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
+        Keybind::new_from_code(KeyCode::Char('<'), UIAction::Prev),
+        Keybind::new_from_code(KeyCode::Char('>'), UIAction::Next),
+        Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
     ]
 }
 
@@ -178,6 +174,7 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::StepVolDown => todo!(),
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
+            UIAction::Quit => todo!(),
         }
     }
 }
@@ -190,6 +187,7 @@ impl Action for UIAction {
             }
             UIAction::Browser(a) => a.context(),
             UIAction::Playlist(a) => a.context(),
+            UIAction::Quit => "".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -257,7 +255,6 @@ impl YoutuiWindow {
             logger: Logger::new(ui_tx.clone()),
             _ui_tx: ui_tx,
             ui_rx,
-            primary_commands: get_primary_commands(),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help_shown: false,
@@ -480,27 +477,4 @@ where
         WindowContext::Playlist => w.playlist.draw_context_chunk(f, base_layout[1]),
     }
     footer::draw_footer(f, w, base_layout[2]);
-}
-
-#[deprecated]
-pub async fn global_handle_key_event(key_event: KeyEvent, ui_tx: &Sender<UIMessage>) -> bool {
-    match key_event.code {
-        KeyCode::Char('+') => {
-            send_or_error(ui_tx, UIMessage::StepVolUp).await;
-        }
-        KeyCode::Char('-') => {
-            send_or_error(ui_tx, UIMessage::StepVolDown).await;
-        }
-        KeyCode::Char('<') => {
-            send_or_error(ui_tx, UIMessage::Prev).await;
-        }
-        KeyCode::Char('>') => {
-            send_or_error(ui_tx, UIMessage::Next).await;
-        }
-        KeyCode::F(10) => {
-            send_or_error(ui_tx, UIMessage::Quit).await;
-        }
-        _ => return false,
-    };
-    true
 }
