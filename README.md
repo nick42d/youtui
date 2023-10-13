@@ -6,7 +6,7 @@ Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API.
 This project is not supported by Google.
 ## How to install and run
 - Clone the repository
-- Build - note nightly rust required
+- Build - note nightly rust required for async traits
 - Give the application an authorisation header:
   1. Open YouTube Music in your browser (Firefox preferred) - ensure you are logged in.
   1. Open web developer tools.
@@ -86,6 +86,7 @@ The app should limit the cognitive load required to memorise commands and should
 |GetLibraryUploadAlbum|[ ]|
 |UploadAlbum|[ ]|
 |DeleteUploadEntity|[ ]|
+
 \* search is partially implemented only 
 - only returns artists
 - does not implement continuations - only first x results returned.

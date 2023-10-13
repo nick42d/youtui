@@ -1,5 +1,5 @@
-use crate::app::server;
 use crate::app::server::KillRequest;
+use crate::app::server::{self, KillableTask};
 use anyhow::Result;
 use tracing::error;
 use ytmapi_rs::{ChannelID, VideoID};
@@ -41,6 +41,7 @@ impl TaskContext {
 #[derive(Clone)]
 pub enum AppRequest {
     SearchArtists(String),
+    GetSearchSuggestions(String),
     GetArtistSongs(ChannelID<'static>),
     Download(VideoID<'static>, ListSongID),
 }
@@ -49,6 +50,7 @@ impl AppRequest {
     fn category(&self) -> RequestCategory {
         match self {
             Self::SearchArtists(_) => RequestCategory::Search,
+            Self::GetSearchSuggestions(_) => RequestCategory::GetSearchSuggestions,
             Self::GetArtistSongs(_) => RequestCategory::Get,
             Self::Download(..) => RequestCategory::Download,
         }
@@ -60,6 +62,7 @@ pub enum RequestCategory {
     Search,
     Get,
     Download,
+    GetSearchSuggestions,
 }
 
 impl TaskRegister {
@@ -91,6 +94,17 @@ impl TaskRegister {
             } => {
                 self.request_tx
                     .send(server::Request::NewArtistSearch(s, id, rx))
+                    .await?
+            }
+            TaskContext {
+                request: AppRequest::GetSearchSuggestions(s),
+                ..
+            } => {
+                self.request_tx
+                    .send(server::Request::GetSearchSuggestions(
+                        s,
+                        KillableTask { id, kill_rx: rx },
+                    ))
                     .await?
             }
             TaskContext {

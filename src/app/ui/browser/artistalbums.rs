@@ -5,7 +5,7 @@ use ratatui::prelude::Constraint;
 use ytmapi_rs::parse::SearchResultArtist;
 
 use crate::app::ui::{
-    actionhandler::{Action, KeyHandler, KeyRouter, Keybind, TextHandler},
+    actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     browser::BrowserAction,
     structures::{AlbumSongsList, ListSong, ListStatus},
     view::{Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
@@ -28,6 +28,7 @@ pub struct ArtistSearchPanel {
     search_keybinds: Vec<Keybind<BrowserAction>>,
     pub search_popped: bool,
     pub search_contents: String,
+    pub search_suggestions: Vec<String>,
 }
 
 #[derive(Default, Clone)]
@@ -127,6 +128,15 @@ impl TextHandler for ArtistSearchPanel {
     }
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
+    }
+}
+
+impl Suggestable for ArtistSearchPanel {
+    fn get_search_suggestions(&self) -> &[String] {
+        self.search_suggestions.as_slice()
+    }
+    fn has_search_suggestions(&self) -> bool {
+        self.search_suggestions.len() > 0
     }
 }
 

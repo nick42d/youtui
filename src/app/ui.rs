@@ -78,6 +78,7 @@ pub enum UIMessage {
     StepVolUp,
     StepVolDown,
     SearchArtist(String),
+    GetSearchSuggestions(String),
     GetArtistSongs(ChannelID<'static>),
     KillPendingSearchTasks,
     KillPendingGetTasks,
@@ -287,6 +288,12 @@ impl YoutuiWindow {
                 UIMessage::Prev => self.playlist.handle_previous().await,
                 UIMessage::StepVolUp => self.playlist.handle_increase_volume().await,
                 UIMessage::StepVolDown => self.playlist.handle_decrease_volume().await,
+                UIMessage::GetSearchSuggestions(text) => {
+                    self.tasks
+                        .send_request(AppRequest::GetSearchSuggestions(text))
+                        .await
+                        .unwrap_or_else(|e| error!("Error <{e}> sending request"));
+                }
                 UIMessage::SearchArtist(artist) => {
                     self.tasks
                         .send_request(AppRequest::SearchArtists(artist))
@@ -340,6 +347,10 @@ impl YoutuiWindow {
                 server::Response::SongListLoading(id) => self.handle_song_list_loading(id),
                 server::Response::SongListLoaded(id) => self.handle_song_list_loaded(id),
                 server::Response::SearchArtistError(id) => self.handle_search_artist_error(id),
+                server::Response::ReplaceSearchSuggestions(suggestions, id) => {
+                    self.handle_replace_search_suggestions(suggestions, id)
+                        .await
+                }
             }
         }
     }
@@ -352,6 +363,16 @@ impl YoutuiWindow {
         self.playlist
             .handle_song_progress_update(update, playlist_id, id)
             .await
+    }
+    async fn handle_replace_search_suggestions(&mut self, x: Vec<String>, id: TaskID) {
+        tracing::info!(
+            "Received request to replace search suggestions - ID {:?}",
+            id
+        );
+        if !self.tasks.is_task_valid(id) {
+            return;
+        }
+        self.browser.handle_replace_search_suggestions(x, id).await;
     }
     async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>, id: TaskID) {
         tracing::info!("Received request to replace artists list - ID {:?}", id);

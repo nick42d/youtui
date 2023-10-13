@@ -14,7 +14,9 @@ use self::{
 };
 
 use super::{
-    actionhandler::{Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, TextHandler},
+    actionhandler::{
+        Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Suggestable, TextHandler,
+    },
     contextpane::ContextPane,
     structures::ListStatus,
     taskregister::TaskID,
@@ -87,12 +89,27 @@ impl Action for BrowserAction {
         }
     }
 }
+impl Suggestable for Browser {
+    fn get_search_suggestions(&self) -> &[String] {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.get_search_suggestions(),
+            InputRouting::Song => &[],
+        }
+    }
+    fn has_search_suggestions(&self) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.has_search_suggestions(),
+            InputRouting::Song => false,
+        }
+    }
+}
 impl TextHandler for Browser {
     fn push_text(&mut self, c: char) {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.push_text(c),
             InputRouting::Song => (),
         }
+        self.fetch_search_suggestions();
     }
     fn pop_text(&mut self) {
         match self.input_routing {
@@ -101,6 +118,7 @@ impl TextHandler for Browser {
             }
             InputRouting::Song => (),
         }
+        self.fetch_search_suggestions();
     }
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
@@ -241,6 +259,22 @@ impl Browser {
         // Doesn't consider previous routing.
         self.input_routing = self.input_routing.right();
     }
+    // Ask the UI for search suggestions for the current query
+    // XXX: Currently has race conditions - if list is cleared response will arrive afterwards.
+    // Proposal: When recieving a message from the app validate against query string.
+    fn fetch_search_suggestions(&mut self) {
+        // No need to fetch search suggestions
+        if self.artist_list.search_contents.is_empty() {
+            self.artist_list.search_suggestions.clear();
+            return;
+        }
+        if let Err(e) = self.ui_tx.try_send(UIMessage::GetSearchSuggestions(
+            self.artist_list.search_contents.clone(),
+        )) {
+            error!("Error <{e}> recieved sending message")
+        };
+    }
+
     async fn play_songs(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let Some(cur_song) = self.album_songs_list.list.cur_selected else {
@@ -389,6 +423,13 @@ impl Browser {
         // Handled by this function?
         self.increment_cur_list(0).await;
     }
+    pub async fn handle_replace_search_suggestions(
+        &mut self,
+        search_suggestions: Vec<String>,
+        _id: TaskID,
+    ) {
+        self.artist_list.search_suggestions = search_suggestions;
+    }
     pub fn handle_no_songs_found(&mut self, _id: TaskID) {
         self.album_songs_list.list.state = ListStatus::Loaded;
         self.album_songs_list.list.list.clear()
@@ -446,11 +487,15 @@ pub mod draw {
     use ratatui::{
         prelude::{Backend, Constraint, Direction, Layout, Rect},
         style::{Color, Style},
-        widgets::{Block, Borders, Paragraph},
+        symbols::block,
+        widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
         Frame,
     };
 
-    use crate::app::ui::view::draw::{draw_list, draw_table};
+    use crate::app::ui::{
+        actionhandler::Suggestable,
+        view::draw::{draw_list, draw_table},
+    };
 
     use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 
@@ -470,20 +515,51 @@ pub mod draw {
         if !browser.artist_list.search_popped {
             draw_list(f, &browser.artist_list, layout[0], _artistselected);
         } else {
+            let s = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(0)
+                .constraints([Constraint::Length(3), Constraint::Min(0)])
+                .split(layout[0]);
             let search_widget = Paragraph::new(browser.artist_list.search_contents.as_str()).block(
                 Block::default()
                     .borders(Borders::ALL)
                     .border_style(Style::default().fg(Color::Cyan))
                     .title("Search"),
             );
-            let s = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(0)
-                .constraints([Constraint::Length(3), Constraint::Min(0)])
-                .split(layout[0]);
             f.render_widget(search_widget, s[0]);
             draw_list(f, &browser.artist_list, s[1], _artistselected);
+            if browser.has_search_suggestions() {
+                let suggestions = browser.get_search_suggestions();
+                let height = suggestions.len() + 1;
+                let width = (suggestions.iter().fold(0, |acc, s| s.len().max(acc)) + 2)
+                    .min(s[0].width as usize);
+                let area = below_left_rect(
+                    height.try_into().unwrap_or(u16::MAX),
+                    width.try_into().unwrap_or(u16::MAX),
+                    s[0],
+                );
+                let list: Vec<_> = suggestions
+                    .into_iter()
+                    .map(|s| ListItem::new(s.as_str()))
+                    .collect();
+                let block = List::new(list).style(Style::new().fg(Color::White)).block(
+                    Block::default()
+                        .borders(Borders::all().difference(Borders::TOP))
+                        .style(Style::new().fg(Color::Cyan)),
+                );
+                f.render_widget(Clear, area);
+                f.render_widget(block, area);
+            }
         }
         draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);
+    }
+    /// Helper function to create a popup below a chunk.
+    pub fn below_left_rect(height: u16, width: u16, r: Rect) -> Rect {
+        Rect {
+            x: r.x,
+            y: r.y + r.height,
+            width,
+            height,
+        }
     }
 }

@@ -165,6 +165,11 @@ pub trait TextHandler {
         }
     }
 }
+// A next handler that can receive suggestions
+pub trait Suggestable: TextHandler {
+    fn get_search_suggestions(&self) -> &[String];
+    fn has_search_suggestions(&self) -> bool;
+}
 pub enum _KeyHandleOutcome {
     Handled,
     Mode,

@@ -25,8 +25,14 @@ const TEMP_MUSIC_DIR: &str = "./music";
 
 pub struct KillRequest;
 
+pub struct KillableTask {
+    pub id: TaskID,
+    pub kill_rx: oneshot::Receiver<KillRequest>,
+}
+
 pub enum Request {
     // TaskID, KillRequest is starting to look like a pattern.
+    GetSearchSuggestions(String, KillableTask),
     NewArtistSearch(String, TaskID, oneshot::Receiver<KillRequest>),
     SearchSelectedArtist(ChannelID<'static>, TaskID, oneshot::Receiver<KillRequest>),
     DownloadSong(
@@ -39,6 +45,7 @@ pub enum Request {
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
     SearchArtistError(TaskID),
+    ReplaceSearchSuggestions(Vec<String>, TaskID),
     SongListLoading(TaskID),
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),
@@ -102,6 +109,9 @@ impl Server {
                 Some(Request::NewArtistSearch(a, id, kill)) => {
                     self.handle_new_artist_search(a, id, kill).await
                 }
+                Some(Request::GetSearchSuggestions(text, task)) => {
+                    self.handle_get_search_suggestions(text, task).await
+                }
                 Some(Request::SearchSelectedArtist(browse_id, id, kill)) => {
                     self.handle_search_selected_artist(browse_id, id, kill)
                         .await
@@ -129,6 +139,10 @@ impl Server {
                 let options = VideoOptions {
                     quality: rusty_ytdl::VideoQuality::LowestAudio,
                     filter: rusty_ytdl::VideoSearchOptions::Audio,
+                    // Options for changing chunk size.
+                    // download_options: DownloadOptions {
+                    //     dl_chunk_size: Some(2),
+                    // },
                     ..Default::default()
                 };
                 let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options) else {
@@ -137,6 +151,17 @@ impl Server {
                 };
                 let path_string = format!("music/{}.mp4", song_video_id.get_raw());
                 let path = Path::new(&path_string);
+                // Test of in-memory download with callback.
+                // Works correctly.
+                // let stream = video.clone().stream().await.unwrap();
+                // let mut i = 0;
+                // let mut chunks = Vec::new();
+                // while let Some(mut chunk) = stream.chunk().await.unwrap() {
+                //     i += 1;
+                //     info!("got chunk {i}");
+                //     chunks.append(&mut chunk)
+                // }
+                // info!("total chunks length{}", chunks.len());
                 match video.download(path).await {
                     Ok(_) => {
                         send_or_error(
@@ -163,6 +188,34 @@ impl Server {
                 };
             },
             kill,
+        )
+        .await;
+    }
+    async fn handle_get_search_suggestions(&mut self, text: String, task: KillableTask) {
+        let KillableTask { id, kill_rx } = task;
+        // Give the task a clone of the API. Not ideal but works.
+        // The largest part of the API is Reqwest::Client which contains an Arc
+        // internally and so I believe clones efficiently.
+        // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
+        // Create a stream of tasks, map with a reference to API.
+        let api = self.get_api().await.unwrap().clone();
+        let tx = self.response_tx.clone();
+        let _ = spawn_run_or_kill(
+            async move {
+                tracing::info!("Getting search suggestions for {text}");
+                let search_suggestions = match api.get_search_suggestions(text).await {
+                    Ok(t) => t,
+                    Err(e) => {
+                        error!("Received error on search suggestions query \"{}\"", e);
+                        return;
+                    }
+                };
+                tracing::info!("Requesting caller to replace search suggestions");
+                let _ = tx
+                    .send(Response::ReplaceSearchSuggestions(search_suggestions, id))
+                    .await;
+            },
+            kill_rx,
         )
         .await;
     }

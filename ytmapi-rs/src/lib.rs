@@ -163,11 +163,11 @@ impl YtMusic {
         self.raw_query(query).await?.process()?.parse()
     }
     // TODO: Implement detailed runs function that highlights some parts of text bold.
-    pub async fn get_search_suggestions(
+    pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
-        query: GetSearchSuggestionsQuery<'_>,
+        query: S,
     ) -> Result<Vec<String>> {
-        self.raw_query(query).await?.process()?.parse()
+        self.raw_query(query.into()).await?.process()?.parse()
     }
 }
 
@@ -206,7 +206,7 @@ mod tests {
         let api = YtMusic::from_header_file(Path::new("headers.txt"))
             .await
             .unwrap();
-        let res = api.get_search_suggestions("faded".into()).await.unwrap();
+        let res = api.get_search_suggestions("faded").await.unwrap();
         let example = vec![
             "faded",
             "faded alan walker",
