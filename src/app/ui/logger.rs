@@ -14,7 +14,7 @@ use crate::core::send_or_error;
 
 use super::{
     actionhandler::{
-        Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Keybind, TextHandler,
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     contextpane::ContextPane,
     view::Drawable,
@@ -93,14 +93,7 @@ impl KeyRouter<LoggerAction> for Logger {
     }
 }
 
-impl EventHandler<LoggerAction> for Logger {
-    fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent> {
-        &mut self.key_stack
-    }
-    fn get_key_stack(&self) -> &[KeyEvent] {
-        &self.key_stack
-    }
-}
+impl ActionProcessor<LoggerAction> for Logger {}
 
 impl ActionHandler<LoggerAction> for Logger {
     async fn handle_action(&mut self, action: &LoggerAction) {

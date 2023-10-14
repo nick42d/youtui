@@ -15,7 +15,7 @@ use self::{
 
 use super::{
     actionhandler::{
-        Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Suggestable, TextHandler,
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     contextpane::ContextPane,
     structures::ListStatus,
@@ -178,14 +178,7 @@ impl KeyHandler<BrowserAction> for Browser {
         Box::new(self.keybinds.iter().chain(additional_binds))
     }
 }
-impl EventHandler<BrowserAction> for Browser {
-    fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent> {
-        &mut self.key_stack
-    }
-    fn get_key_stack(&self) -> &[KeyEvent] {
-        &self.key_stack
-    }
-}
+impl ActionProcessor<BrowserAction> for Browser {}
 impl ActionHandler<ArtistAction> for Browser {
     async fn handle_action(&mut self, action: &ArtistAction) {
         match action {

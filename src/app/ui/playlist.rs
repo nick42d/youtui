@@ -23,7 +23,7 @@ use super::view::draw::draw_table;
 use super::view::{Loadable, Scrollable, TableView};
 use super::{
     actionhandler::{
-        Action, ActionHandler, EventHandler, KeyHandler, KeyRouter, Keybind, TextHandler,
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     contextpane::ContextPane,
     structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
@@ -44,7 +44,6 @@ pub struct Playlist {
     ui_tx: mpsc::Sender<UIMessage>,
     pub help_shown: bool,
     keybinds: Vec<Keybind<PlaylistAction>>,
-    key_stack: Vec<KeyEvent>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -95,14 +94,7 @@ impl KeyRouter<PlaylistAction> for Playlist {
     }
 }
 
-impl EventHandler<PlaylistAction> for Playlist {
-    fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent> {
-        &mut self.key_stack
-    }
-    fn get_key_stack(&self) -> &[KeyEvent] {
-        &self.key_stack
-    }
-}
+impl ActionProcessor<PlaylistAction> for Playlist {}
 
 impl TextHandler for Playlist {
     fn push_text(&mut self, _c: char) {}
@@ -199,7 +191,6 @@ impl Playlist {
             list: Default::default(),
             cur_played_secs: None,
             keybinds: playlist_keybinds(),
-            key_stack: Default::default(),
         }
     }
     pub async fn handle_tick(&mut self) {

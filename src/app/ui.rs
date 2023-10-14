@@ -16,12 +16,14 @@ use std::rc::Rc;
 
 use crate::core::send_or_error;
 
-use self::actionhandler::{Action, ActionHandler, KeyHandler, Keybind, Keymap, TextHandler};
+use self::actionhandler::{
+    Action, ActionHandler, KeyHandleOutcome, KeyHandler, Keybind, Keymap, TextHandler,
+};
 use self::browser::BrowserAction;
 use self::contextpane::ContextPane;
 use self::playlist::PlaylistAction;
 use self::{
-    actionhandler::EventHandler,
+    actionhandler::ActionProcessor,
     browser::Browser,
     logger::Logger,
     playlist::Playlist,
@@ -30,6 +32,9 @@ use self::{
 
 use super::server::{self, SongProgressUpdateType};
 use crossterm::event::{Event, KeyCode, KeyEvent};
+use ratatui::prelude::Rect;
+use ratatui::style::{Color, Style};
+use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
@@ -108,52 +113,59 @@ pub struct YoutuiWindow {
     ui_rx: mpsc::Receiver<UIMessage>,
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
-    _ks: _KeyStack,
     help_shown: bool,
 }
 
-#[derive(Default)]
-pub struct _KeyStack {
-    stack: Vec<KeyEvent>,
-}
-
-impl _KeyStack {
-    fn check_keybind<'a, A: Action>(
-        &self,
-        binds: Box<dyn Iterator<Item = &'a Keybind<A>> + 'a>,
-    ) -> Option<&'a Keymap<A>> {
-        let first = actionhandler::index_keybinds(binds, self.stack.get(0)?)?;
-        actionhandler::index_keymap(first, self.stack.get(1..)?)
-    }
-    fn clear(&mut self) {
-        self.stack.clear();
-    }
-    fn push(&mut self, k: KeyEvent) {
-        self.stack.push(k);
+impl KeyHandler<UIAction> for YoutuiWindow {
+    // XXX: Need to determine how this should really be implemented.
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<UIAction>> + 'a> {
+        Box::new(self.keybinds.iter())
     }
 }
 
+impl Action for Box<(dyn Action + 'static)> {
+    fn context(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+
+    fn describe(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+}
 impl YoutuiWindow {
-    async fn handle_key_stack(&mut self) {
-        // XXX: is the process - first handle my own keybinds, otherwise forward?
-        if let actionhandler::_KeyHandleOutcome::Handled =
-            self._handle_key_stack(self._ks.stack.clone()).await
-        {
-            self._ks.clear()
-        } else if let actionhandler::_KeyHandleOutcome::Mode = match self.context {
-            WindowContext::Browser => self.browser._handle_key_stack(self._ks.stack.clone()).await,
+    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (String, String)> + 'a>> {
+        if let Some(map) = self.get_key_subset(&self.key_stack) {
+            if let Keymap::Mode(mode) = map {
+                return Some(Box::new(
+                    mode.key_binds
+                        .iter()
+                        // TODO: Remove allocation
+                        .map(|bind| (bind.to_string(), bind.describe().to_string())),
+                ));
+            }
+        }
+        match self.context {
+            WindowContext::Browser => {
+                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(Box::new(
+                            mode.key_binds
+                                .iter()
+                                // TODO: Remove allocation
+                                .map(|bind| (bind.to_string(), bind.describe().to_string())),
+                        ));
+                    }
+                }
+            }
             WindowContext::Playlist => todo!(),
             WindowContext::Logs => todo!(),
-        } {
-        } else {
-            self._ks.clear()
         }
-    }
-    async fn handle_key_press(&mut self, k: KeyEvent) {
-        self._ks.push(k);
-        self.handle_key_stack().await;
+
+        None
     }
 }
+
+impl ActionProcessor<UIAction> for YoutuiWindow {}
 
 fn global_keybinds() -> Vec<Keybind<UIAction>> {
     vec![
@@ -233,22 +245,6 @@ impl TextHandler for YoutuiWindow {
     }
 }
 
-impl KeyHandler<UIAction> for YoutuiWindow {
-    // XXX: Need to determine how this should really be implemented.
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<UIAction>> + 'a> {
-        Box::new(self.keybinds.iter())
-    }
-}
-
-impl EventHandler<UIAction> for YoutuiWindow {
-    fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent> {
-        &mut self.key_stack
-    }
-    fn get_key_stack(&self) -> &[KeyEvent] {
-        &self.key_stack
-    }
-}
-
 impl YoutuiWindow {
     pub fn new(
         player_request_tx: mpsc::Sender<super::player::Request>,
@@ -269,7 +265,6 @@ impl YoutuiWindow {
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help_shown: false,
-            _ks: _KeyStack::default(),
         }
     }
     pub async fn handle_tick(&mut self) {
@@ -447,14 +442,34 @@ impl YoutuiWindow {
         }
     }
     async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
-        match self.context {
-            WindowContext::Browser => self.browser.handle_key_event(key_event).await,
-            WindowContext::Playlist => self.playlist.handle_key_event(key_event).await,
-            WindowContext::Logs => self.logger.handle_key_event(key_event).await,
+        if self.handle_text_entry(key_event) {
+            return;
         }
+        self.key_stack.push(key_event);
+        self.global_handle_key_stack().await;
     }
     fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
+    }
+    async fn global_handle_key_stack(&mut self) {
+        // First handle my own keybinds, otherwise forward.
+        if let KeyHandleOutcome::ActionHandled =
+            // TODO: Remove allocation
+            self.handle_key_stack(self.key_stack.clone()).await
+        {
+            self.key_stack.clear()
+        } else if let KeyHandleOutcome::Mode = match self.context {
+            // TODO: Remove allocation
+            WindowContext::Browser => self.browser.handle_key_stack(self.key_stack.clone()).await,
+            WindowContext::Playlist => todo!(),
+            WindowContext::Logs => todo!(),
+        } {
+        } else {
+            self.key_stack.clear()
+        }
+    }
+    fn key_pending(&self) -> bool {
+        !self.key_stack.is_empty()
     }
     fn change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
@@ -487,5 +502,70 @@ where
         WindowContext::Logs => w.logger.draw_context_chunk(f, base_layout[1]),
         WindowContext::Playlist => w.playlist.draw_context_chunk(f, base_layout[1]),
     }
+    if w.key_pending() {
+        draw_popup(f, w, base_layout[1]);
+    }
     footer::draw_footer(f, w, base_layout[2]);
+}
+fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
+    let title = "test";
+    let commands = w.get_cur_mode();
+    // TODO: Remove unwrap, although we shouldn't be drawing popup if no Map.
+    let shortcuts_descriptions = commands.unwrap().collect::<Vec<_>>();
+    // Cloning here only clones iterators, so it's low-cost.
+    // let shortcut_len = shortcuts.clone().map(|s| s.len()).max().unwrap_or_default();
+    // let description_len = descriptions
+    //     .clone()
+    //     .map(|d| d.len())
+    //     .max()
+    //     .unwrap_or_default();
+    // XXX: temporary
+    let shortcut_len = 10;
+    let description_len = 5;
+    let width = shortcut_len + description_len + 3;
+    // let height = commands.len() + 2;
+    // XXX: temporary
+    let height = 10;
+    let mut commands_vec = Vec::new();
+    for (s, d) in shortcuts_descriptions {
+        commands_vec.push(
+            Row::new(vec![format!("{}", s), format!("{}", d)]).style(Style::new().fg(Color::White)),
+        );
+    }
+    let table_constraints = [
+        Constraint::Min(shortcut_len.try_into().unwrap_or(u16::MAX)),
+        Constraint::Min(description_len.try_into().unwrap_or(u16::MAX)),
+    ];
+    // let table_constraints = [
+    //     Constraint::Length(shortcut_width + 10),
+    //     Constraint::Length(description_width),
+    // ];
+    let block = Table::new(commands_vec)
+        .style(Style::new().fg(Color::White))
+        .block(
+            Block::default()
+                .title(title.as_ref())
+                .borders(Borders::ALL)
+                .style(Style::new().fg(Color::Cyan)),
+        )
+        .widths(&table_constraints);
+    let area = left_bottom_corner_rect(
+        height.try_into().unwrap_or(u16::MAX),
+        width.try_into().unwrap_or(u16::MAX),
+        chunk,
+    );
+    f.render_widget(Clear, area);
+    f.render_widget(block, area);
+}
+/// Helper function to create a popup at bottom corner of chunk.
+pub fn left_bottom_corner_rect(height: u16, width: u16, r: Rect) -> Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Min(0), Constraint::Length(height)].as_ref())
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Min(0), Constraint::Length(width)].as_ref())
+        .split(popup_layout[1])[1]
 }
