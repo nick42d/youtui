@@ -10,15 +10,15 @@ pub mod parse;
 mod process;
 pub mod query;
 
-use common::browsing::Lyrics;
+use common::{browsing::Lyrics, watch::WatchPlaylist};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
-    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, FilteredSearch, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetSearchSuggestionsQuery, Query, SearchQuery,
-    SearchType,
+    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
+    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetSearchSuggestionsQuery,
+    Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 use serde_json::json;
@@ -162,6 +162,12 @@ impl YtMusic {
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
         self.raw_query(query).await?.process()?.parse()
     }
+    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
+        &self,
+        query: S,
+    ) -> Result<WatchPlaylist> {
+        self.raw_query(query.into()).await?.process()?.parse()
+    }
     // TODO: Implement detailed runs function that highlights some parts of text bold.
     pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
@@ -176,7 +182,7 @@ mod tests {
     use super::common::{BrowseID, ChannelID};
     use super::query::*;
     use super::*;
-    use crate::common::{AlbumID, YoutubeID};
+    use crate::common::{AlbumID, LyricsID, PlaylistID, YoutubeID};
     use crate::Error;
 
     #[tokio::test]
@@ -202,7 +208,49 @@ mod tests {
         println!("Parse search took {} ms", now.elapsed().as_millis());
     }
     #[tokio::test]
+    async fn test_watch_playlist() {
+        // TODO: Make more generic
+        let api = YtMusic::from_header_file(Path::new("headers.txt"))
+            .await
+            .unwrap();
+        let res = api
+            .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
+                "9mWr4c_ig54",
+            )))
+            .await
+            .unwrap();
+        let example = WatchPlaylist {
+            _tracks: Vec::new(),
+            playlist_id: Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54")),
+            lyrics_id: LyricsID("MPLYt_C8aRK1qmsDJ-1".into()),
+        };
+        assert_eq!(res, example)
+    }
+    #[tokio::test]
+    async fn test_get_lyrics() {
+        // TODO: Make more generic
+        let api = YtMusic::from_header_file(Path::new("headers.txt"))
+            .await
+            .unwrap();
+        let res = api
+            .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
+                "9mWr4c_ig54",
+            )))
+            .await
+            .unwrap();
+        let res = api
+            .get_lyrics(GetLyricsQuery::new(res.lyrics_id))
+            .await
+            .unwrap();
+        let example = Lyrics {
+            lyrics: "You're my lesson I had to learn\nAnother page I'll have to turn\nI got one more message, always tryna be heard\nBut you never listen to a word\n\nHeaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nJust give me one second and I'll be fine\nJust let me catch my breath and come back to life\nI finally get the message, you were never meant to be mine\nCouldn't see the truth, I was blind (meant to be mine)\n\nWhoa, heaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nLetting go, we came so close (how foolish of me)\nOh, I'm letting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me".into(),
+            source: "Source: Musixmatch".into(),
+        };
+        assert_eq!(res, example)
+    }
+    #[tokio::test]
     async fn test_search_suggestions() {
+        // TODO: Make more generic
         let api = YtMusic::from_header_file(Path::new("headers.txt"))
             .await
             .unwrap();

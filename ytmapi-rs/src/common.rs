@@ -61,7 +61,7 @@ pub enum PlaylistType {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
 #[derive(Debug, Clone, Deserialize)]
 pub struct AlbumID<'a>(Cow<'a, str>);
@@ -69,7 +69,7 @@ pub struct AlbumID<'a>(Cow<'a, str>);
 pub struct ChannelID<'a>(Cow<'a, str>);
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Default, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
@@ -131,10 +131,38 @@ impl TryFrom<&str> for AlbumType {
     }
 }
 
+pub mod watch {
+    use serde::Deserialize;
+
+    use super::{LyricsID, PlaylistID};
+
+    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    pub struct WatchPlaylist {
+        // TODO: Implement tracks.
+        pub _tracks: Vec<()>,
+        pub playlist_id: Option<PlaylistID<'static>>,
+        pub lyrics_id: LyricsID<'static>,
+    }
+
+    impl WatchPlaylist {
+        // TODO: implement tracks.
+        pub fn new(playlist_id: Option<PlaylistID<'static>>, lyrics_id: LyricsID<'static>) -> Self {
+            Self {
+                playlist_id,
+                lyrics_id,
+                _tracks: Default::default(),
+            }
+        }
+    }
+}
+
 pub mod browsing {
+    use serde::Deserialize;
+
+    #[derive(PartialEq, Debug, Clone, Deserialize)]
     pub struct Lyrics {
-        lyrics: String,
-        source: String,
+        pub lyrics: String,
+        pub source: String,
     }
     impl Lyrics {
         pub fn get_lyrics(&self) -> &str {

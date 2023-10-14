@@ -416,3 +416,48 @@ mod lyrics {
         }
     }
 }
+mod watch {
+    use const_format::concatcp;
+
+    use crate::{
+        common::watch::WatchPlaylist,
+        crawler::JsonCrawlerBorrowed,
+        nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
+        query::watch::GetWatchPlaylistQuery,
+        Result, VideoID,
+    };
+
+    use super::ProcessedResult;
+
+    impl<'a> ProcessedResult<GetWatchPlaylistQuery<VideoID<'a>>> {
+        // TODO: Continuations
+        pub fn parse(self) -> Result<WatchPlaylist> {
+            let ProcessedResult { json_crawler, .. } = self;
+            let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;
+            let lyrics_id =
+                get_tab_browse_id(&mut watch_next_renderer.borrow_mut(), 1)?.take_value()?;
+            let mut results = watch_next_renderer.navigate_pointer(concatcp!(
+                TAB_CONTENT,
+                "/musicQueueRenderer/content/playlistPanelRenderer/contents"
+            ))?;
+            let playlist_id = results.as_array_iter_mut()?.find_map(|mut v| {
+                v.take_value_pointer(concatcp!(
+                    "/playlistPanelVideoRenderer",
+                    NAVIGATION_PLAYLIST_ID
+                ))
+                .ok()
+            });
+            Ok(WatchPlaylist::new(playlist_id, lyrics_id))
+        }
+    }
+
+    // Should be a Process function not Parse.
+    fn get_tab_browse_id<'a>(
+        watch_next_renderer: &'a mut JsonCrawlerBorrowed,
+        tab_id: usize,
+    ) -> Result<JsonCrawlerBorrowed<'a>> {
+        // TODO: Safe option that returns none if tab doesn't exist.
+        let path = format!("/tabs/{tab_id}/tabRenderer/endpoint/browseEndpoint/browseId");
+        watch_next_renderer.borrow_pointer(path)
+    }
+}

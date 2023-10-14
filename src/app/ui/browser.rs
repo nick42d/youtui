@@ -126,6 +126,18 @@ impl TextHandler for Browser {
             InputRouting::Song => false,
         }
     }
+    fn take_text(&mut self) -> String {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.take_text(),
+            InputRouting::Song => Default::default(),
+        }
+    }
+    fn replace_text(&mut self, text: String) {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.replace_text(text),
+            InputRouting::Song => (),
+        }
+    }
 }
 
 impl ContextPane<BrowserAction> for Browser {
@@ -172,9 +184,6 @@ impl EventHandler<BrowserAction> for Browser {
     }
     fn get_key_stack(&self) -> &[KeyEvent] {
         &self.key_stack
-    }
-    fn get_global_sender(&self) -> &mpsc::Sender<UIMessage> {
-        &self.ui_tx
     }
 }
 impl ActionHandler<ArtistAction> for Browser {
@@ -400,7 +409,7 @@ impl Browser {
         self.artist_list.close_search();
         send_or_error(&self.ui_tx, UIMessage::KillPendingSearchTasks).await;
         tracing::info!("Sent request to UI to kill pending search tasks");
-        let search_query = std::mem::take(&mut self.artist_list.search.search_contents);
+        let search_query = self.artist_list.search.take_text();
         send_or_error(&self.ui_tx, UIMessage::SearchArtist(search_query)).await;
         tracing::info!("Sent request to UI to search");
     }
@@ -484,6 +493,8 @@ fn browser_keybinds() -> Vec<Keybind<BrowserAction>> {
 }
 
 pub mod draw {
+    use std::collections::VecDeque;
+
     use ratatui::{
         prelude::{Backend, Constraint, Direction, Layout, Rect},
         style::{Color, Style},
@@ -536,14 +547,14 @@ pub mod draw {
             if browser.has_search_suggestions() {
                 let suggestions = browser.get_search_suggestions();
                 let height = suggestions.len() + 1;
-                let width = (suggestions.iter().fold(0, |acc, s| s.len().max(acc)) + 2)
-                    .min(s[0].width as usize);
-                let area = below_left_rect(
-                    height.try_into().unwrap_or(u16::MAX),
-                    width.try_into().unwrap_or(u16::MAX),
-                    s[0],
-                );
-                let list: Vec<_> = suggestions
+                let divider_chunk = bottom_of_rect(s[0]);
+                let suggestion_chunk =
+                    below_left_rect(height.try_into().unwrap_or(u16::MAX), s[0].width, s[0]);
+                let suggestion_chunk_layout = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints([Constraint::Length(1), Constraint::Min(0)])
+                    .split(suggestion_chunk);
+                let mut list: VecDeque<_> = suggestions
                     .into_iter()
                     .map(|s| ListItem::new(s.as_str()))
                     .collect();
@@ -552,8 +563,15 @@ pub mod draw {
                         .borders(Borders::all().difference(Borders::TOP))
                         .style(Style::new().fg(Color::Cyan)),
                 );
-                f.render_widget(Clear, area);
-                f.render_widget(block, area);
+                let side_borders = Block::default()
+                    .borders(Borders::LEFT.union(Borders::RIGHT))
+                    .style(Style::new().fg(Color::Cyan));
+                let divider = Block::default().borders(Borders::TOP);
+                f.render_widget(Clear, suggestion_chunk);
+                f.render_widget(side_borders, suggestion_chunk_layout[0]);
+                f.render_widget(Clear, divider_chunk);
+                f.render_widget(divider, divider_chunk);
+                f.render_widget(block, suggestion_chunk_layout[1]);
             }
         }
         draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);
@@ -562,9 +580,18 @@ pub mod draw {
     pub fn below_left_rect(height: u16, width: u16, r: Rect) -> Rect {
         Rect {
             x: r.x,
-            y: r.y + r.height,
+            y: r.y + r.height - 1,
             width,
             height,
+        }
+    }
+    /// Helper function to get the bottom line of a chunk, ignoring side borders.
+    pub fn bottom_of_rect(r: Rect) -> Rect {
+        Rect {
+            x: r.x + 1,
+            y: r.y + r.height - 1,
+            width: r.width - 2,
+            height: 1,
         }
     }
 }

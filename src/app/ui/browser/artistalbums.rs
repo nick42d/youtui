@@ -132,10 +132,19 @@ impl TextHandler for SearchBlock {
     }
     fn pop_text(&mut self) {
         self.search_contents.pop();
-        self.cur -= 1;
+        self.cur = self.cur.saturating_sub(1);
     }
     fn is_text_handling(&self) -> bool {
         true
+    }
+    fn take_text(&mut self) -> String {
+        self.cur = 0;
+        self.search_suggestions.clear();
+        std::mem::take(&mut self.search_contents)
+    }
+    fn replace_text(&mut self, text: String) {
+        self.search_contents = text;
+        self.cur = self.search_contents.len();
     }
 }
 
@@ -148,6 +157,12 @@ impl TextHandler for ArtistSearchPanel {
     }
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
+    }
+    fn take_text(&mut self) -> String {
+        self.search.take_text()
+    }
+    fn replace_text(&mut self, text: String) {
+        self.search.replace_text(text)
     }
 }
 

@@ -147,6 +147,11 @@ pub trait ActionHandler<A: Action + Clone> {
 pub trait TextHandler {
     fn push_text(&mut self, c: char);
     fn pop_text(&mut self);
+    // Assume internal representation is a String.
+    fn take_text(&mut self) -> String;
+    // Assume internal representation is a String and we'll simply replace it with text.
+    // Into<String> may also work.
+    fn replace_text(&mut self, text: String);
     fn is_text_handling(&self) -> bool;
     fn handle_text_entry(&mut self, key_event: KeyEvent) -> bool {
         if !self.is_text_handling() {
@@ -182,9 +187,6 @@ pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Te
     // KeyEvent may not be the correct type to use.
     fn get_mut_key_stack(&mut self) -> &mut Vec<KeyEvent>;
     fn get_key_stack(&self) -> &[KeyEvent];
-    // XXX: This was intended to be the way we trigger global actions - is this still correct?
-    #[deprecated]
-    fn get_global_sender(&self) -> &Sender<UIMessage>;
     // Return a list of the current available actions,
     // Note, if multiple options are available returns the first one.
     fn get_key_subset(&self) -> Option<&Keymap<A>> {
@@ -204,6 +206,7 @@ pub trait EventHandler<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Te
     }
     // Check the passed key_stack to see if an action would be taken.
     // If an action was taken, return true.
+    #[deprecated = "Experimental function"]
     async fn _handle_key_stack(&mut self, key_stack: Vec<KeyEvent>) -> _KeyHandleOutcome {
         if let Some(subset) = self._get_key_subset(&*key_stack) {
             match &subset {

@@ -55,13 +55,13 @@ The app should limit the cognitive load required to memorise commands and should
 |GetUserPlaylists|[ ]|
 |GetSong|[ ]|
 |GetSongRelated|[ ]|
-|GetLyrics|[ ]|
+|GetLyrics|[x]|
 |GetTasteProfile|[ ]|
 |SetTasteProfile|[ ]|
 |GetMoodCategories|[ ]|
 |GetMoodPlaylists|[ ]|
 |GetCharts|[ ]|
-|GetWatchPlaylist|[ ]|
+|GetWatchPlaylist|[ ]\*|
 |GetLibraryPlaylists|[ ]|
 |GetLibrarySongs|[ ]|
 |GetLibraryAlbums|[ ]|
@@ -92,4 +92,8 @@ The app should limit the cognitive load required to memorise commands and should
 
 \* search is partially implemented only 
 - only returns artists
+- does not implement continuations - only first x results returned.
+
+\* get watch playlist is partially implemented only
+- only returns playlist and lyrics ids
 - does not implement continuations - only first x results returned.

@@ -102,9 +102,6 @@ impl EventHandler<PlaylistAction> for Playlist {
     fn get_key_stack(&self) -> &[KeyEvent] {
         &self.key_stack
     }
-    fn get_global_sender(&self) -> &mpsc::Sender<UIMessage> {
-        &self.ui_tx
-    }
 }
 
 impl TextHandler for Playlist {
@@ -113,6 +110,10 @@ impl TextHandler for Playlist {
     fn is_text_handling(&self) -> bool {
         false
     }
+    fn take_text(&mut self) -> String {
+        Default::default()
+    }
+    fn replace_text(&mut self, text: String) {}
 }
 
 impl Drawable for Playlist {

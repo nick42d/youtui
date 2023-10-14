@@ -217,6 +217,20 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.is_text_handling(),
         }
     }
+    fn take_text(&mut self) -> String {
+        match self.context {
+            WindowContext::Browser => self.browser.take_text(),
+            WindowContext::Playlist => self.playlist.take_text(),
+            WindowContext::Logs => self.logger.take_text(),
+        }
+    }
+    fn replace_text(&mut self, text: String) {
+        match self.context {
+            WindowContext::Browser => self.browser.replace_text(text),
+            WindowContext::Playlist => self.playlist.replace_text(text),
+            WindowContext::Logs => self.logger.replace_text(text),
+        }
+    }
 }
 
 impl KeyHandler<UIAction> for YoutuiWindow {
@@ -232,9 +246,6 @@ impl EventHandler<UIAction> for YoutuiWindow {
     }
     fn get_key_stack(&self) -> &[KeyEvent] {
         &self.key_stack
-    }
-    fn get_global_sender(&self) -> &Sender<UIMessage> {
-        &self._ui_tx
     }
 }
 
