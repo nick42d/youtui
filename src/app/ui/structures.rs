@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::sync::Arc;
 use std::{path::PathBuf, rc::Rc};
 use tracing::warn;
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
@@ -46,6 +47,7 @@ pub enum DownloadStatus {
     Queued,
     Downloading(Percentage), // Percentage as integer
     Downloaded(PathBuf),
+    DownloadedInMem(Arc<Vec<u8>>),
     Failed,
 }
 
@@ -103,6 +105,7 @@ impl DownloadStatus {
             Self::None => ' ',
             Self::Downloading(_) => '',
             Self::Downloaded(_) => '',
+            Self::DownloadedInMem(_) => 'm',
         }
     }
 }

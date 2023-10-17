@@ -133,6 +133,10 @@ impl Action for Box<(dyn Action + 'static)> {
     }
 }
 impl YoutuiWindow {
+    // Could also return Mode description.
+    // The downside of this approach is that if draw_popup is calling this function,
+    // it is gettign called every tick.
+    // Consider a way to set this in the in state memory.
     fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (String, String)> + 'a>> {
         if let Some(map) = self.get_key_subset(&self.key_stack) {
             if let Keymap::Mode(mode) = map {
@@ -461,8 +465,8 @@ impl YoutuiWindow {
         } else if let KeyHandleOutcome::Mode = match self.context {
             // TODO: Remove allocation
             WindowContext::Browser => self.browser.handle_key_stack(self.key_stack.clone()).await,
-            WindowContext::Playlist => todo!(),
-            WindowContext::Logs => todo!(),
+            WindowContext::Playlist => self.playlist.handle_key_stack(self.key_stack.clone()).await,
+            WindowContext::Logs => self.playlist.handle_key_stack(self.key_stack.clone()).await,
         } {
         } else {
             self.key_stack.clear()
@@ -520,12 +524,15 @@ fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
     //     .max()
     //     .unwrap_or_default();
     // XXX: temporary
-    let shortcut_len = 10;
-    let description_len = 5;
+    let (shortcut_len, description_len) = shortcuts_descriptions
+        .iter()
+        .fold((0, 0), |(acc1, acc2), (s, c)| {
+            (s.len().max(acc1), c.len().max(acc2))
+        });
     let width = shortcut_len + description_len + 3;
     // let height = commands.len() + 2;
     // XXX: temporary
-    let height = 10;
+    let height = shortcuts_descriptions.len() + 2;
     let mut commands_vec = Vec::new();
     for (s, d) in shortcuts_descriptions {
         commands_vec.push(

@@ -211,7 +211,7 @@ impl Playlist {
         playlist_id: ListSongID,
         id: TaskID,
     ) {
-        tracing::info!("Received song progress update {:?} - ID {:?}", update, id);
+        tracing::info!("Received song progress update - ID {:?}", id);
         // Ideally we would check if task is valid.
         // if self.tasks.is_task_valid(id) {
         if true {
@@ -226,16 +226,17 @@ impl Playlist {
                 server::SongProgressUpdateType::Completed(path) => {
                     // This fails, need to assess.
                     // Beat the borrow checker here!
-                    let fut = self
-                        .get_mut_song_from_id(playlist_id)
-                        .map(|s| {
-                            s.download_status = DownloadStatus::Downloaded(path);
-                            s.id
-                        })
-                        .map(|id| async move { self.play_if_was_buffering(id).await });
-                    if let Some(f) = fut {
-                        f.await
-                    }
+                    // XXX: Ignore, using inmem version.
+                    // let fut = self
+                    //     .get_mut_song_from_id(playlist_id)
+                    //     .map(|s| {
+                    //         s.download_status = DownloadStatus::Downloaded(path);
+                    //         s.id
+                    //     })
+                    //     .map(|id| async move { self.play_if_was_buffering(id).await });
+                    // if let Some(f) = fut {
+                    //     f.await
+                    // }
                 }
                 server::SongProgressUpdateType::Error => {
                     if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
@@ -245,6 +246,18 @@ impl Playlist {
                 server::SongProgressUpdateType::Downloading(p) => {
                     if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
                         song.download_status = DownloadStatus::Downloading(Percentage(p));
+                    }
+                }
+                server::SongProgressUpdateType::DownloadedInMem(c) => {
+                    let fut = self
+                        .get_mut_song_from_id(playlist_id)
+                        .map(|s| {
+                            s.download_status = DownloadStatus::DownloadedInMem(c);
+                            s.id
+                        })
+                        .map(|id| async move { self.play_if_was_buffering(id).await });
+                    if let Some(f) = fut {
+                        f.await
                     }
                 }
             }
@@ -371,14 +384,15 @@ impl Playlist {
         // TODO: Stop currently playing song.
         self.download_upcoming_from_id(id).await;
         if let Some(song_index) = self.get_index_from_id(id) {
-            if let DownloadStatus::Downloaded(path) = &self
+            if let DownloadStatus::DownloadedInMem(pointer) = &self
                 .list
                 .list
                 .get(song_index)
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.request_tx, Request::PlaySong(path.clone(), id)).await;
+                send_or_error(&self.request_tx, Request::PlaySongMem(pointer.clone(), id)).await;
+                // send_or_error(&self.request_tx, Request::PlaySong(path.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
             } else {
                 self.play_status = PlayState::Buffering(id);
@@ -396,6 +410,9 @@ impl Playlist {
             .expect("We got the index from the id, so song must exist");
         // Won't download if already downloaded, or downloading.
         if let DownloadStatus::Downloaded(_) = song.download_status {
+            return;
+        }
+        if let DownloadStatus::DownloadedInMem(_) = song.download_status {
             return;
         }
         if let DownloadStatus::Downloading(_) = song.download_status {

@@ -7,6 +7,8 @@ mod structures;
 use anyhow::Result;
 use std::path::Path;
 use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::Arc;
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::YoutubeID;
@@ -58,6 +60,7 @@ pub enum Response {
 pub enum SongProgressUpdateType {
     Started,
     Downloading(u8), // Percentage as integer
+    DownloadedInMem(Arc<Vec<u8>>),
     Completed(PathBuf),
     Error,
 }
@@ -136,13 +139,14 @@ impl Server {
                     Response::SongProgressUpdate(SongProgressUpdateType::Started, playlist_id, id),
                 )
                 .await;
+                let dl_chunk_size = 1000000;
                 let options = VideoOptions {
                     quality: rusty_ytdl::VideoQuality::LowestAudio,
                     filter: rusty_ytdl::VideoSearchOptions::Audio,
                     // Options for changing chunk size.
-                    // download_options: DownloadOptions {
-                    //     dl_chunk_size: Some(2),
-                    // },
+                    download_options: DownloadOptions {
+                        dl_chunk_size: Some(dl_chunk_size),
+                    },
                     ..Default::default()
                 };
                 let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options) else {
@@ -153,15 +157,33 @@ impl Server {
                 let path = Path::new(&path_string);
                 // Test of in-memory download with callback.
                 // Works correctly.
-                // let stream = video.clone().stream().await.unwrap();
-                // let mut i = 0;
-                // let mut chunks = Vec::new();
-                // while let Some(mut chunk) = stream.chunk().await.unwrap() {
-                //     i += 1;
-                //     info!("got chunk {i}");
-                //     chunks.append(&mut chunk)
-                // }
-                // info!("total chunks length{}", chunks.len());
+                let stream = video.clone().stream().await.unwrap();
+                let mut i = 0;
+                let mut chunks = Vec::new();
+                while let Some(mut chunk) = stream.chunk().await.unwrap() {
+                    i += 1;
+                    chunks.append(&mut chunk);
+                    let progress = (i * dl_chunk_size) * 100 / stream.content_length() as u64;
+                    info!("Sending song progress update");
+                    send_or_error(
+                        &tx,
+                        Response::SongProgressUpdate(
+                            SongProgressUpdateType::Downloading(progress as u8),
+                            playlist_id,
+                            id,
+                        ),
+                    )
+                    .await
+                }
+                send_or_error(
+                    &tx,
+                    Response::SongProgressUpdate(
+                        SongProgressUpdateType::DownloadedInMem(Arc::new(chunks)),
+                        playlist_id,
+                        id,
+                    ),
+                )
+                .await;
                 match video.download(path).await {
                     Ok(_) => {
                         send_or_error(

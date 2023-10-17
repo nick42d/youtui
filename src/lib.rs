@@ -1,4 +1,5 @@
-// Using nightly for async traits
+// Using nightly for async traits and unwarp or clone
+#![feature(arc_unwrap_or_clone)]
 #![feature(async_fn_in_trait)]
 mod app;
 mod appevent;
