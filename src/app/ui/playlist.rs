@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 
 use crate::error::Result;
@@ -34,6 +36,8 @@ use super::{
 
 const SONGS_AHEAD_TO_BUFFER: usize = 5;
 const VOL_TICK: u8 = 5;
+const MUSIC_DIR: &str = "music/";
+
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_secs: Option<f64>,
@@ -58,6 +62,29 @@ pub enum PlaylistAction {
     PageDown,
     PageUp,
     PlaySelected,
+}
+
+pub struct MusicCache {
+    songs: Vec<PathBuf>,
+}
+
+impl MusicCache {
+    fn cache_song(&mut self, song: Arc<Vec<u8>>, path: PathBuf) {
+        let mut p = PathBuf::new();
+        p.push(MUSIC_DIR);
+        p.push(&path);
+        self.songs.push(path);
+        std::fs::write(p, &*song);
+    }
+    fn retrieve_song(&self, path: PathBuf) -> std::result::Result<Option<Vec<u8>>, std::io::Error> {
+        if self.songs.contains(&path) {
+            let mut p = PathBuf::new();
+            p.push(MUSIC_DIR);
+            p.push(&path);
+            return std::fs::read(p).map(|v| Some(v));
+        }
+        Ok(None)
+    }
 }
 
 impl Action for PlaylistAction {

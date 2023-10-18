@@ -1,13 +1,18 @@
+// Currently this is not set up like the rest of our libraries with spawned handles and instead runs on the main thread.
+// This is because the player library we are using wasn't conducive to this pattern.
+// Full switch to Rodio will resolve this.
 use anyhow::Result;
 use player::{Guard, Player, PlayerOptions, StreamError};
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::thread::JoinHandle;
 use tokio::sync::mpsc;
 use tracing::error;
 
 use tracing::info;
 use tracing::trace;
 
+use crate::core::blocking_send_or_error;
 use crate::core::send_or_error;
 
 use super::ui::structures::ListSongID;
@@ -26,6 +31,10 @@ pub enum Request {
 }
 
 #[derive(Debug)]
+pub enum RodioMsg {
+    PlaySongMem(Arc<Vec<u8>>, ListSongID),
+}
+#[derive(Debug)]
 pub enum Response {
     DonePlaying(ListSongID),
     ProgressUpdate(f64, ListSongID),
@@ -37,8 +46,48 @@ pub struct PlayerManager {
     guard: Arc<Mutex<Guard>>,
     response_tx: mpsc::Sender<Response>,
     request_rx: mpsc::Receiver<Request>,
-    _stream: rodio::OutputStream,
-    stream_handle: rodio::OutputStreamHandle,
+    rodio: RodioManager,
+}
+
+pub struct RodioManager {
+    tx: mpsc::Sender<RodioMsg>,
+    rodio: JoinHandle<()>,
+}
+
+impl RodioManager {
+    fn new(
+        tx: mpsc::Sender<RodioMsg>,
+        mut rx: mpsc::Receiver<RodioMsg>,
+        mgr_tx: mpsc::Sender<Response>,
+    ) -> Self {
+        Self {
+            tx,
+            // Rodio OutputStream is not Send and therefore we must spawn a standard thread and use blocking code here.
+            rodio: std::thread::spawn(move || {
+                let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+                loop {
+                    if let Ok(msg) = rx.try_recv() {
+                        match msg {
+                            RodioMsg::PlaySongMem(song_pointer, id) => {
+                                // XXX: Perhaps should let the state know that we are playing.
+                                info!("Got message to play song");
+                                // TODO: remove allocation
+                                let owned_song = Arc::unwrap_or_clone(song_pointer);
+                                let cur = std::io::Cursor::new(owned_song);
+                                let source = rodio::Decoder::new(cur).unwrap();
+                                let sink = rodio::Sink::try_new(&stream_handle).unwrap();
+                                sink.append(source);
+                                trace!("Now playing {:?}", id);
+                                sink.sleep_until_end();
+                                blocking_send_or_error(&mgr_tx, Response::DonePlaying(id));
+                                trace!("Finished playing {:?}", id);
+                            }
+                        }
+                    }
+                }
+            }),
+        }
+    }
 }
 
 impl PlayerManager {
@@ -48,15 +97,14 @@ impl PlayerManager {
     ) -> Result<Self> {
         let opts = PlayerOptions { initial_volume: 50 };
         let (tx, _rx) = flume::unbounded::<StreamError>();
+        let (tx2, rx2) = mpsc::channel(256);
         let (player, guard) = Player::new(std::sync::Arc::new(tx), opts)?;
-        let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
         Ok(Self {
             player,
             guard: Arc::new(Mutex::new(guard)),
             request_rx,
-            response_tx,
-            _stream,
-            stream_handle,
+            response_tx: response_tx.clone(),
+            rodio: RodioManager::new(tx2, rx2, response_tx),
         })
     }
     pub async fn handle_message(&mut self) {
@@ -65,17 +113,11 @@ impl PlayerManager {
         let player = &mut self.player;
         if let Ok(msg) = self.request_rx.try_recv() {
             match msg {
-                Request::PlaySongMem(song_pointer, _id) => {
-                    // XXX: Perhaps should let the state know that we are playing.
-                    info!("Got message to play song");
-                    // TODO: remove allocation
-                    let owned_song = Arc::unwrap_or_clone(song_pointer);
-                    let cur = std::io::Cursor::new(owned_song);
-                    let source = rodio::Decoder::new(cur).unwrap();
-                    let sink = rodio::Sink::try_new(&self.stream_handle).unwrap();
-                    sink.append(source);
-                    trace!("Now playing {:?}", _id);
-                    sink.sleep_until_end();
+                Request::PlaySongMem(song_pointer, id) => {
+                    self.rodio
+                        .tx
+                        .send(RodioMsg::PlaySongMem(song_pointer, id))
+                        .await;
                 }
                 Request::PlaySong(path, _id) => {
                     // XXX: Perhaps should let the state know that we are playing.
