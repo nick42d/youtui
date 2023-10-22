@@ -2,12 +2,10 @@
 // This is because the player library we are using wasn't conducive to this pattern.
 // Full switch to Rodio will resolve this.
 use anyhow::Result;
-use player::{Guard, Player, PlayerOptions, StreamError};
 use std::sync::Arc;
-use std::sync::Mutex;
 use std::thread::JoinHandle;
 use tokio::sync::mpsc;
-use tracing::error;
+use tracing::warn;
 
 use tracing::info;
 use tracing::trace;
@@ -22,8 +20,7 @@ const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(
 
 #[derive(Debug)]
 pub enum Request {
-    PlaySong(std::path::PathBuf, ListSongID),
-    PlaySongMem(Arc<Vec<u8>>, ListSongID),
+    PlaySong(Arc<Vec<u8>>, ListSongID),
     GetProgress(ListSongID), // Should give ID?
     GetVolume,
     IncreaseVolume(i8),
@@ -42,8 +39,6 @@ pub enum Response {
 }
 
 pub struct PlayerManager {
-    player: Player,
-    guard: Arc<Mutex<Guard>>,
     response_tx: mpsc::Sender<Response>,
     request_rx: mpsc::Receiver<Request>,
     rodio: RodioManager,
@@ -78,6 +73,19 @@ impl RodioManager {
                                 let sink = rodio::Sink::try_new(&stream_handle).unwrap();
                                 sink.append(source);
                                 trace!("Now playing {:?}", id);
+                                let play_start_time = std::time::Instant::now();
+                                // Hack to implement song duration until Rodio implements elapsed.
+                                while !sink.empty() {
+                                    let now = std::time::Instant::now();
+                                    let passed = now - play_start_time;
+                                    let passed_secs = passed.as_secs_f64();
+                                    blocking_send_or_error(
+                                        &mgr_tx,
+                                        Response::ProgressUpdate(passed_secs, id),
+                                    );
+                                    std::thread::sleep(std::time::Duration::from_millis(100));
+                                }
+
                                 sink.sleep_until_end();
                                 blocking_send_or_error(&mgr_tx, Response::DonePlaying(id));
                                 trace!("Finished playing {:?}", id);
@@ -95,13 +103,8 @@ impl PlayerManager {
         response_tx: mpsc::Sender<Response>,
         request_rx: mpsc::Receiver<Request>,
     ) -> Result<Self> {
-        let opts = PlayerOptions { initial_volume: 50 };
-        let (tx, _rx) = flume::unbounded::<StreamError>();
         let (tx2, rx2) = mpsc::channel(256);
-        let (player, guard) = Player::new(std::sync::Arc::new(tx), opts)?;
         Ok(Self {
-            player,
-            guard: Arc::new(Mutex::new(guard)),
             request_rx,
             response_tx: response_tx.clone(),
             rodio: RodioManager::new(tx2, rx2, response_tx),
@@ -110,52 +113,33 @@ impl PlayerManager {
     pub async fn handle_message(&mut self) {
         // Note - we are only processing these on each event.
         // This means the Get Volume is a little laggy as it does not ask UI to refresh after sending.
-        let player = &mut self.player;
         if let Ok(msg) = self.request_rx.try_recv() {
             match msg {
-                Request::PlaySongMem(song_pointer, id) => {
+                Request::PlaySong(song_pointer, id) => {
+                    info!("Got message to play song");
                     self.rodio
                         .tx
                         .send(RodioMsg::PlaySongMem(song_pointer, id))
                         .await;
-                }
-                Request::PlaySong(path, _id) => {
-                    // XXX: Perhaps should let the state know that we are playing.
-                    info!("Got message to play song");
-                    let guard = self.guard.lock().unwrap();
-                    player
-                        .play(&path, &guard)
-                        .unwrap_or_else(|e| error!("Error <{e}> playing song"));
-                    trace!("Now playing {:?}", path);
+                    trace!("Now playing {:?}", id);
                 }
                 Request::GetProgress(id) => {
                     info!("Got message to provide song progress update");
-                    let progress = player.elapsed().as_secs_f64();
-                    // send_or_error(&self.response_tx, Response::ProgressUpdate(progress, id)).await;
-                    // if player.is_finished() {
-                    //     send_or_error(&self.response_tx, Response::DonePlaying(id)).await;
-                    //     info!("Song finished");
-                    // }
+                    warn!("Unhandled");
                 }
                 Request::GetVolume => {
                     info!("Received {:?}", msg);
-                    let vol = player.volume_percent();
-                    send_or_error(&self.response_tx, Response::VolumeUpdate(vol)).await;
-                    info!("Sending volume update message");
+                    send_or_error(&self.response_tx, Response::VolumeUpdate(50)).await;
+                    warn!("Unhandled - always sends 50");
                 }
                 Request::IncreaseVolume(vol_inc) => {
                     info!("Received {:?}", msg);
-                    let vol = player.volume_percent();
-                    let new_vol_perc = vol.checked_add_signed(vol_inc).unwrap_or(0).min(100);
-                    player.set_volume(new_vol_perc as i32);
-                    send_or_error(&self.response_tx, Response::VolumeUpdate(new_vol_perc)).await;
-                    info!("Sending volume update message");
+                    warn!("Unhandled");
                 }
                 Request::Stop => {
                     // XXX: Perhaps should let the state know that we are stopping.
                     trace!("Received stop message");
-                    let guard = self.guard.lock().unwrap();
-                    player.stop(&guard).unwrap();
+                    warn!("Unhandled");
                 }
             }
         }

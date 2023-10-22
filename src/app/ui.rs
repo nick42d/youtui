@@ -149,7 +149,18 @@ impl YoutuiWindow {
                 }
             }
             WindowContext::Playlist => todo!(),
-            WindowContext::Logs => todo!(),
+            WindowContext::Logs => {
+                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(Box::new(
+                            mode.key_binds
+                                .iter()
+                                // TODO: Remove allocation
+                                .map(|bind| (bind.to_string(), bind.describe().to_string())),
+                        ));
+                    }
+                }
+            }
         }
 
         None
@@ -455,7 +466,7 @@ impl YoutuiWindow {
             // TODO: Remove allocation
             WindowContext::Browser => self.browser.handle_key_stack(self.key_stack.clone()).await,
             WindowContext::Playlist => self.playlist.handle_key_stack(self.key_stack.clone()).await,
-            WindowContext::Logs => self.playlist.handle_key_stack(self.key_stack.clone()).await,
+            WindowContext::Logs => self.logger.handle_key_stack(self.key_stack.clone()).await,
         } {
         } else {
             self.key_stack.clear()

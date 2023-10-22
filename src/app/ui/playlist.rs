@@ -405,7 +405,7 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.request_tx, Request::PlaySongMem(pointer.clone(), id)).await;
+                send_or_error(&self.request_tx, Request::PlaySong(pointer.clone(), id)).await;
                 // send_or_error(&self.request_tx, Request::PlaySong(path.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
             } else {
