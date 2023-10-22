@@ -45,9 +45,8 @@ pub enum ListStatus {
 pub enum DownloadStatus {
     None,
     Queued,
-    Downloading(Percentage), // Percentage as integer
-    Downloaded(PathBuf),
-    DownloadedInMem(Arc<Vec<u8>>),
+    Downloading(Percentage),
+    Downloaded(Arc<Vec<u8>>),
     Failed,
 }
 
@@ -105,7 +104,6 @@ impl DownloadStatus {
             Self::None => ' ',
             Self::Downloading(_) => '',
             Self::Downloaded(_) => '',
-            Self::DownloadedInMem(_) => 'm',
         }
     }
 }

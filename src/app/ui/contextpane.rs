@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use ratatui::{
-    prelude::{Backend, Constraint, Direction, Layout, Rect},
+    prelude::{Backend, Constraint, Rect},
     style::{Color, Style},
     widgets::{Block, Borders, Clear, Row, Table},
     Frame,

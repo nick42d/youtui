@@ -12,10 +12,6 @@ mod view;
 // Public due to task register
 pub mod taskregister;
 
-use std::rc::Rc;
-
-use crate::core::send_or_error;
-
 use self::actionhandler::{
     Action, ActionHandler, KeyHandleOutcome, KeyHandler, Keybind, Keymap, TextHandler,
 };
@@ -42,7 +38,7 @@ use ratatui::{
 };
 use structures::*;
 use taskregister::TaskRegister;
-use tokio::sync::mpsc::{self, Sender};
+use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
     parse::{SearchResultArtist, SongResult},
@@ -123,15 +119,6 @@ impl KeyHandler<UIAction> for YoutuiWindow {
     }
 }
 
-impl Action for Box<(dyn Action + 'static)> {
-    fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
-    }
-
-    fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
-    }
-}
 impl YoutuiWindow {
     // Could also return Mode description.
     // The downside of this approach is that if draw_popup is calling this function,
@@ -186,11 +173,11 @@ impl ActionHandler<UIAction> for YoutuiWindow {
         match action {
             UIAction::Next => todo!(),
             UIAction::Prev => todo!(),
-            UIAction::StepVolUp => todo!(),
+            UIAction::StepVolUp => self.playlist.handle_increase_volume().await,
             UIAction::StepVolDown => todo!(),
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
-            UIAction::Quit => todo!(),
+            UIAction::Quit => self.quit(),
         }
     }
 }
@@ -276,6 +263,11 @@ impl YoutuiWindow {
         self.process_messages().await;
         self.process_ui_messages().await;
     }
+    pub fn quit(&mut self) {
+        crossterm::terminal::disable_raw_mode().unwrap();
+        super::destruct_terminal();
+        self.status = super::ui::AppStatus::Exiting;
+    }
     pub async fn process_ui_messages(&mut self) {
         while let Ok(msg) = self.ui_rx.try_recv() {
             match msg {
@@ -285,11 +277,8 @@ impl YoutuiWindow {
                         .await
                         .unwrap_or_else(|_| error!("Error sending Download Songs task"));
                 }
-                UIMessage::Quit => {
-                    crossterm::terminal::disable_raw_mode().unwrap();
-                    super::destruct_terminal();
-                    self.status = super::ui::AppStatus::Exiting;
-                }
+                UIMessage::Quit => self.quit(),
+
                 UIMessage::ChangeContext(context) => self.change_context(context),
                 UIMessage::Next => self.playlist.handle_next().await,
                 UIMessage::Prev => self.playlist.handle_previous().await,

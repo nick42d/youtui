@@ -51,7 +51,7 @@ impl YtMusic {
     // TODO: Use OAuth
     // TODO: Handle errors
     // TODO: Path should be impl into path
-    pub async fn from_header_file(path: &Path) -> Result<Self> {
+    pub async fn from_header_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
         let contents = tokio::fs::read_to_string(path).await.unwrap();
         let mut cookies = String::new();

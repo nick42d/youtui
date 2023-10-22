@@ -44,7 +44,11 @@ impl Action for LoggerAction {
         "Logger".into()
     }
     fn describe(&self) -> Cow<str> {
-        format!("{:?}", self).into()
+        match self {
+            LoggerAction::ViewBrowser => "View Browser".into(),
+            LoggerAction::ToggleHelp => "Toggle Help".into(),
+            x => format!("{:?}", self).into(),
+        }
     }
 }
 pub struct Logger {

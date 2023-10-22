@@ -5,10 +5,6 @@ use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
 use anyhow::Result;
-use std::path::Path;
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::sync::Arc;
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::YoutubeID;
@@ -21,9 +17,11 @@ use ytmapi_rs::VideoID;
 use crate::core::send_or_error;
 
 use super::ui::structures::ListSongID;
+use super::ui::structures::Percentage;
 use super::ui::taskregister::TaskID;
 
 const TEMP_MUSIC_DIR: &str = "./music";
+const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
 
 pub struct KillRequest;
 
@@ -59,9 +57,8 @@ pub enum Response {
 #[derive(Debug)]
 pub enum SongProgressUpdateType {
     Started,
-    Downloading(u8), // Percentage as integer
-    DownloadedInMem(Arc<Vec<u8>>),
-    Completed(PathBuf),
+    Downloading(Percentage),
+    Completed(Vec<u8>),
     Error,
 }
 
@@ -139,75 +136,86 @@ impl Server {
                     Response::SongProgressUpdate(SongProgressUpdateType::Started, playlist_id, id),
                 )
                 .await;
-                let dl_chunk_size = 1000000;
-                let options = VideoOptions {
+                let dl_options = VideoOptions {
                     quality: rusty_ytdl::VideoQuality::LowestAudio,
                     filter: rusty_ytdl::VideoSearchOptions::Audio,
-                    // Options for changing chunk size.
                     download_options: DownloadOptions {
-                        dl_chunk_size: Some(dl_chunk_size),
+                        dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
                     },
                     ..Default::default()
                 };
-                let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options) else {
+                let Ok(video) = Video::new_with_options(song_video_id.get_raw(), dl_options) else {
                     error!("Error received finding song");
-                    return;
-                };
-                let path_string = format!("music/{}.mp4", song_video_id.get_raw());
-                let path = Path::new(&path_string);
-                // Test of in-memory download with callback.
-                // Works correctly.
-                let stream = video.clone().stream().await.unwrap();
-                let mut i = 0;
-                let mut chunks = Vec::new();
-                while let Some(mut chunk) = stream.chunk().await.unwrap() {
-                    i += 1;
-                    chunks.append(&mut chunk);
-                    let progress = (i * dl_chunk_size) * 100 / stream.content_length() as u64;
-                    info!("Sending song progress update");
                     send_or_error(
                         &tx,
                         Response::SongProgressUpdate(
-                            SongProgressUpdateType::Downloading(progress as u8),
+                            SongProgressUpdateType::Error,
                             playlist_id,
                             id,
                         ),
                     )
-                    .await
+                    .await;
+                    return;
+                };
+                let Ok(stream) = video.stream().await else {
+                    error!("Error received converting song to stream");
+                    send_or_error(
+                        &tx,
+                        Response::SongProgressUpdate(
+                            SongProgressUpdateType::Error,
+                            playlist_id,
+                            id,
+                        ),
+                    )
+                    .await;
+                    return;
+                };
+                let mut i = 0;
+                let mut songbuffer = Vec::new();
+                loop {
+                    match stream.chunk().await {
+                        Ok(Some(mut chunk)) => {
+                            i += 1;
+                            songbuffer.append(&mut chunk);
+                            let progress =
+                                (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
+                            info!("Sending song progress update");
+                            send_or_error(
+                                &tx,
+                                Response::SongProgressUpdate(
+                                    SongProgressUpdateType::Downloading(Percentage(progress as u8)),
+                                    playlist_id,
+                                    id,
+                                ),
+                            )
+                            .await;
+                        }
+                        Err(e) => {
+                            error!("Error <{e}> received downloading song");
+                            send_or_error(
+                                &tx,
+                                Response::SongProgressUpdate(
+                                    SongProgressUpdateType::Error,
+                                    playlist_id,
+                                    id,
+                                ),
+                            )
+                            .await;
+                            return;
+                        }
+                        Ok(None) => break,
+                    }
                 }
+                info!("Song downloaded");
                 send_or_error(
                     &tx,
                     Response::SongProgressUpdate(
-                        SongProgressUpdateType::DownloadedInMem(Arc::new(chunks)),
+                        SongProgressUpdateType::Completed(songbuffer),
                         playlist_id,
                         id,
                     ),
                 )
                 .await;
-                match video.download(path).await {
-                    Ok(_) => {
-                        send_or_error(
-                            &tx,
-                            Response::SongProgressUpdate(
-                                SongProgressUpdateType::Completed(path.into()),
-                                playlist_id,
-                                id,
-                            ),
-                        )
-                        .await
-                    }
-                    Err(_) => {
-                        send_or_error(
-                            &tx,
-                            Response::SongProgressUpdate(
-                                SongProgressUpdateType::Error,
-                                playlist_id,
-                                id,
-                            ),
-                        )
-                        .await
-                    }
-                };
             },
             kill,
         )

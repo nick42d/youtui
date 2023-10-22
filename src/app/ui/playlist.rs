@@ -34,7 +34,7 @@ use super::{
     UIMessage, WindowContext,
 };
 
-const SONGS_AHEAD_TO_BUFFER: usize = 5;
+const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const VOL_TICK: u8 = 5;
 const MUSIC_DIR: &str = "music/";
 
@@ -92,7 +92,19 @@ impl Action for PlaylistAction {
         "Playlist".into()
     }
     fn describe(&self) -> Cow<str> {
-        format!("{:?}", self).into()
+        match self {
+            PlaylistAction::ToggleHelp => "Toggle Help",
+            PlaylistAction::ViewBrowser => "View Browser",
+            PlaylistAction::Quit => "Quit",
+            PlaylistAction::ViewLogs => "View Logs",
+            PlaylistAction::Pause => "Pause",
+            PlaylistAction::Down => "Down",
+            PlaylistAction::Up => "Up",
+            PlaylistAction::PageDown => "Page Down",
+            PlaylistAction::PageUp => "Page Up",
+            PlaylistAction::PlaySelected => "Play Selected",
+        }
+        .into()
     }
 }
 
@@ -250,20 +262,17 @@ impl Playlist {
                         // while let Ok(_) = self.player_rx.try_recv() {}
                     }
                 }
-                server::SongProgressUpdateType::Completed(path) => {
-                    // This fails, need to assess.
-                    // Beat the borrow checker here!
-                    // XXX: Ignore, using inmem version.
-                    // let fut = self
-                    //     .get_mut_song_from_id(playlist_id)
-                    //     .map(|s| {
-                    //         s.download_status = DownloadStatus::Downloaded(path);
-                    //         s.id
-                    //     })
-                    //     .map(|id| async move { self.play_if_was_buffering(id).await });
-                    // if let Some(f) = fut {
-                    //     f.await
-                    // }
+                server::SongProgressUpdateType::Completed(song_buf) => {
+                    let fut = self
+                        .get_mut_song_from_id(playlist_id)
+                        .map(|s| {
+                            s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
+                            s.id
+                        })
+                        .map(|id| async move { self.play_if_was_buffering(id).await });
+                    if let Some(f) = fut {
+                        f.await
+                    }
                 }
                 server::SongProgressUpdateType::Error => {
                     if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
@@ -272,19 +281,7 @@ impl Playlist {
                 }
                 server::SongProgressUpdateType::Downloading(p) => {
                     if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
-                        song.download_status = DownloadStatus::Downloading(Percentage(p));
-                    }
-                }
-                server::SongProgressUpdateType::DownloadedInMem(c) => {
-                    let fut = self
-                        .get_mut_song_from_id(playlist_id)
-                        .map(|s| {
-                            s.download_status = DownloadStatus::DownloadedInMem(c);
-                            s.id
-                        })
-                        .map(|id| async move { self.play_if_was_buffering(id).await });
-                    if let Some(f) = fut {
-                        f.await
+                        song.download_status = DownloadStatus::Downloading(p);
                     }
                 }
             }
@@ -336,16 +333,6 @@ impl Playlist {
     pub async fn view_logs(&mut self) {
         send_or_error(&self.ui_tx, UIMessage::ChangeContext(WindowContext::Logs)).await;
     }
-    #[deprecated]
-    pub async fn handle_char_pressed(&mut self, c: char) {
-        match c {
-            '+' => self.handle_increase_volume().await,
-            '-' => self.handle_decrease_volume().await,
-            '<' => self.handle_previous().await,
-            '>' => self.handle_next().await,
-            x => info!("Received unhandled char {x}"),
-        }
-    }
     pub async fn handle_next(&mut self) {
         match self.play_status {
             PlayState::Playing(id) => {
@@ -359,7 +346,7 @@ impl Playlist {
     }
     pub async fn handle_increase_volume(&mut self) {
         // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
-        // NOTE: could cause same visual race conditions.
+        // NOTE: could cause some visual race conditions.
         self.volume.0 = self
             .volume
             .0
@@ -370,7 +357,7 @@ impl Playlist {
     }
     pub async fn handle_decrease_volume(&mut self) {
         // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
-        // NOTE: could cause same visual race conditions.
+        // NOTE: could cause some visual race conditions.
         self.volume.0 = self
             .volume
             .0
@@ -411,7 +398,7 @@ impl Playlist {
         // TODO: Stop currently playing song.
         self.download_upcoming_from_id(id).await;
         if let Some(song_index) = self.get_index_from_id(id) {
-            if let DownloadStatus::DownloadedInMem(pointer) = &self
+            if let DownloadStatus::Downloaded(pointer) = &self
                 .list
                 .list
                 .get(song_index)
@@ -437,9 +424,6 @@ impl Playlist {
             .expect("We got the index from the id, so song must exist");
         // Won't download if already downloaded, or downloading.
         if let DownloadStatus::Downloaded(_) = song.download_status {
-            return;
-        }
-        if let DownloadStatus::DownloadedInMem(_) = song.download_status {
             return;
         }
         if let DownloadStatus::Downloading(_) = song.download_status {
@@ -580,5 +564,4 @@ fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
         Keybind::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
         Keybind::new_from_code(KeyCode::Enter, PlaylistAction::PlaySelected),
     ]
-    // KeyCode::Char(c) => self.handle_char_pressed(c).await,
 }
