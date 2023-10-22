@@ -6,6 +6,22 @@ use std::borrow::Cow;
 
 use crate::Error;
 
+/// A run of text that may be boldened.
+#[derive(Debug, Clone, Deserialize)]
+pub enum TextRun {
+    Bold(String),
+    Normal(String),
+}
+
+impl TextRun {
+    pub fn get_text(self) -> String {
+        match self {
+            TextRun::Bold(s) => s,
+            TextRun::Normal(s) => s,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Thumbnail {
     pub height: u64,

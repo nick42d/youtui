@@ -1,7 +1,6 @@
 // Currently this is not set up like the rest of our libraries with spawned handles and instead runs on the main thread.
 // This is because the player library we are using wasn't conducive to this pattern.
 // Full switch to Rodio will resolve this.
-use anyhow::Result;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 use tokio::sync::mpsc;
@@ -12,6 +11,7 @@ use tracing::trace;
 
 use crate::core::blocking_send_or_error;
 use crate::core::send_or_error;
+use crate::Result;
 
 use super::ui::structures::ListSongID;
 
@@ -67,7 +67,8 @@ impl RodioManager {
                                 // XXX: Perhaps should let the state know that we are playing.
                                 info!("Got message to play song");
                                 // TODO: remove allocation
-                                let owned_song = Arc::unwrap_or_clone(song_pointer);
+                                let owned_song = Arc::try_unwrap(song_pointer)
+                                    .unwrap_or_else(|arc| (*arc).clone());
                                 let cur = std::io::Cursor::new(owned_song);
                                 let source = rodio::Decoder::new(cur).unwrap();
                                 let sink = rodio::Sink::try_new(&stream_handle).unwrap();

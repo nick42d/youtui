@@ -10,7 +10,7 @@ pub mod parse;
 mod process;
 pub mod query;
 
-use common::{browsing::Lyrics, watch::WatchPlaylist};
+use common::{browsing::Lyrics, watch::WatchPlaylist, TextRun};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{AlbumParams, ArtistParams, SearchResult};
@@ -172,7 +172,7 @@ impl YtMusic {
     pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
         query: S,
-    ) -> Result<Vec<String>> {
+    ) -> Result<Vec<Vec<TextRun>>> {
         self.raw_query(query.into()).await?.process()?.parse()
     }
 }

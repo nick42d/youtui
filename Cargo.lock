@@ -2485,9 +2485,9 @@ checksum = "7ffc183a10b4478d04cbbbfc96d0873219d962dd5accaff2ffbd4ceb7df837f4"
 
 [[package]]
 name = "rusty_ytdl"
-version = "0.6.3"
+version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e7b3724da2b43f064ce104eb34563e147eb5958c8a626daceefd38997d37432"
+checksum = "e9436b01298fba90ad4fbbadca8eebec0e94eefbfba88cfea429f7d13f498fb4"
 dependencies = [
  "aes",
  "async-trait",
@@ -3795,7 +3795,6 @@ dependencies = [
 name = "youtui"
 version = "0.1.1"
 dependencies = [
- "anyhow",
  "clap",
  "crossterm 0.26.1",
  "directories",

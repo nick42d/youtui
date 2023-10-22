@@ -7,7 +7,7 @@ struct Args {
     debug: bool,
 }
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> youtui::Result<()> {
     let args = Args::parse();
     match args {
         _ => youtui::run_app(),

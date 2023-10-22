@@ -1,6 +1,6 @@
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
-use anyhow::Result;
+use crate::Result;
 use tracing::error;
 use ytmapi_rs::{ChannelID, VideoID};
 
@@ -157,7 +157,7 @@ impl TaskRegister {
         self.tasks
             .retain(|x| x.context.category() != request_category);
     }
-    pub fn try_recv(&mut self) -> Result<server::Response, tokio::sync::mpsc::error::TryRecvError> {
-        self.response_rx.try_recv()
+    pub fn try_recv(&mut self) -> Result<server::Response> {
+        Ok(self.response_rx.try_recv()?)
     }
 }

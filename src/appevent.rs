@@ -1,4 +1,3 @@
-use anyhow::Result;
 use crossterm::event::{Event, EventStream, MouseEvent, MouseEventKind};
 use futures::StreamExt;
 use std::time::Duration;
@@ -7,6 +6,8 @@ use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::JoinHandle;
 use tokio::time::interval;
 use tracing::warn;
+
+use crate::Result;
 
 const TICK_RATE: Duration = Duration::from_millis(200);
 

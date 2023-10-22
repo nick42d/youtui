@@ -7,9 +7,9 @@ use ratatui::{
     Frame,
 };
 
+use super::draw::left_bottom_corner_rect;
 use super::{
     actionhandler::{Action, ActionProcessor, KeyRouter},
-    left_bottom_corner_rect,
     view::Drawable,
 };
 

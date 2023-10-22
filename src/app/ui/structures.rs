@@ -94,6 +94,16 @@ impl PlayState {
         let temp = Self::Transitioning;
         std::mem::replace(self, temp)
     }
+    pub fn list_icon(&self) -> char {
+        match self {
+            PlayState::Buffering(_) => '',
+            PlayState::NotPlaying => '',
+            PlayState::Playing(_) => '',
+            PlayState::Transitioning => '',
+            PlayState::Paused(_) => '',
+            PlayState::Stopped(_) => '',
+        }
+    }
 }
 
 impl DownloadStatus {
@@ -121,7 +131,7 @@ impl ListSong {
     fn set_artists(&mut self, artists: Vec<String>) {
         self.artists = artists;
     }
-    fn get_artists(&self) -> &Vec<String> {
+    pub fn get_artists(&self) -> &Vec<String> {
         &self.artists
     }
     pub fn get_album(&self) -> &String {

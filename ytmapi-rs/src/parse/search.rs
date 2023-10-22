@@ -1,7 +1,7 @@
 use const_format::concatcp;
 
 use super::{parse_search_result, parse_search_results, ProcessedResult, SearchResult};
-use crate::common::AlbumType;
+use crate::common::{AlbumType, TextRun};
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::SECTION_LIST;
 use crate::query::*;
@@ -117,21 +117,26 @@ impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
 }
 
 impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
-    pub fn parse(self) -> Result<Vec<String>> {
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = self;
-        let mut raw_suggestions = json_crawler
+    pub fn parse(self) -> Result<Vec<Vec<TextRun>>> {
+        let ProcessedResult { json_crawler, .. } = self;
+        let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
-        // TODO: implement detailed runs
-        raw_suggestions
-            .as_array_iter_mut()?
-            .map(|mut s| {
-                s.take_value_pointer(
-                    "/searchSuggestionRenderer/navigationEndpoint/searchEndpoint/query",
-                )
-            })
-            .collect()
+        let mut results = Vec::new();
+        for s in suggestions.as_array_iter_mut()? {
+            let mut result = Vec::new();
+            for mut r in s
+                .navigate_pointer("/searchSuggestionRenderer/suggestion/runs")?
+                .into_array_iter_mut()?
+            {
+                if let Ok(true) = r.take_value_pointer("/bold") {
+                    result.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
+                } else {
+                    result.push(r.take_value_pointer("/text/").map(|s| TextRun::Normal(s))?)
+                }
+            }
+            results.push(result)
+        }
+        Ok(results)
     }
 }
 

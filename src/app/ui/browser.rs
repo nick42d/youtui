@@ -4,7 +4,10 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
 use tracing::error;
-use ytmapi_rs::parse::{SearchResultArtist, SongResult};
+use ytmapi_rs::{
+    common::TextRun,
+    parse::{SearchResultArtist, SongResult},
+};
 
 use crate::{app::ui::actionhandler::Keybind, core::send_or_error};
 
@@ -49,7 +52,6 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<Keybind<BrowserAction>>,
-    key_stack: Vec<KeyEvent>,
     help_shown: bool,
 }
 
@@ -90,7 +92,7 @@ impl Action for BrowserAction {
     }
 }
 impl Suggestable for Browser {
-    fn get_search_suggestions(&self) -> &[String] {
+    fn get_search_suggestions(&self) -> &[Vec<TextRun>] {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.get_search_suggestions(),
             InputRouting::Song => &[],
@@ -189,6 +191,8 @@ impl ActionHandler<ArtistAction> for Browser {
             ArtistAction::Down => self.artist_list.increment_list(1),
             ArtistAction::PageUp => self.artist_list.increment_list(-10),
             ArtistAction::PageDown => self.artist_list.increment_list(10),
+            ArtistAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
+            ArtistAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
         }
     }
 }
@@ -249,7 +253,6 @@ impl Browser {
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
-            key_stack: Vec::new(),
             help_shown: false,
         }
     }
@@ -265,7 +268,7 @@ impl Browser {
     // XXX: Currently has race conditions - if list is cleared response will arrive afterwards.
     // Proposal: When recieving a message from the app validate against query string.
     fn fetch_search_suggestions(&mut self) {
-        // No need to fetch search suggestions
+        // No need to fetch search suggestions if contents is empty.
         if self.artist_list.search.search_contents.is_empty() {
             self.artist_list.search.search_suggestions.clear();
             return;
@@ -372,7 +375,7 @@ impl Browser {
             return;
         };
         send_or_error(&self.ui_tx, UIMessage::PlaySongs(vec![cur_song.clone()])).await;
-        // XXX: Do we want to indicate that song has been added to playlist?
+        // XXX: Do we want to indicat song has been added to playlist?
         // let id = self.playlist.push_clone_listsong(&clone_song);
         // self.playlist.play_song_id(id).await;
     }
@@ -425,12 +428,13 @@ impl Browser {
         // Handled by this function?
         self.increment_cur_list(0).await;
     }
-    pub async fn handle_replace_search_suggestions(
+    pub fn handle_replace_search_suggestions(
         &mut self,
-        search_suggestions: Vec<String>,
+        search_suggestions: Vec<Vec<TextRun>>,
         _id: TaskID,
     ) {
         self.artist_list.search.search_suggestions = search_suggestions;
+        self.artist_list.search.suggestions_cur = None;
     }
     pub fn handle_no_songs_found(&mut self, _id: TaskID) {
         self.album_songs_list.list.state = ListStatus::Loaded;
@@ -490,11 +494,13 @@ pub mod draw {
 
     use ratatui::{
         prelude::{Backend, Constraint, Direction, Layout, Rect},
-        style::{Color, Style},
+        style::{Color, Modifier, Style},
         symbols::block,
-        widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
+        text::{Line, Span},
+        widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
         Frame,
     };
+    use ytmapi_rs::common::TextRun;
 
     use crate::app::ui::{
         actionhandler::Suggestable,
@@ -533,7 +539,7 @@ pub mod draw {
                 );
             f.render_widget(search_widget, s[0]);
             f.set_cursor(
-                s[0].x + browser.artist_list.search.cur as u16 + 1,
+                s[0].x + browser.artist_list.search.text_cur as u16 + 1,
                 s[0].y + 1,
             );
             draw_list(f, &browser.artist_list, s[1], _artistselected);
@@ -547,15 +553,31 @@ pub mod draw {
                     .direction(Direction::Vertical)
                     .constraints([Constraint::Length(1), Constraint::Min(0)])
                     .split(suggestion_chunk);
-                let mut list: VecDeque<_> = suggestions
+                let mut list_state =
+                    ListState::default().with_selected(browser.artist_list.search.suggestions_cur);
+                let list: Vec<_> = suggestions
                     .into_iter()
-                    .map(|s| ListItem::new(s.as_str()))
+                    .map(|s| {
+                        ListItem::new(Line::from(
+                            s.iter()
+                                .map(|s| match s {
+                                    TextRun::Bold(s) => {
+                                        Span::styled(s, Style::new().add_modifier(Modifier::BOLD))
+                                    }
+                                    TextRun::Normal(s) => Span::raw(s),
+                                })
+                                .collect::<Vec<Span>>(),
+                        ))
+                    })
                     .collect();
-                let block = List::new(list).style(Style::new().fg(Color::White)).block(
-                    Block::default()
-                        .borders(Borders::all().difference(Borders::TOP))
-                        .style(Style::new().fg(Color::Cyan)),
-                );
+                let block = List::new(list)
+                    .style(Style::new().fg(Color::White))
+                    .highlight_style(Style::new().bg(Color::Blue))
+                    .block(
+                        Block::default()
+                            .borders(Borders::all().difference(Borders::TOP))
+                            .style(Style::new().fg(Color::Cyan)),
+                    );
                 let side_borders = Block::default()
                     .borders(Borders::LEFT.union(Borders::RIGHT))
                     .style(Style::new().fg(Color::Cyan));
@@ -564,7 +586,7 @@ pub mod draw {
                 f.render_widget(side_borders, suggestion_chunk_layout[0]);
                 f.render_widget(Clear, divider_chunk);
                 f.render_widget(divider, divider_chunk);
-                f.render_widget(block, suggestion_chunk_layout[1]);
+                f.render_stateful_widget(block, suggestion_chunk_layout[1], &mut list_state);
             }
         }
         draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);

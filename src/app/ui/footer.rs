@@ -5,7 +5,7 @@ use ratatui::{
     style::{Color, Modifier, Style},
     terminal::Frame,
     text::{Line, Span},
-    widgets::{Block, Borders, Gauge, Paragraph},
+    widgets::{block::Title, Block, Borders, Gauge, Paragraph},
 };
 use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
@@ -75,23 +75,24 @@ where
         PlayState::Stopped(_) => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
-    let play_status_string = format!("{:?}\n{song_title} - {album_title}", cur);
-    // let song_title = match cur {
-    //     None => "".to_string(),
-    //     Some(i) => w
-    //         .playlist
-    //         .list
-    //         .list
-    //         .iter()
-    //         .find(|s| s.playlist_id == i)
-    //         .map(|s| s.raw.get_title().to_owned())
-    //         .unwrap_or(String::new()),
-    // };
-    // let string =
-    //     format!("{play_status} - Options\nArtist - Album {song_title} {song_progress_string}");
-    let footer = Paragraph::new(play_status_string);
+    let artist_title = match w.playlist.play_status {
+        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .map(|s| s.get_artists().join(", "))
+            .unwrap_or("".to_string()),
+        PlayState::NotPlaying => "".to_string(),
+        PlayState::Stopped(_) => "".to_string(),
+        PlayState::Transitioning => "".to_string(),
+    };
+    let song_title_string = format!(
+        "{} {song_title} - {artist_title}",
+        w.playlist.play_status.list_icon()
+    );
+    let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()
-        .title(format!("Now playing - {song_title}"))
+        .title("Status")
+        .title(Title::from("API - Connected").alignment(Alignment::Right))
         .borders(Borders::ALL);
     let block_inner = block.inner(chunk);
     let song_vol = Layout::default()

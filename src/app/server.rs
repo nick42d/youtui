@@ -4,9 +4,9 @@ use rusty_ytdl::VideoOptions;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
-use anyhow::Result;
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
+use ytmapi_rs::common::TextRun;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::parse::SongResult;
@@ -15,6 +15,9 @@ use ytmapi_rs::ChannelID;
 use ytmapi_rs::VideoID;
 
 use crate::core::send_or_error;
+use crate::get_config_dir;
+use crate::Result;
+use crate::HEADER_FILENAME;
 
 use super::ui::structures::ListSongID;
 use super::ui::structures::Percentage;
@@ -45,7 +48,7 @@ pub enum Request {
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
     SearchArtistError(TaskID),
-    ReplaceSearchSuggestions(Vec<String>, TaskID),
+    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, TaskID),
     SongListLoading(TaskID),
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),
@@ -74,9 +77,12 @@ impl Server {
     pub fn new(response_tx: mpsc::Sender<Response>, request_rx: mpsc::Receiver<Request>) -> Self {
         let api_init = Some(tokio::spawn(async move {
             info!("Initialising API");
-            let api = ytmapi_rs::YtMusic::from_header_file(std::path::Path::new("headers.txt"))
-                .await
-                .unwrap();
+            // XXX: remove unwraps
+            let api = ytmapi_rs::YtMusic::from_header_file(
+                get_config_dir().unwrap().join(HEADER_FILENAME),
+            )
+            .await
+            .unwrap();
             info!("API initialised");
             api
         }));
@@ -157,18 +163,21 @@ impl Server {
                     .await;
                     return;
                 };
-                let Ok(stream) = video.stream().await else {
-                    error!("Error received converting song to stream");
-                    send_or_error(
-                        &tx,
-                        Response::SongProgressUpdate(
-                            SongProgressUpdateType::Error,
-                            playlist_id,
-                            id,
-                        ),
-                    )
-                    .await;
-                    return;
+                let stream = match video.stream().await {
+                    Ok(s) => s,
+                    Err(e) => {
+                        error!("Error <{e}> received converting song to stream");
+                        send_or_error(
+                            &tx,
+                            Response::SongProgressUpdate(
+                                SongProgressUpdateType::Error,
+                                playlist_id,
+                                id,
+                            ),
+                        )
+                        .await;
+                        return;
+                    }
                 };
                 let mut i = 0;
                 let mut songbuffer = Vec::new();

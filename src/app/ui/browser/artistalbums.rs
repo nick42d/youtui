@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crossterm::event::KeyCode;
 use ratatui::prelude::Constraint;
-use ytmapi_rs::parse::SearchResultArtist;
+use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
 
 use crate::app::ui::{
     actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
@@ -33,8 +33,9 @@ pub struct ArtistSearchPanel {
 #[derive(Default, Clone)]
 pub struct SearchBlock {
     pub search_contents: String,
-    pub search_suggestions: Vec<String>,
-    pub cur: usize,
+    pub search_suggestions: Vec<Vec<TextRun>>,
+    pub text_cur: usize,
+    pub suggestions_cur: Option<usize>,
 }
 
 #[derive(Default, Clone)]
@@ -46,12 +47,15 @@ pub struct AlbumSongsPanel {
 pub enum ArtistAction {
     DisplayAlbums,
     ToggleSearch,
-    Search,
     // XXX: This could be a subset - eg ListAction
     Up,
     Down,
     PageUp,
     PageDown,
+    // XXX: Could be a subset just for search
+    Search,
+    PrevSearchSuggestion,
+    NextSearchSuggestion,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -120,6 +124,8 @@ impl Action for ArtistAction {
             Self::Down => "Down",
             Self::PageUp => "Page Up",
             Self::PageDown => "Page Down",
+            ArtistAction::PrevSearchSuggestion => "Next Search Suggestion",
+            ArtistAction::NextSearchSuggestion => "Prev Search Suggestion",
         }
         .into()
     }
@@ -128,23 +134,48 @@ impl Action for ArtistAction {
 impl TextHandler for SearchBlock {
     fn push_text(&mut self, c: char) {
         self.search_contents.push(c);
-        self.cur += 1;
+        self.text_cur += 1;
     }
     fn pop_text(&mut self) {
         self.search_contents.pop();
-        self.cur = self.cur.saturating_sub(1);
+        self.text_cur = self.text_cur.saturating_sub(1);
     }
     fn is_text_handling(&self) -> bool {
         true
     }
     fn take_text(&mut self) -> String {
-        self.cur = 0;
+        self.text_cur = 0;
         self.search_suggestions.clear();
         std::mem::take(&mut self.search_contents)
     }
     fn replace_text(&mut self, text: String) {
         self.search_contents = text;
-        self.cur = self.search_contents.len();
+        self.move_cursor_to_end();
+    }
+}
+
+impl SearchBlock {
+    pub fn increment_list(&mut self, amount: isize) {
+        if !self.search_suggestions.is_empty() {
+            self.suggestions_cur = Some(
+                self.suggestions_cur
+                    .map(|cur| {
+                        cur.saturating_add_signed(amount)
+                            .min(self.search_suggestions.len() - 1)
+                    })
+                    .unwrap_or_default(),
+            );
+            // Safe - clamped and set above
+            // Clone is ok here as we want to duplicate the search suggestion.
+            self.search_contents = self.search_suggestions[self.suggestions_cur.unwrap()]
+                .iter()
+                .map(|run| run.clone().get_text())
+                .collect();
+            self.move_cursor_to_end();
+        }
+    }
+    fn move_cursor_to_end(&mut self) {
+        self.text_cur = self.search_contents.len();
     }
 }
 
@@ -167,7 +198,7 @@ impl TextHandler for ArtistSearchPanel {
 }
 
 impl Suggestable for ArtistSearchPanel {
-    fn get_search_suggestions(&self) -> &[String] {
+    fn get_search_suggestions(&self) -> &[Vec<TextRun>] {
         self.search.search_suggestions.as_slice()
     }
     fn has_search_suggestions(&self) -> bool {
@@ -318,10 +349,17 @@ impl TableView for AlbumSongsPanel {
 }
 
 fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
-    vec![Keybind::new_from_code(
-        KeyCode::Enter,
-        BrowserAction::Artist(ArtistAction::Search),
-    )]
+    vec![
+        Keybind::new_from_code(KeyCode::Enter, BrowserAction::Artist(ArtistAction::Search)),
+        Keybind::new_from_code(
+            KeyCode::Down,
+            BrowserAction::Artist(ArtistAction::NextSearchSuggestion),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Up,
+            BrowserAction::Artist(ArtistAction::PrevSearchSuggestion),
+        ),
+    ]
 }
 
 fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {

@@ -1,5 +1,7 @@
+use crate::get_data_dir;
+
 use super::appevent::{AppEvent, EventHandler};
-use anyhow::Result;
+use super::Result;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -17,12 +19,7 @@ mod ui;
 
 const EVENT_CHANNEL_SIZE: usize = 256;
 const PLAYER_CHANNEL_SIZE: usize = 256;
-const LOG_FILE_PATH: &str = "debug.log";
-
-enum EventType<I> {
-    Input(I),
-    Tick,
-}
+const LOG_FILE_NAME: &str = "debug.log";
 
 pub struct Youtui {
     event_handler: EventHandler,
@@ -42,7 +39,7 @@ impl Youtui {
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
-        let log_file = std::fs::File::create(LOG_FILE_PATH)?;
+        let log_file = std::fs::File::create(get_data_dir()?.join(LOG_FILE_NAME))?;
         let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
         let context_layer =
             tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::INFO);
@@ -88,7 +85,7 @@ impl Youtui {
             // TODO: Error handling
             self.terminal
                 .draw(|f| {
-                    ui::draw_app(f, &self.window_state);
+                    ui::draw::draw_app(f, &self.window_state);
                 })
                 .unwrap();
         }
