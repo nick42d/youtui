@@ -73,6 +73,9 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
     type Item = JsonCrawlerBorrowed<'a>;
     fn next(&mut self) -> Option<Self::Item> {
         self.cur += 1;
+        if self.len <= self.cur {
+            return None;
+        }
         self.path.pop();
         self.path.push(JsonPath::IndexNum(self.cur));
         Some(JsonCrawlerBorrowed {

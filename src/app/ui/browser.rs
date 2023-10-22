@@ -561,10 +561,10 @@ pub mod draw {
                         ListItem::new(Line::from(
                             s.iter()
                                 .map(|s| match s {
-                                    TextRun::Bold(s) => {
-                                        Span::styled(s, Style::new().add_modifier(Modifier::BOLD))
+                                    TextRun::Bold(str) => {
+                                        Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
                                     }
-                                    TextRun::Normal(s) => Span::raw(s),
+                                    TextRun::Normal(str) => Span::raw(str),
                                 })
                                 .collect::<Vec<Span>>(),
                         ))
