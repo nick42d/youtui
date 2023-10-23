@@ -95,7 +95,7 @@ impl YtMusic {
             cookies,
         })
     }
-    async fn raw_query<T: Query>(&self, query: T) -> Result<RawResult<T>> {
+    pub async fn raw_query<T: Query>(&self, query: T) -> Result<RawResult<T>> {
         // TODO: Handle errors
         // TODO: Continuations - as Stream?
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());

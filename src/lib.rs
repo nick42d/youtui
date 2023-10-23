@@ -12,17 +12,12 @@ use directories::ProjectDirs;
 use error::Error;
 use tokio::runtime;
 
-const HEADER_FILENAME: &str = "headers.txt";
+pub const HEADER_FILENAME: &str = "headers.txt";
 
-// XXX Should err
-pub fn run_app() -> Result<()> {
-    let rt = runtime::Runtime::new()?;
-    rt.block_on(async {
-        // TODO: Handle errors
-        let mut app = app::Youtui::new()?;
-        app.run().await;
-        Ok(())
-    })
+pub async fn run_app() -> Result<()> {
+    let mut app = app::Youtui::new()?;
+    app.run().await;
+    Ok(())
 }
 
 pub fn get_data_dir() -> Result<PathBuf> {

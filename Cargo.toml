@@ -2,8 +2,7 @@
 name = "youtui"
 version = "0.1.1"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["nick42d"]
 
 [dependencies]
 clap = { version = "4.3.5", features = ["derive"] }
