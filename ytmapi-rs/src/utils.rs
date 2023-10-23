@@ -1,8 +1,19 @@
 pub mod constants {
+    use const_format::concatcp;
+
+    pub const USER_AGENT: &str =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0";
     pub const YTM_URL: &str = "https://music.youtube.com";
     pub const YTM_API_URL: &str = "https://music.youtube.com/youtubei/v1/";
     pub const YTM_PARAMS: &str = "?alt=json&prettyPrint=false";
     pub const YTM_PARAMS_KEY: &str = "&key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30";
+    pub const OAUTH_CLIENT_ID: &str =
+        "861556708454-d6dlm3lh05idd8npek18k6be8ba3oc68.apps.googleusercontent.com";
+    pub const OAUTH_CLIENT_SECRET: &str = "SboVhoG9s0rNafixCSGGKXAT";
+    pub const OAUTH_SCOPE: &str = "https://www.googleapis.com/auth/youtube";
+    pub const OAUTH_CODE_URL: &str = "https://www.youtube.com/o/oauth2/device/code";
+    pub const OAUTH_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
+    pub const OAUTH_USER_AGENT: &str = concatcp!(USER_AGENT, " Cobalt/Version");
 }
 use constants::YTM_URL;
 use sha1::{Digest, Sha1};

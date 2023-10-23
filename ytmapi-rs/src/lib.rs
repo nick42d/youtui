@@ -37,6 +37,30 @@ pub struct YtMusic {
     cookies: String,
 }
 
+enum Auth {
+    Oauth(OAuthToken),
+    Browser,
+}
+
+struct OAuthToken {}
+
+impl OAuthToken {
+    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<()> {
+        let result = client
+            .post(&url)
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("SAPISIDHASH {hash}"))
+            .header("X-Origin", "https://music.youtube.com")
+            .header("Cookie", &self.cookies)
+            .json(&body)
+            .send()
+            .await?
+            .text()
+            .await?;
+        Ok(())
+    }
+}
+
 //TODO - Typesafe public interface
 impl YtMusic {
     pub fn from_raw_parts(client_version: String, cookies: String, sapisid: String) -> Self {
@@ -98,6 +122,7 @@ impl YtMusic {
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         // TODO: Handle errors
         // TODO: Continuations - as Stream?
+        // XXX: There is a test in here that I need to remove.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let test = json!({"test" : false});
         let mut body = json!({
