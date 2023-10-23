@@ -131,7 +131,7 @@ impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
                 if let Ok(true) = r.take_value_pointer("/bold") {
                     result.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
                 } else {
-                    result.push(r.take_value_pointer("/text/").map(|s| TextRun::Normal(s))?)
+                    result.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
                 }
             }
             results.push(result)

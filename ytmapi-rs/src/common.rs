@@ -7,7 +7,7 @@ use std::borrow::Cow;
 use crate::Error;
 
 /// A run of text that may be boldened.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Deserialize)]
 pub enum TextRun {
     Bold(String),
     Normal(String),

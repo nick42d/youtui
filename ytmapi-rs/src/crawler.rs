@@ -64,6 +64,8 @@ impl From<&PathList> for String {
 }
 
 impl<'a> JsonCrawlerArrayIterMut<'a> {
+    /// Total length of the iterator from when first set up.
+    /// Note - not adjusted after some elements have been consumed, will always show total length.
     pub fn len(&self) -> usize {
         self.len
     }
@@ -72,12 +74,12 @@ impl<'a> JsonCrawlerArrayIterMut<'a> {
 impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
     type Item = JsonCrawlerBorrowed<'a>;
     fn next(&mut self) -> Option<Self::Item> {
-        self.cur += 1;
-        if self.len <= self.cur {
+        if self.len < self.cur + 1 {
             return None;
         }
         self.path.pop();
         self.path.push(JsonPath::IndexNum(self.cur));
+        self.cur += 1;
         Some(JsonCrawlerBorrowed {
             // Ideally there should be a Borrowed version of this struct - otherwise we need to clone every time here.
             source: self.source.clone(),

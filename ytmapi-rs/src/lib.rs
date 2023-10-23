@@ -254,24 +254,27 @@ mod tests {
         let api = YtMusic::from_header_file(Path::new("headers.txt"))
             .await
             .unwrap();
-        let res = api.get_search_suggestions("beatles").await;
-        match res {
-            Ok(_) => todo!(),
-            Err(e) => {
-                let Some((json, key)) = e.get_json_and_key() else {
-                    todo!()
-                };
-                std::fs::write("log.json", json);
-            }
-        }
-        // let example = vec![
-        //     "faded",
-        //     "faded alan walker",
-        //     "faded zhu",
-        //     "faded remix",
-        //     "faded kerser",
-        // ];
-        // assert_eq!(res, example)
+        let res = api.get_search_suggestions("faded").await.unwrap();
+        let example = vec![
+            vec![TextRun::Bold("faded".into())],
+            vec![
+                TextRun::Bold("faded".into()),
+                TextRun::Normal(" alan walker".into()),
+            ],
+            vec![
+                TextRun::Bold("faded".into()),
+                TextRun::Normal(" zhu".into()),
+            ],
+            vec![
+                TextRun::Bold("faded".into()),
+                TextRun::Normal(" remix".into()),
+            ],
+            vec![
+                TextRun::Bold("faded".into()),
+                TextRun::Normal(" kerser".into()),
+            ],
+        ];
+        assert_eq!(res, example)
     }
     #[tokio::test]
     async fn test_get_artist() {
