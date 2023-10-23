@@ -29,7 +29,7 @@ pub struct ListSong {
     pub download_status: DownloadStatus,
     pub id: ListSongID,
     year: Rc<String>,
-    artists: Vec<String>,
+    artists: Vec<Rc<String>>,
     album: Rc<String>,
 }
 #[derive(Clone)]
@@ -128,10 +128,10 @@ impl ListSong {
     pub fn get_year(&self) -> &String {
         &self.year
     }
-    fn set_artists(&mut self, artists: Vec<String>) {
+    fn set_artists(&mut self, artists: Vec<Rc<String>>) {
         self.artists = artists;
     }
-    pub fn get_artists(&self) -> &Vec<String> {
+    pub fn get_artists(&self) -> &Vec<Rc<String>> {
         &self.artists
     }
     pub fn get_album(&self) -> &String {
@@ -155,10 +155,18 @@ impl<'a> TableItem for ListSong {
                 .into(),
             ),
             1 => Some(self.get_track_no().to_string().into()),
-            2 => Some(self.get_album().into()),
-            3 => Some(self.get_title().into()),
-            4 => self.get_duration().as_ref().map(|s| s.into()),
-            5 => Some(self.get_year().into()),
+            2 => Some(
+                // TODO: Remove allocation
+                self.get_artists()
+                    .get(0)
+                    .map(|a| a.to_string())
+                    .unwrap_or_default()
+                    .into(),
+            ),
+            3 => Some(self.get_album().into()),
+            4 => Some(self.get_title().into()),
+            5 => self.get_duration().as_ref().map(|s| s.into()),
+            6 => Some(self.get_year().into()),
             _ => None,
         }
     }
@@ -202,14 +210,21 @@ impl Default for AlbumSongsList {
 
 impl AlbumSongsList {
     // Naive implementation
-    pub fn append_raw_songs(&mut self, raw_list: Vec<SongResult>, album: String, year: String) {
+    pub fn append_raw_songs(
+        &mut self,
+        raw_list: Vec<SongResult>,
+        album: String,
+        year: String,
+        artist: String,
+    ) {
         // The album is shared by all the songs.
         // So no need to clone/allocate for eache one.
         // Instead we'll share ownership via Rc.
         let album = Rc::new(album);
         let year = Rc::new(year);
+        let artist = Rc::new(artist);
         for song in raw_list {
-            self.add_raw_song(song, album.clone(), year.clone());
+            self.add_raw_song(song, album.clone(), year.clone(), artist.clone());
         }
     }
     pub fn add_raw_song(
@@ -217,6 +232,7 @@ impl AlbumSongsList {
         song: SongResult,
         album: Rc<String>,
         year: Rc<String>,
+        artist: Rc<String>,
     ) -> ListSongID {
         let id = self.create_next_id();
         self.list.push(ListSong {
@@ -224,7 +240,7 @@ impl AlbumSongsList {
             download_status: DownloadStatus::None,
             id,
             year,
-            artists: Vec::new(),
+            artists: vec![artist],
             album,
         });
         id

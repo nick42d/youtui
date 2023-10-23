@@ -53,7 +53,7 @@ pub enum Response {
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),
     SongsFound(TaskID),
-    AppendSongList(Vec<SongResult>, String, String, TaskID),
+    AppendSongList(Vec<SongResult>, String, String, String, TaskID), //Strings: Album title, year, artists
     SongProgressUpdate(SongProgressUpdateType, ListSongID, TaskID),
 }
 
@@ -382,12 +382,13 @@ impl Server {
                 // Concurrently request all albums.
                 let mut browse_id_list = Vec::new();
                 for album in albums {
-                    // XXX: This is a hack to return the album with the resuls, could be a better way to do this.
-                    browse_id_list.push((album.browse_id, album.title));
+                    browse_id_list.push(album.browse_id);
                 }
                 let futures = browse_id_list.into_iter().map(|b_id| {
                     let api = &api;
                     let tx = tx.clone();
+                    // TODO: remove allocation
+                    let artist_name = artist.name.clone();
                     async move {
                         tracing::info!(
                             "Spawning request for caller tracks for request ID {:?}",
@@ -395,13 +396,13 @@ impl Server {
                         );
                         let album = match api
                             .get_album(ytmapi_rs::query::GetAlbumQuery::new(AlbumID::from_raw(
-                                &b_id.0,
+                                &b_id,
                             )))
                             .await
                         {
                             Ok(album) => album,
                             Err(e) => {
-                                error!("Error getting album {} {} :{e}", b_id.1, b_id.0);
+                                error!("Error <{e}> getting album {}", b_id);
                                 return;
                             }
                         };
@@ -409,8 +410,9 @@ impl Server {
                         let _ = tx
                             .send(Response::AppendSongList(
                                 album.tracks,
-                                b_id.1,
-                                album.year, // alternative way to get album information.
+                                album.title,
+                                album.year,
+                                artist_name,
                                 id,
                             ))
                             .await;

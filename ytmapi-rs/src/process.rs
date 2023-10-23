@@ -52,6 +52,9 @@ impl<T: Query> RawResult<T> {
     pub fn get_json(&self) -> &serde_json::Value {
         &self.json
     }
+    pub fn destructure_json(self) -> serde_json::Value {
+        self.json
+    }
 }
 #[cfg(test)]
 mod tests {

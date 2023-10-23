@@ -27,7 +27,7 @@ pub struct AlbumParamsOtherVersion {
 // XXX: Consider correct privacy
 #[derive(Debug)]
 pub struct AlbumParams {
-    title: String,
+    pub title: String,
     category: AlbumType,
     thumbnails: Vec<Thumbnail>,
     description: Option<String>,

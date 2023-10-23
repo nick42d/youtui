@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -79,7 +81,15 @@ where
         PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            .map(|s| s.get_artists().join(", "))
+            // TODO: tidy this up as ListSong only contains one artist currently.
+            // TODO: Remove allocation
+            .map(|s| {
+                s.get_artists()
+                    .clone()
+                    .get(0)
+                    .map(|a| a.to_string())
+                    .unwrap_or_default()
+            })
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
         PlayState::Stopped(_) => "".to_string(),

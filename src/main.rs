@@ -1,7 +1,11 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use ytmapi_rs::query::GetSearchSuggestionsQuery;
+use ytmapi_rs::{
+    common::YoutubeID,
+    query::{GetArtistQuery, GetSearchSuggestionsQuery},
+    ChannelID,
+};
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]
@@ -19,6 +23,7 @@ struct Arguments {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     GetSearchSuggestions { query: String },
+    GetArtist { channel_id: String },
 }
 
 #[tokio::main]
@@ -36,34 +41,65 @@ async fn main() -> youtui::Result<()> {
             ..
         } => todo!(),
         Arguments {
-            command: Some(Commands::GetSearchSuggestions { query: q }),
+            command: Some(Commands::GetSearchSuggestions { query }),
             show_source: false,
             ..
-        } => print_search_suggestions(q).await,
+        } => print_search_suggestions(query).await,
         Arguments {
-            command: Some(Commands::GetSearchSuggestions { query: q }),
+            command: Some(Commands::GetSearchSuggestions { query }),
             show_source: true,
             ..
-        } => print_search_suggestions_json(q).await,
+        } => print_search_suggestions_json(query).await,
+        Arguments {
+            command: Some(Commands::GetArtist { channel_id }),
+            show_source: false,
+            ..
+        } => print_artist(channel_id).await,
+        Arguments {
+            command: Some(Commands::GetArtist { channel_id }),
+            show_source: true,
+            ..
+        } => print_artist_json(channel_id).await,
     }
     Ok(())
+}
+
+async fn print_artist(query: String) {
+    // TODO: remove unwrap
+    let res = get_api()
+        .await
+        .get_artist(GetArtistQuery::new(ChannelID::from_raw(query)))
+        .await
+        .unwrap();
+    println!("{:#?}", res)
+}
+
+async fn print_artist_json(query: String) {
+    // TODO: remove unwrap
+    let json = get_api()
+        .await
+        .json_query(GetArtistQuery::new(ChannelID::from_raw(query)))
+        .await
+        .unwrap();
+    // TODO: remove unwrap
+    println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
 async fn print_search_suggestions(query: String) {
     // TODO: remove unwrap
     let res = get_api().await.get_search_suggestions(query).await.unwrap();
-    println!("{:?}", res)
+    println!("{:#?}", res)
 }
 
 async fn print_search_suggestions_json(query: String) {
     // TODO: remove unwrap
     let json = get_api()
         .await
-        .raw_query(GetSearchSuggestionsQuery::from(query))
+        .json_query(GetSearchSuggestionsQuery::from(query))
         .await
         .unwrap();
     // TODO: remove unwrap
-    println!("{}", serde_json::to_string_pretty(json.get_json()).unwrap())
+    println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
 async fn get_api() -> ytmapi_rs::YtMusic {

@@ -95,7 +95,7 @@ impl YtMusic {
             cookies,
         })
     }
-    pub async fn raw_query<T: Query>(&self, query: T) -> Result<RawResult<T>> {
+    async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         // TODO: Handle errors
         // TODO: Continuations - as Stream?
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
@@ -135,6 +135,10 @@ impl YtMusic {
             query,
         );
         Ok(result)
+    }
+    pub async fn json_query<Q: Query>(&self, query: Q) -> Result<serde_json::Value> {
+        let json = self.raw_query(query).await?.destructure_json();
+        Ok(json)
     }
     // TODO: add use statements to cleanup path.
     pub async fn search<'a, S: SearchType>(

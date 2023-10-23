@@ -342,8 +342,8 @@ impl YoutuiWindow {
                     self.handle_replace_artist_list(x, id).await
                 }
                 server::Response::SongsFound(id) => self.handle_songs_found(id),
-                server::Response::AppendSongList(song_list, album, year, id) => {
-                    self.handle_append_song_list(song_list, album, year, id)
+                server::Response::AppendSongList(song_list, album, year, artist, id) => {
+                    self.handle_append_song_list(song_list, album, year, artist, id)
                 }
                 server::Response::NoSongsFound(id) => self.handle_no_songs_found(id),
                 server::Response::SongListLoading(id) => self.handle_song_list_loading(id),
@@ -409,6 +409,7 @@ impl YoutuiWindow {
         song_list: Vec<SongResult>,
         album: String,
         year: String,
+        artist: String,
         id: TaskID,
     ) {
         tracing::info!("Received request to append song list - ID {:?}", id);
@@ -416,7 +417,7 @@ impl YoutuiWindow {
             return;
         }
         self.browser
-            .handle_append_song_list(song_list, album, year, id)
+            .handle_append_song_list(song_list, album, year, artist, id)
     }
     pub fn handle_songs_found(&mut self, id: TaskID) {
         tracing::info!("Received response that songs found - ID {:?}", id);

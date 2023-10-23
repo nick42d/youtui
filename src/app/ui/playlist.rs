@@ -179,8 +179,9 @@ impl TableView for Playlist {
         vec![
             Constraint::Min(6),
             Constraint::Min(3),
-            Constraint::Max(50),
-            Constraint::Max(50),
+            Constraint::Max(33),
+            Constraint::Max(33),
+            Constraint::Max(33),
             Constraint::Min(9),
             Constraint::Min(4),
         ]
@@ -189,7 +190,7 @@ impl TableView for Playlist {
         self.list.list.iter().collect()
     }
     fn get_headings(&self) -> Vec<&'static str> {
-        vec!["", "#", "Album", "Song", "Duration", "Year"]
+        vec!["", "#", "Artist", "Album", "Song", "Duration", "Year"]
     }
 }
 

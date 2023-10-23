@@ -445,11 +445,12 @@ impl Browser {
         song_list: Vec<SongResult>,
         album: String,
         year: String,
+        artist: String,
         _id: TaskID,
     ) {
         self.album_songs_list
             .list
-            .append_raw_songs(song_list, album, year);
+            .append_raw_songs(song_list, album, year, artist);
         self.album_songs_list.list.state = ListStatus::InProgress;
     }
     pub fn handle_songs_found(&mut self, _id: TaskID) {

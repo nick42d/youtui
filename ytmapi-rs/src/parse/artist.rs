@@ -25,7 +25,7 @@ use super::ProcessedResult;
 pub struct ArtistParams {
     description: String,
     views: String,
-    name: Option<String>,
+    pub name: String,
     pub channel_id: String,
     shuffle_id: Option<String>,
     radio_id: Option<String>,
@@ -141,7 +141,7 @@ impl<'a> ProcessedResult<GetArtistQuery<'a>> {
         // I think Json is owned by someone else here?
         // I think I can do another self.get_navigable()
         let mut header = json_crawler.navigate_pointer("/header/musicImmersiveHeaderRenderer")?;
-        //let name = header.pointer(TITLE_TEXT).ok_or_else(|| Error::navigation(,))?;
+        let name = header.take_value_pointer(TITLE_TEXT)?;
         let shuffle_id = header
             .take_value_pointer(concatcp!(
                 "/playButton/buttonRenderer",
@@ -170,7 +170,7 @@ impl<'a> ProcessedResult<GetArtistQuery<'a>> {
         Ok(ArtistParams {
             views,
             description,
-            name: None,
+            name,
             top_releases,
             thumbnails,
             subscribed,
