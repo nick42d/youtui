@@ -28,6 +28,8 @@ pub trait Scrollable {
     fn get_selected_item(&self) -> usize;
     // Increment the list by the specified amount.
     fn increment_list(&mut self, amount: isize);
+    // Get the correct offset for the list when given a height.
+    fn get_offset(&self, height: usize) -> usize;
 }
 // A row in the table with addressable fields.
 pub trait TableItem {

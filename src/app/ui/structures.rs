@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::sync::Arc;
 use std::{path::PathBuf, rc::Rc};
-use tracing::warn;
+use tracing::{info, warn};
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::SongResult;
 
@@ -13,6 +13,7 @@ pub struct AlbumSongsList {
     pub list: Vec<ListSong>,
     pub next_id: ListSongID,
     pub cur_selected: Option<usize>,
+    pub offset_commands: Vec<isize>,
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
@@ -193,7 +194,34 @@ impl Scrollable for AlbumSongsList {
                 .checked_add_signed(amount)
                 .unwrap_or(0)
                 .min(self.list.len().checked_add_signed(-1).unwrap_or(0)),
-        )
+        );
+        // TODO: Don't clear when we get to the bottom, instead should be vec![self.list.len()-1]
+        if self.cur_selected == Some(0) || self.cur_selected == Some(self.list.len() - 1) {
+            self.offset_commands.clear();
+            return;
+        }
+        if let Some(n) = self.offset_commands.pop() {
+            if n.signum() == amount.signum() {
+                self.offset_commands.push(n + amount);
+            } else {
+                self.offset_commands.push(n);
+                self.offset_commands.push(amount);
+            }
+        } else {
+            self.offset_commands.push(amount);
+        }
+    }
+    /// Compute the offset using the offset commands.
+    // Seems to work how I was expecting, however offset doesn't work as expected.
+    // TODO: investigate.
+    fn get_offset(&self, height: usize) -> usize {
+        info!("cmds: {:#?}", &self.offset_commands);
+        let offset: usize = self
+            .offset_commands
+            .iter()
+            .fold(0, |acc, e| (acc.saturating_add_signed(*e).min(height)));
+        info!("offset: {offset}");
+        offset
     }
 }
 
@@ -204,6 +232,7 @@ impl Default for AlbumSongsList {
             list: Vec::new(),
             next_id: ListSongID::default(),
             cur_selected: None,
+            offset_commands: Default::default(),
         }
     }
 }

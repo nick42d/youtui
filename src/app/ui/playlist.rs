@@ -166,6 +166,11 @@ impl Scrollable for Playlist {
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
     }
+
+    fn get_offset(&self, height: usize) -> usize {
+        // TODO
+        0
+    }
 }
 
 impl TableView for Playlist {

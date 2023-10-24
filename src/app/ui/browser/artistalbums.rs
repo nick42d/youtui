@@ -252,6 +252,11 @@ impl Scrollable for ArtistSearchPanel {
             .unwrap_or(0)
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
     }
+
+    fn get_offset(&self, height: usize) -> usize {
+        // TODO
+        0
+    }
 }
 
 impl SortableList for ArtistSearchPanel {
@@ -302,6 +307,10 @@ impl Scrollable for AlbumSongsPanel {
     }
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
+    }
+
+    fn get_offset(&self, height: usize) -> usize {
+        self.list.get_offset(height)
     }
 }
 

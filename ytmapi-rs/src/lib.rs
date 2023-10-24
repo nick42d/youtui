@@ -23,7 +23,12 @@ use query::{
 use reqwest::Client;
 use serde_json::json;
 use std::path::Path;
-use utils::constants::{YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL};
+use utils::constants::{
+    OAUTH_CODE_URL, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY,
+    YTM_URL,
+};
+
+use crate::utils::constants::{OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_GRANT_URL, OAUTH_SCOPE};
 
 // TODO: Remove allocation requirement.
 // TODO: Remove clone. Is just there for a hack in ui.rs
@@ -47,18 +52,55 @@ struct OAuthToken {}
 impl OAuthToken {
     async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<()> {
         let result = client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .header("Authorization", format!("SAPISIDHASH {hash}"))
-            .header("X-Origin", "https://music.youtube.com")
-            .header("Cookie", &self.cookies)
-            .json(&body)
+            .post(OAUTH_CODE_URL)
+            .header("User-Agent", OAUTH_USER_AGENT)
             .send()
             .await?
             .text()
             .await?;
         Ok(())
     }
+    async fn get_code(&self, client: &Client) -> Result<serde_json::Value> {
+        let body = json!({
+            "scope" : OAUTH_SCOPE,
+            "client_id" : OAUTH_CLIENT_ID
+        });
+        let result = client
+            .post(OAUTH_CODE_URL)
+            .header("User-Agent", OAUTH_USER_AGENT)
+            .json(&body)
+            .send()
+            .await?
+            .text()
+            .await?;
+        Ok(serde_json::from_str(&result).map_err(|_| Error::response(&result))?)
+    }
+    // You get the device code from the web logon. Should make it type safe.
+    async fn get_token_from_code(
+        &self,
+        client: &Client,
+        device_code: String,
+    ) -> Result<serde_json::Value> {
+        let body = json!({
+            "client_secret" : OAUTH_CLIENT_SECRET,
+            "grant_type" : OAUTH_GRANT_URL,
+            "code": device_code,
+            "client_id" : OAUTH_CLIENT_ID
+        });
+        let result = client
+            .post(OAUTH_TOKEN_URL)
+            .header("User-Agent", OAUTH_USER_AGENT)
+            .json(&body)
+            .send()
+            .await?
+            .text()
+            .await?;
+        Ok(serde_json::from_str(&result).map_err(|_| Error::response(&result))?)
+    }
+}
+
+async fn setup_oauth() {
+    let client = Client::new();
 }
 
 //TODO - Typesafe public interface
@@ -156,6 +198,7 @@ impl YtMusic {
             .text()
             .await?;
         let result = RawResult::from_raw(
+            // TODO: Better error
             serde_json::from_str(&result).map_err(|_| Error::response(&result))?,
             query,
         );
@@ -296,11 +339,11 @@ mod tests {
             ],
             vec![
                 TextRun::Bold("faded".into()),
-                TextRun::Normal(" remix".into()),
+                TextRun::Normal(" kerser".into()),
             ],
             vec![
                 TextRun::Bold("faded".into()),
-                TextRun::Normal(" kerser".into()),
+                TextRun::Normal(" remix".into()),
             ],
         ];
         assert_eq!(res, example)
@@ -357,6 +400,29 @@ mod tests {
         api.get_artist_albums(q).await.unwrap();
         let now = std::time::Instant::now();
         println!("Get albums took {} ms", now.elapsed().as_millis());
+    }
+    #[tokio::test]
+    async fn test_get_oauth_code() {
+        let client = Client::new();
+        let oauth = OAuthToken {};
+        let code = oauth.get_code(&client).await.unwrap();
+        assert_eq!(json!({"hello": "world"}), code);
+    }
+    #[tokio::test]
+    async fn test_get_oauth_token() {
+        let client = Client::new();
+        let oauth = OAuthToken {};
+        let code = oauth.get_code(&client).await.unwrap();
+        let token = oauth
+            .get_token_from_code(
+                &client,
+                code.get("device_code")
+                    .and_then(|s| serde_json::to_string(s).ok())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(json!({"hello": "world"}), token);
     }
     #[tokio::test]
     async fn test_get_artist_album_songs() {

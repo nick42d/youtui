@@ -14,6 +14,7 @@ pub mod constants {
     pub const OAUTH_CODE_URL: &str = "https://www.youtube.com/o/oauth2/device/code";
     pub const OAUTH_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
     pub const OAUTH_USER_AGENT: &str = concatcp!(USER_AGENT, " Cobalt/Version");
+    pub const OAUTH_GRANT_URL: &str = "http://oauth.net/grant_type/device/1.0";
 }
 use constants::YTM_URL;
 use sha1::{Digest, Sha1};

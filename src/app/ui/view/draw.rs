@@ -11,6 +11,7 @@ use ratatui::{
     },
     Frame,
 };
+use tracing::info;
 
 use super::{TableItem, TableView};
 
@@ -82,16 +83,13 @@ where
         .collect();
     // May be able to reuse below.
     let number_items = table_items.len();
+    // Minus 3 for height - boards and heading.
+    // Not working properly
+    let offset =
+        (table.get_offset((chunk.height - 3) as usize)).saturating_sub((chunk.height - 3) as usize);
     let mut table_state = TableState::default()
         .with_selected(Some(table.get_selected_item()))
-        // Not quite sure how I want offset to work.
-        // The below makes offset length - chunk height.
-        .with_offset(
-            table_items
-                .len()
-                .checked_add_signed(-(chunk.height as isize))
-                .unwrap_or(0),
-        );
+        .with_offset(offset);
     let table_widget = Table::new(table_items)
         .highlight_style(Style::default().bg(Color::Blue))
         .header(
