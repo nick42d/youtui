@@ -95,10 +95,16 @@ where
         PlayState::Stopped(_) => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
-    let song_title_string = format!(
-        "{} {song_title} - {artist_title}",
-        w.playlist.play_status.list_icon()
-    );
+    let song_title_string = match w.playlist.play_status {
+        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => format!(
+            "{} {song_title} - {artist_title}",
+            w.playlist.play_status.list_icon()
+        ),
+        PlayState::NotPlaying => "".to_string(),
+        PlayState::Stopped(_) => "".to_string(),
+        PlayState::Transitioning => "".to_string(),
+    };
+
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()
         .title("Status")
