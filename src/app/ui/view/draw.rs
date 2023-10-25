@@ -81,12 +81,10 @@ where
             Row::new(row)
         })
         .collect();
-    // May be able to reuse below.
     let number_items = table_items.len();
-    // Minus 3 for height - boards and heading.
-    // Not working properly
-    let offset =
-        (table.get_offset((chunk.height - 3) as usize)).saturating_sub((chunk.height - 3) as usize);
+    // Minus for height of block and heading.
+    let table_height = chunk.height.saturating_sub(4) as usize;
+    let offset = table.get_offset(table_height);
     let mut table_state = TableState::default()
         .with_selected(Some(table.get_selected_item()))
         .with_offset(offset);
@@ -101,15 +99,15 @@ where
         )
         .widths(layout.as_slice())
         .column_spacing(1);
-    // TODO: Implement scrolling and remove top/bottom arrows.
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)
         .track_symbol(line::VERTICAL)
         .begin_symbol(None)
         .end_symbol(None);
+    let scrollable_lines = number_items.saturating_sub(table_height) as u16;
     let mut scrollbar_state = ScrollbarState::default()
-        .position(table_state.selected().unwrap_or(0) as u16)
-        .content_length(10 as u16);
+        .position(offset.min(scrollable_lines as usize) as u16)
+        .content_length(scrollable_lines);
     let inner_chunk = draw_panel(f, table.get_title(), chunk, selected);
     if table.is_loading() {
         draw_loading(f, inner_chunk)
@@ -118,7 +116,7 @@ where
         f.render_stateful_widget(
             scrollbar,
             chunk.inner(&Margin {
-                vertical: 2,
+                vertical: 1,
                 horizontal: 0,
             }),
             &mut scrollbar_state,

@@ -195,9 +195,11 @@ impl Scrollable for AlbumSongsList {
                 .unwrap_or(0)
                 .min(self.list.len().checked_add_signed(-1).unwrap_or(0)),
         );
-        // TODO: Don't clear when we get to the bottom, instead should be vec![self.list.len()-1]
         if self.cur_selected == Some(0) || self.cur_selected == Some(self.list.len() - 1) {
             self.offset_commands.clear();
+            // Safe to unwrap, checked above.
+            self.offset_commands
+                .push(self.cur_selected.unwrap() as isize);
             return;
         }
         if let Some(n) = self.offset_commands.pop() {
@@ -212,15 +214,24 @@ impl Scrollable for AlbumSongsList {
         }
     }
     /// Compute the offset using the offset commands.
-    // Seems to work how I was expecting, however offset doesn't work as expected.
-    // TODO: investigate.
+    // TODO: Docs and tests.
     fn get_offset(&self, height: usize) -> usize {
-        info!("cmds: {:#?}", &self.offset_commands);
-        let offset: usize = self
+        let (offset, _): (usize, usize) = self
             .offset_commands
             .iter()
-            .fold(0, |acc, e| (acc.saturating_add_signed(*e).min(height)));
-        info!("offset: {offset}");
+            // XXX: cursor is stored in self if we want to avoid using fold state for it also.
+            .fold((0, 0), |(offset, cursor), e| {
+                let new_cur = cursor.saturating_add_signed(*e);
+                let new_offset = if new_cur.saturating_sub(offset) <= 0 {
+                    new_cur
+                } else if new_cur.saturating_sub(offset) > height {
+                    new_cur.saturating_sub(height)
+                } else {
+                    offset
+                };
+
+                (new_offset, new_cur)
+            });
         offset
     }
 }
