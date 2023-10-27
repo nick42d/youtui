@@ -1,11 +1,23 @@
-use std::path::PathBuf;
+// Utilising nightly until async trait stabilised
+#![feature(async_fn_in_trait)]
+
+mod app;
+mod appevent;
+mod core;
+
+pub use error::Result;
 
 use clap::{Parser, Subcommand};
+use directories::ProjectDirs;
+use error::Error;
+use std::path::PathBuf;
 use ytmapi_rs::{
     common::YoutubeID,
     query::{GetArtistQuery, GetSearchSuggestionsQuery},
-    ChannelID,
+    ChannelID, YtMusic,
 };
+
+pub const HEADER_FILENAME: &str = "headers.txt";
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]
@@ -24,17 +36,20 @@ struct Arguments {
 enum Commands {
     GetSearchSuggestions { query: String },
     GetArtist { channel_id: String },
+    // This does not work with the show_source command!
+    SetupOAuth,
 }
 
 #[tokio::main]
-async fn main() -> youtui::Result<()> {
+async fn main() -> Result<()> {
     let args = Arguments::parse();
+    // TODO: Error handling
     match args {
         Arguments {
             command: None,
             debug: false,
             ..
-        } => youtui::run_app().await?,
+        } => run_app().await?,
         Arguments {
             command: None,
             debug: true,
@@ -60,8 +75,18 @@ async fn main() -> youtui::Result<()> {
             show_source: true,
             ..
         } => print_artist_json(channel_id).await,
+        Arguments {
+            command: Some(Commands::SetupOAuth),
+            show_source: _,
+            ..
+        } => setup_oauth().await,
     }
     Ok(())
+}
+
+async fn setup_oauth() {
+    let api = YtMusic::default();
+    let _ = api.setup_oauth().await;
 }
 
 async fn print_artist(query: String) {
@@ -104,11 +129,85 @@ async fn print_search_suggestions_json(query: String) {
 
 async fn get_api() -> ytmapi_rs::YtMusic {
     // TODO: remove unwrap
-    let confdir = youtui::get_config_dir().unwrap();
+    let confdir = get_config_dir().unwrap();
     let mut headers_loc = PathBuf::from(confdir);
-    headers_loc.push(youtui::HEADER_FILENAME);
+    headers_loc.push(HEADER_FILENAME);
     // TODO: remove unwrap
     ytmapi_rs::YtMusic::from_header_file(headers_loc)
         .await
         .unwrap()
+}
+
+pub async fn run_app() -> Result<()> {
+    let mut app = app::Youtui::new()?;
+    app.run().await;
+    Ok(())
+}
+
+pub fn get_data_dir() -> Result<PathBuf> {
+    let directory = if let Ok(s) = std::env::var("YOUTUI_DATA_DIR") {
+        PathBuf::from(s)
+    } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
+        proj_dirs.data_local_dir().to_path_buf()
+    } else {
+        return Err(Error::DirectoryNotFound);
+    };
+    Ok(directory)
+}
+
+pub fn get_config_dir() -> Result<PathBuf> {
+    let directory = if let Ok(s) = std::env::var("YOUTUI_CONFIG_DIR") {
+        PathBuf::from(s)
+    } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
+        proj_dirs.config_local_dir().to_path_buf()
+    } else {
+        return Err(Error::DirectoryNotFound);
+    };
+    Ok(directory)
+}
+
+pub mod error {
+    use std::fmt::Display;
+
+    use tokio::{sync::mpsc, task::JoinError};
+
+    pub type Result<T> = std::result::Result<T, Error>;
+
+    #[derive(Debug)]
+    pub enum Error {
+        Communication,
+        DirectoryNotFound,
+        IoError(std::io::Error),
+        JoinError(JoinError),
+    }
+    impl Display for Error {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Error::Communication => write!(f, "Error sending message to channel"),
+                Error::DirectoryNotFound => write!(f, "Directory not found"),
+                Error::IoError(e) => write!(f, "Standard io error <{e}>"),
+                Error::JoinError(e) => write!(f, "Join error <{e}>"),
+            }
+        }
+    }
+    impl<T> From<mpsc::error::SendError<T>> for Error {
+        fn from(_value: mpsc::error::SendError<T>) -> Self {
+            Error::Communication
+        }
+    }
+    impl From<mpsc::error::TryRecvError> for Error {
+        fn from(_value: mpsc::error::TryRecvError) -> Self {
+            Error::Communication
+        }
+    }
+    impl From<std::io::Error> for Error {
+        fn from(value: std::io::Error) -> Self {
+            Error::IoError(value)
+        }
+    }
+    impl From<JoinError> for Error {
+        fn from(value: JoinError) -> Self {
+            Error::JoinError(value)
+        }
+    }
 }

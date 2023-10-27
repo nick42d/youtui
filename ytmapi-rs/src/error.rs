@@ -1,4 +1,4 @@
-use std::{fmt::Display, io, rc::Rc, sync::Arc};
+use std::{fmt::Display, io, sync::Arc};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -28,6 +28,7 @@ enum Inner {
     },
     Header,        // Currently limited in information.
     Other(String), // Generic catchall - TODO: Remove all of these.
+    NotAuthenticated,
 }
 #[derive(Debug, Clone)]
 pub enum ParseTarget {
@@ -35,6 +36,11 @@ pub enum ParseTarget {
     String,
 }
 impl Error {
+    pub fn not_authenticated() -> Self {
+        Self {
+            inner: Box::new(Inner::NotAuthenticated),
+        }
+    }
     pub fn navigation<S: Into<String>>(key: S, json: Arc<serde_json::Value>) -> Self {
         Self {
             inner: Box::new(Inner::Navigation {
@@ -80,7 +86,8 @@ impl Error {
             | Inner::Io
             | Inner::InvalidResponse { .. }
             | Inner::Header
-            | Inner::Other(_) => None,
+            | Inner::Other(_)
+            | Inner::NotAuthenticated => None,
         }
     }
 }
@@ -104,6 +111,7 @@ impl Display for Inner {
                 json: _,
                 target,
             } => write!(f, "Unable to parse into {:?} at {key}", target),
+            Self::NotAuthenticated => write!(f, "API not authenticated"),
         }
     }
 }
