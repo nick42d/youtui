@@ -257,8 +257,15 @@ impl YtMusic {
         println!("Go to {url}, finish the login flow, and press enter when done");
         let mut _buf = String::new();
         let _ = std::io::stdin().read_line(&mut _buf);
-        let token = OAuthToken::get_token_from_code(&self.client, device_code).await;
-        println!("{:#?}", token);
+        // TODO: Better error handling
+        let token = OAuthToken::get_token_from_code(&self.client, device_code)
+            .await
+            .map_err(|_| Error::other("Error parsing oauth token"))?;
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&token)
+                .map_err(|_| Error::other("Error parsing oauth token"))?
+        );
         Ok(())
     }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
