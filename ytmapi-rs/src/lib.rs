@@ -70,8 +70,9 @@ struct OAuthToken {
     // access_token: String,
 }
 
+// TODO: Lock down construction of this type.
 #[derive(Debug, Clone)]
-struct OAuthDeviceCode(String);
+pub struct OAuthDeviceCode(String);
 
 impl AuthToken for OAuthToken {
     async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
@@ -203,12 +204,12 @@ impl OAuthToken {
     // You get the device code from the web logon. Should make it type safe.
     async fn get_token_from_code(
         client: &Client,
-        device_code: String,
+        code: OAuthDeviceCode,
     ) -> Result<serde_json::Value> {
         let body = json!({
             "client_secret" : OAUTH_CLIENT_SECRET,
             "grant_type" : OAUTH_GRANT_URL,
-            "code": device_code,
+            "code": code.0,
             "client_id" : OAUTH_CLIENT_ID
         });
         let result = client
@@ -259,37 +260,8 @@ impl YtMusic {
         let url = format!("{verification_url}?user_code={user_code}");
         Ok((OAuthDeviceCode(device_code), url))
     }
-
-    pub async fn setup_oauth(&self) -> Result<()> {
-        let code = OAuthToken::get_code(&self.client).await?;
-        let verification_url = code
-            .get("verification_url")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default();
-        let user_code = code
-            .get("user_code")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default();
-        let device_code = code
-            .get("device_code")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default()
-            .to_string();
-        let url = format!("{verification_url}?user_code={user_code}");
-        // Hack method to pause whilst I login
-        println!("Go to {url}, finish the login flow, and press enter when done");
-        let mut _buf = String::new();
-        let _ = std::io::stdin().read_line(&mut _buf);
-        // TODO: Better error handling
-        let token = OAuthToken::get_token_from_code(&self.client, device_code)
-            .await
-            .map_err(|_| Error::other("Error parsing oauth token"))?;
-        println!(
-            "{}",
-            serde_json::to_string_pretty(&token)
-                .map_err(|_| Error::other("Error parsing oauth token"))?
-        );
-        Ok(())
+    pub async fn generate_oauth_json(&self, code: OAuthDeviceCode) -> Result<serde_json::Value> {
+        OAuthToken::get_token_from_code(&self.client, code).await
     }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         self.auth.raw_query(&self.client, query).await

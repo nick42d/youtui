@@ -88,7 +88,14 @@ async fn main() -> Result<()> {
 
 async fn setup_oauth() {
     let api = YtMusic::default();
-    let _ = api.setup_oauth().await;
+    let (code, url) = api.generate_oauth_code_and_url().await.unwrap();
+    // Hack to wait for input
+    // TODO: Remove unwraps
+    println!("Go to {url}, finish the login flow, and press enter when done");
+    let mut _buf = String::new();
+    let _ = std::io::stdin().read_line(&mut _buf);
+    let token = api.generate_oauth_json(code).await.unwrap();
+    println!("{:?}", token);
 }
 
 async fn print_artist(query: String) {
