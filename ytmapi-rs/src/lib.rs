@@ -29,8 +29,8 @@ use reqwest::Client;
 use serde_json::json;
 use std::path::Path;
 use utils::constants::{
-    OAUTH_CODE_URL, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY,
-    YTM_URL,
+    OAUTH_CODE_URL, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_API_URL, YTM_PARAMS,
+    YTM_PARAMS_KEY, YTM_URL,
 };
 
 use crate::utils::constants::{OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_GRANT_URL, OAUTH_SCOPE};
@@ -69,6 +69,9 @@ struct OAuthToken {
     // token_type: String,
     // access_token: String,
 }
+
+#[derive(Debug, Clone)]
+struct OAuthDeviceCode(String);
 
 impl AuthToken for OAuthToken {
     async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
@@ -148,14 +151,11 @@ impl BrowserToken {
             if let Some(c) = l.strip_prefix("Cookie:") {
                 cookies = c.trim().to_string();
             }
-            if let Some(u) = l.strip_prefix("User-Agent:") {
-                user_agent = u.trim().to_string();
-            }
         }
         let response = client
             .get(YTM_URL)
             .header(reqwest::header::COOKIE, &cookies)
-            .header(reqwest::header::USER_AGENT, user_agent)
+            .header(reqwest::header::USER_AGENT, USER_AGENT)
             .send()
             .await?
             .text()
@@ -232,11 +232,34 @@ impl YtMusic {
     //     let client = Client::new();
     //     Ok(Self { client, auth })
     // }
+    /// Create a new API handle using browser authentication details saved to a file on disk.
+    /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
     pub async fn from_header_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
         let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
         Ok(Self { client, auth })
     }
+    /// Generates a tuple contianing fresh OAuth Device code and corresponding url that must be validated.
+    /// (OAuthDeviceCode, URL)
+    pub async fn generate_oauth_code_and_url(&self) -> Result<(OAuthDeviceCode, String)> {
+        let code = OAuthToken::get_code(&self.client).await?;
+        let verification_url = code
+            .get("verification_url")
+            .and_then(|s| s.as_str())
+            .unwrap_or_default();
+        let user_code = code
+            .get("user_code")
+            .and_then(|s| s.as_str())
+            .unwrap_or_default();
+        let device_code = code
+            .get("device_code")
+            .and_then(|s| s.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let url = format!("{verification_url}?user_code={user_code}");
+        Ok((OAuthDeviceCode(device_code), url))
+    }
+
     pub async fn setup_oauth(&self) -> Result<()> {
         let code = OAuthToken::get_code(&self.client).await?;
         let verification_url = code
