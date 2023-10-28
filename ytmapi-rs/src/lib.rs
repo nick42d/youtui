@@ -1,11 +1,11 @@
 #![feature(async_fn_in_trait)]
 
+mod auth;
 mod utils;
-mod auth {}
 mod locales {}
-pub mod common;
 mod nav_consts;
 // Consider if pub is correct for this
+pub mod common;
 mod crawler;
 mod error;
 pub mod parse;
@@ -15,6 +15,11 @@ pub mod query;
 #[cfg(test)]
 mod tests;
 
+use std::path::Path;
+
+use auth::{
+    browser::BrowserToken, oauth::OAuthDeviceCode, Auth, AuthToken, OAuthToken, OAuthTokenGenerator,
+};
 use common::{browsing::Lyrics, watch::WatchPlaylist, TextRun};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
@@ -26,22 +31,9 @@ use query::{
     Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
-use serde_json::json;
-use std::path::Path;
-use utils::constants::{
-    OAUTH_CODE_URL, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_API_URL, YTM_PARAMS,
-    YTM_PARAMS_KEY, YTM_URL,
-};
-
-use crate::utils::constants::{OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_GRANT_URL, OAUTH_SCOPE};
-
-/// An authentication token into Youtube Music that can be used to query the API.
-trait AuthToken {
-    // TODO: Continuations - as Stream?
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>>;
-}
 
 #[derive(Debug, Clone, Default)]
+// XXX: Consider wrapping auth in reference counting for cheap cloning.
 pub struct YtMusic {
     // TODO: add language
     // TODO: add location
@@ -49,182 +41,6 @@ pub struct YtMusic {
     auth: Auth,
 }
 
-#[derive(Debug, Clone, Default)]
-enum Auth {
-    OAuth(OAuthToken),
-    Browser(BrowserToken),
-    #[default]
-    Unauthenticated,
-}
-
-#[derive(Debug, Clone)]
-struct BrowserToken {
-    sapisid: String,
-    client_version: String,
-    cookies: String,
-}
-
-#[derive(Debug, Clone)]
-struct OAuthToken {
-    // token_type: String,
-    // access_token: String,
-}
-
-// TODO: Lock down construction of this type.
-#[derive(Debug, Clone)]
-pub struct OAuthDeviceCode(String);
-
-impl AuthToken for OAuthToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
-        let result = client
-            .post(OAUTH_CODE_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .send()
-            .await?
-            .text()
-            .await?;
-        Err(Error::not_authenticated())
-    }
-}
-
-impl AuthToken for Auth {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
-        match self {
-            Auth::OAuth(token) => token.raw_query(client, query).await,
-            Auth::Browser(token) => token.raw_query(client, query).await,
-            Auth::Unauthenticated => Err(Error::not_authenticated()),
-        }
-    }
-}
-
-impl AuthToken for BrowserToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
-        // XXX: There is a test in here that I need to remove.
-        let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
-        let test = json!({"test" : false});
-        let mut body = json!({
-            "context" : {
-                "client" : {
-                    "clientName" : "WEB_REMIX",
-                    "clientVersion" : self.client_version,
-                    "test" : test,
-                }
-            },
-        });
-        body.as_object_mut()
-            .expect("I created body as an object")
-            .append(&mut query.header());
-        if let Some(q) = query.params() {
-            body.as_object_mut()
-                .expect("Body is an object")
-                .insert("params".into(), q.into());
-        }
-        let hash = utils::hash_sapisid(&self.sapisid);
-        let result = client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .header("Authorization", format!("SAPISIDHASH {hash}"))
-            .header("X-Origin", "https://music.youtube.com")
-            .header("Cookie", &self.cookies)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
-        let result = RawResult::from_raw(
-            // TODO: Better error
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?,
-            query,
-        );
-        Ok(result)
-    }
-}
-
-impl BrowserToken {
-    async fn from_header_file<P>(path: P, client: &Client) -> Result<Self>
-    where
-        P: AsRef<Path>,
-    {
-        let contents = tokio::fs::read_to_string(path).await.unwrap();
-        let mut cookies = String::new();
-        let mut user_agent = String::new();
-        for l in contents.lines() {
-            if let Some(c) = l.strip_prefix("Cookie:") {
-                cookies = c.trim().to_string();
-            }
-        }
-        let response = client
-            .get(YTM_URL)
-            .header(reqwest::header::COOKIE, &cookies)
-            .header(reqwest::header::USER_AGENT, USER_AGENT)
-            .send()
-            .await?
-            .text()
-            .await?;
-        let client_version = response
-            .split_once("INNERTUBE_CLIENT_VERSION\":\"")
-            .ok_or(Error::header())?
-            .1
-            .split_once("\"")
-            .ok_or(Error::header())?
-            .0
-            .to_string();
-        let sapisid = cookies
-            .split_once("SAPISID=")
-            .ok_or(Error::header())?
-            .1
-            .split_once(";")
-            .ok_or(Error::header())?
-            .0
-            .to_string();
-        Ok(Self {
-            sapisid,
-            client_version,
-            cookies,
-        })
-    }
-}
-
-impl OAuthToken {
-    async fn get_code(client: &Client) -> Result<serde_json::Value> {
-        let body = json!({
-            "scope" : OAUTH_SCOPE,
-            "client_id" : OAUTH_CLIENT_ID
-        });
-        let result = client
-            .post(OAUTH_CODE_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
-        Ok(serde_json::from_str(&result).map_err(|_| Error::response(&result))?)
-    }
-    // You get the device code from the web logon. Should make it type safe.
-    async fn get_token_from_code(
-        client: &Client,
-        code: OAuthDeviceCode,
-    ) -> Result<serde_json::Value> {
-        let body = json!({
-            "client_secret" : OAUTH_CLIENT_SECRET,
-            "grant_type" : OAUTH_GRANT_URL,
-            "code": code.0,
-            "client_id" : OAUTH_CLIENT_ID
-        });
-        let result = client
-            .post(OAUTH_TOKEN_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
-        Ok(serde_json::from_str(&result).map_err(|_| Error::response(&result))?)
-    }
-}
-
-//TODO - Typesafe public interface
 impl YtMusic {
     // pub async fn from_oauth_json<P>(path: P) -> Result<Self>
     // where
@@ -243,25 +59,12 @@ impl YtMusic {
     /// Generates a tuple contianing fresh OAuth Device code and corresponding url that must be validated.
     /// (OAuthDeviceCode, URL)
     pub async fn generate_oauth_code_and_url(&self) -> Result<(OAuthDeviceCode, String)> {
-        let code = OAuthToken::get_code(&self.client).await?;
-        let verification_url = code
-            .get("verification_url")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default();
-        let user_code = code
-            .get("user_code")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default();
-        let device_code = code
-            .get("device_code")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default()
-            .to_string();
-        let url = format!("{verification_url}?user_code={user_code}");
-        Ok((OAuthDeviceCode(device_code), url))
+        let code = OAuthTokenGenerator::new(&self.client).await?;
+        let url = format!("{}?user_code={}", code.verification_url, code.user_code);
+        Ok((code.device_code, url))
     }
-    pub async fn generate_oauth_json(&self, code: OAuthDeviceCode) -> Result<serde_json::Value> {
-        OAuthToken::get_token_from_code(&self.client, code).await
+    pub async fn generate_oauth_token(&self, code: OAuthDeviceCode) -> Result<OAuthToken> {
+        OAuthToken::from_code(&self.client, code).await
     }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         self.auth.raw_query(&self.client, query).await

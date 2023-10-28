@@ -94,7 +94,7 @@ async fn setup_oauth() {
     println!("Go to {url}, finish the login flow, and press enter when done");
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
-    let token = api.generate_oauth_json(code).await.unwrap();
+    let token = api.generate_oauth_token(code).await.unwrap();
     println!("{:?}", token);
 }
 
