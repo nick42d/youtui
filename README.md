@@ -39,7 +39,7 @@ The app should limit the cognitive load required to memorise commands and should
 - [ ] Theming
 ### API
 - [ ] Implement all endpoints
-- [ ] OAuth authentication
+- [x] OAuth authentication
 - [ ] i18n
 
 |Endpoint | Implemented |
