@@ -195,8 +195,8 @@ impl TableView for Playlist {
     fn get_items(&self) -> Vec<&Self::Item> {
         self.list.list.iter().collect()
     }
-    fn get_headings(&self) -> Vec<&'static str> {
-        vec!["", "#", "Artist", "Album", "Song", "Duration", "Year"]
+    fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
+        Box::new(["", "#", "Artist", "Album", "Song", "Duration", "Year"].into_iter())
     }
 }
 

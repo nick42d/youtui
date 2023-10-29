@@ -79,7 +79,9 @@ pub trait TableView: Scrollable + Loadable {
     fn get_title(&self) -> Cow<str>;
     fn get_layout(&self) -> &[BasicConstraint];
     fn get_items(&self) -> Vec<&Self::Item>;
-    fn get_headings(&self) -> Vec<&'static str>;
+    // We should return an iterator - translates well to Ratatui model
+    // TODO: See if we can remove boxing.
+    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
     fn len(&self) -> usize {
         self.get_items().len()
     }
