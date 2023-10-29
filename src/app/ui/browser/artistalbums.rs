@@ -7,8 +7,8 @@ use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
 use crate::app::ui::{
     actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     browser::BrowserAction,
-    structures::{AlbumSongsList, ListSong, ListStatus},
-    view::{Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
+    structures::{AlbumSongsList, ListSong, ListStatus, Percentage},
+    view::{BasicConstraint, Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -339,14 +339,14 @@ impl TableView for AlbumSongsPanel {
             ListStatus::Error => "Songs - Error receieved".into(),
         }
     }
-    fn get_layout(&self) -> Vec<ratatui::prelude::Constraint> {
-        vec![
-            Constraint::Min(6),
-            Constraint::Min(3),
-            Constraint::Max(30),
-            Constraint::Max(30),
-            Constraint::Min(9),
-            Constraint::Min(4),
+    fn get_layout(&self) -> &[BasicConstraint] {
+        &[
+            BasicConstraint::Length(6),
+            BasicConstraint::Length(3),
+            BasicConstraint::Percentage(Percentage(50)),
+            BasicConstraint::Percentage(Percentage(50)),
+            BasicConstraint::Length(9),
+            BasicConstraint::Length(4),
         ]
     }
     fn get_items(&self) -> Vec<&Self::Item> {

@@ -5,6 +5,9 @@ use ratatui::{
     prelude::{Backend, Constraint, Rect},
     Frame,
 };
+use tracing::info;
+
+use super::structures::Percentage;
 
 struct _TableSort {
     column: usize,
@@ -21,6 +24,38 @@ enum _TableFilter {
 enum Filter {
     Contains(String),
 }
+
+pub enum BasicConstraint {
+    Length(u16),
+    Percentage(Percentage),
+}
+
+pub fn basic_constraints_to_constraints(
+    basic_constraints: &[BasicConstraint],
+    length: u16,
+    margin: u16,
+) -> Vec<Constraint> {
+    let sum_lengths = basic_constraints
+        .iter()
+        .fold(0, |acc, c| {
+            acc + match c {
+                BasicConstraint::Length(l) => *l,
+                BasicConstraint::Percentage(_) => 0,
+            } + margin
+        })
+        // One less margin than number of rows.
+        .saturating_sub(1);
+    basic_constraints
+        .iter()
+        .map(|bc| match bc {
+            BasicConstraint::Length(l) => Constraint::Length(*l),
+            BasicConstraint::Percentage(p) => {
+                Constraint::Length(p.0 as u16 * (length.saturating_sub(sum_lengths)) / 100)
+            }
+        })
+        .collect()
+}
+
 // A struct that is able to be "scrolled". An item will always be selected.
 // XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
 pub trait Scrollable {
@@ -42,7 +77,7 @@ pub trait TableView: Scrollable + Loadable {
     type Item: TableItem;
     // Could have a "commontitle" trait to prevent the need for this in both Table and List
     fn get_title(&self) -> Cow<str>;
-    fn get_layout(&self) -> Vec<Constraint>;
+    fn get_layout(&self) -> &[BasicConstraint];
     fn get_items(&self) -> Vec<&Self::Item>;
     fn get_headings(&self) -> Vec<&'static str>;
     fn len(&self) -> usize {

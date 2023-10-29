@@ -15,11 +15,13 @@ use error::Error;
 use std::path::PathBuf;
 use ytmapi_rs::{
     common::YoutubeID,
+    generate_oauth_code_and_url, generate_oauth_token,
     query::{GetArtistQuery, GetSearchSuggestionsQuery},
     ChannelID, YtMusic,
 };
 
 pub const HEADER_FILENAME: &str = "headers.txt";
+pub const OAUTH_FILENAME: &str = "oauth.json";
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]
@@ -96,14 +98,13 @@ async fn get_and_output_oauth_token(file_name: Option<PathBuf>) {
     }
 }
 async fn get_oauth_token() -> String {
-    let api = YtMusic::default();
-    let (code, url) = api.generate_oauth_code_and_url().await.unwrap();
+    let (code, url) = generate_oauth_code_and_url().await.unwrap();
     // Hack to wait for input
     // TODO: Remove unwraps
     println!("Go to {url}, finish the login flow, and press enter when done");
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
-    let token = api.generate_oauth_token(code).await.unwrap();
+    let token = generate_oauth_token(code).await.unwrap();
     serde_json::to_string_pretty(&token).unwrap()
 }
 

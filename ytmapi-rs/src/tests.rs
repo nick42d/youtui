@@ -8,7 +8,7 @@ use crate::Error;
 
 async fn new_standard_oauth_api() -> Result<YtMusic> {
     let oauth_token = tokio::fs::read("oauth.json").await.unwrap();
-    YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await
+    Ok(YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await)
 }
 async fn new_standard_api() -> Result<YtMusic> {
     YtMusic::from_header_file(Path::new("headers.txt")).await

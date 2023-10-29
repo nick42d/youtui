@@ -32,7 +32,7 @@ use query::{
 };
 use reqwest::Client;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
 pub struct YtMusic {
     // TODO: add language
@@ -42,11 +42,22 @@ pub struct YtMusic {
 }
 
 impl YtMusic {
+    pub fn get_auth_type(&self) -> &Auth {
+        &self.auth
+    }
+    pub fn set_auth_type_oauth(&mut self, token: OAuthToken) {
+        self.auth = Auth::OAuth(token)
+    }
+    pub async fn set_auth_type_header<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        let token = BrowserToken::from_header_file(path, &self.client).await?;
+        self.auth = Auth::Browser(token);
+        Ok(())
+    }
     /// Create a new API handle using an OAuthToken.
-    pub async fn from_oauth_token(token: OAuthToken) -> Result<Self> {
+    pub async fn from_oauth_token(token: OAuthToken) -> Self {
         let client = Client::new();
         let auth = Auth::OAuth(token);
-        Ok(Self { client, auth })
+        Self { client, auth }
     }
     /// Create a new API handle using browser authentication details saved to a file on disk.
     /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
@@ -54,16 +65,6 @@ impl YtMusic {
         let client = Client::new();
         let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
         Ok(Self { client, auth })
-    }
-    /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
-    /// (OAuthDeviceCode, URL)
-    pub async fn generate_oauth_code_and_url(&self) -> Result<(OAuthDeviceCode, String)> {
-        let code = OAuthTokenGenerator::new(&self.client).await?;
-        let url = format!("{}?user_code={}", code.verification_url, code.user_code);
-        Ok((code.device_code, url))
-    }
-    pub async fn generate_oauth_token(&self, code: OAuthDeviceCode) -> Result<OAuthToken> {
-        OAuthToken::from_code(&self.client, code).await
     }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         self.auth.raw_query(&self.client, query).await
@@ -104,11 +105,23 @@ impl YtMusic {
     ) -> Result<WatchPlaylist> {
         self.raw_query(query.into()).await?.process()?.parse()
     }
-    // TODO: Implement detailed runs function that highlights some parts of text bold.
     pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
         query: S,
     ) -> Result<Vec<Vec<TextRun>>> {
         self.raw_query(query.into()).await?.process()?.parse()
     }
+}
+/// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
+/// (OAuthDeviceCode, URL)
+pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
+    let client = Client::new();
+    let code = OAuthTokenGenerator::new(&client).await?;
+    let url = format!("{}?user_code={}", code.verification_url, code.user_code);
+    Ok((code.device_code, url))
+}
+/// Generates an OAuth token when given an OAuthDeviceCode.
+pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
+    let client = Client::new();
+    OAuthToken::from_code(&client, code).await
 }

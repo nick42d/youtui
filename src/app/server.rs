@@ -1,6 +1,7 @@
 use rusty_ytdl::DownloadOptions;
 use rusty_ytdl::Video;
 use rusty_ytdl::VideoOptions;
+use tokio::fs;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
@@ -18,6 +19,7 @@ use crate::core::send_or_error;
 use crate::get_config_dir;
 use crate::Result;
 use crate::HEADER_FILENAME;
+use crate::OAUTH_FILENAME;
 
 use super::ui::structures::ListSongID;
 use super::ui::structures::Percentage;
@@ -77,7 +79,6 @@ impl Server {
     pub fn new(response_tx: mpsc::Sender<Response>, request_rx: mpsc::Receiver<Request>) -> Self {
         let api_init = Some(tokio::spawn(async move {
             info!("Initialising API");
-            // XXX: remove unwraps
             let api = ytmapi_rs::YtMusic::from_header_file(
                 get_config_dir().unwrap().join(HEADER_FILENAME),
             )
@@ -127,7 +128,7 @@ impl Server {
         }
     }
     async fn handle_download_song(
-        &mut self,
+        &self,
         song_video_id: VideoID<'static>,
         playlist_id: ListSongID,
         id: TaskID,

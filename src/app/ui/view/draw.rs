@@ -13,7 +13,7 @@ use ratatui::{
 };
 use tracing::info;
 
-use super::{TableItem, TableView};
+use super::{basic_constraints_to_constraints, TableItem, TableView};
 
 const SELECTED_BORDER: Color = Color::Cyan;
 const DESELECTED_BORDER: Color = Color::White;
@@ -85,6 +85,9 @@ where
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
     let offset = table.get_offset(table_height);
+    let table_widths =
+        basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
+    info!("chunk {}, table {:?}", chunk.width, table_widths);
     let mut table_state = TableState::default()
         .with_selected(Some(table.get_selected_item()))
         .with_offset(offset);
@@ -97,7 +100,7 @@ where
                     .fg(Color::LightGreen),
             ),
         )
-        .widths(layout.as_slice())
+        .widths(table_widths.as_slice())
         .column_spacing(1);
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)

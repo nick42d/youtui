@@ -104,7 +104,6 @@ where
         PlayState::Stopped(_) => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
-
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()
         .title("Status")

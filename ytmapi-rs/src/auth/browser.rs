@@ -66,6 +66,44 @@ impl AuthToken for BrowserToken {
 }
 
 impl BrowserToken {
+    pub async fn from_str(header_str: &str, client: &Client) -> Result<Self> {
+        let mut cookies = String::new();
+        let mut user_agent = String::new();
+        for l in header_str.lines() {
+            if let Some(c) = l.strip_prefix("Cookie:") {
+                cookies = c.trim().to_string();
+            }
+        }
+        let response = client
+            .get(YTM_URL)
+            .header(reqwest::header::COOKIE, &cookies)
+            .header(reqwest::header::USER_AGENT, USER_AGENT)
+            .send()
+            .await?
+            .text()
+            .await?;
+        let client_version = response
+            .split_once("INNERTUBE_CLIENT_VERSION\":\"")
+            .ok_or(Error::header())?
+            .1
+            .split_once("\"")
+            .ok_or(Error::header())?
+            .0
+            .to_string();
+        let sapisid = cookies
+            .split_once("SAPISID=")
+            .ok_or(Error::header())?
+            .1
+            .split_once(";")
+            .ok_or(Error::header())?
+            .0
+            .to_string();
+        Ok(Self {
+            sapisid,
+            client_version,
+            cookies,
+        })
+    }
     pub async fn from_header_file<P>(path: P, client: &Client) -> Result<Self>
     where
         P: AsRef<Path>,

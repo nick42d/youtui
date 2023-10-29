@@ -13,12 +13,10 @@ pub trait AuthToken {
     async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>>;
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub enum Auth {
     OAuth(OAuthToken),
     Browser(BrowserToken),
-    #[default]
-    Unauthenticated,
 }
 
 impl AuthToken for Auth {
@@ -26,7 +24,6 @@ impl AuthToken for Auth {
         match self {
             Auth::OAuth(token) => token.raw_query(client, query).await,
             Auth::Browser(token) => token.raw_query(client, query).await,
-            Auth::Unauthenticated => Err(Error::not_authenticated()),
         }
     }
 }

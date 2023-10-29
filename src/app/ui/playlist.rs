@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 
+use crate::app::ui::view::BasicConstraint;
 use crate::error::Result;
 use crate::{
     app::{
@@ -178,17 +179,17 @@ impl TableView for Playlist {
     fn get_title(&self) -> Cow<str> {
         format!("Local playlist - {} songs", self.list.list.len()).into()
     }
-    fn get_layout(&self) -> Vec<Constraint> {
+    fn get_layout(&self) -> &[BasicConstraint] {
         // Not perfect as this method doesn't know the size of the parent.
         // TODO: Change the get_layout function to something more appropriate.
-        vec![
-            Constraint::Min(6),
-            Constraint::Min(3),
-            Constraint::Max(33),
-            Constraint::Max(33),
-            Constraint::Max(33),
-            Constraint::Min(9),
-            Constraint::Min(4),
+        &[
+            BasicConstraint::Length(6),
+            BasicConstraint::Length(3),
+            BasicConstraint::Percentage(Percentage(33)),
+            BasicConstraint::Percentage(Percentage(33)),
+            BasicConstraint::Percentage(Percentage(33)),
+            BasicConstraint::Length(9),
+            BasicConstraint::Length(4),
         ]
     }
     fn get_items(&self) -> Vec<&Self::Item> {
