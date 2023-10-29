@@ -38,8 +38,8 @@ struct Arguments {
 enum Commands {
     GetSearchSuggestions { query: String },
     GetArtist { channel_id: String },
-    // This does not work with the show_source command!
-    SetupOAuth,
+    // This does not work well with the show_source command!
+    SetupOAuth { file_name: Option<PathBuf> },
 }
 
 #[tokio::main]
@@ -78,15 +78,24 @@ async fn main() -> Result<()> {
             ..
         } => print_artist_json(channel_id).await,
         Arguments {
-            command: Some(Commands::SetupOAuth),
+            command: Some(Commands::SetupOAuth { file_name }),
             show_source: _,
             ..
-        } => setup_oauth().await,
+        } => get_and_output_oauth_token(file_name).await,
     }
     Ok(())
 }
 
-async fn setup_oauth() {
+async fn get_and_output_oauth_token(file_name: Option<PathBuf>) {
+    let token_str = get_oauth_token().await;
+    if let Some(file_name) = file_name {
+        tokio::fs::write(&file_name, token_str).await.unwrap();
+        println!("Wrote Oauth token to {}", file_name.display());
+    } else {
+        println!("{token_str}");
+    }
+}
+async fn get_oauth_token() -> String {
     let api = YtMusic::default();
     let (code, url) = api.generate_oauth_code_and_url().await.unwrap();
     // Hack to wait for input
@@ -95,7 +104,7 @@ async fn setup_oauth() {
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
     let token = api.generate_oauth_token(code).await.unwrap();
-    println!("{:?}", token);
+    serde_json::to_string_pretty(&token).unwrap()
 }
 
 async fn print_artist(query: String) {

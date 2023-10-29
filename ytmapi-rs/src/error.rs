@@ -29,6 +29,7 @@ enum Inner {
     Header,        // Currently limited in information.
     Other(String), // Generic catchall - TODO: Remove all of these.
     NotAuthenticated,
+    OAuthTokenExpired,
 }
 #[derive(Debug, Clone)]
 pub enum ParseTarget {
@@ -36,6 +37,11 @@ pub enum ParseTarget {
     String,
 }
 impl Error {
+    pub fn oauth_token_expired() -> Self {
+        Self {
+            inner: Box::new(Inner::OAuthTokenExpired),
+        }
+    }
     pub fn not_authenticated() -> Self {
         Self {
             inner: Box::new(Inner::NotAuthenticated),
@@ -88,6 +94,7 @@ impl Error {
             | Inner::Header
             | Inner::Other(_)
             | Inner::NotAuthenticated => None,
+            Inner::OAuthTokenExpired => None,
         }
     }
 }
@@ -112,6 +119,7 @@ impl Display for Inner {
                 target,
             } => write!(f, "Unable to parse into {:?} at {key}", target),
             Self::NotAuthenticated => write!(f, "API not authenticated"),
+            Self::OAuthTokenExpired => write!(f, "OAuth token has expired"),
         }
     }
 }

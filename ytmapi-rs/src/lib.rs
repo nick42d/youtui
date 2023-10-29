@@ -42,13 +42,12 @@ pub struct YtMusic {
 }
 
 impl YtMusic {
-    // pub async fn from_oauth_json<P>(path: P) -> Result<Self>
-    // where
-    //     P: AsRef<Path>,
-    // {
-    //     let client = Client::new();
-    //     Ok(Self { client, auth })
-    // }
+    /// Create a new API handle using an OAuthToken.
+    pub async fn from_oauth_token(token: OAuthToken) -> Result<Self> {
+        let client = Client::new();
+        let auth = Auth::OAuth(token);
+        Ok(Self { client, auth })
+    }
     /// Create a new API handle using browser authentication details saved to a file on disk.
     /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
     pub async fn from_header_file<P: AsRef<Path>>(path: P) -> Result<Self> {
@@ -56,7 +55,7 @@ impl YtMusic {
         let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
         Ok(Self { client, auth })
     }
-    /// Generates a tuple contianing fresh OAuth Device code and corresponding url that must be validated.
+    /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
     /// (OAuthDeviceCode, URL)
     pub async fn generate_oauth_code_and_url(&self) -> Result<(OAuthDeviceCode, String)> {
         let code = OAuthTokenGenerator::new(&self.client).await?;
