@@ -141,38 +141,35 @@ impl ListSong {
     pub fn get_track_no(&self) -> usize {
         self.raw.get_track_no()
     }
-}
-
-impl<'a> TableItem for ListSong {
-    fn get_field(&self, index: usize) -> Option<Cow<'_, str>> {
-        match index {
-            0 => Some(
-                match self.download_status {
+    pub fn get_fields_iter(&self) -> TableItem {
+        Box::new(
+            [
+                // Type annotation to help rust compiler
+                Cow::from(match self.download_status {
                     DownloadStatus::Downloading(p) => {
                         format!("{}[{}]%", self.download_status.list_icon(), p.0)
                     }
                     _ => self.download_status.list_icon().to_string(),
-                }
-                .into(),
-            ),
-            1 => Some(self.get_track_no().to_string().into()),
-            2 => Some(
+                }),
+                self.get_track_no().to_string().into(),
                 // TODO: Remove allocation
                 self.get_artists()
                     .get(0)
                     .map(|a| a.to_string())
                     .unwrap_or_default()
                     .into(),
-            ),
-            3 => Some(self.get_album().into()),
-            4 => Some(self.get_title().into()),
-            5 => self.get_duration().as_ref().map(|s| s.into()),
-            6 => Some(self.get_year().into()),
-            _ => None,
-        }
-    }
-    fn len(&self) -> usize {
-        6
+                self.get_album().into(),
+                self.get_title().into(),
+                // TODO: Remove allocation
+                self.get_duration()
+                    .as_ref()
+                    .map(|d| d.as_str())
+                    .unwrap_or("")
+                    .into(),
+                self.get_year().into(),
+            ]
+            .into_iter(),
+        )
     }
 }
 

@@ -432,9 +432,12 @@ impl Browser {
         &mut self,
         search_suggestions: Vec<Vec<TextRun>>,
         _id: TaskID,
+        search: String,
     ) {
-        self.artist_list.search.search_suggestions = search_suggestions;
-        self.artist_list.search.suggestions_cur = None;
+        if self.artist_list.search.search_contents == search {
+            self.artist_list.search.search_suggestions = search_suggestions;
+            self.artist_list.search.suggestions_cur = None;
+        }
     }
     pub fn handle_no_songs_found(&mut self, _id: TaskID) {
         self.album_songs_list.list.state = ListStatus::Loaded;

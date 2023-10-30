@@ -66,21 +66,18 @@ pub trait Scrollable {
     // Get the correct offset for the list when given a height.
     fn get_offset(&self, height: usize) -> usize;
 }
-// A row in the table with addressable fields.
-pub trait TableItem {
-    fn get_field(&self, index: usize) -> Option<Cow<'_, str>>;
-    // Number of fields
-    fn len(&self) -> usize;
-}
+
+// A simple row in the table.
+pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
+
 // A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
-    type Item: TableItem;
     // Could have a "commontitle" trait to prevent the need for this in both Table and List
     fn get_title(&self) -> Cow<str>;
     fn get_layout(&self) -> &[BasicConstraint];
-    fn get_items(&self) -> Vec<&Self::Item>;
-    // We should return an iterator - translates well to Ratatui model
-    // TODO: See if we can remove boxing.
+    // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_>;
+    // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
     fn len(&self) -> usize {
         self.get_items().len()

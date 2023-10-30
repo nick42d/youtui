@@ -175,7 +175,6 @@ impl Scrollable for Playlist {
 }
 
 impl TableView for Playlist {
-    type Item = ListSong;
     fn get_title(&self) -> Cow<str> {
         format!("Local playlist - {} songs", self.list.list.len()).into()
     }
@@ -192,8 +191,8 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Vec<&Self::Item> {
-        self.list.list.iter().collect()
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = super::view::TableItem> + '_> {
+        Box::new(self.list.list.iter().map(|ls| ls.get_fields_iter()))
     }
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["", "#", "Artist", "Album", "Song", "Duration", "Year"].into_iter())

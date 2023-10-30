@@ -349,8 +349,8 @@ impl YoutuiWindow {
                 server::Response::SongListLoading(id) => self.handle_song_list_loading(id),
                 server::Response::SongListLoaded(id) => self.handle_song_list_loaded(id),
                 server::Response::SearchArtistError(id) => self.handle_search_artist_error(id),
-                server::Response::ReplaceSearchSuggestions(suggestions, id) => {
-                    self.handle_replace_search_suggestions(suggestions, id)
+                server::Response::ReplaceSearchSuggestions(suggestions, id, search) => {
+                    self.handle_replace_search_suggestions(suggestions, id, search)
                         .await
                 }
             }
@@ -366,7 +366,12 @@ impl YoutuiWindow {
             .handle_song_progress_update(update, playlist_id, id)
             .await
     }
-    async fn handle_replace_search_suggestions(&mut self, x: Vec<Vec<TextRun>>, id: TaskID) {
+    async fn handle_replace_search_suggestions(
+        &mut self,
+        x: Vec<Vec<TextRun>>,
+        id: TaskID,
+        search: String,
+    ) {
         tracing::info!(
             "Received request to replace search suggestions - ID {:?}",
             id
@@ -374,7 +379,8 @@ impl YoutuiWindow {
         if !self.tasks.is_task_valid(id) {
             return;
         }
-        self.browser.handle_replace_search_suggestions(x, id);
+        self.browser
+            .handle_replace_search_suggestions(x, id, search);
     }
     async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>, id: TaskID) {
         tracing::info!("Received request to replace artists list - ID {:?}", id);

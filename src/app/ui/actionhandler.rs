@@ -9,6 +9,7 @@ pub trait Action {
     fn describe(&self) -> Cow<str>;
 }
 #[derive(PartialEq, Debug, Clone)]
+// Should another type be GlobalHidden?
 pub enum KeybindVisibility {
     Hidden,
     Global,

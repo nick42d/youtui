@@ -327,7 +327,6 @@ impl Drawable for AlbumSongsPanel {
 }
 
 impl TableView for AlbumSongsPanel {
-    type Item = ListSong;
     fn get_title(&self) -> Cow<str> {
         match self.list.state {
             ListStatus::New => "Songs".into(),
@@ -349,9 +348,19 @@ impl TableView for AlbumSongsPanel {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Vec<&Self::Item> {
-        self.list.list.iter().collect()
+
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::ui::view::TableItem> + '_> {
+        let b = self.list.list.iter().map(|ls| {
+            let song_iter =
+                ls.get_fields_iter()
+                    .enumerate()
+                    .filter_map(|(i, f)| if i != 2 { Some(f) } else { None });
+            // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+            Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
+        });
+        Box::new(b)
     }
+
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["", "#", "Album", "Song", "Duration", "Year"].into_iter())
     }

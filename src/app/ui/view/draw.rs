@@ -69,19 +69,8 @@ where
     // TODO: theming
     let len = table.len();
     let layout = table.get_layout();
-    // We are allocating here, as list item only implements Display (not Into<Cow>). Consider changing this.
-    let table_items: Vec<_> = table
-        .get_items()
-        .iter()
-        .map(|item| {
-            let mut row = Vec::new();
-            for i in 0..item.len() {
-                row.push(item.get_field(i).expect("Length pre-checked").to_string())
-            }
-            Row::new(row)
-        })
-        .collect();
-    let number_items = table_items.len();
+    let table_items = table.get_items().map(|item| Row::new(item));
+    let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
     let offset = table.get_offset(table_height);

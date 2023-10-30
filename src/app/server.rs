@@ -50,7 +50,7 @@ pub enum Request {
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
     SearchArtistError(TaskID),
-    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, TaskID),
+    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, TaskID, String),
     SongListLoading(TaskID),
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),
@@ -243,7 +243,7 @@ impl Server {
         let _ = spawn_run_or_kill(
             async move {
                 tracing::info!("Getting search suggestions for {text}");
-                let search_suggestions = match api.get_search_suggestions(text).await {
+                let search_suggestions = match api.get_search_suggestions(&text).await {
                     Ok(t) => t,
                     Err(e) => {
                         error!("Received error on search suggestions query \"{}\"", e);
@@ -252,7 +252,11 @@ impl Server {
                 };
                 tracing::info!("Requesting caller to replace search suggestions");
                 let _ = tx
-                    .send(Response::ReplaceSearchSuggestions(search_suggestions, id))
+                    .send(Response::ReplaceSearchSuggestions(
+                        search_suggestions,
+                        id,
+                        text,
+                    ))
                     .await;
             },
             kill_rx,
