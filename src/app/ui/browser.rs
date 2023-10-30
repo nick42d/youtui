@@ -518,7 +518,7 @@ pub mod draw {
         B: Backend,
     {
         let layout = Layout::new()
-            .constraints([Constraint::Percentage(30), Constraint::Percentage(70)])
+            .constraints([Constraint::Max(30), Constraint::Min(0)])
             .direction(ratatui::prelude::Direction::Horizontal)
             .split(chunk);
         // XXX: Naive implementation.

@@ -66,7 +66,13 @@ impl PlayerManager {
                                 Arc::try_unwrap(song_pointer).unwrap_or_else(|arc| (*arc).clone());
                             let cur = std::io::Cursor::new(owned_song);
                             let source = rodio::Decoder::new(cur).unwrap();
+                            if !sink.empty() {
+                                sink.stop()
+                            }
                             sink.append(source);
+                            // if sink.is_paused() {
+                            //     sink.play()
+                            // }
                             trace!("Now playing {:?}", id);
                             cur_song_elapsed = Duration::default();
                             cur_song_id = id;
@@ -103,6 +109,8 @@ impl PlayerManager {
                         }
                         Request::GetVolume => {
                             info!("Received {:?}", msg);
+                            // Because of the thread delay, these aren't processed immediately.
+                            // Need an id in this message to keep track of it.
                             blocking_send_or_error(
                                 &response_tx_clone,
                                 Response::VolumeUpdate((sink.volume() * 100.0) as u8),
@@ -114,7 +122,7 @@ impl PlayerManager {
                             sink.set_volume(sink.volume() + vol_inc as f32 / 100.0);
                             blocking_send_or_error(
                                 &response_tx_clone,
-                                Response::VolumeUpdate(sink.volume() as u8),
+                                Response::VolumeUpdate((sink.volume() * 100.0) as u8),
                             );
                             info!("Sending volume update");
                         }

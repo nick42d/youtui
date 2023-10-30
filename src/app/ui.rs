@@ -177,10 +177,10 @@ impl ActionProcessor<UIAction> for YoutuiWindow {}
 impl ActionHandler<UIAction> for YoutuiWindow {
     async fn handle_action(&mut self, action: &UIAction) {
         match action {
-            UIAction::Next => todo!(),
-            UIAction::Prev => todo!(),
+            UIAction::Next => self.playlist.handle_next().await,
+            UIAction::Prev => self.playlist.handle_previous().await,
             UIAction::StepVolUp => self.playlist.handle_increase_volume().await,
-            UIAction::StepVolDown => todo!(),
+            UIAction::StepVolDown => self.playlist.handle_decrease_volume().await,
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
             UIAction::Quit => self.quit(),
