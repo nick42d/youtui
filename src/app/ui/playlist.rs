@@ -206,7 +206,7 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::ViewBrowser => self.view_browser().await,
             PlaylistAction::Quit => self.quit().await,
             PlaylistAction::ViewLogs => self.view_logs().await,
-            PlaylistAction::Pause => todo!(),
+            PlaylistAction::Pause => self.pauseplay().await,
             PlaylistAction::Down => self.increment_list(1),
             PlaylistAction::Up => self.increment_list(-1),
             PlaylistAction::PageDown => self.increment_list(10),
@@ -297,25 +297,37 @@ impl Playlist {
         // Process all messages in queue from Player on each tick.
         while let Ok(msg) = self.response_rx.try_recv() {
             match msg {
-                player::Response::DonePlaying(id) => {
+                Response::DonePlaying(id) => {
                     // Need to put an ID on here.
                     tracing::info!("Received message from player that track is done playing");
                     self.play_next_or_finish(id).await;
                 }
-                player::Response::ProgressUpdate(p, _id) => {
+                Response::ProgressUpdate(p, _id) => {
                     if let PlayState::Playing(_) = self.play_status {
                         self.update_song_progress(p)
                     }
                     tracing::info!("Received progress update from player {:.1}", p)
                 }
-                player::Response::VolumeUpdate(new_vol) => {
+                Response::VolumeUpdate(new_vol) => {
                     // Need to put an ID on here.
                     // Can we make this snappier?
                     tracing::info!("Received {:?}", msg);
                     self.volume.0 = new_vol;
                 }
+                Response::Paused(id) => self.handle_pause(id).await,
+                Response::Playing(id) => self.handle_playing(id).await,
+                Response::Stopped => todo!(),
             }
         }
+    }
+    pub async fn handle_pause(&mut self, id: ListSongID) {
+        self.play_status = PlayState::Paused(id)
+    }
+    pub async fn handle_playing(&mut self, id: ListSongID) {
+        self.play_status = PlayState::Playing(id)
+    }
+    pub async fn handle_stop(&mut self) {
+        self.play_status = PlayState::Stopped
     }
     pub async fn play_selected(&mut self) {
         let Some(index) = self.list.cur_selected else {
@@ -448,7 +460,7 @@ impl Playlist {
     pub async fn play_next_or_finish(&mut self, prev_id: ListSongID) {
         let cur = &self.play_status;
         match cur {
-            PlayState::NotPlaying | PlayState::Stopped(_) => {
+            PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play next, but not currently playing");
             }
             PlayState::Transitioning => {
@@ -495,7 +507,7 @@ impl Playlist {
     pub async fn play_prev(&mut self) {
         let cur = &self.play_status;
         match cur {
-            PlayState::NotPlaying | PlayState::Stopped(_) => {
+            PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play prev, but not currently playing");
             }
             PlayState::Transitioning => {
@@ -529,11 +541,8 @@ impl Playlist {
     pub fn update_song_progress(&mut self, new_play_time: f64) {
         self.cur_played_secs = Some(new_play_time);
     }
-    pub fn pause(&mut self) {
-        self.play_status = self
-            .play_status
-            .take_whilst_transitioning()
-            .transition_to_paused();
+    pub async fn pauseplay(&mut self) {
+        send_or_error(&self.request_tx, Request::PausePlay).await;
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.list.iter().position(|s| s.id == id)
@@ -549,9 +558,7 @@ impl Playlist {
     }
     pub fn cur_playing_index(&self) -> Option<usize> {
         match self.play_status {
-            PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Stopped(id) => {
-                self.get_index_from_id(id)
-            }
+            PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
             _ => None,
         }
     }

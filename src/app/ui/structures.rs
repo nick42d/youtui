@@ -57,7 +57,7 @@ pub enum PlayState {
     Playing(ListSongID),
     Transitioning,
     Paused(ListSongID),
-    Stopped(ListSongID),
+    Stopped,
     Buffering(ListSongID),
 }
 
@@ -65,7 +65,7 @@ impl PlayState {
     pub fn transition_to_paused(self) -> Self {
         match self {
             Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped(id) => Self::Stopped(id),
+            Self::Stopped => Self::Stopped,
             Self::Playing(id) => Self::Paused(id),
             Self::Paused(id) => Self::Paused(id),
             Self::Buffering(id) => Self::Paused(id),
@@ -78,12 +78,12 @@ impl PlayState {
     pub fn transition_to_stopped(self) -> Self {
         match self {
             Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped(id) => Self::Stopped(id),
-            Self::Playing(id) => Self::Stopped(id),
-            Self::Buffering(id) => Self::Stopped(id),
+            Self::Stopped => Self::Stopped,
+            Self::Playing(id) => Self::Stopped,
+            Self::Buffering(id) => Self::Stopped,
             Self::Paused(id) => {
                 warn!("Stopping from Paused status - seems unusual");
-                Self::Stopped(id)
+                Self::Stopped
             }
             Self::Transitioning => {
                 tracing::error!("Tried to transition from transitioning state, unhandled.");
@@ -102,7 +102,7 @@ impl PlayState {
             PlayState::Playing(_) => '',
             PlayState::Transitioning => '',
             PlayState::Paused(_) => '',
-            PlayState::Stopped(_) => '',
+            PlayState::Stopped => '',
         }
     }
 }

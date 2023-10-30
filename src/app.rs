@@ -78,8 +78,6 @@ impl Youtui {
         while self.window_state.status == ui::AppStatus::Running {
             let msg = self.event_handler.next().await;
             self.process_message(msg).await;
-            // In every iteration of this loop, check and process a player message.
-            self.player.handle_message().await;
             // Write to terminal, using UI state as the input
             // We draw after handling the event, as the event could be a keypress we want to instantly react to.
             // TODO: Error handling

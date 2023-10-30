@@ -76,7 +76,6 @@ where
     let offset = table.get_offset(table_height);
     let table_widths =
         basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
-    info!("chunk {}, table {:?}", chunk.width, table_widths);
     let mut table_state = TableState::default()
         .with_selected(Some(table.get_selected_item()))
         .with_offset(offset);

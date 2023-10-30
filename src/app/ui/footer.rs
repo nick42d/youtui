@@ -42,7 +42,7 @@ where
     let mut duration = 0;
     let mut progress = 0.0;
     let play_ratio = match cur {
-        PlayState::Playing(id) => {
+        PlayState::Playing(id) | PlayState::Paused(id) => {
             duration = w
                 .playlist
                 .get_song_from_id(*id)
@@ -64,7 +64,7 @@ where
             .map(|s| s.raw.get_title().to_owned())
             .unwrap_or("No title".to_string()),
         PlayState::NotPlaying => "Not playing".to_string(),
-        PlayState::Stopped(_) => "Not playing".to_string(),
+        PlayState::Stopped => "Not playing".to_string(),
         PlayState::Transitioning => "Not playing".to_string(),
     };
     let album_title = match w.playlist.play_status {
@@ -74,7 +74,7 @@ where
             .map(|s| s.get_album().to_owned())
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped(_) => "".to_string(),
+        PlayState::Stopped => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
     let artist_title = match w.playlist.play_status {
@@ -92,7 +92,7 @@ where
             })
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped(_) => "".to_string(),
+        PlayState::Stopped => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
     let song_title_string = match w.playlist.play_status {
@@ -101,7 +101,7 @@ where
             w.playlist.play_status.list_icon()
         ),
         PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped(_) => "".to_string(),
+        PlayState::Stopped => "".to_string(),
         PlayState::Transitioning => "".to_string(),
     };
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
