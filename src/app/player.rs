@@ -41,6 +41,7 @@ pub struct PlayerManager {
     rodio: JoinHandle<()>,
 }
 
+// Consider if this can be managed by Server.
 impl PlayerManager {
     pub fn new(
         response_tx: mpsc::Sender<Response>,
@@ -70,9 +71,6 @@ impl PlayerManager {
                                 sink.stop()
                             }
                             sink.append(source);
-                            // if sink.is_paused() {
-                            //     sink.play()
-                            // }
                             trace!("Now playing {:?}", id);
                             cur_song_elapsed = Duration::default();
                             cur_song_id = id;
@@ -135,6 +133,8 @@ impl PlayerManager {
                     cur_song_elapsed = cur_song_elapsed + passed;
                 }
                 if sink.empty() && thinks_is_playing {
+                    // NOTE: This simple model won't work if we have multiple songs in the sink.
+                    // Instead we should keep track of number of songs and use sink.len().
                     trace!("Finished playing {:?}", cur_song_id);
                     thinks_is_playing = false;
                     blocking_send_or_error(&response_tx_clone, Response::DonePlaying(cur_song_id));

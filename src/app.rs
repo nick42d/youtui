@@ -91,7 +91,7 @@ impl Youtui {
     async fn process_message(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
         match msg {
-            Some(AppEvent::QuitSignal) => unimplemented!("Signal to quit recieved, unhandled"),
+            Some(AppEvent::QuitSignal) => self.window_state.status = ui::AppStatus::Exiting,
             Some(AppEvent::Crossterm(e)) => self.window_state.handle_event(e).await,
             // XXX: Should be try_poll or similar? Poll the Future but don't await it?
             Some(AppEvent::Tick) => self.window_state.handle_tick().await,
