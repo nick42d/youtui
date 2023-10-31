@@ -10,7 +10,7 @@ use ratatui::{
 };
 
 use super::{
-    actionhandler::{Action, KeybindVisibility},
+    actionhandler::{Action, DisplayableKeyRouter, KeybindVisibility},
     contextpane::ContextPane,
     WindowContext,
 };
@@ -34,19 +34,15 @@ pub fn draw_header<B>(f: &mut Frame<B>, w: &super::YoutuiWindow, chunk: Rect)
 where
     B: Backend,
 {
-    let keybinds = match w.context {
-        WindowContext::Browser => context_global_keybinds_and_descriptions(&w.browser),
-        WindowContext::Playlist => context_global_keybinds_and_descriptions(&w.playlist),
-        WindowContext::Logs => context_global_keybinds_and_descriptions(&w.logger),
-    };
+    let keybinds = w.get_all_global_keybinds_as_readable_iter();
 
     let help_string = Line::from(
         keybinds
-            .flat_map(|(d, k)| {
+            .flat_map(|(d, _, k)| {
                 vec![
-                    Span::styled(k, Style::default().bg(Color::Gray).fg(Color::Black)),
+                    Span::styled(d, Style::default().bg(Color::Gray).fg(Color::Black)),
                     Span::raw(" "),
-                    Span::raw(d),
+                    Span::raw(k),
                     Span::raw(" "),
                 ]
             })

@@ -87,7 +87,8 @@ impl PlayerManager {
                                     &response_tx_clone,
                                     Response::Playing(cur_song_id),
                                 );
-                            } else if !sink.is_paused() {
+                            // We don't want to pause if sink is empty (but case could be handled in Playlist also)
+                            } else if !sink.is_paused() && !sink.empty() {
                                 sink.pause();
                                 blocking_send_or_error(
                                     &response_tx_clone,

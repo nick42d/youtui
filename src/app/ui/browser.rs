@@ -29,10 +29,8 @@ use super::{
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BrowserAction {
-    ToggleHelp,
     ViewPlaylist,
-    Quit,
-    ViewLogs,
+    ToggleSearch,
     Left,
     Right,
     Artist(ArtistAction),
@@ -52,7 +50,6 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<Keybind<BrowserAction>>,
-    help_shown: bool,
 }
 
 impl InputRouting {
@@ -80,12 +77,10 @@ impl Action for BrowserAction {
     }
     fn describe(&self) -> Cow<str> {
         match self {
-            Self::Quit => "Quit".into(),
-            Self::ViewLogs => "View Logs".into(),
             Self::Left => "Left".into(),
             Self::Right => "Right".into(),
             Self::ViewPlaylist => "View Playlist".into(),
-            Self::ToggleHelp => "Help".into(),
+            Self::ToggleSearch => "Toggle Search".into(),
             Self::Artist(x) => x.describe(),
             Self::ArtistSongs(x) => x.describe(),
         }
@@ -142,14 +137,7 @@ impl TextHandler for Browser {
     }
 }
 
-impl ContextPane<BrowserAction> for Browser {
-    fn help_shown(&self) -> bool {
-        self.help_shown
-    }
-    fn context_name(&self) -> std::borrow::Cow<'static, str> {
-        "Browser".into()
-    }
-}
+impl ContextPane<BrowserAction> for Browser {}
 impl Drawable for Browser {
     fn draw_chunk<B: ratatui::prelude::Backend>(
         &self,
@@ -185,7 +173,6 @@ impl ActionHandler<ArtistAction> for Browser {
     async fn handle_action(&mut self, action: &ArtistAction) {
         match action {
             ArtistAction::DisplayAlbums => self.get_songs().await,
-            ArtistAction::ToggleSearch => self.artist_list.toggle_search(),
             ArtistAction::Search => self.search().await,
             ArtistAction::Up => self.artist_list.increment_list(-1),
             ArtistAction::Down => self.artist_list.increment_list(1),
@@ -218,10 +205,6 @@ impl ActionHandler<BrowserAction> for Browser {
         match action {
             BrowserAction::ArtistSongs(a) => self.handle_action(a).await,
             BrowserAction::Artist(a) => self.handle_action(a).await,
-            BrowserAction::Quit => send_or_error(&self.ui_tx, UIMessage::Quit).await,
-            BrowserAction::ViewLogs => {
-                send_or_error(&self.ui_tx, UIMessage::ChangeContext(WindowContext::Logs)).await
-            }
             BrowserAction::Left => self.left(),
             BrowserAction::Right => self.right(),
             BrowserAction::ViewPlaylist => {
@@ -231,18 +214,11 @@ impl ActionHandler<BrowserAction> for Browser {
                 )
                 .await
             }
-            BrowserAction::ToggleHelp => self.help_shown = !self.help_shown,
+            // TODO: fix routing changes etc
+            BrowserAction::ToggleSearch => self.artist_list.toggle_search(),
         }
     }
-
-    // KeyCode::PageUp => self.handle_pgup_pressed().await,
-    // KeyCode::PageDown => self.handle_pgdown_pressed().await,
     // KeyCode::F(3) => self.artist_list.push_sort_command("test".to_owned()),
-    // KeyCode::F(5) => self
-    //     .ui_tx
-    //     .send(UIMessage::ChangeContext(WindowContext::Playlist))
-    //     .await
-    //     .unwrap_or_else(|e| error!("Error {e} sending message.")),
 }
 impl Browser {
     pub fn new(ui_tx: mpsc::Sender<UIMessage>) -> Self {
@@ -253,7 +229,6 @@ impl Browser {
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
-            help_shown: false,
         }
     }
     fn left(&mut self) {
@@ -484,10 +459,8 @@ impl Browser {
 
 fn browser_keybinds() -> Vec<Keybind<BrowserAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(1), BrowserAction::ToggleHelp),
         Keybind::new_global_from_code(KeyCode::F(5), BrowserAction::ViewPlaylist),
-        Keybind::new_global_from_code(KeyCode::F(10), BrowserAction::Quit),
-        Keybind::new_global_from_code(KeyCode::F(12), BrowserAction::ViewLogs),
+        Keybind::new_global_from_code(KeyCode::F(2), BrowserAction::ToggleSearch),
         Keybind::new_from_code(KeyCode::Left, BrowserAction::Left),
         Keybind::new_from_code(KeyCode::Right, BrowserAction::Right),
     ]

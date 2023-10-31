@@ -13,8 +13,11 @@ mod view;
 // Public due to task register
 pub mod taskregister;
 
+use std::borrow::Cow;
+
 use self::actionhandler::{
-    Action, ActionHandler, KeyHandleOutcome, KeyHandler, Keybind, Keymap, TextHandler,
+    Action, ActionHandler, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler, KeyRouter, Keybind,
+    KeybindVisibility, Keymap, TextHandler,
 };
 use self::browser::BrowserAction;
 use self::contextpane::ContextPane;
@@ -85,10 +88,13 @@ pub enum UIAction {
     Quit,
     Next,
     Prev,
+    Pause,
     StepVolUp,
     StepVolDown,
     Browser(BrowserAction),
     Playlist(PlaylistAction),
+    ToggleHelp,
+    ViewLogs,
 }
 
 pub struct YoutuiWindow {
@@ -106,6 +112,66 @@ pub struct YoutuiWindow {
     help_shown: bool,
 }
 
+impl DisplayableKeyRouter for YoutuiWindow {
+    // XXX: Can turn these boxed iterators into types.
+    fn get_all_keybinds_as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
+        let kb = self.keybinds.iter().map(|kb| kb.as_readable());
+        let cx = match self.context {
+            // Consider if double boxing can be removed.
+            WindowContext::Browser => {
+                Box::new(self.browser.get_all_keybinds().map(|kb| kb.as_readable()))
+                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
+            }
+            WindowContext::Playlist => {
+                Box::new(self.playlist.get_all_keybinds().map(|kb| kb.as_readable()))
+                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
+            }
+            WindowContext::Logs => {
+                Box::new(self.logger.get_all_keybinds().map(|kb| kb.as_readable()))
+                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
+            }
+        };
+        Box::new(kb.chain(cx))
+    }
+
+    fn get_all_global_keybinds_as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
+        let kb = self
+            .keybinds
+            .iter()
+            .filter(|kb| kb.visibility == KeybindVisibility::Global)
+            .map(|kb| kb.as_readable());
+        let cx = match self.context {
+            // Consider if double boxing can be removed.
+            WindowContext::Browser => Box::new(
+                self.browser
+                    .get_all_keybinds()
+                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .map(|kb| kb.as_readable()),
+            )
+                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+            WindowContext::Playlist => Box::new(
+                self.playlist
+                    .get_all_keybinds()
+                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .map(|kb| kb.as_readable()),
+            )
+                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+            WindowContext::Logs => Box::new(
+                self.logger
+                    .get_all_keybinds()
+                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .map(|kb| kb.as_readable()),
+            )
+                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+        };
+        Box::new(kb.chain(cx))
+    }
+}
+
 impl KeyHandler<UIAction> for YoutuiWindow {
     // XXX: Need to determine how this should really be implemented.
     fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<UIAction>> + 'a> {
@@ -114,60 +180,39 @@ impl KeyHandler<UIAction> for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    // Could also return Mode description.
+    // TODO: also return Mode description.
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (String, String)> + 'a>> {
+    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a>> {
         if let Some(map) = self.get_key_subset(&self.key_stack) {
             if let Keymap::Mode(mode) = map {
-                return Some(Box::new(
-                    mode.key_binds
-                        .iter()
-                        // TODO: Remove allocation
-                        .map(|bind| (bind.to_string(), bind.describe().to_string())),
-                ));
+                return Some(mode.as_readable_short_iter());
             }
         }
         match self.context {
             WindowContext::Browser => {
                 if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(Box::new(
-                            mode.key_binds
-                                .iter()
-                                // TODO: Remove allocation
-                                .map(|bind| (bind.to_string(), bind.describe().to_string())),
-                        ));
+                        return Some(mode.as_readable_short_iter());
                     }
                 }
             }
             WindowContext::Playlist => {
                 if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(Box::new(
-                            mode.key_binds
-                                .iter()
-                                // TODO: Remove allocation
-                                .map(|bind| (bind.to_string(), bind.describe().to_string())),
-                        ));
+                        return Some(mode.as_readable_short_iter());
                     }
                 }
             }
             WindowContext::Logs => {
                 if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(Box::new(
-                            mode.key_binds
-                                .iter()
-                                // TODO: Remove allocation
-                                .map(|bind| (bind.to_string(), bind.describe().to_string())),
-                        ));
+                        return Some(mode.as_readable_short_iter());
                     }
                 }
             }
         }
-
         None
     }
 }
@@ -179,11 +224,14 @@ impl ActionHandler<UIAction> for YoutuiWindow {
         match action {
             UIAction::Next => self.playlist.handle_next().await,
             UIAction::Prev => self.playlist.handle_previous().await,
+            UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.playlist.handle_increase_volume().await,
             UIAction::StepVolDown => self.playlist.handle_decrease_volume().await,
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
             UIAction::Quit => self.quit(),
+            UIAction::ToggleHelp => self.help_shown = !self.help_shown,
+            UIAction::ViewLogs => self.change_context(WindowContext::Logs),
         }
     }
 }
@@ -197,6 +245,9 @@ impl Action for UIAction {
             UIAction::Browser(a) => a.context(),
             UIAction::Playlist(a) => a.context(),
             UIAction::Quit => "".into(),
+            UIAction::ToggleHelp => "".into(),
+            UIAction::ViewLogs => "".into(),
+            UIAction::Pause => "".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -492,6 +543,9 @@ fn global_keybinds() -> Vec<Keybind<UIAction>> {
         Keybind::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
         Keybind::new_from_code(KeyCode::Char('<'), UIAction::Prev),
         Keybind::new_from_code(KeyCode::Char('>'), UIAction::Next),
+        Keybind::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
         Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
+        Keybind::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
+        Keybind::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
     ]
 }

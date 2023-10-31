@@ -53,11 +53,7 @@ pub struct Playlist {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum PlaylistAction {
-    ToggleHelp,
     ViewBrowser,
-    Quit,
-    ViewLogs,
-    Pause,
     Down,
     Up,
     PageDown,
@@ -94,11 +90,7 @@ impl Action for PlaylistAction {
     }
     fn describe(&self) -> Cow<str> {
         match self {
-            PlaylistAction::ToggleHelp => "Toggle Help",
             PlaylistAction::ViewBrowser => "View Browser",
-            PlaylistAction::Quit => "Quit",
-            PlaylistAction::ViewLogs => "View Logs",
-            PlaylistAction::Pause => "Pause",
             PlaylistAction::Down => "Down",
             PlaylistAction::Up => "Up",
             PlaylistAction::PageDown => "Page Down",
@@ -109,15 +101,7 @@ impl Action for PlaylistAction {
     }
 }
 
-impl ContextPane<PlaylistAction> for Playlist {
-    fn context_name(&self) -> std::borrow::Cow<'static, str> {
-        "Playlist".into()
-    }
-
-    fn help_shown(&self) -> bool {
-        self.help_shown
-    }
-}
+impl ContextPane<PlaylistAction> for Playlist {}
 
 impl KeyHandler<PlaylistAction> for Playlist {
     fn get_keybinds<'a>(
@@ -202,11 +186,7 @@ impl TableView for Playlist {
 impl ActionHandler<PlaylistAction> for Playlist {
     async fn handle_action(&mut self, action: &PlaylistAction) {
         match action {
-            PlaylistAction::ToggleHelp => self.help_shown = !self.help_shown,
             PlaylistAction::ViewBrowser => self.view_browser().await,
-            PlaylistAction::Quit => self.quit().await,
-            PlaylistAction::ViewLogs => self.view_logs().await,
-            PlaylistAction::Pause => self.pauseplay().await,
             PlaylistAction::Down => self.increment_list(1),
             PlaylistAction::Up => self.increment_list(-1),
             PlaylistAction::PageDown => self.increment_list(10),
@@ -321,10 +301,14 @@ impl Playlist {
         }
     }
     pub async fn handle_pause(&mut self, id: ListSongID) {
-        self.play_status = PlayState::Paused(id)
+        if let PlayState::Playing(_) = self.play_status {
+            self.play_status = PlayState::Paused(id)
+        }
     }
     pub async fn handle_playing(&mut self, id: ListSongID) {
-        self.play_status = PlayState::Playing(id)
+        if let PlayState::Paused(_) = self.play_status {
+            self.play_status = PlayState::Paused(id)
+        }
     }
     pub async fn handle_stop(&mut self) {
         self.play_status = PlayState::Stopped
@@ -344,12 +328,6 @@ impl Playlist {
             UIMessage::ChangeContext(WindowContext::Browser),
         )
         .await;
-    }
-    pub async fn quit(&mut self) {
-        send_or_error(&self.ui_tx, UIMessage::Quit).await;
-    }
-    pub async fn view_logs(&mut self) {
-        send_or_error(&self.ui_tx, UIMessage::ChangeContext(WindowContext::Logs)).await;
     }
     pub async fn handle_next(&mut self) {
         match self.play_status {
@@ -566,11 +544,7 @@ impl Playlist {
 
 fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(1), PlaylistAction::ToggleHelp),
         Keybind::new_global_from_code(KeyCode::F(5), PlaylistAction::ViewBrowser),
-        Keybind::new_global_from_code(KeyCode::F(10), PlaylistAction::Quit),
-        Keybind::new_global_from_code(KeyCode::F(12), PlaylistAction::ViewLogs),
-        Keybind::new_global_from_code(KeyCode::Char(' '), PlaylistAction::Pause),
         Keybind::new_from_code(KeyCode::Down, PlaylistAction::Down),
         Keybind::new_from_code(KeyCode::Up, PlaylistAction::Up),
         Keybind::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),

@@ -46,7 +46,6 @@ pub struct AlbumSongsPanel {
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistAction {
     DisplayAlbums,
-    ToggleSearch,
     // XXX: This could be a subset - eg ListAction
     Up,
     Down,
@@ -118,7 +117,6 @@ impl Action for ArtistAction {
     fn describe(&self) -> Cow<str> {
         match &self {
             Self::Search => "Search",
-            Self::ToggleSearch => "Toggle search",
             Self::DisplayAlbums => "Display albums for selected artist",
             Self::Up => "Up",
             Self::Down => "Down",
@@ -382,10 +380,6 @@ fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
 
 fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
     vec![
-        Keybind::new_global_from_code(
-            KeyCode::F(2),
-            BrowserAction::Artist(ArtistAction::ToggleSearch),
-        ),
         Keybind::new_from_code(
             KeyCode::Enter,
             BrowserAction::Artist(ArtistAction::DisplayAlbums),

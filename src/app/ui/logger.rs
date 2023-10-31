@@ -35,9 +35,7 @@ pub enum LoggerAction {
     ReduceCaptured,
     IncreaseCaptured,
     ExitPageMode,
-    Quit,
     ViewBrowser,
-    ToggleHelp,
 }
 impl Action for LoggerAction {
     fn context(&self) -> Cow<str> {
@@ -46,7 +44,6 @@ impl Action for LoggerAction {
     fn describe(&self) -> Cow<str> {
         match self {
             LoggerAction::ViewBrowser => "View Browser".into(),
-            LoggerAction::ToggleHelp => "Toggle Help".into(),
             x => format!("{:?}", self).into(),
         }
     }
@@ -54,18 +51,10 @@ impl Action for LoggerAction {
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
     ui_tx: Sender<UIMessage>,
-    help_shown: bool,
     keybinds: Vec<Keybind<LoggerAction>>,
     key_stack: Vec<KeyEvent>,
 }
-impl ContextPane<LoggerAction> for Logger {
-    fn context_name(&self) -> Cow<'static, str> {
-        "Logger".into()
-    }
-    fn help_shown(&self) -> bool {
-        self.help_shown
-    }
-}
+impl ContextPane<LoggerAction> for Logger {}
 
 impl Drawable for Logger {
     fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect) {
@@ -114,9 +103,7 @@ impl ActionHandler<LoggerAction> for Logger {
             LoggerAction::ReduceCaptured => self.handle_reduce_captured(),
             LoggerAction::IncreaseCaptured => self.handle_increase_captured(),
             LoggerAction::ExitPageMode => self.handle_exit_page_mode(),
-            LoggerAction::Quit => self.handle_quit().await,
             LoggerAction::ViewBrowser => self.handle_view_browser().await,
-            LoggerAction::ToggleHelp => self.help_shown = !self.help_shown,
         }
     }
 }
@@ -128,49 +115,7 @@ impl Logger {
             logger_state: tui_logger::TuiWidgetState::default(),
             keybinds: logger_keybinds(),
             key_stack: Default::default(),
-            help_shown: false,
         }
-    }
-    #[deprecated]
-    pub async fn _handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Down => self.handle_down(),
-            KeyCode::Up => self.handle_up(),
-            KeyCode::PageUp => self.handle_pgup(),
-            KeyCode::PageDown => self.handle_pgdown(),
-            KeyCode::Esc => self.handle_exit_page_mode(),
-            KeyCode::Left => self.handle_reduce_shown(),
-            KeyCode::Right => self.handle_increase_shown(),
-            KeyCode::F(10) => self.handle_quit().await,
-            KeyCode::F(5) => self.handle_view_browser().await,
-            KeyCode::Char(c) => self.handle_char_pressed(c).await,
-            other => tracing::info!("Received unhandled key event {:?}", other),
-        }
-    }
-    #[deprecated]
-    async fn handle_char_pressed(&mut self, c: char) {
-        match c {
-            // Some of these char are used by Footer - what to do?
-            '+' => self.logger_state.transition(&TuiWidgetEvent::PlusKey),
-            '-' => self.logger_state.transition(&TuiWidgetEvent::MinusKey),
-            ' ' => self.logger_state.transition(&TuiWidgetEvent::SpaceKey),
-            'h' => self.logger_state.transition(&TuiWidgetEvent::HideKey),
-            'f' => self.logger_state.transition(&TuiWidgetEvent::FocusKey),
-            '>' => self
-                .ui_tx
-                .send(UIMessage::Next)
-                .await
-                .unwrap_or_else(|e| error!("Error {e} sending message.")),
-            '<' => self
-                .ui_tx
-                .send(UIMessage::Prev)
-                .await
-                .unwrap_or_else(|e| error!("Error {e} sending message.")),
-            other => warn!("Received unhandled key event {other}"),
-        }
-    }
-    async fn handle_quit(&mut self) {
-        send_or_error(&self.ui_tx, UIMessage::Quit).await;
     }
     async fn handle_view_browser(&mut self) {
         send_or_error(
@@ -219,11 +164,9 @@ impl Logger {
 
 fn logger_keybinds() -> Vec<Keybind<LoggerAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(1), LoggerAction::ToggleHelp),
         Keybind::new_global_from_code(KeyCode::F(5), LoggerAction::ViewBrowser),
-        Keybind::new_global_from_code(KeyCode::F(10), LoggerAction::Quit),
-        Keybind::new_from_code(KeyCode::Char('-'), LoggerAction::ReduceCaptured),
-        Keybind::new_from_code(KeyCode::Char('+'), LoggerAction::IncreaseCaptured),
+        Keybind::new_from_code(KeyCode::Char('['), LoggerAction::ReduceCaptured),
+        Keybind::new_from_code(KeyCode::Char(']'), LoggerAction::IncreaseCaptured),
         Keybind::new_from_code(KeyCode::Left, LoggerAction::ReduceShown),
         Keybind::new_from_code(KeyCode::Right, LoggerAction::IncreaseShown),
         Keybind::new_from_code(KeyCode::Up, LoggerAction::Up),

@@ -7,7 +7,9 @@ use ratatui::{
     terminal::Frame,
 };
 
+use super::actionhandler::{Action, DisplayableKeyRouter};
 use super::contextpane::ContextPane;
+use super::view::Drawable;
 use super::{footer, header, WindowContext, YoutuiWindow};
 
 pub fn draw_app<B>(f: &mut Frame<B>, w: &YoutuiWindow)
@@ -28,9 +30,9 @@ where
         .split(f.size());
     header::draw_header(f, w, base_layout[0]);
     match w.context {
-        WindowContext::Browser => w.browser.draw_context_chunk(f, base_layout[1]),
-        WindowContext::Logs => w.logger.draw_context_chunk(f, base_layout[1]),
-        WindowContext::Playlist => w.playlist.draw_context_chunk(f, base_layout[1]),
+        WindowContext::Browser => w.browser.draw_chunk(f, base_layout[1]),
+        WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
+        WindowContext::Playlist => w.playlist.draw_chunk(f, base_layout[1]),
     }
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);
@@ -101,4 +103,53 @@ pub fn left_bottom_corner_rect(height: u16, width: u16, r: Rect) -> Rect {
         .direction(Direction::Horizontal)
         .constraints([Constraint::Min(0), Constraint::Length(width)].as_ref())
         .split(popup_layout[1])[1]
+}
+
+fn draw_help<B: Backend, D: DisplayableKeyRouter + ?Sized>(
+    f: &mut Frame<B>,
+    context: &D,
+    chunk: Rect,
+) {
+    // Collect to a Vec so we can create more iterators. Dynamically dispatched Iterator can't be cloned.
+    let commands: Vec<_> = context.get_all_keybinds_as_readable_iter().collect();
+    // Get the maximum length of each element in the tuple vector created above.
+    let (mut s_len, mut c_len, mut d_len) = commands
+        .iter()
+        .map(|(s, c, d)| (s.len(), c.len(), d.len()))
+        .fold((0, 0, 0), |(smax, cmax, dmax), (s, c, d)| {
+            (smax.max(s), cmax.max(c), dmax.max(d))
+        });
+    // Ensure the width of each column is at least as wide as header.
+    (s_len, c_len, d_len) = (s_len.max(3), c_len.max(7), d_len.max(7));
+    // Total block width required, including padding and borders.
+    let width = s_len + c_len + d_len + 4;
+    // Total block height required, including header and borders.
+    let height = commands.len() + 3;
+    // Naive implementation
+    let commands_table = commands.iter().map(|(s, c, d)| {
+        Row::new(vec![s.as_ref(), c.as_ref(), d.as_ref()]).style(Style::new().fg(Color::White))
+    });
+    let table_constraints = [
+        Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),
+        Constraint::Min(c_len.try_into().unwrap_or(u16::MAX)),
+        Constraint::Min(d_len.try_into().unwrap_or(u16::MAX)),
+    ];
+    let block = Table::new(commands_table)
+        .header(Row::new(vec!["Key", "Context", "Command"]))
+        .style(Style::new().fg(Color::White))
+        .block(
+            Block::default()
+                // TODO: Remove borrow.
+                .title("Help")
+                .borders(Borders::ALL)
+                .style(Style::new().fg(Color::Cyan)),
+        )
+        .widths(&table_constraints);
+    let area = left_bottom_corner_rect(
+        height.try_into().unwrap_or(u16::MAX),
+        width.try_into().unwrap_or(u16::MAX),
+        chunk,
+    );
+    f.render_widget(Clear, area);
+    f.render_widget(block, area);
 }

@@ -35,7 +35,6 @@ pub struct Keybind<A: Action> {
 impl<A: Action> Display for Keybind<A> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let code: Cow<str> = match self.code {
-            // TODO: Remove allocation
             KeyCode::Enter => "Enter".into(),
             KeyCode::Left => "Left".into(),
             KeyCode::Right => "Right".into(),
@@ -58,6 +57,29 @@ impl<A: Action> Display for Keybind<A> {
     }
 }
 
+// Is this an implementation of Action?
+impl<A: Action> Mode<A> {
+    pub fn context(&self) -> Cow<str> {
+        self.key_binds
+            .get(0)
+            .map(|kb| kb.context())
+            .unwrap_or_default()
+    }
+    pub fn describe(&self) -> Cow<str> {
+        self.name.into()
+    }
+    pub fn as_readable_short_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a> {
+        Box::new(self.key_binds.iter().map(|bind| bind.as_readable_short()))
+    }
+    pub fn as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
+        Box::new(self.key_binds.iter().map(|bind| bind.as_readable()))
+    }
+}
+
 impl<A: Action> Keybind<A> {
     // Is this an implementation of Action?
     pub fn context(&self) -> Cow<str> {
@@ -66,14 +88,18 @@ impl<A: Action> Keybind<A> {
             Keymap::Mode(m) => m.name.into(),
         }
     }
-
     pub fn describe(&self) -> Cow<str> {
         match &self.key_map {
             Keymap::Action(a) => a.describe(),
             Keymap::Mode(m) => m.name.into(),
         }
     }
-
+    pub fn as_readable_short(&self) -> (Cow<str>, Cow<str>) {
+        (self.to_string().into(), self.describe())
+    }
+    pub fn as_readable(&self) -> (Cow<str>, Cow<str>, Cow<str>) {
+        (self.to_string().into(), self.context(), self.describe())
+    }
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         self.code == keyevent.code && self.modifiers == keyevent.modifiers
     }
@@ -131,10 +157,23 @@ pub trait KeyHandler<A: Action> {
 /// A component of the application that has different keybinds depending on what is focussed.
 /// For example, keybinds for browser may differ depending on selected pane.
 /// Not every KeyHandler is a KeyRouter - e.g the individual panes themselves.
-/// Could possibly be a part of EventHandler instead.
+// Could possibly be a part of EventHandler instead.
 pub trait KeyRouter<A: Action>: KeyHandler<A> {
     // Get the list of keybinds that the KeyHandler and any child items can contain.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<A>> + 'a>;
+}
+/// A component of the application that has different keybinds depending on what is focussed.
+/// For example, keybinds for browser may differ depending on selected pane.
+/// Not every KeyHandler is a DisplayableKeyRouter - e.g the individual panes themselves.
+// Could possibly be a part of EventHandler instead.
+pub trait DisplayableKeyRouter {
+    // Get the list of keybinds that the KeyHandler and any child items can contain.
+    fn get_all_keybinds_as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
+    fn get_all_global_keybinds_as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
 }
 /// A component of the application that handles actions.
 /// Where an action is a message specifically sent to the component.
@@ -144,6 +183,7 @@ pub trait ActionHandler<A: Action + Clone> {
 /// A component of the application that handles text entry.
 // TODO: Cursor position and movement.
 pub trait TextHandler {
+    // TODO: cursor manipulation
     fn push_text(&mut self, c: char);
     fn pop_text(&mut self);
     // Assume internal representation is a String.
