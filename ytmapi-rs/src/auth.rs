@@ -1,4 +1,4 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::{process::RawResult, query::Query};
 use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};

@@ -1,38 +1,36 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 
-use crate::app::ui::view::BasicConstraint;
+use crate::app::view::BasicConstraint;
 use crate::error::Result;
 use crate::{
     app::{
         player::{self, Request, Response},
         server,
-        ui::structures::DownloadStatus,
+        structures::DownloadStatus,
     },
     core::send_or_error,
 };
-use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{
-    backend::Backend,
-    layout::{Constraint, Rect},
-    terminal::Frame,
-};
+use crossterm::event::KeyCode;
+use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 
-use super::structures::Percentage;
-use super::view::draw::draw_table;
-use super::view::{Loadable, Scrollable, TableView};
-use super::{
-    actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+use crate::app::structures::Percentage;
+use crate::app::view::draw::draw_table;
+use crate::app::view::{Loadable, Scrollable, TableView};
+use crate::app::{
+    component::{
+        actionhandler::{
+            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+        },
+        contextpane::ContextPane,
     },
-    contextpane::ContextPane,
     structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
     taskregister::TaskID,
+    ui::{UIMessage, WindowContext},
     view::Drawable,
-    UIMessage, WindowContext,
 };
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
@@ -106,14 +104,18 @@ impl ContextPane<PlaylistAction> for Playlist {}
 impl KeyHandler<PlaylistAction> for Playlist {
     fn get_keybinds<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = &'a super::actionhandler::Keybind<PlaylistAction>> + 'a> {
+    ) -> Box<
+        dyn Iterator<Item = &'a crate::app::component::actionhandler::Keybind<PlaylistAction>> + 'a,
+    > {
         Box::new(self.keybinds.iter())
     }
 }
 impl KeyRouter<PlaylistAction> for Playlist {
     fn get_all_keybinds<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = &'a super::actionhandler::Keybind<PlaylistAction>> + 'a> {
+    ) -> Box<
+        dyn Iterator<Item = &'a crate::app::component::actionhandler::Keybind<PlaylistAction>> + 'a,
+    > {
         self.get_keybinds()
     }
 }
@@ -175,7 +177,7 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = super::view::TableItem> + '_> {
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
         Box::new(self.list.list.iter().map(|ls| ls.get_fields_iter()))
     }
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
@@ -191,7 +193,7 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::Up => self.increment_list(-1),
             PlaylistAction::PageDown => self.increment_list(10),
             PlaylistAction::PageUp => self.increment_list(-10),
-            PlaylistAction::PlaySelected => todo!(),
+            PlaylistAction::PlaySelected => self.play_selected().await,
         }
     }
 }
@@ -307,7 +309,7 @@ impl Playlist {
     }
     pub async fn handle_playing(&mut self, id: ListSongID) {
         if let PlayState::Paused(_) = self.play_status {
-            self.play_status = PlayState::Paused(id)
+            self.play_status = PlayState::Playing(id)
         }
     }
     pub async fn handle_stop(&mut self) {
@@ -494,7 +496,7 @@ impl Playlist {
             PlayState::Paused(id) | PlayState::Playing(id) | PlayState::Buffering(id) => {
                 let prev_song_id = self
                     .get_index_from_id(*id)
-                    .map(|i| i - 1)
+                    .and_then(|i| i.checked_sub(1))
                     .and_then(|i| self.list.list.get(i))
                     .map(|i| i.id);
                 info!("Next song id {:?}", prev_song_id);

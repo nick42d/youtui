@@ -1,5 +1,5 @@
 mod artistalbums;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyCode;
 
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
@@ -9,23 +9,24 @@ use ytmapi_rs::{
     parse::{SearchResultArtist, SongResult},
 };
 
-use crate::{app::ui::actionhandler::Keybind, core::send_or_error};
+use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 
 use self::{
     artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
     draw::draw_browser,
 };
 
-use super::{
-    actionhandler::{
+use crate::app::{
+    component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
-    contextpane::ContextPane,
+    component::contextpane::ContextPane,
     structures::ListStatus,
     taskregister::TaskID,
     view::{Drawable, Scrollable},
-    UIMessage, WindowContext,
 };
+
+use super::{UIMessage, WindowContext};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BrowserAction {
@@ -215,7 +216,7 @@ impl ActionHandler<BrowserAction> for Browser {
                 .await
             }
             // TODO: fix routing changes etc
-            BrowserAction::ToggleSearch => self.artist_list.toggle_search(),
+            BrowserAction::ToggleSearch => self.handle_toggle_search(),
         }
     }
     // KeyCode::F(3) => self.artist_list.push_sort_command("test".to_owned()),
@@ -238,6 +239,15 @@ impl Browser {
     fn right(&mut self) {
         // Doesn't consider previous routing.
         self.input_routing = self.input_routing.right();
+    }
+    fn handle_toggle_search(&mut self) {
+        if self.artist_list.search_popped {
+            self.artist_list.close_search();
+            self.revert_routing();
+        } else {
+            self.artist_list.open_search();
+            self.change_routing(InputRouting::Artist);
+        }
     }
     // Ask the UI for search suggestions for the current query
     // XXX: Currently has race conditions - if list is cleared response will arrive afterwards.
@@ -451,7 +461,7 @@ impl Browser {
         mem::swap(&mut self.input_routing, &mut self.prev_input_routing);
     }
     // Could be in trait.
-    #[deprecated]
+    #[deprecated = "Should be in a trait"]
     pub fn change_routing(&mut self, input_routing: InputRouting) {
         self.prev_input_routing = mem::replace(&mut self.input_routing, input_routing);
     }
@@ -467,22 +477,18 @@ fn browser_keybinds() -> Vec<Keybind<BrowserAction>> {
 }
 
 pub mod draw {
-    use std::collections::VecDeque;
 
     use ratatui::{
         prelude::{Backend, Constraint, Direction, Layout, Rect},
         style::{Color, Modifier, Style},
-        symbols::block,
         text::{Line, Span},
         widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
         Frame,
     };
     use ytmapi_rs::common::TextRun;
 
-    use crate::app::ui::{
-        actionhandler::Suggestable,
-        view::draw::{draw_list, draw_table},
-    };
+    use crate::app::component::actionhandler::Suggestable;
+    use crate::app::view::draw::{draw_list, draw_table};
 
     use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 

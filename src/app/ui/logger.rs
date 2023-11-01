@@ -7,18 +7,19 @@ use ratatui::{
     Frame,
 };
 use tokio::sync::mpsc::Sender;
-use tracing::{error, warn};
 use tui_logger::TuiWidgetEvent;
 
 use crate::core::send_or_error;
 
-use super::{
-    actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+use crate::app::{
+    component::{
+        actionhandler::{
+            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+        },
+        contextpane::ContextPane,
     },
-    contextpane::ContextPane,
+    ui::UIMessage,
     view::Drawable,
-    UIMessage,
 };
 
 #[derive(Clone, Debug, PartialEq)]

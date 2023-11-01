@@ -9,10 +9,9 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use super::{
-    actionhandler::{Action, DisplayableKeyRouter, KeybindVisibility},
-    contextpane::ContextPane,
-    WindowContext,
+use crate::app::{
+    component::actionhandler::{Action, DisplayableKeyRouter, KeybindVisibility},
+    component::contextpane::ContextPane,
 };
 
 pub fn context_global_keybinds_and_descriptions<'a, C, A>(

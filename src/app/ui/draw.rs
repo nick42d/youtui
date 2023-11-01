@@ -7,10 +7,9 @@ use ratatui::{
     terminal::Frame,
 };
 
-use super::actionhandler::{Action, DisplayableKeyRouter};
-use super::contextpane::ContextPane;
-use super::view::Drawable;
 use super::{footer, header, WindowContext, YoutuiWindow};
+use crate::app::component::actionhandler::{Action, DisplayableKeyRouter};
+use crate::app::view::Drawable;
 
 pub fn draw_app<B>(f: &mut Frame<B>, w: &YoutuiWindow)
 where
@@ -33,6 +32,9 @@ where
         WindowContext::Browser => w.browser.draw_chunk(f, base_layout[1]),
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
         WindowContext::Playlist => w.playlist.draw_chunk(f, base_layout[1]),
+    }
+    if w.help_shown {
+        draw_help(f, w, base_layout[1]);
     }
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);

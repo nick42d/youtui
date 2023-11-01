@@ -85,19 +85,20 @@ impl<A: Action> Keybind<A> {
     pub fn context(&self) -> Cow<str> {
         match &self.key_map {
             Keymap::Action(a) => a.context(),
-            Keymap::Mode(m) => m.name.into(),
+            Keymap::Mode(m) => m.context(),
         }
     }
     pub fn describe(&self) -> Cow<str> {
         match &self.key_map {
             Keymap::Action(a) => a.describe(),
-            Keymap::Mode(m) => m.name.into(),
+            Keymap::Mode(m) => m.describe(),
         }
     }
     pub fn as_readable_short(&self) -> (Cow<str>, Cow<str>) {
         (self.to_string().into(), self.describe())
     }
     pub fn as_readable(&self) -> (Cow<str>, Cow<str>, Cow<str>) {
+        // XXX: Do we also want to display sub-keys in Modes?
         (self.to_string().into(), self.context(), self.describe())
     }
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
@@ -281,24 +282,36 @@ pub fn index_keymap<'a, A: Action>(
 mod tests {
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-    use crate::app::ui::{
-        actionhandler::{index_keybinds, Keymap, Mode},
-        browser::BrowserAction,
-    };
+    use crate::app::component::actionhandler::{index_keybinds, Keymap, Mode};
 
-    use super::{index_keymap, Keybind};
+    use super::{index_keymap, Action, Keybind};
 
+    #[derive(PartialEq, Debug)]
+    enum TestAction {
+        Test1,
+        Test2,
+        Test3,
+    }
+    impl Action for TestAction {
+        fn context(&self) -> std::borrow::Cow<str> {
+            todo!()
+        }
+
+        fn describe(&self) -> std::borrow::Cow<str> {
+            todo!()
+        }
+    }
     #[test]
     fn test_index_keybinds() {
         let kb = vec![
-            Keybind::new_from_code(KeyCode::F(10), BrowserAction::Quit),
-            Keybind::new_from_code(KeyCode::F(12), BrowserAction::ViewLogs),
-            Keybind::new_from_code(KeyCode::Left, BrowserAction::Left),
-            Keybind::new_from_code(KeyCode::Right, BrowserAction::Right),
+            Keybind::new_from_code(KeyCode::F(10), TestAction::Test1),
+            Keybind::new_from_code(KeyCode::F(12), TestAction::Test2),
+            Keybind::new_from_code(KeyCode::Left, TestAction::Test3),
+            Keybind::new_from_code(KeyCode::Right, TestAction::Test3),
             Keybind::new_action_only_mode(
                 vec![
-                    (KeyCode::Char('A'), BrowserAction::Left),
-                    (KeyCode::Char('a'), BrowserAction::Left),
+                    (KeyCode::Char('A'), TestAction::Test2),
+                    (KeyCode::Char('a'), TestAction::Test3),
                 ],
                 KeyCode::Enter,
                 "Play",
@@ -308,8 +321,8 @@ mod tests {
         let idx = index_keybinds(Box::new(kb.iter()), &ks);
         let eq = Keybind::new_action_only_mode(
             vec![
-                (KeyCode::Char('A'), BrowserAction::Left),
-                (KeyCode::Char('a'), BrowserAction::Left),
+                (KeyCode::Char('A'), TestAction::Test2),
+                (KeyCode::Char('a'), TestAction::Test3),
             ],
             KeyCode::Enter,
             "Play",
@@ -321,14 +334,14 @@ mod tests {
     fn test_index_keymap() {
         let kb = Keymap::Mode(Mode {
             key_binds: vec![
-                Keybind::new_from_code(KeyCode::F(10), BrowserAction::Quit),
-                Keybind::new_from_code(KeyCode::F(12), BrowserAction::ViewLogs),
-                Keybind::new_from_code(KeyCode::Left, BrowserAction::Left),
-                Keybind::new_from_code(KeyCode::Right, BrowserAction::Right),
+                Keybind::new_from_code(KeyCode::F(10), TestAction::Test1),
+                Keybind::new_from_code(KeyCode::F(12), TestAction::Test2),
+                Keybind::new_from_code(KeyCode::Left, TestAction::Test3),
+                Keybind::new_from_code(KeyCode::Right, TestAction::Test3),
                 Keybind::new_action_only_mode(
                     vec![
-                        (KeyCode::Char('A'), BrowserAction::Left),
-                        (KeyCode::Char('a'), BrowserAction::Right),
+                        (KeyCode::Char('A'), TestAction::Test2),
+                        (KeyCode::Char('a'), TestAction::Test3),
                     ],
                     KeyCode::Enter,
                     "Play",
@@ -340,8 +353,8 @@ mod tests {
         let idx = index_keymap(&kb, &ks);
         let eq = Keybind::new_action_only_mode(
             vec![
-                (KeyCode::Char('A'), BrowserAction::Left),
-                (KeyCode::Char('a'), BrowserAction::Right),
+                (KeyCode::Char('A'), TestAction::Test2),
+                (KeyCode::Char('a'), TestAction::Test3),
             ],
             KeyCode::Enter,
             "Play",

@@ -1,16 +1,6 @@
-use std::borrow::Cow;
-
-use ratatui::{
-    prelude::{Backend, Constraint, Rect},
-    style::{Color, Style},
-    widgets::{Block, Borders, Clear, Row, Table},
-    Frame,
-};
-
-use super::draw::left_bottom_corner_rect;
 use super::{
+    super::view::Drawable,
     actionhandler::{Action, ActionProcessor, KeyRouter},
-    view::Drawable,
 };
 
 // A pane of the application. This is the place that renders in the app and handles key events.

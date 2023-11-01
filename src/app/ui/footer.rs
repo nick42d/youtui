@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -11,7 +9,7 @@ use ratatui::{
 };
 use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
-use super::structures::PlayState;
+use crate::app::structures::PlayState;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string

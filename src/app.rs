@@ -13,9 +13,13 @@ use tracing::info;
 use tracing_subscriber::prelude::*;
 use ui::YoutuiWindow;
 
+mod component;
 mod player;
 mod server;
+mod structures;
+mod taskregister;
 mod ui;
+mod view;
 
 const EVENT_CHANNEL_SIZE: usize = 256;
 const PLAYER_CHANNEL_SIZE: usize = 256;

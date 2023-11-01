@@ -19,3 +19,4 @@ tracing-subscriber = "0.3.17"
 rusty_ytdl = { version = "0.6.4", features = ["tokio"] }
 rodio = { version = "0.17.2", features = ["symphonia-all"] }
 directories = "5.0.1"
+gag = "1.0.0"

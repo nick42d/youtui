@@ -1,5 +1,4 @@
 use crate::error::{Error, Result};
-use crate::utils;
 use crate::{
     process::RawResult,
     query::Query,
@@ -12,9 +11,7 @@ use crate::{
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::path::Path;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use tokio::time::Instant;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::AuthToken;
 #[derive(Debug, Clone, Serialize, Deserialize)]

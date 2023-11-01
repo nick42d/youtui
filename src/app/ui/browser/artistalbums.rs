@@ -1,15 +1,12 @@
-use std::borrow::Cow;
-
-use crossterm::event::KeyCode;
-use ratatui::prelude::Constraint;
-use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
-
-use crate::app::ui::{
-    actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
-    browser::BrowserAction,
-    structures::{AlbumSongsList, ListSong, ListStatus, Percentage},
+use crate::app::ui::browser::BrowserAction;
+use crate::app::{
+    component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
+    structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
 };
+use crossterm::event::KeyCode;
+use std::borrow::Cow;
+use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {
@@ -83,13 +80,6 @@ impl ArtistSearchPanel {
     // XXX: What actually is a panel here? I can't select ArtistSearchPanel as it contains multiple components
     fn is_selected(&self) -> bool {
         true
-    }
-    pub fn toggle_search(&mut self) {
-        if !self.search_popped {
-            self.open_search()
-        } else {
-            self.close_search()
-        }
     }
     pub fn open_search(&mut self) {
         self.search_popped = true;
@@ -294,7 +284,7 @@ impl KeyHandler<BrowserAction> for AlbumSongsPanel {
 impl Loadable for AlbumSongsPanel {
     fn is_loading(&self) -> bool {
         match self.list.state {
-            crate::app::ui::structures::ListStatus::Loading => true,
+            crate::app::structures::ListStatus::Loading => true,
             _ => false,
         }
     }
@@ -347,7 +337,7 @@ impl TableView for AlbumSongsPanel {
         ]
     }
 
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::ui::view::TableItem> + '_> {
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
         let b = self.list.list.iter().map(|ls| {
             let song_iter =
                 ls.get_fields_iter()

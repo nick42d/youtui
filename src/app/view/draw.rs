@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::app::ui::view::ListView;
+use crate::app::view::ListView;
 use ratatui::{
     prelude::{Backend, Margin, Rect},
     style::{Color, Modifier, Style},
@@ -11,9 +11,8 @@ use ratatui::{
     },
     Frame,
 };
-use tracing::info;
 
-use super::{basic_constraints_to_constraints, TableItem, TableView};
+use super::{basic_constraints_to_constraints, TableView};
 
 const SELECTED_BORDER: Color = Color::Cyan;
 const DESELECTED_BORDER: Color = Color::White;

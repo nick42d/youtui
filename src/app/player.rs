@@ -2,16 +2,14 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::Duration;
 use tokio::sync::mpsc;
-use tracing::warn;
 
 use tracing::info;
 use tracing::trace;
 
 use crate::core::blocking_send_or_error;
-use crate::core::send_or_error;
 use crate::Result;
 
-use super::ui::structures::ListSongID;
+use super::structures::ListSongID;
 
 const INITIAL_VOLUME: u8 = 50;
 const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(200);
@@ -49,6 +47,12 @@ impl PlayerManager {
     ) -> Result<Self> {
         let response_tx_clone = response_tx.clone();
         let rodio = std::thread::spawn(move || {
+            // Rodio can produce output to stderr when we don't want it to, so we use Gag to suppress stdout/stderr.
+            // The downside is that even though this runs in a seperate thread all stderr for the whole app is gagged.
+            // Also seems to spew out characters?
+            // TODO: also handle the errors from Rodio, or write to a file.
+            let _gag_sterr = gag::Gag::stderr().unwrap();
+
             let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
             let sink = rodio::Sink::try_new(&stream_handle).unwrap();
             let mut last_tick_time = std::time::Instant::now();

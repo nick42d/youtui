@@ -1,7 +1,6 @@
 use rusty_ytdl::DownloadOptions;
 use rusty_ytdl::Video;
 use rusty_ytdl::VideoOptions;
-use tokio::fs;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
@@ -19,11 +18,10 @@ use crate::core::send_or_error;
 use crate::get_config_dir;
 use crate::Result;
 use crate::HEADER_FILENAME;
-use crate::OAUTH_FILENAME;
 
-use super::ui::structures::ListSongID;
-use super::ui::structures::Percentage;
-use super::ui::taskregister::TaskID;
+use super::structures::ListSongID;
+use super::structures::Percentage;
+use super::taskregister::TaskID;
 
 const TEMP_MUSIC_DIR: &str = "./music";
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.

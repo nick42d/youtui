@@ -1,39 +1,26 @@
-mod actionhandler;
 mod browser;
-mod contextpane;
 pub mod draw;
 mod footer;
 mod header;
-mod help;
 mod logger;
-mod messagehandler;
 mod playlist;
-pub mod structures;
-mod view;
-// Public due to task register
-pub mod taskregister;
 
 use std::borrow::Cow;
 
-use self::actionhandler::{
-    Action, ActionHandler, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler, KeyRouter, Keybind,
-    KeybindVisibility, Keymap, TextHandler,
-};
 use self::browser::BrowserAction;
-use self::contextpane::ContextPane;
 use self::playlist::PlaylistAction;
-use self::{
-    actionhandler::ActionProcessor,
-    browser::Browser,
-    logger::Logger,
-    playlist::Playlist,
-    taskregister::{AppRequest, TaskID},
+use self::{browser::Browser, logger::Logger, playlist::Playlist};
+use super::taskregister::{AppRequest, TaskID};
+
+use super::component::actionhandler::{
+    Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
+    KeyRouter, Keybind, KeybindVisibility, Keymap, TextHandler,
 };
 
 use super::server::{self, SongProgressUpdateType};
+use super::structures::*;
+use super::taskregister::TaskRegister;
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use structures::*;
-use taskregister::TaskRegister;
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::common::TextRun;
@@ -240,18 +227,29 @@ impl Action for UIAction {
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
-                "".into()
+                "Global".into()
             }
             UIAction::Browser(a) => a.context(),
             UIAction::Playlist(a) => a.context(),
-            UIAction::Quit => "".into(),
-            UIAction::ToggleHelp => "".into(),
-            UIAction::ViewLogs => "".into(),
-            UIAction::Pause => "".into(),
+            UIAction::Quit => "Global".into(),
+            UIAction::ToggleHelp => "Global".into(),
+            UIAction::ViewLogs => "Global".into(),
+            UIAction::Pause => "Global".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        format!("{:?}", self).into()
+        match self {
+            UIAction::Quit => "Quit".into(),
+            UIAction::Prev => "Prev Song".into(),
+            UIAction::Next => "Next Song".into(),
+            UIAction::Pause => "Pause".into(),
+            UIAction::StepVolUp => "Vol Up".into(),
+            UIAction::StepVolDown => "Vol Down".into(),
+            UIAction::ToggleHelp => "Toggle Help".into(),
+            UIAction::ViewLogs => "View Logs".into(),
+            UIAction::Browser(a) => a.describe(),
+            UIAction::Playlist(a) => a.describe(),
+        }
     }
 }
 
@@ -363,10 +361,10 @@ impl YoutuiWindow {
                 // we receive a message from server to add songs.
                 UIMessage::KillPendingSearchTasks => self
                     .tasks
-                    .kill_all_task_type(taskregister::RequestCategory::Search),
+                    .kill_all_task_type(super::taskregister::RequestCategory::Search),
                 UIMessage::KillPendingGetTasks => self
                     .tasks
-                    .kill_all_task_type(taskregister::RequestCategory::Get),
+                    .kill_all_task_type(super::taskregister::RequestCategory::Get),
                 UIMessage::AddSongsToPlaylist(song_list) => {
                     self.playlist.push_song_list(song_list);
                 }
@@ -543,9 +541,9 @@ fn global_keybinds() -> Vec<Keybind<UIAction>> {
         Keybind::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
         Keybind::new_from_code(KeyCode::Char('<'), UIAction::Prev),
         Keybind::new_from_code(KeyCode::Char('>'), UIAction::Next),
-        Keybind::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
-        Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         Keybind::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
+        Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         Keybind::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
+        Keybind::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
     ]
 }
