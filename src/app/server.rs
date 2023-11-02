@@ -23,7 +23,6 @@ use super::structures::ListSongID;
 use super::structures::Percentage;
 use super::taskregister::TaskID;
 
-const TEMP_MUSIC_DIR: &str = "./music";
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
 
 pub struct KillRequest;
@@ -63,6 +62,30 @@ pub enum SongProgressUpdateType {
     Downloading(Percentage),
     Completed(Vec<u8>),
     Error,
+}
+
+// TODO: Modularize this and allow server to control API and Player.
+mod api {
+    use tokio::{sync::mpsc, task::JoinHandle};
+    pub struct Api {
+        // Do I want to keep track of tasks here in a joinhandle?
+        api: Option<ytmapi_rs::YtMusic>,
+        api_init: Option<tokio::task::JoinHandle<ytmapi_rs::YtMusic>>,
+    }
+    pub struct ApiHandle {
+        api_handle: JoinHandle<()>,
+        response_tx: mpsc::Sender<()>,
+    }
+}
+
+mod player {
+    use std::thread::JoinHandle;
+    use tokio::sync::mpsc;
+
+    pub struct PlayerHandle {
+        response_tx: mpsc::Sender<()>,
+        rodio: JoinHandle<()>,
+    }
 }
 
 pub struct Server {

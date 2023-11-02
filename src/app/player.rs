@@ -10,9 +10,9 @@ use crate::core::blocking_send_or_error;
 use crate::Result;
 
 use super::structures::ListSongID;
+use super::taskregister::TaskID;
 
-const INITIAL_VOLUME: u8 = 50;
-const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(200);
+const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
 
 #[derive(Debug)]
 pub enum Request {
@@ -31,7 +31,7 @@ pub enum Response {
     Playing(ListSongID),
     Stopped,
     ProgressUpdate(f64, ListSongID),
-    VolumeUpdate(u8),
+    VolumeUpdate(u8, TaskID),
 }
 
 pub struct PlayerManager {
@@ -55,7 +55,7 @@ impl PlayerManager {
 
             let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
             let sink = rodio::Sink::try_new(&stream_handle).unwrap();
-            let mut last_tick_time = std::time::Instant::now();
+            let mut last_tick_time;
             let mut cur_song_elapsed = std::time::Duration::default();
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_id = ListSongID::default();
@@ -133,7 +133,7 @@ impl PlayerManager {
                 }
                 if !sink.empty() && !sink.is_paused() {
                     last_tick_time = std::time::Instant::now();
-                    std::thread::sleep(std::time::Duration::from_millis(100));
+                    std::thread::sleep(POLL_INTERVAL);
                     let passed = std::time::Instant::now() - last_tick_time;
                     cur_song_elapsed = cur_song_elapsed + passed;
                 }

@@ -18,7 +18,7 @@ Version as of 25/10/23 and is still a work in progress.
 - The following libraries are required for sound on linux (note debian/ubuntu package names):
  - `alsa-tools` `libasound2-dev` `libdbus-1-dev` `pkg-config`
 ### Limitations
-- Song files will be downloaded in the ./music directory from where the binary is located until a better caching system is built.
+- Songs are currently stored in memory and not dropped or cached once download is complete.
 ## Coding constraints
 App has been designed for me to learn Rust, and therefore I have implemented the following constraints to learn some features. I am aware these may not be the most efficient ways to code.
 1. Avoid shared mutable state: 
