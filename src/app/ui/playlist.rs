@@ -28,7 +28,7 @@ use crate::app::{
         contextpane::ContextPane,
     },
     structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
-    taskregister::TaskID,
+    taskmanager::TaskID,
     ui::{UIMessage, WindowContext},
     view::Drawable,
 };

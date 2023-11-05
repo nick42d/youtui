@@ -22,7 +22,7 @@ use crate::app::{
     },
     component::contextpane::ContextPane,
     structures::ListStatus,
-    taskregister::TaskID,
+    taskmanager::TaskID,
     view::{Drawable, Scrollable},
 };
 

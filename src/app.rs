@@ -1,5 +1,7 @@
 use crate::get_data_dir;
 
+use self::taskmanager::TaskManager;
+
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
 use crossterm::{
@@ -17,7 +19,7 @@ mod component;
 mod player;
 mod server;
 mod structures;
-mod taskregister;
+mod taskmanager;
 mod ui;
 mod view;
 
@@ -29,7 +31,7 @@ pub struct Youtui {
     event_handler: EventHandler,
     window_state: YoutuiWindow,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
-    player: player::PlayerManager,
+    task_manager: TaskManager,
 }
 
 fn destruct_terminal() {
@@ -64,18 +66,17 @@ impl Youtui {
         // First cut at setting up Player
         let (request_tx, request_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
         let (response_tx, response_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
-        let player = player::PlayerManager::new(response_tx, request_rx).unwrap();
+        // TODO: Figure out how to process the task messages.
+        let task_manager = taskmanager::TaskManager::new();
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend).unwrap();
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        // With current setup for Player YoutuiWindow needs the sender/reciever channels to
-        // give to Playlist.
         let window_state = YoutuiWindow::new(request_tx, response_rx);
         Ok(Youtui {
             terminal,
             event_handler,
             window_state,
-            player,
+            task_manager,
         })
     }
     pub async fn run(&mut self) {

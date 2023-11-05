@@ -10,7 +10,7 @@ use std::borrow::Cow;
 use self::browser::BrowserAction;
 use self::playlist::PlaylistAction;
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
-use super::taskregister::{AppRequest, TaskID};
+use super::taskmanager::{AppRequest, TaskID};
 
 use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
@@ -19,7 +19,7 @@ use super::component::actionhandler::{
 
 use super::server::{self, SongProgressUpdateType};
 use super::structures::*;
-use super::taskregister::TaskRegister;
+use super::taskmanager::TaskManager;
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use tokio::sync::mpsc;
 use tracing::error;
@@ -90,7 +90,7 @@ pub struct YoutuiWindow {
     prev_context: WindowContext,
     playlist: Playlist,
     browser: Browser,
-    tasks: TaskRegister,
+    tasks: TaskManager,
     logger: Logger,
     _ui_tx: mpsc::Sender<UIMessage>,
     ui_rx: mpsc::Receiver<UIMessage>,
@@ -300,7 +300,7 @@ impl YoutuiWindow {
         let (ui_tx, ui_rx) = mpsc::channel(CHANNEL_SIZE);
         YoutuiWindow {
             status: AppStatus::Running,
-            tasks: TaskRegister::new(),
+            tasks: TaskManager::new(),
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
             playlist: Playlist::new(player_request_tx, player_response_rx, ui_tx.clone()),
@@ -361,10 +361,10 @@ impl YoutuiWindow {
                 // we receive a message from server to add songs.
                 UIMessage::KillPendingSearchTasks => self
                     .tasks
-                    .kill_all_task_type(super::taskregister::RequestCategory::Search),
+                    .kill_all_task_type(super::taskmanager::RequestCategory::Search),
                 UIMessage::KillPendingGetTasks => self
                     .tasks
-                    .kill_all_task_type(super::taskregister::RequestCategory::Get),
+                    .kill_all_task_type(super::taskmanager::RequestCategory::Get),
                 UIMessage::AddSongsToPlaylist(song_list) => {
                     self.playlist.push_song_list(song_list);
                 }
