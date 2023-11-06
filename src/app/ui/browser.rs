@@ -369,8 +369,6 @@ impl Browser {
             return;
         };
         self.change_routing(InputRouting::Song);
-        send_or_error(&self.ui_tx, UIMessage::KillPendingGetTasks).await;
-        tracing::info!("Sent request to UI to kill pending get tasks");
         self.album_songs_list.list.list.clear();
 
         let Some(cur_artist_id) = self
@@ -388,26 +386,20 @@ impl Browser {
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
-        send_or_error(&self.ui_tx, UIMessage::KillPendingSearchTasks).await;
-        tracing::info!("Sent request to UI to kill pending search tasks");
         let search_query = self.artist_list.search.take_text();
         send_or_error(&self.ui_tx, UIMessage::SearchArtist(search_query)).await;
         tracing::info!("Sent request to UI to search");
     }
-    pub fn handle_search_artist_error(&mut self, _id: TaskID) {
+    pub fn handle_search_artist_error(&mut self) {
         self.album_songs_list.list.state = ListStatus::Error;
     }
-    pub fn handle_song_list_loaded(&mut self, _id: TaskID) {
+    pub fn handle_song_list_loaded(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loaded;
     }
-    pub fn handle_song_list_loading(&mut self, _id: TaskID) {
+    pub fn handle_song_list_loading(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loading;
     }
-    pub async fn handle_replace_artist_list(
-        &mut self,
-        artist_list: Vec<SearchResultArtist>,
-        _id: TaskID,
-    ) {
+    pub async fn handle_replace_artist_list(&mut self, artist_list: Vec<SearchResultArtist>) {
         self.artist_list.list = artist_list;
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
@@ -416,7 +408,6 @@ impl Browser {
     pub fn handle_replace_search_suggestions(
         &mut self,
         search_suggestions: Vec<Vec<TextRun>>,
-        _id: TaskID,
         search: String,
     ) {
         if self.artist_list.search.search_contents == search {
@@ -424,7 +415,7 @@ impl Browser {
             self.artist_list.search.suggestions_cur = None;
         }
     }
-    pub fn handle_no_songs_found(&mut self, _id: TaskID) {
+    pub fn handle_no_songs_found(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loaded;
         self.album_songs_list.list.list.clear()
     }
@@ -434,14 +425,13 @@ impl Browser {
         album: String,
         year: String,
         artist: String,
-        _id: TaskID,
     ) {
         self.album_songs_list
             .list
             .append_raw_songs(song_list, album, year, artist);
         self.album_songs_list.list.state = ListStatus::InProgress;
     }
-    pub fn handle_songs_found(&mut self, _id: TaskID) {
+    pub fn handle_songs_found(&mut self) {
         self.album_songs_list.list.list.clear();
         self.album_songs_list.list.cur_selected = Some(0);
         self.album_songs_list.list.state = ListStatus::InProgress;

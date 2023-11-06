@@ -17,9 +17,9 @@ use super::component::actionhandler::{
     KeyRouter, Keybind, KeybindVisibility, Keymap, TextHandler,
 };
 
-use super::server::{self, SongProgressUpdateType};
+use super::server;
 use super::structures::*;
-use super::taskmanager::TaskManager;
+use crate::app::server::downloader::SongProgressUpdateType;
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use tokio::sync::mpsc;
 use tracing::error;
@@ -65,11 +65,35 @@ pub enum UIMessage {
     SearchArtist(String),
     GetSearchSuggestions(String),
     GetArtistSongs(ChannelID<'static>),
-    KillPendingSearchTasks,
-    KillPendingGetTasks,
     AddSongsToPlaylist(Vec<ListSong>),
     PlaySongs(Vec<ListSong>),
 }
+
+// A message from the server to update state.
+#[derive(Debug)]
+pub enum StateUpdateMessage {
+    SetSongProgress(SongProgressUpdateType, ListSongID),
+    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
+    HandleSearchArtistError,
+    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, String),
+    HandleSongListLoading,
+    HandleSongListLoaded,
+    HandleNoSongsFound,
+    HandleSongsFound,
+    AppendSongList {
+        song_list: Vec<SongResult>,
+        album: String,
+        year: String,
+        artist: String,
+    },
+    HandleDonePlaying(ListSongID),
+    SetToPaused(ListSongID),
+    SetToPlaying(ListSongID),
+    SetToStopped,
+    SetVolume(Percentage),
+}
+
+// An action that can be triggered from a keybind.
 #[derive(Clone, Debug, PartialEq)]
 pub enum UIAction {
     Quit,
@@ -85,15 +109,15 @@ pub enum UIAction {
 }
 
 pub struct YoutuiWindow {
-    pub status: AppStatus,
+    status: AppStatus,
     context: WindowContext,
     prev_context: WindowContext,
     playlist: Playlist,
     browser: Browser,
-    tasks: TaskManager,
     logger: Logger,
     _ui_tx: mpsc::Sender<UIMessage>,
     ui_rx: mpsc::Receiver<UIMessage>,
+    task_manager_request_tx: mpsc::Sender<AppRequest>,
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help_shown: bool,
@@ -292,18 +316,14 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(
-        player_request_tx: mpsc::Sender<super::player::Request>,
-        player_response_rx: mpsc::Receiver<super::player::Response>,
-    ) -> YoutuiWindow {
+    pub fn new(task_manager_request_tx: mpsc::Sender<AppRequest>) -> YoutuiWindow {
         // TODO: derive default
         let (ui_tx, ui_rx) = mpsc::channel(CHANNEL_SIZE);
         YoutuiWindow {
             status: AppStatus::Running,
-            tasks: TaskManager::new(),
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(player_request_tx, player_response_rx, ui_tx.clone()),
+            playlist: Playlist::new(ui_tx.clone()),
             browser: Browser::new(ui_tx.clone()),
             logger: Logger::new(ui_tx.clone()),
             _ui_tx: ui_tx,
@@ -311,11 +331,17 @@ impl YoutuiWindow {
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help_shown: false,
+            task_manager_request_tx,
         }
+    }
+    pub fn get_status(&self) -> AppStatus {
+        self.status
+    }
+    pub fn set_status(&mut self, new_status: AppStatus) {
+        self.status = new_status;
     }
     pub async fn handle_tick(&mut self) {
         self.playlist.handle_tick().await;
-        self.process_messages().await;
         self.process_ui_messages().await;
     }
     pub fn quit(&mut self) {
@@ -327,8 +353,8 @@ impl YoutuiWindow {
         while let Ok(msg) = self.ui_rx.try_recv() {
             match msg {
                 UIMessage::DownloadSong(video_id, playlist_id) => {
-                    self.tasks
-                        .send_request(AppRequest::Download(video_id, playlist_id))
+                    self.task_manager_request_tx
+                        .send(AppRequest::Download(video_id, playlist_id))
                         .await
                         .unwrap_or_else(|_| error!("Error sending Download Songs task"));
                 }
@@ -340,31 +366,23 @@ impl YoutuiWindow {
                 UIMessage::StepVolUp => self.playlist.handle_increase_volume().await,
                 UIMessage::StepVolDown => self.playlist.handle_decrease_volume().await,
                 UIMessage::GetSearchSuggestions(text) => {
-                    self.tasks
-                        .send_request(AppRequest::GetSearchSuggestions(text))
+                    self.task_manager_request_tx
+                        .send(AppRequest::GetSearchSuggestions(text))
                         .await
                         .unwrap_or_else(|e| error!("Error <{e}> sending request"));
                 }
                 UIMessage::SearchArtist(artist) => {
-                    self.tasks
-                        .send_request(AppRequest::SearchArtists(artist))
+                    self.task_manager_request_tx
+                        .send(AppRequest::SearchArtists(artist))
                         .await
                         .unwrap_or_else(|e| error!("Error <{e}> sending request"));
                 }
                 UIMessage::GetArtistSongs(id) => {
-                    self.tasks
-                        .send_request(AppRequest::GetArtistSongs(id))
+                    self.task_manager_request_tx
+                        .send(AppRequest::GetArtistSongs(id))
                         .await
                         .unwrap_or_else(|e| error!("Error <{e}> sending request"));
                 }
-                // XXX: We could potentially have a race condition here if this message arrives after
-                // we receive a message from server to add songs.
-                UIMessage::KillPendingSearchTasks => self
-                    .tasks
-                    .kill_all_task_type(super::taskmanager::RequestCategory::Search),
-                UIMessage::KillPendingGetTasks => self
-                    .tasks
-                    .kill_all_task_type(super::taskmanager::RequestCategory::Get),
                 UIMessage::AddSongsToPlaylist(song_list) => {
                     self.playlist.push_song_list(song_list);
                 }
@@ -379,85 +397,77 @@ impl YoutuiWindow {
             }
         }
     }
-    pub async fn process_messages(&mut self) {
+    pub async fn process_state_updates(&mut self, state_updates: Vec<StateUpdateMessage>) {
         // Process all messages in queue from API on each tick.
-        while let Ok(msg) = self.tasks.try_recv() {
+        for msg in state_updates {
+            tracing::debug!("Processing {:?}", msg);
             match msg {
-                server::Response::SongProgressUpdate(update, playlist_id, id) => {
-                    self.handle_song_progress_update(update, playlist_id, id)
-                        .await
+                StateUpdateMessage::SetSongProgress(update, id) => {
+                    self.handle_song_progress_update(update, id).await
                 }
-                server::Response::ReplaceArtistList(x, id) => {
-                    self.handle_replace_artist_list(x, id).await
+                StateUpdateMessage::ReplaceArtistList(l) => {
+                    self.handle_replace_artist_list(l).await
                 }
-                server::Response::SongsFound(id) => self.handle_songs_found(id),
-                server::Response::AppendSongList(song_list, album, year, artist, id) => {
-                    self.handle_append_song_list(song_list, album, year, artist, id)
+                StateUpdateMessage::HandleSearchArtistError => self.handle_search_artist_error(),
+                StateUpdateMessage::ReplaceSearchSuggestions(runs, query) => {
+                    self.handle_replace_search_suggestions(runs, query).await
                 }
-                server::Response::NoSongsFound(id) => self.handle_no_songs_found(id),
-                server::Response::SongListLoading(id) => self.handle_song_list_loading(id),
-                server::Response::SongListLoaded(id) => self.handle_song_list_loaded(id),
-                server::Response::SearchArtistError(id) => self.handle_search_artist_error(id),
-                server::Response::ReplaceSearchSuggestions(suggestions, id, search) => {
-                    self.handle_replace_search_suggestions(suggestions, id, search)
-                        .await
-                }
+                StateUpdateMessage::HandleSongListLoading => self.handle_song_list_loading(),
+                StateUpdateMessage::HandleSongListLoaded => self.handle_song_list_loaded(),
+                StateUpdateMessage::HandleNoSongsFound => self.handle_no_songs_found(),
+                StateUpdateMessage::HandleSongsFound => self.handle_songs_found(),
+                StateUpdateMessage::AppendSongList {
+                    song_list,
+                    album,
+                    year,
+                    artist,
+                } => self.handle_append_song_list(song_list, album, year, artist),
+                StateUpdateMessage::HandleDonePlaying(id) => self.handle_done_playing(id).await,
+                StateUpdateMessage::SetToPaused(id) => self.handle_set_to_paused(id).await,
+                StateUpdateMessage::SetToPlaying(id) => self.handle_set_to_playing(id).await,
+                StateUpdateMessage::SetToStopped => self.handle_set_to_stopped().await,
+                StateUpdateMessage::SetVolume(p) => self.handle_set_volume(p),
             }
         }
+    }
+    async fn handle_done_playing(&mut self, id: ListSongID) {
+        self.playlist.handle_done_playing(id).await
+    }
+    async fn handle_set_to_paused(&mut self, id: ListSongID) {
+        self.playlist.handle_set_to_paused(id).await
+    }
+    async fn handle_set_to_playing(&mut self, id: ListSongID) {
+        self.playlist.handle_set_to_playing(id).await
+    }
+    async fn handle_set_to_stopped(&mut self) {
+        self.playlist.handle_set_to_stopped().await
+    }
+    fn handle_set_volume(&mut self, p: Percentage) {
+        self.playlist.handle_set_volume(p)
     }
     async fn handle_song_progress_update(
         &mut self,
         update: SongProgressUpdateType,
         playlist_id: ListSongID,
-        id: TaskID,
     ) {
         self.playlist
-            .handle_song_progress_update(update, playlist_id, id)
+            .handle_song_progress_update(update, playlist_id)
             .await
     }
-    async fn handle_replace_search_suggestions(
-        &mut self,
-        x: Vec<Vec<TextRun>>,
-        id: TaskID,
-        search: String,
-    ) {
-        tracing::info!(
-            "Received request to replace search suggestions - ID {:?}",
-            id
-        );
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser
-            .handle_replace_search_suggestions(x, id, search);
+    async fn handle_replace_search_suggestions(&mut self, x: Vec<Vec<TextRun>>, search: String) {
+        self.browser.handle_replace_search_suggestions(x, search);
     }
-    async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>, id: TaskID) {
-        tracing::info!("Received request to replace artists list - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_replace_artist_list(x, id).await;
+    async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
+        self.browser.handle_replace_artist_list(x).await;
     }
-    fn handle_song_list_loaded(&mut self, id: TaskID) {
-        tracing::info!("Received message that song list loaded - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_song_list_loaded(id);
+    fn handle_song_list_loaded(&mut self) {
+        self.browser.handle_song_list_loaded();
     }
-    pub fn handle_song_list_loading(&mut self, id: TaskID) {
-        tracing::info!("Received message that song list loading - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_song_list_loading(id);
+    pub fn handle_song_list_loading(&mut self) {
+        self.browser.handle_song_list_loading();
     }
-    pub fn handle_no_songs_found(&mut self, id: TaskID) {
-        tracing::info!("Received message that no songs found - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_no_songs_found(id)
+    pub fn handle_no_songs_found(&mut self) {
+        self.browser.handle_no_songs_found();
     }
     pub fn handle_append_song_list(
         &mut self,
@@ -465,28 +475,15 @@ impl YoutuiWindow {
         album: String,
         year: String,
         artist: String,
-        id: TaskID,
     ) {
-        tracing::info!("Received request to append song list - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
         self.browser
-            .handle_append_song_list(song_list, album, year, artist, id)
+            .handle_append_song_list(song_list, album, year, artist)
     }
-    pub fn handle_songs_found(&mut self, id: TaskID) {
-        tracing::info!("Received response that songs found - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_songs_found(id);
+    pub fn handle_songs_found(&mut self) {
+        self.browser.handle_songs_found();
     }
-    fn handle_search_artist_error(&mut self, id: TaskID) {
-        tracing::warn!("Received message that song list errored - ID {:?}", id);
-        if !self.tasks.is_task_valid(id) {
-            return;
-        }
-        self.browser.handle_search_artist_error(id)
+    fn handle_search_artist_error(&mut self) {
+        self.browser.handle_search_artist_error();
     }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_event(&mut self, event: crossterm::event::Event) {

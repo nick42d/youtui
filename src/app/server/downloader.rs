@@ -10,14 +10,9 @@ use tokio::sync::{mpsc, oneshot};
 use tracing::{error, info};
 use ytmapi_rs::{common::YoutubeID, VideoID};
 
-use super::{spawn_run_or_kill, KillRequest, DL_CALLBACK_CHUNK_SIZE};
+use super::{spawn_run_or_kill, KillRequest, KillableTask, DL_CALLBACK_CHUNK_SIZE};
 pub enum Request {
-    DownloadSong(
-        VideoID<'static>,
-        ListSongID,
-        TaskID,
-        oneshot::Receiver<KillRequest>,
-    ),
+    DownloadSong(VideoID<'static>, ListSongID, KillableTask),
 }
 pub enum Response {
     SongProgressUpdate(SongProgressUpdateType, ListSongID, TaskID),
@@ -50,8 +45,8 @@ impl Downloader {
     }
     pub async fn handle_request(&self, request: Request) {
         match request {
-            Request::DownloadSong(s_id, p_id, id, kill) => {
-                self.handle_download_song(s_id, p_id, id, kill).await
+            Request::DownloadSong(s_id, p_id, task) => {
+                self.handle_download_song(s_id, p_id, task).await
             }
         }
     }
@@ -59,9 +54,9 @@ impl Downloader {
         &self,
         song_video_id: VideoID<'static>,
         playlist_id: ListSongID,
-        id: TaskID,
-        kill: oneshot::Receiver<KillRequest>,
+        task: KillableTask,
     ) {
+        let KillableTask { id, kill_rx } = task;
         let tx = self.response_tx.clone();
         // TODO: Find way to avoid clone of options here.
         let options = self.options.clone();

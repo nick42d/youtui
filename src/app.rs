@@ -1,6 +1,7 @@
 use crate::get_data_dir;
 
 use self::taskmanager::TaskManager;
+use self::ui::StateUpdateMessage;
 
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
@@ -16,7 +17,6 @@ use tracing_subscriber::prelude::*;
 use ui::YoutuiWindow;
 
 mod component;
-mod player;
 mod server;
 mod structures;
 mod taskmanager;
@@ -63,15 +63,11 @@ impl Youtui {
             destruct_terminal();
             println!("{}", panic_info);
         }));
-        // First cut at setting up Player
-        let (request_tx, request_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
-        let (response_tx, response_rx) = tokio::sync::mpsc::channel(PLAYER_CHANNEL_SIZE);
-        // TODO: Figure out how to process the task messages.
         let task_manager = taskmanager::TaskManager::new();
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend).unwrap();
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(request_tx, response_rx);
+        let window_state = YoutuiWindow::new(task_manager.get_sender().clone());
         Ok(Youtui {
             terminal,
             event_handler,
@@ -80,9 +76,15 @@ impl Youtui {
         })
     }
     pub async fn run(&mut self) {
-        while self.window_state.status == ui::AppStatus::Running {
+        while self.window_state.get_status() == ui::AppStatus::Running {
+            // Get the events from the event_handler and process them.
             let msg = self.event_handler.next().await;
             self.process_message(msg).await;
+            // If any requests are in the queue, queue up the tasks on the server.
+            self.queue_server_tasks().await;
+            // Get the state update events from the task manager and process them.
+            let state_updates = self.task_manager.process_messages();
+            self.process_state_updates(state_updates).await;
             // Write to terminal, using UI state as the input
             // We draw after handling the event, as the event could be a keypress we want to instantly react to.
             // TODO: Error handling
@@ -96,11 +98,17 @@ impl Youtui {
     async fn process_message(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
         match msg {
-            Some(AppEvent::QuitSignal) => self.window_state.status = ui::AppStatus::Exiting,
+            Some(AppEvent::QuitSignal) => self.window_state.set_status(ui::AppStatus::Exiting),
             Some(AppEvent::Crossterm(e)) => self.window_state.handle_event(e).await,
             // XXX: Should be try_poll or similar? Poll the Future but don't await it?
             Some(AppEvent::Tick) => self.window_state.handle_tick().await,
             None => panic!("Channel closed"),
         }
+    }
+    async fn queue_server_tasks(&mut self) {
+        self.task_manager.process_requests().await;
+    }
+    async fn process_state_updates(&mut self, state_updates: Vec<StateUpdateMessage>) {
+        self.window_state.process_state_updates(state_updates).await;
     }
 }

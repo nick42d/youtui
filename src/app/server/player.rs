@@ -12,6 +12,8 @@ use crate::Result;
 use crate::app::structures::ListSongID;
 use crate::app::taskmanager::TaskID;
 
+use super::KillableTask;
+
 const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 
@@ -19,8 +21,8 @@ const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 pub enum Request {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetProgress(ListSongID), // Should give ID?
-    GetVolume,
-    IncreaseVolume(i8),
+    GetVolume(KillableTask),
+    IncreaseVolume(i8, TaskID),
     Stop,
     PausePlay,
 }
@@ -129,26 +131,27 @@ pub fn spawn_rodio_thread(
                             info!("Sending song progress update");
                         }
                     }
-                    Request::GetVolume => {
+                    Request::GetVolume(task) => {
+                        // TODO: Implment ability to kill this task using kill_rx.
+                        let KillableTask { id, kill_rx } = task;
                         info!("Received {:?}", msg);
-                        // Because of the thread delay, these aren't processed immediately.
-                        // Need an id in this message to keep track of it.
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(
-                                (sink.volume() * 100.0) as u8,
+                                (sink.volume() * 100.0).round() as u8,
+                                id,
                             )),
                         );
                         info!("Sending volume update");
                     }
-                    Request::IncreaseVolume(vol_inc) => {
+                    Request::IncreaseVolume(vol_inc, id) => {
                         info!("Received {:?}", msg);
                         sink.set_volume(sink.volume() + vol_inc as f32 / 100.0);
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(
                                 (sink.volume() * 100.0) as u8,
-                                TaskID(0),
+                                id,
                             )),
                         );
                         info!("Sending volume update");

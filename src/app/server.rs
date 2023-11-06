@@ -12,11 +12,19 @@ pub mod player;
 
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
 
+#[derive(Debug)]
 pub struct KillRequest;
 
+#[derive(Debug)]
 pub struct KillableTask {
     pub id: TaskID,
     pub kill_rx: oneshot::Receiver<KillRequest>,
+}
+
+impl KillableTask {
+    pub fn new(id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) -> Self {
+        Self { id, kill_rx }
+    }
 }
 
 pub enum Request {

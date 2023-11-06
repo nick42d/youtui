@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 
+use crate::app::server::downloader::SongProgressUpdateType;
 use crate::app::view::BasicConstraint;
 use crate::error::Result;
 use crate::{
@@ -42,8 +43,6 @@ pub struct Playlist {
     pub cur_played_secs: Option<f64>,
     pub play_status: PlayState,
     pub volume: Percentage,
-    pub request_tx: mpsc::Sender<crate::app::player::Request>,
-    pub response_rx: mpsc::Receiver<crate::app::player::Response>,
     ui_tx: mpsc::Sender<UIMessage>,
     pub help_shown: bool,
     keybinds: Vec<Keybind<PlaylistAction>>,
@@ -199,18 +198,12 @@ impl ActionHandler<PlaylistAction> for Playlist {
 }
 
 impl Playlist {
-    pub fn new(
-        request_tx: mpsc::Sender<Request>,
-        response_rx: mpsc::Receiver<Response>,
-        ui_tx: mpsc::Sender<UIMessage>,
-    ) -> Self {
+    pub fn new(ui_tx: mpsc::Sender<UIMessage>) -> Self {
         // This could fail, made to try send to avoid needing to change function signature to asynchronous. Should change.
-        request_tx
+        ui_tx
             .try_send(Request::GetVolume)
             .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
         Playlist {
-            response_rx,
-            request_tx,
             help_shown: false,
             ui_tx,
             volume: Percentage(50),
@@ -229,90 +222,69 @@ impl Playlist {
         // Ask player for a progress update.
         if let PlayState::Playing(id) = self.play_status {
             info!("Tick received - requesting song progress update");
-            let _ = self.request_tx.send(player::Request::GetProgress(id)).await;
+            let _ = self.ui_tx.send(player::Request::GetProgress(id)).await;
         }
     }
     pub async fn handle_song_progress_update(
         &mut self,
-        update: server::SongProgressUpdateType,
-        playlist_id: ListSongID,
-        id: TaskID,
+        update: SongProgressUpdateType,
+        id: ListSongID,
     ) {
-        tracing::info!("Received song progress update - ID {:?}", id);
-        // Ideally we would check if task is valid.
-        // if self.tasks.is_task_valid(id) {
-        if true {
-            tracing::info!("Task valid - updating song download status");
-            match update {
-                server::SongProgressUpdateType::Started => {
-                    if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
-                        song.download_status = DownloadStatus::Queued;
-                        // while let Ok(_) = self.player_rx.try_recv() {}
-                    }
+        if !self.check_id_is_cur(id) {
+            return;
+        }
+        tracing::info!("Task valid - updating song download status");
+        match update {
+            SongProgressUpdateType::Started => {
+                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                    song.download_status = DownloadStatus::Queued;
+                    // while let Ok(_) = self.player_rx.try_recv() {}
                 }
-                server::SongProgressUpdateType::Completed(song_buf) => {
-                    let fut = self
-                        .get_mut_song_from_id(playlist_id)
-                        .map(|s| {
-                            s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
-                            s.id
-                        })
-                        .map(|id| async move { self.play_if_was_buffering(id).await });
-                    if let Some(f) = fut {
-                        f.await
-                    }
+            }
+            SongProgressUpdateType::Completed(song_buf) => {
+                let fut = self
+                    .get_mut_song_from_id(id)
+                    .map(|s| {
+                        s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
+                        s.id
+                    })
+                    .map(|id| async move { self.play_if_was_buffering(id).await });
+                if let Some(f) = fut {
+                    f.await
                 }
-                server::SongProgressUpdateType::Error => {
-                    if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
-                        song.download_status = DownloadStatus::Failed;
-                    }
+            }
+            SongProgressUpdateType::Error => {
+                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                    song.download_status = DownloadStatus::Failed;
                 }
-                server::SongProgressUpdateType::Downloading(p) => {
-                    if let Some(song) = self.list.list.iter_mut().find(|x| x.id == playlist_id) {
-                        song.download_status = DownloadStatus::Downloading(p);
-                    }
+            }
+            SongProgressUpdateType::Downloading(p) => {
+                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                    song.download_status = DownloadStatus::Downloading(p);
                 }
             }
         }
     }
-    pub async fn process_messages(&mut self) {
-        // Process all messages in queue from Player on each tick.
-        while let Ok(msg) = self.response_rx.try_recv() {
-            match msg {
-                Response::DonePlaying(id) => {
-                    // Need to put an ID on here.
-                    tracing::info!("Received message from player that track is done playing");
-                    self.play_next_or_finish(id).await;
-                }
-                Response::ProgressUpdate(p, _id) => {
-                    if let PlayState::Playing(_) = self.play_status {
-                        self.update_song_progress(p)
-                    }
-                    tracing::info!("Received progress update from player {:.1}", p)
-                }
-                Response::VolumeUpdate(new_vol) => {
-                    // Need to put an ID on here.
-                    // Can we make this snappier?
-                    tracing::info!("Received {:?}", msg);
-                    self.volume.0 = new_vol;
-                }
-                Response::Paused(id) => self.handle_pause(id).await,
-                Response::Playing(id) => self.handle_playing(id).await,
-                Response::Stopped => todo!(),
-            }
-        }
+    pub fn handle_set_volume(&mut self, p: Percentage) {
+        self.volume = p;
     }
-    pub async fn handle_pause(&mut self, id: ListSongID) {
+
+    pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
+        // TODO: Check id
         if let PlayState::Playing(_) = self.play_status {
             self.play_status = PlayState::Paused(id)
         }
     }
-    pub async fn handle_playing(&mut self, id: ListSongID) {
+    pub async fn handle_done_playing(&mut self, id: ListSongID) {
+        self.play_next_or_finish(id).await;
+    }
+    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
+        // TODO: Check id
         if let PlayState::Paused(_) = self.play_status {
             self.play_status = PlayState::Playing(id)
         }
     }
-    pub async fn handle_stop(&mut self) {
+    pub async fn handle_set_to_stopped(&mut self) {
         self.play_status = PlayState::Stopped
     }
     pub async fn play_selected(&mut self) {
@@ -536,6 +508,14 @@ impl Playlist {
     pub fn get_song_from_id(&self, id: ListSongID) -> Option<&ListSong> {
         self.list.list.iter().find(|s| s.id == id)
     }
+    pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
+        match self.play_status {
+            // XXX: Should buffering be included?
+            PlayState::Playing(id) | PlayState::Paused(id) => id == check_id,
+            _ => false,
+        }
+    }
+
     pub fn cur_playing_index(&self) -> Option<usize> {
         match self.play_status {
             PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
