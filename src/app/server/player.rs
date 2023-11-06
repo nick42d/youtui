@@ -34,7 +34,7 @@ pub enum Response {
     Playing(ListSongID),
     Stopped,
     ProgressUpdate(f64, ListSongID),
-    VolumeUpdate(u8, TaskID),
+    VolumeUpdate(u8, TaskID), // Should be Percentage
 }
 
 pub struct PlayerManager {
@@ -61,7 +61,7 @@ impl PlayerManager {
 }
 
 pub fn spawn_rodio_thread(
-    msg_rx: mpsc::Receiver<Request>,
+    mut msg_rx: mpsc::Receiver<Request>,
     response_tx: mpsc::Sender<super::Response>,
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
@@ -134,7 +134,7 @@ pub fn spawn_rodio_thread(
                     Request::GetVolume(task) => {
                         // TODO: Implment ability to kill this task using kill_rx.
                         let KillableTask { id, kill_rx } = task;
-                        info!("Received {:?}", msg);
+                        info!("Received get volume message");
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(

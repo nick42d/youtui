@@ -1,25 +1,8 @@
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::{borrow::Cow, fmt::Debug};
-
 use crate::app::server::downloader::SongProgressUpdateType;
-use crate::app::view::BasicConstraint;
-use crate::error::Result;
-use crate::{
-    app::{
-        player::{self, Request, Response},
-        server,
-        structures::DownloadStatus,
-    },
-    core::send_or_error,
-};
-use crossterm::event::KeyCode;
-use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
-use tokio::sync::mpsc;
-use tracing::{error, info, warn};
-
+use crate::app::server::player::{self, Request};
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
+use crate::app::view::BasicConstraint;
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::{
@@ -29,13 +12,20 @@ use crate::app::{
         contextpane::ContextPane,
     },
     structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
-    taskmanager::TaskID,
     ui::{UIMessage, WindowContext},
     view::Drawable,
 };
+use crate::error::Result;
+use crate::{app::structures::DownloadStatus, core::send_or_error};
+use crossterm::event::KeyCode;
+use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::{borrow::Cow, fmt::Debug};
+use tokio::sync::mpsc;
+use tracing::{error, info, warn};
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
-const VOL_TICK: u8 = 5;
 const MUSIC_DIR: &str = "music/";
 
 pub struct Playlist {
@@ -201,7 +191,7 @@ impl Playlist {
     pub fn new(ui_tx: mpsc::Sender<UIMessage>) -> Self {
         // This could fail, made to try send to avoid needing to change function signature to asynchronous. Should change.
         ui_tx
-            .try_send(Request::GetVolume)
+            .try_send(UIMessage::GetVolume)
             .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
         Playlist {
             help_shown: false,
@@ -215,14 +205,13 @@ impl Playlist {
     }
     pub async fn handle_tick(&mut self) {
         self.check_song_progress().await;
-        self.process_messages().await;
         // self.download_upcoming_songs().await;
     }
     pub async fn check_song_progress(&mut self) {
         // Ask player for a progress update.
         if let PlayState::Playing(id) = self.play_status {
             info!("Tick received - requesting song progress update");
-            let _ = self.ui_tx.send(player::Request::GetProgress(id)).await;
+            let _ = self.ui_tx.send(UIMessage::GetProgress(id)).await;
         }
     }
     pub async fn handle_song_progress_update(
@@ -314,27 +303,10 @@ impl Playlist {
     pub async fn handle_previous(&mut self) {
         self.play_prev().await;
     }
-    pub async fn handle_increase_volume(&mut self) {
+    pub fn increase_volume(&mut self, inc: i8) {
         // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
         // NOTE: could cause some visual race conditions.
-        self.volume.0 = self
-            .volume
-            .0
-            .checked_add(VOL_TICK)
-            .unwrap_or(100)
-            .clamp(0, 100);
-        send_or_error(&self.request_tx, Request::IncreaseVolume(VOL_TICK as i8)).await;
-    }
-    pub async fn handle_decrease_volume(&mut self) {
-        // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
-        // NOTE: could cause some visual race conditions.
-        self.volume.0 = self
-            .volume
-            .0
-            .checked_sub(VOL_TICK)
-            .unwrap_or(0)
-            .clamp(0, 100);
-        send_or_error(&self.request_tx, Request::IncreaseVolume(-(VOL_TICK as i8))).await;
+        self.volume.0 = self.volume.0.saturating_add_signed(inc).clamp(0, 100);
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
@@ -354,7 +326,7 @@ impl Playlist {
     }
     // Ideally owned by list itself.
     pub async fn reset(&mut self) -> Result<()> {
-        self.request_tx.send(Request::Stop).await?;
+        self.ui_tx.send(UIMessage::Stop).await?;
         self.list.state = ListStatus::New;
         // We can't reset the ID, we'll keep incrementing.
         // self.list.next_id = ListSongID(0);
@@ -375,8 +347,7 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.request_tx, Request::PlaySong(pointer.clone(), id)).await;
-                // send_or_error(&self.request_tx, Request::PlaySong(path.clone(), id)).await;
+                send_or_error(&self.ui_tx, UIMessage::PlaySong(pointer.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
             } else {
                 self.play_status = PlayState::Buffering(id);

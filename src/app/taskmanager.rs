@@ -6,11 +6,11 @@ use crate::core::send_or_error;
 use crate::Result;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
-use tracing::error;
+use tracing::{error, warn};
 use ytmapi_rs::{ChannelID, VideoID};
 
 use super::server::{api, downloader, player};
-use super::structures::ListSongID;
+use super::structures::{ListSongID, Percentage};
 use super::ui::{StateUpdateMessage, UIMessage};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
@@ -46,7 +46,7 @@ pub enum AppRequest {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetProgress(ListSongID),
     Stop,
-    PausePlay(), // XXX: Add ID?
+    PausePlay, // XXX: Add ID?
 }
 
 impl AppRequest {
@@ -61,7 +61,7 @@ impl AppRequest {
             AppRequest::PlaySong(..) => RequestCategory::Unkillable,
             AppRequest::GetProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop => RequestCategory::Unkillable,
-            AppRequest::PausePlay() => RequestCategory::Unkillable,
+            AppRequest::PausePlay => RequestCategory::Unkillable,
         }
     }
 }
@@ -98,8 +98,8 @@ impl TaskManager {
             request_rx,
         }
     }
-    pub fn get_sender(&self) -> mpsc::Sender<AppRequest> {
-        self.request_tx
+    pub fn get_sender_clone(&self) -> mpsc::Sender<AppRequest> {
+        self.request_tx.clone()
     }
     pub async fn process_requests(&mut self) {
         while let Ok(msg) = self.request_rx.try_recv() {
@@ -124,7 +124,7 @@ impl TaskManager {
             AppRequest::PlaySong(_, _) => todo!(),
             AppRequest::GetProgress(_) => todo!(),
             AppRequest::Stop => todo!(),
-            AppRequest::PausePlay() => todo!(),
+            AppRequest::PausePlay => todo!(),
         };
         Ok(())
     }
@@ -293,7 +293,11 @@ impl TaskManager {
             player::Response::Playing(_) => todo!(),
             player::Response::Stopped => todo!(),
             player::Response::ProgressUpdate(_, _) => todo!(),
-            player::Response::VolumeUpdate(_, _) => todo!(),
+            player::Response::VolumeUpdate(vol, id) => {
+                // TODO: check task is valid
+                warn!("Race condition check for volume update not yet implemented");
+                StateUpdateMessage::SetVolume(Percentage(vol))
+            }
         }
     }
 }

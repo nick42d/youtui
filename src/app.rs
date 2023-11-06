@@ -67,7 +67,7 @@ impl Youtui {
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend).unwrap();
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(task_manager.get_sender().clone());
+        let window_state = YoutuiWindow::new(task_manager.get_sender_clone().clone());
         Ok(Youtui {
             terminal,
             event_handler,
@@ -76,7 +76,7 @@ impl Youtui {
         })
     }
     pub async fn run(&mut self) {
-        while self.window_state.get_status() == ui::AppStatus::Running {
+        while self.window_state.get_status() == &ui::AppStatus::Running {
             // Get the events from the event_handler and process them.
             let msg = self.event_handler.next().await;
             self.process_message(msg).await;

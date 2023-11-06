@@ -148,7 +148,7 @@ impl Downloader {
                 )
                 .await;
             },
-            kill,
+            kill_rx,
         )
         .await;
     }

@@ -6,6 +6,7 @@ mod logger;
 mod playlist;
 
 use std::borrow::Cow;
+use std::sync::Arc;
 
 use self::browser::BrowserAction;
 use self::playlist::PlaylistAction;
@@ -20,6 +21,7 @@ use super::component::actionhandler::{
 use super::server;
 use super::structures::*;
 use crate::app::server::downloader::SongProgressUpdateType;
+use crate::core::send_or_error;
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use tokio::sync::mpsc;
 use tracing::error;
@@ -31,6 +33,7 @@ use ytmapi_rs::{
 
 const PAGE_KEY_SCROLL_AMOUNT: isize = 10;
 const CHANNEL_SIZE: usize = 256;
+const VOL_TICK: i8 = 5;
 
 #[deprecated]
 pub struct BasicCommand {
@@ -56,18 +59,21 @@ pub enum WindowContext {
 // A callback from one of the application components to the top level.
 pub enum UIMessage {
     DownloadSong(VideoID<'static>, ListSongID),
+    GetVolume,
+    GetProgress(ListSongID),
     Quit,
     ChangeContext(WindowContext),
     Next,
     Prev,
-    StepVolUp,
-    StepVolDown,
+    IncreaseVolume(i8),
     SearchArtist(String),
     GetSearchSuggestions(String),
     GetArtistSongs(ChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
     PlaySongs(Vec<ListSong>),
+    PlaySong(Arc<Vec<u8>>, ListSongID),
     PausePlay,
+    Stop,
 }
 
 // A message from the server to update state.
@@ -237,8 +243,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Next => self.playlist.handle_next().await,
             UIAction::Prev => self.playlist.handle_previous().await,
             UIAction::Pause => self.playlist.pauseplay().await,
-            UIAction::StepVolUp => self.playlist.handle_increase_volume().await,
-            UIAction::StepVolDown => self.playlist.handle_decrease_volume().await,
+            UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
+            UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
             UIAction::Quit => self.quit(),
@@ -335,8 +341,8 @@ impl YoutuiWindow {
             task_manager_request_tx,
         }
     }
-    pub fn get_status(&self) -> AppStatus {
-        self.status
+    pub fn get_status(&self) -> &AppStatus {
+        &self.status
     }
     pub fn set_status(&mut self, new_status: AppStatus) {
         self.status = new_status;
@@ -354,35 +360,40 @@ impl YoutuiWindow {
         while let Ok(msg) = self.ui_rx.try_recv() {
             match msg {
                 UIMessage::DownloadSong(video_id, playlist_id) => {
-                    self.task_manager_request_tx
-                        .send(AppRequest::Download(video_id, playlist_id))
-                        .await
-                        .unwrap_or_else(|_| error!("Error sending Download Songs task"));
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::Download(video_id, playlist_id),
+                    )
+                    .await;
                 }
                 UIMessage::Quit => self.quit(),
 
                 UIMessage::ChangeContext(context) => self.change_context(context),
                 UIMessage::Next => self.playlist.handle_next().await,
                 UIMessage::Prev => self.playlist.handle_previous().await,
-                UIMessage::StepVolUp => self.playlist.handle_increase_volume().await,
-                UIMessage::StepVolDown => self.playlist.handle_decrease_volume().await,
+                UIMessage::IncreaseVolume(i) => {
+                    self.handle_increase_volume(i).await;
+                }
                 UIMessage::GetSearchSuggestions(text) => {
-                    self.task_manager_request_tx
-                        .send(AppRequest::GetSearchSuggestions(text))
-                        .await
-                        .unwrap_or_else(|e| error!("Error <{e}> sending request"));
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::GetSearchSuggestions(text),
+                    )
+                    .await;
                 }
                 UIMessage::SearchArtist(artist) => {
-                    self.task_manager_request_tx
-                        .send(AppRequest::SearchArtists(artist))
-                        .await
-                        .unwrap_or_else(|e| error!("Error <{e}> sending request"));
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::SearchArtists(artist),
+                    )
+                    .await;
                 }
                 UIMessage::GetArtistSongs(id) => {
-                    self.task_manager_request_tx
-                        .send(AppRequest::GetArtistSongs(id))
-                        .await
-                        .unwrap_or_else(|e| error!("Error <{e}> sending request"));
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::GetArtistSongs(id),
+                    )
+                    .await;
                 }
                 UIMessage::AddSongsToPlaylist(song_list) => {
                     self.playlist.push_song_list(song_list);
@@ -394,6 +405,26 @@ impl YoutuiWindow {
                         .unwrap_or_else(|e| error!("Error <{e}> resetting playlist"));
                     let id = self.playlist.push_song_list(song_list);
                     self.playlist.play_song_id(id).await;
+                }
+                UIMessage::PlaySong(song, id) => {
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::PlaySong(song, id),
+                    )
+                    .await;
+                }
+
+                UIMessage::PausePlay => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::PausePlay).await;
+                }
+                UIMessage::Stop => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::Stop).await;
+                }
+                UIMessage::GetVolume => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::GetVolume).await;
+                }
+                UIMessage::GetProgress(id) => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::GetProgress(id)).await;
                 }
             }
         }
@@ -430,6 +461,14 @@ impl YoutuiWindow {
                 StateUpdateMessage::SetVolume(p) => self.handle_set_volume(p),
             }
         }
+    }
+    async fn handle_increase_volume(&mut self, inc: i8) {
+        // Visually update the state first for instant feedback.
+        self.playlist.increase_volume(inc);
+        send_or_error(
+            &self.task_manager_request_tx,
+            AppRequest::IncreaseVolume(inc),
+        );
     }
     async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
