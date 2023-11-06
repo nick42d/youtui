@@ -494,7 +494,7 @@ impl Playlist {
         self.cur_played_secs = Some(new_play_time);
     }
     pub async fn pauseplay(&mut self) {
-        send_or_error(&self.request_tx, Request::PausePlay).await;
+        send_or_error(&self.ui_tx, UIMessage::PausePlay).await;
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.list.iter().position(|s| s.id == id)

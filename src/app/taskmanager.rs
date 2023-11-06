@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
 use crate::core::send_or_error;
@@ -41,6 +43,10 @@ pub enum AppRequest {
     Download(VideoID<'static>, ListSongID),
     IncreaseVolume(i8),
     GetVolume,
+    PlaySong(Arc<Vec<u8>>, ListSongID),
+    GetProgress(ListSongID),
+    Stop,
+    PausePlay(), // XXX: Add ID?
 }
 
 impl AppRequest {
@@ -52,6 +58,10 @@ impl AppRequest {
             AppRequest::Download(..) => RequestCategory::Download,
             AppRequest::IncreaseVolume(_) => RequestCategory::Unkillable,
             AppRequest::GetVolume => RequestCategory::GetVolume,
+            AppRequest::PlaySong(..) => RequestCategory::Unkillable,
+            AppRequest::GetProgress(_) => RequestCategory::ProgressUpdate,
+            AppRequest::Stop => RequestCategory::Unkillable,
+            AppRequest::PausePlay() => RequestCategory::Unkillable,
         }
     }
 }
@@ -63,6 +73,7 @@ pub enum RequestCategory {
     Download,
     GetSearchSuggestions,
     GetVolume,
+    ProgressUpdate,
     Unkillable,
 }
 
@@ -110,6 +121,10 @@ impl TaskManager {
             AppRequest::Download(v_id, s_id) => self.spawn_download(v_id, s_id, id, kill_rx).await,
             AppRequest::IncreaseVolume(i) => self.spawn_increase_volume(i, id).await,
             AppRequest::GetVolume => self.spawn_get_volume(id, kill_rx).await,
+            AppRequest::PlaySong(_, _) => todo!(),
+            AppRequest::GetProgress(_) => todo!(),
+            AppRequest::Stop => todo!(),
+            AppRequest::PausePlay() => todo!(),
         };
         Ok(())
     }

@@ -67,6 +67,7 @@ pub enum UIMessage {
     GetArtistSongs(ChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
     PlaySongs(Vec<ListSong>),
+    PausePlay,
 }
 
 // A message from the server to update state.
