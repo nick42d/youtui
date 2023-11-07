@@ -10,8 +10,8 @@ use tracing::{error, warn};
 use ytmapi_rs::{ChannelID, VideoID};
 
 use super::server::{api, downloader, player};
+use super::statemanager::StateUpdateMessage;
 use super::structures::{ListSongID, Percentage};
-use super::ui::{StateUpdateMessage, UIMessage};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
 

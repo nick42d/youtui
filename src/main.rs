@@ -4,7 +4,7 @@
 mod app;
 mod appevent;
 mod core;
-
+mod drawutils;
 pub mod error;
 
 pub use error::Result;
@@ -17,7 +17,7 @@ use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
     query::{GetArtistQuery, GetSearchSuggestionsQuery},
-    ChannelID, YtMusic,
+    ChannelID,
 };
 
 pub const HEADER_FILENAME: &str = "headers.txt";

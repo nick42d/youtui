@@ -13,8 +13,6 @@ use crate::HEADER_FILENAME;
 
 use crate::app::taskmanager::TaskID;
 
-const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
-
 use tokio::sync::mpsc;
 
 use super::spawn_run_or_kill;

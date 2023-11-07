@@ -1,3 +1,4 @@
+use super::{spawn_run_or_kill, KillableTask, DL_CALLBACK_CHUNK_SIZE};
 use crate::{
     app::{
         structures::{ListSongID, Percentage},
@@ -6,11 +7,10 @@ use crate::{
     core::send_or_error,
 };
 use rusty_ytdl::{DownloadOptions, Video, VideoOptions};
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 use tracing::{error, info};
 use ytmapi_rs::{common::YoutubeID, VideoID};
 
-use super::{spawn_run_or_kill, KillRequest, KillableTask, DL_CALLBACK_CHUNK_SIZE};
 pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
 }

@@ -1,10 +1,8 @@
-use crate::get_data_dir;
-
+use self::statemanager::process_state_updates;
 use self::taskmanager::TaskManager;
-use self::ui::StateUpdateMessage;
-
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
+use crate::get_data_dir;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -18,13 +16,13 @@ use ui::YoutuiWindow;
 
 mod component;
 mod server;
+mod statemanager;
 mod structures;
 mod taskmanager;
 mod ui;
 mod view;
 
 const EVENT_CHANNEL_SIZE: usize = 256;
-const PLAYER_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
 
 pub struct Youtui {
@@ -32,12 +30,6 @@ pub struct Youtui {
     window_state: YoutuiWindow,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
     task_manager: TaskManager,
-}
-
-fn destruct_terminal() {
-    disable_raw_mode().unwrap();
-    execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture).unwrap();
-    execute!(io::stdout(), crossterm::cursor::Show).unwrap();
 }
 
 impl Youtui {
@@ -84,7 +76,7 @@ impl Youtui {
             self.queue_server_tasks().await;
             // Get the state update events from the task manager and process them.
             let state_updates = self.task_manager.process_messages();
-            self.process_state_updates(state_updates).await;
+            process_state_updates(&mut self.window_state, state_updates).await;
             // Write to terminal, using UI state as the input
             // We draw after handling the event, as the event could be a keypress we want to instantly react to.
             // TODO: Error handling
@@ -108,7 +100,10 @@ impl Youtui {
     async fn queue_server_tasks(&mut self) {
         self.task_manager.process_requests().await;
     }
-    async fn process_state_updates(&mut self, state_updates: Vec<StateUpdateMessage>) {
-        self.window_state.process_state_updates(state_updates).await;
-    }
+}
+
+fn destruct_terminal() {
+    disable_raw_mode().unwrap();
+    execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture).unwrap();
+    execute!(io::stdout(), crossterm::cursor::Show).unwrap();
 }

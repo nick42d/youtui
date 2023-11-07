@@ -1,8 +1,7 @@
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
-use crate::Result;
-use tracing::{error, info};
+use tracing::info;
 
 use super::taskmanager::TaskID;
 
@@ -43,7 +42,7 @@ pub struct Server {
     api: api::Api,
     player: player::PlayerManager,
     downloader: downloader::Downloader,
-    response_tx: mpsc::Sender<Response>,
+    _response_tx: mpsc::Sender<Response>,
     request_rx: mpsc::Receiver<Request>,
 }
 
@@ -58,7 +57,7 @@ impl Server {
             player,
             downloader,
             request_rx,
-            response_tx,
+            _response_tx: response_tx,
         }
     }
     pub async fn run(&mut self) {

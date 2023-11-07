@@ -38,8 +38,8 @@ pub enum Response {
 }
 
 pub struct PlayerManager {
-    response_tx: mpsc::Sender<super::Response>,
-    rodio: JoinHandle<()>,
+    _response_tx: mpsc::Sender<super::Response>,
+    _rodio: JoinHandle<()>,
     msg_tx: mpsc::Sender<Request>,
 }
 
@@ -50,9 +50,9 @@ impl PlayerManager {
         let response_tx_clone = response_tx.clone();
         let rodio = spawn_rodio_thread(msg_rx, response_tx_clone);
         Ok(Self {
-            response_tx,
+            _response_tx: response_tx,
             msg_tx,
-            rodio,
+            _rodio: rodio,
         })
     }
     pub async fn handle_request(&self, request: Request) {
@@ -133,7 +133,7 @@ pub fn spawn_rodio_thread(
                     }
                     Request::GetVolume(task) => {
                         // TODO: Implment ability to kill this task using kill_rx.
-                        let KillableTask { id, kill_rx } = task;
+                        let KillableTask { id, .. } = task;
                         info!("Received get volume message");
                         blocking_send_or_error(
                             &response_tx,

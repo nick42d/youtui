@@ -104,9 +104,6 @@ impl<A: Action> Keybind<A> {
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         self.code == keyevent.code && self.modifiers == keyevent.modifiers
     }
-    fn is_mode(&self) -> bool {
-        matches!(self.key_map, Keymap::Mode(_))
-    }
     pub fn new_from_code(code: KeyCode, action: A) -> Keybind<A> {
         Keybind {
             code,
@@ -144,9 +141,6 @@ impl<A: Action> Keybind<A> {
             visibility: KeybindVisibility::Hidden,
         }
     }
-}
-pub fn unmodified_keyevent(keycode: KeyCode) -> KeyEvent {
-    KeyEvent::new(keycode, KeyModifiers::empty())
 }
 /// A component of the application that has its own set of keybinds when focussed.
 pub trait KeyHandler<A: Action> {

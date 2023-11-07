@@ -10,6 +10,7 @@ use ratatui::{
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::{Action, DisplayableKeyRouter};
 use crate::app::view::Drawable;
+use crate::drawutils::left_bottom_corner_rect;
 
 pub fn draw_app<B>(f: &mut Frame<B>, w: &YoutuiWindow)
 where
@@ -93,18 +94,6 @@ fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
     );
     f.render_widget(Clear, area);
     f.render_widget(block, area);
-}
-/// Helper function to create a popup at bottom corner of chunk.
-pub fn left_bottom_corner_rect(height: u16, width: u16, r: Rect) -> Rect {
-    let popup_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Min(0), Constraint::Length(height)].as_ref())
-        .split(r);
-
-    Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Min(0), Constraint::Length(width)].as_ref())
-        .split(popup_layout[1])[1]
 }
 
 fn draw_help<B: Backend, D: DisplayableKeyRouter + ?Sized>(

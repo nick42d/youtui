@@ -76,30 +76,6 @@ pub enum UIMessage {
     Stop,
 }
 
-// A message from the server to update state.
-#[derive(Debug)]
-pub enum StateUpdateMessage {
-    SetSongProgress(SongProgressUpdateType, ListSongID),
-    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
-    HandleSearchArtistError,
-    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, String),
-    HandleSongListLoading,
-    HandleSongListLoaded,
-    HandleNoSongsFound,
-    HandleSongsFound,
-    AppendSongList {
-        song_list: Vec<SongResult>,
-        album: String,
-        year: String,
-        artist: String,
-    },
-    HandleDonePlaying(ListSongID),
-    SetToPaused(ListSongID),
-    SetToPlaying(ListSongID),
-    SetToStopped,
-    SetVolume(Percentage),
-}
-
 // An action that can be triggered from a keybind.
 #[derive(Clone, Debug, PartialEq)]
 pub enum UIAction {
@@ -429,63 +405,31 @@ impl YoutuiWindow {
             }
         }
     }
-    pub async fn process_state_updates(&mut self, state_updates: Vec<StateUpdateMessage>) {
-        // Process all messages in queue from API on each tick.
-        for msg in state_updates {
-            tracing::debug!("Processing {:?}", msg);
-            match msg {
-                StateUpdateMessage::SetSongProgress(update, id) => {
-                    self.handle_song_progress_update(update, id).await
-                }
-                StateUpdateMessage::ReplaceArtistList(l) => {
-                    self.handle_replace_artist_list(l).await
-                }
-                StateUpdateMessage::HandleSearchArtistError => self.handle_search_artist_error(),
-                StateUpdateMessage::ReplaceSearchSuggestions(runs, query) => {
-                    self.handle_replace_search_suggestions(runs, query).await
-                }
-                StateUpdateMessage::HandleSongListLoading => self.handle_song_list_loading(),
-                StateUpdateMessage::HandleSongListLoaded => self.handle_song_list_loaded(),
-                StateUpdateMessage::HandleNoSongsFound => self.handle_no_songs_found(),
-                StateUpdateMessage::HandleSongsFound => self.handle_songs_found(),
-                StateUpdateMessage::AppendSongList {
-                    song_list,
-                    album,
-                    year,
-                    artist,
-                } => self.handle_append_song_list(song_list, album, year, artist),
-                StateUpdateMessage::HandleDonePlaying(id) => self.handle_done_playing(id).await,
-                StateUpdateMessage::SetToPaused(id) => self.handle_set_to_paused(id).await,
-                StateUpdateMessage::SetToPlaying(id) => self.handle_set_to_playing(id).await,
-                StateUpdateMessage::SetToStopped => self.handle_set_to_stopped().await,
-                StateUpdateMessage::SetVolume(p) => self.handle_set_volume(p),
-            }
-        }
-    }
     async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.playlist.increase_volume(inc);
         send_or_error(
             &self.task_manager_request_tx,
             AppRequest::IncreaseVolume(inc),
-        );
+        )
+        .await;
     }
-    async fn handle_done_playing(&mut self, id: ListSongID) {
+    pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
     }
-    async fn handle_set_to_paused(&mut self, id: ListSongID) {
+    pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_paused(id).await
     }
-    async fn handle_set_to_playing(&mut self, id: ListSongID) {
+    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_playing(id).await
     }
-    async fn handle_set_to_stopped(&mut self) {
+    pub async fn handle_set_to_stopped(&mut self) {
         self.playlist.handle_set_to_stopped().await
     }
-    fn handle_set_volume(&mut self, p: Percentage) {
+    pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    async fn handle_song_progress_update(
+    pub async fn handle_song_progress_update(
         &mut self,
         update: SongProgressUpdateType,
         playlist_id: ListSongID,
@@ -494,13 +438,17 @@ impl YoutuiWindow {
             .handle_song_progress_update(update, playlist_id)
             .await
     }
-    async fn handle_replace_search_suggestions(&mut self, x: Vec<Vec<TextRun>>, search: String) {
+    pub async fn handle_replace_search_suggestions(
+        &mut self,
+        x: Vec<Vec<TextRun>>,
+        search: String,
+    ) {
         self.browser.handle_replace_search_suggestions(x, search);
     }
-    async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
+    pub async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
         self.browser.handle_replace_artist_list(x).await;
     }
-    fn handle_song_list_loaded(&mut self) {
+    pub fn handle_song_list_loaded(&mut self) {
         self.browser.handle_song_list_loaded();
     }
     pub fn handle_song_list_loading(&mut self) {
@@ -522,7 +470,7 @@ impl YoutuiWindow {
     pub fn handle_songs_found(&mut self) {
         self.browser.handle_songs_found();
     }
-    fn handle_search_artist_error(&mut self) {
+    pub fn handle_search_artist_error(&mut self) {
         self.browser.handle_search_artist_error();
     }
     // Splitting out event types removes one layer of indentation.
