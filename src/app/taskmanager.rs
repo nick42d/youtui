@@ -6,7 +6,7 @@ use crate::core::send_or_error;
 use crate::Result;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
-use tracing::{error, warn};
+use tracing::{debug, error, warn};
 use ytmapi_rs::{ChannelID, VideoID};
 
 use super::server::{api, downloader, player};
@@ -23,6 +23,12 @@ pub struct TaskManager {
     server_response_rx: mpsc::Receiver<server::Response>,
     request_tx: mpsc::Sender<AppRequest>,
     request_rx: mpsc::Receiver<AppRequest>,
+}
+
+enum TaskType {
+    Killable(KillableTask), // A task that can be called by the caller. Once killed, the caller will stop receiving messages to prevent race conditions.
+    Blockable(TaskID), // A task that the caller can block from receiving further messages, but cannot be killed.
+    Completable(TaskID), // A task that cannot be killed or blocked. Will always run until completion.
 }
 
 #[derive(PartialEq, Default, Debug, Copy, Clone)]
@@ -56,7 +62,7 @@ impl AppRequest {
             AppRequest::GetSearchSuggestions(_) => RequestCategory::GetSearchSuggestions,
             AppRequest::GetArtistSongs(_) => RequestCategory::Get,
             AppRequest::Download(..) => RequestCategory::Download,
-            AppRequest::IncreaseVolume(_) => RequestCategory::Unkillable,
+            AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             AppRequest::GetVolume => RequestCategory::GetVolume,
             AppRequest::PlaySong(..) => RequestCategory::Unkillable,
             AppRequest::GetProgress(_) => RequestCategory::ProgressUpdate,
@@ -74,6 +80,7 @@ pub enum RequestCategory {
     GetSearchSuggestions,
     GetVolume,
     ProgressUpdate,
+    IncreaseVolume, // TODO: generalize
     Unkillable,
 }
 
@@ -150,7 +157,7 @@ impl TaskManager {
     ) {
         // Supersedes previous tasks of same type.
         // TODO: Use this as a pattern.
-        self.kill_all_task_type(RequestCategory::Search);
+        self.kill_all_task_type_except_id(RequestCategory::Search, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Api(server::api::Request::NewArtistSearch(
@@ -166,7 +173,7 @@ impl TaskManager {
         id: TaskID,
         kill_rx: oneshot::Receiver<KillRequest>,
     ) {
-        self.kill_all_task_type(RequestCategory::GetSearchSuggestions);
+        self.kill_all_task_type_except_id(RequestCategory::GetSearchSuggestions, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Api(server::api::Request::GetSearchSuggestions(
@@ -182,7 +189,7 @@ impl TaskManager {
         id: TaskID,
         kill_rx: oneshot::Receiver<KillRequest>,
     ) {
-        self.kill_all_task_type(RequestCategory::Get);
+        self.kill_all_task_type_except_id(RequestCategory::Get, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Api(server::api::Request::SearchSelectedArtist(
@@ -211,8 +218,8 @@ impl TaskManager {
         .await
     }
     pub async fn spawn_increase_volume(&mut self, vol_inc: i8, id: TaskID) {
-        // Does not kill previous tasks - these are additive requests.
-        // Does this make this than an unkillable task?
+        self.block_all_task_type_except_id(RequestCategory::IncreaseVolume, id);
+        self.kill_all_task_type_except_id(RequestCategory::GetVolume, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::IncreaseVolume(vol_inc, id)),
@@ -220,7 +227,8 @@ impl TaskManager {
         .await
     }
     pub async fn spawn_get_volume(&mut self, id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) {
-        self.kill_all_task_type(RequestCategory::GetVolume);
+        self.block_all_task_type_except_id(RequestCategory::IncreaseVolume, id);
+        self.kill_all_task_type_except_id(RequestCategory::GetVolume, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::GetVolume(KillableTask::new(
@@ -232,71 +240,151 @@ impl TaskManager {
     pub fn is_task_valid(&self, id: TaskID) -> bool {
         self.tasks.iter().any(|x| x.id == id)
     }
-    pub fn kill_all_task_type(&mut self, request_category: RequestCategory) {
-        tracing::debug!(
+    pub fn kill_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
+        debug!(
             "Received message to kill all pending {:?} tasks",
             request_category
         );
         for task in self
             .tasks
             .iter_mut()
-            .filter(|x| x.message.category() == request_category)
+            .filter(|x| x.message.category() == request_category && x.id != id)
         {
             if let Some(tx) = task.kill.take() {
-                // TODO: Handle error
                 tx.send(KillRequest)
-                    .unwrap_or_else(|_e| error!("Error sending kill message"));
+                    .unwrap_or_else(|_| error!("Error sending kill message"));
             }
         }
         self.tasks
-            .retain(|x| x.message.category() != request_category);
+            .retain(|x| x.message.category() != request_category || x.id == id);
+    }
+    // Stop receiving tasks from the category, but do not kill them.
+    // TODO: generalize using enums/types.
+    pub fn block_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
+        debug!(
+            "Received message to block all pending {:?} tasks",
+            request_category
+        );
+        self.tasks
+            .retain(|x| x.message.category() != request_category || x.id == id);
     }
     pub fn process_messages(&mut self) -> Vec<StateUpdateMessage> {
+        // XXX: Consider general case to check if task is valid.
+        // In this case, message could implement Task with get_id() function?
         let mut state_update_list = Vec::new();
         while let Ok(msg) = self.server_response_rx.try_recv() {
             match msg {
-                server::Response::Api(msg) => state_update_list.push(self.process_api_msg(msg)),
+                server::Response::Api(msg) => {
+                    if let Some(state_msg) = self.process_api_msg(msg) {
+                        state_update_list.push(state_msg)
+                    }
+                }
                 server::Response::Player(msg) => {
-                    state_update_list.push(self.process_player_msg(msg))
+                    if let Some(state_msg) = self.process_player_msg(msg) {
+                        state_update_list.push(state_msg)
+                    }
                 }
                 server::Response::Downloader(msg) => {
-                    state_update_list.push(self.process_downloader_msg(msg))
+                    if let Some(state_msg) = self.process_downloader_msg(msg) {
+                        state_update_list.push(state_msg)
+                    }
                 }
             }
         }
         state_update_list
     }
-    pub fn process_api_msg(&self, msg: api::Response) -> StateUpdateMessage {
+    pub fn process_api_msg(&self, msg: api::Response) -> Option<StateUpdateMessage> {
         match msg {
-            api::Response::ReplaceArtistList(_, _) => todo!(),
-            api::Response::SearchArtistError(_) => todo!(),
-            api::Response::ReplaceSearchSuggestions(_, _, _) => todo!(),
-            api::Response::SongListLoading(_) => todo!(),
-            api::Response::SongListLoaded(_) => todo!(),
-            api::Response::NoSongsFound(_) => todo!(),
-            api::Response::SongsFound(_) => todo!(),
-            api::Response::AppendSongList(_, _, _, _, _) => todo!(),
+            api::Response::ReplaceArtistList(list, id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::ReplaceArtistList(list))
+            }
+            api::Response::SearchArtistError(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::HandleSearchArtistError)
+            }
+            api::Response::ReplaceSearchSuggestions(runs, id, search) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::ReplaceSearchSuggestions(runs, search))
+            }
+            api::Response::SongListLoading(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::HandleSongListLoading)
+            }
+            api::Response::SongListLoaded(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::HandleSongListLoaded)
+            }
+            api::Response::NoSongsFound(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::HandleNoSongsFound)
+            }
+            api::Response::SongsFound(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::HandleSongsFound)
+            }
+            api::Response::AppendSongList {
+                song_list,
+                album,
+                year,
+                artist,
+                id,
+            } => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::AppendSongList {
+                    song_list,
+                    album,
+                    year,
+                    artist,
+                })
+            }
         }
     }
-    pub fn process_downloader_msg(&self, msg: downloader::Response) -> StateUpdateMessage {
+    pub fn process_downloader_msg(&self, msg: downloader::Response) -> Option<StateUpdateMessage> {
         match msg {
             downloader::Response::SongProgressUpdate(update_type, song_id, task_id) => {
-                StateUpdateMessage::SetSongProgress(update_type, song_id)
+                if !self.is_task_valid(task_id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetSongProgress(update_type, song_id))
             }
-        };
-        todo!()
+        }
     }
-    pub fn process_player_msg(&self, msg: player::Response) -> StateUpdateMessage {
+    pub fn process_player_msg(&self, msg: player::Response) -> Option<StateUpdateMessage> {
         match msg {
-            player::Response::DonePlaying(_) => todo!(),
-            player::Response::Paused(_) => todo!(),
-            player::Response::Playing(_) => todo!(),
-            player::Response::Stopped => todo!(),
-            player::Response::ProgressUpdate(_, _) => todo!(),
+            // XXX: Why are these not blockable tasks? As receiver responsible for race conditions?
+            // Is a task with race conditions a RaceConditionTask?
+            player::Response::DonePlaying(song_id) => {
+                Some(StateUpdateMessage::HandleDonePlaying(song_id))
+            }
+            player::Response::Paused(song_id) => Some(StateUpdateMessage::SetToPaused(song_id)),
+            player::Response::Playing(song_id) => Some(StateUpdateMessage::SetToPlaying(song_id)),
+            player::Response::Stopped => Some(StateUpdateMessage::SetToStopped),
+            player::Response::ProgressUpdate(perc, song_id) => {
+                //
+                todo!("Implement song play progres - only implemented download progress so far");
+            }
             player::Response::VolumeUpdate(vol, id) => {
-                // TODO: check task is valid
-                warn!("Race condition check for volume update not yet implemented");
-                StateUpdateMessage::SetVolume(Percentage(vol))
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetVolume(Percentage(vol)))
             }
         }
     }

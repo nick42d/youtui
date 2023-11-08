@@ -32,7 +32,13 @@ pub enum Response {
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),
     SongsFound(TaskID),
-    AppendSongList(Vec<SongResult>, String, String, String, TaskID), //Strings: Album title, year, artists
+    AppendSongList {
+        song_list: Vec<SongResult>,
+        album: String,
+        year: String,
+        artist: String,
+        id: TaskID,
+    },
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
@@ -274,13 +280,13 @@ impl Api {
                         };
                         tracing::info!("Sending caller tracks for request ID {:?}", id);
                         let _ = tx
-                            .send(super::Response::Api(Response::AppendSongList(
-                                album.tracks,
-                                album.title,
-                                album.year,
-                                artist_name,
+                            .send(super::Response::Api(Response::AppendSongList {
+                                song_list: album.tracks,
+                                album: album.title,
+                                year: album.year,
+                                artist: artist_name,
                                 id,
-                            )))
+                            }))
                             .await;
                     }
                 });

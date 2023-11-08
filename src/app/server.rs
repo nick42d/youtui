@@ -31,6 +31,7 @@ pub enum Request {
     Player(player::Request),
     Downloader(downloader::Request),
 }
+// Should this implement something like Killable/Blockable?
 pub enum Response {
     Api(api::Response),
     Player(player::Response),

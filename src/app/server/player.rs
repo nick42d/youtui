@@ -131,6 +131,7 @@ pub fn spawn_rodio_thread(
                             info!("Sending song progress update");
                         }
                     }
+                    // XXX: Should this just be IncreaseVolume(0)?
                     Request::GetVolume(task) => {
                         // TODO: Implment ability to kill this task using kill_rx.
                         let KillableTask { id, .. } = task;
@@ -150,7 +151,7 @@ pub fn spawn_rodio_thread(
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(
-                                (sink.volume() * 100.0) as u8,
+                                (sink.volume() * 100.0).round() as u8,
                                 id,
                             )),
                         );
