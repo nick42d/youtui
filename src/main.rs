@@ -3,22 +3,22 @@
 
 mod app;
 mod appevent;
+mod cli;
+mod config;
 mod core;
 mod drawutils;
 pub mod error;
 
+use cli::{
+    get_and_output_oauth_token, print_artist, print_artist_json, print_search_suggestions,
+    print_search_suggestions_json,
+};
 pub use error::Result;
 
 use clap::{Parser, Subcommand};
 use directories::ProjectDirs;
 use error::Error;
 use std::path::PathBuf;
-use ytmapi_rs::{
-    common::YoutubeID,
-    generate_oauth_code_and_url, generate_oauth_token,
-    query::{GetArtistQuery, GetSearchSuggestionsQuery},
-    ChannelID,
-};
 
 pub const HEADER_FILENAME: &str = "headers.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -47,6 +47,8 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Arguments::parse();
+    let cfg = config::Config::new().unwrap();
+    println!("Config: {:?}", cfg);
     // TODO: Error handling
     match args {
         Arguments {
@@ -86,64 +88,6 @@ async fn main() -> Result<()> {
         } => get_and_output_oauth_token(file_name).await,
     }
     Ok(())
-}
-
-async fn get_and_output_oauth_token(file_name: Option<PathBuf>) {
-    let token_str = get_oauth_token().await;
-    if let Some(file_name) = file_name {
-        tokio::fs::write(&file_name, token_str).await.unwrap();
-        println!("Wrote Oauth token to {}", file_name.display());
-    } else {
-        println!("{token_str}");
-    }
-}
-async fn get_oauth_token() -> String {
-    let (code, url) = generate_oauth_code_and_url().await.unwrap();
-    // Hack to wait for input
-    // TODO: Remove unwraps
-    println!("Go to {url}, finish the login flow, and press enter when done");
-    let mut _buf = String::new();
-    let _ = std::io::stdin().read_line(&mut _buf);
-    let token = generate_oauth_token(code).await.unwrap();
-    serde_json::to_string_pretty(&token).unwrap()
-}
-
-async fn print_artist(query: String) {
-    // TODO: remove unwrap
-    let res = get_api()
-        .await
-        .get_artist(GetArtistQuery::new(ChannelID::from_raw(query)))
-        .await
-        .unwrap();
-    println!("{:#?}", res)
-}
-
-async fn print_artist_json(query: String) {
-    // TODO: remove unwrap
-    let json = get_api()
-        .await
-        .json_query(GetArtistQuery::new(ChannelID::from_raw(query)))
-        .await
-        .unwrap();
-    // TODO: remove unwrap
-    println!("{}", serde_json::to_string_pretty(&json).unwrap());
-}
-
-async fn print_search_suggestions(query: String) {
-    // TODO: remove unwrap
-    let res = get_api().await.get_search_suggestions(query).await.unwrap();
-    println!("{:#?}", res)
-}
-
-async fn print_search_suggestions_json(query: String) {
-    // TODO: remove unwrap
-    let json = get_api()
-        .await
-        .json_query(GetSearchSuggestionsQuery::from(query))
-        .await
-        .unwrap();
-    // TODO: remove unwrap
-    println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
 async fn get_api() -> ytmapi_rs::YtMusic {
