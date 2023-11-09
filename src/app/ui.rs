@@ -20,7 +20,7 @@ use super::component::actionhandler::{
 
 use super::server;
 use super::structures::*;
-use crate::app::server::downloader::SongProgressUpdateType;
+use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use tokio::sync::mpsc;
@@ -400,7 +400,11 @@ impl YoutuiWindow {
                     send_or_error(&self.task_manager_request_tx, AppRequest::GetVolume).await;
                 }
                 UIMessage::GetProgress(id) => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::GetProgress(id)).await;
+                    send_or_error(
+                        &self.task_manager_request_tx,
+                        AppRequest::GetPlayProgress(id),
+                    )
+                    .await;
                 }
             }
         }
@@ -429,9 +433,12 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    pub async fn handle_song_progress_update(
+    pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
+        self.playlist.handle_set_song_play_progress(f, id);
+    }
+    pub async fn handle_set_song_download_progress(
         &mut self,
-        update: SongProgressUpdateType,
+        update: DownloadProgressUpdateType,
         playlist_id: ListSongID,
     ) {
         self.playlist

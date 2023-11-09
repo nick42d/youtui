@@ -3,6 +3,7 @@ use std::thread::JoinHandle;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
+use tracing::debug;
 use tracing::info;
 use tracing::trace;
 
@@ -20,7 +21,7 @@ const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 #[derive(Debug)]
 pub enum Request {
     PlaySong(Arc<Vec<u8>>, ListSongID),
-    GetProgress(ListSongID), // Should give ID?
+    GetPlayProgress(ListSongID), // Should give ID?
     GetVolume(KillableTask),
     IncreaseVolume(i8, TaskID),
     Stop,
@@ -79,7 +80,7 @@ pub fn spawn_rodio_thread(
         let mut cur_song_id = ListSongID::default();
         let mut thinks_is_playing = false;
         loop {
-            if let Ok(msg) = msg_rx.try_recv() {
+            while let Ok(msg) = msg_rx.try_recv() {
                 match msg {
                     Request::PlaySong(song_pointer, id) => {
                         // XXX: Perhaps should let the state know that we are playing.
@@ -118,8 +119,8 @@ pub fn spawn_rodio_thread(
                             );
                         }
                     }
-                    Request::GetProgress(id) => {
-                        info!("Got message to provide song progress update");
+                    Request::GetPlayProgress(id) => {
+                        debug!("Got message to provide song progress update");
                         if cur_song_id == id {
                             blocking_send_or_error(
                                 &response_tx,
@@ -128,7 +129,7 @@ pub fn spawn_rodio_thread(
                                     id,
                                 )),
                             );
-                            info!("Sending song progress update");
+                            debug!("Sending song progress update");
                         }
                     }
                     // XXX: Should this just be IncreaseVolume(0)?
@@ -147,7 +148,7 @@ pub fn spawn_rodio_thread(
                     }
                     Request::IncreaseVolume(vol_inc, id) => {
                         info!("Received {:?}", msg);
-                        sink.set_volume(sink.volume() + vol_inc as f32 / 100.0);
+                        sink.set_volume((sink.volume() + vol_inc as f32 / 100.0).clamp(0.0, 1.0));
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(

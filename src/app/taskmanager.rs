@@ -50,7 +50,7 @@ pub enum AppRequest {
     IncreaseVolume(i8),
     GetVolume,
     PlaySong(Arc<Vec<u8>>, ListSongID),
-    GetProgress(ListSongID),
+    GetPlayProgress(ListSongID),
     Stop,
     PausePlay, // XXX: Add ID?
 }
@@ -65,7 +65,7 @@ impl AppRequest {
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             AppRequest::GetVolume => RequestCategory::GetVolume,
             AppRequest::PlaySong(..) => RequestCategory::Unkillable,
-            AppRequest::GetProgress(_) => RequestCategory::ProgressUpdate,
+            AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop => RequestCategory::Unkillable,
             AppRequest::PausePlay => RequestCategory::Unkillable,
         }
@@ -128,10 +128,10 @@ impl TaskManager {
             AppRequest::Download(v_id, s_id) => self.spawn_download(v_id, s_id, id, kill_rx).await,
             AppRequest::IncreaseVolume(i) => self.spawn_increase_volume(i, id).await,
             AppRequest::GetVolume => self.spawn_get_volume(id, kill_rx).await,
-            AppRequest::PlaySong(_, _) => todo!(),
-            AppRequest::GetProgress(_) => todo!(),
-            AppRequest::Stop => todo!(),
-            AppRequest::PausePlay => todo!(),
+            AppRequest::PlaySong(song, id) => self.spawn_play_song(song, id).await,
+            AppRequest::GetPlayProgress(id) => self.spawn_get_play_progress(id).await,
+            AppRequest::Stop => self.spawn_stop().await,
+            AppRequest::PausePlay => self.spawn_pause_play().await,
         };
         Ok(())
     }
@@ -223,6 +223,37 @@ impl TaskManager {
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::IncreaseVolume(vol_inc, id)),
+        )
+        .await
+    }
+    pub async fn spawn_stop(&mut self) {
+        // Consider adding an ID to this so we don't get redundant song progress updates.
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::Stop),
+        )
+        .await
+    }
+    pub async fn spawn_pause_play(&mut self) {
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::PausePlay),
+        )
+        .await
+    }
+    pub async fn spawn_get_play_progress(&mut self, id: ListSongID) {
+        // Consider adding an ID to this so we don't get redundant song progress updates.
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::GetPlayProgress(id)),
+        )
+        .await
+    }
+    pub async fn spawn_play_song(&mut self, song: Arc<Vec<u8>>, id: ListSongID) {
+        // Consider adding an ID to this so we don't get redundant song progress updates.
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::PlaySong(song, id)),
         )
         .await
     }
@@ -358,11 +389,14 @@ impl TaskManager {
     }
     pub fn process_downloader_msg(&self, msg: downloader::Response) -> Option<StateUpdateMessage> {
         match msg {
-            downloader::Response::SongProgressUpdate(update_type, song_id, task_id) => {
+            downloader::Response::DownloadProgressUpdate(update_type, song_id, task_id) => {
                 if !self.is_task_valid(task_id) {
                     return None;
                 }
-                Some(StateUpdateMessage::SetSongProgress(update_type, song_id))
+                Some(StateUpdateMessage::SetSongDownloadProgress(
+                    update_type,
+                    song_id,
+                ))
             }
         }
     }
@@ -377,8 +411,7 @@ impl TaskManager {
             player::Response::Playing(song_id) => Some(StateUpdateMessage::SetToPlaying(song_id)),
             player::Response::Stopped => Some(StateUpdateMessage::SetToStopped),
             player::Response::ProgressUpdate(perc, song_id) => {
-                //
-                todo!("Implement song play progres - only implemented download progress so far");
+                Some(StateUpdateMessage::SetSongPlayProgress(perc, song_id))
             }
             player::Response::VolumeUpdate(vol, id) => {
                 if !self.is_task_valid(id) {

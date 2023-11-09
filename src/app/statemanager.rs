@@ -1,7 +1,7 @@
 use ytmapi_rs::{common::TextRun, parse::SongResult};
 
 use super::{
-    server::downloader::SongProgressUpdateType,
+    server::downloader::DownloadProgressUpdateType,
     structures::{ListSongID, Percentage},
     ui::YoutuiWindow,
 };
@@ -9,7 +9,6 @@ use super::{
 // A message from the server to update state.
 #[derive(Debug)]
 pub enum StateUpdateMessage {
-    SetSongProgress(SongProgressUpdateType, ListSongID),
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
     HandleSearchArtistError,
     ReplaceSearchSuggestions(Vec<Vec<TextRun>>, String),
@@ -24,12 +23,15 @@ pub enum StateUpdateMessage {
         artist: String,
     },
     HandleDonePlaying(ListSongID),
+    SetSongPlayProgress(f64, ListSongID),
+    SetSongDownloadProgress(DownloadProgressUpdateType, ListSongID),
     SetToPaused(ListSongID),
     SetToPlaying(ListSongID),
     SetToStopped,
     SetVolume(Percentage),
 }
 
+// XXX: Potentially this could be taskmanager.process_state_updates(&mut state).
 pub async fn process_state_updates(
     state: &mut YoutuiWindow,
     state_updates: Vec<StateUpdateMessage>,
@@ -42,8 +44,8 @@ pub async fn process_state_updates(
 }
 pub async fn update_state(state: &mut YoutuiWindow, state_update_msg: StateUpdateMessage) {
     match state_update_msg {
-        StateUpdateMessage::SetSongProgress(update, id) => {
-            state.handle_song_progress_update(update, id).await
+        StateUpdateMessage::SetSongDownloadProgress(update, id) => {
+            state.handle_set_song_download_progress(update, id).await
         }
         StateUpdateMessage::ReplaceArtistList(l) => state.handle_replace_artist_list(l).await,
         StateUpdateMessage::HandleSearchArtistError => state.handle_search_artist_error(),
@@ -65,5 +67,8 @@ pub async fn update_state(state: &mut YoutuiWindow, state_update_msg: StateUpdat
         StateUpdateMessage::SetToPlaying(id) => state.handle_set_to_playing(id).await,
         StateUpdateMessage::SetToStopped => state.handle_set_to_stopped().await,
         StateUpdateMessage::SetVolume(p) => state.handle_set_volume(p),
+        StateUpdateMessage::SetSongPlayProgress(f, id) => {
+            state.handle_set_song_play_progress(f, id)
+        }
     }
 }

@@ -15,11 +15,11 @@ pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
 }
 pub enum Response {
-    SongProgressUpdate(SongProgressUpdateType, ListSongID, TaskID),
+    DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID, TaskID),
 }
 
 #[derive(Debug)]
-pub enum SongProgressUpdateType {
+pub enum DownloadProgressUpdateType {
     Started,
     Downloading(Percentage),
     Completed(Vec<u8>),
@@ -65,8 +65,8 @@ impl Downloader {
                 tracing::info!("Running download");
                 send_or_error(
                     &tx,
-                    super::Response::Downloader(Response::SongProgressUpdate(
-                        SongProgressUpdateType::Started,
+                    super::Response::Downloader(Response::DownloadProgressUpdate(
+                        DownloadProgressUpdateType::Started,
                         playlist_id,
                         id,
                     )),
@@ -76,8 +76,8 @@ impl Downloader {
                     error!("Error received finding song");
                     send_or_error(
                         &tx,
-                        super::Response::Downloader(Response::SongProgressUpdate(
-                            SongProgressUpdateType::Error,
+                        super::Response::Downloader(Response::DownloadProgressUpdate(
+                            DownloadProgressUpdateType::Error,
                             playlist_id,
                             id,
                         )),
@@ -91,8 +91,8 @@ impl Downloader {
                         error!("Error <{e}> received converting song to stream");
                         send_or_error(
                             &tx,
-                            super::Response::Downloader(Response::SongProgressUpdate(
-                                SongProgressUpdateType::Error,
+                            super::Response::Downloader(Response::DownloadProgressUpdate(
+                                DownloadProgressUpdateType::Error,
                                 playlist_id,
                                 id,
                             )),
@@ -113,8 +113,10 @@ impl Downloader {
                             info!("Sending song progress update");
                             send_or_error(
                                 &tx,
-                                super::Response::Downloader(Response::SongProgressUpdate(
-                                    SongProgressUpdateType::Downloading(Percentage(progress as u8)),
+                                super::Response::Downloader(Response::DownloadProgressUpdate(
+                                    DownloadProgressUpdateType::Downloading(Percentage(
+                                        progress as u8,
+                                    )),
                                     playlist_id,
                                     id,
                                 )),
@@ -125,8 +127,8 @@ impl Downloader {
                             error!("Error <{e}> received downloading song");
                             send_or_error(
                                 &tx,
-                                super::Response::Downloader(Response::SongProgressUpdate(
-                                    SongProgressUpdateType::Error,
+                                super::Response::Downloader(Response::DownloadProgressUpdate(
+                                    DownloadProgressUpdateType::Error,
                                     playlist_id,
                                     id,
                                 )),
@@ -140,8 +142,8 @@ impl Downloader {
                 info!("Song downloaded");
                 send_or_error(
                     &tx,
-                    super::Response::Downloader(Response::SongProgressUpdate(
-                        SongProgressUpdateType::Completed(songbuffer),
+                    super::Response::Downloader(Response::DownloadProgressUpdate(
+                        DownloadProgressUpdateType::Completed(songbuffer),
                         playlist_id,
                         id,
                     )),

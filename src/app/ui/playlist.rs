@@ -1,4 +1,4 @@
-use crate::app::server::downloader::SongProgressUpdateType;
+use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::server::player::{self, Request};
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
@@ -216,21 +216,21 @@ impl Playlist {
     }
     pub async fn handle_song_progress_update(
         &mut self,
-        update: SongProgressUpdateType,
+        update: DownloadProgressUpdateType,
         id: ListSongID,
     ) {
-        if !self.check_id_is_cur(id) {
+        if !self.check_id_is_in_list(id) {
             return;
         }
         tracing::info!("Task valid - updating song download status");
         match update {
-            SongProgressUpdateType::Started => {
+            DownloadProgressUpdateType::Started => {
                 if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Queued;
                     // while let Ok(_) = self.player_rx.try_recv() {}
                 }
             }
-            SongProgressUpdateType::Completed(song_buf) => {
+            DownloadProgressUpdateType::Completed(song_buf) => {
                 let fut = self
                     .get_mut_song_from_id(id)
                     .map(|s| {
@@ -242,12 +242,12 @@ impl Playlist {
                     f.await
                 }
             }
-            SongProgressUpdateType::Error => {
+            DownloadProgressUpdateType::Error => {
                 if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Failed;
                 }
             }
-            SongProgressUpdateType::Downloading(p) => {
+            DownloadProgressUpdateType::Downloading(p) => {
                 if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Downloading(p);
                 }
@@ -256,6 +256,12 @@ impl Playlist {
     }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.volume = p;
+    }
+    pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
+        if !self.check_id_is_cur(id) {
+            return;
+        }
+        self.cur_played_secs = Some(f);
     }
 
     pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
@@ -461,9 +467,6 @@ impl Playlist {
             .take_whilst_transitioning()
             .transition_to_stopped();
     }
-    pub fn update_song_progress(&mut self, new_play_time: f64) {
-        self.cur_played_secs = Some(new_play_time);
-    }
     pub async fn pauseplay(&mut self) {
         send_or_error(&self.ui_tx, UIMessage::PausePlay).await;
     }
@@ -486,7 +489,9 @@ impl Playlist {
             _ => false,
         }
     }
-
+    pub fn check_id_is_in_list(&self, check_id: ListSongID) -> bool {
+        self.list.list.iter().any(|s| s.id == check_id)
+    }
     pub fn cur_playing_index(&self) -> Option<usize> {
         match self.play_status {
             PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
