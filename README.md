@@ -5,8 +5,8 @@ Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API.
 
 This project is not supported by Google.
 ## Demo
-Version as of 25/10/23 and is still a work in progress.
-[![asciicast](https://asciinema.org/a/qsksZ0fHMwA6pvYdLlaVNV89w.svg)](https://asciinema.org/a/qsksZ0fHMwA6pvYdLlaVNV89w)
+Version as of 09/Nov/23 and is still a work in progress.
+[![asciicast](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ.svg)](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ)
 ## How to install and run
 - Clone the repository
 - Build - note nightly rust required for async traits
