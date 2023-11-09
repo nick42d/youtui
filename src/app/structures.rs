@@ -48,7 +48,7 @@ pub enum DownloadStatus {
     Queued,
     Downloading(Percentage),
     Downloaded(Arc<Vec<u8>>),
-    Failed,
+    Failed, // Should keep track of times failed
 }
 
 #[derive(Clone, Debug)]

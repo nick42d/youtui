@@ -27,7 +27,8 @@ pub enum StateUpdateMessage {
     SetSongDownloadProgress(DownloadProgressUpdateType, ListSongID),
     SetToPaused(ListSongID),
     SetToPlaying(ListSongID),
-    SetToStopped,
+    SetToStopped(ListSongID),
+    SetAllToStopped,
     SetVolume(Percentage),
 }
 
@@ -65,7 +66,8 @@ pub async fn update_state(state: &mut YoutuiWindow, state_update_msg: StateUpdat
         StateUpdateMessage::HandleDonePlaying(id) => state.handle_done_playing(id).await,
         StateUpdateMessage::SetToPaused(id) => state.handle_set_to_paused(id).await,
         StateUpdateMessage::SetToPlaying(id) => state.handle_set_to_playing(id).await,
-        StateUpdateMessage::SetToStopped => state.handle_set_to_stopped().await,
+        StateUpdateMessage::SetToStopped(id) => state.handle_set_to_stopped(id).await,
+        StateUpdateMessage::SetAllToStopped => state.handle_set_all_to_stopped().await,
         StateUpdateMessage::SetVolume(p) => state.handle_set_volume(p),
         StateUpdateMessage::SetSongPlayProgress(f, id) => {
             state.handle_set_song_play_progress(f, id)

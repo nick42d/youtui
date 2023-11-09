@@ -7,6 +7,7 @@ use tracing::debug;
 use tracing::info;
 use tracing::trace;
 
+use crate::app::structures::Percentage;
 use crate::core::blocking_send_or_error;
 use crate::Result;
 
@@ -20,22 +21,24 @@ const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 
 #[derive(Debug)]
 pub enum Request {
-    PlaySong(Arc<Vec<u8>>, ListSongID),
-    GetPlayProgress(ListSongID), // Should give ID?
     GetVolume(KillableTask),
     IncreaseVolume(i8, TaskID),
-    Stop,
-    PausePlay,
+    PlaySong(Arc<Vec<u8>>, ListSongID, TaskID),
+    GetPlayProgress(ListSongID, TaskID), // Should give ID?
+    Stop(ListSongID, TaskID),
+    PausePlay(ListSongID, TaskID),
+    StopAll(TaskID),
 }
 
 #[derive(Debug)]
 pub enum Response {
     DonePlaying(ListSongID),
-    Paused(ListSongID),
-    Playing(ListSongID),
-    Stopped,
-    ProgressUpdate(f64, ListSongID),
-    VolumeUpdate(u8, TaskID), // Should be Percentage
+    Paused(ListSongID, TaskID),
+    Playing(ListSongID, TaskID),
+    Stopped(ListSongID, TaskID),
+    StoppedAll(TaskID),
+    ProgressUpdate(f64, ListSongID, TaskID),
+    VolumeUpdate(Percentage, TaskID), // Should be Percentage
 }
 
 pub struct PlayerManager {
@@ -82,9 +85,9 @@ pub fn spawn_rodio_thread(
         loop {
             while let Ok(msg) = msg_rx.try_recv() {
                 match msg {
-                    Request::PlaySong(song_pointer, id) => {
+                    Request::PlaySong(song_pointer, song_id, id) => {
                         // XXX: Perhaps should let the state know that we are playing.
-                        info!("Got message to play song");
+                        info!("Got message to play song {:?}", id);
                         // TODO: remove allocation
                         let owned_song =
                             Arc::try_unwrap(song_pointer).unwrap_or_else(|arc| (*arc).clone());
@@ -94,38 +97,64 @@ pub fn spawn_rodio_thread(
                             sink.stop()
                         }
                         sink.append(source);
-                        trace!("Now playing {:?}", id);
+                        debug!("Now playing {:?}", id);
                         cur_song_elapsed = Duration::default();
-                        cur_song_id = id;
+                        cur_song_id = song_id;
                         thinks_is_playing = true;
                     }
-                    Request::Stop => {
-                        sink.stop();
-                        // No need to send a message - will be triggered below.
+                    Request::Stop(song_id, id) => {
+                        info!("Got message to stop playing {:?}", song_id);
+                        if cur_song_id != song_id {
+                            continue;
+                        }
+                        if !sink.empty() {
+                            sink.stop()
+                        }
+                        blocking_send_or_error(
+                            &response_tx,
+                            super::Response::Player(Response::Stopped(song_id, id)),
+                        );
+                        thinks_is_playing = false;
                     }
-                    Request::PausePlay => {
+                    Request::StopAll(task_id) => {
+                        info!("Got message to stop playing all");
+                        if !sink.empty() {
+                            sink.stop()
+                        }
+                        blocking_send_or_error(
+                            &response_tx,
+                            super::Response::Player(Response::StoppedAll(task_id)),
+                        );
+                        thinks_is_playing = false;
+                    }
+                    Request::PausePlay(song_id, id) => {
+                        info!("Got message to pause / play {:?}", id);
+                        if cur_song_id != song_id {
+                            continue;
+                        }
                         if sink.is_paused() {
                             sink.play();
                             blocking_send_or_error(
                                 &response_tx,
-                                super::Response::Player(Response::Playing(cur_song_id)),
+                                super::Response::Player(Response::Playing(song_id, id)),
                             );
                         // We don't want to pause if sink is empty (but case could be handled in Playlist also)
                         } else if !sink.is_paused() && !sink.empty() {
                             sink.pause();
                             blocking_send_or_error(
                                 &response_tx,
-                                super::Response::Player(Response::Paused(cur_song_id)),
+                                super::Response::Player(Response::Paused(song_id, id)),
                             );
                         }
                     }
-                    Request::GetPlayProgress(id) => {
+                    Request::GetPlayProgress(song_id, id) => {
                         debug!("Got message to provide song progress update");
-                        if cur_song_id == id {
+                        if cur_song_id == song_id {
                             blocking_send_or_error(
                                 &response_tx,
                                 super::Response::Player(Response::ProgressUpdate(
                                     cur_song_elapsed.as_secs_f64(),
+                                    song_id,
                                     id,
                                 )),
                             );
@@ -140,7 +169,7 @@ pub fn spawn_rodio_thread(
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(
-                                (sink.volume() * 100.0).round() as u8,
+                                Percentage((sink.volume() * 100.0).round() as u8),
                                 id,
                             )),
                         );
@@ -152,7 +181,7 @@ pub fn spawn_rodio_thread(
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::VolumeUpdate(
-                                (sink.volume() * 100.0).round() as u8,
+                                Percentage((sink.volume() * 100.0).round() as u8),
                                 id,
                             )),
                         );

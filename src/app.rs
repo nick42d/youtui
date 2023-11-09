@@ -15,6 +15,7 @@ use tracing_subscriber::prelude::*;
 use ui::YoutuiWindow;
 
 mod component;
+mod musiccache;
 mod server;
 mod statemanager;
 mod structures;

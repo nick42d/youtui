@@ -1,5 +1,4 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
-use crate::app::server::player::{self, Request};
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
 use crate::app::view::BasicConstraint;
@@ -19,14 +18,12 @@ use crate::error::Result;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
 use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
-use std::path::PathBuf;
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
-const MUSIC_DIR: &str = "music/";
 
 pub struct Playlist {
     pub list: AlbumSongsList,
@@ -46,29 +43,6 @@ pub enum PlaylistAction {
     PageDown,
     PageUp,
     PlaySelected,
-}
-
-pub struct MusicCache {
-    songs: Vec<PathBuf>,
-}
-
-impl MusicCache {
-    fn cache_song(&mut self, song: Arc<Vec<u8>>, path: PathBuf) {
-        let mut p = PathBuf::new();
-        p.push(MUSIC_DIR);
-        p.push(&path);
-        self.songs.push(path);
-        std::fs::write(p, &*song);
-    }
-    fn retrieve_song(&self, path: PathBuf) -> std::result::Result<Option<Vec<u8>>, std::io::Error> {
-        if self.songs.contains(&path) {
-            let mut p = PathBuf::new();
-            p.push(MUSIC_DIR);
-            p.push(&path);
-            return std::fs::read(p).map(|v| Some(v));
-        }
-        Ok(None)
-    }
 }
 
 impl Action for PlaylistAction {
@@ -219,7 +193,15 @@ impl Playlist {
         update: DownloadProgressUpdateType,
         id: ListSongID,
     ) {
-        if !self.check_id_is_in_list(id) {
+        // Not valid if song doesn't exist or hasn't initiated download (i.e - task cancelled).
+        if let Some(song) = self.get_song_from_id(id) {
+            match song.download_status {
+                DownloadStatus::None | DownloadStatus::Downloaded(_) | DownloadStatus::Failed => {
+                    return
+                }
+                _ => (),
+            }
+        } else {
             return;
         }
         tracing::info!("Task valid - updating song download status");
@@ -264,22 +246,30 @@ impl Playlist {
         self.cur_played_secs = Some(f);
     }
 
-    pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
-        // TODO: Check id
-        if let PlayState::Playing(_) = self.play_status {
-            self.play_status = PlayState::Paused(id)
+    pub async fn handle_set_to_paused(&mut self, s_id: ListSongID) {
+        if let PlayState::Playing(p_id) = self.play_status {
+            if p_id == s_id {
+                self.play_status = PlayState::Paused(s_id)
+            }
         }
     }
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.play_next_or_finish(id).await;
     }
     pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
-        // TODO: Check id
-        if let PlayState::Paused(_) = self.play_status {
-            self.play_status = PlayState::Playing(id)
+        if let PlayState::Paused(p_id) = self.play_status {
+            if p_id == id {
+                self.play_status = PlayState::Playing(id)
+            }
         }
     }
-    pub async fn handle_set_to_stopped(&mut self) {
+    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
+        info!("Stopping");
+        if self.check_id_is_cur(id) {
+            self.play_status = PlayState::Stopped
+        }
+    }
+    pub async fn handle_set_all_to_stopped(&mut self) {
         self.play_status = PlayState::Stopped
     }
     pub async fn play_selected(&mut self) {
@@ -325,14 +315,14 @@ impl Playlist {
     pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
-                info!("playing");
+                info!("Playing");
                 self.play_song_id(id).await;
             }
         }
     }
     // Ideally owned by list itself.
     pub async fn reset(&mut self) -> Result<()> {
-        self.ui_tx.send(UIMessage::Stop).await?;
+        self.ui_tx.send(UIMessage::StopAll).await?;
         self.list.state = ListStatus::New;
         // We can't reset the ID, we'll keep incrementing.
         // self.list.next_id = ListSongID(0);
@@ -343,7 +333,13 @@ impl Playlist {
         Ok(())
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
-        // TODO: Stop currently playing song.
+        // First stop playback of currently playing song.
+        if let Some(cur_id) = self.get_cur_playing_id() {
+            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+        }
+        // Drop previous songs
+        self.drop_previous_from_id(id);
+        // Queue next downloads
         self.download_upcoming_from_id(id).await;
         if let Some(song_index) = self.get_index_from_id(id) {
             if let DownloadStatus::Downloaded(pointer) = &self
@@ -433,6 +429,15 @@ impl Playlist {
             self.download_song_if_exists(song_id).await;
         }
     }
+    /// Drop strong reference from previous songs to drop them from memory.
+    pub fn drop_previous_from_id(&mut self, id: ListSongID) {
+        let Some(song_index) = self.get_index_from_id(id) else {
+            return;
+        };
+        for song in self.list.list.get_mut(0..song_index).into_iter().flatten() {
+            song.download_status = DownloadStatus::None
+        }
+    }
     pub async fn play_prev(&mut self) {
         let cur = &self.play_status;
         match cur {
@@ -468,7 +473,16 @@ impl Playlist {
             .transition_to_stopped();
     }
     pub async fn pauseplay(&mut self) {
-        send_or_error(&self.ui_tx, UIMessage::PausePlay).await;
+        let Some(id) = self.get_cur_playing_id() else {
+            return;
+        };
+        send_or_error(&self.ui_tx, UIMessage::PausePlay(id)).await;
+    }
+    pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
+        let Some(idx) = self.get_cur_playing_index() else {
+            return None;
+        };
+        self.get_id_from_index(idx)
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.list.iter().position(|s| s.id == id)
@@ -492,7 +506,7 @@ impl Playlist {
     pub fn check_id_is_in_list(&self, check_id: ListSongID) -> bool {
         self.list.list.iter().any(|s| s.id == check_id)
     }
-    pub fn cur_playing_index(&self) -> Option<usize> {
+    pub fn get_cur_playing_index(&self) -> Option<usize> {
         match self.play_status {
             PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
             _ => None,

@@ -15,10 +15,11 @@ Version as of 09/Nov/23 and is still a work in progress.
   1. Open web developer tools.
   1. Open Network tab and locate a POST request to `music.youtube.com`.
   1. Copy the `Cookie` and `User-Agent` headers into a text file named `headers.txt` in the same directory as the binary.
-- The following libraries are required for sound on linux (note debian/ubuntu package names):
- - `alsa-tools` `libasound2-dev` `libdbus-1-dev` `pkg-config`
-### Limitations
-- Songs are currently stored in memory and not dropped or cached once download is complete.
+### Linux dependencies note
+- Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSO support.
+- The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
+ - libasound2-dev (Debian / Ubuntu)
+ - alsa-lib-devel (Fedora)
 ## Coding constraints
 App has been designed for me to learn Rust, and therefore I have implemented the following constraints to learn some features. I am aware these may not be the most efficient ways to code.
 1. Avoid shared mutable state: 
@@ -26,7 +27,7 @@ The app will avoid shared mutable state primitives such as Mutex and RefCell and
 1. Concurrency over parralelism: 
 Where possible, the app will use use an asynchronous mode of operation (such as futures::join! and tokio::select) over parallel equivalents such as tokio::spawn and thread::spawn.
 1. Avoid cloning: Where possible, the app will avoid cloning as a method to beat the borrow checker. Instead, we will try to safely borrow.
-1. Encode state into the type system: Where possible use the type system to represent actions that are not possible in the current state. This will improve developer ergonomics.
+1. Encode state into the type system: Where possible use the type system to represent actions that are not possible in the current state.
 ## Design principles
 I am aiming to follow the following design principles
 1. Discoverability

@@ -72,8 +72,9 @@ pub enum UIMessage {
     AddSongsToPlaylist(Vec<ListSong>),
     PlaySongs(Vec<ListSong>),
     PlaySong(Arc<Vec<u8>>, ListSongID),
-    PausePlay,
-    Stop,
+    PausePlay(ListSongID),
+    Stop(ListSongID),
+    StopAll,
 }
 
 // An action that can be triggered from a keybind.
@@ -390,11 +391,11 @@ impl YoutuiWindow {
                     .await;
                 }
 
-                UIMessage::PausePlay => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::PausePlay).await;
+                UIMessage::PausePlay(id) => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::PausePlay(id)).await;
                 }
-                UIMessage::Stop => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::Stop).await;
+                UIMessage::Stop(id) => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::Stop(id)).await;
                 }
                 UIMessage::GetVolume => {
                     send_or_error(&self.task_manager_request_tx, AppRequest::GetVolume).await;
@@ -405,6 +406,9 @@ impl YoutuiWindow {
                         AppRequest::GetPlayProgress(id),
                     )
                     .await;
+                }
+                UIMessage::StopAll => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::StopAll).await;
                 }
             }
         }
@@ -427,8 +431,11 @@ impl YoutuiWindow {
     pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_playing(id).await
     }
-    pub async fn handle_set_to_stopped(&mut self) {
-        self.playlist.handle_set_to_stopped().await
+    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
+        self.playlist.handle_set_to_stopped(id).await
+    }
+    pub async fn handle_set_all_to_stopped(&mut self) {
+        self.playlist.handle_set_all_to_stopped().await
     }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)

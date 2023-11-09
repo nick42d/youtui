@@ -24,6 +24,7 @@ pub enum Request {
     NewArtistSearch(String, KillableTask),
     SearchSelectedArtist(ChannelID<'static>, KillableTask),
 }
+#[derive(Debug)]
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
     SearchArtistError(TaskID),

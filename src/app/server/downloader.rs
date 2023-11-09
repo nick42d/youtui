@@ -14,6 +14,7 @@ use ytmapi_rs::{common::YoutubeID, VideoID};
 pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
 }
+#[derive(Debug)]
 pub enum Response {
     DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID, TaskID),
 }

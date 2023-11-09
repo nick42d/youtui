@@ -6,7 +6,7 @@ use crate::core::send_or_error;
 use crate::Result;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 use ytmapi_rs::{ChannelID, VideoID};
 
 use super::server::{api, downloader, player};
@@ -51,8 +51,9 @@ pub enum AppRequest {
     GetVolume,
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetPlayProgress(ListSongID),
-    Stop,
-    PausePlay, // XXX: Add ID?
+    Stop(ListSongID),
+    StopAll,
+    PausePlay(ListSongID),
 }
 
 impl AppRequest {
@@ -64,10 +65,11 @@ impl AppRequest {
             AppRequest::Download(..) => RequestCategory::Download,
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             AppRequest::GetVolume => RequestCategory::GetVolume,
-            AppRequest::PlaySong(..) => RequestCategory::Unkillable,
+            AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
-            AppRequest::Stop => RequestCategory::Unkillable,
-            AppRequest::PausePlay => RequestCategory::Unkillable,
+            AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
+            AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
+            AppRequest::StopAll => RequestCategory::PlayPauseStop,
         }
     }
 }
@@ -81,6 +83,7 @@ pub enum RequestCategory {
     GetVolume,
     ProgressUpdate,
     IncreaseVolume, // TODO: generalize
+    PlayPauseStop,
     Unkillable,
 }
 
@@ -128,10 +131,11 @@ impl TaskManager {
             AppRequest::Download(v_id, s_id) => self.spawn_download(v_id, s_id, id, kill_rx).await,
             AppRequest::IncreaseVolume(i) => self.spawn_increase_volume(i, id).await,
             AppRequest::GetVolume => self.spawn_get_volume(id, kill_rx).await,
-            AppRequest::PlaySong(song, id) => self.spawn_play_song(song, id).await,
-            AppRequest::GetPlayProgress(id) => self.spawn_get_play_progress(id).await,
-            AppRequest::Stop => self.spawn_stop().await,
-            AppRequest::PausePlay => self.spawn_pause_play().await,
+            AppRequest::PlaySong(song, song_id) => self.spawn_play_song(song, song_id, id).await,
+            AppRequest::GetPlayProgress(song_id) => self.spawn_get_play_progress(song_id, id).await,
+            AppRequest::Stop(song_id) => self.spawn_stop(song_id, id).await,
+            AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
+            AppRequest::StopAll => self.spawn_stop_all(id).await,
         };
         Ok(())
     }
@@ -141,7 +145,13 @@ impl TaskManager {
         kill: tokio::sync::oneshot::Sender<KillRequest>,
         message: AppRequest,
     ) -> TaskID {
-        self.cur_id.0 += 1;
+        // If we exceed usize, we'll overflow instead of crash.
+        // The chance of a negative impact due to this logic should be extremely slim.
+        let (new_id, overflowed) = self.cur_id.0.overflowing_add(1);
+        self.cur_id.0 = new_id;
+        if overflowed {
+            warn!("Task ID generation has overflowed");
+        }
         self.tasks.push(Task {
             id: self.cur_id,
             kill: Some(kill),
@@ -207,7 +217,7 @@ impl TaskManager {
         kill_rx: oneshot::Receiver<KillRequest>,
     ) {
         send_or_error(
-            // Does not kill previous tasks!
+            // Does not kill previous tasks, as multiple concurrent downloads can occur.
             &self.server_request_tx,
             server::Request::Downloader(server::downloader::Request::DownloadSong(
                 video_id,
@@ -226,34 +236,44 @@ impl TaskManager {
         )
         .await
     }
-    pub async fn spawn_stop(&mut self) {
-        // Consider adding an ID to this so we don't get redundant song progress updates.
+    pub async fn spawn_stop_all(&mut self, id: TaskID) {
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
         send_or_error(
             &self.server_request_tx,
-            server::Request::Player(server::player::Request::Stop),
+            server::Request::Player(server::player::Request::StopAll(id)),
         )
         .await
     }
-    pub async fn spawn_pause_play(&mut self) {
+    pub async fn spawn_stop(&mut self, song_id: ListSongID, id: TaskID) {
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
         send_or_error(
             &self.server_request_tx,
-            server::Request::Player(server::player::Request::PausePlay),
+            server::Request::Player(server::player::Request::Stop(song_id, id)),
         )
         .await
     }
-    pub async fn spawn_get_play_progress(&mut self, id: ListSongID) {
-        // Consider adding an ID to this so we don't get redundant song progress updates.
+    pub async fn spawn_pause_play(&mut self, song_id: ListSongID, id: TaskID) {
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
         send_or_error(
             &self.server_request_tx,
-            server::Request::Player(server::player::Request::GetPlayProgress(id)),
+            server::Request::Player(server::player::Request::PausePlay(song_id, id)),
         )
         .await
     }
-    pub async fn spawn_play_song(&mut self, song: Arc<Vec<u8>>, id: ListSongID) {
-        // Consider adding an ID to this so we don't get redundant song progress updates.
+    pub async fn spawn_get_play_progress(&mut self, song_id: ListSongID, id: TaskID) {
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
         send_or_error(
             &self.server_request_tx,
-            server::Request::Player(server::player::Request::PlaySong(song, id)),
+            server::Request::Player(server::player::Request::GetPlayProgress(song_id, id)),
+        )
+        .await
+    }
+    pub async fn spawn_play_song(&mut self, song: Arc<Vec<u8>>, song_id: ListSongID, id: TaskID) {
+        info!("Sending message to player to play song");
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::PlaySong(song, song_id, id)),
         )
         .await
     }
@@ -273,8 +293,8 @@ impl TaskManager {
     }
     pub fn kill_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
         debug!(
-            "Received message to kill all pending {:?} tasks",
-            request_category
+            "Killing all pending {:?} tasks except {:?}",
+            request_category, id,
         );
         for task in self
             .tasks
@@ -292,9 +312,9 @@ impl TaskManager {
     // Stop receiving tasks from the category, but do not kill them.
     // TODO: generalize using enums/types.
     pub fn block_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
-        debug!(
-            "Received message to block all pending {:?} tasks",
-            request_category
+        info!(
+            "Blocking all pending {:?} tasks except {:?}",
+            request_category, id
         );
         self.tasks
             .retain(|x| x.message.category() != request_category || x.id == id);
@@ -407,17 +427,41 @@ impl TaskManager {
             player::Response::DonePlaying(song_id) => {
                 Some(StateUpdateMessage::HandleDonePlaying(song_id))
             }
-            player::Response::Paused(song_id) => Some(StateUpdateMessage::SetToPaused(song_id)),
-            player::Response::Playing(song_id) => Some(StateUpdateMessage::SetToPlaying(song_id)),
-            player::Response::Stopped => Some(StateUpdateMessage::SetToStopped),
-            player::Response::ProgressUpdate(perc, song_id) => {
+            player::Response::Paused(song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetToPaused(song_id))
+            }
+            player::Response::Playing(song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetToPlaying(song_id))
+            }
+            player::Response::Stopped(song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetToStopped(song_id))
+            }
+            player::Response::ProgressUpdate(perc, song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
                 Some(StateUpdateMessage::SetSongPlayProgress(perc, song_id))
             }
             player::Response::VolumeUpdate(vol, id) => {
                 if !self.is_task_valid(id) {
                     return None;
                 }
-                Some(StateUpdateMessage::SetVolume(Percentage(vol)))
+                Some(StateUpdateMessage::SetVolume(vol))
+            }
+            player::Response::StoppedAll(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetAllToStopped)
             }
         }
     }

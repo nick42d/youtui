@@ -32,6 +32,7 @@ pub enum Request {
     Downloader(downloader::Request),
 }
 // Should this implement something like Killable/Blockable?
+#[derive(Debug)]
 pub enum Response {
     Api(api::Response),
     Player(player::Response),
