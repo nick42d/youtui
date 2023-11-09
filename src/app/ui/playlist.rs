@@ -1,7 +1,7 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
-use crate::app::view::BasicConstraint;
+use crate::app::view::{BasicConstraint, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::{
@@ -18,6 +18,7 @@ use crate::error::Result;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
 use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
+use std::iter;
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
@@ -131,6 +132,7 @@ impl TableView for Playlist {
         // Not perfect as this method doesn't know the size of the parent.
         // TODO: Change the get_layout function to something more appropriate.
         &[
+            BasicConstraint::Length(3),
             BasicConstraint::Length(6),
             BasicConstraint::Length(3),
             BasicConstraint::Percentage(Percentage(33)),
@@ -140,11 +142,19 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        Box::new(self.list.list.iter().map(|ls| ls.get_fields_iter()))
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
+        Box::new(self.list.list.iter().enumerate().map(|(i, ls)| {
+            Box::new(iter::once((i + 1).to_string().into()).chain(ls.get_fields_iter()))
+                as Box<dyn Iterator<Item = Cow<str>>>
+        }))
     }
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
-        Box::new(["", "#", "Artist", "Album", "Song", "Duration", "Year"].into_iter())
+        Box::new(
+            [
+                "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
+            ]
+            .into_iter(),
+        )
     }
 }
 

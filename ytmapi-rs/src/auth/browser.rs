@@ -61,7 +61,6 @@ impl AuthToken for BrowserToken {
 impl BrowserToken {
     pub async fn from_str(header_str: &str, client: &Client) -> Result<Self> {
         let mut cookies = String::new();
-        let mut user_agent = String::new();
         for l in header_str.lines() {
             if let Some(c) = l.strip_prefix("Cookie:") {
                 cookies = c.trim().to_string();
