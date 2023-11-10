@@ -18,8 +18,9 @@ Version as of 09/Nov/23 and is still a work in progress.
 ### Linux dependencies note
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSO support.
 - The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
- - libasound2-dev (Debian / Ubuntu)
- - alsa-lib-devel (Fedora)
+  - `libasound2-dev` (Debian / Ubuntu)
+  - `alsa-lib-devel` (Fedora)
+- The Reqwest library requires ssl - `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
 ## Coding constraints
 App has been designed for me to learn Rust, and therefore I have implemented the following constraints to learn some features. I am aware these may not be the most efficient ways to code.
 1. Avoid shared mutable state: 
