@@ -332,7 +332,8 @@ impl Playlist {
     }
     // Ideally owned by list itself.
     pub async fn reset(&mut self) -> Result<()> {
-        self.ui_tx.send(UIMessage::StopAll).await?;
+        // Not working properly currently.
+        // self.ui_tx.send(UIMessage::StopAll).await?;
         self.list.state = ListStatus::New;
         // We can't reset the ID, we'll keep incrementing.
         // self.list.next_id = ListSongID(0);
@@ -343,10 +344,11 @@ impl Playlist {
         Ok(())
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
+        // XXX: removed as not working currently.
         // First stop playback of currently playing song.
-        if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
-        }
+        // if let Some(cur_id) = self.get_cur_playing_id() {
+        //     send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+        // }
         // Drop previous songs
         self.drop_previous_from_id(id);
         // Queue next downloads

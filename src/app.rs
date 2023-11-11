@@ -38,13 +38,17 @@ impl Youtui {
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
-        let log_file = std::fs::File::create(get_data_dir()?.join(LOG_FILE_NAME))?;
-        let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
+        // Hold off implementing log file until dirs improved.
+        // let log_file = std::fs::File::create(get_data_dir()?.join(LOG_FILE_NAME))?;
+        // let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
         // TODO: Confirm if this filter is correct.
         let context_layer =
             tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::DEBUG);
         tracing_subscriber::registry()
-            .with(tui_logger_layer.and_then(log_file_layer))
+            .with(
+                tui_logger_layer, // Hold off from implementing log file until dirs support improved.
+                                  // .and_then(log_file_layer)
+            )
             .with(context_layer)
             .init();
         info!("Starting");

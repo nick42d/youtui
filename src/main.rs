@@ -47,8 +47,9 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Arguments::parse();
-    let cfg = config::Config::new().unwrap();
-    println!("Config: {:?}", cfg);
+    // Not implementing config just yet
+    // let cfg = config::Config::new().unwrap();
+    // println!("Config: {:?}", cfg);
     // TODO: Error handling
     match args {
         Arguments {

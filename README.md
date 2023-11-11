@@ -14,13 +14,15 @@ Version as of 09/Nov/23 and is still a work in progress.
   1. Open YouTube Music in your browser (Firefox preferred) - ensure you are logged in.
   1. Open web developer tools.
   1. Open Network tab and locate a POST request to `music.youtube.com`.
-  1. Copy the `Cookie` and `User-Agent` headers into a text file named `headers.txt` in the same directory as the binary.
+  1. Copy the `Cookie` and header into a text file named `headers.txt` into you local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
 ### Linux dependencies note
-- Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSO support.
+- Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support.
 - The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
 - The Reqwest library requires ssl - `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
+### Limitations
+- The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 ## Coding constraints
 App has been designed for me to learn Rust, and therefore I have implemented the following constraints to learn some features. I am aware these may not be the most efficient ways to code.
 1. Avoid shared mutable state: 
@@ -36,8 +38,9 @@ The app should limit the cognitive load required to memorise commands and should
 ## Roadmap
 ### Application
 - [ ] Offline cache
+- [ ] Proper configuration support
 - [x] Implement improved download speed
-- [ ] Real time streaming
+- [ ] Streaming of buffered tracks
 - [ ] Theming
 ### API
 - [ ] Implement all endpoints
