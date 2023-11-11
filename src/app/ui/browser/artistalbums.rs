@@ -338,17 +338,18 @@ impl TableView for AlbumSongsPanel {
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        let b = self.list.list.iter().map(|ls| {
-            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if i != 3 && i != 4 {
-                    Some(f)
-                } else {
-                    None
-                }
+        let b =
+            self.list.list.iter().map(|ls| {
+                let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                    if i != 2 {
+                        Some(f)
+                    } else {
+                        None
+                    }
+                });
+                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+                Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
             });
-            // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
-            Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
-        });
         Box::new(b)
     }
 
