@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
-use tracing::warn;
+use tracing::{info, warn};
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::SongResult;
 

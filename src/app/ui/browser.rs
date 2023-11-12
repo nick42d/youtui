@@ -1,32 +1,28 @@
-mod artistalbums;
-use crossterm::event::KeyCode;
-
-use std::{borrow::Cow, mem};
-use tokio::sync::mpsc;
-use tracing::error;
-use ytmapi_rs::{
-    common::TextRun,
-    parse::{SearchResultArtist, SongResult},
-};
-
-use crate::{app::component::actionhandler::Keybind, core::send_or_error};
-
 use self::{
     artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
     draw::draw_browser,
 };
-
+use super::{UIMessage, WindowContext};
 use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     component::contextpane::ContextPane,
     structures::ListStatus,
-    taskmanager::TaskID,
     view::{Drawable, Scrollable},
 };
+use crate::{app::component::actionhandler::Keybind, core::send_or_error};
+use crossterm::event::KeyCode;
+use std::{borrow::Cow, mem};
+use tokio::sync::mpsc;
+use tracing::{error, info};
+use ytmapi_rs::{
+    common::TextRun,
+    parse::{SearchResultArtist, SongResult},
+};
 
-use super::{UIMessage, WindowContext};
+mod artistalbums;
+mod draw;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BrowserAction {
@@ -188,12 +184,11 @@ impl ActionHandler<ArtistSongsAction> for Browser {
     async fn handle_action(&mut self, action: &ArtistSongsAction) {
         match action {
             ArtistSongsAction::PlayAlbum => self.play_album().await,
-            ArtistSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
-            // XXX: This is incorrect as it actually plays all songs.
-            ArtistSongsAction::PlaySong => self.play_songs().await,
-            ArtistSongsAction::AddSongToPlaylist => self.add_to_playlist().await,
+            ArtistSongsAction::PlaySong => self.play_song().await,
             ArtistSongsAction::PlaySongs => self.play_songs().await,
-            ArtistSongsAction::AddSongsToPlaylist => self.add_all_to_playlist().await,
+            ArtistSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
+            ArtistSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
+            ArtistSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
             ArtistSongsAction::Up => self.album_songs_list.increment_list(-1),
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-10),
@@ -264,7 +259,20 @@ impl Browser {
             error!("Error <{e}> recieved sending message")
         };
     }
-
+    async fn play_song(&mut self) {
+        // Consider how resource intensive this is as it runs in the main thread.
+        let Some(cur_song_idx) = self.album_songs_list.list.cur_selected else {
+            return;
+        };
+        if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
+            send_or_error(
+                &self.ui_tx,
+                UIMessage::AddSongsToPlaylistAndPlay(vec![cur_song.clone()]),
+            )
+            .await;
+        }
+        // XXX: Do we want to indicate that song has been added to playlist?
+    }
     async fn play_songs(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let Some(cur_song) = self.album_songs_list.list.cur_selected else {
@@ -278,10 +286,10 @@ impl Browser {
             .skip(cur_song)
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::PlaySongs(song_list)).await;
+        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylistAndPlay(song_list)).await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn add_all_to_playlist(&mut self) {
+    async fn add_songs_to_playlist(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let Some(cur_song) = self.album_songs_list.list.cur_selected else {
             return;
@@ -295,6 +303,20 @@ impl Browser {
             .cloned()
             .collect();
         send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylist(song_list)).await;
+        // XXX: Do we want to indicate that song has been added to playlist?
+    }
+    async fn add_song_to_playlist(&mut self) {
+        // Consider how resource intensive this is as it runs in the main thread.
+        let Some(cur_song_idx) = self.album_songs_list.list.cur_selected else {
+            return;
+        };
+        if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
+            send_or_error(
+                &self.ui_tx,
+                UIMessage::AddSongsToPlaylist(vec![cur_song.clone()]),
+            )
+            .await;
+        }
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn add_album_to_playlist(&mut self) {
@@ -333,36 +355,8 @@ impl Browser {
             // XXX: Could instead be inside an Rc.
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::PlaySongs(song_list)).await;
+        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylistAndPlay(song_list)).await;
         // XXX: Do we want to indicate that song has been added to playlist?
-    }
-    async fn add_to_playlist(&mut self) {
-        let Some(cur_index) = self.album_songs_list.list.cur_selected else {
-            return;
-        };
-        let Some(cur_song) = self.album_songs_list.list.list.get(cur_index) else {
-            error!("Tried to get item from list with index out of range");
-            return;
-        };
-        send_or_error(
-            &self.ui_tx,
-            UIMessage::AddSongsToPlaylist(vec![cur_song.clone()]),
-        )
-        .await;
-        // XXX: Do we want to indicate that song has been added to playlist?
-    }
-    async fn add_to_playlist_and_play(&mut self) {
-        let Some(cur_index) = self.album_songs_list.list.cur_selected else {
-            return;
-        };
-        let Some(cur_song) = self.album_songs_list.list.list.get(cur_index) else {
-            error!("Tried to get item from list with index out of range");
-            return;
-        };
-        send_or_error(&self.ui_tx, UIMessage::PlaySongs(vec![cur_song.clone()])).await;
-        // XXX: Do we want to indicat song has been added to playlist?
-        // let id = self.playlist.push_clone_listsong(&clone_song);
-        // self.playlist.play_song_id(id).await;
     }
     async fn get_songs(&mut self) {
         let Some(selected) = Some(self.artist_list.get_selected_item()) else {
@@ -464,122 +458,4 @@ fn browser_keybinds() -> Vec<Keybind<BrowserAction>> {
         Keybind::new_from_code(KeyCode::Left, BrowserAction::Left),
         Keybind::new_from_code(KeyCode::Right, BrowserAction::Right),
     ]
-}
-
-pub mod draw {
-
-    use ratatui::{
-        prelude::{Backend, Constraint, Direction, Layout, Rect},
-        style::{Color, Modifier, Style},
-        text::{Line, Span},
-        widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
-        Frame,
-    };
-    use ytmapi_rs::common::TextRun;
-
-    use crate::app::component::actionhandler::Suggestable;
-    use crate::app::view::draw::{draw_list, draw_table};
-
-    use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
-
-    pub fn draw_browser<B>(f: &mut Frame<B>, browser: &Browser, chunk: Rect)
-    where
-        B: Backend,
-    {
-        let layout = Layout::new()
-            .constraints([Constraint::Max(30), Constraint::Min(0)])
-            .direction(ratatui::prelude::Direction::Horizontal)
-            .split(chunk);
-        // XXX: Naive implementation.
-        let _albumsongsselected = browser.input_routing == InputRouting::Song;
-        let _artistselected =
-            !_albumsongsselected && browser.artist_list.route == ArtistInputRouting::List;
-
-        if !browser.artist_list.search_popped {
-            draw_list(f, &browser.artist_list, layout[0], _artistselected);
-        } else {
-            let s = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(0)
-                .constraints([Constraint::Length(3), Constraint::Min(0)])
-                .split(layout[0]);
-            let search_widget = Paragraph::new(browser.artist_list.search.search_contents.as_str())
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .border_style(Style::default().fg(Color::Cyan))
-                        .title("Search"),
-                );
-            f.render_widget(search_widget, s[0]);
-            f.set_cursor(
-                s[0].x + browser.artist_list.search.text_cur as u16 + 1,
-                s[0].y + 1,
-            );
-            draw_list(f, &browser.artist_list, s[1], _artistselected);
-            if browser.has_search_suggestions() {
-                let suggestions = browser.get_search_suggestions();
-                let height = suggestions.len() + 1;
-                let divider_chunk = bottom_of_rect(s[0]);
-                let suggestion_chunk =
-                    below_left_rect(height.try_into().unwrap_or(u16::MAX), s[0].width, s[0]);
-                let suggestion_chunk_layout = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Length(1), Constraint::Min(0)])
-                    .split(suggestion_chunk);
-                let mut list_state =
-                    ListState::default().with_selected(browser.artist_list.search.suggestions_cur);
-                let list: Vec<_> = suggestions
-                    .into_iter()
-                    .map(|s| {
-                        ListItem::new(Line::from(
-                            s.iter()
-                                .map(|s| match s {
-                                    TextRun::Bold(str) => {
-                                        Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
-                                    }
-                                    TextRun::Normal(str) => Span::raw(str),
-                                })
-                                .collect::<Vec<Span>>(),
-                        ))
-                    })
-                    .collect();
-                let block = List::new(list)
-                    .style(Style::new().fg(Color::White))
-                    .highlight_style(Style::new().bg(Color::Blue))
-                    .block(
-                        Block::default()
-                            .borders(Borders::all().difference(Borders::TOP))
-                            .style(Style::new().fg(Color::Cyan)),
-                    );
-                let side_borders = Block::default()
-                    .borders(Borders::LEFT.union(Borders::RIGHT))
-                    .style(Style::new().fg(Color::Cyan));
-                let divider = Block::default().borders(Borders::TOP);
-                f.render_widget(Clear, suggestion_chunk);
-                f.render_widget(side_borders, suggestion_chunk_layout[0]);
-                f.render_widget(Clear, divider_chunk);
-                f.render_widget(divider, divider_chunk);
-                f.render_stateful_widget(block, suggestion_chunk_layout[1], &mut list_state);
-            }
-        }
-        draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);
-    }
-    /// Helper function to create a popup below a chunk.
-    pub fn below_left_rect(height: u16, width: u16, r: Rect) -> Rect {
-        Rect {
-            x: r.x,
-            y: r.y + r.height - 1,
-            width,
-            height,
-        }
-    }
-    /// Helper function to get the bottom line of a chunk, ignoring side borders.
-    pub fn bottom_of_rect(r: Rect) -> Rect {
-        Rect {
-            x: r.x + 1,
-            y: r.y + r.height - 1,
-            width: r.width - 2,
-            height: 1,
-        }
-    }
 }

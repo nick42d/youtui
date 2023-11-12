@@ -332,8 +332,10 @@ impl Playlist {
     }
     // Ideally owned by list itself.
     pub async fn reset(&mut self) -> Result<()> {
-        // Not working properly currently.
-        // self.ui_tx.send(UIMessage::StopAll).await?;
+        // Stop playback, if playing.
+        if let Some(cur_id) = self.get_cur_playing_id() {
+            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+        }
         self.list.state = ListStatus::New;
         // We can't reset the ID, we'll keep incrementing.
         // self.list.next_id = ListSongID(0);
@@ -344,11 +346,9 @@ impl Playlist {
         Ok(())
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
-        // XXX: removed as not working currently.
-        // First stop playback of currently playing song.
-        // if let Some(cur_id) = self.get_cur_playing_id() {
-        //     send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
-        // }
+        if let Some(cur_id) = self.get_cur_playing_id() {
+            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+        }
         // Drop previous songs
         self.drop_previous_from_id(id);
         // Queue next downloads
@@ -447,6 +447,7 @@ impl Playlist {
             return;
         };
         for song in self.list.list.get_mut(0..song_index).into_iter().flatten() {
+            // TODO: Write a change download status function that will warn if song is not dropped from memory.
             song.download_status = DownloadStatus::None
         }
     }
@@ -485,8 +486,16 @@ impl Playlist {
             .transition_to_stopped();
     }
     pub async fn pauseplay(&mut self) {
-        let Some(id) = self.get_cur_playing_id() else {
-            return;
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return,
         };
         send_or_error(&self.ui_tx, UIMessage::PausePlay(id)).await;
     }

@@ -52,7 +52,6 @@ pub enum AppRequest {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
-    StopAll,
     PausePlay(ListSongID),
 }
 
@@ -69,7 +68,6 @@ impl AppRequest {
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
-            AppRequest::StopAll => RequestCategory::PlayPauseStop,
         }
     }
 }
@@ -135,7 +133,6 @@ impl TaskManager {
             AppRequest::GetPlayProgress(song_id) => self.spawn_get_play_progress(song_id, id).await,
             AppRequest::Stop(song_id) => self.spawn_stop(song_id, id).await,
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
-            AppRequest::StopAll => self.spawn_stop_all(id).await,
         };
         Ok(())
     }
@@ -233,14 +230,6 @@ impl TaskManager {
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::IncreaseVolume(vol_inc, id)),
-        )
-        .await
-    }
-    pub async fn spawn_stop_all(&mut self, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::StopAll(id)),
         )
         .await
     }
@@ -456,12 +445,6 @@ impl TaskManager {
                     return None;
                 }
                 Some(StateUpdateMessage::SetVolume(vol))
-            }
-            player::Response::StoppedAll(id) => {
-                if !self.is_task_valid(id) {
-                    return None;
-                }
-                Some(StateUpdateMessage::SetAllToStopped)
             }
         }
     }

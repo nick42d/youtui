@@ -1,6 +1,7 @@
 use std::{borrow::Cow, fmt::Display};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use tracing::info;
 use ytmapi_rs::common::TextRun;
 
 // An action that can be sent to a component.
@@ -102,7 +103,16 @@ impl<A: Action> Keybind<A> {
         (self.to_string().into(), self.context(), self.describe())
     }
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
-        self.code == keyevent.code && self.modifiers == keyevent.modifiers
+        match self.code {
+            // If key code is a character it may have shift pressed, if that's the case ignore the shift
+            // As may have been used to capitalise the letter, which will already be counted in the key code.
+            KeyCode::Char(_) => {
+                self.code == keyevent.code
+                    && self.modifiers.union(KeyModifiers::SHIFT)
+                        == keyevent.modifiers.union(KeyModifiers::SHIFT)
+            }
+            _ => self.code == keyevent.code && self.modifiers == keyevent.modifiers,
+        }
     }
     pub fn new_from_code(code: KeyCode, action: A) -> Keybind<A> {
         Keybind {
@@ -260,7 +270,8 @@ pub fn index_keybinds<'a, A: Action>(
         .find(|kb| kb.contains_keyevent(index))
         .map(|kb| &kb.key_map)
 }
-/// Recursively indexes into a Keymap using a list of KeyEvents. Yields the presented Keymap, or none if one of the indexes fails to return a value.
+/// Recursively indexes into a Keymap using a list of KeyEvents. Yields the presented Keymap
+// , or none if one of the indexes fails to return a value.
 pub fn index_keymap<'a, A: Action>(
     map: &'a Keymap<A>,
     indexes: &[KeyEvent],
@@ -285,6 +296,7 @@ mod tests {
         Test1,
         Test2,
         Test3,
+        TestStack,
     }
     impl Action for TestAction {
         fn context(&self) -> std::borrow::Cow<str> {
@@ -294,6 +306,66 @@ mod tests {
         fn describe(&self) -> std::borrow::Cow<str> {
             todo!()
         }
+    }
+    #[test]
+    fn test_key_stack_shift_modifier() {
+        let kb = vec![
+            Keybind::new_from_code(KeyCode::F(10), TestAction::Test1),
+            Keybind::new_from_code(KeyCode::F(12), TestAction::Test2),
+            Keybind::new_from_code(KeyCode::Left, TestAction::Test3),
+            Keybind::new_from_code(KeyCode::Right, TestAction::Test3),
+            Keybind::new_action_only_mode(
+                vec![
+                    (KeyCode::Enter, TestAction::Test2),
+                    (KeyCode::Char('a'), TestAction::Test3),
+                    (KeyCode::Char('p'), TestAction::Test2),
+                    (KeyCode::Char(' '), TestAction::Test3),
+                    (KeyCode::Char('P'), TestAction::Test2),
+                    (KeyCode::Char('A'), TestAction::TestStack),
+                ],
+                KeyCode::Enter,
+                "Play",
+            ),
+        ];
+        let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
+        let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::SHIFT);
+        let key_stack = vec![ks1, ks2];
+        let first = index_keybinds(Box::new(kb.iter()), key_stack.get(0).unwrap()).unwrap();
+        let act = index_keymap(first, key_stack.get(1..).unwrap());
+        let Some(Keymap::Action(a)) = act else {
+            panic!();
+        };
+        assert_eq!(*a, TestAction::TestStack);
+    }
+    #[test]
+    fn test_key_stack() {
+        let kb = vec![
+            Keybind::new_from_code(KeyCode::F(10), TestAction::Test1),
+            Keybind::new_from_code(KeyCode::F(12), TestAction::Test2),
+            Keybind::new_from_code(KeyCode::Left, TestAction::Test3),
+            Keybind::new_from_code(KeyCode::Right, TestAction::Test3),
+            Keybind::new_action_only_mode(
+                vec![
+                    (KeyCode::Enter, TestAction::Test2),
+                    (KeyCode::Char('a'), TestAction::Test3),
+                    (KeyCode::Char('p'), TestAction::Test2),
+                    (KeyCode::Char(' '), TestAction::Test3),
+                    (KeyCode::Char('P'), TestAction::Test2),
+                    (KeyCode::Char('A'), TestAction::TestStack),
+                ],
+                KeyCode::Enter,
+                "Play",
+            ),
+        ];
+        let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
+        let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::empty());
+        let key_stack = vec![ks1, ks2];
+        let first = index_keybinds(Box::new(kb.iter()), key_stack.get(0).unwrap()).unwrap();
+        let act = index_keymap(first, key_stack.get(1..).unwrap());
+        let Some(Keymap::Action(a)) = act else {
+            panic!();
+        };
+        assert_eq!(*a, TestAction::TestStack);
     }
     #[test]
     fn test_index_keybinds() {

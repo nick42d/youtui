@@ -427,7 +427,7 @@ pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
                 ),
                 (
                     KeyCode::Char('P'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongToPlaylist),
+                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongsToPlaylist),
                 ),
                 (
                     KeyCode::Char('A'),

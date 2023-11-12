@@ -70,11 +70,10 @@ pub enum UIMessage {
     GetSearchSuggestions(String),
     GetArtistSongs(ChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
-    PlaySongs(Vec<ListSong>),
+    AddSongsToPlaylistAndPlay(Vec<ListSong>),
     PlaySong(Arc<Vec<u8>>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
-    StopAll,
 }
 
 // An action that can be triggered from a keybind.
@@ -375,7 +374,7 @@ impl YoutuiWindow {
                 UIMessage::AddSongsToPlaylist(song_list) => {
                     self.playlist.push_song_list(song_list);
                 }
-                UIMessage::PlaySongs(song_list) => {
+                UIMessage::AddSongsToPlaylistAndPlay(song_list) => {
                     self.playlist
                         .reset()
                         .await
@@ -406,9 +405,6 @@ impl YoutuiWindow {
                         AppRequest::GetPlayProgress(id),
                     )
                     .await;
-                }
-                UIMessage::StopAll => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::StopAll).await;
                 }
             }
         }

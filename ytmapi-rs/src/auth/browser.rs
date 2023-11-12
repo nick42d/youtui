@@ -102,7 +102,6 @@ impl BrowserToken {
     {
         let contents = tokio::fs::read_to_string(path).await.unwrap();
         let mut cookies = String::new();
-        let mut user_agent = String::new();
         for l in contents.lines() {
             if let Some(c) = l.strip_prefix("Cookie:") {
                 cookies = c.trim().to_string();

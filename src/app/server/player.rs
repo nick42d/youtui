@@ -27,7 +27,6 @@ pub enum Request {
     GetPlayProgress(ListSongID, TaskID), // Should give ID?
     Stop(ListSongID, TaskID),
     PausePlay(ListSongID, TaskID),
-    StopAll(TaskID),
 }
 
 #[derive(Debug)]
@@ -36,7 +35,6 @@ pub enum Response {
     Paused(ListSongID, TaskID),
     Playing(ListSongID, TaskID),
     Stopped(ListSongID, TaskID),
-    StoppedAll(TaskID),
     ProgressUpdate(f64, ListSongID, TaskID),
     VolumeUpdate(Percentage, TaskID), // Should be Percentage
 }
@@ -116,17 +114,6 @@ pub fn spawn_rodio_thread(
                         );
                         thinks_is_playing = false;
                     }
-                    Request::StopAll(task_id) => {
-                        info!("Got message to stop playing all");
-                        if !sink.empty() {
-                            sink.stop()
-                        }
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::StoppedAll(task_id)),
-                        );
-                        thinks_is_playing = false;
-                    }
                     Request::PausePlay(song_id, id) => {
                         info!("Got message to pause / play {:?}", id);
                         if cur_song_id != song_id {
@@ -134,6 +121,7 @@ pub fn spawn_rodio_thread(
                         }
                         if sink.is_paused() {
                             sink.play();
+                            info!("Sending Play message {:?}", id);
                             blocking_send_or_error(
                                 &response_tx,
                                 super::Response::Player(Response::Playing(song_id, id)),
@@ -141,6 +129,7 @@ pub fn spawn_rodio_thread(
                         // We don't want to pause if sink is empty (but case could be handled in Playlist also)
                         } else if !sink.is_paused() && !sink.empty() {
                             sink.pause();
+                            info!("Sending Pause message {:?}", id);
                             blocking_send_or_error(
                                 &response_tx,
                                 super::Response::Player(Response::Paused(song_id, id)),
