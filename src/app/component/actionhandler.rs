@@ -2,7 +2,7 @@ use std::{borrow::Cow, fmt::Display};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use tracing::info;
-use ytmapi_rs::common::TextRun;
+use ytmapi_rs::common::{SearchSuggestion, TextRun};
 
 // An action that can be sent to a component.
 pub trait Action {
@@ -215,8 +215,9 @@ pub trait TextHandler {
     }
 }
 // A next handler that can receive suggestions
+// TODO: Seperate library and binary APIs
 pub trait Suggestable: TextHandler {
-    fn get_search_suggestions(&self) -> &[Vec<TextRun>];
+    fn get_search_suggestions(&self) -> &[SearchSuggestion];
     fn has_search_suggestions(&self) -> bool;
 }
 pub enum KeyHandleOutcome {

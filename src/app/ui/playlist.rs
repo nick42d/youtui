@@ -119,8 +119,7 @@ impl Scrollable for Playlist {
     }
 
     fn get_offset(&self, height: usize) -> usize {
-        // TODO
-        0
+        self.list.get_offset(height)
     }
 }
 

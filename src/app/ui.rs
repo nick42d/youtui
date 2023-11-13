@@ -25,7 +25,7 @@ use crate::core::send_or_error;
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use tokio::sync::mpsc;
 use tracing::error;
-use ytmapi_rs::common::TextRun;
+use ytmapi_rs::common::{SearchSuggestion, TextRun};
 use ytmapi_rs::{
     parse::{SearchResultArtist, SongResult},
     ChannelID, VideoID,
@@ -450,7 +450,7 @@ impl YoutuiWindow {
     }
     pub async fn handle_replace_search_suggestions(
         &mut self,
-        x: Vec<Vec<TextRun>>,
+        x: Vec<SearchSuggestion>,
         search: String,
     ) {
         self.browser.handle_replace_search_suggestions(x, search);

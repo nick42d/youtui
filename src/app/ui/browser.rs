@@ -17,7 +17,7 @@ use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
 use tracing::{error, info};
 use ytmapi_rs::{
-    common::TextRun,
+    common::{SearchSuggestion, TextRun},
     parse::{SearchResultArtist, SongResult},
 };
 
@@ -83,8 +83,9 @@ impl Action for BrowserAction {
         }
     }
 }
+// Should this really be implemented on the Browser...
 impl Suggestable for Browser {
-    fn get_search_suggestions(&self) -> &[Vec<TextRun>] {
+    fn get_search_suggestions(&self) -> &[SearchSuggestion] {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.get_search_suggestions(),
             InputRouting::Song => &[],
@@ -401,7 +402,7 @@ impl Browser {
     }
     pub fn handle_replace_search_suggestions(
         &mut self,
-        search_suggestions: Vec<Vec<TextRun>>,
+        search_suggestions: Vec<SearchSuggestion>,
         search: String,
     ) {
         if self.artist_list.search.search_contents == search {

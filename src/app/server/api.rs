@@ -1,5 +1,6 @@
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
+use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::TextRun;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::GetArtistAlbums;
@@ -28,7 +29,7 @@ pub enum Request {
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
     SearchArtistError(TaskID),
-    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, TaskID, String),
+    ReplaceSearchSuggestions(Vec<SearchSuggestion>, TaskID, String),
     SongListLoading(TaskID),
     SongListLoaded(TaskID),
     NoSongsFound(TaskID),

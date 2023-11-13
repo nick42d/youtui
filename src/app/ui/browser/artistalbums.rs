@@ -6,6 +6,7 @@ use crate::app::{
 };
 use crossterm::event::KeyCode;
 use std::borrow::Cow;
+use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -30,7 +31,7 @@ pub struct ArtistSearchPanel {
 #[derive(Default, Clone)]
 pub struct SearchBlock {
     pub search_contents: String,
-    pub search_suggestions: Vec<Vec<TextRun>>,
+    pub search_suggestions: Vec<SearchSuggestion>,
     pub text_cur: usize,
     pub suggestions_cur: Option<usize>,
 }
@@ -155,10 +156,8 @@ impl SearchBlock {
             );
             // Safe - clamped and set above
             // Clone is ok here as we want to duplicate the search suggestion.
-            self.search_contents = self.search_suggestions[self.suggestions_cur.unwrap()]
-                .iter()
-                .map(|run| run.clone().get_text())
-                .collect();
+            self.search_contents =
+                self.search_suggestions[self.suggestions_cur.unwrap()].get_text();
             self.move_cursor_to_end();
         }
     }
@@ -186,7 +185,7 @@ impl TextHandler for ArtistSearchPanel {
 }
 
 impl Suggestable for ArtistSearchPanel {
-    fn get_search_suggestions(&self) -> &[Vec<TextRun>] {
+    fn get_search_suggestions(&self) -> &[SearchSuggestion] {
         self.search.search_suggestions.as_slice()
     }
     fn has_search_suggestions(&self) -> bool {
@@ -328,7 +327,6 @@ impl TableView for AlbumSongsPanel {
     }
     fn get_layout(&self) -> &[BasicConstraint] {
         &[
-            BasicConstraint::Length(6),
             BasicConstraint::Length(3),
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Percentage(Percentage(50)),
@@ -338,23 +336,22 @@ impl TableView for AlbumSongsPanel {
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        let b =
-            self.list.list.iter().map(|ls| {
-                let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                    if i != 2 {
-                        Some(f)
-                    } else {
-                        None
-                    }
-                });
-                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
-                Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
+        let b = self.list.list.iter().map(|ls| {
+            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                if i != 2 && i != 0 {
+                    Some(f)
+                } else {
+                    None
+                }
             });
+            // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+            Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
+        });
         Box::new(b)
     }
 
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
-        Box::new(["", "#", "Album", "Song", "Duration", "Year"].into_iter())
+        Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
 }
 

@@ -1,7 +1,7 @@
 use const_format::concatcp;
 
 use super::{parse_search_result, parse_search_results, ProcessedResult, SearchResult};
-use crate::common::{AlbumType, TextRun};
+use crate::common::{AlbumType, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::SECTION_LIST;
 use crate::query::*;
@@ -117,24 +117,37 @@ impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
 }
 
 impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
-    pub fn parse(self) -> Result<Vec<Vec<TextRun>>> {
+    pub fn parse(self) -> Result<Vec<SearchSuggestion>> {
         let ProcessedResult { json_crawler, .. } = self;
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
         let mut results = Vec::new();
-        for s in suggestions.as_array_iter_mut()? {
-            let mut result = Vec::new();
-            for mut r in s
-                .navigate_pointer("/searchSuggestionRenderer/suggestion/runs")?
-                .into_array_iter_mut()?
+        for mut s in suggestions.as_array_iter_mut()? {
+            let mut runs = Vec::new();
+            if let Ok(search_suggestion) =
+                s.borrow_pointer("/searchSuggestionRenderer/suggestion/runs")
             {
-                if let Ok(true) = r.take_value_pointer("/bold") {
-                    result.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
-                } else {
-                    result.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
+                for mut r in search_suggestion.into_array_iter_mut()? {
+                    if let Ok(true) = r.take_value_pointer("/bold") {
+                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
+                    } else {
+                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
+                    }
                 }
+                results.push(SearchSuggestion::new(SuggestionType::Prediction, runs))
+            } else {
+                for mut r in s
+                    .borrow_pointer("/historySuggestionRenderer/suggestion/runs")?
+                    .into_array_iter_mut()?
+                {
+                    if let Ok(true) = r.take_value_pointer("/bold") {
+                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
+                    } else {
+                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
+                    }
+                }
+                results.push(SearchSuggestion::new(SuggestionType::History, runs))
             }
-            results.push(result)
         }
         Ok(results)
     }

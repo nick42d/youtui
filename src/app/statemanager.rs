@@ -1,4 +1,7 @@
-use ytmapi_rs::{common::TextRun, parse::SongResult};
+use ytmapi_rs::{
+    common::{SearchSuggestion, TextRun},
+    parse::SongResult,
+};
 
 use super::{
     server::downloader::DownloadProgressUpdateType,
@@ -11,7 +14,7 @@ use super::{
 pub enum StateUpdateMessage {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
     HandleSearchArtistError,
-    ReplaceSearchSuggestions(Vec<Vec<TextRun>>, String),
+    ReplaceSearchSuggestions(Vec<SearchSuggestion>, String),
     HandleSongListLoading,
     HandleSongListLoaded,
     HandleNoSongsFound,

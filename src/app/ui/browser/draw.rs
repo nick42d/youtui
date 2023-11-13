@@ -1,6 +1,7 @@
 use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_table};
+use crate::drawutils::{below_left_rect, bottom_of_rect};
 use ratatui::{
     prelude::{Backend, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -8,7 +9,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
     Frame,
 };
-use ytmapi_rs::common::TextRun;
+use ytmapi_rs::common::{SuggestionType, TextRun};
 
 pub fn draw_browser<B>(f: &mut Frame<B>, browser: &Browser, chunk: Rect)
 where
@@ -60,16 +61,22 @@ where
                 .into_iter()
                 .map(|s| {
                     ListItem::new(Line::from(
-                        s.iter()
-                            .map(|s| match s {
+                        std::iter::once(s.get_type())
+                            .filter_map(|ty| match ty {
+                                SuggestionType::History => Some(Span::raw("  ")),
+                                SuggestionType::Prediction => None,
+                            })
+                            .chain(s.get_runs().iter().map(|s| match s {
                                 TextRun::Bold(str) => {
                                     Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
                                 }
                                 TextRun::Normal(str) => Span::raw(str),
-                            })
+                            }))
+                            // XXX: Ratatui upgrades may allow this to be passed lazily instead of collecting.
                             .collect::<Vec<Span>>(),
                     ))
                 })
+                // XXX: Ratatui upgrades may allow this to be passed lazily instead of collecting.
                 .collect();
             let block = List::new(list)
                 .style(Style::new().fg(Color::White))
@@ -91,22 +98,4 @@ where
         }
     }
     draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);
-}
-/// Helper function to create a popup below a chunk.
-pub fn below_left_rect(height: u16, width: u16, r: Rect) -> Rect {
-    Rect {
-        x: r.x,
-        y: r.y + r.height - 1,
-        width,
-        height,
-    }
-}
-/// Helper function to get the bottom line of a chunk, ignoring side borders.
-pub fn bottom_of_rect(r: Rect) -> Rect {
-    Rect {
-        x: r.x + 1,
-        y: r.y + r.height - 1,
-        width: r.width - 2,
-        height: 1,
-    }
 }

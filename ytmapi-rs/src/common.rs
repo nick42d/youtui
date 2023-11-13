@@ -6,7 +6,22 @@ use std::borrow::Cow;
 
 use crate::Error;
 
-/// A run of text that may be boldened.
+/// A search suggestion containing a list of TextRuns.
+/// May be a history suggestion.
+
+#[derive(PartialEq, Debug, Clone, Deserialize)]
+pub struct SearchSuggestion {
+    runs: Vec<TextRun>,
+    suggestion_type: SuggestionType,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Copy)]
+pub enum SuggestionType {
+    History,
+    Prediction,
+}
+
+/// A block of text that may be boldened.
 #[derive(PartialEq, Debug, Clone, Deserialize)]
 pub enum TextRun {
     Bold(String),
@@ -14,10 +29,38 @@ pub enum TextRun {
 }
 
 impl TextRun {
-    pub fn get_text(self) -> String {
+    pub fn take_text(self) -> String {
         match self {
             TextRun::Bold(s) => s,
             TextRun::Normal(s) => s,
+        }
+    }
+    pub fn get_text(&self) -> &str {
+        match self {
+            TextRun::Bold(s) => s,
+            TextRun::Normal(s) => s,
+        }
+    }
+}
+
+impl SearchSuggestion {
+    /// Gets the text of the runs concaternated into a String.
+    /// Note - allocation required.
+    pub fn get_text(&self) -> String {
+        self.runs
+            .iter()
+            .fold(String::new(), |acc, r| acc + &r.get_text())
+    }
+    pub fn get_runs(&self) -> &[TextRun] {
+        &self.runs
+    }
+    pub fn get_type(&self) -> SuggestionType {
+        self.suggestion_type
+    }
+    pub fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
+        Self {
+            runs,
+            suggestion_type,
         }
     }
 }
