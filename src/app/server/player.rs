@@ -16,7 +16,8 @@ use crate::app::taskmanager::TaskID;
 
 use super::KillableTask;
 
-const POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
+const EVENT_POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(10);
+const PROGRESS_UPDATE_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 
 #[derive(Debug)]
@@ -68,7 +69,7 @@ pub fn spawn_rodio_thread(
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
         // Rodio can produce output to stderr when we don't want it to, so we use Gag to suppress stdout/stderr.
-        // The downside is that even though this runs in a seperate thread all stderr for the whole app may be is gagged.
+        // The downside is that even though this runs in a seperate thread all stderr for the whole app may be gagged.
         // Also seems to spew out characters?
         // TODO: also handle the errors from Rodio, or write to a file.
         let _gag_sterr = gag::Gag::stderr().unwrap();
@@ -136,6 +137,7 @@ pub fn spawn_rodio_thread(
                             );
                         }
                     }
+                    // XXX: May be able to handle this by reporting progress updates when playing instead of needing to request/response here.
                     Request::GetPlayProgress(song_id, id) => {
                         debug!("Got message to provide song progress update");
                         if cur_song_id == song_id {
@@ -178,9 +180,13 @@ pub fn spawn_rodio_thread(
                     }
                 }
             }
+            // Avoid empty infinite loop, but still poll more frequently than when sending progress updates for responsiveness.
+            // TODO: Maintain the responsiveness whilst still sending progress updates.
+            // TODO: Better architecture for this component in general.
+            last_tick_time = std::time::Instant::now();
+            std::thread::sleep(EVENT_POLL_INTERVAL);
             if !sink.empty() && !sink.is_paused() {
-                last_tick_time = std::time::Instant::now();
-                std::thread::sleep(POLL_INTERVAL);
+                std::thread::sleep(EVENT_POLL_INTERVAL.saturating_sub(EVENT_POLL_INTERVAL));
                 let passed = std::time::Instant::now() - last_tick_time;
                 cur_song_elapsed = cur_song_elapsed + passed;
             }
