@@ -47,6 +47,7 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Arguments::parse();
+    initialise_directories()?;
     // Not implementing config just yet
     // let cfg = config::Config::new().unwrap();
     // println!("Config: {:?}", cfg);
@@ -109,23 +110,35 @@ pub async fn run_app() -> Result<()> {
 }
 
 pub fn get_data_dir() -> Result<PathBuf> {
+    // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_DATA_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.data_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNotFound);
+        return Err(Error::DirectoryNameError);
     };
     Ok(directory)
 }
 
 pub fn get_config_dir() -> Result<PathBuf> {
+    // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_CONFIG_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.config_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNotFound);
+        return Err(Error::DirectoryNameError);
     };
     Ok(directory)
+}
+
+/// Create the Config and Data directories for the app if they do not already exist.
+/// Returns an error if unsuccesful.
+pub fn initialise_directories() -> Result<()> {
+    let config_dir = get_config_dir()?;
+    let data_dir = get_data_dir()?;
+    std::fs::create_dir_all(config_dir)?;
+    std::fs::create_dir_all(data_dir)?;
+    Ok(())
 }
