@@ -50,8 +50,7 @@ enum Commands {
 async fn main() -> Result<()> {
     let args = Arguments::parse();
     initialise_directories()?;
-    // Not implementing config just yet
-    // let cfg = config::Config::new().unwrap();
+    let _cfg = config::Config::new()?;
     // Once config has loaded, load API key to memory
     // let api_key = load_api_key(&cfg);
     // TODO: Error handling
