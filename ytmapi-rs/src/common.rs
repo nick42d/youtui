@@ -65,7 +65,7 @@ impl SearchSuggestion {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Deserialize)]
 pub struct Thumbnail {
     pub height: u64,
     pub width: u64,
@@ -212,6 +212,21 @@ pub mod watch {
                 _tracks: Default::default(),
             }
         }
+    }
+}
+
+pub mod library {
+    use crate::Thumbnail;
+    use serde::Deserialize;
+
+    use super::PlaylistID;
+
+    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    pub struct Playlist {
+        pub playlist_id: PlaylistID<'static>,
+        pub title: String,
+        pub thumbnails: Vec<Thumbnail>,
+        pub count: usize,
     }
 }
 

@@ -1,7 +1,3 @@
-mod album;
-mod artist;
-mod search;
-
 use crate::{
     common::{
         AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PlaylistType, Thumbnail, VideoID,
@@ -17,10 +13,14 @@ use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
+pub use continuations::*;
 pub use search::*;
 
-pub use continuations::*;
+mod album;
+mod artist;
 mod continuations;
+mod search;
+
 #[derive(Debug, Clone)]
 pub enum SearchResult<'a> {
     TopResult,
@@ -413,6 +413,46 @@ mod lyrics {
                 description_shelf.take_value_pointer(DESCRIPTION)?,
                 description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
             ))
+        }
+    }
+}
+mod library {
+    use super::ProcessedResult;
+    use crate::common::library::Playlist;
+    use crate::query::library::GetLibraryPlaylistQuery;
+    use crate::Result;
+    use const_format::concatcp;
+
+    impl<'a> ProcessedResult<GetLibraryPlaylistQuery> {
+        // TODO: Continuations
+        pub fn parse(self) -> Result<Playlist> {
+            let ProcessedResult { json_crawler, .. } = self;
+            todo!()
+        }
+    }
+    mod tests {
+        use crate::{
+            common::{library::Playlist, PlaylistID, YoutubeID},
+            crawler::JsonCrawler,
+            parse::ProcessedResult,
+            query::library::GetLibraryPlaylistQuery,
+        };
+
+        // Consider if the parse function itself should be removed from impl.
+        #[test]
+        fn test_standard_json() {
+            let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
+            let testfile_json = serde_json::from_str(&testfile).unwrap();
+            let json_crawler = JsonCrawler::from_json(testfile_json);
+            let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistQuery {});
+            let result = processed.parse().unwrap();
+            let expected = Playlist {
+                playlist_id: PlaylistID::from_raw("test"),
+                title: "test".into(),
+                thumbnails: Vec::new(),
+                count: 5,
+            };
+            assert_eq!(result, expected);
         }
     }
 }

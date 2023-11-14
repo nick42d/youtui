@@ -80,20 +80,26 @@ async fn test_get_lyrics() {
 async fn test_search_suggestions_oauth() {
     let api = new_standard_oauth_api().await.unwrap();
     let res = api.get_search_suggestions("faded").await.unwrap();
-    let example = vec![
-        TextRun::Bold("faded".into()),
-        TextRun::Normal(" alan walker".into()),
-    ];
+    let example = SearchSuggestion::new(
+        common::SuggestionType::Prediction,
+        vec![
+            TextRun::Bold("faded".into()),
+            TextRun::Normal(" alan walker".into()),
+        ],
+    );
     assert!(res.contains(&example));
 }
 #[tokio::test]
 async fn test_search_suggestions() {
     let api = new_standard_api().await.unwrap();
     let res = api.get_search_suggestions("faded").await.unwrap();
-    let example = vec![
-        TextRun::Bold("faded".into()),
-        TextRun::Normal(" alan walker".into()),
-    ];
+    let example = SearchSuggestion::new(
+        common::SuggestionType::Prediction,
+        vec![
+            TextRun::Bold("faded".into()),
+            TextRun::Normal(" alan walker".into()),
+        ],
+    );
     assert!(res.contains(&example));
 }
 #[tokio::test]
