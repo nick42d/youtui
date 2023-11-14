@@ -10,8 +10,8 @@ mod drawutils;
 pub mod error;
 
 use cli::{
-    get_and_output_oauth_token, print_artist, print_artist_json, print_search_suggestions,
-    print_search_suggestions_json,
+    get_and_output_oauth_token, print_artist, print_artist_json, print_library_playlists_json,
+    print_search_suggestions, print_search_suggestions_json,
 };
 use config::{ApiKey, Config};
 pub use error::Result;
@@ -42,7 +42,8 @@ enum Commands {
     GetSearchSuggestions { query: String },
     GetArtist { channel_id: String },
     // This does not work well with the show_source command!
-    SetupOAuth { file_name: Option<PathBuf> },
+    SetupOauth { file_name: Option<PathBuf> },
+    GetLibraryPlaylists,
 }
 
 #[tokio::main]
@@ -66,30 +67,40 @@ async fn main() -> Result<()> {
             ..
         } => todo!(),
         Arguments {
+            command: Some(Commands::GetLibraryPlaylists),
+            show_source: true,
+            ..
+        } => print_library_playlists_json().await?,
+        Arguments {
+            command: Some(Commands::GetLibraryPlaylists),
+            show_source: false,
+            ..
+        } => todo!(),
+        Arguments {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: false,
             ..
-        } => print_search_suggestions(query).await,
+        } => print_search_suggestions(query).await?,
         Arguments {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: true,
             ..
-        } => print_search_suggestions_json(query).await,
+        } => print_search_suggestions_json(query).await?,
         Arguments {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: false,
             ..
-        } => print_artist(channel_id).await,
+        } => print_artist(channel_id).await?,
         Arguments {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: true,
             ..
-        } => print_artist_json(channel_id).await,
+        } => print_artist_json(channel_id).await?,
         Arguments {
-            command: Some(Commands::SetupOAuth { file_name }),
+            command: Some(Commands::SetupOauth { file_name }),
             show_source: _,
             ..
-        } => get_and_output_oauth_token(file_name).await,
+        } => get_and_output_oauth_token(file_name).await?,
     }
     Ok(())
 }
