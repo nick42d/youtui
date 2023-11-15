@@ -71,3 +71,9 @@ pub async fn print_library_playlists_json() -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
+
+pub async fn print_library_playlists() -> Result<()> {
+    let res = get_api().await.get_library_playlists().await?;
+    println!("{:#?}", res);
+    Ok(())
+}

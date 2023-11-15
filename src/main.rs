@@ -10,8 +10,8 @@ mod drawutils;
 pub mod error;
 
 use cli::{
-    get_and_output_oauth_token, print_artist, print_artist_json, print_library_playlists_json,
-    print_search_suggestions, print_search_suggestions_json,
+    get_and_output_oauth_token, print_artist, print_artist_json, print_library_playlists,
+    print_library_playlists_json, print_search_suggestions, print_search_suggestions_json,
 };
 use config::{ApiKey, Config};
 pub use error::Result;
@@ -74,7 +74,7 @@ async fn main() -> Result<()> {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: false,
             ..
-        } => todo!(),
+        } => print_library_playlists().await?,
         Arguments {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: false,

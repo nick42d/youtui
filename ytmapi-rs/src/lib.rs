@@ -20,15 +20,17 @@ use std::path::Path;
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, Auth, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use common::{browsing::Lyrics, watch::WatchPlaylist, SearchSuggestion, TextRun};
+use common::{
+    browsing::Lyrics, library::Playlist, watch::WatchPlaylist, SearchSuggestion, TextRun,
+};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
-    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetSearchSuggestionsQuery,
-    Query, SearchQuery, SearchType,
+    continuations::GetContinuationsQuery, library::GetLibraryPlaylistQuery, lyrics::GetLyricsQuery,
+    watch::GetWatchPlaylistQuery, FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery,
+    GetArtistQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 
@@ -110,6 +112,13 @@ impl YtMusic {
         query: S,
     ) -> Result<Vec<SearchSuggestion>> {
         self.raw_query(query.into()).await?.process()?.parse()
+    }
+    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
+        // TODO: Better constructor for query
+        self.raw_query(GetLibraryPlaylistQuery {})
+            .await?
+            .process()?
+            .parse()
     }
 }
 
