@@ -123,6 +123,19 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             cur: 0,
         })
     }
+    pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
+        let mut path_clone = self.path.clone();
+        path_clone.push(JsonPath::IndexNum(index));
+        let crawler = self
+            .crawler
+            .get_mut(index)
+            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?;
+        Ok(JsonCrawlerBorrowed {
+            source: self.source.clone(),
+            crawler,
+            path: path_clone,
+        })
+    }
     pub fn borrow_pointer<S: AsRef<str>>(&mut self, path: S) -> Result<JsonCrawlerBorrowed<'_>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::pointer(path.as_ref()));
@@ -136,6 +149,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: path_clone,
         })
     }
+    // Seems to be a duplicate of the above. Not required?
     pub fn navigate_pointer<S: AsRef<str>>(self, path: S) -> Result<JsonCrawlerBorrowed<'a>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::pointer(path.as_ref()));
@@ -202,6 +216,19 @@ impl JsonCrawler {
             cur: 0,
         })
     }
+    pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
+        let mut path_clone = self.path.clone();
+        path_clone.push(JsonPath::IndexNum(index));
+        let crawler = self
+            .crawler
+            .get_mut(index)
+            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?;
+        Ok(JsonCrawlerBorrowed {
+            source: self.source.clone(),
+            crawler,
+            path: path_clone,
+        })
+    }
     pub fn borrow_pointer(&mut self, path: &str) -> Result<JsonCrawlerBorrowed<'_>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::Pointer(path.to_owned()));
@@ -224,6 +251,23 @@ impl JsonCrawler {
     }
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
+    }
+    pub fn navigate_index(self, index: usize) -> Result<Self> {
+        let Self {
+            source,
+            crawler: mut old_crawler,
+            mut path,
+        } = self;
+        path.push(JsonPath::IndexNum(index));
+        let crawler = old_crawler
+            .get_mut(index)
+            .map(|v| v.take())
+            .ok_or_else(|| Error::navigation(&path, source.clone()))?;
+        Ok(Self {
+            source,
+            crawler,
+            path,
+        })
     }
     pub fn navigate_pointer(self, new_path: &str) -> Result<Self> {
         let Self {

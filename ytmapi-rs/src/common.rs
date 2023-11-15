@@ -1,7 +1,7 @@
 // Intended to be for structures that are also suitable to be reused by other libraries.
 // As opposed to simply part of the interface.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
 use crate::Error;
@@ -65,7 +65,7 @@ impl SearchSuggestion {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Thumbnail {
     pub height: u64,
     pub width: u64,
@@ -118,17 +118,17 @@ pub enum PlaylistType {
     CommunityPlaylists,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlbumID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Default, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
@@ -217,16 +217,18 @@ pub mod watch {
 
 pub mod library {
     use crate::Thumbnail;
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
 
     use super::PlaylistID;
 
-    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
     pub struct Playlist {
         pub playlist_id: PlaylistID<'static>,
         pub title: String,
         pub thumbnails: Vec<Thumbnail>,
-        pub count: usize,
+        pub count: Option<usize>,
+        pub description: Option<String>,
+        pub author: Option<String>,
     }
 }
 
