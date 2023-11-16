@@ -28,9 +28,9 @@ pub use error::{Error, Result};
 use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
-    continuations::GetContinuationsQuery, library::GetLibraryPlaylistQuery, lyrics::GetLyricsQuery,
-    watch::GetWatchPlaylistQuery, FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery,
-    GetArtistQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
+    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
+    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryPlaylistQuery,
+    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 

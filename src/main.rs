@@ -43,6 +43,7 @@ enum Commands {
     GetArtist { channel_id: String },
     // This does not work well with the show_source command!
     SetupOAuth { file_name: Option<PathBuf> },
+    GetLibraryPlaylists,
 }
 
 #[tokio::main]

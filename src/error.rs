@@ -10,6 +10,9 @@ pub enum Error {
     DirectoryNameError,
     IoError(std::io::Error),
     JoinError(JoinError),
+    // TODO: More advanced error conversions
+    ApiError(ytmapi_rs::Error),
+    JsonError(serde_json::Error),
 }
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -18,6 +21,8 @@ impl Display for Error {
             Error::DirectoryNameError => write!(f, "Error generating project directory name"),
             Error::IoError(e) => write!(f, "Standard io error <{e}>"),
             Error::JoinError(e) => write!(f, "Join error <{e}>"),
+            Error::ApiError(e) => write!(f, "Api error <{e}>"),
+            Error::JsonError(e) => write!(f, "Json error <{e}>"),
         }
     }
 }
@@ -39,5 +44,15 @@ impl From<std::io::Error> for Error {
 impl From<JoinError> for Error {
     fn from(value: JoinError) -> Self {
         Error::JoinError(value)
+    }
+}
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Error::JsonError(value)
+    }
+}
+impl From<ytmapi_rs::Error> for Error {
+    fn from(value: ytmapi_rs::Error) -> Self {
+        Error::ApiError(value)
     }
 }

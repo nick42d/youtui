@@ -425,7 +425,7 @@ mod library {
         GRID, ITEM_SECTION, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST, SECTION_LIST_ITEM,
         SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
     };
-    use crate::query::library::GetLibraryPlaylistQuery;
+    use crate::query::GetLibraryPlaylistQuery;
     use crate::{Result, Thumbnail};
     use const_format::concatcp;
 
@@ -515,7 +515,7 @@ mod library {
             common::{library::Playlist, PlaylistID, YoutubeID},
             crawler::JsonCrawler,
             parse::ProcessedResult,
-            query::library::GetLibraryPlaylistQuery,
+            query::GetLibraryPlaylistQuery,
         };
 
         // Consider if the parse function itself should be removed from impl.

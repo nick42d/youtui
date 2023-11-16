@@ -1,10 +1,13 @@
+use crate::common::BrowseID;
 pub use album::*;
 pub use artist::*;
-mod artist;
+pub use library::*;
 pub use search::*;
 use std::borrow::Cow;
+
+mod artist;
+mod library;
 mod search;
-use crate::common::BrowseID;
 
 pub trait Query {
     // XXX: Consider if this should just return a tuple, Header seems overkill.
@@ -110,6 +113,7 @@ pub mod lyrics {
         }
     }
 }
+
 pub mod watch {
 
     use std::borrow::Cow;

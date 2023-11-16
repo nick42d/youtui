@@ -1,13 +1,13 @@
+use crate::get_api;
+use crate::Result;
 use std::path::PathBuf;
-
+use ytmapi_rs::query::GetLibraryPlaylistQuery;
 use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
     query::{GetArtistQuery, GetSearchSuggestionsQuery},
     ChannelID,
 };
-
-use crate::get_api;
 
 pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) {
     let token_str = get_oauth_token().await;
@@ -70,5 +70,14 @@ pub async fn print_search_suggestions_json(query: String) {
 pub async fn print_library_playlists() -> Result<()> {
     let res = get_api().await.get_library_playlists().await?;
     println!("{:#?}", res);
+    Ok(())
+}
+
+pub async fn print_library_playlists_json() -> Result<()> {
+    let json = get_api()
+        .await
+        .json_query(GetLibraryPlaylistQuery {})
+        .await?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }

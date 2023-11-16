@@ -99,7 +99,7 @@ pub mod library {
     use super::RawResult;
     use crate::crawler::JsonCrawler;
     use crate::parse::ProcessedResult;
-    use crate::query::library::GetLibraryPlaylistQuery;
+    use crate::query::GetLibraryPlaylistQuery;
     use crate::Result;
 
     impl<'a> RawResult<GetLibraryPlaylistQuery> {
