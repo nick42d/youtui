@@ -62,9 +62,9 @@ where
                 .map(|s| {
                     ListItem::new(Line::from(
                         std::iter::once(s.get_type())
-                            .filter_map(|ty| match ty {
-                                SuggestionType::History => Some(Span::raw("  ")),
-                                SuggestionType::Prediction => None,
+                            .map(|ty| match ty {
+                                SuggestionType::History => Span::raw(" "),
+                                SuggestionType::Prediction => Span::raw(" "),
                             })
                             .chain(s.get_runs().iter().map(|s| match s {
                                 TextRun::Bold(str) => {
