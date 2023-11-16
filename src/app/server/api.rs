@@ -1,7 +1,6 @@
 use tracing::{error, info};
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::common::TextRun;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::parse::SongResult;
@@ -20,7 +19,6 @@ use super::spawn_run_or_kill;
 use super::KillableTask;
 
 pub enum Request {
-    // TaskID, KillRequest is starting to look like a pattern.
     GetSearchSuggestions(String, KillableTask),
     NewArtistSearch(String, KillableTask),
     SearchSelectedArtist(ChannelID<'static>, KillableTask),
@@ -53,6 +51,8 @@ impl Api {
     pub fn new(response_tx: mpsc::Sender<super::Response>) -> Self {
         let api_init = Some(tokio::spawn(async move {
             info!("Initialising API");
+            // TODO: Error handling
+            // TODO: Load header file in Main instead of here.
             let api = ytmapi_rs::YtMusic::from_header_file(
                 get_config_dir().unwrap().join(HEADER_FILENAME),
             )

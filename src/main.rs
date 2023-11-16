@@ -13,6 +13,7 @@ use cli::{
     get_and_output_oauth_token, print_artist, print_artist_json, print_search_suggestions,
     print_search_suggestions_json,
 };
+use config::{ApiKey, Config};
 pub use error::Result;
 
 use clap::{Parser, Subcommand};
@@ -47,9 +48,11 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Arguments::parse();
+    initialise_directories()?;
     // Not implementing config just yet
     // let cfg = config::Config::new().unwrap();
-    // println!("Config: {:?}", cfg);
+    // Once config has loaded, load API key to memory
+    // let api_key = load_api_key(&cfg);
     // TODO: Error handling
     match args {
         Arguments {
@@ -109,23 +112,51 @@ pub async fn run_app() -> Result<()> {
 }
 
 pub fn get_data_dir() -> Result<PathBuf> {
+    // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_DATA_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.data_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNotFound);
+        return Err(Error::DirectoryNameError);
     };
     Ok(directory)
 }
 
 pub fn get_config_dir() -> Result<PathBuf> {
+    // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_CONFIG_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.config_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNotFound);
+        return Err(Error::DirectoryNameError);
     };
     Ok(directory)
+}
+
+pub fn load_header_file() -> Result<String> {
+    todo!()
+}
+
+pub fn load_oauth_file() -> Result<String> {
+    todo!()
+}
+
+/// Create the Config and Data directories for the app if they do not already exist.
+/// Returns an error if unsuccesful.
+fn initialise_directories() -> Result<()> {
+    let config_dir = get_config_dir()?;
+    let data_dir = get_data_dir()?;
+    std::fs::create_dir_all(config_dir)?;
+    std::fs::create_dir_all(data_dir)?;
+    Ok(())
+}
+
+fn load_api_key(cfg: &Config) -> Result<ApiKey> {
+    let api_key = match cfg.get_auth_type() {
+        config::AuthType::OAuth => ApiKey::new(load_oauth_file()?, cfg.get_auth_type()),
+        config::AuthType::Browser => ApiKey::new(load_header_file()?, cfg.get_auth_type()),
+    };
+    Ok(api_key)
 }

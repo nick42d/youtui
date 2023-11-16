@@ -7,7 +7,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug)]
 pub enum Error {
     Communication,
-    DirectoryNotFound,
+    DirectoryNameError,
     IoError(std::io::Error),
     JoinError(JoinError),
 }
@@ -15,7 +15,7 @@ impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Communication => write!(f, "Error sending message to channel"),
-            Error::DirectoryNotFound => write!(f, "Directory not found"),
+            Error::DirectoryNameError => write!(f, "Error generating project directory name"),
             Error::IoError(e) => write!(f, "Standard io error <{e}>"),
             Error::JoinError(e) => write!(f, "Join error <{e}>"),
         }
