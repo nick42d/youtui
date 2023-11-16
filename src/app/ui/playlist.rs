@@ -188,6 +188,7 @@ impl Playlist {
     }
     pub async fn handle_tick(&mut self) {
         self.check_song_progress().await;
+        // XXX: Consider downloading upcoming songs here.
         // self.download_upcoming_songs().await;
     }
     pub async fn check_song_progress(&mut self) {

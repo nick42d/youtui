@@ -67,7 +67,7 @@ The app should limit the cognitive load required to memorise commands and should
 |GetMoodPlaylists|[ ]|
 |GetCharts|[ ]|
 |GetWatchPlaylist|[ ]\*|
-|GetLibraryPlaylists|[ ]|
+|GetLibraryPlaylists|[ ]\*|
 |GetLibrarySongs|[ ]|
 |GetLibraryAlbums|[ ]|
 |GetLibraryArtists|[ ]|
@@ -101,4 +101,7 @@ The app should limit the cognitive load required to memorise commands and should
 
 \* get watch playlist is partially implemented only
 - only returns playlist and lyrics ids
+- does not implement continuations - only first x results returned.
+
+\* get library playlist is partially implemented only
 - does not implement continuations - only first x results returned.
