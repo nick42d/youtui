@@ -216,7 +216,7 @@ pub mod watch {
 }
 
 pub mod library {
-    use crate::Thumbnail;
+    use crate::{ChannelID, Thumbnail};
     use serde::{Deserialize, Serialize};
 
     use super::PlaylistID;
@@ -229,6 +229,12 @@ pub mod library {
         pub count: Option<usize>,
         pub description: Option<String>,
         pub author: Option<String>,
+    }
+    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+    pub struct LibraryArtist {
+        channel_id: ChannelID<'static>,
+        artist: String,
+        byline: String, // e.g 16 songs or 17.8k subscribers
     }
 }
 

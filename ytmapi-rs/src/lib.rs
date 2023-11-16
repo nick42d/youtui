@@ -120,6 +120,12 @@ impl YtMusic {
             .process()?
             .parse()
     }
+    pub async fn get_library_artists(
+        &self,
+        query: GetLibraryArtistsQuery,
+    ) -> Result<Vec<LibraryArtist>> {
+        self.raw_query(query).await?.process()?.parse()
+    }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
 /// (OAuthDeviceCode, URL)
