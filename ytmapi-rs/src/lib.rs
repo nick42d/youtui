@@ -112,7 +112,6 @@ impl YtMusic {
         self.raw_query(query.into()).await?.process()?.parse()
     }
 }
-
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
 /// (OAuthDeviceCode, URL)
 pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
