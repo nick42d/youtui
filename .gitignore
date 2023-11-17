@@ -1,0 +1,11 @@
+/target
+/ytmapi-rs/target
+*headers.txt
+*oauth.json
+*.mp4
+*.webm
+*.log
+*.svg
+*.data
+.ignore
+.vscode/
