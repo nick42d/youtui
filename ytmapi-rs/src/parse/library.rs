@@ -3,8 +3,8 @@ use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::PlaylistID;
 use crate::crawler::JsonCrawler;
 use crate::nav_consts::{
-    GRID, ITEM_SECTION, MRLIR, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST, SECTION_LIST_ITEM,
-    SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
+    GRID, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
+    SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
 };
 use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistQuery};
 use crate::{Result, Thumbnail};
@@ -28,7 +28,7 @@ impl<'a> ProcessedResult<GetLibraryPlaylistQuery> {
 }
 
 fn parse_library_artists(mut json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
-    if let Some(contents) = process_library_contents(json_crawler) {
+    if let Some(contents) = process_library_contents_music_shelf(json_crawler) {
         parse_content_list_artists(contents)
     } else {
         Ok(Vec::new())
@@ -36,7 +36,7 @@ fn parse_library_artists(mut json_crawler: JsonCrawler) -> Result<Vec<LibraryArt
 }
 
 fn parse_library_playlist_query(mut json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
-    if let Some(contents) = process_library_contents(json_crawler) {
+    if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
         Ok(Vec::new())
@@ -44,7 +44,8 @@ fn parse_library_playlist_query(mut json_crawler: JsonCrawler) -> Result<Vec<Pla
 }
 
 // Consider returning ProcessedLibraryContents
-fn process_library_contents(mut json_crawler: JsonCrawler) -> Option<JsonCrawler> {
+// TODO: Move to process
+fn process_library_contents_grid(mut json_crawler: JsonCrawler) -> Option<JsonCrawler> {
     let section = json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST));
     // Assume empty library in this case.
     if let Ok(section) = section {
@@ -61,9 +62,31 @@ fn process_library_contents(mut json_crawler: JsonCrawler) -> Option<JsonCrawler
         None
     }
 }
-fn parse_content_list_artists(mut json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
+// Consider returning ProcessedLibraryContents
+// TODO: Move to process
+fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option<JsonCrawler> {
+    let section = json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST));
+    // Assume empty library in this case.
+    if let Ok(section) = section {
+        if section.path_exists("itemSectionRenderer") {
+            json_crawler
+                .navigate_pointer(concatcp!(ITEM_SECTION, MUSIC_SHELF))
+                .ok()
+        } else {
+            json_crawler
+                .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, MUSIC_SHELF))
+                .ok()
+        }
+    } else {
+        None
+    }
+}
+fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
     let mut results = Vec::new();
-    for result in json_crawler.as_array_iter_mut()? {
+    for result in json_crawler
+        .navigate_pointer("/contents")?
+        .as_array_iter_mut()?
+    {
         let mut data = result.navigate_pointer(MRLIR)?;
         let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
         let artist = parse_item_text(&mut data, 0, 0)?;
@@ -229,11 +252,25 @@ mod tests {
         let json_crawler = JsonCrawler::from_json(testfile_json);
         let processed = ProcessedResult::from_raw(json_crawler, GetLibraryArtistsQuery::default());
         let result = processed.parse().unwrap();
-        let expected = json!([{
-          "channel_id" : "VLLM",
-          "artist": "Liked Music",
-          "byline": "test"
-        }]);
+        let expected = json!(
+            [
+                {
+                  "channel_id" : "MPLAUCprAFmT0C6O4X0ToEXpeFTQ",
+                  "artist": "Kendrick Lamar",
+                  "byline": "16 songs"
+                },
+                {
+                  "channel_id" : "MPLAUC_yH_GaGHZk9ewo5ghQA75w",
+                  "artist": "Dream Theater",
+                  "byline": "1 song"
+                },
+                {
+                  "channel_id" : "MPLAUCHUlZT-VoVWIID4xcJZ5s6g",
+                  "artist": "Nils Frahm",
+                  "byline": "1 song"
+                },
+            ]
+        );
         let expected: Vec<LibraryArtist> = serde_json::from_value(expected).unwrap();
         assert_eq!(result, expected);
     }
