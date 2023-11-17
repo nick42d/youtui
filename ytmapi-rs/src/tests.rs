@@ -36,6 +36,32 @@ async fn test_search() {
     let res = api.search(query).await.unwrap();
 }
 #[tokio::test]
+async fn test_get_library_playlists_oauth() {
+    let api = new_standard_oauth_api().await.unwrap();
+    let res = api.get_library_playlists().await.unwrap();
+    assert!(res.len() > 0);
+}
+#[tokio::test]
+async fn test_get_library_playlists() {
+    let api = new_standard_api().await.unwrap();
+    let res = api.get_library_playlists().await.unwrap();
+    assert!(res.len() > 0);
+}
+#[tokio::test]
+async fn test_get_library_artists_oauth() {
+    let api = new_standard_oauth_api().await.unwrap();
+    let query = GetLibraryArtistsQuery::default();
+    let res = api.get_library_artists(query).await.unwrap();
+    assert!(res.len() > 0);
+}
+#[tokio::test]
+async fn test_get_library_artists() {
+    let api = new_standard_api().await.unwrap();
+    let query = GetLibraryArtistsQuery::default();
+    let res = api.get_library_artists(query).await.unwrap();
+    assert!(res.len() > 0);
+}
+#[tokio::test]
 async fn test_watch_playlist() {
     // TODO: Make more generic
     let api = YtMusic::from_header_file(Path::new("headers.txt"))

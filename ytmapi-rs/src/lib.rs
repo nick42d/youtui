@@ -33,7 +33,7 @@ use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
     FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
+    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 
@@ -72,6 +72,7 @@ impl YtMusic {
         Ok(Self { client, auth })
     }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
+        // TODO: Check for a response the reflects an expired Headers token
         self.auth.raw_query(&self.client, query).await
     }
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<serde_json::Value> {
@@ -117,13 +118,15 @@ impl YtMusic {
         self.raw_query(query.into()).await?.process()?.parse()
     }
     pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
-        // TODO: Better constructor for query
-        self.raw_query(GetLibraryPlaylistQuery {})
+        // TODO: investigate why returning empty array
+        self.raw_query(GetLibraryPlaylistsQuery)
             .await?
             .process()?
             .parse()
     }
     pub async fn get_library_artists(
+        // TODO: investigate why returning empty array
+        // TODO: Better constructor for query
         &self,
         query: GetLibraryArtistsQuery,
     ) -> Result<Vec<LibraryArtist>> {

@@ -2,6 +2,7 @@
 /ytmapi-rs/target
 *headers.txt
 *oauth.json
+*expired-oauth.json
 *.mp4
 *.webm
 *.log

@@ -2,7 +2,7 @@ use crate::get_api;
 use crate::Result;
 use std::path::PathBuf;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
-use ytmapi_rs::query::GetLibraryPlaylistQuery;
+use ytmapi_rs::query::GetLibraryPlaylistsQuery;
 use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
@@ -77,7 +77,7 @@ pub async fn print_library_playlists() -> Result<()> {
 pub async fn print_library_playlists_json() -> Result<()> {
     let json = get_api()
         .await
-        .json_query(GetLibraryPlaylistQuery {})
+        .json_query(GetLibraryPlaylistsQuery {})
         .await?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())

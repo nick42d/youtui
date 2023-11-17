@@ -4,8 +4,8 @@ use super::Query;
 use serde_json::json;
 use std::borrow::Cow;
 
-pub struct GetLibraryPlaylistQuery;
-impl Query for GetLibraryPlaylistQuery {
+pub struct GetLibraryPlaylistsQuery;
+impl Query for GetLibraryPlaylistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
              "browseId" : "FEmusic_liked_playlists"
@@ -32,6 +32,7 @@ pub enum LibraryArtistsSortOrder {
 }
 
 #[derive(Default)]
+// TODO: Method to add filter
 pub struct GetLibraryArtistsQuery {
     sort_order: LibraryArtistsSortOrder,
 }

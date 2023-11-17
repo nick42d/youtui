@@ -1,11 +1,11 @@
 use super::RawResult;
 use crate::crawler::JsonCrawler;
 use crate::parse::ProcessedResult;
-use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistQuery};
+use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
 use crate::Result;
 
-impl<'a> RawResult<GetLibraryPlaylistQuery> {
-    pub fn process(self) -> Result<ProcessedResult<GetLibraryPlaylistQuery>> {
+impl<'a> RawResult<GetLibraryPlaylistsQuery> {
+    pub fn process(self) -> Result<ProcessedResult<GetLibraryPlaylistsQuery>> {
         match self {
             RawResult { query, json } => Ok(ProcessedResult::from_raw(
                 JsonCrawler::from_json(json),

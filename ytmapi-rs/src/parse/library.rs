@@ -6,7 +6,7 @@ use crate::nav_consts::{
     GRID, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
     SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
 };
-use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistQuery};
+use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
 use crate::{Result, Thumbnail};
 use const_format::concatcp;
 
@@ -18,7 +18,7 @@ impl<'a> ProcessedResult<GetLibraryArtistsQuery> {
     }
 }
 
-impl<'a> ProcessedResult<GetLibraryPlaylistQuery> {
+impl<'a> ProcessedResult<GetLibraryPlaylistsQuery> {
     // TODO: Continuations
     // TODO: Implement count and author fields
     pub fn parse(self) -> Result<Vec<Playlist>> {
@@ -153,7 +153,7 @@ mod tests {
         },
         crawler::JsonCrawler,
         parse::ProcessedResult,
-        query::{GetLibraryArtistsQuery, GetLibraryPlaylistQuery},
+        query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
     };
 
     // Consider if the parse function itself should be removed from impl.
@@ -162,7 +162,7 @@ mod tests {
         let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
         let testfile_json = serde_json::from_str(&testfile).unwrap();
         let json_crawler = JsonCrawler::from_json(testfile_json);
-        let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistQuery {});
+        let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistsQuery {});
         let result = processed.parse().unwrap();
         let expected = json!([
           {
