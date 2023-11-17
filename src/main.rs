@@ -10,8 +10,9 @@ mod drawutils;
 pub mod error;
 
 use cli::{
-    get_and_output_oauth_token, print_artist, print_artist_json, print_library_playlists,
-    print_library_playlists_json, print_search_suggestions, print_search_suggestions_json,
+    get_and_output_oauth_token, print_artist, print_artist_json, print_library_artists,
+    print_library_artists_json, print_library_playlists, print_library_playlists_json,
+    print_search_suggestions, print_search_suggestions_json,
 };
 use config::{ApiKey, Config};
 pub use error::Result;
@@ -44,6 +45,7 @@ enum Commands {
     // This does not work well with the show_source command!
     SetupOAuth { file_name: Option<PathBuf> },
     GetLibraryPlaylists,
+    GetLibraryArtists, //TODO: Allow sorting
 }
 
 #[tokio::main]
@@ -66,6 +68,16 @@ async fn main() -> Result<()> {
             debug: true,
             ..
         } => todo!(),
+        Arguments {
+            command: Some(Commands::GetLibraryArtists),
+            show_source: true,
+            ..
+        } => print_library_artists_json().await?,
+        Arguments {
+            command: Some(Commands::GetLibraryArtists),
+            show_source: false,
+            ..
+        } => print_library_artists().await?,
         Arguments {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: true,

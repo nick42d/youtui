@@ -21,7 +21,10 @@ use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, Auth, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
 use common::{
-    browsing::Lyrics, library::Playlist, watch::WatchPlaylist, SearchSuggestion, TextRun,
+    browsing::Lyrics,
+    library::{LibraryArtist, Playlist},
+    watch::WatchPlaylist,
+    SearchSuggestion, TextRun,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
@@ -29,8 +32,8 @@ use parse::{AlbumParams, ArtistParams, SearchResult};
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryPlaylistQuery,
-    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
+    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
+    GetLibraryPlaylistQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 

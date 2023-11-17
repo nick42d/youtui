@@ -118,17 +118,17 @@ pub enum PlaylistType {
     CommunityPlaylists,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct AlbumID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
@@ -232,9 +232,9 @@ pub mod library {
     }
     #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
     pub struct LibraryArtist {
-        channel_id: ChannelID<'static>,
-        artist: String,
-        byline: String, // e.g 16 songs or 17.8k subscribers
+        pub channel_id: ChannelID<'static>,
+        pub artist: String,
+        pub byline: String, // e.g 16 songs or 17.8k subscribers
     }
 }
 

@@ -54,10 +54,10 @@ impl Query for GetLibraryArtistsQuery {
         // .dropdownRenderer.entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
         // of `/youtubei/v1/browse` response
         match self.sort_order {
-            LibraryArtistsSortOrder::NameAsc => Some("ggMGKgQIARAA"),
-            LibraryArtistsSortOrder::NameDesc => Some("ggMGKgQIABAB"),
+            LibraryArtistsSortOrder::NameAsc => Some("ggMGKgQIARAA".into()),
+            LibraryArtistsSortOrder::NameDesc => Some("ggMGKgQIABAB".into()),
             LibraryArtistsSortOrder::MostSongs => todo!(),
-            LibraryArtistsSortOrder::RecentlySaved => Some("ggMGKgQIABAB"),
+            LibraryArtistsSortOrder::RecentlySaved => Some("ggMGKgQIABAB".into()),
             LibraryArtistsSortOrder::Default => None,
         }
     }
