@@ -53,9 +53,9 @@ async fn main() -> Result<()> {
     let args = Arguments::parse();
     initialise_directories()?;
     // Not implementing config just yet
-    // let cfg = config::Config::new().unwrap();
+    let cfg = config::Config::new().unwrap();
     // Once config has loaded, load API key to memory
-    // let api_key = load_api_key(&cfg);
+    let api_key = load_api_key(&cfg);
     // TODO: Error handling
     match args {
         Arguments {
