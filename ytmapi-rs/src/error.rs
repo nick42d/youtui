@@ -49,6 +49,13 @@ impl Error {
             inner: Box::new(Inner::NotAuthenticated),
         }
     }
+    pub fn is_not_authenticated(&self) -> bool {
+        if let Inner::NotAuthenticated = *self.inner {
+            true
+        } else {
+            false
+        }
+    }
     pub fn navigation<S: Into<String>>(key: S, json: Arc<serde_json::Value>) -> Self {
         Self {
             inner: Box::new(Inner::Navigation {

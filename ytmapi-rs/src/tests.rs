@@ -1,3 +1,5 @@
+use std::io::IntoInnerError;
+
 use serde_json::json;
 
 use super::common::{BrowseID, ChannelID};
@@ -6,12 +8,46 @@ use super::*;
 use crate::common::{AlbumID, LyricsID, PlaylistID, YoutubeID};
 use crate::Error;
 
+const EXPIRED_HEADERS_PATH: &str = "expired-headers.txt";
+const EXPIRED_OAUTH_PATH: &str = "expired-oauth.json";
+
 async fn new_standard_oauth_api() -> Result<YtMusic> {
     let oauth_token = tokio::fs::read("oauth.json").await.unwrap();
     Ok(YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await)
 }
 async fn new_standard_api() -> Result<YtMusic> {
     YtMusic::from_header_file(Path::new("headers.txt")).await
+}
+
+#[tokio::test]
+async fn test_expired_oauth() {
+    let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
+    // XXX: Assuming this error only occurs for expired headers.
+    // This assumption may be incorrect.
+    let api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await;
+    // Library query needs authentication.
+    let res = api.json_query(GetLibraryPlaylistsQuery).await;
+    // TODO: Add matching functions to error type. Current method not very ergonomic.
+    let Err(error) = res else {
+        panic!("Expected an error")
+    };
+    // TODO: Should be is_expired_oauth
+    assert!(error.is_not_authenticated());
+}
+#[tokio::test]
+async fn test_expired_header() {
+    // XXX: Assuming this error only occurs for expired headers.
+    // This assumption may be incorrect.
+    let api = YtMusic::from_header_file(Path::new(EXPIRED_HEADERS_PATH))
+        .await
+        .unwrap();
+    // Library query needs authentication.
+    let res = api.json_query(GetLibraryPlaylistsQuery).await;
+    // TODO: Add matching functions to error type. Current method not very ergonomic.
+    let Err(error) = res else {
+        panic!("Expected an error")
+    };
+    assert!(error.is_not_authenticated());
 }
 
 #[tokio::test]
