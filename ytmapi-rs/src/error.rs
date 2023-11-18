@@ -30,6 +30,8 @@ enum Inner {
     Other(String), // Generic catchall - TODO: Remove all of these.
     NotAuthenticated,
     OAuthTokenExpired,
+    // This is a u64 not a usize as that is what serde_json will deserialize to.
+    OtherErrorCodeInResponse(u64), // TODO: Could use a library to handle these.
 }
 #[derive(Debug, Clone)]
 pub enum ParseTarget {
@@ -84,6 +86,11 @@ impl Error {
             inner: Box::new(Inner::Other(msg.into())),
         }
     }
+    pub fn other_code(code: u64) -> Self {
+        Self {
+            inner: Box::new(Inner::OtherErrorCodeInResponse(code)),
+        }
+    }
     pub fn get_json_and_key(&self) -> Option<(String, &String)> {
         match self.inner.as_ref() {
             Inner::Navigation { json, key } => Some((json.to_string(), &key)),
@@ -93,6 +100,7 @@ impl Error {
             | Inner::InvalidResponse { .. }
             | Inner::Header
             | Inner::Other(_)
+            | Inner::OtherErrorCodeInResponse(_)
             | Inner::NotAuthenticated => None,
             Inner::OAuthTokenExpired => None,
         }
@@ -110,6 +118,9 @@ impl Display for Inner {
                 write!(f, "Response is invalid json - unable to deserialize.")
             }
             Self::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
+            Self::OtherErrorCodeInResponse(code) => {
+                write!(f, "Http error code {code} recieved in response.")
+            }
             Self::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")
             }
@@ -118,7 +129,7 @@ impl Display for Inner {
                 json: _,
                 target,
             } => write!(f, "Unable to parse into {:?} at {key}", target),
-            Self::NotAuthenticated => write!(f, "API not authenticated"),
+            Self::NotAuthenticated => write!(f, "API not authenticated, Cookie may have expired"), //TODO: elaborate more on other possible causes.
             Self::OAuthTokenExpired => write!(f, "OAuth token has expired"),
         }
     }
