@@ -1,4 +1,6 @@
 use crate::get_api;
+use crate::Arguments;
+use crate::Commands;
 use crate::Result;
 use std::path::PathBuf;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
@@ -10,62 +12,116 @@ use ytmapi_rs::{
     ChannelID,
 };
 
-pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) {
-    let token_str = get_oauth_token().await;
+pub async fn handle_cli_command(args: Arguments) -> Result<()> {
+    match args {
+        // TODO: Block this action using type system.
+        Arguments { command: None, .. } => unreachable!(),
+        Arguments {
+            command: Some(Commands::GetLibraryArtists),
+            show_source: true,
+            ..
+        } => print_library_artists_json().await?,
+        Arguments {
+            command: Some(Commands::GetLibraryArtists),
+            show_source: false,
+            ..
+        } => print_library_artists().await?,
+        Arguments {
+            command: Some(Commands::GetLibraryPlaylists),
+            show_source: true,
+            ..
+        } => print_library_playlists_json().await?,
+        Arguments {
+            command: Some(Commands::GetLibraryPlaylists),
+            show_source: false,
+            ..
+        } => print_library_playlists().await?,
+        Arguments {
+            command: Some(Commands::GetSearchSuggestions { query }),
+            show_source: false,
+            ..
+        } => print_search_suggestions(query).await?,
+        Arguments {
+            command: Some(Commands::GetSearchSuggestions { query }),
+            show_source: true,
+            ..
+        } => print_search_suggestions_json(query).await?,
+        Arguments {
+            command: Some(Commands::GetArtist { channel_id }),
+            show_source: false,
+            ..
+        } => print_artist(channel_id).await?,
+        Arguments {
+            command: Some(Commands::GetArtist { channel_id }),
+            show_source: true,
+            ..
+        } => print_artist_json(channel_id).await?,
+        Arguments {
+            command: Some(Commands::SetupOAuth { file_name }),
+            show_source: _,
+            ..
+        } => get_and_output_oauth_token(file_name).await?,
+    }
+    Ok(())
+}
+pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) -> Result<()> {
+    let token_str = get_oauth_token().await?;
     if let Some(file_name) = file_name {
-        tokio::fs::write(&file_name, token_str).await.unwrap();
+        tokio::fs::write(&file_name, token_str).await?;
         println!("Wrote Oauth token to {}", file_name.display());
     } else {
         println!("{token_str}");
     }
+    Ok(())
 }
-async fn get_oauth_token() -> String {
-    let (code, url) = generate_oauth_code_and_url().await.unwrap();
+async fn get_oauth_token() -> Result<String> {
+    let (code, url) = generate_oauth_code_and_url().await?;
     // Hack to wait for input
     // TODO: Remove unwraps
     println!("Go to {url}, finish the login flow, and press enter when done");
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
-    let token = generate_oauth_token(code).await.unwrap();
-    serde_json::to_string_pretty(&token).unwrap()
+    let token = generate_oauth_token(code).await?;
+    Ok(serde_json::to_string_pretty(&token)?)
 }
 
-pub async fn print_artist(query: String) {
+pub async fn print_artist(query: String) -> Result<()> {
     // TODO: remove unwrap
     let res = get_api()
         .await
         .get_artist(GetArtistQuery::new(ChannelID::from_raw(query)))
-        .await
-        .unwrap();
-    println!("{:#?}", res)
+        .await?;
+    println!("{:#?}", res);
+    Ok(())
 }
 
-pub async fn print_artist_json(query: String) {
+pub async fn print_artist_json(query: String) -> Result<()> {
     // TODO: remove unwrap
     let json = get_api()
         .await
         .json_query(GetArtistQuery::new(ChannelID::from_raw(query)))
-        .await
-        .unwrap();
+        .await?;
     // TODO: remove unwrap
-    println!("{}", serde_json::to_string_pretty(&json).unwrap());
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
 }
 
-pub async fn print_search_suggestions(query: String) {
+pub async fn print_search_suggestions(query: String) -> Result<()> {
     // TODO: remove unwrap
-    let res = get_api().await.get_search_suggestions(query).await.unwrap();
-    println!("{:#?}", res)
+    let res = get_api().await.get_search_suggestions(query).await?;
+    println!("{:#?}", res);
+    Ok(())
 }
 
-pub async fn print_search_suggestions_json(query: String) {
+pub async fn print_search_suggestions_json(query: String) -> Result<()> {
     // TODO: remove unwrap
     let json = get_api()
         .await
         .json_query(GetSearchSuggestionsQuery::from(query))
-        .await
-        .unwrap();
+        .await?;
     // TODO: remove unwrap
-    println!("{}", serde_json::to_string_pretty(&json).unwrap());
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
 }
 
 pub async fn print_library_playlists() -> Result<()> {
