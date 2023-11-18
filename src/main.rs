@@ -10,9 +10,9 @@ mod drawutils;
 pub mod error;
 
 use cli::{
-    get_and_output_oauth_token, print_artist, print_artist_json, print_library_artists,
-    print_library_artists_json, print_library_playlists, print_library_playlists_json,
-    print_search_suggestions, print_search_suggestions_json,
+    get_and_output_oauth_token, handle_cli_command, print_artist, print_artist_json,
+    print_library_artists, print_library_artists_json, print_library_playlists,
+    print_library_playlists_json, print_search_suggestions, print_search_suggestions_json,
 };
 use config::{ApiKey, Config};
 pub use error::Result;
@@ -33,6 +33,7 @@ struct Arguments {
     #[arg(short, long, default_value_t = false)]
     debug: bool,
     #[arg(short, long, default_value_t = false)]
+    // Not the most useful when running app itself.
     show_source: bool,
     #[command(subcommand)]
     command: Option<Commands>,
@@ -68,51 +69,7 @@ async fn main() -> Result<()> {
             debug: true,
             ..
         } => todo!(),
-        Arguments {
-            command: Some(Commands::GetLibraryArtists),
-            show_source: true,
-            ..
-        } => print_library_artists_json().await?,
-        Arguments {
-            command: Some(Commands::GetLibraryArtists),
-            show_source: false,
-            ..
-        } => print_library_artists().await?,
-        Arguments {
-            command: Some(Commands::GetLibraryPlaylists),
-            show_source: true,
-            ..
-        } => print_library_playlists_json().await?,
-        Arguments {
-            command: Some(Commands::GetLibraryPlaylists),
-            show_source: false,
-            ..
-        } => print_library_playlists().await?,
-        Arguments {
-            command: Some(Commands::GetSearchSuggestions { query }),
-            show_source: false,
-            ..
-        } => print_search_suggestions(query).await,
-        Arguments {
-            command: Some(Commands::GetSearchSuggestions { query }),
-            show_source: true,
-            ..
-        } => print_search_suggestions_json(query).await,
-        Arguments {
-            command: Some(Commands::GetArtist { channel_id }),
-            show_source: false,
-            ..
-        } => print_artist(channel_id).await,
-        Arguments {
-            command: Some(Commands::GetArtist { channel_id }),
-            show_source: true,
-            ..
-        } => print_artist_json(channel_id).await,
-        Arguments {
-            command: Some(Commands::SetupOAuth { file_name }),
-            show_source: _,
-            ..
-        } => get_and_output_oauth_token(file_name).await,
+        other => handle_cli_command(other).await?,
     }
     Ok(())
 }
