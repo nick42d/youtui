@@ -73,7 +73,7 @@ Chrome example (Select manually and paste):
 |GetLibraryPlaylists|[ ]\*|
 |GetLibrarySongs|[ ]|
 |GetLibraryAlbums|[ ]|
-|GetLibraryArtists|[ ]|
+|GetLibraryArtists|[ ]\*|
 |GetLibrarySubscriptions|[ ]|
 |GetLikedSongs|[ ]|
 |GetHistory|[ ]|
@@ -106,7 +106,7 @@ Chrome example (Select manually and paste):
 - only returns playlist and lyrics ids
 - does not implement continuations - only first x results returned.
 
-\* get library playlist is partially implemented only
+\* get library playlist & artists are partially implemented only
 - does not implement continuations - only first x results returned.
 
 # Additional information
