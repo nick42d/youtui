@@ -17,10 +17,10 @@ use cli::{
 use config::{ApiKey, Config};
 pub use error::Result;
 
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use directories::ProjectDirs;
 use error::Error;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub const HEADER_FILENAME: &str = "headers.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -29,47 +29,77 @@ pub const OAUTH_FILENAME: &str = "oauth.json";
 #[command(author,version,about,long_about=None)]
 /// A text-based user interface for YouTube Music.
 struct Arguments {
-    // Unsure how to represent that these two values are mutually exlucsive
+    /// Display and log additional debug information.
     #[arg(short, long, default_value_t = false)]
     debug: bool,
+    // What happens if given both cli and auth_cmd?
+    #[command(flatten)]
+    cli: Option<Cli>,
+    #[command(subcommand)]
+    auth_cmd: Option<AuthCmd>,
+}
+
+#[derive(Args, Debug, Clone)]
+struct Cli {
+    /// Print the source output Json from YouTube Music's API instead of the processed value.
     #[arg(short, long, default_value_t = false)]
-    // Not the most useful when running app itself.
     show_source: bool,
     #[command(subcommand)]
     command: Option<Commands>,
 }
-
+#[derive(Subcommand, Debug, Clone)]
+enum AuthCmd {
+    /// Generate an OAuth token.
+    SetupOauth {
+        /// Optional: Write to a file.
+        file_name: Option<PathBuf>,
+    },
+}
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     GetSearchSuggestions { query: String },
     GetArtist { channel_id: String },
-    // This does not work well with the show_source command!
-    SetupOAuth { file_name: Option<PathBuf> },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
+}
+
+pub struct RuntimeInfo {
+    debug: bool,
+    config: Config,
+    api_key: ApiKey,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Arguments::parse();
-    initialise_directories()?;
-    // Not implementing config just yet
-    let cfg = config::Config::new().unwrap();
+    // Config and API key files will be in OS directories.
+    // Create them if they don't exist.
+    initialise_directories().await?;
+    let config = config::Config::new().unwrap();
     // Once config has loaded, load API key to memory
-    let api_key = load_api_key(&cfg);
-    // TODO: Error handling
-    match args {
-        Arguments {
-            command: None,
-            debug: false,
-            ..
-        } => run_app().await?,
-        Arguments {
-            command: None,
-            debug: true,
-            ..
-        } => todo!(),
-        other => handle_cli_command(other).await?,
+    // (Which key to load depends on configuration)
+    // XXX: check that this won't cause any delays.
+    let api_key = load_api_key(&config).await?;
+    let Arguments {
+        debug,
+        cli,
+        auth_cmd,
+    } = args;
+    let rt = RuntimeInfo {
+        debug,
+        config,
+        api_key,
+    };
+    if let Some(c) = auth_cmd {
+        match c {
+            AuthCmd::SetupOauth { file_name } => cli::get_and_output_oauth_token(file_name).await?,
+        };
+        // Done here if we got this command. No need to go further.
+        return Ok(());
+    };
+    match cli {
+        None => run_app(rt).await?,
+        Some(cli_cmd) => handle_cli_command(cli_cmd, rt).await?,
     }
     Ok(())
 }
@@ -85,8 +115,8 @@ async fn get_api() -> ytmapi_rs::YtMusic {
         .unwrap()
 }
 
-pub async fn run_app() -> Result<()> {
-    let mut app = app::Youtui::new()?;
+pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
+    let mut app = app::Youtui::new(rt)?;
     app.run().await;
     Ok(())
 }
@@ -115,28 +145,35 @@ pub fn get_config_dir() -> Result<PathBuf> {
     Ok(directory)
 }
 
-pub fn load_header_file() -> Result<String> {
-    todo!()
+async fn load_header_file() -> Result<String> {
+    let mut path = get_config_dir()?;
+    path.push(HEADER_FILENAME);
+    Ok(tokio::fs::read_to_string(path).await?)
 }
 
-pub fn load_oauth_file() -> Result<String> {
-    todo!()
+async fn load_oauth_file() -> Result<String> {
+    let mut path = get_config_dir()?;
+    path.push(OAUTH_FILENAME);
+    Ok(tokio::fs::read_to_string(path).await?)
 }
 
 /// Create the Config and Data directories for the app if they do not already exist.
 /// Returns an error if unsuccesful.
-fn initialise_directories() -> Result<()> {
+async fn initialise_directories() -> Result<()> {
     let config_dir = get_config_dir()?;
     let data_dir = get_data_dir()?;
-    std::fs::create_dir_all(config_dir)?;
-    std::fs::create_dir_all(data_dir)?;
+    tokio::fs::create_dir_all(config_dir).await?;
+    tokio::fs::create_dir_all(data_dir).await?;
     Ok(())
 }
 
-fn load_api_key(cfg: &Config) -> Result<ApiKey> {
+async fn load_api_key(cfg: &Config) -> Result<ApiKey> {
+    // TODO: Better error hanadling
     let api_key = match cfg.get_auth_type() {
-        config::AuthType::OAuth => ApiKey::new(load_oauth_file()?, cfg.get_auth_type()),
-        config::AuthType::Browser => ApiKey::new(load_header_file()?, cfg.get_auth_type()),
+        config::AuthType::OAuth => ApiKey::new(load_oauth_file().await?, config::AuthType::OAuth),
+        config::AuthType::Browser => {
+            ApiKey::new(load_header_file().await?, config::AuthType::Browser)
+        }
     };
     Ok(api_key)
 }

@@ -2,7 +2,8 @@ use self::statemanager::process_state_updates;
 use self::taskmanager::TaskManager;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
-use crate::get_data_dir;
+use crate::config::Config;
+use crate::{get_data_dir, RuntimeInfo};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -34,7 +35,7 @@ pub struct Youtui {
 }
 
 impl Youtui {
-    pub fn new() -> Result<Youtui> {
+    pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
