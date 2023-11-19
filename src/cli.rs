@@ -1,7 +1,8 @@
 use crate::get_api;
-use crate::Arguments;
+use crate::Cli;
 use crate::Commands;
 use crate::Result;
+use crate::RuntimeInfo;
 use std::path::PathBuf;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
@@ -12,55 +13,42 @@ use ytmapi_rs::{
     ChannelID,
 };
 
-pub async fn handle_cli_command(args: Arguments) -> Result<()> {
-    match args {
+pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
+    match cli {
         // TODO: Block this action using type system.
-        Arguments { command: None, .. } => unreachable!(),
-        Arguments {
+        Cli { command: None, .. } => println!("Show source requires an associated API command"),
+        Cli {
             command: Some(Commands::GetLibraryArtists),
             show_source: true,
-            ..
         } => print_library_artists_json().await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetLibraryArtists),
             show_source: false,
-            ..
         } => print_library_artists().await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: true,
-            ..
         } => print_library_playlists_json().await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: false,
-            ..
         } => print_library_playlists().await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: false,
-            ..
         } => print_search_suggestions(query).await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: true,
-            ..
         } => print_search_suggestions_json(query).await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: false,
-            ..
         } => print_artist(channel_id).await?,
-        Arguments {
+        Cli {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: true,
-            ..
         } => print_artist_json(channel_id).await?,
-        Arguments {
-            command: Some(Commands::SetupOAuth { file_name }),
-            show_source: _,
-            ..
-        } => get_and_output_oauth_token(file_name).await?,
     }
     Ok(())
 }
@@ -131,10 +119,7 @@ pub async fn print_library_playlists() -> Result<()> {
 }
 
 pub async fn print_library_playlists_json() -> Result<()> {
-    let json = get_api()
-        .await
-        .json_query(GetLibraryPlaylistsQuery {})
-        .await?;
+    let json = get_api().await.json_query(GetLibraryPlaylistsQuery).await?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
