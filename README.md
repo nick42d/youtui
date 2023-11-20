@@ -21,8 +21,7 @@ Firefox example (Right click and Copy Value):
 Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
 ### Linux dependencies note
-- Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support.
-- The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
+- Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
 - The Reqwest library requires ssl which can be found in the following packages:
