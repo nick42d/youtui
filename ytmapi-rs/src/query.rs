@@ -45,8 +45,10 @@ pub mod album {
         }
     }
     impl<'a> GetAlbumQuery<'_> {
-        pub fn new(browse_id: AlbumID<'a>) -> GetAlbumQuery<'a> {
-            GetAlbumQuery { browse_id }
+        pub fn new<T: Into<AlbumID<'a>>>(browse_id: T) -> GetAlbumQuery<'a> {
+            GetAlbumQuery {
+                browse_id: browse_id.into(),
+            }
         }
     }
 }

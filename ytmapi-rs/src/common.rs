@@ -2,7 +2,7 @@
 // As opposed to simply part of the interface.
 
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use std::{borrow::Cow, ops::Deref};
 
 use crate::Error;
 
@@ -89,12 +89,15 @@ pub enum Explicit {
 // Note, library album will also have artists field. How do we handle - are these two different
 // types?
 // Or, is Album a trait?
+// XXX: Consider if this is the same as the Album struct that uses ResultCore.
 // XXX: I think this should become a trait.
 #[derive(Debug)]
 pub struct Album {
     pub title: String,
+    // TODO: Use type system
     pub playlist_id: Option<String>,
-    pub browse_id: String,
+    // TODO: Use type system
+    pub browse_id: AlbumID<'static>,
     pub category: Option<String>, // TODO change to enum
     pub thumbnails: Vec<Thumbnail>,
     pub year: Option<String>,
@@ -163,6 +166,12 @@ impl<'a> YoutubeID<'a> for ChannelID<'a> {
     }
     fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
         Self(raw_str.into())
+    }
+}
+impl<'a> From<&'a AlbumID<'a>> for AlbumID<'a> {
+    fn from(value: &'a AlbumID<'a>) -> Self {
+        let core = &value.0;
+        AlbumID(core.as_ref().into())
     }
 }
 
@@ -329,6 +338,7 @@ pub mod youtuberesult {
         // year: Option<String>,
         // Songs don't contain a year.
         // Should this be optional?
+        // XXX: Seems this can be a channelID or AlbumID...
         browse_id: Option<ChannelID<'static>>,
         playlist_id: Option<PlaylistID<'static>>,
         playlist_subtitle: Option<String>, // Consider difference between None and Never for these

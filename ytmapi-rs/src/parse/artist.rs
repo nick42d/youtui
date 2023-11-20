@@ -203,11 +203,15 @@ pub struct GetArtistVideos {
     pub results: Vec<VideoResult>,
     pub browse_id: PlaylistID<'static>,
 }
+/// The Albums section of the Browse Artist page.
+/// The browse_id and params can be used to get the full list of artist's albums.
+/// If they aren't set, and results is not empty, assuming that all albums are displayed here already.
 #[derive(Debug, Clone)]
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
-    pub browse_id: Option<AlbumID<'static>>, // Unsure when / why this is optional.
-    pub params: Option<BrowseParams<'static>>, // As above
+    // XXX: Unsure if AlbumID is correct here.
+    pub browse_id: Option<AlbumID<'static>>,
+    pub params: Option<BrowseParams<'static>>,
 }
 #[derive(Debug, Clone)]
 pub struct RelatedResult {

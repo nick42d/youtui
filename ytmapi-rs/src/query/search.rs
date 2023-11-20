@@ -227,18 +227,18 @@ impl<'a> SearchQuery<'a, BasicSearch> {
 }
 
 impl<'a, S: SearchType> SearchQuery<'a, S> {
-    pub fn set_spelling_mode(mut self, spelling_mode: SpellingMode) -> Self {
+    pub fn with_spelling_mode(mut self, spelling_mode: SpellingMode) -> Self {
         self.spelling_mode = spelling_mode;
         self
     }
-    pub fn set_query<Q: Into<String>>(mut self, query: Q) -> Self {
+    pub fn with_query<Q: Into<String>>(mut self, query: Q) -> Self {
         self.query = query.into().into();
         self
     }
 }
 
 impl<'a> SearchQuery<'a, BasicSearch> {
-    pub fn set_filter(self, filter: Filter) -> SearchQuery<'a, FilteredSearch> {
+    pub fn with_filter(self, filter: Filter) -> SearchQuery<'a, FilteredSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
@@ -247,7 +247,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
             searchtype: FilteredSearch {},
         }
     }
-    pub fn set_scope_uploads(self) -> SearchQuery<'a, UploadSearch> {
+    pub fn with_scope_uploads(self) -> SearchQuery<'a, UploadSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
@@ -256,18 +256,18 @@ impl<'a> SearchQuery<'a, BasicSearch> {
             searchtype: UploadSearch {},
         }
     }
-    pub fn set_scope_library(mut self) -> Self {
+    pub fn with_scope_library(mut self) -> Self {
         self.scope = Scope::Library;
         self
     }
-    pub fn set_scope_public(mut self) -> Self {
+    pub fn with_scope_public(mut self) -> Self {
         self.scope = Scope::All;
         self
     }
 }
 
 impl<'a> SearchQuery<'a, FilteredSearch> {
-    pub fn set_filter(self, filter: Filter) -> SearchQuery<'a, FilteredSearch> {
+    pub fn with_filter(self, filter: Filter) -> SearchQuery<'a, FilteredSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
@@ -285,11 +285,11 @@ impl<'a> SearchQuery<'a, FilteredSearch> {
             searchtype: BasicSearch {},
         }
     }
-    pub fn set_scope_library(mut self) -> Self {
+    pub fn with_scope_library(mut self) -> Self {
         self.scope = Scope::Library;
         self
     }
-    pub fn set_scope_public(mut self) -> Self {
+    pub fn with_scope_public(mut self) -> Self {
         self.scope = Scope::All;
         self
     }
@@ -306,7 +306,7 @@ impl<'a> SearchQuery<'a, UploadSearch> {
             searchtype: BasicSearch {},
         }
     }
-    pub fn set_scope_library(self) -> SearchQuery<'a, BasicSearch> {
+    pub fn with_scope_library(self) -> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
@@ -315,7 +315,7 @@ impl<'a> SearchQuery<'a, UploadSearch> {
             searchtype: BasicSearch {},
         }
     }
-    pub fn set_scope_public(self) -> SearchQuery<'a, BasicSearch> {
+    pub fn with_scope_public(self) -> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,

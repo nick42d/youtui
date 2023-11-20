@@ -34,13 +34,14 @@ struct Arguments {
     debug: bool,
     // What happens if given both cli and auth_cmd?
     #[command(flatten)]
-    cli: Option<Cli>,
+    cli: Cli,
     #[command(subcommand)]
     auth_cmd: Option<AuthCmd>,
 }
 
 #[derive(Args, Debug, Clone)]
-struct Cli {
+// Probably shouldn't be public
+pub struct Cli {
     /// Print the source output Json from YouTube Music's API instead of the processed value.
     #[arg(short, long, default_value_t = false)]
     show_source: bool,
@@ -61,6 +62,7 @@ enum Commands {
     GetArtist { channel_id: String },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
+    Search { query: String },
 }
 
 pub struct RuntimeInfo {
@@ -97,9 +99,9 @@ async fn main() -> Result<()> {
         // Done here if we got this command. No need to go further.
         return Ok(());
     };
-    match cli {
+    match cli.command {
         None => run_app(rt).await?,
-        Some(cli_cmd) => handle_cli_command(cli_cmd, rt).await?,
+        Some(_) => handle_cli_command(cli, rt).await?,
     }
     Ok(())
 }
@@ -148,13 +150,17 @@ pub fn get_config_dir() -> Result<PathBuf> {
 async fn load_header_file() -> Result<String> {
     let mut path = get_config_dir()?;
     path.push(HEADER_FILENAME);
-    Ok(tokio::fs::read_to_string(path).await?)
+    tokio::fs::read_to_string(&path)
+        .await
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e))
 }
 
 async fn load_oauth_file() -> Result<String> {
     let mut path = get_config_dir()?;
     path.push(OAUTH_FILENAME);
-    Ok(tokio::fs::read_to_string(path).await?)
+    tokio::fs::read_to_string(&path)
+        .await
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::OAuth, path, e))
 }
 
 /// Create the Config and Data directories for the app if they do not already exist.

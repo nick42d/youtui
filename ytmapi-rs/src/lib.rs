@@ -80,6 +80,7 @@ impl YtMusic {
         Ok(json)
     }
     // TODO: add use statements to cleanup path.
+    // XXX: Consider taking into<SearchQuery>
     pub async fn search<'a, S: SearchType>(
         &self,
         query: SearchQuery<'a, S>,
