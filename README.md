@@ -1,7 +1,7 @@
 # About
-Youtui - a simple TUI YouTube Music player written in Rust aiming to implement an artist->albums method of searching for music, and using discoverability principles for navigation. Inspired by https://github.com/ccgauche/ytermusic/.
+Youtui - a simple TUI YouTube Music player written in Rust aiming to implement an Artist->Albums workflow for searching for music, and using discoverability principles for navigation. Inspired by https://github.com/ccgauche/ytermusic/ and cmus.
 
-Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API. Inspired by https://github.com/sigma67/ytmusicapi/.
+Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API, Tokio and Reqwest. Inspired by https://github.com/sigma67/ytmusicapi/.
 
 This project is not supported or endorsed by Google.
 ## Demo
@@ -25,17 +25,22 @@ Chrome example (Select manually and paste):
 - The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
-- The Reqwest library requires ssl - `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
+- The Reqwest library requires ssl which can be found in the following packages:
+  - `libssl-dev` (Ubuntu)
+  - `openssl-devel` (Fedora)
 ### Limitations
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 ## Roadmap
 ### Application
 - [ ] Offline cache
-- [ ] Proper configuration support
+- [ ] Configuration folder support
 - [x] Implement improved download speed
 - [ ] Streaming of buffered tracks
 - [ ] Theming
+- [ ] OAuth authentication including automatic refresh of tokens
+- [ ] Display lyrics and album cover (pixel art)
 ### API
+- [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
 - [x] OAuth authentication
 - [ ] i18n
@@ -99,6 +104,6 @@ Chrome example (Select manually and paste):
 \* get library playlist is partially implemented only
 - does not implement continuations - only first x results returned.
 
-### Additional information
+## Additional information
 See the wiki for additional information
 https://github.com/nick42d/youtui/wiki
