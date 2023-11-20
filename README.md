@@ -15,6 +15,7 @@ Version as of 09/Nov/23 and is still a work in progress.
   1. Open web developer tools (F12).
   1. Open Network tab and locate a POST request to `music.youtube.com`.
   1. Copy the `Cookie` into a text file named `headers.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
+
 Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
 Chrome example (Select manually and paste):
