@@ -106,6 +106,6 @@ Chrome example (Select manually and paste):
 \* get library playlist is partially implemented only
 - does not implement continuations - only first x results returned.
 
-## Additional information
+# Additional information
 See the wiki for additional information
 https://github.com/nick42d/youtui/wiki
