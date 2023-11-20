@@ -11,10 +11,14 @@ Version as of 09/Nov/23 and is still a work in progress.
 - Clone the repository
 - Build - note nightly rust required for async traits
 - Give the application an authorisation header:
-  1. Open YouTube Music in your browser (Firefox preferred) - ensure you are logged in.
-  1. Open web developer tools.
+  1. Open YouTube Music in your browser - ensure you are logged in.
+  1. Open web developer tools (F12).
   1. Open Network tab and locate a POST request to `music.youtube.com`.
-  1. Copy the `Cookie` and header into a text file named `headers.txt` into you local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
+  1. Copy the `Cookie` into a text file named `headers.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
+Firefox example (Right click and Copy Value):
+![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
+Chrome example (Select manually and paste):
+![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
 ### Linux dependencies note
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support.
 - The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
