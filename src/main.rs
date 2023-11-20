@@ -22,7 +22,7 @@ use directories::ProjectDirs;
 use error::Error;
 use std::path::{Path, PathBuf};
 
-pub const HEADER_FILENAME: &str = "headers.txt";
+pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
 
 #[derive(Parser, Debug)]
@@ -109,10 +109,10 @@ async fn main() -> Result<()> {
 async fn get_api() -> ytmapi_rs::YtMusic {
     // TODO: remove unwrap
     let confdir = get_config_dir().unwrap();
-    let mut headers_loc = PathBuf::from(confdir);
-    headers_loc.push(HEADER_FILENAME);
+    let mut cookies_loc = PathBuf::from(confdir);
+    cookies_loc.push(COOKIE_FILENAME);
     // TODO: remove unwrap
-    ytmapi_rs::YtMusic::from_header_file(headers_loc)
+    ytmapi_rs::YtMusic::from_cookie_file(cookies_loc)
         .await
         .unwrap()
 }
@@ -147,9 +147,9 @@ pub fn get_config_dir() -> Result<PathBuf> {
     Ok(directory)
 }
 
-async fn load_header_file() -> Result<String> {
+async fn load_cookie_file() -> Result<String> {
     let mut path = get_config_dir()?;
-    path.push(HEADER_FILENAME);
+    path.push(COOKIE_FILENAME);
     tokio::fs::read_to_string(&path)
         .await
         .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e))
@@ -178,7 +178,7 @@ async fn load_api_key(cfg: &Config) -> Result<ApiKey> {
     let api_key = match cfg.get_auth_type() {
         config::AuthType::OAuth => ApiKey::new(load_oauth_file().await?, config::AuthType::OAuth),
         config::AuthType::Browser => {
-            ApiKey::new(load_header_file().await?, config::AuthType::Browser)
+            ApiKey::new(load_cookie_file().await?, config::AuthType::Browser)
         }
     };
     Ok(api_key)

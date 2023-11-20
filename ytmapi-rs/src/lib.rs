@@ -66,7 +66,7 @@ impl YtMusic {
     }
     /// Create a new API handle using browser authentication details saved to a file on disk.
     /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
-    pub async fn from_header_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
         let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
         Ok(Self { client, auth })

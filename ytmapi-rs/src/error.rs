@@ -56,6 +56,13 @@ impl Error {
             false
         }
     }
+    pub fn is_oauth_expired(&self) -> bool {
+        if let Inner::OAuthTokenExpired = *self.inner {
+            true
+        } else {
+            false
+        }
+    }
     pub fn navigation<S: Into<String>>(key: S, json: Arc<serde_json::Value>) -> Self {
         Self {
             inner: Box::new(Inner::Navigation {

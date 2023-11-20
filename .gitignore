@@ -2,6 +2,7 @@
 *expired-headers.json
 *expired-oauth.json
 *headers.txt
+*cookie.txt
 .ignore
 *.log
 *.mp4
