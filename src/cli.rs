@@ -6,6 +6,7 @@ use crate::RuntimeInfo;
 use std::path::PathBuf;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
+use ytmapi_rs::query::SearchQuery;
 use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
@@ -49,6 +50,14 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: true,
         } => print_artist_json(channel_id).await?,
+        Cli {
+            command: Some(Commands::Search { query }),
+            show_source: false,
+        } => search(query).await?,
+        Cli {
+            command: Some(Commands::Search { query }),
+            show_source: true,
+        } => search_json(query).await?,
     }
     Ok(())
 }
@@ -123,6 +132,22 @@ pub async fn print_library_playlists_json() -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
+// NOTE: Currently only searches artists. Not strictly correct.
+pub async fn search(query: String) -> Result<()> {
+    let res = get_api()
+        .await
+        .search(SearchQuery::new(query).with_filter(ytmapi_rs::query::Filter::Artists))
+        .await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+
+pub async fn search_json(query: String) -> Result<()> {
+    let json = get_api().await.json_query(SearchQuery::new(query)).await?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+
 pub async fn print_library_artists() -> Result<()> {
     // TODO: Allow sorting
     let res = get_api()

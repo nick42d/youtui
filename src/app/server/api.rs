@@ -1,4 +1,5 @@
 use tracing::{error, info};
+use ytmapi_rs::common::youtuberesult::YoutubeResult;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::YoutubeID;
@@ -138,8 +139,8 @@ impl Api {
                 let search_res = match api
                     .search(
                         ytmapi_rs::query::SearchQuery::new(artist)
-                            .set_filter(ytmapi_rs::query::Filter::Artists)
-                            .set_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
+                            .with_filter(ytmapi_rs::query::Filter::Artists)
+                            .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
                     )
                     .await
                 {
@@ -214,50 +215,81 @@ impl Api {
                     }
                 };
                 let Some(albums) = artist.top_releases.albums else {
-                    tracing::info!("Telling caller no songs found (params)");
+                    tracing::info!("Telling caller no songs found (no params)");
                     let _ = tx
                         .send(super::Response::Api(Response::NoSongsFound(id)))
                         .await;
                     return;
                 };
-                let GetArtistAlbums {
-                    browse_id: Some(browse_id),
-                    params: Some(params),
-                    ..
-                } = albums
-                else {
-                    tracing::info!("Telling caller no songs found (params)");
-                    let _ = tx
-                        .send(super::Response::Api(Response::NoSongsFound(id)))
-                        .await;
-                    return;
-                };
-                let albums = match api
-                    .get_artist_albums(ytmapi_rs::query::GetArtistAlbumsQuery::new(
-                        ytmapi_rs::ChannelID::from_raw(browse_id.get_raw()),
-                        params,
-                    ))
-                    .await
-                {
-                    Ok(r) => r,
-                    Err(e) => {
-                        error!("Received error on get_artist_albums query \"{}\"", e);
 
-                        // TODO: Better Error type
-                        tx.send(super::Response::Api(Response::SearchArtistError(id)))
-                            .await
-                            .unwrap_or_else(|_| error!("Error sending response"));
+                let GetArtistAlbums {
+                    browse_id: artist_albums_browse_id,
+                    params: artist_albums_params,
+                    results: artist_albums_results,
+                } = albums;
+                let browse_id_list = if artist_albums_browse_id.is_none()
+                    && artist_albums_params.is_none()
+                    && !artist_albums_results.is_empty()
+                {
+                    // Assume we already got all the albums from the search.
+                    let browse_id_list: Option<Vec<_>> = artist_albums_results
+                        .iter()
+                        .map(|r| {
+                            r.get_channel_id()
+                                .as_ref()
+                                .map(|c_id| AlbumID::from_raw(c_id.get_raw()))
+                        })
+                        .collect();
+                    if let Some(browse_id_list) = browse_id_list {
+                        browse_id_list
+                    } else {
+                        tracing::info!(
+                            "Telling caller no songs found (some albums missing browse id)"
+                        );
+                        let _ = tx
+                            .send(super::Response::Api(Response::NoSongsFound(id)))
+                            .await;
                         return;
                     }
+                } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
+                    tracing::info!("Telling caller no songs found (no params or browse_id)");
+                    let _ = tx
+                        .send(super::Response::Api(Response::NoSongsFound(id)))
+                        .await;
+                    return;
+                } else {
+                    // Must have params and browse_id
+                    let Some(temp_browse_id) = artist_albums_browse_id else {
+                        unreachable!("Checked not none above")
+                    };
+                    let Some(temp_params) = artist_albums_params else {
+                        unreachable!("Checked not none above")
+                    };
+
+                    let albums = match api
+                        .get_artist_albums(ytmapi_rs::query::GetArtistAlbumsQuery::new(
+                            ytmapi_rs::ChannelID::from_raw(temp_browse_id.get_raw()),
+                            temp_params,
+                        ))
+                        .await
+                    {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!("Received error on get_artist_albums query \"{}\"", e);
+
+                            // TODO: Better Error type
+                            tx.send(super::Response::Api(Response::SearchArtistError(id)))
+                                .await
+                                .unwrap_or_else(|_| error!("Error sending response"));
+                            return;
+                        }
+                    };
+                    albums.into_iter().map(|a| a.browse_id).collect()
                 };
                 let _ = tx
                     .send(super::Response::Api(Response::SongsFound(id)))
                     .await;
                 // Concurrently request all albums.
-                let mut browse_id_list = Vec::new();
-                for album in albums {
-                    browse_id_list.push(album.browse_id);
-                }
                 let futures = browse_id_list.into_iter().map(|b_id| {
                     let api = &api;
                     let tx = tx.clone();
@@ -269,14 +301,12 @@ impl Api {
                             id
                         );
                         let album = match api
-                            .get_album(ytmapi_rs::query::GetAlbumQuery::new(AlbumID::from_raw(
-                                &b_id,
-                            )))
+                            .get_album(ytmapi_rs::query::GetAlbumQuery::new(&b_id))
                             .await
                         {
                             Ok(album) => album,
                             Err(e) => {
-                                error!("Error <{e}> getting album {}", b_id);
+                                error!("Error <{e}> getting album {:?}", b_id);
                                 return;
                             }
                         };

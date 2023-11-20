@@ -59,16 +59,16 @@ async fn test_new() {
 async fn test_search_oauth() {
     let api = new_standard_oauth_api().await.unwrap();
     let query = SearchQuery::new("Beatles")
-        .set_filter(Filter::Artists)
-        .set_spelling_mode(SpellingMode::ExactMatch);
+        .with_filter(Filter::Artists)
+        .with_spelling_mode(SpellingMode::ExactMatch);
     let res = api.search(query).await.unwrap();
 }
 #[tokio::test]
 async fn test_search() {
     let api = new_standard_api().await.unwrap();
     let query = SearchQuery::new("Beatles")
-        .set_filter(Filter::Artists)
-        .set_spelling_mode(SpellingMode::ExactMatch);
+        .with_filter(Filter::Artists)
+        .with_spelling_mode(SpellingMode::ExactMatch);
     let res = api.search(query).await.unwrap();
 }
 #[tokio::test]
