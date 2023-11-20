@@ -28,14 +28,6 @@ Chrome example (Select manually and paste):
 - The Reqwest library requires ssl - `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
 ### Limitations
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
-## Coding constraints
-App has been designed for me to learn Rust, and therefore I have implemented the following constraints to learn some features. I am aware these may not be the most efficient ways to code.
-1. Avoid shared mutable state: 
-The app will avoid shared mutable state primitives such as Mutex and RefCell and instead communicate via messaging.
-1. Concurrency over parralelism: 
-Where possible, the app will use use an asynchronous mode of operation (such as futures::join! and tokio::select) over parallel equivalents such as tokio::spawn and thread::spawn.
-1. Avoid cloning: Where possible, the app will avoid cloning as a method to beat the borrow checker. Instead, we will try to safely borrow.
-1. Encode state into the type system: Where possible use the type system to represent actions that are not possible in the current state.
 ## Roadmap
 ### Application
 - [ ] Offline cache
@@ -106,3 +98,7 @@ Where possible, the app will use use an asynchronous mode of operation (such as 
 
 \* get library playlist is partially implemented only
 - does not implement continuations - only first x results returned.
+
+### Additional information
+See the wiki for additional information
+https://github.com/nick42d/youtui/wiki
