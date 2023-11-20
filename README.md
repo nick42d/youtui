@@ -4,10 +4,10 @@ Youtui - a simple TUI YouTube Music player written in Rust aiming to implement a
 Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API, Tokio and Reqwest. Inspired by https://github.com/sigma67/ytmusicapi/.
 
 This project is not supported or endorsed by Google.
-## Demo
+# Demo
 Version as of 09/Nov/23 and is still a work in progress.
 [![asciicast](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ.svg)](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ)
-## How to install and run
+# How to install and run
 - Clone the repository
 - Build - note nightly rust required for async traits
 - Give the application an authorisation header:
@@ -20,17 +20,18 @@ Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
 Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
-### Linux dependencies note
+## Linux dependencies note
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
 - The Reqwest library requires ssl which can be found in the following packages:
   - `libssl-dev` (Ubuntu)
   - `openssl-devel` (Fedora)
-### Limitations
+## Limitations
+- This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
-## Roadmap
-### Application
+# Roadmap
+## Application
 - [ ] Windows support
 - [ ] Offline cache (target for 0.0.1)
 - [ ] Configuration folder support (target for 0.0.1)
@@ -39,7 +40,7 @@ Chrome example (Select manually and paste):
 - [ ] Theming
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
-### API
+## API
 - [ ] Document public API (target for 0.0.1)
 - [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
