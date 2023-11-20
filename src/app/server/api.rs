@@ -10,7 +10,7 @@ use ytmapi_rs::ChannelID;
 
 use crate::get_config_dir;
 use crate::Result;
-use crate::HEADER_FILENAME;
+use crate::COOKIE_FILENAME;
 
 use crate::app::taskmanager::TaskID;
 
@@ -54,8 +54,8 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             // TODO: Load header file in Main instead of here.
-            let api = ytmapi_rs::YtMusic::from_header_file(
-                get_config_dir().unwrap().join(HEADER_FILENAME),
+            let api = ytmapi_rs::YtMusic::from_cookie_file(
+                get_config_dir().unwrap().join(COOKIE_FILENAME),
             )
             .await
             .unwrap();

@@ -115,12 +115,7 @@ impl BrowserToken {
         P: AsRef<Path>,
     {
         let contents = tokio::fs::read_to_string(path).await.unwrap();
-        let mut cookies = String::new();
-        for l in contents.lines() {
-            if let Some(c) = l.strip_prefix("Cookie:") {
-                cookies = c.trim().to_string();
-            }
-        }
+        let cookies = contents.trim().to_string();
         let response = client
             .get(YTM_URL)
             .header(reqwest::header::COOKIE, &cookies)
