@@ -31,14 +31,16 @@ Chrome example (Select manually and paste):
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 ## Roadmap
 ### Application
-- [ ] Offline cache
-- [ ] Configuration folder support
+- [ ] Windows support
+- [ ] Offline cache (target for 0.0.1)
+- [ ] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [ ] Streaming of buffered tracks
 - [ ] Theming
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
 ### API
+- [ ] Document public API (target for 0.0.1)
 - [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
 - [x] OAuth authentication
