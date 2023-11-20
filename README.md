@@ -35,7 +35,7 @@ Chrome example (Select manually and paste):
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 # Roadmap
 ## Application
-- [ ] Windows support
+- [ ] Windows support (target for 0.0.1)
 - [ ] Offline cache (target for 0.0.1)
 - [ ] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
