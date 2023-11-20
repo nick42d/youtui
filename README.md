@@ -1,9 +1,9 @@
 # About
-Youtui - a simple TUI YouTube Music player written in Rust. Inspired by https://github.com/ccgauche/ytermusic/.
+Youtui - a simple TUI YouTube Music player written in Rust aiming to implement an artist->albums method of searching for music, and using discoverability principles for navigation. Inspired by https://github.com/ccgauche/ytermusic/.
 
 Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API. Inspired by https://github.com/sigma67/ytmusicapi/.
 
-This project is not supported by Google.
+This project is not supported or endorsed by Google.
 ## Demo
 Version as of 09/Nov/23 and is still a work in progress.
 [![asciicast](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ.svg)](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ)
@@ -36,10 +36,6 @@ The app will avoid shared mutable state primitives such as Mutex and RefCell and
 Where possible, the app will use use an asynchronous mode of operation (such as futures::join! and tokio::select) over parallel equivalents such as tokio::spawn and thread::spawn.
 1. Avoid cloning: Where possible, the app will avoid cloning as a method to beat the borrow checker. Instead, we will try to safely borrow.
 1. Encode state into the type system: Where possible use the type system to represent actions that are not possible in the current state.
-## Design principles
-I am aiming to follow the following design principles
-1. Discoverability
-The app should limit the cognitive load required to memorise commands and should instead provide mechanisms for the user to discover non-obvious commands. E.g commands that require multiple keypresses should display context menus for the subsequent presses like Kakoune or Helix.
 ## Roadmap
 ### Application
 - [ ] Offline cache
