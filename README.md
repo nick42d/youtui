@@ -11,10 +11,10 @@ Version as of 09/Nov/23 and is still a work in progress.
 1. Clone the repository (`git clone https://github.com/nick42d/youtui/`)
 1. Build - note nightly rust required for async traits (`cd youtui && cargo b --release`)
 1. Give the application an authorisation header:
-  1. Open YouTube Music in your browser - ensure you are logged in.
-  1. Open web developer tools (F12).
-  1. Open Network tab and locate a POST request to `music.youtube.com`.
-  1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
+    1. Open YouTube Music in your browser - ensure you are logged in.
+    1. Open web developer tools (F12).
+    1. Open Network tab and locate a POST request to `music.youtube.com`.
+    1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
 1. To run the TUI application, execute the binary located at `./target/release/youtui` with no arguments.
 1. To use the API in command-line mode, execute `./target/release/youtui --help` to see available commands.
 
