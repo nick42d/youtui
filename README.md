@@ -36,7 +36,7 @@ Chrome example (Select manually and paste):
 # Roadmap
 ## Application
 - [ ] Windows support (target for 0.0.1)
-- [ ] Offline cache (target for 0.0.1)
+- [ ] Offline cache
 - [ ] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [ ] Streaming of buffered tracks
