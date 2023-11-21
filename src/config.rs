@@ -6,10 +6,13 @@ use crate::get_config_dir;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
 
-#[derive(Default, Debug, Serialize, Deserialize)]
-pub struct ApiKey {
-    raw_text: String,
-    auth_type: AuthType,
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ApiKey {
+    // XXX: These could actually take the appropriate tokens from the API, if that part of the interface is opened.
+    // If that's the case we can do some additional parsing before we reach the app.
+    // Currently OAuthToken is public but not BrowserToken
+    OAuthToken(String),
+    BrowserToken(String),
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -35,15 +38,5 @@ impl Config {
     }
     pub fn get_auth_type(&self) -> AuthType {
         self.auth_type
-    }
-}
-
-impl ApiKey {
-    pub fn new(raw_text: impl Into<String>, auth_type: AuthType) -> Self {
-        let raw_text = raw_text.into();
-        Self {
-            raw_text,
-            auth_type,
-        }
     }
 }

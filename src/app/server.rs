@@ -3,6 +3,8 @@ use tokio::sync::oneshot;
 mod structures;
 use tracing::info;
 
+use crate::config::ApiKey;
+
 use super::taskmanager::TaskID;
 
 pub mod api;
@@ -49,8 +51,12 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(response_tx: mpsc::Sender<Response>, request_rx: mpsc::Receiver<Request>) -> Self {
-        let api = api::Api::new(response_tx.clone());
+    pub fn new(
+        api_key: ApiKey,
+        response_tx: mpsc::Sender<Response>,
+        request_rx: mpsc::Receiver<Request>,
+    ) -> Self {
+        let api = api::Api::new(api_key, response_tx.clone());
         // TODO: Error handling
         let player = player::PlayerManager::new(response_tx.clone()).unwrap();
         let downloader = downloader::Downloader::new(response_tx.clone());

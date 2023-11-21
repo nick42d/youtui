@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
+use crate::config::ApiKey;
 use crate::core::send_or_error;
 use crate::Result;
 use tokio::sync::mpsc;
@@ -88,12 +89,12 @@ pub enum RequestCategory {
 impl TaskManager {
     // This should handle messages as well.
     // TODO: Error handling
-    pub fn new() -> Self {
+    pub fn new(api_key: ApiKey) -> Self {
         let (server_request_tx, server_request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (request_tx, request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let _server_handle = tokio::spawn(async {
-            let mut a = server::Server::new(server_response_tx, server_request_rx);
+            let mut a = server::Server::new(api_key, server_response_tx, server_request_rx);
             a.run().await;
         });
         Self {

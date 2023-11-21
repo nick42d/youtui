@@ -71,6 +71,12 @@ impl YtMusic {
         let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
         Ok(Self { client, auth })
     }
+    /// Create a new API handle using browser authentication details in a String.
+    pub async fn from_cookie<S: AsRef<str>>(cookie: S) -> Result<Self> {
+        let client = Client::new();
+        let auth = Auth::Browser(BrowserToken::from_str(cookie.as_ref(), &client).await?);
+        Ok(Self { client, auth })
+    }
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.auth.raw_query(&self.client, query).await

@@ -6,11 +6,12 @@ use crate::{
     utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL},
 };
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::path::Path;
 
 use super::AuthToken;
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BrowserToken {
     sapisid: String,
     client_version: String,
@@ -74,12 +75,7 @@ impl AuthToken for BrowserToken {
 
 impl BrowserToken {
     pub async fn from_str(header_str: &str, client: &Client) -> Result<Self> {
-        let mut cookies = String::new();
-        for l in header_str.lines() {
-            if let Some(c) = l.strip_prefix("Cookie:") {
-                cookies = c.trim().to_string();
-            }
-        }
+        let cookies = header_str.trim().to_string();
         let response = client
             .get(YTM_URL)
             .header(reqwest::header::COOKIE, &cookies)
