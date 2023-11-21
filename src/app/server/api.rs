@@ -8,6 +8,7 @@ use ytmapi_rs::parse::SongResult;
 
 use ytmapi_rs::ChannelID;
 
+use crate::config::ApiKey;
 use crate::get_config_dir;
 use crate::Result;
 use crate::COOKIE_FILENAME;
@@ -49,16 +50,16 @@ pub struct Api {
 }
 
 impl Api {
-    pub fn new(response_tx: mpsc::Sender<super::Response>) -> Self {
+    pub fn new(api_key: ApiKey, response_tx: mpsc::Sender<super::Response>) -> Self {
         let api_init = Some(tokio::spawn(async move {
             info!("Initialising API");
             // TODO: Error handling
-            // TODO: Load header file in Main instead of here.
-            let api = ytmapi_rs::YtMusic::from_cookie_file(
-                get_config_dir().unwrap().join(COOKIE_FILENAME),
-            )
-            .await
-            .unwrap();
+            let api = match api_key {
+                ApiKey::BrowserToken(t) => ytmapi_rs::YtMusic::from_cookie(t).await.unwrap(),
+                ApiKey::OAuthToken(t) => {
+                    ytmapi_rs::YtMusic::from_oauth_token(serde_json::from_str(&t).unwrap()).await
+                }
+            };
             info!("API initialised");
             api
         }));

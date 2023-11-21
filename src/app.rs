@@ -2,6 +2,7 @@ use self::statemanager::process_state_updates;
 use self::taskmanager::TaskManager;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
+use crate::app::server::api::Api;
 use crate::config::Config;
 use crate::{get_data_dir, RuntimeInfo};
 use crossterm::{
@@ -36,6 +37,11 @@ pub struct Youtui {
 
 impl Youtui {
     pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
+        let RuntimeInfo {
+            debug,
+            config,
+            api_key,
+        } = rt;
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
@@ -62,7 +68,7 @@ impl Youtui {
             destruct_terminal();
             println!("{}", panic_info);
         }));
-        let task_manager = taskmanager::TaskManager::new();
+        let task_manager = taskmanager::TaskManager::new(api_key);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend).unwrap();
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
