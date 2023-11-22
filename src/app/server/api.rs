@@ -55,10 +55,8 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api = match api_key {
-                ApiKey::BrowserToken(t) => ytmapi_rs::YtMusic::from_cookie(t).await.unwrap(),
-                ApiKey::OAuthToken(t) => {
-                    ytmapi_rs::YtMusic::from_oauth_token(serde_json::from_str(&t).unwrap()).await
-                }
+                ApiKey::BrowserToken(t) => ytmapi_rs::YtMusic::from_browser_token(t),
+                ApiKey::OAuthToken(t) => ytmapi_rs::YtMusic::from_oauth_token(t),
             };
             info!("API initialised");
             api

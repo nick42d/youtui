@@ -1,6 +1,5 @@
-#![feature(async_fn_in_trait)]
-
-mod auth;
+// TODO Confirm if should be pub
+pub mod auth;
 mod utils;
 mod locales {}
 mod nav_consts;
@@ -36,6 +35,7 @@ use query::{
     GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
+use utils::constants::{USER_AGENT, YTM_URL};
 
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
@@ -47,6 +47,7 @@ pub struct YtMusic {
 }
 
 impl YtMusic {
+    // TODO: Methods to create with a pre-existing client.
     pub fn get_auth_type(&self) -> &Auth {
         &self.auth
     }
@@ -54,21 +55,27 @@ impl YtMusic {
         self.auth = Auth::OAuth(token)
     }
     pub async fn set_auth_type_header<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
-        let token = BrowserToken::from_header_file(path, &self.client).await?;
+        let token = BrowserToken::from_cookie_file(path, &self.client).await?;
         self.auth = Auth::Browser(token);
         Ok(())
     }
     /// Create a new API handle using an OAuthToken.
-    pub async fn from_oauth_token(token: OAuthToken) -> Self {
+    pub fn from_oauth_token(token: OAuthToken) -> Self {
         let client = Client::new();
         let auth = Auth::OAuth(token);
+        Self { client, auth }
+    }
+    /// Create a new API handle using a BrowserToken.
+    pub fn from_browser_token(token: BrowserToken) -> Self {
+        let client = Client::new();
+        let auth = Auth::Browser(token);
         Self { client, auth }
     }
     /// Create a new API handle using browser authentication details saved to a file on disk.
     /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
     pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
-        let auth = Auth::Browser(BrowserToken::from_header_file(path, &client).await?);
+        let auth = Auth::Browser(BrowserToken::from_cookie_file(path, &client).await?);
         Ok(Self { client, auth })
     }
     /// Create a new API handle using browser authentication details in a String.
@@ -148,8 +155,16 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
     let url = format!("{}?user_code={}", code.verification_url, code.user_code);
     Ok((code.device_code, url))
 }
-/// Generates an OAuth token when given an OAuthDeviceCode.
+
+// TODO: Keep session alive after calling these methods.
+/// Generates an OAuth Token when given an OAuthDeviceCode.
 pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
     let client = Client::new();
     OAuthToken::from_code(&client, code).await
+}
+// TODO: Keep session alive after calling these methods.
+/// Generates a Browser Token when given a browser cookie.
+pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserToken> {
+    let client = Client::new();
+    BrowserToken::from_str(cookie.as_ref(), &client).await
 }

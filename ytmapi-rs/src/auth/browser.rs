@@ -74,8 +74,8 @@ impl AuthToken for BrowserToken {
 }
 
 impl BrowserToken {
-    pub async fn from_str(header_str: &str, client: &Client) -> Result<Self> {
-        let cookies = header_str.trim().to_string();
+    pub async fn from_str(cookie_str: &str, client: &Client) -> Result<Self> {
+        let cookies = cookie_str.trim().to_string();
         let response = client
             .get(YTM_URL)
             .header(reqwest::header::COOKIE, &cookies)
@@ -106,40 +106,11 @@ impl BrowserToken {
             cookies,
         })
     }
-    pub async fn from_header_file<P>(path: P, client: &Client) -> Result<Self>
+    pub async fn from_cookie_file<P>(path: P, client: &Client) -> Result<Self>
     where
         P: AsRef<Path>,
     {
         let contents = tokio::fs::read_to_string(path).await.unwrap();
-        let cookies = contents.trim().to_string();
-        let response = client
-            .get(YTM_URL)
-            .header(reqwest::header::COOKIE, &cookies)
-            .header(reqwest::header::USER_AGENT, USER_AGENT)
-            .send()
-            .await?
-            .text()
-            .await?;
-        let client_version = response
-            .split_once("INNERTUBE_CLIENT_VERSION\":\"")
-            .ok_or(Error::header())?
-            .1
-            .split_once("\"")
-            .ok_or(Error::header())?
-            .0
-            .to_string();
-        let sapisid = cookies
-            .split_once("SAPISID=")
-            .ok_or(Error::header())?
-            .1
-            .split_once(";")
-            .ok_or(Error::header())?
-            .0
-            .to_string();
-        Ok(Self {
-            sapisid,
-            client_version,
-            cookies,
-        })
+        BrowserToken::from_str(&contents, client).await
     }
 }

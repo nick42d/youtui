@@ -1,5 +1,4 @@
 // Utilising nightly until async trait stabilised
-#![feature(async_fn_in_trait)]
 #![feature(try_blocks)]
 
 mod app;
@@ -22,6 +21,7 @@ use clap::{Args, Parser, Subcommand};
 use directories::ProjectDirs;
 use error::Error;
 use std::path::{Path, PathBuf};
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -77,24 +77,12 @@ async fn main() {
     // Using try block to print error using Display instead of Debug.
     let outcome: Result<()> = try {
         let args = Arguments::parse();
-        // Config and API key files will be in OS directories.
-        // Create them if they don't exist.
-        initialise_directories().await?;
-        let config = config::Config::new().unwrap();
-        // Once config has loaded, load API key to memory
-        // (Which key to load depends on configuration)
-        // XXX: check that this won't cause any delays.
-        let api_key = load_api_key(&config).await?;
         let Arguments {
             debug,
             cli,
             auth_cmd,
         } = args;
-        let rt = RuntimeInfo {
-            debug,
-            config,
-            api_key,
-        };
+        // We don't need configuration to setup oauth token.
         if let Some(c) = auth_cmd {
             match c {
                 AuthCmd::SetupOauth { file_name } => {
@@ -103,6 +91,20 @@ async fn main() {
             };
             // Done here if we got this command. No need to go further.
             return;
+        };
+        // Config and API key files will be in OS directories.
+        // Create them if they don't exist.
+        initialise_directories().await?;
+        let config = config::Config::new()?;
+        // Once config has loaded, load API key to memory
+        // (Which key to load depends on configuration)
+        // XXX: check that this won't cause any delays.
+        // TODO: Remove delay, should be handled inside app instead.
+        let api_key = load_api_key(&config).await?;
+        let rt = RuntimeInfo {
+            debug,
+            config,
+            api_key,
         };
         match cli.command {
             None => run_app(rt).await?,
@@ -159,20 +161,27 @@ pub fn get_config_dir() -> Result<PathBuf> {
     Ok(directory)
 }
 
-async fn load_cookie_file() -> Result<String> {
+async fn load_cookie_file() -> Result<BrowserToken> {
     let mut path = get_config_dir()?;
     path.push(COOKIE_FILENAME);
-    tokio::fs::read_to_string(&path)
+    let file = tokio::fs::read_to_string(&path)
         .await
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e))
+        // TODO: Remove clone
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path.clone(), e))?;
+    ytmapi_rs::generate_browser_token(file)
+        .await
+        .map_err(|_| Error::new_auth_token_parse_error(config::AuthType::OAuth, path))
 }
 
-async fn load_oauth_file() -> Result<String> {
+async fn load_oauth_file() -> Result<OAuthToken> {
     let mut path = get_config_dir()?;
     path.push(OAUTH_FILENAME);
-    tokio::fs::read_to_string(&path)
+    let file = tokio::fs::read_to_string(&path)
         .await
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::OAuth, path, e))
+        // TODO: Remove clone
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::OAuth, path.clone(), e))?;
+    serde_json::from_str(&file)
+        .map_err(|_| Error::new_auth_token_parse_error(config::AuthType::OAuth, path))
 }
 
 /// Create the Config and Data directories for the app if they do not already exist.
