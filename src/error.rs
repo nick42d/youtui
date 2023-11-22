@@ -19,10 +19,15 @@ pub enum Error {
     // TODO: More advanced error conversions
     ApiError(ytmapi_rs::Error),
     JsonError(serde_json::Error),
+    TomlDeserializationError(toml::de::Error),
     AuthTokenError {
         token_type: AuthType,
         token_location: PathBuf,
         io_error: std::io::Error,
+    },
+    AuthTokenParseError {
+        token_type: AuthType,
+        token_location: PathBuf,
     },
     ErrorCreatingDirectory {
         directory: PathBuf,
@@ -42,6 +47,13 @@ impl Error {
             io_error,
         }
     }
+    // Consider taking into pathbuf.
+    pub fn new_auth_token_parse_error(token_type: AuthType, token_location: PathBuf) -> Self {
+        Self::AuthTokenParseError {
+            token_type,
+            token_location,
+        }
+    }
     pub fn new_error_creating_directory(directory: PathBuf, io_error: std::io::Error) -> Self {
         Self::ErrorCreatingDirectory {
             directory,
@@ -59,9 +71,11 @@ impl Display for Error {
             Error::JoinError(e) => write!(f, "Join error <{e}>"),
             Error::ApiError(e) => write!(f, "Api error <{e}>"),
             Error::JsonError(e) => write!(f, "Json error <{e}>"),
+            Error::TomlDeserializationError(e) => write!(f, "Toml deserialization error:\n{e}"),
             // TODO: Better display format for token_type.
             // XXX: Consider displaying the io error.
-            Error::AuthTokenError { token_type, token_location, io_error: _} => write!(f, "Error loading auth token {:?} from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
+            Error::AuthTokenError { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
+            Error::AuthTokenParseError { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::ErrorCreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
         }
     }
@@ -89,6 +103,11 @@ impl From<JoinError> for Error {
 impl From<serde_json::Error> for Error {
     fn from(value: serde_json::Error) -> Self {
         Error::JsonError(value)
+    }
+}
+impl From<toml::de::Error> for Error {
+    fn from(value: toml::de::Error) -> Self {
+        Error::TomlDeserializationError(value)
     }
 }
 impl From<ytmapi_rs::Error> for Error {
