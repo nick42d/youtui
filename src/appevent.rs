@@ -67,8 +67,11 @@ impl EventSpawner<SignalWatcher> {
         let _tx = tx.clone();
         let _spawner_type = SignalWatcher;
 
-        #[cfg(target_family = "unix")]
-        let mut sigint = tokio::signal::unix::signal(SignalKind::interrupt())?;
+        // NOTE: Ctrl-C key command itself is likely not handled as Crossterm catches it.
+        // If we want to quit on Ctrl-C need to do this the the Crossterm Watcher.
+        // Suspect this is blocking ctrl_c signal
+        // #[cfg(target_family = "unix")]
+        // let mut sigint = tokio::signal::unix::signal(SignalKind::interrupt())?;
         #[cfg(target_family = "unix")]
         let mut sigquit = tokio::signal::unix::signal(SignalKind::quit())?;
         #[cfg(target_family = "unix")]
@@ -81,28 +84,28 @@ impl EventSpawner<SignalWatcher> {
         let mut ctrl_logoff = tokio::signal::windows::ctrl_logoff();
         #[cfg(target_family = "windows")]
         let mut ctrl_shutdown = tokio::signal::windows::ctrl_shutdown();
-        let ctrl_c = tokio::signal::ctrl_c();
 
         let _handler = tokio::spawn(async move {
-            #[cfg(target_family = "unix")]
-            tokio::select! {
-                _ = ctrl_c => {}
-                _ = sigint.recv() => {}
-                _ = sigquit.recv() => {}
-                _ = sigterm.recv() => {}
+            loop {
+                #[cfg(target_family = "unix")]
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {}
+                    _ = sigquit.recv() => {}
+                    _ = sigterm.recv() => {}
+                }
+                #[cfg(target_family = "windows")]
+                tokio::select! {
+                   _ = tokio::signal::ctrl_c() => {}
+                   _ = ctrl_break.recv() => {}
+                   _ = ctrl_close.recv() => {}
+                   _ = ctrl_logoff.recv() => {}
+                   _ = ctrl_shutdown.recv() => {}
+                }
+                handler_tx
+                    .send(AppEvent::QuitSignal)
+                    .await
+                    .unwrap_or_else(|e| warn!("Error {:?} receieved when sending signal event", e));
             }
-            #[cfg(target_family = "windows")]
-            tokio::select! {
-                _ = ctrl_c => {}
-                _ = ctrl_break.recv() => {}
-                _ = ctrl_close.recv() => {}
-                _ = ctrl_logoff.recv() => {}
-                _ = ctrl_shutdown.recv() => {}
-            }
-            handler_tx
-                .send(AppEvent::QuitSignal)
-                .await
-                .unwrap_or_else(|e| warn!("Error {:?} receieved when sending signal event", e));
         });
         Ok(Self {
             _tx,
