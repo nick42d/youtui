@@ -3,6 +3,8 @@ use ytmapi_rs::{
     parse::SongResult,
 };
 
+use crate::error::Error;
+
 use super::{
     server::downloader::DownloadProgressUpdateType,
     structures::{ListSongID, Percentage},
@@ -19,6 +21,7 @@ pub enum StateUpdateMessage {
     HandleSongListLoaded,
     HandleNoSongsFound,
     HandleSongsFound,
+    HandleApiError(Error),
     AppendSongList {
         song_list: Vec<SongResult>,
         album: String,
@@ -75,5 +78,6 @@ pub async fn update_state(state: &mut YoutuiWindow, state_update_msg: StateUpdat
         StateUpdateMessage::SetSongPlayProgress(f, id) => {
             state.handle_set_song_play_progress(f, id)
         }
+        StateUpdateMessage::HandleApiError(e) => state.handle_api_error(e),
     }
 }

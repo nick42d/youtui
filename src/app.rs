@@ -82,28 +82,40 @@ impl Youtui {
         })
     }
     pub async fn run(&mut self) -> Result<()> {
-        while self.window_state.get_status() == &ui::AppStatus::Running {
-            // Get the events from the event_handler and process them.
-            let msg = self.event_handler.next().await;
-            self.process_message(msg).await;
-            // If any requests are in the queue, queue up the tasks on the server.
-            self.queue_server_tasks().await;
-            // Get the state update events from the task manager and process them.
-            let state_updates = self.task_manager.process_messages();
-            process_state_updates(&mut self.window_state, state_updates).await;
-            // Write to terminal, using UI state as the input
-            // We draw after handling the event, as the event could be a keypress we want to instantly react to.
-            // TODO: Error handling
-            self.terminal.draw(|f| {
-                ui::draw::draw_app(f, &self.window_state);
-            })?;
+        loop {
+            match self.window_state.get_status() {
+                ui::AppStatus::Running => {
+                    // Get the events from the event_handler and process them.
+                    let msg = self.event_handler.next().await;
+                    self.process_message(msg).await;
+                    // If any requests are in the queue, queue up the tasks on the server.
+                    self.queue_server_tasks().await;
+                    // Get the state update events from the task manager and process them.
+                    let state_updates = self.task_manager.process_messages();
+                    process_state_updates(&mut self.window_state, state_updates).await;
+                    // Write to terminal, using UI state as the input
+                    // We draw after handling the event, as the event could be a keypress we want to instantly react to.
+                    // TODO: Error handling
+                    self.terminal.draw(|f| {
+                        ui::draw::draw_app(f, &self.window_state);
+                    })?;
+                }
+                ui::AppStatus::Exiting(s) => {
+                    // Once we're done running, destruct the terminal.
+                    destruct_terminal()?;
+                    println!("{s}");
+                    break;
+                }
+            }
         }
         Ok(())
     }
     async fn process_message(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
         match msg {
-            Some(AppEvent::QuitSignal) => self.window_state.set_status(ui::AppStatus::Exiting),
+            Some(AppEvent::QuitSignal) => self
+                .window_state
+                .set_status(ui::AppStatus::Exiting("Quit signal received".into())),
             Some(AppEvent::Crossterm(e)) => self.window_state.handle_event(e).await,
             // XXX: Should be try_poll or similar? Poll the Future but don't await it?
             Some(AppEvent::Tick) => self.window_state.handle_tick().await,
