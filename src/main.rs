@@ -1,6 +1,3 @@
-// Utilising nightly until async trait stabilised
-#![feature(try_blocks)]
-
 mod app;
 mod appevent;
 mod cli;
@@ -75,45 +72,48 @@ pub struct RuntimeInfo {
 #[tokio::main]
 async fn main() {
     // Using try block to print error using Display instead of Debug.
-    let outcome: Result<()> = try {
-        let args = Arguments::parse();
-        let Arguments {
-            debug,
-            cli,
-            auth_cmd,
-        } = args;
-        // We don't need configuration to setup oauth token.
-        if let Some(c) = auth_cmd {
-            match c {
-                AuthCmd::SetupOauth { file_name } => {
-                    cli::get_and_output_oauth_token(file_name).await?
-                }
-            };
-            // Done here if we got this command. No need to go further.
-            return;
-        };
-        // Config and API key files will be in OS directories.
-        // Create them if they don't exist.
-        initialise_directories().await?;
-        let config = config::Config::new()?;
-        // Once config has loaded, load API key to memory
-        // (Which key to load depends on configuration)
-        // XXX: check that this won't cause any delays.
-        // TODO: Remove delay, should be handled inside app instead.
-        let api_key = load_api_key(&config).await?;
-        let rt = RuntimeInfo {
-            debug,
-            config,
-            api_key,
-        };
-        match cli.command {
-            None => run_app(rt).await?,
-            Some(_) => handle_cli_command(cli, rt).await?,
-        };
-    };
-    if let Err(e) = outcome {
+    if let Err(e) = try_main().await {
         println!("{e}");
+        // XXX: Return error code?
     };
+}
+
+// Main function is refactored here so that we can pretty print errors.
+// Regular main function returns debug errors so not as friendly.
+async fn try_main() -> Result<()> {
+    let args = Arguments::parse();
+    let Arguments {
+        debug,
+        cli,
+        auth_cmd,
+    } = args;
+    // We don't need configuration to setup oauth token.
+    if let Some(c) = auth_cmd {
+        match c {
+            AuthCmd::SetupOauth { file_name } => cli::get_and_output_oauth_token(file_name).await?,
+        };
+        // Done here if we got this command. No need to go further.
+        return Ok(());
+    };
+    // Config and API key files will be in OS directories.
+    // Create them if they don't exist.
+    initialise_directories().await?;
+    let config = config::Config::new()?;
+    // Once config has loaded, load API key to memory
+    // (Which key to load depends on configuration)
+    // XXX: check that this won't cause any delays.
+    // TODO: Remove delay, should be handled inside app instead.
+    let api_key = load_api_key(&config).await?;
+    let rt = RuntimeInfo {
+        debug,
+        config,
+        api_key,
+    };
+    match cli.command {
+        None => run_app(rt).await?,
+        Some(_) => handle_cli_command(cli, rt).await?,
+    };
+    Ok(())
 }
 
 async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic> {
@@ -136,12 +136,15 @@ async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic> {
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
+    // Oauth is not yet supported in the app due to needing to refresh the tokens.
+    // So we'll error in that case for now.
+    // TODO: Implement OAuth in the app.
     match &rt.api_key {
         ApiKey::OAuthToken(_) => return Err(Error::OAuthNotYetSupportedByApp),
         ApiKey::BrowserToken(_) => (),
     };
     let mut app = app::Youtui::new(rt)?;
-    app.run().await;
+    app.run().await?;
     Ok(())
 }
 
