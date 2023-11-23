@@ -173,44 +173,6 @@ impl KeyHandler<UIAction> for YoutuiWindow {
     }
 }
 
-impl YoutuiWindow {
-    // TODO: also return Mode description.
-    // The downside of this approach is that if draw_popup is calling this function,
-    // it is gettign called every tick.
-    // Consider a way to set this in the in state memory.
-    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a>> {
-        if let Some(map) = self.get_key_subset(&self.key_stack) {
-            if let Keymap::Mode(mode) = map {
-                return Some(mode.as_readable_short_iter());
-            }
-        }
-        match self.context {
-            WindowContext::Browser => {
-                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
-                    }
-                }
-            }
-            WindowContext::Playlist => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
-                    }
-                }
-            }
-            WindowContext::Logs => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
-                    }
-                }
-            }
-        }
-        None
-    }
-}
-
 impl ActionProcessor<UIAction> for YoutuiWindow {}
 
 impl ActionHandler<UIAction> for YoutuiWindow {
@@ -328,7 +290,6 @@ impl YoutuiWindow {
         self.process_ui_messages().await;
     }
     pub fn quit(&mut self) {
-        crossterm::terminal::disable_raw_mode().unwrap();
         super::destruct_terminal();
         self.status = super::ui::AppStatus::Exiting;
     }
@@ -527,6 +488,41 @@ impl YoutuiWindow {
     }
     fn revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
+    }
+    // TODO: also return Mode description.
+    // The downside of this approach is that if draw_popup is calling this function,
+    // it is gettign called every tick.
+    // Consider a way to set this in the in state memory.
+    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a>> {
+        if let Some(map) = self.get_key_subset(&self.key_stack) {
+            if let Keymap::Mode(mode) = map {
+                return Some(mode.as_readable_short_iter());
+            }
+        }
+        match self.context {
+            WindowContext::Browser => {
+                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.as_readable_short_iter());
+                    }
+                }
+            }
+            WindowContext::Playlist => {
+                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.as_readable_short_iter());
+                    }
+                }
+            }
+            WindowContext::Logs => {
+                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.as_readable_short_iter());
+                    }
+                }
+            }
+        }
+        None
     }
 }
 

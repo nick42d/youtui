@@ -11,6 +11,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
+use std::process;
 use std::{io, sync::Arc};
 use tracing::info;
 use tracing_subscriber::prelude::*;
@@ -60,17 +61,21 @@ impl Youtui {
             .init();
         info!("Starting");
         // Setup terminal
-        enable_raw_mode().unwrap();
+        enable_raw_mode()?;
         let mut stdout = io::stdout();
-        execute!(stdout, EnterAlternateScreen, EnableMouseCapture).unwrap();
+        execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
         // Ensure clean return to shell if panic.
         std::panic::set_hook(Box::new(|panic_info| {
             destruct_terminal();
             println!("{}", panic_info);
+            // "Clean" exit from threads.
+            // May cause leftover processes.
+            // To confirm if closes threads correctly.
+            process::exit(1);
         }));
         let task_manager = taskmanager::TaskManager::new(api_key);
         let backend = CrosstermBackend::new(stdout);
-        let terminal = Terminal::new(backend).unwrap();
+        let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
         let window_state = YoutuiWindow::new(task_manager.get_sender_clone().clone());
         Ok(Youtui {
@@ -80,7 +85,7 @@ impl Youtui {
             task_manager,
         })
     }
-    pub async fn run(&mut self) {
+    pub async fn run(&mut self) -> Result<()> {
         while self.window_state.get_status() == &ui::AppStatus::Running {
             // Get the events from the event_handler and process them.
             let msg = self.event_handler.next().await;
@@ -93,12 +98,11 @@ impl Youtui {
             // Write to terminal, using UI state as the input
             // We draw after handling the event, as the event could be a keypress we want to instantly react to.
             // TODO: Error handling
-            self.terminal
-                .draw(|f| {
-                    ui::draw::draw_app(f, &self.window_state);
-                })
-                .unwrap();
+            self.terminal.draw(|f| {
+                ui::draw::draw_app(f, &self.window_state);
+            })?;
         }
+        Ok(())
     }
     async fn process_message(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
@@ -115,8 +119,9 @@ impl Youtui {
     }
 }
 
-fn destruct_terminal() {
-    disable_raw_mode().unwrap();
-    execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture).unwrap();
-    execute!(io::stdout(), crossterm::cursor::Show).unwrap();
+fn destruct_terminal() -> Result<()> {
+    disable_raw_mode()?;
+    execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
+    execute!(io::stdout(), crossterm::cursor::Show)?;
+    Ok(())
 }

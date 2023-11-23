@@ -194,9 +194,8 @@ impl Scrollable for AlbumSongsList {
         );
         if self.cur_selected == Some(0) || self.cur_selected == Some(self.list.len() - 1) {
             self.offset_commands.clear();
-            // Safe to unwrap, checked above.
             self.offset_commands
-                .push(self.cur_selected.unwrap() as isize);
+                .push(self.cur_selected.expect("Cur selected is not None") as isize);
             return;
         }
         if let Some(n) = self.offset_commands.pop() {

@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::get_api;
 use crate::Cli;
 use crate::Commands;
@@ -15,49 +16,50 @@ use ytmapi_rs::{
 };
 
 pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
+    let config = rt.config;
     match cli {
         // TODO: Block this action using type system.
         Cli { command: None, .. } => println!("Show source requires an associated API command"),
         Cli {
             command: Some(Commands::GetLibraryArtists),
             show_source: true,
-        } => print_library_artists_json().await?,
+        } => print_library_artists_json(&config).await?,
         Cli {
             command: Some(Commands::GetLibraryArtists),
             show_source: false,
-        } => print_library_artists().await?,
+        } => print_library_artists(&config).await?,
         Cli {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: true,
-        } => print_library_playlists_json().await?,
+        } => print_library_playlists_json(&config).await?,
         Cli {
             command: Some(Commands::GetLibraryPlaylists),
             show_source: false,
-        } => print_library_playlists().await?,
+        } => print_library_playlists(&config).await?,
         Cli {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: false,
-        } => print_search_suggestions(query).await?,
+        } => print_search_suggestions(&config, query).await?,
         Cli {
             command: Some(Commands::GetSearchSuggestions { query }),
             show_source: true,
-        } => print_search_suggestions_json(query).await?,
+        } => print_search_suggestions_json(&config, query).await?,
         Cli {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: false,
-        } => print_artist(channel_id).await?,
+        } => print_artist(&config, channel_id).await?,
         Cli {
             command: Some(Commands::GetArtist { channel_id }),
             show_source: true,
-        } => print_artist_json(channel_id).await?,
+        } => print_artist_json(&config, channel_id).await?,
         Cli {
             command: Some(Commands::Search { query }),
             show_source: false,
-        } => search(query).await?,
+        } => search(&config, query).await?,
         Cli {
             command: Some(Commands::Search { query }),
             show_source: true,
-        } => search_json(query).await?,
+        } => search_json(&config, query).await?,
     }
     Ok(())
 }
@@ -82,20 +84,20 @@ async fn get_oauth_token() -> Result<String> {
     Ok(serde_json::to_string_pretty(&token)?)
 }
 
-pub async fn print_artist(query: String) -> Result<()> {
+pub async fn print_artist(config: &Config, query: String) -> Result<()> {
     // TODO: remove unwrap
-    let res = get_api()
-        .await
+    let res = get_api(&config)
+        .await?
         .get_artist(GetArtistQuery::new(ChannelID::from_raw(query)))
         .await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-pub async fn print_artist_json(query: String) -> Result<()> {
+pub async fn print_artist_json(config: &Config, query: String) -> Result<()> {
     // TODO: remove unwrap
-    let json = get_api()
-        .await
+    let json = get_api(&config)
+        .await?
         .json_query(GetArtistQuery::new(ChannelID::from_raw(query)))
         .await?;
     // TODO: remove unwrap
@@ -103,17 +105,20 @@ pub async fn print_artist_json(query: String) -> Result<()> {
     Ok(())
 }
 
-pub async fn print_search_suggestions(query: String) -> Result<()> {
+pub async fn print_search_suggestions(config: &Config, query: String) -> Result<()> {
     // TODO: remove unwrap
-    let res = get_api().await.get_search_suggestions(query).await?;
+    let res = get_api(&config)
+        .await?
+        .get_search_suggestions(query)
+        .await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-pub async fn print_search_suggestions_json(query: String) -> Result<()> {
+pub async fn print_search_suggestions_json(config: &Config, query: String) -> Result<()> {
     // TODO: remove unwrap
-    let json = get_api()
-        .await
+    let json = get_api(&config)
+        .await?
         .json_query(GetSearchSuggestionsQuery::from(query))
         .await?;
     // TODO: remove unwrap
@@ -121,47 +126,53 @@ pub async fn print_search_suggestions_json(query: String) -> Result<()> {
     Ok(())
 }
 
-pub async fn print_library_playlists() -> Result<()> {
-    let res = get_api().await.get_library_playlists().await?;
+pub async fn print_library_playlists(config: &Config) -> Result<()> {
+    let res = get_api(&config).await?.get_library_playlists().await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-pub async fn print_library_playlists_json() -> Result<()> {
-    let json = get_api().await.json_query(GetLibraryPlaylistsQuery).await?;
+pub async fn print_library_playlists_json(config: &Config) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(GetLibraryPlaylistsQuery)
+        .await?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
 // NOTE: Currently only searches artists. Not strictly correct.
-pub async fn search(query: String) -> Result<()> {
-    let res = get_api()
-        .await
+pub async fn search(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config)
+        .await?
         .search(SearchQuery::new(query).with_filter(ytmapi_rs::query::Filter::Artists))
         .await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-pub async fn search_json(query: String) -> Result<()> {
-    let json = get_api().await.json_query(SearchQuery::new(query)).await?;
+pub async fn search_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query))
+        .await?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
 
-pub async fn print_library_artists() -> Result<()> {
+pub async fn print_library_artists(config: &Config) -> Result<()> {
     // TODO: Allow sorting
-    let res = get_api()
-        .await
+    let res = get_api(&config)
+        .await?
         .get_library_artists(GetLibraryArtistsQuery::default())
         .await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-pub async fn print_library_artists_json() -> Result<()> {
+pub async fn print_library_artists_json(config: &Config) -> Result<()> {
     // TODO: Allow sorting
-    let json = get_api()
-        .await
+    let json = get_api(&config)
+        .await?
         .json_query(GetLibraryArtistsQuery::default())
         .await?;
     println!("{}", serde_json::to_string_pretty(&json)?);

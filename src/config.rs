@@ -13,7 +13,7 @@ pub enum ApiKey {
     // If that's the case we can do some additional parsing before we reach the app.
     // Currently OAuthToken is public but not BrowserToken
     OAuthToken(OAuthToken),
-    BrowserToken(BrowserToken),
+    BrowserToken(String),
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

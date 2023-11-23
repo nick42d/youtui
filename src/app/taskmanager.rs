@@ -1,25 +1,23 @@
-use std::sync::Arc;
-
+use super::server::{api, downloader, player};
+use super::statemanager::StateUpdateMessage;
+use super::structures::ListSongID;
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
 use crate::config::ApiKey;
 use crate::core::send_or_error;
 use crate::Result;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 use tracing::{debug, error, info, warn};
 use ytmapi_rs::{ChannelID, VideoID};
-
-use super::server::{api, downloader, player};
-use super::statemanager::StateUpdateMessage;
-use super::structures::{ListSongID, Percentage};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
 
 pub struct TaskManager {
     cur_id: TaskID,
     tasks: Vec<Task>,
-    _server_handle: tokio::task::JoinHandle<()>,
+    _server_handle: tokio::task::JoinHandle<Result<()>>,
     server_request_tx: mpsc::Sender<server::Request>,
     server_response_rx: mpsc::Receiver<server::Response>,
     request_tx: mpsc::Sender<AppRequest>,
@@ -83,7 +81,6 @@ pub enum RequestCategory {
     ProgressUpdate,
     IncreaseVolume, // TODO: generalize
     PlayPauseStop,
-    Unkillable,
 }
 
 impl TaskManager {
@@ -94,8 +91,9 @@ impl TaskManager {
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (request_tx, request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let _server_handle = tokio::spawn(async {
-            let mut a = server::Server::new(api_key, server_response_tx, server_request_rx);
+            let mut a = server::Server::new(api_key, server_response_tx, server_request_rx)?;
             a.run().await;
+            Ok(())
         });
         Self {
             cur_id: TaskID::default(),

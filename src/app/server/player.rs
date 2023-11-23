@@ -6,6 +6,7 @@ use tokio::sync::mpsc;
 use tracing::debug;
 use tracing::info;
 use tracing::trace;
+use tracing::warn;
 
 use crate::app::structures::Percentage;
 use crate::core::blocking_send_or_error;
@@ -72,8 +73,13 @@ pub fn spawn_rodio_thread(
         // The downside is that even though this runs in a seperate thread all stderr for the whole app may be gagged.
         // Also seems to spew out characters?
         // TODO: also handle the errors from Rodio, or write to a file.
-        let _gag_sterr = gag::Gag::stderr().unwrap();
-
+        let _gag = match gag::Gag::stderr() {
+            Ok(gag) => gag,
+            Err(e) => {
+                warn!("Error gagging stderr output");
+                return;
+            }
+        };
         let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
         let sink = rodio::Sink::try_new(&stream_handle).unwrap();
         let mut last_tick_time;
