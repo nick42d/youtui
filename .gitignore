@@ -1,3 +1,4 @@
+*rustc-ice*
 *.data
 *expired-headers.json
 *expired-oauth.json
