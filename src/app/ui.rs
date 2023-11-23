@@ -5,24 +5,22 @@ mod header;
 mod logger;
 mod playlist;
 
-use std::borrow::Cow;
-use std::sync::Arc;
-
 use self::browser::BrowserAction;
 use self::playlist::PlaylistAction;
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
-use super::taskmanager::{AppRequest, TaskID};
-
 use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
     KeyRouter, Keybind, KeybindVisibility, Keymap, TextHandler,
 };
-
 use super::server;
 use super::structures::*;
+use super::taskmanager::{AppRequest, TaskID};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
+use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent};
+use std::borrow::Cow;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::common::{SearchSuggestion, TextRun};
@@ -43,7 +41,8 @@ pub struct BasicCommand {
 #[derive(PartialEq)]
 pub enum AppStatus {
     Running,
-    Exiting,
+    // Cow: Message
+    Exiting(Cow<'static, str>),
 }
 
 // Which app level keyboard shortcuts function.
@@ -291,7 +290,7 @@ impl YoutuiWindow {
     }
     pub fn quit(&mut self) {
         super::destruct_terminal();
-        self.status = super::ui::AppStatus::Exiting;
+        self.status = super::ui::AppStatus::Exiting("Quitting".into());
     }
     pub async fn process_ui_messages(&mut self) {
         while let Ok(msg) = self.ui_rx.try_recv() {
@@ -396,6 +395,9 @@ impl YoutuiWindow {
     }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
+    }
+    pub fn handle_api_error(&mut self, e: Error) {
+        self.set_status(AppStatus::Exiting(e.to_string().into()));
     }
     pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
         self.playlist.handle_set_song_play_progress(f, id);

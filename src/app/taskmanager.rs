@@ -393,6 +393,7 @@ impl TaskManager {
                     artist,
                 })
             }
+            api::Response::ApiError(e) => Some(StateUpdateMessage::HandleApiError(e)),
         }
     }
     pub fn process_downloader_msg(&self, msg: downloader::Response) -> Option<StateUpdateMessage> {

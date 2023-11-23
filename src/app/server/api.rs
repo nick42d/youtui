@@ -35,6 +35,7 @@ pub enum Response {
         artist: String,
         id: TaskID,
     },
+    ApiError(Error),
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
@@ -63,7 +64,7 @@ impl Api {
     }
     async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic> {
         // NOTE: This function returns a different type of error if not called before, due to difficulties
-        // I'm having in saving Result<T,E> in the api.
+        // I'm having in saving Result<T,E> but returning Result<&T, E>.
         if let Some(handle) = self.api_init.take() {
             let api = handle.await??;
             self.api = Some(api);
@@ -71,7 +72,7 @@ impl Api {
         if let Some(api) = self.api.as_ref() {
             Ok(api)
         } else {
-            Err(Error::Communication)
+            Err(Error::UnknownAPIError)
         }
     }
     pub async fn handle_request(&mut self, request: Request) {
@@ -92,15 +93,17 @@ impl Api {
         // internally and so I believe clones efficiently.
         // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
         // Create a stream of tasks, map with a reference to API.
+        let tx = self.response_tx.clone();
         let api = match self.get_api().await {
             Ok(api) => api,
             Err(e) => {
                 error!("Error {e} connecting to API");
+                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
+                    .await;
                 return;
             }
         }
         .clone();
-        let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {
                 tracing::info!("Getting search suggestions for {text}");
@@ -132,15 +135,17 @@ impl Api {
         // internally and so I believe clones efficiently.
         // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
         // Create a stream of tasks, map with a reference to API.
+        let tx = self.response_tx.clone();
         let api = match self.get_api().await {
             Ok(api) => api,
             Err(e) => {
                 error!("Error {e} connecting to API");
+                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
+                    .await;
                 return;
             }
         }
         .clone();
-        let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {
                 //            let api = crate::app::api::APIHandler::new();
@@ -189,15 +194,17 @@ impl Api {
     ) {
         let KillableTask { id, kill_rx } = task;
         // See above note
+        let tx = self.response_tx.clone();
         let api = match self.get_api().await {
             Ok(api) => api,
             Err(e) => {
                 error!("Error {e} connecting to API");
+                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
+                    .await;
                 return;
             }
         }
         .clone();
-        let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {
                 let tx = tx.clone();
