@@ -1,9 +1,9 @@
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 mod structures;
-use tracing::info;
-
 use crate::config::ApiKey;
+use crate::Result;
+use tracing::info;
 
 use super::taskmanager::TaskID;
 
@@ -55,18 +55,18 @@ impl Server {
         api_key: ApiKey,
         response_tx: mpsc::Sender<Response>,
         request_rx: mpsc::Receiver<Request>,
-    ) -> Self {
+    ) -> Result<Self> {
         let api = api::Api::new(api_key, response_tx.clone());
         // TODO: Error handling
-        let player = player::PlayerManager::new(response_tx.clone()).unwrap();
+        let player = player::PlayerManager::new(response_tx.clone())?;
         let downloader = downloader::Downloader::new(response_tx.clone());
-        Self {
+        Ok(Self {
             api,
             player,
             downloader,
             request_rx,
             _response_tx: response_tx,
-        }
+        })
     }
     pub async fn run(&mut self) {
         // Could be a while let

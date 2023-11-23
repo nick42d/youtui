@@ -1,3 +1,9 @@
+use super::spawn_run_or_kill;
+use super::KillableTask;
+use crate::app::taskmanager::TaskID;
+use crate::config::ApiKey;
+use crate::Result;
+use tokio::sync::mpsc;
 use tracing::{error, info};
 use ytmapi_rs::common::youtuberesult::YoutubeResult;
 use ytmapi_rs::common::AlbumID;
@@ -5,20 +11,7 @@ use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::parse::SongResult;
-
 use ytmapi_rs::ChannelID;
-
-use crate::config::ApiKey;
-use crate::get_config_dir;
-use crate::Result;
-use crate::COOKIE_FILENAME;
-
-use crate::app::taskmanager::TaskID;
-
-use tokio::sync::mpsc;
-
-use super::spawn_run_or_kill;
-use super::KillableTask;
 
 pub enum Request {
     GetSearchSuggestions(String, KillableTask),
@@ -55,7 +48,7 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api = match api_key {
-                ApiKey::BrowserToken(t) => ytmapi_rs::YtMusic::from_browser_token(t),
+                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await.unwrap_or_else(|e| panic!("Error creating API from cookie file. See README.md for more information on authorisation.\n{e}")),
                 ApiKey::OAuthToken(t) => ytmapi_rs::YtMusic::from_oauth_token(t),
             };
             info!("API initialised");
@@ -68,9 +61,8 @@ impl Api {
         }
     }
     async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic> {
-        if self.api_init.is_some() {
-            let handle = self.api_init.take();
-            let api = handle.unwrap().await?;
+        if let Some(handle) = self.api_init.take() {
+            let api = handle.await?;
             self.api = Some(api);
         }
         return Ok(self
@@ -96,7 +88,14 @@ impl Api {
         // internally and so I believe clones efficiently.
         // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
         // Create a stream of tasks, map with a reference to API.
-        let api = self.get_api().await.unwrap().clone();
+        let api = match self.get_api().await {
+            Ok(api) => api,
+            Err(e) => {
+                error!("Error {e} connecting to API");
+                return;
+            }
+        }
+        .clone();
         let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {
@@ -121,6 +120,7 @@ impl Api {
         )
         .await;
     }
+
     async fn handle_new_artist_search(&mut self, artist: String, task: KillableTask) {
         let KillableTask { id, kill_rx } = task;
         // Give the task a clone of the API. Not ideal but works.
@@ -128,7 +128,14 @@ impl Api {
         // internally and so I believe clones efficiently.
         // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
         // Create a stream of tasks, map with a reference to API.
-        let api = self.get_api().await.unwrap().clone();
+        let api = match self.get_api().await {
+            Ok(api) => api,
+            Err(e) => {
+                error!("Error {e} connecting to API");
+                return;
+            }
+        }
+        .clone();
         let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {
@@ -178,7 +185,14 @@ impl Api {
     ) {
         let KillableTask { id, kill_rx } = task;
         // See above note
-        let api = self.get_api().await.unwrap().clone();
+        let api = match self.get_api().await {
+            Ok(api) => api,
+            Err(e) => {
+                error!("Error {e} connecting to API");
+                return;
+            }
+        }
+        .clone();
         let tx = self.response_tx.clone();
         let _ = spawn_run_or_kill(
             async move {

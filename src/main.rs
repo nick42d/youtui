@@ -116,15 +116,23 @@ async fn main() {
     };
 }
 
-async fn get_api() -> ytmapi_rs::YtMusic {
-    // TODO: remove unwrap
-    let confdir = get_config_dir().unwrap();
-    let mut cookies_loc = PathBuf::from(confdir);
-    cookies_loc.push(COOKIE_FILENAME);
-    // TODO: remove unwrap
-    ytmapi_rs::YtMusic::from_cookie_file(cookies_loc)
-        .await
-        .unwrap()
+async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic> {
+    let confdir = get_config_dir()?;
+    let api = match config.get_auth_type() {
+        config::AuthType::OAuth => {
+            let mut oauth_loc = PathBuf::from(confdir);
+            oauth_loc.push(OAUTH_FILENAME);
+            let file = tokio::fs::read_to_string(oauth_loc).await?;
+            let oath_tok = serde_json::from_str(&file)?;
+            ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
+        }
+        config::AuthType::Browser => {
+            let mut cookies_loc = PathBuf::from(confdir);
+            cookies_loc.push(COOKIE_FILENAME);
+            ytmapi_rs::YtMusic::from_cookie_file(cookies_loc).await?
+        }
+    };
+    Ok(api)
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
@@ -161,16 +169,13 @@ pub fn get_config_dir() -> Result<PathBuf> {
     Ok(directory)
 }
 
-async fn load_cookie_file() -> Result<BrowserToken> {
+async fn load_cookie_file() -> Result<String> {
     let mut path = get_config_dir()?;
     path.push(COOKIE_FILENAME);
     let file = tokio::fs::read_to_string(&path)
         .await
-        // TODO: Remove clone
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path.clone(), e))?;
-    ytmapi_rs::generate_browser_token(file)
-        .await
-        .map_err(|_| Error::new_auth_token_parse_error(config::AuthType::OAuth, path))
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e));
+    file
 }
 
 async fn load_oauth_file() -> Result<OAuthToken> {

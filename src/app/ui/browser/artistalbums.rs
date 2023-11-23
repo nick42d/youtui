@@ -154,10 +154,11 @@ impl SearchBlock {
                     })
                     .unwrap_or_default(),
             );
-            // Safe - clamped and set above
+            // Safe - clamped above
             // Clone is ok here as we want to duplicate the search suggestion.
-            self.search_contents =
-                self.search_suggestions[self.suggestions_cur.unwrap()].get_text();
+            self.search_contents = self.search_suggestions
+                [self.suggestions_cur.expect("Set to non-None value above")]
+            .get_text();
             self.move_cursor_to_end();
         }
     }

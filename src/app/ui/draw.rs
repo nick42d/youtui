@@ -44,9 +44,11 @@ where
 }
 fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
     let title = "test";
-    let commands = w.get_cur_mode();
-    // TODO: Remove unwrap, although we shouldn't be drawing popup if no Map.
-    let shortcuts_descriptions = commands.unwrap().collect::<Vec<_>>();
+    // If there are no commands, no need to draw anything.
+    let Some(commands) = w.get_cur_mode() else {
+        return;
+    };
+    let shortcuts_descriptions = commands.collect::<Vec<_>>();
     // Cloning here only clones iterators, so it's low-cost.
     // let shortcut_len = shortcuts.clone().map(|s| s.len()).max().unwrap_or_default();
     // let description_len = descriptions
