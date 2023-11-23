@@ -68,10 +68,6 @@ impl Youtui {
         std::panic::set_hook(Box::new(|panic_info| {
             destruct_terminal();
             println!("{}", panic_info);
-            // "Clean" exit from threads.
-            // May cause leftover processes.
-            // To confirm if closes threads correctly.
-            process::exit(1);
         }));
         let task_manager = taskmanager::TaskManager::new(api_key);
         let backend = CrosstermBackend::new(stdout);

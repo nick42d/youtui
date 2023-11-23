@@ -13,6 +13,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     OAuthNotYetSupportedByApp,
     Communication,
+    UnknownAPIError,
     DirectoryNameError,
     IoError(std::io::Error),
     JoinError(JoinError),
@@ -67,6 +68,7 @@ impl Display for Error {
             Error::Communication => write!(f, "Error sending message to channel"),
             Error::DirectoryNameError => write!(f, "Error generating application directory for your host system. See README.md for more information about application directories."),
             Error::OAuthNotYetSupportedByApp => write!(f, "App does not currently support Oauth tokens for authentication. Use browser authentication. See README.md for more information."),
+            Error::UnknownAPIError => write!(f, "Unknown API error."),
             Error::IoError(e) => write!(f, "Standard io error <{e}>"),
             Error::JoinError(e) => write!(f, "Join error <{e}>"),
             Error::ApiError(e) => write!(f, "Api error <{e}>"),
