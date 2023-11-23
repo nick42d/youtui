@@ -2,6 +2,7 @@ use super::spawn_run_or_kill;
 use super::KillableTask;
 use crate::app::taskmanager::TaskID;
 use crate::config::ApiKey;
+use crate::error::Error;
 use crate::Result;
 use tokio::sync::mpsc;
 use tracing::{error, info};
@@ -38,7 +39,7 @@ pub enum Response {
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
     api: Option<ytmapi_rs::YtMusic>,
-    api_init: Option<tokio::task::JoinHandle<ytmapi_rs::YtMusic>>,
+    api_init: Option<tokio::task::JoinHandle<Result<ytmapi_rs::YtMusic>>>,
     response_tx: mpsc::Sender<super::Response>,
 }
 
@@ -48,11 +49,11 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api = match api_key {
-                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await.unwrap_or_else(|e| panic!("Error creating API from cookie file. See README.md for more information on authorisation.\n{e}")),
+                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await?,
                 ApiKey::OAuthToken(t) => ytmapi_rs::YtMusic::from_oauth_token(t),
             };
             info!("API initialised");
-            api
+            Ok(api)
         }));
         Self {
             api: None,
@@ -61,14 +62,17 @@ impl Api {
         }
     }
     async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic> {
+        // NOTE: This function returns a different type of error if not called before, due to difficulties
+        // I'm having in saving Result<T,E> in the api.
         if let Some(handle) = self.api_init.take() {
-            let api = handle.await?;
+            let api = handle.await??;
             self.api = Some(api);
         }
-        return Ok(self
-            .api
-            .as_ref()
-            .expect("Should have put the API into the option above"));
+        if let Some(api) = self.api.as_ref() {
+            Ok(api)
+        } else {
+            Err(Error::Communication)
+        }
     }
     pub async fn handle_request(&mut self, request: Request) {
         match request {
