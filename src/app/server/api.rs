@@ -72,6 +72,8 @@ impl Api {
         if let Some(api) = self.api.as_ref() {
             Ok(api)
         } else {
+            // Rough guard against the case of sending an unkown api error.
+            // TODO: Better handling for this edge case.
             tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
             Err(Error::UnknownAPIError)
         }
