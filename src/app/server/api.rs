@@ -72,6 +72,7 @@ impl Api {
         if let Some(api) = self.api.as_ref() {
             Ok(api)
         } else {
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
             Err(Error::UnknownAPIError)
         }
     }
