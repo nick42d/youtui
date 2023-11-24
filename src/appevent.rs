@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 use crate::Result;
 use crossterm::event::{Event, EventStream, MouseEvent, MouseEventKind};
+=======
+use crossterm::event::{Event, EventStream, KeyEvent, KeyEventKind, MouseEvent, MouseEventKind};
+>>>>>>> Stashed changes
 use futures::StreamExt;
 use std::time::Duration;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
@@ -128,6 +132,13 @@ impl EventSpawner<CrosstermWatcher> {
                     // Each application event causes a UI render.
                     Event::Mouse(MouseEvent {
                         kind: MouseEventKind::Drag(_) | MouseEventKind::Moved,
+                        ..
+                    }) => (),
+                    // Avoid duplicate keypresses on Windows.
+                    // https://ratatui.rs/faq/duplicate-key-events-windows.html
+                    // NOTE: There is also a Repeat KeyEventKind which we aren't ignoring for now.
+                    Event::Key(KeyEvent {
+                        kind: KeyEventKind::Release,
                         ..
                     }) => (),
                     _ => handler_tx
