@@ -18,7 +18,7 @@ use super::taskmanager::{AppRequest, TaskID};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crate::error::Error;
-use crossterm::event::{Event, KeyCode, KeyEvent};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -538,5 +538,6 @@ fn global_keybinds() -> Vec<Keybind<UIAction>> {
         Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         Keybind::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
         Keybind::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
+        Keybind::new_modified_from_code(KeyCode::Char('c'), KeyModifiers::CONTROL, UIAction::Quit),
     ]
 }

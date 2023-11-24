@@ -122,6 +122,14 @@ impl<A: Action> Keybind<A> {
             visibility: KeybindVisibility::Hidden,
         }
     }
+    pub fn new_modified_from_code(code: KeyCode, modifiers: KeyModifiers, action: A) -> Keybind<A> {
+        Keybind {
+            code,
+            modifiers,
+            key_map: Keymap::Action(action),
+            visibility: KeybindVisibility::Hidden,
+        }
+    }
     pub fn new_global_from_code(code: KeyCode, action: A) -> Keybind<A> {
         Keybind {
             code,
