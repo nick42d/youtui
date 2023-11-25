@@ -249,7 +249,7 @@ impl TaskManager {
         .await
     }
     pub async fn spawn_get_play_progress(&mut self, song_id: ListSongID, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
+        self.block_all_task_type_except_id(RequestCategory::ProgressUpdate, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::GetPlayProgress(song_id, id)),

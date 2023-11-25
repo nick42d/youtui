@@ -274,8 +274,9 @@ impl Playlist {
         }
     }
     pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
-        info!("Stopping");
+        info!("Received message to stop {:?}", id);
         if self.check_id_is_cur(id) {
+            info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
         }
     }
@@ -317,10 +318,6 @@ impl Playlist {
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
         self.list.push_song_list(song_list)
-    }
-    pub fn push_clone_listsong(&mut self, song: &ListSong) -> ListSongID {
-        // Are duplicate songs ok?
-        self.list.push_clone_listsong(song)
     }
     pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {
@@ -418,7 +415,7 @@ impl Playlist {
                     }
                     None => {
                         info!("No next song - finishing playback");
-                        self.set_play_has_finished();
+                        send_or_error(&self.ui_tx, UIMessage::Stop(*id)).await;
                     }
                 }
             }
@@ -523,9 +520,6 @@ impl Playlist {
             PlayState::Playing(id) | PlayState::Paused(id) => id == check_id,
             _ => false,
         }
-    }
-    pub fn check_id_is_in_list(&self, check_id: ListSongID) -> bool {
-        self.list.list.iter().any(|s| s.id == check_id)
     }
     pub fn get_cur_playing_index(&self) -> Option<usize> {
         match self.play_status {
