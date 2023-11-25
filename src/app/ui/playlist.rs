@@ -299,13 +299,20 @@ impl Playlist {
         self.play_song_id(id).await;
     }
     pub async fn delete_selected(&mut self) {
-        let Some(cur_idx) = self.list.cur_selected else {
+        let Some(cur_selected_idx) = self.list.cur_selected else {
             return;
         };
+        // If current song is playing, stop it.
+        if let Some(cur_playing_id) = self.get_cur_playing_id() {
+            if Some(cur_selected_idx) == self.get_cur_playing_index() {
+                send_or_error(&self.ui_tx, UIMessage::Stop(cur_playing_id)).await;
+            }
+        }
+        // TODO: Remove behaviour for cur_selected
         // TODO: Resolve offset commands
         // TODO: Test mut ListState functionality to see if a better substitute for using offsetcommands.
-        self.list.list.remove(cur_idx);
-        todo!("Complete implementation, handling stop case");
+        self.list.list.remove(cur_selected_idx);
+        todo!("Fix visual bug where \"Not Playing\" displayed");
     }
     pub async fn delete_all(&mut self) {
         self.reset().await;
