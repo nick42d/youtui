@@ -299,7 +299,13 @@ impl Playlist {
         self.play_song_id(id).await;
     }
     pub async fn delete_selected(&mut self) {
-        todo!();
+        let Some(cur_idx) = self.list.cur_selected else {
+            return;
+        };
+        // TODO: Resolve offset commands
+        // TODO: Test mut ListState functionality to see if a better substitute for using offsetcommands.
+        self.list.list.remove(cur_idx);
+        todo!("Complete implementation, handling stop case");
     }
     pub async fn delete_all(&mut self) {
         self.reset().await;
@@ -339,11 +345,6 @@ impl Playlist {
             }
         }
     }
-    pub fn clear(&mut self) {
-        self.cur_played_secs = None;
-        self.play_status = PlayState::NotPlaying;
-        self.list.clear();
-    }
     pub async fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
@@ -351,6 +352,11 @@ impl Playlist {
         }
         self.clear()
         // XXX: Also need to kill pending download tasks
+    }
+    pub fn clear(&mut self) {
+        self.cur_played_secs = None;
+        self.play_status = PlayState::NotPlaying;
+        self.list.clear();
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
         if let Some(cur_id) = self.get_cur_playing_id() {
