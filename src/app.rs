@@ -38,11 +38,7 @@ pub struct Youtui {
 
 impl Youtui {
     pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
-        let RuntimeInfo {
-            debug,
-            config,
-            api_key,
-        } = rt;
+        let RuntimeInfo { api_key, .. } = rt;
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
@@ -66,7 +62,8 @@ impl Youtui {
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
         // Ensure clean return to shell if panic.
         std::panic::set_hook(Box::new(|panic_info| {
-            destruct_terminal();
+            // If we fail to destruct terminal, ignore the error as panicking anyway.
+            let _ = destruct_terminal();
             println!("{}", panic_info);
         }));
         let task_manager = taskmanager::TaskManager::new(api_key);

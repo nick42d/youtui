@@ -44,6 +44,8 @@ pub enum PlaylistAction {
     PageDown,
     PageUp,
     PlaySelected,
+    DeleteSelected,
+    DeleteAll,
 }
 
 impl Action for PlaylistAction {
@@ -58,6 +60,8 @@ impl Action for PlaylistAction {
             PlaylistAction::PageDown => "Page Down",
             PlaylistAction::PageUp => "Page Up",
             PlaylistAction::PlaySelected => "Play Selected",
+            PlaylistAction::DeleteSelected => "Delete Selected",
+            PlaylistAction::DeleteAll => "Delete All",
         }
         .into()
     }
@@ -166,6 +170,8 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::PageDown => self.increment_list(10),
             PlaylistAction::PageUp => self.increment_list(-10),
             PlaylistAction::PlaySelected => self.play_selected().await,
+            PlaylistAction::DeleteSelected => self.delete_selected().await,
+            PlaylistAction::DeleteAll => self.delete_all().await,
         }
     }
 }
@@ -266,21 +272,21 @@ impl Playlist {
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.play_next_or_finish(id).await;
     }
-    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
+    pub fn handle_set_to_playing(&mut self, id: ListSongID) {
         if let PlayState::Paused(p_id) = self.play_status {
             if p_id == id {
                 self.play_status = PlayState::Playing(id)
             }
         }
     }
-    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
+    pub fn handle_set_to_stopped(&mut self, id: ListSongID) {
         info!("Received message to stop {:?}", id);
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
         }
     }
-    pub async fn handle_set_all_to_stopped(&mut self) {
+    pub fn handle_set_all_to_stopped(&mut self) {
         self.play_status = PlayState::Stopped
     }
     pub async fn play_selected(&mut self) {
@@ -291,6 +297,12 @@ impl Playlist {
             return;
         };
         self.play_song_id(id).await;
+    }
+    pub async fn delete_selected(&mut self) {
+        todo!();
+    }
+    pub async fn delete_all(&mut self) {
+        todo!();
     }
     pub async fn view_browser(&mut self) {
         send_or_error(
@@ -536,6 +548,14 @@ fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
         Keybind::new_from_code(KeyCode::Up, PlaylistAction::Up),
         Keybind::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
         Keybind::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
-        Keybind::new_from_code(KeyCode::Enter, PlaylistAction::PlaySelected),
+        Keybind::new_action_only_mode(
+            vec![
+                (KeyCode::Enter, PlaylistAction::PlaySelected),
+                (KeyCode::Char('d'), PlaylistAction::DeleteSelected),
+                (KeyCode::Char('D'), PlaylistAction::DeleteAll),
+            ],
+            KeyCode::Enter,
+            "Playlist Action",
+        ),
     ]
 }

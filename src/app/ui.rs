@@ -385,13 +385,13 @@ impl YoutuiWindow {
         self.playlist.handle_set_to_paused(id).await
     }
     pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_playing(id).await
+        self.playlist.handle_set_to_playing(id)
     }
     pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_stopped(id).await
+        self.playlist.handle_set_to_stopped(id)
     }
     pub async fn handle_set_all_to_stopped(&mut self) {
-        self.playlist.handle_set_all_to_stopped().await
+        self.playlist.handle_set_all_to_stopped()
     }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
@@ -510,7 +510,7 @@ impl YoutuiWindow {
                 }
             }
             WindowContext::Playlist => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                if let Some(map) = self.playlist.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
                         return Some(mode.as_readable_short_iter());
                     }
@@ -545,7 +545,7 @@ impl YoutuiWindow {
                 }
             }
             WindowContext::Playlist => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                if let Some(map) = self.playlist.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
                         return Some(mode.describe());
                     }
