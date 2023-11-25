@@ -526,6 +526,41 @@ impl YoutuiWindow {
         }
         None
     }
+    // TODO: also return Mode description.
+    // The downside of this approach is that if draw_popup is calling this function,
+    // it is gettign called every tick.
+    // Consider a way to set this in the in state memory.
+    fn get_cur_mode_description(&self) -> Option<Cow<str>> {
+        if let Some(map) = self.get_key_subset(&self.key_stack) {
+            if let Keymap::Mode(mode) = map {
+                return Some(mode.describe());
+            }
+        }
+        match self.context {
+            WindowContext::Browser => {
+                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.describe());
+                    }
+                }
+            }
+            WindowContext::Playlist => {
+                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.describe());
+                    }
+                }
+            }
+            WindowContext::Logs => {
+                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                    if let Keymap::Mode(mode) = map {
+                        return Some(mode.describe());
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 fn global_keybinds() -> Vec<Keybind<UIAction>> {

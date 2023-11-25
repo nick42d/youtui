@@ -43,7 +43,10 @@ where
     footer::draw_footer(f, w, base_layout[2]);
 }
 fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
-    let title = "test";
+    // If there are no commands, no need to draw anything.
+    let Some(title) = w.get_cur_mode_description() else {
+        return;
+    };
     // If there are no commands, no need to draw anything.
     let Some(commands) = w.get_cur_mode() else {
         return;
