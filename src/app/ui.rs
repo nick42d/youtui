@@ -73,6 +73,7 @@ pub enum UIMessage {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
+    StopAll,
 }
 
 // An action that can be triggered from a keybind.
@@ -335,10 +336,7 @@ impl YoutuiWindow {
                     self.playlist.push_song_list(song_list);
                 }
                 UIMessage::AddSongsToPlaylistAndPlay(song_list) => {
-                    self.playlist
-                        .reset()
-                        .await
-                        .unwrap_or_else(|e| error!("Error <{e}> resetting playlist"));
+                    self.playlist.reset().await;
                     let id = self.playlist.push_song_list(song_list);
                     self.playlist.play_song_id(id).await;
                 }
@@ -355,6 +353,9 @@ impl YoutuiWindow {
                 }
                 UIMessage::Stop(id) => {
                     send_or_error(&self.task_manager_request_tx, AppRequest::Stop(id)).await;
+                }
+                UIMessage::StopAll => {
+                    send_or_error(&self.task_manager_request_tx, AppRequest::StopAll).await;
                 }
                 UIMessage::GetVolume => {
                     send_or_error(&self.task_manager_request_tx, AppRequest::GetVolume).await;

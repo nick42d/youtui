@@ -302,7 +302,7 @@ impl Playlist {
         todo!();
     }
     pub async fn delete_all(&mut self) {
-        todo!();
+        self.reset().await;
     }
     pub async fn view_browser(&mut self) {
         send_or_error(
@@ -339,20 +339,18 @@ impl Playlist {
             }
         }
     }
-    // Ideally owned by list itself.
-    pub async fn reset(&mut self) -> Result<()> {
+    pub fn clear(&mut self) {
+        self.cur_played_secs = None;
+        self.play_status = PlayState::NotPlaying;
+        self.list.clear();
+    }
+    pub async fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
             send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
         }
-        self.list.state = ListStatus::New;
-        // We can't reset the ID, we'll keep incrementing.
-        // self.list.next_id = ListSongID(0);
-        self.list.list.clear();
-        self.list.cur_selected = None;
-        self.cur_played_secs = None;
+        self.clear()
         // XXX: Also need to kill pending download tasks
-        Ok(())
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
         if let Some(cur_id) = self.get_cur_playing_id() {

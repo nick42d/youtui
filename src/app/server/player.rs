@@ -28,6 +28,7 @@ pub enum Request {
     PlaySong(Arc<Vec<u8>>, ListSongID, TaskID),
     GetPlayProgress(ListSongID, TaskID), // Should give ID?
     Stop(ListSongID, TaskID),
+    StopAll(TaskID),
     PausePlay(ListSongID, TaskID),
 }
 
@@ -37,6 +38,7 @@ pub enum Response {
     Paused(ListSongID, TaskID),
     Playing(ListSongID, TaskID),
     Stopped(ListSongID, TaskID),
+    StoppedAll(TaskID),
     ProgressUpdate(f64, ListSongID, TaskID),
     VolumeUpdate(Percentage, TaskID), // Should be Percentage
 }
@@ -118,6 +120,18 @@ pub fn spawn_rodio_thread(
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::Stopped(song_id, id)),
+                        );
+                        thinks_is_playing = false;
+                    }
+                    // TODO: Refactor with above.
+                    Request::StopAll(id) => {
+                        info!("Got message to stop playing all");
+                        if !sink.empty() {
+                            sink.stop()
+                        }
+                        blocking_send_or_error(
+                            &response_tx,
+                            super::Response::Player(Response::StoppedAll(id)),
                         );
                         thinks_is_playing = false;
                     }

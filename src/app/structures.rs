@@ -245,6 +245,13 @@ impl Default for AlbumSongsList {
 }
 
 impl AlbumSongsList {
+    pub fn clear(&mut self) {
+        // We can't reset the ID, so it's left out and we'll keep incrementing.
+        self.state = ListStatus::New;
+        self.list.clear();
+        self.cur_selected = None;
+        self.offset_commands.clear();
+    }
     // Naive implementation
     pub fn append_raw_songs(
         &mut self,
