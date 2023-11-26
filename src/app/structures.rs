@@ -57,44 +57,12 @@ pub enum PlayState {
     Playing(ListSongID),
     Transitioning,
     Paused(ListSongID),
+    // May be the same as NotPlaying?
     Stopped,
     Buffering(ListSongID),
 }
 
 impl PlayState {
-    pub fn transition_to_paused(self) -> Self {
-        match self {
-            Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped => Self::Stopped,
-            Self::Playing(id) => Self::Paused(id),
-            Self::Paused(id) => Self::Paused(id),
-            Self::Buffering(id) => Self::Paused(id),
-            Self::Transitioning => {
-                tracing::error!("Tried to transition from transitioning state, unhandled.");
-                Self::Transitioning
-            }
-        }
-    }
-    pub fn transition_to_stopped(self) -> Self {
-        match self {
-            Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped => Self::Stopped,
-            Self::Playing(id) => Self::Stopped,
-            Self::Buffering(id) => Self::Stopped,
-            Self::Paused(id) => {
-                warn!("Stopping from Paused status - seems unusual");
-                Self::Stopped
-            }
-            Self::Transitioning => {
-                tracing::error!("Tried to transition from transitioning state, unhandled.");
-                Self::Transitioning
-            }
-        }
-    }
-    pub fn take_whilst_transitioning(&mut self) -> Self {
-        let temp = Self::Transitioning;
-        std::mem::replace(self, temp)
-    }
     pub fn list_icon(&self) -> char {
         match self {
             PlayState::Buffering(_) => '',
@@ -290,6 +258,11 @@ impl AlbumSongsList {
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, mut song_list: Vec<ListSong>) -> ListSongID {
+        // Set a current selected index if we haven't already got one
+        // so that we can start using commands right away.
+        if !song_list.is_empty() && self.cur_selected.is_none() {
+            self.cur_selected = Some(0);
+        }
         let first_id = self.create_next_id();
         song_list.first_mut().map(|song| song.id = first_id);
         // XXX: Below panics - consider a better option.
@@ -300,12 +273,36 @@ impl AlbumSongsList {
         }
         first_id
     }
-    pub fn push_clone_listsong(&mut self, song: &ListSong) -> ListSongID {
-        let mut cloned_song = song.clone();
-        let id = self.create_next_id();
-        cloned_song.id = id;
-        self.list.push(cloned_song);
-        id
+    /// Safely deletes the song at index if it exists, and returns it.
+    pub fn remove_song_index(&mut self, idx: usize) -> Option<ListSong> {
+        // Guard against index out of bounds
+        if self.list.len() <= idx {
+            return None;
+        }
+        // If we are removing a song at a position less than current index, decrement current index.
+        if let Some(cur_idx) = self.cur_selected.take() {
+            // NOTE: Ok to simply take, if list only had one element.
+            if cur_idx >= idx && idx != 0 {
+                // Safe, as checked above that cur_idx >= 0
+                self.cur_selected = Some(cur_idx - 1);
+            }
+        }
+        // Tidy up offset commands
+        info!("Offset commands before {:?}", self.offset_commands);
+        self.offset_commands.iter_mut().fold(0, |acc, e| {
+            let total = acc + *e;
+            info!("folding: acc: {acc}, e: {e}, total: {total}, idx: {idx}");
+            if (acc..total).contains(&(idx as isize)) {
+                info!("{:?}", (total..acc));
+                info!("Adjusting e from: {e}...");
+                *e = *e - 1 * e.signum();
+                info!("... to: {e}");
+            }
+            acc + *e
+        });
+        info!("Offset commands after {:?}", self.offset_commands);
+        todo!("Complete implementation of adjusting offset, and clear up info messages");
+        Some(self.list.remove(idx))
     }
     pub fn create_next_id(&mut self) -> ListSongID {
         self.next_id.0 += 1;

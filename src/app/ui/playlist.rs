@@ -14,7 +14,7 @@ use crate::app::{
     ui::{UIMessage, WindowContext},
     view::Drawable,
 };
-use crate::error::Result;
+
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
 use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
@@ -299,20 +299,21 @@ impl Playlist {
         self.play_song_id(id).await;
     }
     pub async fn delete_selected(&mut self) {
+        info!("Cur selected: {:?}", self.list.cur_selected);
         let Some(cur_selected_idx) = self.list.cur_selected else {
             return;
         };
         // If current song is playing, stop it.
         if let Some(cur_playing_id) = self.get_cur_playing_id() {
             if Some(cur_selected_idx) == self.get_cur_playing_index() {
+                self.play_status = PlayState::NotPlaying;
                 send_or_error(&self.ui_tx, UIMessage::Stop(cur_playing_id)).await;
             }
         }
-        // TODO: Remove behaviour for cur_selected
         // TODO: Resolve offset commands
         // TODO: Test mut ListState functionality to see if a better substitute for using offsetcommands.
-        self.list.list.remove(cur_selected_idx);
-        todo!("Fix visual bug where \"Not Playing\" displayed");
+        self.list.remove_song_index(cur_selected_idx);
+        // todo!("Fix visual bug where \"Not Playing\" displayed");
     }
     pub async fn delete_all(&mut self) {
         self.reset().await;
@@ -359,6 +360,7 @@ impl Playlist {
         }
         self.clear()
         // XXX: Also need to kill pending download tasks
+        // Alternatively, songs could kill their own download tasks on drop (RAII).
     }
     pub fn clear(&mut self) {
         self.cur_played_secs = None;
@@ -398,15 +400,12 @@ impl Playlist {
             .get_mut(song_index)
             .expect("We got the index from the id, so song must exist");
         // Won't download if already downloaded, or downloading.
-        if let DownloadStatus::Downloaded(_) = song.download_status {
-            return;
-        }
-        if let DownloadStatus::Downloading(_) = song.download_status {
-            return;
-        }
-        if let DownloadStatus::Queued = song.download_status {
-            return;
-        }
+        match song.download_status {
+            DownloadStatus::Downloading(_)
+            | DownloadStatus::Downloaded(_)
+            | DownloadStatus::Queued => return,
+            _ => (),
+        };
         send_or_error(
             &self.ui_tx,
             UIMessage::DownloadSong(song.raw.get_video_id().clone(), id),
@@ -499,12 +498,6 @@ impl Playlist {
             }
         }
     }
-    pub fn set_play_has_finished(&mut self) {
-        self.play_status = self
-            .play_status
-            .take_whilst_transitioning()
-            .transition_to_stopped();
-    }
     pub async fn pauseplay(&mut self) {
         let id = match self.play_status {
             PlayState::Playing(id) => {
@@ -520,10 +513,10 @@ impl Playlist {
         send_or_error(&self.ui_tx, UIMessage::PausePlay(id)).await;
     }
     pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
-        let Some(idx) = self.get_cur_playing_index() else {
-            return None;
-        };
-        self.get_id_from_index(idx)
+        match self.play_status {
+            PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => Some(id),
+            _ => None,
+        }
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.list.iter().position(|s| s.id == id)
@@ -538,17 +531,11 @@ impl Playlist {
         self.list.list.iter().find(|s| s.id == id)
     }
     pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
-        match self.play_status {
-            // XXX: Should buffering be included?
-            PlayState::Playing(id) | PlayState::Paused(id) => id == check_id,
-            _ => false,
-        }
+        self.get_cur_playing_id().is_some_and(|id| id == check_id)
     }
     pub fn get_cur_playing_index(&self) -> Option<usize> {
-        match self.play_status {
-            PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
-            _ => None,
-        }
+        self.get_cur_playing_id()
+            .and_then(|id| self.get_index_from_id(id))
     }
 }
 

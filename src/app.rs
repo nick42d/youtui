@@ -84,7 +84,7 @@ impl Youtui {
                 ui::AppStatus::Running => {
                     // Get the events from the event_handler and process them.
                     let msg = self.event_handler.next().await;
-                    self.process_message(msg).await;
+                    self.process_event(msg).await;
                     // If any requests are in the queue, queue up the tasks on the server.
                     self.queue_server_tasks().await;
                     // Get the state update events from the task manager and process them.
@@ -92,7 +92,6 @@ impl Youtui {
                     process_state_updates(&mut self.window_state, state_updates).await;
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to instantly react to.
-                    // TODO: Error handling
                     self.terminal.draw(|f| {
                         ui::draw::draw_app(f, &self.window_state);
                     })?;
@@ -107,7 +106,7 @@ impl Youtui {
         }
         Ok(())
     }
-    async fn process_message(&mut self, msg: Option<AppEvent>) {
+    async fn process_event(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
         match msg {
             Some(AppEvent::QuitSignal) => self
@@ -124,6 +123,7 @@ impl Youtui {
     }
 }
 
+/// Cleanly exit the tui
 fn destruct_terminal() -> Result<()> {
     disable_raw_mode()?;
     execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;

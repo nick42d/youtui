@@ -56,6 +56,7 @@ pub enum WindowContext {
 }
 
 // A callback from one of the application components to the top level.
+// TODO: Shift these up to App. Then our UI want need to hold as many channels.
 pub enum UIMessage {
     DownloadSong(VideoID<'static>, ListSongID),
     GetVolume,
@@ -290,7 +291,6 @@ impl YoutuiWindow {
         self.process_ui_messages().await;
     }
     pub fn quit(&mut self) {
-        super::destruct_terminal();
         self.status = super::ui::AppStatus::Exiting("Quitting".into());
     }
     pub async fn process_ui_messages(&mut self) {
