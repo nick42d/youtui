@@ -2,6 +2,7 @@ use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_table};
 use crate::drawutils::{below_left_rect, bottom_of_rect};
+use ratatui::widgets::TableState;
 use ratatui::{
     prelude::{Backend, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -11,8 +12,13 @@ use ratatui::{
 };
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
-pub fn draw_browser<B>(f: &mut Frame<B>, browser: &Browser, chunk: Rect)
-where
+pub fn draw_browser<B>(
+    f: &mut Frame<B>,
+    browser: &Browser,
+    chunk: Rect,
+    artist_list_state: &mut ListState,
+    album_songs_table_state: &mut TableState,
+) where
     B: Backend,
 {
     let layout = Layout::new()
@@ -25,7 +31,13 @@ where
         !_albumsongsselected && browser.artist_list.route == ArtistInputRouting::List;
 
     if !browser.artist_list.search_popped {
-        draw_list(f, &browser.artist_list, layout[0], _artistselected);
+        draw_list(
+            f,
+            &browser.artist_list,
+            layout[0],
+            _artistselected,
+            artist_list_state,
+        );
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
@@ -44,7 +56,13 @@ where
             s[0].x + browser.artist_list.search.text_cur as u16 + 1,
             s[0].y + 1,
         );
-        draw_list(f, &browser.artist_list, s[1], _artistselected);
+        draw_list(
+            f,
+            &browser.artist_list,
+            s[1],
+            _artistselected,
+            artist_list_state,
+        );
         if browser.has_search_suggestions() {
             let suggestions = browser.get_search_suggestions();
             let height = suggestions.len() + 1;
@@ -97,5 +115,11 @@ where
             f.render_stateful_widget(block, suggestion_chunk_layout[1], &mut list_state);
         }
     }
-    draw_table(f, &browser.album_songs_list, layout[1], _albumsongsselected);
+    draw_table(
+        f,
+        &browser.album_songs_list,
+        layout[1],
+        album_songs_table_state,
+        _albumsongsselected,
+    );
 }

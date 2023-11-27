@@ -5,6 +5,7 @@ use crate::app::{
     view::{BasicConstraint, Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
 };
 use crossterm::event::KeyCode;
+use ratatui::widgets::ListState;
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
@@ -20,8 +21,8 @@ pub enum ArtistInputRouting {
 pub struct ArtistSearchPanel {
     pub list: Vec<SearchResultArtist>,
     pub route: ArtistInputRouting,
-    pub selected: usize,
-    pub sort_commands_list: Vec<String>,
+    selected: usize,
+    sort_commands_list: Vec<String>,
     keybinds: Vec<Keybind<BrowserAction>>,
     search_keybinds: Vec<Keybind<BrowserAction>>,
     pub search_popped: bool,
@@ -76,11 +77,6 @@ impl ArtistSearchPanel {
             search_keybinds: search_keybinds(),
             ..Default::default()
         }
-    }
-    // Workaround as removed Selectable trait.
-    // XXX: What actually is a panel here? I can't select ArtistSearchPanel as it contains multiple components
-    fn is_selected(&self) -> bool {
-        true
     }
     pub fn open_search(&mut self) {
         self.search_popped = true;
@@ -230,9 +226,6 @@ impl KeyHandler<BrowserAction> for ArtistSearchPanel {
 }
 
 impl Scrollable for ArtistSearchPanel {
-    fn get_selected_item(&self) -> usize {
-        self.selected
-    }
     fn increment_list(&mut self, amount: isize) {
         self.selected = self
             .selected
@@ -240,10 +233,8 @@ impl Scrollable for ArtistSearchPanel {
             .unwrap_or(0)
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        // TODO
-        0
+    fn get_selected_item(&self) -> usize {
+        self.selected
     }
 }
 
@@ -290,27 +281,11 @@ impl Loadable for AlbumSongsPanel {
     }
 }
 impl Scrollable for AlbumSongsPanel {
-    fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
-    }
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        self.list.get_offset(height)
-    }
-}
-
-// XXX: This is an argument for not making a TableView drawable
-// - as struct could contain multiple "drawable" panes, but then only have one draw_chunk method.
-impl Drawable for AlbumSongsPanel {
-    fn draw_chunk<B: ratatui::prelude::Backend>(
-        &self,
-        _f: &mut ratatui::Frame<B>,
-        _chunk: ratatui::prelude::Rect,
-    ) {
-        todo!()
+    fn get_selected_item(&self) -> usize {
+        self.list.get_selected_item()
     }
 }
 

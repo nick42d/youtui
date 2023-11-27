@@ -2,22 +2,21 @@ use self::{
     artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
     draw::draw_browser,
 };
-use super::{UIMessage, WindowContext};
+use super::{UIMessage, WindowContext, YoutuiMutableState};
 use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
-    component::contextpane::ContextPane,
     structures::ListStatus,
-    view::{Drawable, Scrollable},
+    view::{DrawableMut, ListView, Scrollable},
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
-use tracing::{error, info};
+use tracing::error;
 use ytmapi_rs::{
-    common::{SearchSuggestion, TextRun},
+    common::SearchSuggestion,
     parse::{SearchResultArtist, SongResult},
 };
 
@@ -135,14 +134,20 @@ impl TextHandler for Browser {
     }
 }
 
-impl ContextPane<BrowserAction> for Browser {}
-impl Drawable for Browser {
-    fn draw_chunk<B: ratatui::prelude::Backend>(
+impl DrawableMut for Browser {
+    fn draw_mut_chunk<B: ratatui::prelude::Backend>(
         &self,
         f: &mut ratatui::Frame<B>,
         chunk: ratatui::prelude::Rect,
+        mutable_state: &mut YoutuiMutableState,
     ) {
-        draw_browser(f, self, chunk);
+        draw_browser(
+            f,
+            self,
+            chunk,
+            &mut mutable_state.browser_artists,
+            &mut mutable_state.browser_album_songs,
+        );
     }
 }
 impl KeyRouter<BrowserAction> for Browser {
@@ -360,9 +365,7 @@ impl Browser {
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn get_songs(&mut self) {
-        let Some(selected) = Some(self.artist_list.get_selected_item()) else {
-            return;
-        };
+        let selected = self.artist_list.get_selected_item();
         self.change_routing(InputRouting::Song);
         self.album_songs_list.list.list.clear();
 

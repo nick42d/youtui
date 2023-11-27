@@ -38,11 +38,7 @@ pub struct Youtui {
 
 impl Youtui {
     pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
-        let RuntimeInfo {
-            debug,
-            config,
-            api_key,
-        } = rt;
+        let RuntimeInfo { api_key, .. } = rt;
         // TODO: Handle errors
         // Setup tracing and link to tui_logger.
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
@@ -66,7 +62,8 @@ impl Youtui {
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
         // Ensure clean return to shell if panic.
         std::panic::set_hook(Box::new(|panic_info| {
-            destruct_terminal();
+            // If we fail to destruct terminal, ignore the error as panicking anyway.
+            let _ = destruct_terminal();
             println!("{}", panic_info);
         }));
         let task_manager = taskmanager::TaskManager::new(api_key);
@@ -87,7 +84,7 @@ impl Youtui {
                 ui::AppStatus::Running => {
                     // Get the events from the event_handler and process them.
                     let msg = self.event_handler.next().await;
-                    self.process_message(msg).await;
+                    self.process_event(msg).await;
                     // If any requests are in the queue, queue up the tasks on the server.
                     self.queue_server_tasks().await;
                     // Get the state update events from the task manager and process them.
@@ -95,9 +92,8 @@ impl Youtui {
                     process_state_updates(&mut self.window_state, state_updates).await;
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to instantly react to.
-                    // TODO: Error handling
                     self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &self.window_state);
+                        ui::draw::draw_app(f, &mut self.window_state);
                     })?;
                 }
                 ui::AppStatus::Exiting(s) => {
@@ -110,7 +106,7 @@ impl Youtui {
         }
         Ok(())
     }
-    async fn process_message(&mut self, msg: Option<AppEvent>) {
+    async fn process_event(&mut self, msg: Option<AppEvent>) {
         // TODO: Handle closed channel
         match msg {
             Some(AppEvent::QuitSignal) => self
@@ -127,6 +123,7 @@ impl Youtui {
     }
 }
 
+/// Cleanly exit the tui
 fn destruct_terminal() -> Result<()> {
     disable_raw_mode()?;
     execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;

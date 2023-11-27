@@ -51,6 +51,7 @@ pub enum AppRequest {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
+    StopAll,
     PausePlay(ListSongID),
 }
 
@@ -66,6 +67,7 @@ impl AppRequest {
             AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
+            AppRequest::StopAll => RequestCategory::PlayPauseStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
         }
     }
@@ -131,6 +133,7 @@ impl TaskManager {
             AppRequest::PlaySong(song, song_id) => self.spawn_play_song(song, song_id, id).await,
             AppRequest::GetPlayProgress(song_id) => self.spawn_get_play_progress(song_id, id).await,
             AppRequest::Stop(song_id) => self.spawn_stop(song_id, id).await,
+            AppRequest::StopAll => self.spawn_stop_all(id).await,
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
         };
         Ok(())
@@ -240,6 +243,14 @@ impl TaskManager {
         )
         .await
     }
+    pub async fn spawn_stop_all(&mut self, id: TaskID) {
+        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
+        send_or_error(
+            &self.server_request_tx,
+            server::Request::Player(server::player::Request::StopAll(id)),
+        )
+        .await
+    }
     pub async fn spawn_pause_play(&mut self, song_id: ListSongID, id: TaskID) {
         self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
         send_or_error(
@@ -249,7 +260,6 @@ impl TaskManager {
         .await
     }
     pub async fn spawn_get_play_progress(&mut self, song_id: ListSongID, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::ProgressUpdate, id);
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::GetPlayProgress(song_id, id)),
@@ -433,6 +443,12 @@ impl TaskManager {
                     return None;
                 }
                 Some(StateUpdateMessage::SetToStopped(song_id))
+            }
+            player::Response::StoppedAll(id) => {
+                if !self.is_task_valid(id) {
+                    return None;
+                }
+                Some(StateUpdateMessage::SetAllToStopped)
             }
             player::Response::ProgressUpdate(perc, song_id, id) => {
                 if !self.is_task_valid(id) {

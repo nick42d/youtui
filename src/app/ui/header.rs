@@ -9,16 +9,15 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::app::{
-    component::actionhandler::{Action, DisplayableKeyRouter, KeybindVisibility},
-    component::contextpane::ContextPane,
+use crate::app::component::actionhandler::{
+    Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility,
 };
 
 pub fn context_global_keybinds_and_descriptions<'a, C, A>(
     context: &'a C,
 ) -> Box<dyn Iterator<Item = (Cow<str>, String)> + 'a>
 where
-    C: ContextPane<A>,
+    C: KeyHandler<A>,
     A: Action + Clone + 'a,
 {
     Box::new(

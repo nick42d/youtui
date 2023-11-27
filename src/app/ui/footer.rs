@@ -105,7 +105,7 @@ where
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()
         .title("Status")
-        .title(Title::from("API - Connected").alignment(Alignment::Right))
+        .title(Title::from("Youtui").alignment(Alignment::Right))
         .borders(Borders::ALL);
     let block_inner = block.inner(chunk);
     let song_vol = Layout::default()

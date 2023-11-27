@@ -1,8 +1,6 @@
-use std::{borrow::Cow, fmt::Display};
-
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use tracing::info;
-use ytmapi_rs::common::{SearchSuggestion, TextRun};
+use std::{borrow::Cow, fmt::Display};
+use ytmapi_rs::common::SearchSuggestion;
 
 // An action that can be sent to a component.
 pub trait Action {

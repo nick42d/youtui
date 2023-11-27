@@ -1,20 +1,16 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
-    component::{
-        actionhandler::{
-            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
-        },
-        contextpane::ContextPane,
+    component::actionhandler::{
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
-    structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
+    structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{UIMessage, WindowContext},
-    view::Drawable,
 };
-use crate::error::Result;
+
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
 use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
@@ -23,6 +19,8 @@ use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
+
+use super::YoutuiMutableState;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 
@@ -44,6 +42,8 @@ pub enum PlaylistAction {
     PageDown,
     PageUp,
     PlaySelected,
+    DeleteSelected,
+    DeleteAll,
 }
 
 impl Action for PlaylistAction {
@@ -58,12 +58,12 @@ impl Action for PlaylistAction {
             PlaylistAction::PageDown => "Page Down",
             PlaylistAction::PageUp => "Page Up",
             PlaylistAction::PlaySelected => "Play Selected",
+            PlaylistAction::DeleteSelected => "Delete Selected",
+            PlaylistAction::DeleteAll => "Delete All",
         }
         .into()
     }
 }
-
-impl ContextPane<PlaylistAction> for Playlist {}
 
 impl KeyHandler<PlaylistAction> for Playlist {
     fn get_keybinds<'a>(
@@ -98,9 +98,14 @@ impl TextHandler for Playlist {
     fn replace_text(&mut self, text: String) {}
 }
 
-impl Drawable for Playlist {
-    fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect) {
-        draw_table(f, self, chunk, true);
+impl DrawableMut for Playlist {
+    fn draw_mut_chunk<B: Backend>(
+        &self,
+        f: &mut Frame<B>,
+        chunk: Rect,
+        mutable_state: &mut YoutuiMutableState,
+    ) {
+        draw_table(f, self, chunk, &mut mutable_state.playlist, true);
     }
 }
 
@@ -111,15 +116,11 @@ impl Loadable for Playlist {
 }
 
 impl Scrollable for Playlist {
-    fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
-    }
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        self.list.get_offset(height)
+    fn get_selected_item(&self) -> usize {
+        self.list.get_selected_item()
     }
 }
 
@@ -166,6 +167,8 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::PageDown => self.increment_list(10),
             PlaylistAction::PageUp => self.increment_list(-10),
             PlaylistAction::PlaySelected => self.play_selected().await,
+            PlaylistAction::DeleteSelected => self.delete_selected().await,
+            PlaylistAction::DeleteAll => self.delete_all().await,
         }
     }
 }
@@ -266,21 +269,21 @@ impl Playlist {
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.play_next_or_finish(id).await;
     }
-    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
+    pub fn handle_set_to_playing(&mut self, id: ListSongID) {
         if let PlayState::Paused(p_id) = self.play_status {
             if p_id == id {
                 self.play_status = PlayState::Playing(id)
             }
         }
     }
-    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
+    pub fn handle_set_to_stopped(&mut self, id: ListSongID) {
         info!("Received message to stop {:?}", id);
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
         }
     }
-    pub async fn handle_set_all_to_stopped(&mut self) {
+    pub fn handle_set_all_to_stopped(&mut self) {
         self.play_status = PlayState::Stopped
     }
     pub async fn play_selected(&mut self) {
@@ -291,6 +294,26 @@ impl Playlist {
             return;
         };
         self.play_song_id(id).await;
+    }
+    pub async fn delete_selected(&mut self) {
+        info!("Cur selected: {:?}", self.list.cur_selected);
+        let Some(cur_selected_idx) = self.list.cur_selected else {
+            return;
+        };
+        // If current song is playing, stop it.
+        if let Some(cur_playing_id) = self.get_cur_playing_id() {
+            if Some(cur_selected_idx) == self.get_cur_playing_index() {
+                self.play_status = PlayState::NotPlaying;
+                send_or_error(&self.ui_tx, UIMessage::Stop(cur_playing_id)).await;
+            }
+        }
+        // TODO: Resolve offset commands
+        // TODO: Test mut ListState functionality to see if a better substitute for using offsetcommands.
+        self.list.remove_song_index(cur_selected_idx);
+        // todo!("Fix visual bug where \"Not Playing\" displayed");
+    }
+    pub async fn delete_all(&mut self) {
+        self.reset().await;
     }
     pub async fn view_browser(&mut self) {
         send_or_error(
@@ -327,20 +350,19 @@ impl Playlist {
             }
         }
     }
-    // Ideally owned by list itself.
-    pub async fn reset(&mut self) -> Result<()> {
+    pub async fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
             send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
         }
-        self.list.state = ListStatus::New;
-        // We can't reset the ID, we'll keep incrementing.
-        // self.list.next_id = ListSongID(0);
-        self.list.list.clear();
-        self.list.cur_selected = None;
-        self.cur_played_secs = None;
+        self.clear()
         // XXX: Also need to kill pending download tasks
-        Ok(())
+        // Alternatively, songs could kill their own download tasks on drop (RAII).
+    }
+    pub fn clear(&mut self) {
+        self.cur_played_secs = None;
+        self.play_status = PlayState::NotPlaying;
+        self.list.clear();
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
         if let Some(cur_id) = self.get_cur_playing_id() {
@@ -375,15 +397,12 @@ impl Playlist {
             .get_mut(song_index)
             .expect("We got the index from the id, so song must exist");
         // Won't download if already downloaded, or downloading.
-        if let DownloadStatus::Downloaded(_) = song.download_status {
-            return;
-        }
-        if let DownloadStatus::Downloading(_) = song.download_status {
-            return;
-        }
-        if let DownloadStatus::Queued = song.download_status {
-            return;
-        }
+        match song.download_status {
+            DownloadStatus::Downloading(_)
+            | DownloadStatus::Downloaded(_)
+            | DownloadStatus::Queued => return,
+            _ => (),
+        };
         send_or_error(
             &self.ui_tx,
             UIMessage::DownloadSong(song.raw.get_video_id().clone(), id),
@@ -476,12 +495,6 @@ impl Playlist {
             }
         }
     }
-    pub fn set_play_has_finished(&mut self) {
-        self.play_status = self
-            .play_status
-            .take_whilst_transitioning()
-            .transition_to_stopped();
-    }
     pub async fn pauseplay(&mut self) {
         let id = match self.play_status {
             PlayState::Playing(id) => {
@@ -497,10 +510,10 @@ impl Playlist {
         send_or_error(&self.ui_tx, UIMessage::PausePlay(id)).await;
     }
     pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
-        let Some(idx) = self.get_cur_playing_index() else {
-            return None;
-        };
-        self.get_id_from_index(idx)
+        match self.play_status {
+            PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => Some(id),
+            _ => None,
+        }
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.list.iter().position(|s| s.id == id)
@@ -515,17 +528,11 @@ impl Playlist {
         self.list.list.iter().find(|s| s.id == id)
     }
     pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
-        match self.play_status {
-            // XXX: Should buffering be included?
-            PlayState::Playing(id) | PlayState::Paused(id) => id == check_id,
-            _ => false,
-        }
+        self.get_cur_playing_id().is_some_and(|id| id == check_id)
     }
     pub fn get_cur_playing_index(&self) -> Option<usize> {
-        match self.play_status {
-            PlayState::Playing(id) | PlayState::Paused(id) => self.get_index_from_id(id),
-            _ => None,
-        }
+        self.get_cur_playing_id()
+            .and_then(|id| self.get_index_from_id(id))
     }
 }
 
@@ -536,6 +543,14 @@ fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
         Keybind::new_from_code(KeyCode::Up, PlaylistAction::Up),
         Keybind::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
         Keybind::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
-        Keybind::new_from_code(KeyCode::Enter, PlaylistAction::PlaySelected),
+        Keybind::new_action_only_mode(
+            vec![
+                (KeyCode::Enter, PlaylistAction::PlaySelected),
+                (KeyCode::Char('d'), PlaylistAction::DeleteSelected),
+                (KeyCode::Char('D'), PlaylistAction::DeleteAll),
+            ],
+            KeyCode::Enter,
+            "Playlist Action",
+        ),
     ]
 }

@@ -9,14 +9,11 @@ use ratatui::{
 use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
 
-use crate::core::send_or_error;
+use crate::{app::view::DrawableMut, core::send_or_error};
 
 use crate::app::{
-    component::{
-        actionhandler::{
-            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
-        },
-        contextpane::ContextPane,
+    component::actionhandler::{
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     ui::UIMessage,
     view::Drawable,
@@ -53,9 +50,7 @@ pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
     ui_tx: Sender<UIMessage>,
     keybinds: Vec<Keybind<LoggerAction>>,
-    key_stack: Vec<KeyEvent>,
 }
-impl ContextPane<LoggerAction> for Logger {}
 
 impl Drawable for Logger {
     fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect) {
@@ -115,7 +110,6 @@ impl Logger {
             ui_tx,
             logger_state: tui_logger::TuiWidgetState::default(),
             keybinds: logger_keybinds(),
-            key_stack: Default::default(),
         }
     }
     async fn handle_view_browser(&mut self) {

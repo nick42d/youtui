@@ -1,3 +1,4 @@
+use ratatui::widgets::{ListState, ScrollbarState, TableState};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -13,7 +14,6 @@ pub struct AlbumSongsList {
     pub list: Vec<ListSong>,
     pub next_id: ListSongID,
     pub cur_selected: Option<usize>,
-    pub offset_commands: Vec<isize>,
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
@@ -57,44 +57,12 @@ pub enum PlayState {
     Playing(ListSongID),
     Transitioning,
     Paused(ListSongID),
+    // May be the same as NotPlaying?
     Stopped,
     Buffering(ListSongID),
 }
 
 impl PlayState {
-    pub fn transition_to_paused(self) -> Self {
-        match self {
-            Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped => Self::Stopped,
-            Self::Playing(id) => Self::Paused(id),
-            Self::Paused(id) => Self::Paused(id),
-            Self::Buffering(id) => Self::Paused(id),
-            Self::Transitioning => {
-                tracing::error!("Tried to transition from transitioning state, unhandled.");
-                Self::Transitioning
-            }
-        }
-    }
-    pub fn transition_to_stopped(self) -> Self {
-        match self {
-            Self::NotPlaying => Self::NotPlaying,
-            Self::Stopped => Self::Stopped,
-            Self::Playing(id) => Self::Stopped,
-            Self::Buffering(id) => Self::Stopped,
-            Self::Paused(id) => {
-                warn!("Stopping from Paused status - seems unusual");
-                Self::Stopped
-            }
-            Self::Transitioning => {
-                tracing::error!("Tried to transition from transitioning state, unhandled.");
-                Self::Transitioning
-            }
-        }
-    }
-    pub fn take_whilst_transitioning(&mut self) -> Self {
-        let temp = Self::Transitioning;
-        std::mem::replace(self, temp)
-    }
     pub fn list_icon(&self) -> char {
         match self {
             PlayState::Buffering(_) => '',
@@ -180,9 +148,6 @@ impl YoutubeResult for ListSong {
 }
 
 impl Scrollable for AlbumSongsList {
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected.unwrap_or(0)
-    }
     fn increment_list(&mut self, amount: isize) {
         // Naive
         self.cur_selected = Some(
@@ -192,43 +157,9 @@ impl Scrollable for AlbumSongsList {
                 .unwrap_or(0)
                 .min(self.list.len().checked_add_signed(-1).unwrap_or(0)),
         );
-        if self.cur_selected == Some(0) || self.cur_selected == Some(self.list.len() - 1) {
-            self.offset_commands.clear();
-            self.offset_commands
-                .push(self.cur_selected.expect("Cur selected is not None") as isize);
-            return;
-        }
-        if let Some(n) = self.offset_commands.pop() {
-            if n.signum() == amount.signum() {
-                self.offset_commands.push(n + amount);
-            } else {
-                self.offset_commands.push(n);
-                self.offset_commands.push(amount);
-            }
-        } else {
-            self.offset_commands.push(amount);
-        }
     }
-    /// Compute the offset using the offset commands.
-    // TODO: Docs and tests.
-    fn get_offset(&self, height: usize) -> usize {
-        let (offset, _): (usize, usize) = self
-            .offset_commands
-            .iter()
-            // XXX: cursor is stored in self if we want to avoid using fold state for it also.
-            .fold((0, 0), |(offset, cursor), e| {
-                let new_cur = cursor.saturating_add_signed(*e);
-                let new_offset = if new_cur.saturating_sub(offset) <= 0 {
-                    new_cur
-                } else if new_cur.saturating_sub(offset) > height {
-                    new_cur.saturating_sub(height)
-                } else {
-                    offset
-                };
-
-                (new_offset, new_cur)
-            });
-        offset
+    fn get_selected_item(&self) -> usize {
+        self.cur_selected.unwrap_or_default()
     }
 }
 
@@ -236,15 +167,20 @@ impl Default for AlbumSongsList {
     fn default() -> Self {
         AlbumSongsList {
             state: ListStatus::New,
+            cur_selected: None,
             list: Vec::new(),
             next_id: ListSongID::default(),
-            cur_selected: None,
-            offset_commands: Default::default(),
         }
     }
 }
 
 impl AlbumSongsList {
+    pub fn clear(&mut self) {
+        // We can't reset the ID, so it's left out and we'll keep incrementing.
+        self.state = ListStatus::New;
+        self.list.clear();
+        self.cur_selected = None;
+    }
     // Naive implementation
     pub fn append_raw_songs(
         &mut self,
@@ -283,6 +219,11 @@ impl AlbumSongsList {
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, mut song_list: Vec<ListSong>) -> ListSongID {
+        // Set a current selected index if we haven't already got one
+        // so that we can start using commands right away.
+        if !song_list.is_empty() && self.cur_selected.is_none() {
+            self.cur_selected = Some(0);
+        }
         let first_id = self.create_next_id();
         song_list.first_mut().map(|song| song.id = first_id);
         // XXX: Below panics - consider a better option.
@@ -293,12 +234,21 @@ impl AlbumSongsList {
         }
         first_id
     }
-    pub fn push_clone_listsong(&mut self, song: &ListSong) -> ListSongID {
-        let mut cloned_song = song.clone();
-        let id = self.create_next_id();
-        cloned_song.id = id;
-        self.list.push(cloned_song);
-        id
+    /// Safely deletes the song at index if it exists, and returns it.
+    pub fn remove_song_index(&mut self, idx: usize) -> Option<ListSong> {
+        // Guard against index out of bounds
+        if self.list.len() <= idx {
+            return None;
+        }
+        // If we are removing a song at a position less than current index, decrement current index.
+        if let Some(cur_idx) = self.cur_selected.take() {
+            // NOTE: Ok to simply take, if list only had one element.
+            if cur_idx >= idx && idx != 0 {
+                // Safe, as checked above that cur_idx >= 0
+                self.cur_selected = Some(cur_idx - 1);
+            }
+        }
+        Some(self.list.remove(idx))
     }
     pub fn create_next_id(&mut self) -> ListSongID {
         self.next_id.0 += 1;
