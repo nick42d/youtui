@@ -7,17 +7,16 @@ use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
-    component::contextpane::ContextPane,
     structures::ListStatus,
-    view::{Drawable, Scrollable},
+    view::{DrawableMut, Scrollable},
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
-use tracing::{error, info};
+use tracing::error;
 use ytmapi_rs::{
-    common::{SearchSuggestion, TextRun},
+    common::SearchSuggestion,
     parse::{SearchResultArtist, SongResult},
 };
 
@@ -135,10 +134,9 @@ impl TextHandler for Browser {
     }
 }
 
-impl ContextPane<BrowserAction> for Browser {}
-impl Drawable for Browser {
-    fn draw_chunk<B: ratatui::prelude::Backend>(
-        &self,
+impl DrawableMut for Browser {
+    fn draw_mut_chunk<B: ratatui::prelude::Backend>(
+        &mut self,
         f: &mut ratatui::Frame<B>,
         chunk: ratatui::prelude::Rect,
     ) {

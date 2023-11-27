@@ -93,7 +93,7 @@ impl Youtui {
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to instantly react to.
                     self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &self.window_state);
+                        ui::draw::draw_app(f, &mut self.window_state);
                     })?;
                 }
                 ui::AppStatus::Exiting(s) => {

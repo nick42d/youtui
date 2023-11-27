@@ -10,10 +10,10 @@ use tracing::info;
 
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::{Action, DisplayableKeyRouter};
-use crate::app::view::Drawable;
+use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::left_bottom_corner_rect;
 
-pub fn draw_app<B>(f: &mut Frame<B>, w: &YoutuiWindow)
+pub fn draw_app<B>(f: &mut Frame<B>, w: &mut YoutuiWindow)
 where
     B: Backend,
 {
@@ -31,9 +31,9 @@ where
         .split(f.size());
     header::draw_header(f, w, base_layout[0]);
     match w.context {
-        WindowContext::Browser => w.browser.draw_chunk(f, base_layout[1]),
+        WindowContext::Browser => w.browser.draw_mut_chunk(f, base_layout[1]),
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
-        WindowContext::Playlist => w.playlist.draw_chunk(f, base_layout[1]),
+        WindowContext::Playlist => w.playlist.draw_mut_chunk(f, base_layout[1]),
     }
     if w.help_shown {
         draw_help(f, w, base_layout[1]);

@@ -3,10 +3,6 @@ use super::{
     actionhandler::{Action, ActionProcessor, KeyRouter},
 };
 
-// A pane of the application. This is the place that renders in the app and handles key events.
-// XXX: May be redundant - consider removing.
-pub trait ContextPane<A: Action + Clone>: ActionProcessor<A> + KeyRouter<A> + Drawable {}
-
 enum Direction {
     Up,
     Down,

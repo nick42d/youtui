@@ -1,7 +1,7 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::{
@@ -67,8 +67,6 @@ impl Action for PlaylistAction {
     }
 }
 
-impl ContextPane<PlaylistAction> for Playlist {}
-
 impl KeyHandler<PlaylistAction> for Playlist {
     fn get_keybinds<'a>(
         &'a self,
@@ -102,8 +100,8 @@ impl TextHandler for Playlist {
     fn replace_text(&mut self, text: String) {}
 }
 
-impl Drawable for Playlist {
-    fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect) {
+impl DrawableMut for Playlist {
+    fn draw_mut_chunk<B: Backend>(&mut self, f: &mut Frame<B>, chunk: Rect) {
         draw_table(f, self, chunk, true);
     }
 }

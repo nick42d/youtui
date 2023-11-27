@@ -108,6 +108,14 @@ pub trait Drawable {
         self.draw_chunk(f, f.size());
     }
 }
+// A drawable part of the application that mutates its state on draw.
+pub trait DrawableMut {
+    // Helper function to draw.
+    fn draw_mut_chunk<B: Backend>(&mut self, f: &mut Frame<B>, chunk: Rect);
+    fn draw_mut<B: Backend>(&mut self, f: &mut Frame<B>) {
+        self.draw_mut_chunk(f, f.size());
+    }
+}
 // A selectable part of the application.
 pub trait Selectable: Drawable {
     fn draw_selectable_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect, selected: bool);
