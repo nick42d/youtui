@@ -23,6 +23,7 @@ use tracing::{error, info, warn};
 use super::YoutuiMutableState;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
+const SONGS_BEHIND_TO_SAVE: usize = 1;
 
 pub struct Playlist {
     pub list: AlbumSongsList,
@@ -369,7 +370,7 @@ impl Playlist {
             send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
         }
         // Drop previous songs
-        self.drop_previous_from_id(id);
+        self.drop_unscoped_from_id(id);
         // Queue next downloads
         self.download_upcoming_from_id(id).await;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -457,12 +458,32 @@ impl Playlist {
             self.download_song_if_exists(song_id).await;
         }
     }
-    /// Drop strong reference from previous songs to drop them from memory.
-    pub fn drop_previous_from_id(&mut self, id: ListSongID) {
+    /// Drop strong reference from previous songs or songs above the buffer list size to drop them from memory.
+    pub fn drop_unscoped_from_id(&mut self, id: ListSongID) {
         let Some(song_index) = self.get_index_from_id(id) else {
             return;
         };
-        for song in self.list.list.get_mut(0..song_index).into_iter().flatten() {
+        let forward_limit = song_index + SONGS_AHEAD_TO_BUFFER;
+        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
+        for song in self
+            .list
+            .list
+            .get_mut(0..backwards_limit)
+            .into_iter()
+            .flatten()
+        {
+            // TODO: Also cancel in progress downloads
+            // TODO: Write a change download status function that will warn if song is not dropped from memory.
+            song.download_status = DownloadStatus::None
+        }
+        for song in self
+            .list
+            .list
+            .get_mut(forward_limit..)
+            .into_iter()
+            .flatten()
+        {
+            // TODO: Also cancel in progress downloads
             // TODO: Write a change download status function that will warn if song is not dropped from memory.
             song.download_status = DownloadStatus::None
         }
