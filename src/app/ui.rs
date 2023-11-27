@@ -19,6 +19,7 @@ use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -105,6 +106,14 @@ pub struct YoutuiWindow {
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help_shown: bool,
+    mutable_state: YoutuiMutableState,
+}
+
+#[derive(Default)]
+pub struct YoutuiMutableState {
+    pub browser_album_songs: TableState,
+    pub browser_artists: ListState,
+    pub playlist: TableState,
 }
 
 impl DisplayableKeyRouter for YoutuiWindow {
@@ -278,6 +287,7 @@ impl YoutuiWindow {
             key_stack: Vec::new(),
             help_shown: false,
             task_manager_request_tx,
+            mutable_state: Default::default(),
         }
     }
     pub fn get_status(&self) -> &AppStatus {

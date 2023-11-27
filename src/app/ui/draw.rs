@@ -31,9 +31,14 @@ where
         .split(f.size());
     header::draw_header(f, w, base_layout[0]);
     match w.context {
-        WindowContext::Browser => w.browser.draw_mut_chunk(f, base_layout[1]),
+        WindowContext::Browser => w
+            .browser
+            .draw_mut_chunk(f, base_layout[1], &mut w.mutable_state),
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
-        WindowContext::Playlist => w.playlist.draw_mut_chunk(f, base_layout[1]),
+        WindowContext::Playlist => {
+            w.playlist
+                .draw_mut_chunk(f, base_layout[1], &mut w.mutable_state)
+        }
     }
     if w.help_shown {
         draw_help(f, w, base_layout[1]);

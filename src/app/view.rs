@@ -3,11 +3,12 @@ use std::{borrow::Cow, fmt::Display};
 
 use ratatui::{
     prelude::{Backend, Constraint, Rect},
+    widgets::{ListState, ScrollbarState, TableState},
     Frame,
 };
 use tracing::info;
 
-use super::structures::Percentage;
+use super::{structures::Percentage, ui::YoutuiMutableState};
 
 struct _TableSort {
     column: usize,
@@ -59,12 +60,9 @@ pub fn basic_constraints_to_constraints(
 // A struct that is able to be "scrolled". An item will always be selected.
 // XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
 pub trait Scrollable {
-    // Get the current position in the list.
-    fn get_selected_item(&self) -> usize;
     // Increment the list by the specified amount.
     fn increment_list(&mut self, amount: isize);
-    // Get the correct offset for the list when given a height.
-    fn get_offset(&self, height: usize) -> usize;
+    fn get_selected_item(&self) -> usize;
 }
 
 // A simple row in the table.
@@ -111,9 +109,15 @@ pub trait Drawable {
 // A drawable part of the application that mutates its state on draw.
 pub trait DrawableMut {
     // Helper function to draw.
-    fn draw_mut_chunk<B: Backend>(&mut self, f: &mut Frame<B>, chunk: Rect);
-    fn draw_mut<B: Backend>(&mut self, f: &mut Frame<B>) {
-        self.draw_mut_chunk(f, f.size());
+    // TODO: Clean up function signature regarding mutable state.
+    fn draw_mut_chunk<B: Backend>(
+        &self,
+        f: &mut Frame<B>,
+        chunk: Rect,
+        mutable_state: &mut YoutuiMutableState,
+    );
+    fn draw_mut<B: Backend>(&self, f: &mut Frame<B>, mutable_state: &mut YoutuiMutableState) {
+        self.draw_mut_chunk(f, f.size(), mutable_state);
     }
 }
 // A selectable part of the application.

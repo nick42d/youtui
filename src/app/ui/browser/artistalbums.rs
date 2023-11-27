@@ -22,7 +22,6 @@ pub struct ArtistSearchPanel {
     pub list: Vec<SearchResultArtist>,
     pub route: ArtistInputRouting,
     selected: usize,
-    selected_state: ListState,
     sort_commands_list: Vec<String>,
     keybinds: Vec<Keybind<BrowserAction>>,
     search_keybinds: Vec<Keybind<BrowserAction>>,
@@ -227,21 +226,15 @@ impl KeyHandler<BrowserAction> for ArtistSearchPanel {
 }
 
 impl Scrollable for ArtistSearchPanel {
-    fn get_selected_item(&self) -> usize {
-        self.selected
-    }
     fn increment_list(&mut self, amount: isize) {
         self.selected = self
             .selected
             .checked_add_signed(amount)
             .unwrap_or(0)
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
-        self.selected_state.select(Some(self.selected));
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        // TODO
-        0
+    fn get_selected_item(&self) -> usize {
+        self.selected
     }
 }
 
@@ -288,15 +281,11 @@ impl Loadable for AlbumSongsPanel {
     }
 }
 impl Scrollable for AlbumSongsPanel {
-    fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
-    }
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        self.list.get_offset(height)
+    fn get_selected_item(&self) -> usize {
+        self.list.get_selected_item()
     }
 }
 

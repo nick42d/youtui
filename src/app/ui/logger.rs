@@ -12,11 +12,8 @@ use tui_logger::TuiWidgetEvent;
 use crate::{app::view::DrawableMut, core::send_or_error};
 
 use crate::app::{
-    component::{
-        actionhandler::{
-            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
-        },
-        contextpane::ContextPane,
+    component::actionhandler::{
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     ui::UIMessage,
     view::Drawable,

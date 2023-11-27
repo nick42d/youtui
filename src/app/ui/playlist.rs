@@ -4,15 +4,11 @@ use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
-    component::{
-        actionhandler::{
-            Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
-        },
-        contextpane::ContextPane,
+    component::actionhandler::{
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
-    structures::{AlbumSongsList, ListSong, ListSongID, ListStatus, PlayState},
+    structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{UIMessage, WindowContext},
-    view::Drawable,
 };
 
 use crate::{app::structures::DownloadStatus, core::send_or_error};
@@ -23,6 +19,8 @@ use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
+
+use super::YoutuiMutableState;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 
@@ -101,8 +99,13 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk<B: Backend>(&mut self, f: &mut Frame<B>, chunk: Rect) {
-        draw_table(f, self, chunk, true);
+    fn draw_mut_chunk<B: Backend>(
+        &self,
+        f: &mut Frame<B>,
+        chunk: Rect,
+        mutable_state: &mut YoutuiMutableState,
+    ) {
+        draw_table(f, self, chunk, &mut mutable_state.playlist, true);
     }
 }
 
@@ -113,15 +116,11 @@ impl Loadable for Playlist {
 }
 
 impl Scrollable for Playlist {
-    fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
-    }
     fn increment_list(&mut self, amount: isize) {
         self.list.increment_list(amount)
     }
-
-    fn get_offset(&self, height: usize) -> usize {
-        self.list.get_offset(height)
+    fn get_selected_item(&self) -> usize {
+        self.list.get_selected_item()
     }
 }
 

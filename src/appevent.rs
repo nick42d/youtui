@@ -75,7 +75,7 @@ impl EventSpawner<SignalWatcher> {
         let _handler = tokio::spawn(async move {
             loop {
                 tokio::select! {
-                    _ = tokio::signal::ctrl_c() => {}
+                    _ = sigint.recv() => {}
                     _ = sigquit.recv() => {}
                     _ = sigterm.recv() => {}
                 }

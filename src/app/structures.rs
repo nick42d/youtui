@@ -1,3 +1,4 @@
+use ratatui::widgets::{ListState, ScrollbarState, TableState};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -13,7 +14,6 @@ pub struct AlbumSongsList {
     pub list: Vec<ListSong>,
     pub next_id: ListSongID,
     pub cur_selected: Option<usize>,
-    pub offset_commands: Vec<isize>,
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
@@ -148,9 +148,6 @@ impl YoutubeResult for ListSong {
 }
 
 impl Scrollable for AlbumSongsList {
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected.unwrap_or(0)
-    }
     fn increment_list(&mut self, amount: isize) {
         // Naive
         self.cur_selected = Some(
@@ -160,43 +157,9 @@ impl Scrollable for AlbumSongsList {
                 .unwrap_or(0)
                 .min(self.list.len().checked_add_signed(-1).unwrap_or(0)),
         );
-        if self.cur_selected == Some(0) || self.cur_selected == Some(self.list.len() - 1) {
-            self.offset_commands.clear();
-            self.offset_commands
-                .push(self.cur_selected.expect("Cur selected is not None") as isize);
-            return;
-        }
-        if let Some(n) = self.offset_commands.pop() {
-            if n.signum() == amount.signum() {
-                self.offset_commands.push(n + amount);
-            } else {
-                self.offset_commands.push(n);
-                self.offset_commands.push(amount);
-            }
-        } else {
-            self.offset_commands.push(amount);
-        }
     }
-    /// Compute the offset using the offset commands.
-    // TODO: Docs and tests.
-    fn get_offset(&self, height: usize) -> usize {
-        let (offset, _): (usize, usize) = self
-            .offset_commands
-            .iter()
-            // XXX: cursor is stored in self if we want to avoid using fold state for it also.
-            .fold((0, 0), |(offset, cursor), e| {
-                let new_cur = cursor.saturating_add_signed(*e);
-                let new_offset = if new_cur.saturating_sub(offset) <= 0 {
-                    new_cur
-                } else if new_cur.saturating_sub(offset) > height {
-                    new_cur.saturating_sub(height)
-                } else {
-                    offset
-                };
-
-                (new_offset, new_cur)
-            });
-        offset
+    fn get_selected_item(&self) -> usize {
+        self.cur_selected.unwrap_or_default()
     }
 }
 
@@ -204,10 +167,9 @@ impl Default for AlbumSongsList {
     fn default() -> Self {
         AlbumSongsList {
             state: ListStatus::New,
+            cur_selected: None,
             list: Vec::new(),
             next_id: ListSongID::default(),
-            cur_selected: None,
-            offset_commands: Default::default(),
         }
     }
 }
@@ -218,7 +180,6 @@ impl AlbumSongsList {
         self.state = ListStatus::New;
         self.list.clear();
         self.cur_selected = None;
-        self.offset_commands.clear();
     }
     // Naive implementation
     pub fn append_raw_songs(
@@ -287,21 +248,6 @@ impl AlbumSongsList {
                 self.cur_selected = Some(cur_idx - 1);
             }
         }
-        // Tidy up offset commands
-        info!("Offset commands before {:?}", self.offset_commands);
-        self.offset_commands.iter_mut().fold(0, |acc, e| {
-            let total = acc + *e;
-            info!("folding: acc: {acc}, e: {e}, total: {total}, idx: {idx}");
-            if (acc..total).contains(&(idx as isize)) {
-                info!("{:?}", (total..acc));
-                info!("Adjusting e from: {e}...");
-                *e = *e - 1 * e.signum();
-                info!("... to: {e}");
-            }
-            acc + *e
-        });
-        info!("Offset commands after {:?}", self.offset_commands);
-        todo!("Complete implementation of adjusting offset, and clear up info messages");
         Some(self.list.remove(idx))
     }
     pub fn create_next_id(&mut self) -> ListSongID {
