@@ -104,7 +104,16 @@ pub fn spawn_rodio_thread(
                             sink.stop()
                         }
                         sink.append(source);
+                        // Handle case we're we've received a play message but queue was paused.
+                        if sink.is_paused() {
+                            sink.play();
+                        }
                         debug!("Now playing {:?}", id);
+                        // Send the Now Playing message for good orders sake to avoid synchronization issues.
+                        blocking_send_or_error(
+                            &response_tx,
+                            super::Response::Player(Response::Playing(song_id, id)),
+                        );
                         cur_song_elapsed = Duration::default();
                         cur_song_id = song_id;
                         thinks_is_playing = true;
