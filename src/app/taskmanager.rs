@@ -1,6 +1,7 @@
 use super::server::{api, downloader, player};
-use super::statemanager::StateUpdateMessage;
 use super::structures::ListSongID;
+use super::ui::YoutuiWindow;
+use super::Youtui;
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
 use crate::config::ApiKey;
@@ -317,74 +318,65 @@ impl TaskManager {
         self.tasks
             .retain(|x| x.message.category() != request_category || x.id == id);
     }
-    pub fn process_messages(&mut self) -> Vec<StateUpdateMessage> {
+    pub async fn action_messages(&mut self, ui_state: &mut YoutuiWindow) {
         // XXX: Consider general case to check if task is valid.
         // In this case, message could implement Task with get_id() function?
-        let mut state_update_list = Vec::new();
         while let Ok(msg) = self.server_response_rx.try_recv() {
             match msg {
-                server::Response::Api(msg) => {
-                    if let Some(state_msg) = self.process_api_msg(msg) {
-                        state_update_list.push(state_msg)
-                    }
-                }
-                server::Response::Player(msg) => {
-                    if let Some(state_msg) = self.process_player_msg(msg) {
-                        state_update_list.push(state_msg)
-                    }
-                }
+                server::Response::Api(msg) => self.process_api_msg(msg, ui_state).await,
+                server::Response::Player(msg) => self.process_player_msg(msg, ui_state).await,
                 server::Response::Downloader(msg) => {
-                    if let Some(state_msg) = self.process_downloader_msg(msg) {
-                        state_update_list.push(state_msg)
-                    }
+                    self.process_downloader_msg(msg, ui_state).await
                 }
-            }
+            };
         }
-        state_update_list
     }
-    pub fn process_api_msg(&self, msg: api::Response) -> Option<StateUpdateMessage> {
+    pub async fn process_api_msg(&self, msg: api::Response, ui_state: &mut YoutuiWindow) {
+        tracing::debug!("Processing {:?}", msg);
         match msg {
             api::Response::ReplaceArtistList(list, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::ReplaceArtistList(list))
+                ui_state.handle_replace_artist_list(list).await;
             }
             api::Response::SearchArtistError(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::HandleSearchArtistError)
+                ui_state.handle_search_artist_error();
             }
             api::Response::ReplaceSearchSuggestions(runs, id, search) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::ReplaceSearchSuggestions(runs, search))
+                ui_state
+                    .handle_replace_search_suggestions(runs, search)
+                    .await;
             }
             api::Response::SongListLoading(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::HandleSongListLoading)
+                ui_state.handle_song_list_loading();
             }
             api::Response::SongListLoaded(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::HandleSongListLoaded)
+                ui_state.handle_song_list_loaded();
             }
             api::Response::NoSongsFound(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::HandleNoSongsFound)
+                ui_state.handle_no_songs_found();
             }
             api::Response::SongsFound(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::HandleSongsFound)
+                ui_state.handle_songs_found();
             }
             api::Response::AppendSongList {
                 song_list,
@@ -394,73 +386,71 @@ impl TaskManager {
                 id,
             } => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::AppendSongList {
-                    song_list,
-                    album,
-                    year,
-                    artist,
-                })
+                ui_state.handle_append_song_list(song_list, album, year, artist);
             }
-            api::Response::ApiError(e) => Some(StateUpdateMessage::HandleApiError(e)),
+            api::Response::ApiError(e) => ui_state.handle_api_error(e),
         }
     }
-    pub fn process_downloader_msg(&self, msg: downloader::Response) -> Option<StateUpdateMessage> {
+    pub async fn process_downloader_msg(
+        &self,
+        msg: downloader::Response,
+        ui_state: &mut YoutuiWindow,
+    ) {
         match msg {
             downloader::Response::DownloadProgressUpdate(update_type, song_id, task_id) => {
                 if !self.is_task_valid(task_id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetSongDownloadProgress(
-                    update_type,
-                    song_id,
-                ))
+                ui_state
+                    .handle_set_song_download_progress(update_type, song_id)
+                    .await;
             }
         }
     }
-    pub fn process_player_msg(&self, msg: player::Response) -> Option<StateUpdateMessage> {
+    pub async fn process_player_msg(&self, msg: player::Response, ui_state: &mut YoutuiWindow) {
         match msg {
             // XXX: Why are these not blockable tasks? As receiver responsible for race conditions?
             // Is a task with race conditions a RaceConditionTask?
             player::Response::DonePlaying(song_id) => {
-                Some(StateUpdateMessage::HandleDonePlaying(song_id))
+                ui_state.handle_done_playing(song_id).await;
             }
             player::Response::Paused(song_id, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetToPaused(song_id))
+                ui_state.handle_set_to_paused(song_id).await;
             }
             player::Response::Playing(song_id, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetToPlaying(song_id))
+                ui_state.handle_set_to_playing(song_id).await;
             }
             player::Response::Stopped(song_id, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetToStopped(song_id))
+                ui_state.handle_set_to_stopped(song_id).await;
             }
             player::Response::StoppedAll(id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetAllToStopped)
+                ui_state.handle_set_all_to_stopped().await;
             }
             player::Response::ProgressUpdate(perc, song_id, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetSongPlayProgress(perc, song_id))
+                ui_state.handle_set_song_play_progress(perc, song_id);
             }
             player::Response::VolumeUpdate(vol, id) => {
                 if !self.is_task_valid(id) {
-                    return None;
+                    return;
                 }
-                Some(StateUpdateMessage::SetVolume(vol))
+                ui_state.handle_set_volume(vol);
             }
         }
     }

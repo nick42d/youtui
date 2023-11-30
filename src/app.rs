@@ -1,9 +1,6 @@
-use self::statemanager::process_state_updates;
 use self::taskmanager::TaskManager;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
-use crate::app::server::api::Api;
-use crate::config::Config;
 use crate::{get_data_dir, RuntimeInfo};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -11,7 +8,6 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::process;
 use std::{io, sync::Arc};
 use tracing::info;
 use tracing_subscriber::prelude::*;
@@ -20,7 +16,6 @@ use ui::YoutuiWindow;
 mod component;
 mod musiccache;
 mod server;
-mod statemanager;
 mod structures;
 mod taskmanager;
 mod ui;
@@ -82,14 +77,12 @@ impl Youtui {
         loop {
             match self.window_state.get_status() {
                 ui::AppStatus::Running => {
-                    // Get the events from the event_handler and process them.
-                    let msg = self.event_handler.next().await;
-                    self.process_event(msg).await;
+                    // Get the next event from the event_handler and process it.
+                    self.handle_next_event().await;
                     // If any requests are in the queue, queue up the tasks on the server.
                     self.queue_server_tasks().await;
-                    // Get the state update events from the task manager and process them.
-                    let state_updates = self.task_manager.process_messages();
-                    process_state_updates(&mut self.window_state, state_updates).await;
+                    // Get the state update events from the task manager and apply them to the window state.
+                    self.synchronize_state().await;
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to instantly react to.
                     self.terminal.draw(|f| {
@@ -97,7 +90,7 @@ impl Youtui {
                     })?;
                 }
                 ui::AppStatus::Exiting(s) => {
-                    // Once we're done running, destruct the terminal.
+                    // Once we're done running, destruct the terminal and print the exit message.
                     destruct_terminal()?;
                     println!("{s}");
                     break;
@@ -106,8 +99,14 @@ impl Youtui {
         }
         Ok(())
     }
-    async fn process_event(&mut self, msg: Option<AppEvent>) {
-        // TODO: Handle closed channel
+    async fn synchronize_state(&mut self) {
+        self.task_manager
+            .action_messages(&mut self.window_state)
+            .await;
+    }
+    async fn handle_next_event(&mut self) {
+        let msg = self.event_handler.next().await;
+        // TODO: Handle closed channel better
         match msg {
             Some(AppEvent::QuitSignal) => self
                 .window_state
