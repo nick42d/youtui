@@ -8,7 +8,7 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
-    view::{DrawableMut, ListView, Scrollable},
+    view::{DrawableMut, Scrollable},
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;
@@ -19,6 +19,8 @@ use ytmapi_rs::{
     common::SearchSuggestion,
     parse::{SearchResultArtist, SongResult},
 };
+
+const PAGE_KEY_LINES: isize = 10;
 
 mod artistalbums;
 mod draw;
@@ -197,8 +199,8 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
             ArtistSongsAction::Up => self.album_songs_list.increment_list(-1),
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
-            ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-10),
-            ArtistSongsAction::PageDown => self.album_songs_list.increment_list(10),
+            ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
+            ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
         }
     }
 }

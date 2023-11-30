@@ -6,19 +6,14 @@ mod core;
 mod drawutils;
 pub mod error;
 
-use cli::{
-    get_and_output_oauth_token, handle_cli_command, print_artist, print_artist_json,
-    print_library_artists, print_library_artists_json, print_library_playlists,
-    print_library_playlists_json, print_search_suggestions, print_search_suggestions_json,
-};
-use config::{ApiKey, Config};
-pub use error::Result;
-
 use clap::{Args, Parser, Subcommand};
+use cli::handle_cli_command;
+use config::{ApiKey, Config};
 use directories::ProjectDirs;
 use error::Error;
-use std::path::{Path, PathBuf};
-use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+pub use error::Result;
+use std::path::PathBuf;
+use ytmapi_rs::auth::OAuthToken;
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -64,7 +59,7 @@ enum Commands {
 }
 
 pub struct RuntimeInfo {
-    debug: bool,
+    _debug: bool,
     config: Config,
     api_key: ApiKey,
 }
@@ -105,7 +100,7 @@ async fn try_main() -> Result<()> {
     // TODO: Remove delay, should be handled inside app instead.
     let api_key = load_api_key(&config).await?;
     let rt = RuntimeInfo {
-        debug,
+        _debug: debug,
         config,
         api_key,
     };

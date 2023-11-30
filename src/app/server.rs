@@ -68,17 +68,18 @@ impl Server {
             _response_tx: response_tx,
         })
     }
-    pub async fn run(&mut self) {
+    pub async fn run(&mut self) -> Result<()> {
         // Could be a while let
         // Consider parallelism.
         while let Some(request) = self.request_rx.recv().await {
             match request {
                 // TODO: Error handling for the queues.
-                Request::Api(rx) => self.api.handle_request(rx).await,
+                Request::Api(rx) => self.api.handle_request(rx).await?,
                 Request::Downloader(rx) => self.downloader.handle_request(rx).await,
-                Request::Player(rx) => self.player.handle_request(rx).await,
+                Request::Player(rx) => self.player.handle_request(rx).await?,
             }
         }
+        Ok(())
     }
 }
 // Consider using this instead of macro above.

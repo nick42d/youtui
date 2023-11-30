@@ -96,7 +96,7 @@ impl TextHandler for Playlist {
     fn take_text(&mut self) -> String {
         Default::default()
     }
-    fn replace_text(&mut self, text: String) {}
+    fn replace_text(&mut self, _text: String) {}
 }
 
 impl DrawableMut for Playlist {
@@ -284,9 +284,6 @@ impl Playlist {
             self.play_status = PlayState::Stopped
         }
     }
-    pub fn handle_set_all_to_stopped(&mut self) {
-        self.play_status = PlayState::Stopped
-    }
     pub async fn play_selected(&mut self) {
         let Some(index) = self.list.cur_selected else {
             return;
@@ -417,9 +414,6 @@ impl Playlist {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play next, but not currently playing");
             }
-            PlayState::Transitioning => {
-                tracing::error!("Asked to play next, but between states. Should not be here!");
-            }
             PlayState::Paused(id) | PlayState::Playing(id) | PlayState::Buffering(id) => {
                 // Guard against duplicate message received.
                 if id > &prev_id {
@@ -493,9 +487,6 @@ impl Playlist {
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play prev, but not currently playing");
-            }
-            PlayState::Transitioning => {
-                tracing::error!("Asked to play prev, but between states. Should not be here!");
             }
             PlayState::Paused(id) | PlayState::Playing(id) | PlayState::Buffering(id) => {
                 let prev_song_id = self

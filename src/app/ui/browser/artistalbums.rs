@@ -2,13 +2,12 @@ use crate::app::ui::browser::BrowserAction;
 use crate::app::{
     component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     structures::{AlbumSongsList, ListStatus, Percentage},
-    view::{BasicConstraint, Drawable, ListView, Loadable, Scrollable, SortableList, TableView},
+    view::{BasicConstraint, ListView, Loadable, Scrollable, SortableList, TableView},
 };
 use crossterm::event::KeyCode;
-use ratatui::widgets::ListState;
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::{common::TextRun, parse::SearchResultArtist};
+use ytmapi_rs::parse::SearchResultArtist;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {

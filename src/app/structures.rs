@@ -1,8 +1,6 @@
-use ratatui::widgets::{ListState, ScrollbarState, TableState};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
-use tracing::{info, warn};
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::SongResult;
 
@@ -55,7 +53,6 @@ pub enum DownloadStatus {
 pub enum PlayState {
     NotPlaying,
     Playing(ListSongID),
-    Transitioning,
     Paused(ListSongID),
     // May be the same as NotPlaying?
     Stopped,
@@ -68,7 +65,6 @@ impl PlayState {
             PlayState::Buffering(_) => '',
             PlayState::NotPlaying => '',
             PlayState::Playing(_) => '',
-            PlayState::Transitioning => '',
             PlayState::Paused(_) => '',
             PlayState::Stopped => '',
         }
@@ -88,16 +84,16 @@ impl DownloadStatus {
 }
 
 impl ListSong {
-    fn set_year(&mut self, year: Rc<String>) {
+    fn _set_year(&mut self, year: Rc<String>) {
         self.year = year;
     }
-    fn set_album(&mut self, album: Rc<String>) {
+    fn _set_album(&mut self, album: Rc<String>) {
         self.album = album;
     }
     pub fn get_year(&self) -> &String {
         &self.year
     }
-    fn set_artists(&mut self, artists: Vec<Rc<String>>) {
+    fn _set_artists(&mut self, artists: Vec<Rc<String>>) {
         self.artists = artists;
     }
     pub fn get_artists(&self) -> &Vec<Rc<String>> {

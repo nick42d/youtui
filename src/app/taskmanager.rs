@@ -1,7 +1,6 @@
 use super::server::{api, downloader, player};
 use super::structures::ListSongID;
 use super::ui::YoutuiWindow;
-use super::Youtui;
 use crate::app::server::KillRequest;
 use crate::app::server::{self, KillableTask};
 use crate::config::ApiKey;
@@ -21,11 +20,9 @@ pub struct TaskManager {
     _server_handle: tokio::task::JoinHandle<Result<()>>,
     server_request_tx: mpsc::Sender<server::Request>,
     server_response_rx: mpsc::Receiver<server::Response>,
-    request_tx: mpsc::Sender<AppRequest>,
-    request_rx: mpsc::Receiver<AppRequest>,
 }
 
-enum TaskType {
+enum _TaskType {
     Killable(KillableTask), // A task that can be called by the caller. Once killed, the caller will stop receiving messages to prevent race conditions.
     Blockable(TaskID), // A task that the caller can block from receiving further messages, but cannot be killed.
     Completable(TaskID), // A task that cannot be killed or blocked. Will always run until completion.
@@ -52,7 +49,6 @@ pub enum AppRequest {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
-    StopAll,
     PausePlay(ListSongID),
 }
 
@@ -68,7 +64,6 @@ impl AppRequest {
             AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
-            AppRequest::StopAll => RequestCategory::PlayPauseStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
         }
     }
@@ -92,10 +87,9 @@ impl TaskManager {
     pub fn new(api_key: ApiKey) -> Self {
         let (server_request_tx, server_request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
-        let (request_tx, request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let _server_handle = tokio::spawn(async {
             let mut a = server::Server::new(api_key, server_response_tx, server_request_rx)?;
-            a.run().await;
+            a.run().await?;
             Ok(())
         });
         Self {
@@ -104,13 +98,6 @@ impl TaskManager {
             _server_handle,
             server_request_tx,
             server_response_rx,
-            request_tx,
-            request_rx,
-        }
-    }
-    pub async fn process_requests(&mut self) {
-        while let Ok(msg) = self.request_rx.try_recv() {
-            self.send_request(msg).await;
         }
     }
     pub async fn send_request(&mut self, request: AppRequest) {
@@ -131,7 +118,6 @@ impl TaskManager {
             AppRequest::PlaySong(song, song_id) => self.spawn_play_song(song, song_id, id).await,
             AppRequest::GetPlayProgress(song_id) => self.spawn_get_play_progress(song_id, id).await,
             AppRequest::Stop(song_id) => self.spawn_stop(song_id, id).await,
-            AppRequest::StopAll => self.spawn_stop_all(id).await,
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
         };
     }
@@ -237,14 +223,6 @@ impl TaskManager {
         send_or_error(
             &self.server_request_tx,
             server::Request::Player(server::player::Request::Stop(song_id, id)),
-        )
-        .await
-    }
-    pub async fn spawn_stop_all(&mut self, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::StopAll(id)),
         )
         .await
     }
@@ -430,12 +408,6 @@ impl TaskManager {
                     return;
                 }
                 ui_state.handle_set_to_stopped(song_id).await;
-            }
-            player::Response::StoppedAll(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_all_to_stopped().await;
             }
             player::Response::ProgressUpdate(perc, song_id, id) => {
                 if !self.is_task_valid(id) {

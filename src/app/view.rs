@@ -1,14 +1,11 @@
 pub mod draw;
-use std::{borrow::Cow, fmt::Display};
-
-use ratatui::{
-    prelude::{Backend, Constraint, Rect},
-    widgets::{ListState, ScrollbarState, TableState},
-    Frame,
-};
-use tracing::info;
 
 use super::{structures::Percentage, ui::YoutuiMutableState};
+use ratatui::{
+    prelude::{Backend, Constraint, Rect},
+    Frame,
+};
+use std::{borrow::Cow, fmt::Display};
 
 struct _TableSort {
     column: usize,
@@ -19,10 +16,10 @@ enum _SortDirection {
     Desc,
 }
 enum _TableFilter {
-    All(Filter),
-    Column { filter: Filter, column: usize },
+    All(_Filter),
+    Column { filter: _Filter, column: usize },
 }
-enum Filter {
+enum _Filter {
     Contains(String),
 }
 

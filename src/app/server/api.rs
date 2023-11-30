@@ -78,7 +78,7 @@ impl Api {
             Err(Error::UnknownAPIError)
         }
     }
-    pub async fn handle_request(&mut self, request: Request) {
+    pub async fn handle_request(&mut self, request: Request) -> Result<()> {
         match request {
             Request::NewArtistSearch(a, task) => self.handle_new_artist_search(a, task).await,
             Request::GetSearchSuggestions(text, task) => {
@@ -89,7 +89,11 @@ impl Api {
             }
         }
     }
-    async fn handle_get_search_suggestions(&mut self, text: String, task: KillableTask) {
+    async fn handle_get_search_suggestions(
+        &mut self,
+        text: String,
+        task: KillableTask,
+    ) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
         // Give the task a clone of the API. Not ideal but works.
         // The largest part of the API is Reqwest::Client which contains an Arc
@@ -102,8 +106,11 @@ impl Api {
             Err(e) => {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await;
-                return;
+                    .await?;
+                // Rough guard against the case of sending an unkown api error.
+                // TODO: Better handling for this edge case.
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                return Err(Error::UnknownAPIError);
             }
         }
         .clone();
@@ -129,9 +136,10 @@ impl Api {
             kill_rx,
         )
         .await;
+        Ok(())
     }
 
-    async fn handle_new_artist_search(&mut self, artist: String, task: KillableTask) {
+    async fn handle_new_artist_search(&mut self, artist: String, task: KillableTask) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
         // Give the task a clone of the API. Not ideal but works.
         // The largest part of the API is Reqwest::Client which contains an Arc
@@ -144,8 +152,11 @@ impl Api {
             Err(e) => {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await;
-                return;
+                    .await?;
+                // Rough guard against the case of sending an unkown api error.
+                // TODO: Better handling for this edge case.
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                return Err(Error::UnknownAPIError);
             }
         }
         .clone();
@@ -189,12 +200,13 @@ impl Api {
             kill_rx,
         )
         .await;
+        Ok(())
     }
     async fn handle_search_selected_artist(
         &mut self,
         browse_id: ChannelID<'static>,
         task: KillableTask,
-    ) {
+    ) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
         // See above note
         let tx = self.response_tx.clone();
@@ -203,8 +215,11 @@ impl Api {
             Err(e) => {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await;
-                return;
+                    .await?;
+                // Rough guard against the case of sending an unkown api error.
+                // TODO: Better handling for this edge case.
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                return Err(Error::UnknownAPIError);
             }
         }
         .clone();
@@ -357,5 +372,6 @@ impl Api {
             kill_rx,
         )
         .await;
+        Ok(())
     }
 }

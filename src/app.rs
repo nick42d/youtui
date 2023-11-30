@@ -3,9 +3,8 @@ use self::taskmanager::{AppRequest, TaskManager};
 use self::ui::WindowContext;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
-use crate::core::send_or_error;
 use crate::error::Error;
-use crate::{get_data_dir, RuntimeInfo};
+use crate::RuntimeInfo;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -30,7 +29,7 @@ mod view;
 
 const CALLBACK_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
-const LOG_FILE_NAME: &str = "debug.log";
+const _LOG_FILE_NAME: &str = "debug.log";
 
 pub struct Youtui {
     status: AppStatus,
@@ -56,8 +55,6 @@ pub enum AppCallback {
     GetProgress(ListSongID),
     Quit,
     ChangeContext(WindowContext),
-    Next,
-    Prev,
     // Perhaps shiould not be here.
     HandleApiError(Error),
     IncreaseVolume(i8),
@@ -69,7 +66,6 @@ pub enum AppCallback {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
-    StopAll,
 }
 
 impl Youtui {
@@ -126,8 +122,6 @@ impl Youtui {
                     self.handle_next_event().await;
                     // Process any callbacks in the queue.
                     self.process_callbacks().await;
-                    // If any requests are in the queue, queue up the tasks on the server.
-                    self.queue_server_tasks().await;
                     // Get the state update events from the task manager and apply them to the window state.
                     self.synchronize_state().await;
                     // Write to terminal, using UI state as the input
@@ -164,9 +158,6 @@ impl Youtui {
             None => panic!("Channel closed"),
         }
     }
-    async fn queue_server_tasks(&mut self) {
-        self.task_manager.process_requests().await;
-    }
     pub async fn process_callbacks(&mut self) {
         while let Ok(msg) = self.callback_rx.try_recv() {
             match msg {
@@ -183,11 +174,9 @@ impl Youtui {
                 AppCallback::ChangeContext(context) => {
                     self.window_state.handle_change_context(context)
                 }
-                AppCallback::Next => self.window_state.handle_next().await,
-                AppCallback::Prev => self.window_state.handle_previous().await,
                 AppCallback::IncreaseVolume(i) => {
                     // Update state first for immediate visual feedback
-                    self.window_state.increase_volume(i).await;
+                    self.window_state.increase_volume(i);
                     self.task_manager
                         .send_request(AppRequest::IncreaseVolume(i))
                         .await;
@@ -228,9 +217,6 @@ impl Youtui {
                 }
                 AppCallback::Stop(id) => {
                     self.task_manager.send_request(AppRequest::Stop(id)).await;
-                }
-                AppCallback::StopAll => {
-                    self.task_manager.send_request(AppRequest::StopAll).await;
                 }
                 AppCallback::GetVolume => {
                     self.task_manager.send_request(AppRequest::GetVolume).await;

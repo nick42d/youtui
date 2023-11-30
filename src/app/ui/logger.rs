@@ -1,16 +1,3 @@
-use std::borrow::Cow;
-
-use crossterm::event::{KeyCode, KeyEvent};
-use draw::draw_logger;
-use ratatui::{
-    prelude::{Backend, Rect},
-    Frame,
-};
-use tokio::sync::mpsc::Sender;
-use tui_logger::TuiWidgetEvent;
-
-use crate::{app::view::DrawableMut, core::send_or_error};
-
 use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
@@ -18,6 +5,16 @@ use crate::app::{
     ui::AppCallback,
     view::Drawable,
 };
+use crate::core::send_or_error;
+use crossterm::event::KeyCode;
+use draw::draw_logger;
+use ratatui::{
+    prelude::{Backend, Rect},
+    Frame,
+};
+use std::borrow::Cow;
+use tokio::sync::mpsc::Sender;
+use tui_logger::TuiWidgetEvent;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum LoggerAction {
@@ -42,7 +39,8 @@ impl Action for LoggerAction {
     fn describe(&self) -> Cow<str> {
         match self {
             LoggerAction::ViewBrowser => "View Browser".into(),
-            x => format!("{:?}", self).into(),
+            // TODO: Improve this from Debug implementation
+            _ => format!("{:?}", self).into(),
         }
     }
 }
@@ -195,7 +193,7 @@ pub mod draw {
         f.render_widget(log, chunk);
     }
     /// helper function to create a centered rect using up certain percentage of the available rect `r`
-    fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    fn _centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         let popup_layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(

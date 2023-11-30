@@ -1,9 +1,7 @@
+use crate::get_config_dir;
 use crate::Result;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
-use ytmapi_rs::auth::{BrowserToken, OAuthToken};
-
-use crate::get_config_dir;
+use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
 

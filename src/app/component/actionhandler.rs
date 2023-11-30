@@ -72,7 +72,7 @@ impl<A: Action> Mode<A> {
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a> {
         Box::new(self.key_binds.iter().map(|bind| bind.as_readable_short()))
     }
-    pub fn as_readable_iter<'a>(
+    pub fn _as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
         Box::new(self.key_binds.iter().map(|bind| bind.as_readable()))
@@ -262,7 +262,7 @@ pub trait ActionProcessor<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> {
 
 pub trait MouseHandler {
     /// Not implemented yet!
-    fn handle_mouse_event(&mut self, mouse_event: MouseEvent) {
+    fn handle_mouse_event(&mut self, _mouse_event: MouseEvent) {
         unimplemented!()
     }
 }

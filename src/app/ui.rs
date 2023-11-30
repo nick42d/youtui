@@ -5,8 +5,6 @@ mod header;
 mod logger;
 mod playlist;
 
-use self::browser::BrowserAction;
-use self::playlist::PlaylistAction;
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
@@ -24,7 +22,6 @@ use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::{SearchResultArtist, SongResult};
 
-const PAGE_KEY_SCROLL_AMOUNT: isize = 10;
 const VOL_TICK: i8 = 5;
 
 // Which app level keyboard shortcuts function.
@@ -47,8 +44,6 @@ pub enum UIAction {
     Pause,
     StepVolUp,
     StepVolDown,
-    Browser(BrowserAction),
-    Playlist(PlaylistAction),
     ToggleHelp,
     ViewLogs,
 }
@@ -150,8 +145,6 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::Browser(b) => self.browser.handle_action(b).await,
-            UIAction::Playlist(b) => self.playlist.handle_action(b).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.help_shown = !self.help_shown,
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -165,8 +158,6 @@ impl Action for UIAction {
             UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
                 "Global".into()
             }
-            UIAction::Browser(a) => a.context(),
-            UIAction::Playlist(a) => a.context(),
             UIAction::Quit => "Global".into(),
             UIAction::ToggleHelp => "Global".into(),
             UIAction::ViewLogs => "Global".into(),
@@ -183,8 +174,6 @@ impl Action for UIAction {
             UIAction::StepVolDown => "Vol Down".into(),
             UIAction::ToggleHelp => "Toggle Help".into(),
             UIAction::ViewLogs => "View Logs".into(),
-            UIAction::Browser(a) => a.describe(),
-            UIAction::Playlist(a) => a.describe(),
         }
     }
 }
@@ -286,17 +275,8 @@ impl YoutuiWindow {
     pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_stopped(id)
     }
-    pub async fn handle_set_all_to_stopped(&mut self) {
-        self.playlist.handle_set_all_to_stopped()
-    }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
-    }
-    pub async fn handle_next(&mut self) {
-        self.playlist.handle_next().await;
-    }
-    pub async fn handle_previous(&mut self) {
-        self.playlist.handle_previous().await;
     }
     pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
         self.playlist.handle_set_song_play_progress(f, id);
@@ -376,14 +356,14 @@ impl YoutuiWindow {
     }
 
     /// Visually increment the volume, note, does not actually change the volume.
-    pub async fn increase_volume(&mut self, inc: i8) {
+    pub fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
     }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
         self.context = new_context;
     }
-    fn revert_context(&mut self) {
+    fn _revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
     }
     // TODO: also return Mode description.

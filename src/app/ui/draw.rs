@@ -6,10 +6,9 @@ use ratatui::{
     layout::{Constraint, Direction, Layout},
     terminal::Frame,
 };
-use tracing::info;
 
 use super::{footer, header, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::{Action, DisplayableKeyRouter};
+use crate::app::component::actionhandler::DisplayableKeyRouter;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::left_bottom_corner_rect;
 

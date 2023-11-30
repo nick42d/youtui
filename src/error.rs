@@ -1,11 +1,6 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
-
-use tokio::{sync::mpsc, task::JoinError};
-
 use crate::config::AuthType;
+use std::{fmt::Display, path::PathBuf};
+use tokio::{sync::mpsc, task::JoinError};
 
 pub type Result<T> = std::result::Result<T, Error>;
 

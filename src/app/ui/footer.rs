@@ -63,7 +63,6 @@ where
             .unwrap_or("No title".to_string()),
         PlayState::NotPlaying => "Not playing".to_string(),
         PlayState::Stopped => "Not playing".to_string(),
-        PlayState::Transitioning => "Not playing".to_string(),
     };
     let album_title = match w.playlist.play_status {
         PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
@@ -73,7 +72,6 @@ where
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
         PlayState::Stopped => "".to_string(),
-        PlayState::Transitioning => "".to_string(),
     };
     let artist_title = match w.playlist.play_status {
         PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
@@ -91,16 +89,14 @@ where
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
         PlayState::Stopped => "".to_string(),
-        PlayState::Transitioning => "".to_string(),
     };
     let song_title_string = match w.playlist.play_status {
-        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => format!(
+        PlayState::Playing(_) | PlayState::Paused(_) | PlayState::Buffering(_) => format!(
             "{} {song_title} - {artist_title}",
             w.playlist.play_status.list_icon()
         ),
         PlayState::NotPlaying => "".to_string(),
         PlayState::Stopped => "".to_string(),
-        PlayState::Transitioning => "".to_string(),
     };
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()

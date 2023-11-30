@@ -28,7 +28,6 @@ pub enum Request {
     PlaySong(Arc<Vec<u8>>, ListSongID, TaskID),
     GetPlayProgress(ListSongID, TaskID), // Should give ID?
     Stop(ListSongID, TaskID),
-    StopAll(TaskID),
     PausePlay(ListSongID, TaskID),
 }
 
@@ -38,7 +37,6 @@ pub enum Response {
     Paused(ListSongID, TaskID),
     Playing(ListSongID, TaskID),
     Stopped(ListSongID, TaskID),
-    StoppedAll(TaskID),
     ProgressUpdate(f64, ListSongID, TaskID),
     VolumeUpdate(Percentage, TaskID), // Should be Percentage
 }
@@ -61,8 +59,8 @@ impl PlayerManager {
             _rodio: rodio,
         })
     }
-    pub async fn handle_request(&self, request: Request) {
-        self.msg_tx.send(request).await;
+    pub async fn handle_request(&self, request: Request) -> Result<()> {
+        Ok(self.msg_tx.send(request).await?)
     }
 }
 
@@ -78,7 +76,7 @@ pub fn spawn_rodio_thread(
         let _gag = match gag::Gag::stderr() {
             Ok(gag) => gag,
             Err(e) => {
-                warn!("Error gagging stderr output");
+                warn!("Error <{e}> gagging stderr output");
                 return;
             }
         };
@@ -129,18 +127,6 @@ pub fn spawn_rodio_thread(
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::Stopped(song_id, id)),
-                        );
-                        thinks_is_playing = false;
-                    }
-                    // TODO: Refactor with above.
-                    Request::StopAll(id) => {
-                        info!("Got message to stop playing all");
-                        if !sink.empty() {
-                            sink.stop()
-                        }
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::StoppedAll(id)),
                         );
                         thinks_is_playing = false;
                     }
@@ -215,7 +201,7 @@ pub fn spawn_rodio_thread(
             last_tick_time = std::time::Instant::now();
             std::thread::sleep(EVENT_POLL_INTERVAL);
             if !sink.empty() && !sink.is_paused() {
-                std::thread::sleep(EVENT_POLL_INTERVAL.saturating_sub(EVENT_POLL_INTERVAL));
+                std::thread::sleep(PROGRESS_UPDATE_INTERVAL.saturating_sub(EVENT_POLL_INTERVAL));
                 let passed = std::time::Instant::now() - last_tick_time;
                 cur_song_elapsed = cur_song_elapsed + passed;
             }

@@ -13,7 +13,7 @@ use crate::app::component::actionhandler::{
     Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility,
 };
 
-pub fn context_global_keybinds_and_descriptions<'a, C, A>(
+pub fn _context_global_keybinds_and_descriptions<'a, C, A>(
     context: &'a C,
 ) -> Box<dyn Iterator<Item = (Cow<str>, String)> + 'a>
 where
