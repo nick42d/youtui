@@ -3,6 +3,11 @@ name = "youtui"
 version = "0.0.0"
 edition = "2021"
 authors = ["nick42d"]
+license = "MIT"
+description = "A simple TUI YouTube Music player"
+homepage = "https://github.com/nick42d/youtui"
+repository = "https://github.com/nick42d/youtui"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.3.5", features = ["derive"] }
