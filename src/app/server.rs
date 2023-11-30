@@ -71,13 +71,12 @@ impl Server {
     pub async fn run(&mut self) {
         // Could be a while let
         // Consider parallelism.
-        loop {
-            match self.request_rx.recv().await {
+        while let Some(request) = self.request_rx.recv().await {
+            match request {
                 // TODO: Error handling for the queues.
-                Some(Request::Api(rx)) => self.api.handle_request(rx).await,
-                Some(Request::Downloader(rx)) => self.downloader.handle_request(rx).await,
-                Some(Request::Player(rx)) => self.player.handle_request(rx).await,
-                None => (),
+                Request::Api(rx) => self.api.handle_request(rx).await,
+                Request::Downloader(rx) => self.downloader.handle_request(rx).await,
+                Request::Player(rx) => self.player.handle_request(rx).await,
             }
         }
     }
