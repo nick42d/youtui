@@ -24,7 +24,7 @@ pub struct ListSongID(usize);
 #[derive(Clone, PartialEq, Copy, Debug, Default, PartialOrd)]
 pub struct Percentage(pub u8);
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ListSong {
     pub raw: SongResult,
     pub download_status: DownloadStatus,
@@ -42,7 +42,7 @@ pub enum ListStatus {
     Error,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum DownloadStatus {
     None,
     Queued,

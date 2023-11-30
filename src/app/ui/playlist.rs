@@ -8,7 +8,7 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
-    ui::{UIMessage, WindowContext},
+    ui::{AppCallback, WindowContext},
 };
 
 use crate::{app::structures::DownloadStatus, core::send_or_error};
@@ -30,7 +30,7 @@ pub struct Playlist {
     pub cur_played_secs: Option<f64>,
     pub play_status: PlayState,
     pub volume: Percentage,
-    ui_tx: mpsc::Sender<UIMessage>,
+    ui_tx: mpsc::Sender<AppCallback>,
     pub help_shown: bool,
     keybinds: Vec<Keybind<PlaylistAction>>,
 }
@@ -175,10 +175,10 @@ impl ActionHandler<PlaylistAction> for Playlist {
 }
 
 impl Playlist {
-    pub fn new(ui_tx: mpsc::Sender<UIMessage>) -> Self {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         // This could fail, made to try send to avoid needing to change function signature to asynchronous. Should change.
         ui_tx
-            .try_send(UIMessage::GetVolume)
+            .try_send(AppCallback::GetVolume)
             .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
         Playlist {
             help_shown: false,
@@ -199,7 +199,7 @@ impl Playlist {
         // Ask player for a progress update.
         if let PlayState::Playing(id) = self.play_status {
             info!("Tick received - requesting song progress update");
-            let _ = self.ui_tx.send(UIMessage::GetProgress(id)).await;
+            let _ = self.ui_tx.send(AppCallback::GetProgress(id)).await;
         }
     }
     pub async fn handle_song_progress_update(
@@ -305,7 +305,7 @@ impl Playlist {
         if let Some(cur_playing_id) = self.get_cur_playing_id() {
             if Some(cur_selected_idx) == self.get_cur_playing_index() {
                 self.play_status = PlayState::NotPlaying;
-                send_or_error(&self.ui_tx, UIMessage::Stop(cur_playing_id)).await;
+                send_or_error(&self.ui_tx, AppCallback::Stop(cur_playing_id)).await;
             }
         }
         // TODO: Resolve offset commands
@@ -319,7 +319,7 @@ impl Playlist {
     pub async fn view_browser(&mut self) {
         send_or_error(
             &self.ui_tx,
-            UIMessage::ChangeContext(WindowContext::Browser),
+            AppCallback::ChangeContext(WindowContext::Browser),
         )
         .await;
     }
@@ -354,7 +354,7 @@ impl Playlist {
     pub async fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
         }
         self.clear()
         // XXX: Also need to kill pending download tasks
@@ -367,7 +367,7 @@ impl Playlist {
     }
     pub async fn play_song_id(&mut self, id: ListSongID) {
         if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, UIMessage::Stop(cur_id)).await;
+            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
         }
         // Drop previous songs
         self.drop_unscoped_from_id(id);
@@ -381,7 +381,7 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.ui_tx, UIMessage::PlaySong(pointer.clone(), id)).await;
+                send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
             } else {
                 self.play_status = PlayState::Buffering(id);
@@ -406,7 +406,7 @@ impl Playlist {
         };
         send_or_error(
             &self.ui_tx,
-            UIMessage::DownloadSong(song.raw.get_video_id().clone(), id),
+            AppCallback::DownloadSong(song.raw.get_video_id().clone(), id),
         )
         .await;
         song.download_status = DownloadStatus::Queued;
@@ -435,7 +435,7 @@ impl Playlist {
                     }
                     None => {
                         info!("No next song - finishing playback");
-                        send_or_error(&self.ui_tx, UIMessage::Stop(*id)).await;
+                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
                     }
                 }
             }
@@ -528,7 +528,7 @@ impl Playlist {
             }
             _ => return,
         };
-        send_or_error(&self.ui_tx, UIMessage::PausePlay(id)).await;
+        send_or_error(&self.ui_tx, AppCallback::PausePlay(id)).await;
     }
     pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
         match self.play_status {

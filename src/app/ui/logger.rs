@@ -15,7 +15,7 @@ use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
     },
-    ui::UIMessage,
+    ui::AppCallback,
     view::Drawable,
 };
 
@@ -48,7 +48,7 @@ impl Action for LoggerAction {
 }
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
-    ui_tx: Sender<UIMessage>,
+    ui_tx: Sender<AppCallback>,
     keybinds: Vec<Keybind<LoggerAction>>,
 }
 
@@ -105,7 +105,7 @@ impl ActionHandler<LoggerAction> for Logger {
 }
 
 impl Logger {
-    pub fn new(ui_tx: Sender<UIMessage>) -> Self {
+    pub fn new(ui_tx: Sender<AppCallback>) -> Self {
         Self {
             ui_tx,
             logger_state: tui_logger::TuiWidgetState::default(),
@@ -115,7 +115,7 @@ impl Logger {
     async fn handle_view_browser(&mut self) {
         send_or_error(
             &self.ui_tx,
-            UIMessage::ChangeContext(super::WindowContext::Browser),
+            AppCallback::ChangeContext(super::WindowContext::Browser),
         )
         .await;
     }

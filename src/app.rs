@@ -1,6 +1,10 @@
-use self::taskmanager::TaskManager;
+use self::structures::{ListSong, ListSongID};
+use self::taskmanager::{AppRequest, TaskManager};
+use self::ui::WindowContext;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
+use crate::core::send_or_error;
+use crate::error::Error;
 use crate::{get_data_dir, RuntimeInfo};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -8,10 +12,13 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
+use std::borrow::Cow;
 use std::{io, sync::Arc};
+use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;
 use ui::YoutuiWindow;
+use ytmapi_rs::{ChannelID, VideoID};
 
 mod component;
 mod musiccache;
@@ -21,14 +28,48 @@ mod taskmanager;
 mod ui;
 mod view;
 
+const CALLBACK_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
 
 pub struct Youtui {
+    status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    terminal: Terminal<CrosstermBackend<io::Stdout>>,
     task_manager: TaskManager,
+    callback_rx: mpsc::Receiver<AppCallback>,
+    terminal: Terminal<CrosstermBackend<io::Stdout>>,
+}
+
+#[derive(PartialEq)]
+pub enum AppStatus {
+    Running,
+    // Cow: Message
+    Exiting(Cow<'static, str>),
+}
+
+// A callback from one of the application components to the top level.
+#[derive(Debug)]
+pub enum AppCallback {
+    DownloadSong(VideoID<'static>, ListSongID),
+    GetVolume,
+    GetProgress(ListSongID),
+    Quit,
+    ChangeContext(WindowContext),
+    Next,
+    Prev,
+    // Perhaps shiould not be here.
+    HandleApiError(Error),
+    IncreaseVolume(i8),
+    SearchArtist(String),
+    GetSearchSuggestions(String),
+    GetArtistSongs(ChannelID<'static>),
+    AddSongsToPlaylist(Vec<ListSong>),
+    AddSongsToPlaylistAndPlay(Vec<ListSong>),
+    PlaySong(Arc<Vec<u8>>, ListSongID),
+    PausePlay(ListSongID),
+    Stop(ListSongID),
+    StopAll,
 }
 
 impl Youtui {
@@ -61,24 +102,30 @@ impl Youtui {
             let _ = destruct_terminal();
             println!("{}", panic_info);
         }));
+        // Setup components
+        let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
         let task_manager = taskmanager::TaskManager::new(api_key);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(task_manager.get_sender_clone().clone());
+        let window_state = YoutuiWindow::new(callback_tx);
         Ok(Youtui {
+            status: AppStatus::Running,
             terminal,
             event_handler,
             window_state,
             task_manager,
+            callback_rx,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
         loop {
-            match self.window_state.get_status() {
-                ui::AppStatus::Running => {
+            match &self.status {
+                AppStatus::Running => {
                     // Get the next event from the event_handler and process it.
                     self.handle_next_event().await;
+                    // Process any callbacks in the queue.
+                    self.process_callbacks().await;
                     // If any requests are in the queue, queue up the tasks on the server.
                     self.queue_server_tasks().await;
                     // Get the state update events from the task manager and apply them to the window state.
@@ -89,7 +136,7 @@ impl Youtui {
                         ui::draw::draw_app(f, &mut self.window_state);
                     })?;
                 }
-                ui::AppStatus::Exiting(s) => {
+                AppStatus::Exiting(s) => {
                     // Once we're done running, destruct the terminal and print the exit message.
                     destruct_terminal()?;
                     println!("{s}");
@@ -108,9 +155,9 @@ impl Youtui {
         let msg = self.event_handler.next().await;
         // TODO: Handle closed channel better
         match msg {
-            Some(AppEvent::QuitSignal) => self
-                .window_state
-                .set_status(ui::AppStatus::Exiting("Quit signal received".into())),
+            Some(AppEvent::QuitSignal) => {
+                self.status = AppStatus::Exiting("Quit signal received".into())
+            }
             Some(AppEvent::Crossterm(e)) => self.window_state.handle_event(e).await,
             // XXX: Should be try_poll or similar? Poll the Future but don't await it?
             Some(AppEvent::Tick) => self.window_state.handle_tick().await,
@@ -119,6 +166,82 @@ impl Youtui {
     }
     async fn queue_server_tasks(&mut self) {
         self.task_manager.process_requests().await;
+    }
+    pub async fn process_callbacks(&mut self) {
+        while let Ok(msg) = self.callback_rx.try_recv() {
+            match msg {
+                AppCallback::DownloadSong(video_id, playlist_id) => {
+                    self.task_manager
+                        .send_request(AppRequest::Download(video_id, playlist_id))
+                        .await;
+                }
+                AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
+                AppCallback::HandleApiError(e) => {
+                    self.status = AppStatus::Exiting(format!("{e}").into())
+                }
+
+                AppCallback::ChangeContext(context) => {
+                    self.window_state.handle_change_context(context)
+                }
+                AppCallback::Next => self.window_state.handle_next().await,
+                AppCallback::Prev => self.window_state.handle_previous().await,
+                AppCallback::IncreaseVolume(i) => {
+                    // Update state first for immediate visual feedback
+                    self.window_state.increase_volume(i).await;
+                    self.task_manager
+                        .send_request(AppRequest::IncreaseVolume(i))
+                        .await;
+                }
+                AppCallback::GetSearchSuggestions(text) => {
+                    self.task_manager
+                        .send_request(AppRequest::GetSearchSuggestions(text))
+                        .await;
+                }
+                AppCallback::SearchArtist(artist) => {
+                    self.task_manager
+                        .send_request(AppRequest::SearchArtists(artist))
+                        .await;
+                }
+                AppCallback::GetArtistSongs(id) => {
+                    self.task_manager
+                        .send_request(AppRequest::GetArtistSongs(id))
+                        .await;
+                }
+                AppCallback::AddSongsToPlaylist(song_list) => {
+                    self.window_state.handle_add_songs_to_playlist(song_list);
+                }
+                AppCallback::AddSongsToPlaylistAndPlay(song_list) => {
+                    self.window_state
+                        .handle_add_songs_to_playlist_and_play(song_list)
+                        .await
+                }
+                AppCallback::PlaySong(song, id) => {
+                    self.task_manager
+                        .send_request(AppRequest::PlaySong(song, id))
+                        .await;
+                }
+
+                AppCallback::PausePlay(id) => {
+                    self.task_manager
+                        .send_request(AppRequest::PausePlay(id))
+                        .await;
+                }
+                AppCallback::Stop(id) => {
+                    self.task_manager.send_request(AppRequest::Stop(id)).await;
+                }
+                AppCallback::StopAll => {
+                    self.task_manager.send_request(AppRequest::StopAll).await;
+                }
+                AppCallback::GetVolume => {
+                    self.task_manager.send_request(AppRequest::GetVolume).await;
+                }
+                AppCallback::GetProgress(id) => {
+                    self.task_manager
+                        .send_request(AppRequest::GetPlayProgress(id))
+                        .await;
+                }
+            }
+        }
     }
 }
 

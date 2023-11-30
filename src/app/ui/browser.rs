@@ -2,7 +2,7 @@ use self::{
     artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
     draw::draw_browser,
 };
-use super::{UIMessage, WindowContext, YoutuiMutableState};
+use super::{AppCallback, WindowContext, YoutuiMutableState};
 use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
@@ -40,7 +40,7 @@ pub enum InputRouting {
 }
 
 pub struct Browser {
-    ui_tx: mpsc::Sender<UIMessage>,
+    ui_tx: mpsc::Sender<AppCallback>,
     pub input_routing: InputRouting,
     pub prev_input_routing: InputRouting,
     pub artist_list: ArtistSearchPanel,
@@ -212,7 +212,7 @@ impl ActionHandler<BrowserAction> for Browser {
             BrowserAction::ViewPlaylist => {
                 send_or_error(
                     &self.ui_tx,
-                    UIMessage::ChangeContext(WindowContext::Playlist),
+                    AppCallback::ChangeContext(WindowContext::Playlist),
                 )
                 .await
             }
@@ -223,7 +223,7 @@ impl ActionHandler<BrowserAction> for Browser {
     // KeyCode::F(3) => self.artist_list.push_sort_command("test".to_owned()),
 }
 impl Browser {
-    pub fn new(ui_tx: mpsc::Sender<UIMessage>) -> Self {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         Self {
             ui_tx,
             artist_list: ArtistSearchPanel::new(),
@@ -259,7 +259,7 @@ impl Browser {
             self.artist_list.search.search_suggestions.clear();
             return;
         }
-        if let Err(e) = self.ui_tx.try_send(UIMessage::GetSearchSuggestions(
+        if let Err(e) = self.ui_tx.try_send(AppCallback::GetSearchSuggestions(
             self.artist_list.search.search_contents.clone(),
         )) {
             error!("Error <{e}> recieved sending message")
@@ -273,7 +273,7 @@ impl Browser {
         if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
             send_or_error(
                 &self.ui_tx,
-                UIMessage::AddSongsToPlaylistAndPlay(vec![cur_song.clone()]),
+                AppCallback::AddSongsToPlaylistAndPlay(vec![cur_song.clone()]),
             )
             .await;
         }
@@ -292,7 +292,11 @@ impl Browser {
             .skip(cur_song)
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylistAndPlay(song_list)).await;
+        send_or_error(
+            &self.ui_tx,
+            AppCallback::AddSongsToPlaylistAndPlay(song_list),
+        )
+        .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn add_songs_to_playlist(&mut self) {
@@ -308,7 +312,7 @@ impl Browser {
             .skip(cur_song)
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylist(song_list)).await;
+        send_or_error(&self.ui_tx, AppCallback::AddSongsToPlaylist(song_list)).await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn add_song_to_playlist(&mut self) {
@@ -319,7 +323,7 @@ impl Browser {
         if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
             send_or_error(
                 &self.ui_tx,
-                UIMessage::AddSongsToPlaylist(vec![cur_song.clone()]),
+                AppCallback::AddSongsToPlaylist(vec![cur_song.clone()]),
             )
             .await;
         }
@@ -341,7 +345,7 @@ impl Browser {
             .filter(|song| song.get_album() == cur_song.get_album())
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylist(song_list)).await;
+        send_or_error(&self.ui_tx, AppCallback::AddSongsToPlaylist(song_list)).await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn play_album(&mut self) {
@@ -361,7 +365,11 @@ impl Browser {
             // XXX: Could instead be inside an Rc.
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, UIMessage::AddSongsToPlaylistAndPlay(song_list)).await;
+        send_or_error(
+            &self.ui_tx,
+            AppCallback::AddSongsToPlaylistAndPlay(song_list),
+        )
+        .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn get_songs(&mut self) {
@@ -379,13 +387,13 @@ impl Browser {
             error!("Tried to get item from list with index out of range");
             return;
         };
-        send_or_error(&self.ui_tx, UIMessage::GetArtistSongs(cur_artist_id)).await;
+        send_or_error(&self.ui_tx, AppCallback::GetArtistSongs(cur_artist_id)).await;
         tracing::info!("Sent request to UI to get songs");
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
         let search_query = self.artist_list.search.take_text();
-        send_or_error(&self.ui_tx, UIMessage::SearchArtist(search_query)).await;
+        send_or_error(&self.ui_tx, AppCallback::SearchArtist(search_query)).await;
         tracing::info!("Sent request to UI to search");
     }
     pub fn handle_search_artist_error(&mut self) {

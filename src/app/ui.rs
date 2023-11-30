@@ -12,73 +12,33 @@ use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
     KeyRouter, Keybind, KeybindVisibility, Keymap, TextHandler,
 };
-use super::server;
 use super::structures::*;
-use super::taskmanager::{AppRequest, TaskID};
+use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
-use std::sync::Arc;
 use tokio::sync::mpsc;
-use tracing::error;
-use ytmapi_rs::common::{SearchSuggestion, TextRun};
-use ytmapi_rs::{
-    parse::{SearchResultArtist, SongResult},
-    ChannelID, VideoID,
-};
+use ytmapi_rs::common::SearchSuggestion;
+use ytmapi_rs::parse::{SearchResultArtist, SongResult};
 
 const PAGE_KEY_SCROLL_AMOUNT: isize = 10;
-const CHANNEL_SIZE: usize = 256;
 const VOL_TICK: i8 = 5;
-
-#[deprecated]
-pub struct BasicCommand {
-    key: KeyCode,
-    name: String,
-}
-#[derive(PartialEq)]
-pub enum AppStatus {
-    Running,
-    // Cow: Message
-    Exiting(Cow<'static, str>),
-}
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
 // The main pane of the application
 // XXX: This is a bit like a route.
+#[derive(Debug)]
 pub enum WindowContext {
     Browser,
     Playlist,
     Logs,
 }
 
-// A callback from one of the application components to the top level.
-// TODO: Shift these up to App. Then our UI want need to hold as many channels.
-pub enum UIMessage {
-    DownloadSong(VideoID<'static>, ListSongID),
-    GetVolume,
-    GetProgress(ListSongID),
-    Quit,
-    ChangeContext(WindowContext),
-    Next,
-    Prev,
-    IncreaseVolume(i8),
-    SearchArtist(String),
-    GetSearchSuggestions(String),
-    GetArtistSongs(ChannelID<'static>),
-    AddSongsToPlaylist(Vec<ListSong>),
-    AddSongsToPlaylistAndPlay(Vec<ListSong>),
-    PlaySong(Arc<Vec<u8>>, ListSongID),
-    PausePlay(ListSongID),
-    Stop(ListSongID),
-    StopAll,
-}
-
-// An action that can be triggered from a keybind.
+// An Action that can be triggered from a keybind.
 #[derive(Clone, Debug, PartialEq)]
 pub enum UIAction {
     Quit,
@@ -94,15 +54,12 @@ pub enum UIAction {
 }
 
 pub struct YoutuiWindow {
-    status: AppStatus,
     context: WindowContext,
     prev_context: WindowContext,
     playlist: Playlist,
     browser: Browser,
     logger: Logger,
-    _ui_tx: mpsc::Sender<UIMessage>,
-    ui_rx: mpsc::Receiver<UIMessage>,
-    task_manager_request_tx: mpsc::Sender<AppRequest>,
+    callback_tx: mpsc::Sender<AppCallback>,
     keybinds: Vec<Keybind<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help_shown: bool,
@@ -195,9 +152,9 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
             UIAction::Browser(b) => self.browser.handle_action(b).await,
             UIAction::Playlist(b) => self.playlist.handle_action(b).await,
-            UIAction::Quit => self.quit(),
+            UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.help_shown = !self.help_shown,
-            UIAction::ViewLogs => self.change_context(WindowContext::Logs),
+            UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
         }
     }
 }
@@ -271,123 +228,51 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(task_manager_request_tx: mpsc::Sender<AppRequest>) -> YoutuiWindow {
+    pub fn new(callback_tx: mpsc::Sender<AppCallback>) -> YoutuiWindow {
         // TODO: derive default
-        let (ui_tx, ui_rx) = mpsc::channel(CHANNEL_SIZE);
         YoutuiWindow {
-            status: AppStatus::Running,
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(ui_tx.clone()),
-            browser: Browser::new(ui_tx.clone()),
-            logger: Logger::new(ui_tx.clone()),
-            _ui_tx: ui_tx,
-            ui_rx,
+            playlist: Playlist::new(callback_tx.clone()),
+            browser: Browser::new(callback_tx.clone()),
+            logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help_shown: false,
-            task_manager_request_tx,
             mutable_state: Default::default(),
+            callback_tx,
         }
     }
-    pub fn get_status(&self) -> &AppStatus {
-        &self.status
-    }
-    pub fn set_status(&mut self, new_status: AppStatus) {
-        self.status = new_status;
+    // Splitting out event types removes one layer of indentation.
+    pub async fn handle_event(&mut self, event: crossterm::event::Event) {
+        match event {
+            Event::Key(k) => self.handle_key_event(k).await,
+            Event::Mouse(m) => self.handle_mouse_event(m),
+            other => tracing::warn!("Received unimplemented {:?} event", other),
+        }
     }
     pub async fn handle_tick(&mut self) {
         self.playlist.handle_tick().await;
-        self.process_ui_messages().await;
     }
-    pub fn quit(&mut self) {
-        self.status = super::ui::AppStatus::Exiting("Quitting".into());
-    }
-    pub async fn process_ui_messages(&mut self) {
-        while let Ok(msg) = self.ui_rx.try_recv() {
-            match msg {
-                UIMessage::DownloadSong(video_id, playlist_id) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::Download(video_id, playlist_id),
-                    )
-                    .await;
-                }
-                UIMessage::Quit => self.quit(),
-
-                UIMessage::ChangeContext(context) => self.change_context(context),
-                UIMessage::Next => self.playlist.handle_next().await,
-                UIMessage::Prev => self.playlist.handle_previous().await,
-                UIMessage::IncreaseVolume(i) => {
-                    self.handle_increase_volume(i).await;
-                }
-                UIMessage::GetSearchSuggestions(text) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::GetSearchSuggestions(text),
-                    )
-                    .await;
-                }
-                UIMessage::SearchArtist(artist) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::SearchArtists(artist),
-                    )
-                    .await;
-                }
-                UIMessage::GetArtistSongs(id) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::GetArtistSongs(id),
-                    )
-                    .await;
-                }
-                UIMessage::AddSongsToPlaylist(song_list) => {
-                    self.playlist.push_song_list(song_list);
-                }
-                UIMessage::AddSongsToPlaylistAndPlay(song_list) => {
-                    self.playlist.reset().await;
-                    let id = self.playlist.push_song_list(song_list);
-                    self.playlist.play_song_id(id).await;
-                }
-                UIMessage::PlaySong(song, id) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::PlaySong(song, id),
-                    )
-                    .await;
-                }
-
-                UIMessage::PausePlay(id) => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::PausePlay(id)).await;
-                }
-                UIMessage::Stop(id) => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::Stop(id)).await;
-                }
-                UIMessage::StopAll => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::StopAll).await;
-                }
-                UIMessage::GetVolume => {
-                    send_or_error(&self.task_manager_request_tx, AppRequest::GetVolume).await;
-                }
-                UIMessage::GetProgress(id) => {
-                    send_or_error(
-                        &self.task_manager_request_tx,
-                        AppRequest::GetPlayProgress(id),
-                    )
-                    .await;
-                }
-            }
+    async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
+        if self.handle_text_entry(key_event) {
+            return;
         }
+        self.key_stack.push(key_event);
+        self.global_handle_key_stack().await;
     }
-    async fn handle_increase_volume(&mut self, inc: i8) {
+    fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
+        tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
+    }
+    // XXX: Should not be here, but required for now due to callback routing.
+    pub async fn handle_api_error(&mut self, e: Error) {
+        send_or_error(&self.callback_tx, AppCallback::HandleApiError(e)).await;
+    }
+
+    pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
-        self.playlist.increase_volume(inc);
-        send_or_error(
-            &self.task_manager_request_tx,
-            AppRequest::IncreaseVolume(inc),
-        )
-        .await;
+        self.increase_volume(inc);
+        send_or_error(&self.callback_tx, AppCallback::IncreaseVolume(inc)).await;
     }
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
@@ -407,8 +292,11 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    pub fn handle_api_error(&mut self, e: Error) {
-        self.set_status(AppStatus::Exiting(e.to_string().into()));
+    pub async fn handle_next(&mut self) {
+        self.playlist.handle_next().await;
+    }
+    pub async fn handle_previous(&mut self) {
+        self.playlist.handle_previous().await;
     }
     pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
         self.playlist.handle_set_song_play_progress(f, id);
@@ -451,30 +339,21 @@ impl YoutuiWindow {
         self.browser
             .handle_append_song_list(song_list, album, year, artist)
     }
+    pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
+        let _ = self.playlist.push_song_list(song_list);
+    }
+    pub async fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
+        self.playlist.reset().await;
+        let id = self.playlist.push_song_list(song_list);
+        self.playlist.play_song_id(id).await;
+    }
     pub fn handle_songs_found(&mut self) {
         self.browser.handle_songs_found();
     }
     pub fn handle_search_artist_error(&mut self) {
         self.browser.handle_search_artist_error();
     }
-    // Splitting out event types removes one layer of indentation.
-    pub async fn handle_event(&mut self, event: crossterm::event::Event) {
-        match event {
-            Event::Key(k) => self.handle_key_event(k).await,
-            Event::Mouse(m) => self.handle_mouse_event(m),
-            other => tracing::warn!("Received unimplemented {:?} event", other),
-        }
-    }
-    async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
-        if self.handle_text_entry(key_event) {
-            return;
-        }
-        self.key_stack.push(key_event);
-        self.global_handle_key_stack().await;
-    }
-    fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
-        tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
-    }
+
     async fn global_handle_key_stack(&mut self) {
         // First handle my own keybinds, otherwise forward.
         if let KeyHandleOutcome::ActionHandled =
@@ -495,7 +374,12 @@ impl YoutuiWindow {
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
     }
-    fn change_context(&mut self, new_context: WindowContext) {
+
+    /// Visually increment the volume, note, does not actually change the volume.
+    pub async fn increase_volume(&mut self, inc: i8) {
+        self.playlist.increase_volume(inc);
+    }
+    pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
         self.context = new_context;
     }

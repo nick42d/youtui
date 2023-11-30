@@ -108,15 +108,12 @@ impl TaskManager {
             request_rx,
         }
     }
-    pub fn get_sender_clone(&self) -> mpsc::Sender<AppRequest> {
-        self.request_tx.clone()
-    }
     pub async fn process_requests(&mut self) {
         while let Ok(msg) = self.request_rx.try_recv() {
             self.send_request(msg).await;
         }
     }
-    async fn send_request(&mut self, request: AppRequest) -> Result<()> {
+    pub async fn send_request(&mut self, request: AppRequest) {
         let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
         // NOTE: We allocate as we want to keep a copy of the same message that was sent.
         let id = self.add_task(kill_tx, request.clone());
@@ -137,7 +134,6 @@ impl TaskManager {
             AppRequest::StopAll => self.spawn_stop_all(id).await,
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
         };
-        Ok(())
     }
     // TODO: Consider if this should create it's own channel and return a KillableTask.
     fn add_task(
@@ -390,7 +386,8 @@ impl TaskManager {
                 }
                 ui_state.handle_append_song_list(song_list, album, year, artist);
             }
-            api::Response::ApiError(e) => ui_state.handle_api_error(e),
+            // XXX: Improve routing for this action.
+            api::Response::ApiError(e) => ui_state.handle_api_error(e).await,
         }
     }
     pub async fn process_downloader_msg(
