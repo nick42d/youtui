@@ -1,6 +1,5 @@
-use serde::de::DeserializeOwned;
-
 use crate::{error::ParseTarget, Error, Result};
+use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc};
 
 #[derive(Clone, PartialEq, Debug)]
@@ -15,18 +14,18 @@ struct PathList {
 #[derive(Clone, PartialEq, Debug)]
 pub struct JsonCrawler {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
-    source: Arc<serde_json::Value>,
+    source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
 pub struct JsonCrawlerBorrowed<'a> {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
-    source: Arc<serde_json::Value>,
+    source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
 }
 pub struct JsonCrawlerArrayIterMut<'a> {
-    source: Arc<serde_json::Value>,
+    source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
     path: PathList,
     cur: usize,
@@ -193,8 +192,8 @@ impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
-    pub fn get_source(&self) -> &serde_json::Value {
-        &*self.source
+    pub fn get_source(&self) -> &str {
+        &self.source
     }
 }
 
@@ -287,10 +286,9 @@ impl JsonCrawler {
         })
     }
     pub fn from_json(json: serde_json::Value) -> Self {
-        let crawler = json.clone();
         Self {
-            source: Arc::new(json),
-            crawler,
+            source: Arc::new(format!("{:#}", json)),
+            crawler: json,
             path: PathList::default(),
         }
     }
@@ -320,7 +318,7 @@ impl JsonCrawler {
             .map(|v| v.take())
             .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
     }
-    pub fn get_source(&self) -> &serde_json::Value {
-        &*self.source
+    pub fn get_source(&self) -> &str {
+        &self.source
     }
 }

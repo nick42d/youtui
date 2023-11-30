@@ -16,12 +16,12 @@ enum Inner {
     // TODO: Add query type to error.
     Parsing {
         key: String,
-        json: Arc<serde_json::Value>, // Ownership shared between error type and api itself.
+        json: Arc<String>, // Ownership shared between error type and api itself.
         target: ParseTarget,
     },
     Navigation {
         key: String,
-        json: Arc<serde_json::Value>, // Ownership shared between error type and api itself.
+        json: Arc<String>, // Ownership shared between error type and api itself.
     },
     InvalidResponse {
         response: String,
@@ -63,7 +63,7 @@ impl Error {
             false
         }
     }
-    pub fn navigation<S: Into<String>>(key: S, json: Arc<serde_json::Value>) -> Self {
+    pub fn navigation<S: Into<String>>(key: S, json: Arc<String>) -> Self {
         Self {
             inner: Box::new(Inner::Navigation {
                 key: key.into(),
@@ -71,11 +71,7 @@ impl Error {
             }),
         }
     }
-    pub fn parsing<S: Into<String>>(
-        key: S,
-        json: Arc<serde_json::Value>,
-        target: ParseTarget,
-    ) -> Self {
+    pub fn parsing<S: Into<String>>(key: S, json: Arc<String>, target: ParseTarget) -> Self {
         Self {
             inner: Box::new(Inner::Parsing {
                 key: key.into(),
