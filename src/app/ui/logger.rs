@@ -39,8 +39,18 @@ impl Action for LoggerAction {
     fn describe(&self) -> Cow<str> {
         match self {
             LoggerAction::ViewBrowser => "View Browser".into(),
-            // TODO: Improve this from Debug implementation
-            _ => format!("{:?}", self).into(),
+            LoggerAction::ToggleTargetSelector => "Toggle Target Selector Widget".into(),
+            LoggerAction::ToggleTargetFocus => "Toggle Focus Selected Target".into(),
+            LoggerAction::ToggleHideFiltered => "Toggle Hide Filtered Targets".into(),
+            LoggerAction::Up => "Up - Selector".into(),
+            LoggerAction::Down => "Down - Selector".into(),
+            LoggerAction::PageUp => "Enter Page Mode, Scroll History Up".into(),
+            LoggerAction::PageDown => "In Page Mode: Scroll History Down".into(),
+            LoggerAction::ReduceShown => "Reduce SHOWN (!) Messages".into(),
+            LoggerAction::IncreaseShown => "Increase SHOWN (!) Messages".into(),
+            LoggerAction::ReduceCaptured => "Reduce CAPTURED (!) Messages".into(),
+            LoggerAction::IncreaseCaptured => "Increase CAPTURED (!) Messages".into(),
+            LoggerAction::ExitPageMode => "Exit Page Mode".into(),
         }
     }
 }
