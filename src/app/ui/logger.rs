@@ -191,6 +191,11 @@ pub mod draw {
 
     pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect) {
         let log = tui_logger::TuiLoggerSmartWidget::default()
+            .style_error(Style::default().fg(Color::Red))
+            .style_debug(Style::default().fg(Color::Green))
+            .style_warn(Style::default().fg(Color::Yellow))
+            .style_trace(Style::default().fg(Color::Magenta))
+            .style_info(Style::default().fg(Color::Cyan))
             .border_style(Style::default().fg(Color::Cyan))
             .state(&l.logger_state)
             .output_timestamp(Some("%H:%M:%S:%3f".to_string()));
