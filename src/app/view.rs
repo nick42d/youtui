@@ -73,6 +73,7 @@ pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
 // A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
+    // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a SortableTable), as possible we don't want to sort the Playlist (what happens to play order, for eg).
     // Could have a "commontitle" trait to prevent the need for this in both Table and List
     fn get_title(&self) -> Cow<str>;
     fn get_layout(&self) -> &[BasicConstraint];
