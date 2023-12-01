@@ -203,9 +203,7 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
             ArtistSongsAction::TempSortByYear => {
                 let _ = self.album_songs_list.push_sort_command(TableSortCommand {
-                    // Hack required here.
-                    // Columns displayed is not equal to columns in list.
-                    column: 6,
+                    column: 4,
                     direction: crate::app::view::SortDirection::Asc,
                 });
             }

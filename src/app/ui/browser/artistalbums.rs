@@ -99,6 +99,9 @@ impl AlbumSongsPanel {
             ..Default::default()
         }
     }
+    pub fn subcolumns_of_vec() -> &'static [usize] {
+        &[1, 3, 4, 5, 6]
+    }
 }
 
 impl Action for ArtistAction {
@@ -309,18 +312,18 @@ impl TableView for AlbumSongsPanel {
     }
     fn get_layout(&self) -> &[BasicConstraint] {
         &[
-            BasicConstraint::Length(3),
-            BasicConstraint::Percentage(Percentage(50)),
-            BasicConstraint::Percentage(Percentage(50)),
-            BasicConstraint::Length(9),
             BasicConstraint::Length(4),
+            BasicConstraint::Percentage(Percentage(50)),
+            BasicConstraint::Percentage(Percentage(50)),
+            BasicConstraint::Length(10),
+            BasicConstraint::Length(5),
         ]
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
         let b = self.list.list.iter().map(|ls| {
             let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if i != 2 && i != 0 {
+                if Self::subcolumns_of_vec().contains(&i) {
                     Some(f)
                 } else {
                     None
@@ -338,9 +341,8 @@ impl TableView for AlbumSongsPanel {
 
     fn get_sortable_columns(&self) -> &[usize] {
         // Not quite what we're expecting here.
-        &[0, 1, 2, 3, 4, 5, 6]
+        &[0, 1, 2, 3, 4]
     }
-
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         if !self.get_sortable_columns().contains(&sort_command.column) {
             return Err(Error::Other(format!(
@@ -348,15 +350,24 @@ impl TableView for AlbumSongsPanel {
                 sort_command.column,
             )));
         }
-        self.list.push_sort_command(sort_command);
+        // Map the column of ArtistAlbums to a column of List
+        let Some(column_adj) = Self::subcolumns_of_vec().get(sort_command.column) else {
+            return Err(Error::Other(format!(
+                "Unable to sort column, doesn't match up with underlying list. {}",
+                sort_command.column,
+            )));
+        };
+        self.list.sort(*column_adj, sort_command.direction);
+        // Naive as doesn't remove duplicates.
+        self.sort_commands.push(sort_command);
         Ok(())
     }
 
     fn clear_sort_commands(&mut self) {
-        self.list.clear_sort_commands();
+        self.sort_commands.clear();
     }
     fn get_sort_commands(&self) -> &[TableSortCommand] {
-        self.list.get_sort_commands()
+        &self.sort_commands
     }
 }
 

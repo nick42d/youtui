@@ -14,7 +14,7 @@ pub struct TableSortCommand {
     pub direction: SortDirection,
 }
 
-#[derive(Default, Clone, Debug, PartialEq)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub enum SortDirection {
     #[default]
     Asc,

@@ -12,7 +12,6 @@ pub struct AlbumSongsList {
     pub list: Vec<ListSong>,
     pub next_id: ListSongID,
     pub cur_selected: Option<usize>,
-    sort_commands: Vec<TableSortCommand>,
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
@@ -167,39 +166,24 @@ impl Default for AlbumSongsList {
             cur_selected: None,
             list: Vec::new(),
             next_id: ListSongID::default(),
-            sort_commands: Vec::default(),
         }
     }
 }
 
 impl AlbumSongsList {
-    pub fn push_sort_command(&mut self, sort_command: TableSortCommand) {
-        self.list.sort_by(|a, b| match &sort_command {
-            TableSortCommand {
-                column,
-                direction: SortDirection::Asc,
-            } => a
+    pub fn sort(&mut self, column: usize, direction: SortDirection) {
+        self.list.sort_by(|a, b| match direction {
+            SortDirection::Asc => a
                 .get_fields_iter()
-                .nth(*column)
-                .partial_cmp(&b.get_fields_iter().nth(*column))
+                .nth(column)
+                .partial_cmp(&b.get_fields_iter().nth(column))
                 .unwrap_or(std::cmp::Ordering::Equal),
-            TableSortCommand {
-                column,
-                direction: SortDirection::Desc,
-            } => b
+            SortDirection::Desc => b
                 .get_fields_iter()
-                .nth(*column)
-                .partial_cmp(&a.get_fields_iter().nth(*column))
+                .nth(column)
+                .partial_cmp(&a.get_fields_iter().nth(column))
                 .unwrap_or(std::cmp::Ordering::Equal),
         });
-        // Naive as doesn't remove duplicates.
-        self.sort_commands.push(sort_command);
-    }
-    pub fn clear_sort_commands(&mut self) {
-        self.sort_commands.clear();
-    }
-    pub fn get_sort_commands(&self) -> &[TableSortCommand] {
-        &self.sort_commands
     }
     pub fn clear(&mut self) {
         // We can't reset the ID, so it's left out and we'll keep incrementing.

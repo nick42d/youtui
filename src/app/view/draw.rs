@@ -93,12 +93,8 @@ where
     let heading_names = table.get_headings();
     let mut sort_headings = get_table_sort_character_array(table.get_sort_commands()).into_iter();
     let combined_headings = heading_names.map(|h| {
-        let mut hstr = sort_headings
-            .next()
-            .unwrap_or_default()
-            .unwrap_or_default()
-            .to_string();
-        hstr.push_str(h);
+        let mut hstr = h.to_string();
+        hstr.push(sort_headings.next().unwrap_or_default().unwrap_or_default());
         hstr
     });
     let table_widget = Table::new(table_items)
