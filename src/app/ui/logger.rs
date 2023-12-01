@@ -8,10 +8,7 @@ use crate::app::{
 use crate::core::send_or_error;
 use crossterm::event::KeyCode;
 use draw::draw_logger;
-use ratatui::{
-    prelude::{Backend, Rect},
-    Frame,
-};
+use ratatui::{prelude::Rect, Frame};
 use std::borrow::Cow;
 use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
@@ -61,7 +58,7 @@ pub struct Logger {
 }
 
 impl Drawable for Logger {
-    fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect) {
+    fn draw_chunk(&self, f: &mut Frame, chunk: Rect) {
         draw_logger(f, self, chunk)
     }
 }
@@ -185,17 +182,14 @@ fn logger_keybinds() -> Vec<Keybind<LoggerAction>> {
 
 pub mod draw {
     use ratatui::{
-        prelude::{Backend, Constraint, Direction, Layout, Rect},
+        prelude::{Constraint, Direction, Layout, Rect},
         style::{Color, Style},
         Frame,
     };
 
     use super::Logger;
 
-    pub fn draw_logger<B>(f: &mut Frame<B>, l: &Logger, chunk: Rect)
-    where
-        B: Backend,
-    {
+    pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect) {
         let log = tui_logger::TuiLoggerSmartWidget::default()
             .border_style(Style::default().fg(Color::Cyan))
             .state(&l.logger_state)

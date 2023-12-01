@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::app::view::ListView;
 use ratatui::{
-    prelude::{Backend, Margin, Rect},
+    prelude::{Margin, Rect},
     style::{Color, Modifier, Style},
     symbols::{block, line},
     widgets::{
@@ -19,10 +19,7 @@ const DESELECTED_BORDER: Color = Color::White;
 
 // Draw a block, and return the inner rectangle.
 // XXX: title could be Into<Cow<str>>
-pub fn draw_panel<B>(f: &mut Frame<B>, title: Cow<str>, chunk: Rect, is_selected: bool) -> Rect
-where
-    B: Backend,
-{
+pub fn draw_panel(f: &mut Frame, title: Cow<str>, chunk: Rect, is_selected: bool) -> Rect {
     let border_colour = if is_selected {
         SELECTED_BORDER
     } else {
@@ -39,14 +36,8 @@ where
     inner_chunk
 }
 
-pub fn draw_list<B, L>(
-    f: &mut Frame<B>,
-    list: &L,
-    chunk: Rect,
-    selected: bool,
-    state: &mut ListState,
-) where
-    B: Backend,
+pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool, state: &mut ListState)
+where
     L: ListView,
 {
     // Set the state to the currently selected item.
@@ -54,11 +45,12 @@ pub fn draw_list<B, L>(
     // TODO: Scroll bars
     let list_title = list.get_title();
     let list_len = list.len();
-    // We are allocating here, as list item only implements Display (not Into<Cow>). Consider changing this.
     let list_items: Vec<_> = list
         .get_items_display()
         .iter()
+        // We are allocating here, as list item only implements Display (not Into<Cow>). Consider changing this.
         .map(|item| ListItem::new(item.to_string()))
+        // We are allocating here, as List::new won't take an iterator. May change in future.
         .collect();
     // TODO: Better title for list
     let _title = format!("{list_title} - {list_len} items");
@@ -67,14 +59,8 @@ pub fn draw_list<B, L>(
     f.render_stateful_widget(list_widget, inner_chunk, state);
 }
 
-pub fn draw_table<B, T>(
-    f: &mut Frame<B>,
-    table: &T,
-    chunk: Rect,
-    state: &mut TableState,
-    selected: bool,
-) where
-    B: Backend,
+pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, state: &mut TableState, selected: bool)
+where
     T: TableView,
 {
     // Set the state to the currently selected item.
@@ -99,10 +85,10 @@ pub fn draw_table<B, T>(
         .column_spacing(1);
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)
-        .track_symbol(line::VERTICAL)
+        .track_symbol(Some(line::VERTICAL))
         .begin_symbol(None)
         .end_symbol(None);
-    let scrollable_lines = number_items.saturating_sub(table_height) as u16;
+    let scrollable_lines = number_items.saturating_sub(table_height);
     let inner_chunk = draw_panel(f, table.get_title(), chunk, selected);
     if table.is_loading() {
         draw_loading(f, inner_chunk)
@@ -110,7 +96,7 @@ pub fn draw_table<B, T>(
         f.render_stateful_widget(table_widget, inner_chunk, state);
         // Call this after rendering table, as offset is mutated.
         let mut scrollbar_state = ScrollbarState::default()
-            .position(state.offset().min(scrollable_lines as usize) as u16)
+            .position(state.offset().min(scrollable_lines))
             .content_length(scrollable_lines);
         f.render_stateful_widget(
             scrollbar,
@@ -123,7 +109,7 @@ pub fn draw_table<B, T>(
     }
 }
 
-pub fn draw_loading<B: Backend>(f: &mut Frame<B>, chunk: Rect) {
+pub fn draw_loading(f: &mut Frame, chunk: Rect) {
     let loading = Paragraph::new("Loading");
     f.render_widget(loading, chunk);
 }

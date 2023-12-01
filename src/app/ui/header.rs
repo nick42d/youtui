@@ -1,17 +1,14 @@
-use std::borrow::Cow;
-
+use crate::app::component::actionhandler::{
+    Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility,
+};
 use ratatui::{
-    backend::Backend,
     layout::Rect,
     style::{Color, Style},
     terminal::Frame,
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
 };
-
-use crate::app::component::actionhandler::{
-    Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility,
-};
+use std::borrow::Cow;
 
 pub fn _context_global_keybinds_and_descriptions<'a, C, A>(
     context: &'a C,
@@ -28,10 +25,7 @@ where
     )
 }
 
-pub fn draw_header<B>(f: &mut Frame<B>, w: &super::YoutuiWindow, chunk: Rect)
-where
-    B: Backend,
-{
+pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let keybinds = w.get_all_global_keybinds_as_readable_iter();
 
     let help_string = Line::from(

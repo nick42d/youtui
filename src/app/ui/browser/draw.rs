@@ -4,7 +4,7 @@ use crate::app::view::draw::{draw_list, draw_table};
 use crate::drawutils::{below_left_rect, bottom_of_rect};
 use ratatui::widgets::TableState;
 use ratatui::{
-    prelude::{Backend, Constraint, Direction, Layout, Rect},
+    prelude::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
@@ -12,15 +12,13 @@ use ratatui::{
 };
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
-pub fn draw_browser<B>(
-    f: &mut Frame<B>,
+pub fn draw_browser(
+    f: &mut Frame,
     browser: &Browser,
     chunk: Rect,
     artist_list_state: &mut ListState,
     album_songs_table_state: &mut TableState,
-) where
-    B: Backend,
-{
+) {
     let layout = Layout::new()
         .constraints([Constraint::Max(30), Constraint::Min(0)])
         .direction(ratatui::prelude::Direction::Horizontal)

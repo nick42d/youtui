@@ -2,7 +2,7 @@ pub mod draw;
 
 use super::{structures::Percentage, ui::YoutuiMutableState};
 use ratatui::{
-    prelude::{Backend, Constraint, Rect},
+    prelude::{Constraint, Rect},
     Frame,
 };
 use std::{borrow::Cow, fmt::Display};
@@ -98,8 +98,8 @@ pub trait FilterableList {
 // A drawable part of the application.
 pub trait Drawable {
     // Helper function to draw.
-    fn draw_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect);
-    fn draw<B: Backend>(&self, f: &mut Frame<B>) {
+    fn draw_chunk(&self, f: &mut Frame, chunk: Rect);
+    fn draw(&self, f: &mut Frame) {
         self.draw_chunk(f, f.size());
     }
 }
@@ -107,21 +107,16 @@ pub trait Drawable {
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk<B: Backend>(
-        &self,
-        f: &mut Frame<B>,
-        chunk: Rect,
-        mutable_state: &mut YoutuiMutableState,
-    );
-    fn draw_mut<B: Backend>(&self, f: &mut Frame<B>, mutable_state: &mut YoutuiMutableState) {
+    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: &mut YoutuiMutableState);
+    fn draw_mut(&self, f: &mut Frame, mutable_state: &mut YoutuiMutableState) {
         self.draw_mut_chunk(f, f.size(), mutable_state);
     }
 }
 // A selectable part of the application.
 pub trait Selectable: Drawable {
-    fn draw_selectable_chunk<B: Backend>(&self, f: &mut Frame<B>, chunk: Rect, selected: bool);
+    fn draw_selectable_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
 
-    fn draw_selectable<B: Backend>(&self, f: &mut Frame<B>, selected: bool) {
+    fn draw_selectable(&self, f: &mut Frame, selected: bool) {
         self.draw_selectable_chunk(f, f.size(), selected);
     }
 }

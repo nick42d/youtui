@@ -13,7 +13,7 @@ use crate::app::{
 
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
-use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
+use ratatui::{layout::Rect, terminal::Frame};
 use std::iter;
 use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
@@ -100,12 +100,7 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk<B: Backend>(
-        &self,
-        f: &mut Frame<B>,
-        chunk: Rect,
-        mutable_state: &mut YoutuiMutableState,
-    ) {
+    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: &mut YoutuiMutableState) {
         draw_table(f, self, chunk, &mut mutable_state.playlist, true);
     }
 }

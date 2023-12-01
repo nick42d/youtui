@@ -137,9 +137,9 @@ impl TextHandler for Browser {
 }
 
 impl DrawableMut for Browser {
-    fn draw_mut_chunk<B: ratatui::prelude::Backend>(
+    fn draw_mut_chunk(
         &self,
-        f: &mut ratatui::Frame<B>,
+        f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
         mutable_state: &mut YoutuiMutableState,
     ) {

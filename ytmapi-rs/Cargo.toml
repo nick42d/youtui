@@ -1,9 +1,14 @@
 [package]
 name = "ytmapi-rs"
-version = "0.0.0"
+# Tied to version of Youtui due to crates.io limitation.
+version = "0.0.1"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["nick42d"]
+license = "MIT"
+description = "An asynchronous (tokio) pure Rust API for Youtube Music using Google's internal API"
+homepage = "https://github.com/nick42d/youtui"
+repository = "https://github.com/nick42d/youtui"
+readme = "README.md"
 
 [dependencies]
 tokio = {version = "1.29.1", features = ["full"]}

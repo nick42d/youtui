@@ -2,7 +2,6 @@ use ratatui::prelude::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Layout},
     terminal::Frame,
 };
@@ -12,10 +11,7 @@ use crate::app::component::actionhandler::DisplayableKeyRouter;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::left_bottom_corner_rect;
 
-pub fn draw_app<B>(f: &mut Frame<B>, w: &mut YoutuiWindow)
-where
-    B: Backend,
-{
+pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     let base_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -47,7 +43,7 @@ where
     }
     footer::draw_footer(f, w, base_layout[2]);
 }
-fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
+fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     // If there are no commands, no need to draw anything.
     let Some(title) = w.get_cur_mode_description() else {
         return;
@@ -106,11 +102,7 @@ fn draw_popup<B: Backend>(f: &mut Frame<B>, w: &YoutuiWindow, chunk: Rect) {
     f.render_widget(block, area);
 }
 
-fn draw_help<B: Backend, D: DisplayableKeyRouter + ?Sized>(
-    f: &mut Frame<B>,
-    context: &D,
-    chunk: Rect,
-) {
+fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk: Rect) {
     // Collect to a Vec so we can create more iterators. Dynamically dispatched Iterator can't be cloned.
     let commands: Vec<_> = context.get_all_keybinds_as_readable_iter().collect();
     // Get the maximum length of each element in the tuple vector created above.

@@ -1,5 +1,4 @@
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     prelude::Alignment,
     style::{Color, Modifier, Style},
@@ -32,10 +31,7 @@ pub fn secs_to_time_string(secs: usize) -> String {
     }
 }
 
-pub fn draw_footer<B>(f: &mut Frame<B>, w: &super::YoutuiWindow, chunk: Rect)
-where
-    B: Backend,
-{
+pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let cur = &w.playlist.play_status;
     let mut duration = 0;
     let mut progress = 0.0;

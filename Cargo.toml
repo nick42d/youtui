@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["nick42d"]
 license = "MIT"
@@ -11,9 +11,9 @@ readme = "README.md"
 
 [dependencies]
 clap = { version = "4.3.5", features = ["derive"] }
-crossterm = { version = "0.26.1", features = ["event-stream"] }
+crossterm = { version = "0.27", features = ["event-stream"] }
 futures = "0.3.28"
-ratatui = { version = "0.22.0", features = ["all-widgets"] }
+ratatui = { version = "0.24.0", features = ["all-widgets"] }
 serde = "1.0.164"
 serde_json = "1.0.97"
 tokio = "1.29.1"
