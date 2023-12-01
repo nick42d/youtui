@@ -175,8 +175,6 @@ impl Youtui {
                     self.window_state.handle_change_context(context)
                 }
                 AppCallback::IncreaseVolume(i) => {
-                    // Update state first for immediate visual feedback
-                    self.window_state.increase_volume(i);
                     self.task_manager
                         .send_request(AppRequest::IncreaseVolume(i))
                         .await;

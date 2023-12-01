@@ -1,10 +1,3 @@
-mod browser;
-pub mod draw;
-mod footer;
-mod header;
-mod logger;
-mod playlist;
-
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
@@ -21,6 +14,13 @@ use std::borrow::Cow;
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::{SearchResultArtist, SongResult};
+
+mod browser;
+pub mod draw;
+mod footer;
+mod header;
+mod logger;
+mod playlist;
 
 const VOL_TICK: i8 = 5;
 
@@ -356,7 +356,7 @@ impl YoutuiWindow {
     }
 
     /// Visually increment the volume, note, does not actually change the volume.
-    pub fn increase_volume(&mut self, inc: i8) {
+    fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
     }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
