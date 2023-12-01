@@ -1,5 +1,4 @@
-use std::borrow::Cow;
-
+use super::{basic_constraints_to_constraints, TableSortCommand, TableView};
 use crate::app::view::ListView;
 use ratatui::{
     prelude::{Margin, Rect},
@@ -11,11 +10,30 @@ use ratatui::{
     },
     Frame,
 };
-
-use super::{basic_constraints_to_constraints, TableView};
+use std::borrow::Cow;
 
 const SELECTED_BORDER: Color = Color::Cyan;
 const DESELECTED_BORDER: Color = Color::White;
+
+pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec<Option<char>> {
+    let Some(max_col) = sort_commands
+        .iter()
+        .max_by_key(|c| c.column)
+        .map(|cmd| cmd.column)
+    else {
+        return Vec::new();
+    };
+    let mut temp_vec = Vec::new();
+    temp_vec.resize(max_col + 1, None);
+    sort_commands.iter().fold(temp_vec, |mut acc, e| {
+        // We created the Vec to accomodate max col above so this is safe.
+        acc[e.column] = match e.direction {
+            super::SortDirection::Asc => Some(''),
+            super::SortDirection::Desc => Some(''),
+        };
+        acc
+    })
+}
 
 // Draw a block, and return the inner rectangle.
 // XXX: title could be Into<Cow<str>>
@@ -55,7 +73,7 @@ where
     // TODO: Better title for list
     let _title = format!("{list_title} - {list_len} items");
     let list_widget = List::new(list_items).highlight_style(Style::default().bg(Color::Blue));
-    let inner_chunk = draw_panel(f, list.get_title(), chunk, selected);
+    let inner_chunk = draw_panel(f, list_title, chunk, selected);
     f.render_stateful_widget(list_widget, inner_chunk, state);
 }
 
@@ -72,10 +90,21 @@ where
     let table_height = chunk.height.saturating_sub(4) as usize;
     let table_widths =
         basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
+    let heading_names = table.get_headings();
+    let mut sort_headings = get_table_sort_character_array(table.get_sort_commands()).into_iter();
+    let combined_headings = heading_names.map(|h| {
+        let mut hstr = sort_headings
+            .next()
+            .unwrap_or_default()
+            .unwrap_or_default()
+            .to_string();
+        hstr.push_str(h);
+        hstr
+    });
     let table_widget = Table::new(table_items)
         .highlight_style(Style::default().bg(Color::Blue))
         .header(
-            Row::new(table.get_headings()).style(
+            Row::new(combined_headings).style(
                 Style::default()
                     .add_modifier(Modifier::BOLD)
                     .fg(Color::LightGreen),

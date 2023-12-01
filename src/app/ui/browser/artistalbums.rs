@@ -1,9 +1,12 @@
 use crate::app::ui::browser::BrowserAction;
+use crate::app::view::TableSortCommand;
 use crate::app::{
     component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, ListView, Loadable, Scrollable, SortableList, TableView},
 };
+use crate::error::Error;
+use crate::Result;
 use crossterm::event::KeyCode;
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
@@ -40,6 +43,7 @@ pub struct SearchBlock {
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
     keybinds: Vec<Keybind<BrowserAction>>,
+    sort_commands: Vec<TableSortCommand>,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistAction {
@@ -67,6 +71,7 @@ pub enum ArtistSongsAction {
     Down,
     PageUp,
     PageDown,
+    TempSortByYear,
 }
 
 impl ArtistSearchPanel {
@@ -205,6 +210,8 @@ impl Action for ArtistSongsAction {
             Self::Down => "Down",
             Self::PageUp => "Page Up",
             Self::PageDown => "Page Down",
+            // TODO: Remove
+            Self::TempSortByYear => "Temp sort by year",
         }
         .into()
     }
@@ -328,6 +335,29 @@ impl TableView for AlbumSongsPanel {
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
+
+    fn get_sortable_columns(&self) -> &[usize] {
+        // Not quite what we're expecting here.
+        &[0, 1, 2, 3, 4, 5, 6]
+    }
+
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
+        if !self.get_sortable_columns().contains(&sort_command.column) {
+            return Err(Error::Other(format!(
+                "Unable to sort column {}",
+                sort_command.column,
+            )));
+        }
+        self.list.push_sort_command(sort_command);
+        Ok(())
+    }
+
+    fn clear_sort_commands(&mut self) {
+        self.list.clear_sort_commands();
+    }
+    fn get_sort_commands(&self) -> &[TableSortCommand] {
+        self.list.get_sort_commands()
+    }
 }
 
 fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
@@ -363,6 +393,11 @@ fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
 
 pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
     vec![
+        // Temporary keybind
+        Keybind::new_global_from_code(
+            KeyCode::F(4),
+            BrowserAction::ArtistSongs(ArtistSongsAction::TempSortByYear),
+        ),
         Keybind::new_from_code(
             KeyCode::PageUp,
             BrowserAction::ArtistSongs(ArtistSongsAction::PageUp),

@@ -152,6 +152,25 @@ impl TableView for Playlist {
             .into_iter(),
         )
     }
+    fn get_sortable_columns(&self) -> &[usize] {
+        todo!()
+    }
+
+    fn get_sort_commands(&self) -> &[crate::app::view::TableSortCommand] {
+        // TODO:
+        &[]
+    }
+
+    fn push_sort_command(
+        &mut self,
+        sort_command: crate::app::view::TableSortCommand,
+    ) -> crate::Result<()> {
+        todo!()
+    }
+
+    fn clear_sort_commands(&mut self) {
+        todo!()
+    }
 }
 
 impl ActionHandler<PlaylistAction> for Playlist {

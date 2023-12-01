@@ -1,20 +1,26 @@
-pub mod draw;
-
 use super::{structures::Percentage, ui::YoutuiMutableState};
+use crate::Result;
 use ratatui::{
     prelude::{Constraint, Rect},
     Frame,
 };
 use std::{borrow::Cow, fmt::Display};
 
-struct _TableSort {
-    column: usize,
-    direction: _SortDirection,
+pub mod draw;
+
+#[derive(Clone, Debug)]
+pub struct TableSortCommand {
+    pub column: usize,
+    pub direction: SortDirection,
 }
-enum _SortDirection {
+
+#[derive(Default, Clone, Debug, PartialEq)]
+pub enum SortDirection {
+    #[default]
     Asc,
     Desc,
 }
+
 enum _TableFilter {
     All(_Filter),
     Column { filter: _Filter, column: usize },
@@ -74,6 +80,11 @@ pub trait TableView: Scrollable + Loadable {
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_>;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
+    fn get_sortable_columns(&self) -> &[usize];
+    fn get_sort_commands(&self) -> &[TableSortCommand];
+    /// This can fail if the TableSortCommand is not within the range of sortable columns.
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()>;
+    fn clear_sort_commands(&mut self);
     fn len(&self) -> usize {
         self.get_items().len()
     }

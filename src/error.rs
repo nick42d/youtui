@@ -29,6 +29,8 @@ pub enum Error {
         directory: PathBuf,
         io_error: std::io::Error,
     },
+    // TODO: Remove this, catchall currentl
+    Other(String),
 }
 impl Error {
     // Consider taking into pathbuf.
@@ -64,6 +66,7 @@ impl Display for Error {
             Error::DirectoryNameError => write!(f, "Error generating application directory for your host system. See README.md for more information about application directories."),
             Error::OAuthNotYetSupportedByApp => write!(f, "App does not currently support Oauth tokens for authentication. Use browser authentication. See README.md for more information."),
             Error::UnknownAPIError => write!(f, "Unknown API error."),
+            Error::Other(s) => write!(f, "Unknown error with message \"{s}\""),
             Error::IoError(e) => write!(f, "Standard io error <{e}>"),
             Error::JoinError(e) => write!(f, "Join error <{e}>"),
             Error::ApiError(e) => write!(f, "Api error <{e}>"),

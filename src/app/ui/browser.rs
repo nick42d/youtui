@@ -8,7 +8,7 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
-    view::{DrawableMut, Scrollable},
+    view::{DrawableMut, Scrollable, TableSortCommand, TableView},
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;
@@ -201,6 +201,14 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
             ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
+            ArtistSongsAction::TempSortByYear => {
+                let _ = self.album_songs_list.push_sort_command(TableSortCommand {
+                    // Hack required here.
+                    // Columns displayed is not equal to columns in list.
+                    column: 6,
+                    direction: crate::app::view::SortDirection::Asc,
+                });
+            }
         }
     }
 }
