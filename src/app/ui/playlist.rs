@@ -305,10 +305,7 @@ impl Playlist {
                 send_or_error(&self.ui_tx, AppCallback::Stop(cur_playing_id)).await;
             }
         }
-        // TODO: Resolve offset commands
-        // TODO: Test mut ListState functionality to see if a better substitute for using offsetcommands.
         self.list.remove_song_index(cur_selected_idx);
-        // todo!("Fix visual bug where \"Not Playing\" displayed");
     }
     pub async fn delete_all(&mut self) {
         self.reset().await;

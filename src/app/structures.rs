@@ -237,7 +237,7 @@ impl AlbumSongsList {
             return None;
         }
         // If we are removing a song at a position less than current index, decrement current index.
-        if let Some(cur_idx) = self.cur_selected.take() {
+        if let Some(cur_idx) = self.cur_selected {
             // NOTE: Ok to simply take, if list only had one element.
             if cur_idx >= idx && idx != 0 {
                 // Safe, as checked above that cur_idx >= 0
