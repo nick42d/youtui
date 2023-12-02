@@ -92,7 +92,7 @@ impl DisplayableKeyRouter for YoutuiWindow {
         Box::new(kb.chain(cx))
     }
 
-    fn get_all_global_keybinds_as_readable_iter<'a>(
+    fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
         let kb = self
@@ -104,21 +104,21 @@ impl DisplayableKeyRouter for YoutuiWindow {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
-                    .get_all_keybinds()
+                    .get_keybinds()
                     .filter(|kb| kb.visibility == KeybindVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
-                    .get_all_keybinds()
+                    .get_keybinds()
                     .filter(|kb| kb.visibility == KeybindVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Logs => Box::new(
                 self.logger
-                    .get_all_keybinds()
+                    .get_keybinds()
                     .filter(|kb| kb.visibility == KeybindVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )

@@ -8,7 +8,7 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
-    view::{DrawableMut, Scrollable, TableSortCommand, TableView},
+    view::{DrawableMut, Scrollable, SortDirection, TableSortCommand, TableView},
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;
@@ -158,7 +158,7 @@ impl KeyRouter<BrowserAction> for Browser {
             self.keybinds
                 .iter()
                 .chain(self.artist_list.get_all_keybinds())
-                .chain(self.album_songs_list.get_keybinds()),
+                .chain(self.album_songs_list.get_all_keybinds()),
         )
     }
 }
@@ -201,11 +201,13 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
             ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
-            ArtistSongsAction::TempSortByYear => {
-                let _ = self.album_songs_list.push_sort_command(TableSortCommand {
-                    column: 4,
-                    direction: crate::app::view::SortDirection::Asc,
+            ArtistSongsAction::PopSort => self.album_songs_list.open_sort(),
+            ArtistSongsAction::Sort(column, direction) => {
+                self.album_songs_list.push_sort_command(TableSortCommand {
+                    column: *column,
+                    direction: *direction,
                 });
+                self.album_songs_list.close_sort();
             }
         }
     }

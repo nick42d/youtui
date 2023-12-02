@@ -1,3 +1,4 @@
+use super::artistalbums::AlbumSongsPanel;
 use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_table};
@@ -120,4 +121,18 @@ pub fn draw_browser(
         album_songs_table_state,
         _albumsongsselected,
     );
+    if browser.album_songs_list.sort_popped {
+        draw_sort(f, &browser.album_songs_list, layout[1]);
+    }
+}
+
+fn draw_sort(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+    let popup_chunk = crate::drawutils::centered_rect(10, 40, chunk);
+    let text = Paragraph::new("Press one of the number keys to sort that column, and press shift number key to sort descending")
+        .block(Block::new()
+            .title("Sort")
+            .borders(Borders::ALL)
+            .border_style(Style::new().fg(Color::Cyan)));
+    f.render_widget(Clear, popup_chunk);
+    f.render_widget(text, popup_chunk);
 }

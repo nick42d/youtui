@@ -26,7 +26,7 @@ where
 }
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
-    let keybinds = w.get_all_global_keybinds_as_readable_iter();
+    let keybinds = w.get_context_global_keybinds_as_readable_iter();
 
     let help_string = Line::from(
         keybinds

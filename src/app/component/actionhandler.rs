@@ -178,11 +178,12 @@ pub trait KeyRouter<A: Action>: KeyHandler<A> {
 /// Not every KeyHandler is a DisplayableKeyRouter - e.g the individual panes themselves.
 // Could possibly be a part of EventHandler instead.
 pub trait DisplayableKeyRouter {
-    // Get the list of keybinds that the KeyHandler and any child items can contain.
+    /// Get the list of all keybinds that the KeyHandler and any child items can contain, regardless of context.
     fn get_all_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
-    fn get_all_global_keybinds_as_readable_iter<'a>(
+    /// Get a context-specific list of all keybinds marked global.
+    fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
 }

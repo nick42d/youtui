@@ -1,5 +1,5 @@
 use crate::app::ui::browser::BrowserAction;
-use crate::app::view::TableSortCommand;
+use crate::app::view::{SortDirection, TableSortCommand};
 use crate::app::{
     component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     structures::{AlbumSongsList, ListStatus, Percentage},
@@ -19,9 +19,18 @@ pub enum ArtistInputRouting {
     List,
 }
 
+#[derive(Clone, Debug, Default, PartialEq)]
+pub enum AlbumSongsInputRouting {
+    Sort,
+    #[default]
+    List,
+}
+
 #[derive(Default, Clone)]
 pub struct ArtistSearchPanel {
     pub list: Vec<SearchResultArtist>,
+    // Duplicate of search popped?
+    // Could be a function instead.
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
@@ -43,8 +52,12 @@ pub struct SearchBlock {
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
     keybinds: Vec<Keybind<BrowserAction>>,
+    sort_keybinds: Vec<Keybind<BrowserAction>>,
     sort_commands: Vec<TableSortCommand>,
+    pub route: AlbumSongsInputRouting,
+    pub sort_popped: bool,
 }
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistAction {
     DisplayAlbums,
@@ -71,7 +84,8 @@ pub enum ArtistSongsAction {
     Down,
     PageUp,
     PageDown,
-    TempSortByYear,
+    PopSort,
+    Sort(usize, SortDirection),
 }
 
 impl ArtistSearchPanel {
@@ -96,11 +110,20 @@ impl AlbumSongsPanel {
     pub fn new() -> AlbumSongsPanel {
         AlbumSongsPanel {
             keybinds: songs_keybinds(),
+            sort_keybinds: sort_keybinds(),
             ..Default::default()
         }
     }
     pub fn subcolumns_of_vec() -> &'static [usize] {
         &[1, 3, 4, 5, 6]
+    }
+    pub fn open_sort(&mut self) {
+        self.sort_popped = true;
+        self.route = AlbumSongsInputRouting::Sort;
+    }
+    pub fn close_sort(&mut self) {
+        self.sort_popped = false;
+        self.route = AlbumSongsInputRouting::List;
     }
 }
 
@@ -213,8 +236,8 @@ impl Action for ArtistSongsAction {
             Self::Down => "Down",
             Self::PageUp => "Page Up",
             Self::PageDown => "Page Down",
-            // TODO: Remove
-            Self::TempSortByYear => "Temp sort by year",
+            Self::PopSort => "Sort",
+            Self::Sort(col, dir) => "Sort [col, dir]",
         }
         .into()
     }
@@ -275,12 +298,22 @@ impl ListView for ArtistSearchPanel {
     }
 }
 
-impl KeyHandler<BrowserAction> for AlbumSongsPanel {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
-        Box::new(self.keybinds.iter())
+impl KeyRouter<BrowserAction> for AlbumSongsPanel {
+    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+        Box::new(self.keybinds.iter().chain(self.sort_keybinds.iter()))
     }
 }
 
+impl KeyHandler<BrowserAction> for AlbumSongsPanel {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+        Box::new(match self.route {
+            AlbumSongsInputRouting::List => self.keybinds.iter(),
+            AlbumSongsInputRouting::Sort => self.sort_keybinds.iter(),
+        })
+    }
+}
+
+// Is this still relevant?
 impl Loadable for AlbumSongsPanel {
     fn is_loading(&self) -> bool {
         match self.list.state {
@@ -385,6 +418,51 @@ fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
     ]
 }
 
+fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
+    vec![
+        Keybind::new_from_code(
+            KeyCode::Char('1'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(0, SortDirection::Asc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('2'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(1, SortDirection::Asc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('3'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(2, SortDirection::Asc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('4'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(3, SortDirection::Asc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('5'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(4, SortDirection::Asc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('!'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(0, SortDirection::Desc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('@'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(1, SortDirection::Desc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('#'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(2, SortDirection::Desc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('$'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(3, SortDirection::Desc)),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('%'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(4, SortDirection::Desc)),
+        ),
+    ]
+}
+
 fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
     vec![
         Keybind::new_from_code(
@@ -404,10 +482,9 @@ fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
 
 pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
     vec![
-        // Temporary keybind
         Keybind::new_global_from_code(
             KeyCode::F(4),
-            BrowserAction::ArtistSongs(ArtistSongsAction::TempSortByYear),
+            BrowserAction::ArtistSongs(ArtistSongsAction::PopSort),
         ),
         Keybind::new_from_code(
             KeyCode::PageUp,
