@@ -1,7 +1,7 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut, SortableTableView, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::actionhandler::{
@@ -151,25 +151,6 @@ impl TableView for Playlist {
             ]
             .into_iter(),
         )
-    }
-    fn get_sortable_columns(&self) -> &[usize] {
-        todo!()
-    }
-
-    fn get_sort_commands(&self) -> &[crate::app::view::TableSortCommand] {
-        // TODO:
-        &[]
-    }
-
-    fn push_sort_command(
-        &mut self,
-        sort_command: crate::app::view::TableSortCommand,
-    ) -> crate::Result<()> {
-        todo!()
-    }
-
-    fn clear_sort_commands(&mut self) {
-        todo!()
     }
 }
 

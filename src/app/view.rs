@@ -81,14 +81,16 @@ pub trait TableView: Scrollable + Loadable {
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_>;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
+    fn len(&self) -> usize {
+        self.get_items().len()
+    }
+}
+pub trait SortableTableView: TableView {
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
     /// This can fail if the TableSortCommand is not within the range of sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()>;
     fn clear_sort_commands(&mut self);
-    fn len(&self) -> usize {
-        self.get_items().len()
-    }
 }
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView: Scrollable + SortableList + Loadable {

@@ -1,4 +1,4 @@
-use super::{basic_constraints_to_constraints, TableSortCommand, TableView};
+use super::{basic_constraints_to_constraints, SortableTableView, TableSortCommand, TableView};
 use crate::app::view::ListView;
 use ratatui::{
     prelude::{Margin, Rect},
@@ -80,6 +80,62 @@ where
 pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, state: &mut TableState, selected: bool)
 where
     T: TableView,
+{
+    // Set the state to the currently selected item.
+    state.select(Some(table.get_selected_item()));
+    // TODO: theming
+    let table_items = table.get_items().map(|item| Row::new(item));
+    let number_items = table.len();
+    // Minus for height of block and heading.
+    let table_height = chunk.height.saturating_sub(4) as usize;
+    let table_widths =
+        basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
+    let heading_names = table.get_headings();
+    let table_widget = Table::new(table_items)
+        .highlight_style(Style::default().bg(Color::Blue))
+        .header(
+            Row::new(heading_names).style(
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightGreen),
+            ),
+        )
+        .widths(table_widths.as_slice())
+        .column_spacing(1);
+    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+        .thumb_symbol(block::FULL)
+        .track_symbol(Some(line::VERTICAL))
+        .begin_symbol(None)
+        .end_symbol(None);
+    let scrollable_lines = number_items.saturating_sub(table_height);
+    let inner_chunk = draw_panel(f, table.get_title(), chunk, selected);
+    if table.is_loading() {
+        draw_loading(f, inner_chunk)
+    } else {
+        f.render_stateful_widget(table_widget, inner_chunk, state);
+        // Call this after rendering table, as offset is mutated.
+        let mut scrollbar_state = ScrollbarState::default()
+            .position(state.offset().min(scrollable_lines))
+            .content_length(scrollable_lines);
+        f.render_stateful_widget(
+            scrollbar,
+            chunk.inner(&Margin {
+                vertical: 1,
+                horizontal: 0,
+            }),
+            &mut scrollbar_state,
+        )
+    }
+}
+
+pub fn draw_sortable_table<T>(
+    f: &mut Frame,
+    table: &T,
+    chunk: Rect,
+    state: &mut TableState,
+    selected: bool,
+) where
+    T: SortableTableView,
 {
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));

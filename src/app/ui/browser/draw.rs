@@ -1,8 +1,8 @@
 use super::artistalbums::AlbumSongsPanel;
 use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
-use crate::app::view::draw::{draw_list, draw_table};
-use crate::app::view::TableView;
+use crate::app::view::draw::{draw_list, draw_sortable_table, draw_table};
+use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{below_left_rect, bottom_of_rect};
 use ratatui::widgets::{TableState, Wrap};
 use ratatui::{
@@ -57,7 +57,7 @@ pub fn draw_browser(
             draw_search_suggestions(f, &browser, s[0])
         }
     }
-    draw_table(
+    draw_sortable_table(
         f,
         &browser.album_songs_list,
         layout[1],
@@ -65,11 +65,12 @@ pub fn draw_browser(
         _albumsongsselected,
     );
     if browser.album_songs_list.sort_popped {
-        draw_sort(f, &browser.album_songs_list, layout[1]);
+        draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
 }
 
-fn draw_sort(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+// TODO: Generalize
+fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
     let popup_chunk = crate::drawutils::centered_rect(10, 40, chunk);
     let sortable_columns = album_songs_panel.get_sortable_columns();
     let headers: Vec<_> = album_songs_panel

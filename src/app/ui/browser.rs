@@ -8,7 +8,9 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
-    view::{DrawableMut, Scrollable, SortDirection, TableSortCommand, TableView},
+    view::{
+        DrawableMut, Scrollable, SortDirection, SortableTableView, TableSortCommand, TableView,
+    },
 };
 use crate::{app::component::actionhandler::Keybind, core::send_or_error};
 use crossterm::event::KeyCode;

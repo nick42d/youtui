@@ -1,5 +1,5 @@
 use crate::app::ui::browser::BrowserAction;
-use crate::app::view::{SortDirection, TableSortCommand};
+use crate::app::view::{SortDirection, SortableTableView, TableSortCommand};
 use crate::app::{
     component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
     structures::{AlbumSongsList, ListStatus, Percentage},
@@ -242,7 +242,7 @@ impl Action for ArtistSongsAction {
             Self::CloseSort => "Close Sort",
             Self::ClearSort => "Clear Sort",
             // TODO: Improve message
-            Self::Sort(col, dir) => "Sort [col, dir]",
+            Self::Sort(_, _) => "Sort [col, dir]",
         }
         .into()
     }
@@ -376,10 +376,11 @@ impl TableView for AlbumSongsPanel {
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
-
+}
+impl SortableTableView for AlbumSongsPanel {
     fn get_sortable_columns(&self) -> &[usize] {
         // Not quite what we're expecting here.
-        &[1, 2, 3, 4]
+        &[1, 4]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         if !self.get_sortable_columns().contains(&sort_command.column) {
