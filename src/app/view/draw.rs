@@ -92,9 +92,14 @@ where
         basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
     let heading_names = table.get_headings();
     let mut sort_headings = get_table_sort_character_array(table.get_sort_commands()).into_iter();
-    let combined_headings = heading_names.map(|h| {
+    let sortable_headings = table.get_sortable_columns();
+    let combined_headings = heading_names.enumerate().map(|(i, h)| {
         let mut hstr = h.to_string();
-        hstr.push(sort_headings.next().unwrap_or_default().unwrap_or_default());
+        let sort_char = sort_headings.next().unwrap_or_default().unwrap_or_default();
+        if sort_char == '\x00' && sortable_headings.contains(&i) {
+            hstr.push('');
+        }
+        hstr.push(sort_char);
         hstr
     });
     let table_widget = Table::new(table_items)

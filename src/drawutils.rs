@@ -21,8 +21,8 @@ pub fn below_left_rect(height: u16, width: u16, r: Rect) -> Rect {
 /// Helper function to create a popup in the center of a chunk.
 pub fn centered_rect(height: u16, width: u16, r: Rect) -> Rect {
     Rect {
-        x: (r.x + r.width) / 2 - width / 2,
-        y: (r.y + r.height) / 2 - height / 2,
+        x: (r.x) + r.width / 2 - width / 2,
+        y: (r.y) + r.height / 2 - height / 2,
         width,
         height,
     }

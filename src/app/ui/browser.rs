@@ -202,8 +202,14 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
             ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
             ArtistSongsAction::PopSort => self.album_songs_list.open_sort(),
+            ArtistSongsAction::CloseSort => self.album_songs_list.close_sort(),
+            ArtistSongsAction::ClearSort => {
+                self.album_songs_list.close_sort();
+                self.album_songs_list.clear_sort_commands();
+            }
             ArtistSongsAction::Sort(column, direction) => {
-                self.album_songs_list.push_sort_command(TableSortCommand {
+                // TODO: Error handling
+                let _ = self.album_songs_list.push_sort_command(TableSortCommand {
                     column: *column,
                     direction: *direction,
                 });

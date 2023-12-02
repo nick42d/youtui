@@ -85,6 +85,8 @@ pub enum ArtistSongsAction {
     PageUp,
     PageDown,
     PopSort,
+    CloseSort,
+    ClearSort,
     Sort(usize, SortDirection),
 }
 
@@ -237,6 +239,9 @@ impl Action for ArtistSongsAction {
             Self::PageUp => "Page Up",
             Self::PageDown => "Page Down",
             Self::PopSort => "Sort",
+            Self::CloseSort => "Close Sort",
+            Self::ClearSort => "Clear Sort",
+            // TODO: Improve message
             Self::Sort(col, dir) => "Sort [col, dir]",
         }
         .into()
@@ -374,7 +379,7 @@ impl TableView for AlbumSongsPanel {
 
     fn get_sortable_columns(&self) -> &[usize] {
         // Not quite what we're expecting here.
-        &[0, 1, 2, 3, 4]
+        &[1, 2, 3, 4]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         if !self.get_sortable_columns().contains(&sort_command.column) {
@@ -419,6 +424,7 @@ fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
 }
 
 fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
+    // Consider a blocking type of keybind for this that stops all other commands being received.
     vec![
         Keybind::new_from_code(
             KeyCode::Char('1'),
@@ -459,6 +465,14 @@ fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
         Keybind::new_from_code(
             KeyCode::Char('%'),
             BrowserAction::ArtistSongs(ArtistSongsAction::Sort(4, SortDirection::Desc)),
+        ),
+        Keybind::new_global_from_code(
+            KeyCode::F(4),
+            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Char('C'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
         ),
     ]
 }

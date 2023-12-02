@@ -1,3 +1,7 @@
+use super::{footer, header, WindowContext, YoutuiWindow};
+use crate::app::component::actionhandler::DisplayableKeyRouter;
+use crate::app::view::{Drawable, DrawableMut};
+use crate::drawutils::left_bottom_corner_rect;
 use ratatui::prelude::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Clear, Row, Table};
@@ -5,11 +9,6 @@ use ratatui::{
     layout::{Constraint, Direction, Layout},
     terminal::Frame,
 };
-
-use super::{footer, header, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::DisplayableKeyRouter;
-use crate::app::view::{Drawable, DrawableMut};
-use crate::drawutils::left_bottom_corner_rect;
 
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     let base_layout = Layout::default()
