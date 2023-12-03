@@ -1,23 +1,26 @@
 # About
 Youtui - a simple TUI YouTube Music player written in Rust aiming to implement an Artist->Albums workflow for searching for music, and using discoverability principles for navigation. Inspired by https://github.com/ccgauche/ytermusic/ and cmus.
 
-Ytmapi-rs - an asynchronous API for youtube music - using Google's internal API, Tokio and Reqwest. Inspired by https://github.com/sigma67/ytmusicapi/.
+Ytmapi-rs - an asynchronous API for YouTube Music using Google's internal API, Tokio and Reqwest. Inspired by https://github.com/sigma67/ytmusicapi/.
 
 This project is not supported or endorsed by Google.
+# Features
+- Quickly and easily display entire artist's discography
+- Buffer upcoming songs
+- Search suggestions
+- Sorting
 # Demo
-Version as of 09/Nov/23 and is still a work in progress.
-[![asciicast](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ.svg)](https://asciinema.org/a/SOTRXdvkjM4vWHuwsWSDDDmBQ)
+Version 0.0.1 as of 03/Dec/23 and is still a work in progress.
+[![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
 # How to install and run
-1. Clone the repository (`git clone https://github.com/nick42d/youtui/`)
-1. Build - note nightly rust required for async traits (`cd youtui && cargo b --release`)
+1. The easiest way to install is using crates.io by running `cargo install youtui`.
 1. Give the application an authorisation header:
     1. Open YouTube Music in your browser - ensure you are logged in.
     1. Open web developer tools (F12).
     1. Open Network tab and locate a POST request to `music.youtube.com`.
     1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
-1. To run the TUI application, execute the binary located at `./target/release/youtui` with no arguments.
-1. To use the API in command-line mode, execute `./target/release/youtui --help` to see available commands.
-
+1. To run the TUI application, execute `youtui` with no arguments.
+1. To use the API in command-line mode, execute `youtui --help` to see available commands.
 ## Cookie extraction examples
 Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
@@ -30,8 +33,9 @@ Chrome example (Select manually and paste):
 - The Reqwest library requires ssl which can be found in the following packages:
   - `libssl-dev` (Ubuntu)
   - `openssl-devel` (Fedora)
-## Limitations
+# Limitations
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
+- The Ytmapi-rs library is currently undocumented. It is published to crates.io due to Cargo limitations.
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 # Roadmap
 ## Application
@@ -43,8 +47,9 @@ Chrome example (Select manually and paste):
 - [ ] Theming
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
+- [ ] Filtering
 ## API
-- [ ] Document public API (target for 0.0.1)
+- [ ] Document public API
 - [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
 - [x] OAuth authentication
