@@ -8,6 +8,8 @@ description = "A simple TUI YouTube Music player"
 homepage = "https://github.com/nick42d/youtui"
 repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
+keywords = ["youtube", "music", "player", "tui"]
+categories = ["multimedia::audio"]
 
 [dependencies]
 clap = { version = "4.3.5", features = ["derive"] }
