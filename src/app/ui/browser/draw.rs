@@ -4,6 +4,8 @@ use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table, draw_table};
 use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{below_left_rect, bottom_of_rect};
+use ratatui::prelude::Alignment;
+use ratatui::widgets::block::Title;
 use ratatui::widgets::{TableState, Wrap};
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
@@ -64,14 +66,16 @@ pub fn draw_browser(
         album_songs_table_state,
         _albumsongsselected,
     );
-    if browser.album_songs_list.sort_popped {
+    if browser.album_songs_list.sort.sort_popped {
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
 }
 
 // TODO: Generalize
 fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
-    let popup_chunk = crate::drawutils::centered_rect(10, 40, chunk);
+    let title_l = "Sort";
+    let title_r = "Clear: C / Cancel: Esc";
+    let footer = "Asc: Enter / Desc: Alt-Enter";
     let sortable_columns = album_songs_panel.get_sortable_columns();
     let headers: Vec<_> = album_songs_panel
         .get_headings()
@@ -86,15 +90,24 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         })
         // TODO: Remove allocation
         .collect();
-    // TODO: Stateful
-    let list = List::new(headers).block(
-        Block::new()
-            .title("Sort - Press #/C")
-            .borders(Borders::ALL)
-            .border_style(Style::new().fg(Color::Cyan)),
-    );
+    let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
+    let width = max_header_len.max(footer.len()) + 2;
+    let height = sortable_columns.len() + 2;
+    let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
+    // TODO: Save the state.
+    let mut state = ListState::default().with_selected(Some(album_songs_panel.sort.sort_cur));
+    let list = List::new(headers)
+        .highlight_style(Style::default().bg(Color::Blue))
+        .block(
+            Block::new()
+                .title(title_l)
+                .title(Title::from(title_r).alignment(Alignment::Right))
+                .title(Title::from(footer).position(ratatui::widgets::block::Position::Bottom))
+                .borders(Borders::ALL)
+                .border_style(Style::new().fg(Color::Cyan)),
+        );
     f.render_widget(Clear, popup_chunk);
-    f.render_widget(list, popup_chunk);
+    f.render_stateful_widget(list, popup_chunk, &mut state);
 }
 
 fn draw_sort_box(f: &mut Frame, browser: &Browser, chunk: Rect) {

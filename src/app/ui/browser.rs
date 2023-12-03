@@ -203,20 +203,13 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
             ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
             ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
-            ArtistSongsAction::PopSort => self.album_songs_list.open_sort(),
+            ArtistSongsAction::PopSort => self.album_songs_list.handle_pop_sort(),
             ArtistSongsAction::CloseSort => self.album_songs_list.close_sort(),
-            ArtistSongsAction::ClearSort => {
-                self.album_songs_list.close_sort();
-                self.album_songs_list.clear_sort_commands();
-            }
-            ArtistSongsAction::Sort(column, direction) => {
-                // TODO: Error handling
-                let _ = self.album_songs_list.push_sort_command(TableSortCommand {
-                    column: *column,
-                    direction: *direction,
-                });
-                self.album_songs_list.close_sort();
-            }
+            ArtistSongsAction::ClearSort => self.album_songs_list.handle_clear_sort(),
+            ArtistSongsAction::SortUp => self.album_songs_list.handle_sort_up(),
+            ArtistSongsAction::SortDown => self.album_songs_list.handle_sort_down(),
+            ArtistSongsAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
+            ArtistSongsAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
         }
     }
 }
@@ -453,10 +446,14 @@ impl Browser {
         self.album_songs_list
             .list
             .append_raw_songs(song_list, album, year, artist);
+        // If sort commands exist, sort the list.
+        // Naive - can result in multiple calls to sort every time songs are appended.
+        self.album_songs_list.apply_sort_commands();
         self.album_songs_list.list.state = ListStatus::InProgress;
     }
     pub fn handle_songs_found(&mut self) {
         self.album_songs_list.list.list.clear();
+        // XXX: Consider clearing sort params here, so that we don't need to sort all the incoming songs. Performance seems OK for now.
         self.album_songs_list.list.cur_selected = Some(0);
         self.album_songs_list.list.state = ListStatus::InProgress;
     }

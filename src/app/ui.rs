@@ -63,6 +63,7 @@ pub struct YoutuiWindow {
 
 #[derive(Default)]
 pub struct YoutuiMutableState {
+    pub filter_list: ListState,
     pub browser_album_songs: TableState,
     pub browser_artists: ListState,
     pub playlist: TableState,

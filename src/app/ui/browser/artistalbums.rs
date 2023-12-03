@@ -7,8 +7,9 @@ use crate::app::{
 };
 use crate::error::Error;
 use crate::Result;
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyModifiers};
 use std::borrow::Cow;
+use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::SearchResultArtist;
 
@@ -41,6 +42,13 @@ pub struct ArtistSearchPanel {
 }
 
 #[derive(Default, Clone)]
+pub struct SortManger {
+    sort_commands: Vec<TableSortCommand>,
+    pub sort_popped: bool,
+    pub sort_cur: usize,
+}
+
+#[derive(Default, Clone)]
 pub struct SearchBlock {
     pub search_contents: String,
     pub search_suggestions: Vec<SearchSuggestion>,
@@ -53,9 +61,8 @@ pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
     keybinds: Vec<Keybind<BrowserAction>>,
     sort_keybinds: Vec<Keybind<BrowserAction>>,
-    sort_commands: Vec<TableSortCommand>,
     pub route: AlbumSongsInputRouting,
-    pub sort_popped: bool,
+    pub sort: SortManger,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -85,9 +92,12 @@ pub enum ArtistSongsAction {
     PageUp,
     PageDown,
     PopSort,
+    SortUp,
+    SortDown,
     CloseSort,
     ClearSort,
-    Sort(usize, SortDirection),
+    SortSelectedAsc,
+    SortSelectedDesc,
 }
 
 impl ArtistSearchPanel {
@@ -119,13 +129,73 @@ impl AlbumSongsPanel {
     pub fn subcolumns_of_vec() -> &'static [usize] {
         &[1, 3, 4, 5, 6]
     }
-    pub fn open_sort(&mut self) {
-        self.sort_popped = true;
+    pub fn apply_sort_commands(&mut self) -> Result<()> {
+        for c in self.sort.sort_commands.iter() {
+            if !self.get_sortable_columns().contains(&c.column) {
+                return Err(Error::Other(format!("Unable to sort column {}", c.column,)));
+            }
+            self.list.sort(
+                get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
+                c.direction,
+            );
+        }
+        Ok(())
+    }
+    fn open_sort(&mut self) {
+        self.sort.sort_popped = true;
         self.route = AlbumSongsInputRouting::Sort;
     }
     pub fn close_sort(&mut self) {
-        self.sort_popped = false;
+        self.sort.sort_popped = false;
         self.route = AlbumSongsInputRouting::List;
+    }
+    pub fn handle_pop_sort(&mut self) {
+        // If no sortable columns, should we not handle this?
+        self.sort.sort_cur = 0;
+        self.open_sort();
+    }
+    pub fn handle_clear_sort(&mut self) {
+        self.close_sort();
+        self.clear_sort_commands();
+    }
+    // TODO: Could be under Scrollable trait.
+    pub fn handle_sort_up(&mut self) {
+        self.sort.sort_cur = self.sort.sort_cur.saturating_sub(1)
+    }
+    pub fn handle_sort_down(&mut self) {
+        self.sort.sort_cur = self
+            .sort
+            .sort_cur
+            .saturating_add(1)
+            .min(self.get_sortable_columns().len().saturating_sub(1));
+    }
+    pub fn handle_sort_cur_asc(&mut self) {
+        // TODO: Better error handling
+        let Some(column) = self.get_sortable_columns().get(self.sort.sort_cur) else {
+            warn!("Tried to index sortable columns but was out of range");
+            return;
+        };
+        if let Err(e) = self.push_sort_command(TableSortCommand {
+            column: *column,
+            direction: SortDirection::Asc,
+        }) {
+            warn!("Tried to sort a column that is not sortable - error {e}")
+        };
+        self.close_sort();
+    }
+    pub fn handle_sort_cur_desc(&mut self) {
+        // TODO: Better error handling
+        let Some(column) = self.get_sortable_columns().get(self.sort.sort_cur) else {
+            warn!("Tried to index sortable columns but was out of range");
+            return;
+        };
+        if let Err(e) = self.push_sort_command(TableSortCommand {
+            column: *column,
+            direction: SortDirection::Desc,
+        }) {
+            warn!("Tried to sort a column that is not sortable - error {e}")
+        };
+        self.close_sort();
     }
 }
 
@@ -234,15 +304,15 @@ impl Action for ArtistSongsAction {
             Self::AddSongToPlaylist => "Add song to playlist",
             Self::AddSongsToPlaylist => "Add songs to playlist",
             Self::AddAlbumToPlaylist => "Add album to playlist",
-            Self::Up => "Up",
-            Self::Down => "Down",
+            Self::Up | Self::SortUp => "Up",
+            Self::Down | Self::SortDown => "Down",
             Self::PageUp => "Page Up",
             Self::PageDown => "Page Down",
             Self::PopSort => "Sort",
-            Self::CloseSort => "Close Sort",
-            Self::ClearSort => "Clear Sort",
-            // TODO: Improve message
-            Self::Sort(_, _) => "Sort [col, dir]",
+            Self::CloseSort => "Close sort",
+            Self::ClearSort => "Clear sort",
+            Self::SortSelectedAsc => "Sort ascending",
+            Self::SortSelectedDesc => "Sort ascending",
         }
         .into()
     }
@@ -383,31 +453,42 @@ impl SortableTableView for AlbumSongsPanel {
         &[1, 4]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
+        // TODO: Maintain a view only struct, for easier rendering of this.
         if !self.get_sortable_columns().contains(&sort_command.column) {
             return Err(Error::Other(format!(
                 "Unable to sort column {}",
                 sort_command.column,
             )));
         }
-        // Map the column of ArtistAlbums to a column of List
-        let Some(column_adj) = Self::subcolumns_of_vec().get(sort_command.column) else {
-            return Err(Error::Other(format!(
-                "Unable to sort column, doesn't match up with underlying list. {}",
-                sort_command.column,
-            )));
-        };
-        self.list.sort(*column_adj, sort_command.direction);
-        // Naive as doesn't remove duplicates.
-        self.sort_commands.push(sort_command);
+        // Map the column of ArtistAlbums to a column of List and sort
+        self.list.sort(
+            get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
+            sort_command.direction,
+        );
+        // Remove commands that already exist for the same column, as this new command will trump the old ones.
+        // Slightly naive - loops the whole vec, could short circuit.
+        self.sort
+            .sort_commands
+            .retain(|cmd| cmd.column != sort_command.column);
+        self.sort.sort_commands.push(sort_command);
         Ok(())
     }
-
     fn clear_sort_commands(&mut self) {
-        self.sort_commands.clear();
+        self.sort.sort_commands.clear();
     }
     fn get_sort_commands(&self) -> &[TableSortCommand] {
-        &self.sort_commands
+        &self.sort.sort_commands
     }
+}
+
+fn get_adjusted_list_column(target_col: usize, adjusted_cols: &[usize]) -> Result<usize> {
+    adjusted_cols
+        .get(target_col)
+        .ok_or(Error::Other(format!(
+            "Unable to sort column, doesn't match up with underlying list. {}",
+            target_col,
+        )))
+        .map(|r| *r)
 }
 
 fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
@@ -428,52 +509,35 @@ fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
     // Consider a blocking type of keybind for this that stops all other commands being received.
     vec![
         Keybind::new_from_code(
-            KeyCode::Char('1'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(0, SortDirection::Asc)),
+            KeyCode::Enter,
+            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedAsc),
         ),
         Keybind::new_from_code(
-            KeyCode::Char('2'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(1, SortDirection::Asc)),
+            KeyCode::Esc,
+            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
         ),
         Keybind::new_from_code(
-            KeyCode::Char('3'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(2, SortDirection::Asc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('4'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(3, SortDirection::Asc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('5'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(4, SortDirection::Asc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('!'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(0, SortDirection::Desc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('@'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(1, SortDirection::Desc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('#'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(2, SortDirection::Desc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('$'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(3, SortDirection::Desc)),
-        ),
-        Keybind::new_from_code(
-            KeyCode::Char('%'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::Sort(4, SortDirection::Desc)),
-        ),
-        Keybind::new_global_from_code(
             KeyCode::F(4),
             BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
+        ),
+        Keybind::new_modified_from_code(
+            KeyCode::Enter,
+            KeyModifiers::ALT,
+            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedDesc),
         ),
         Keybind::new_from_code(
             KeyCode::Char('C'),
             BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
+        ),
+        // XXX: Consider if these type of actions can be for all lists.
+        // TODO: Hide these commands from help menu.
+        Keybind::new_from_code(
+            KeyCode::Down,
+            BrowserAction::ArtistSongs(ArtistSongsAction::SortDown),
+        ),
+        Keybind::new_from_code(
+            KeyCode::Up,
+            BrowserAction::ArtistSongs(ArtistSongsAction::SortUp),
         ),
     ]
 }

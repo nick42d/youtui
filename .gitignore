@@ -10,6 +10,7 @@
 *rustc-ice*
 *.svg
 /target
+/target/*
 .vscode/
 *.webm
 /ytmapi-rs/Cargo.toml
