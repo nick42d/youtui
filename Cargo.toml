@@ -17,7 +17,7 @@ ratatui = { version = "0.24.0", features = ["all-widgets"] }
 serde = "1.0.164"
 serde_json = "1.0.97"
 tokio = "1.29.1"
-ytmapi-rs = { path = "./ytmapi-rs" }
+ytmapi-rs = { path = "./ytmapi-rs", version = "0.0.1" }
 tracing = "0.1.37"
 tui-logger = { version = "0.10.0", default-features = false, features = [ "crossterm", "tracing-support"] }
 tracing-subscriber = "0.3.17"
