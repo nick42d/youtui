@@ -51,6 +51,7 @@ Chrome example (Select manually and paste):
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
 - [ ] Filtering
+- [ ] Configurable key bindings
 ## API
 - [ ] Document public API
 - [ ] Implement endpoint continuations
