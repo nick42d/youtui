@@ -58,7 +58,7 @@ pub fn draw_browser(
         draw_sort_box(f, &browser, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
-            draw_search_suggestions(f, &browser, s[0])
+            draw_search_suggestions(f, &browser, s[0], layout[0])
         }
     }
     draw_sortable_table(
@@ -126,12 +126,16 @@ fn draw_sort_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
     );
 }
 
-fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect) {
+fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bounds: Rect) {
     let suggestions = browser.get_search_suggestions();
     let height = suggestions.len() + 1;
     let divider_chunk = bottom_of_rect(chunk);
-    let suggestion_chunk =
-        below_left_rect(height.try_into().unwrap_or(u16::MAX), chunk.width, chunk);
+    let suggestion_chunk = below_left_rect(
+        height.try_into().unwrap_or(u16::MAX),
+        chunk.width,
+        chunk,
+        max_bounds,
+    );
     let suggestion_chunk_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(1), Constraint::Min(0)])
