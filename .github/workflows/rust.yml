@@ -11,11 +11,22 @@ env:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        toolchain: [nightly]
 
-    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: install linux deps
+      run: |
+        sudo apt update
+        sudo apt install -y --no-install-recommends libasound2-dev pkg-config
+      if: contains(matrix.os, 'ubuntu')
+      
     - name: Build
       run: cargo build --verbose
     - name: Run tests
