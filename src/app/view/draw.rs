@@ -1,5 +1,11 @@
 use super::{basic_constraints_to_constraints, SortableTableView, TableSortCommand, TableView};
-use crate::app::view::ListView;
+use crate::{
+    app::view::ListView,
+    drawutils::{
+        DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR,
+        TABLE_HEADINGS_COLOUR,
+    },
+};
 use ratatui::{
     prelude::{Margin, Rect},
     style::{Color, Modifier, Style},
@@ -11,9 +17,6 @@ use ratatui::{
     Frame,
 };
 use std::borrow::Cow;
-
-const SELECTED_BORDER: Color = Color::Cyan;
-const DESELECTED_BORDER: Color = Color::White;
 
 pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec<Option<char>> {
     let Some(max_col) = sort_commands
@@ -39,9 +42,9 @@ pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec
 // XXX: title could be Into<Cow<str>>
 pub fn draw_panel(f: &mut Frame, title: Cow<str>, chunk: Rect, is_selected: bool) -> Rect {
     let border_colour = if is_selected {
-        SELECTED_BORDER
+        SELECTED_BORDER_COLOUR
     } else {
-        DESELECTED_BORDER
+        DESELECTED_BORDER_COLOUR
     };
     let block = Block::new()
         // TODO: Remove allocation
@@ -72,7 +75,8 @@ where
         .collect();
     // TODO: Better title for list
     let _title = format!("{list_title} - {list_len} items");
-    let list_widget = List::new(list_items).highlight_style(Style::default().bg(Color::Blue));
+    let list_widget =
+        List::new(list_items).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     let inner_chunk = draw_panel(f, list_title, chunk, selected);
     f.render_stateful_widget(list_widget, inner_chunk, state);
 }
@@ -92,12 +96,12 @@ where
         basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
     let heading_names = table.get_headings();
     let table_widget = Table::new(table_items)
-        .highlight_style(Style::default().bg(Color::Blue))
+        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(heading_names).style(
                 Style::default()
                     .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightGreen),
+                    .fg(TABLE_HEADINGS_COLOUR),
             ),
         )
         .widths(table_widths.as_slice())
@@ -159,12 +163,12 @@ pub fn draw_sortable_table<T>(
         hstr
     });
     let table_widget = Table::new(table_items)
-        .highlight_style(Style::default().bg(Color::Blue))
+        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(combined_headings).style(
                 Style::default()
                     .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightGreen),
+                    .fg(TABLE_HEADINGS_COLOUR),
             ),
         )
         .widths(table_widths.as_slice())

@@ -1,4 +1,20 @@
-use ratatui::prelude::{Constraint, Direction, Layout, Rect};
+use ratatui::{
+    prelude::{Constraint, Direction, Layout, Rect},
+    style::Color,
+};
+
+// Standard app colour scheme
+pub const SELECTED_BORDER_COLOUR: Color = Color::Cyan;
+pub const DESELECTED_BORDER_COLOUR: Color = Color::Reset;
+// TODO: Implement in all locations.
+pub const TEXT_COLOUR: Color = Color::Reset;
+pub const BUTTON_BG_COLOUR: Color = Color::Gray;
+pub const BUTTON_FG_COLOUR: Color = Color::Black;
+pub const PROGRESS_BG_COLOUR: Color = Color::DarkGray;
+pub const PROGRESS_FG_COLOUR: Color = Color::LightGreen;
+pub const PROGRESS_ELAPSED_COLOUR: Color = Color::LightGreen;
+pub const TABLE_HEADINGS_COLOUR: Color = Color::LightGreen;
+pub const ROW_HIGHLIGHT_COLOUR: Color = Color::Blue;
 
 /// Helper function to create a popup at bottom corner of chunk.
 pub fn left_bottom_corner_rect(height: u16, width: u16, r: Rect) -> Rect {

@@ -1,7 +1,7 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::DisplayableKeyRouter;
 use crate::app::view::{Drawable, DrawableMut};
-use crate::drawutils::left_bottom_corner_rect;
+use crate::drawutils::{left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TEXT_COLOUR};
 use ratatui::prelude::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Clear, Row, Table};
@@ -72,24 +72,19 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     let mut commands_vec = Vec::new();
     for (s, d) in shortcuts_descriptions {
         commands_vec.push(
-            Row::new(vec![format!("{}", s), format!("{}", d)]).style(Style::new().fg(Color::White)),
+            Row::new(vec![format!("{}", s), format!("{}", d)]).style(Style::new().fg(TEXT_COLOUR)),
         );
     }
     let table_constraints = [
         Constraint::Min(shortcut_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(description_len.try_into().unwrap_or(u16::MAX)),
     ];
-    // let table_constraints = [
-    //     Constraint::Length(shortcut_width + 10),
-    //     Constraint::Length(description_width),
-    // ];
     let block = Table::new(commands_vec)
-        .style(Style::new().fg(Color::White))
         .block(
             Block::default()
                 .title(title.as_ref())
                 .borders(Borders::ALL)
-                .style(Style::new().fg(Color::Cyan)),
+                .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
         )
         .widths(&table_constraints);
     let area = left_bottom_corner_rect(
@@ -119,7 +114,7 @@ fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk
     let height = commands.len() + 3;
     // Naive implementation
     let commands_table = commands.iter().map(|(s, c, d)| {
-        Row::new(vec![s.as_ref(), c.as_ref(), d.as_ref()]).style(Style::new().fg(Color::White))
+        Row::new(vec![s.as_ref(), c.as_ref(), d.as_ref()]).style(Style::new().fg(TEXT_COLOUR))
     });
     let table_constraints = [
         Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),
@@ -128,13 +123,12 @@ fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk
     ];
     let block = Table::new(commands_table)
         .header(Row::new(vec!["Key", "Context", "Command"]))
-        .style(Style::new().fg(Color::White))
         .block(
             Block::default()
                 // TODO: Remove borrow.
                 .title("Help")
                 .borders(Borders::ALL)
-                .style(Style::new().fg(Color::Cyan)),
+                .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
         )
         .widths(&table_constraints);
     let area = left_bottom_corner_rect(

@@ -1,5 +1,6 @@
-use crate::app::component::actionhandler::{
-    Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility,
+use crate::{
+    app::component::actionhandler::{Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility},
+    drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
 };
 use ratatui::{
     layout::Rect,
@@ -32,7 +33,10 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         keybinds
             .flat_map(|(d, _, k)| {
                 vec![
-                    Span::styled(d, Style::default().bg(Color::Gray).fg(Color::Black)),
+                    Span::styled(
+                        d,
+                        Style::default().bg(BUTTON_BG_COLOUR).fg(BUTTON_FG_COLOUR),
+                    ),
                     Span::raw(" "),
                     Span::raw(k),
                     Span::raw(" "),
@@ -41,11 +45,7 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             .collect::<Vec<_>>(),
     );
 
-    let header = Paragraph::new(help_string).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::White))
-            .title("Commands"),
-    );
+    let header =
+        Paragraph::new(help_string).block(Block::default().borders(Borders::ALL).title("Commands"));
     f.render_widget(header, chunk);
 }

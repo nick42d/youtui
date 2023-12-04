@@ -8,7 +8,12 @@ use ratatui::{
 };
 use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
-use crate::app::structures::PlayState;
+use crate::{
+    app::structures::PlayState,
+    drawutils::{
+        BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR, TEXT_COLOUR,
+    },
+};
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
@@ -114,14 +119,18 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .split(vertical_layout[1]);
     let bar = Gauge::default()
         .label(bar_str)
-        .gauge_style(Style::default().fg(Color::LightGreen).bg(Color::DarkGray))
+        .gauge_style(
+            Style::default()
+                .fg(PROGRESS_FG_COLOUR)
+                .bg(PROGRESS_BG_COLOUR),
+        )
         .ratio(play_ratio);
     let left_arrow = Paragraph::new(Line::from(vec![
         Span::styled(
             "<",
             Style::new()
-                .fg(Color::Black)
-                .bg(Color::Gray)
+                .fg(BUTTON_FG_COLOUR)
+                .bg(BUTTON_BG_COLOUR)
                 .add_modifier(Modifier::BOLD),
         ),
         Span::raw(" "),
@@ -131,8 +140,8 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         Span::styled(
             ">",
             Style::new()
-                .fg(Color::Black)
-                .bg(Color::Gray)
+                .fg(BUTTON_FG_COLOUR)
+                .bg(BUTTON_BG_COLOUR)
                 .add_modifier(Modifier::BOLD),
         ),
     ]));
@@ -141,17 +150,17 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         Line::from(Span::styled(
             " + ",
             Style::new()
-                .fg(Color::Black)
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Gray),
+                .fg(BUTTON_FG_COLOUR)
+                .bg(BUTTON_BG_COLOUR)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(Span::raw(format!("{:>3}", vol))),
         Line::from(Span::styled(
             " - ",
             Style::new()
-                .fg(Color::Black)
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Gray),
+                .fg(BUTTON_FG_COLOUR)
+                .bg(BUTTON_BG_COLOUR)
+                .add_modifier(Modifier::BOLD),
         )),
     ];
     let vol_bar = Paragraph::new(vol_bar_spans).alignment(Alignment::Right);

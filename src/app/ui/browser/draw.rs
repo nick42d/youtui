@@ -3,7 +3,9 @@ use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table, draw_table};
 use crate::app::view::{SortableTableView, TableView};
-use crate::drawutils::{below_left_rect, bottom_of_rect};
+use crate::drawutils::{
+    below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+};
 use ratatui::prelude::Alignment;
 use ratatui::widgets::block::Title;
 use ratatui::widgets::{TableState, Wrap};
@@ -97,14 +99,14 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
     // TODO: Save the state.
     let mut state = ListState::default().with_selected(Some(album_songs_panel.sort.sort_cur));
     let list = List::new(headers)
-        .highlight_style(Style::default().bg(Color::Blue))
+        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .block(
             Block::new()
                 .title(title_l)
                 .title(Title::from(title_r).alignment(Alignment::Right))
                 .title(Title::from(footer).position(ratatui::widgets::block::Position::Bottom))
                 .borders(Borders::ALL)
-                .border_style(Style::new().fg(Color::Cyan)),
+                .border_style(Style::new().fg(SELECTED_BORDER_COLOUR)),
         );
     f.render_widget(Clear, popup_chunk);
     f.render_stateful_widget(list, popup_chunk, &mut state);
@@ -114,7 +116,7 @@ fn draw_sort_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
     let search_widget = Paragraph::new(browser.artist_list.search.search_contents.as_str()).block(
         Block::default()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::Cyan))
+            .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
             .title("Search"),
     );
     f.render_widget(search_widget, chunk);
@@ -158,16 +160,16 @@ fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect) {
         // XXX: Ratatui upgrades may allow this to be passed lazily instead of collecting.
         .collect();
     let block = List::new(list)
-        .style(Style::new().fg(Color::White))
-        .highlight_style(Style::new().bg(Color::Blue))
+        .style(Style::new().fg(TEXT_COLOUR))
+        .highlight_style(Style::new().bg(ROW_HIGHLIGHT_COLOUR))
         .block(
             Block::default()
                 .borders(Borders::all().difference(Borders::TOP))
-                .style(Style::new().fg(Color::Cyan)),
+                .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
         );
     let side_borders = Block::default()
         .borders(Borders::LEFT.union(Borders::RIGHT))
-        .style(Style::new().fg(Color::Cyan));
+        .style(Style::new().fg(SELECTED_BORDER_COLOUR));
     let divider = Block::default().borders(Borders::TOP);
     f.render_widget(Clear, suggestion_chunk);
     f.render_widget(side_borders, suggestion_chunk_layout[0]);
