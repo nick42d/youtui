@@ -13,7 +13,7 @@ This project is not supported or endorsed by Google.
 Version 0.0.1 as of 03/Dec/23 and is still a work in progress.
 [![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
 # How to install and run
-1. The easiest way to install is using crates.io by running `cargo install youtui`.
+1. The easiest way to install is using crates.io by running `cargo install +nightly youtui`. (Nightly Rust is required to allow async methods in API trait, and this is expected to stabilise shortly.)
 1. Give the application an authorisation header:
     1. Open YouTube Music in your browser - ensure you are logged in.
     1. Open web developer tools (F12).
