@@ -43,6 +43,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     footer::draw_footer(f, w, base_layout[2]);
 }
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
+    // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
     // If there are no commands, no need to draw anything.
     let Some(title) = w.get_cur_mode_description() else {
         return;
@@ -97,6 +98,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
 }
 
 fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk: Rect) {
+    // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
     // Collect to a Vec so we can create more iterators. Dynamically dispatched Iterator can't be cloned.
     let commands: Vec<_> = context
         .get_all_visible_keybinds_as_readable_iter()
