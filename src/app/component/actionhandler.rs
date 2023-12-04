@@ -10,8 +10,9 @@ pub trait Action {
 #[derive(PartialEq, Debug, Clone)]
 // Should another type be GlobalHidden?
 pub enum KeybindVisibility {
-    Hidden,
+    Standard,
     Global,
+    Hidden,
 }
 #[derive(PartialEq, Debug, Clone)]
 pub enum Keymap<A: Action> {
@@ -117,7 +118,7 @@ impl<A: Action> Keybind<A> {
             code,
             modifiers: KeyModifiers::empty(),
             key_map: Keymap::Action(action),
-            visibility: KeybindVisibility::Hidden,
+            visibility: KeybindVisibility::Standard,
         }
     }
     pub fn new_modified_from_code(code: KeyCode, modifiers: KeyModifiers, action: A) -> Keybind<A> {
@@ -125,7 +126,7 @@ impl<A: Action> Keybind<A> {
             code,
             modifiers,
             key_map: Keymap::Action(action),
-            visibility: KeybindVisibility::Hidden,
+            visibility: KeybindVisibility::Standard,
         }
     }
     pub fn new_global_from_code(code: KeyCode, action: A) -> Keybind<A> {
@@ -134,6 +135,14 @@ impl<A: Action> Keybind<A> {
             modifiers: KeyModifiers::empty(),
             key_map: Keymap::Action(action),
             visibility: KeybindVisibility::Global,
+        }
+    }
+    pub fn new_hidden_from_code(code: KeyCode, action: A) -> Keybind<A> {
+        Keybind {
+            code,
+            modifiers: KeyModifiers::empty(),
+            key_map: Keymap::Action(action),
+            visibility: KeybindVisibility::Hidden,
         }
     }
     pub fn new_action_only_mode(
@@ -147,14 +156,14 @@ impl<A: Action> Keybind<A> {
                 code,
                 modifiers: KeyModifiers::empty(),
                 key_map: Keymap::Action(action),
-                visibility: KeybindVisibility::Hidden,
+                visibility: KeybindVisibility::Standard,
             })
             .collect();
         Keybind {
             code,
             modifiers: KeyModifiers::empty(),
             key_map: Keymap::Mode(Mode { key_binds, name }),
-            visibility: KeybindVisibility::Hidden,
+            visibility: KeybindVisibility::Standard,
         }
     }
 }
@@ -179,6 +188,11 @@ pub trait KeyRouter<A: Action>: KeyHandler<A> {
 // Could possibly be a part of EventHandler instead.
 pub trait DisplayableKeyRouter {
     /// Get the list of all keybinds that the KeyHandler and any child items can contain, regardless of context.
+    fn get_all_visible_keybinds_as_readable_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
+    /// Get the list of all non-hidden keybinds that the KeyHandler and any child items can contain
+    /// , regardless of context.
     fn get_all_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;

@@ -98,7 +98,9 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
 
 fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk: Rect) {
     // Collect to a Vec so we can create more iterators. Dynamically dispatched Iterator can't be cloned.
-    let commands: Vec<_> = context.get_all_keybinds_as_readable_iter().collect();
+    let commands: Vec<_> = context
+        .get_all_visible_keybinds_as_readable_iter()
+        .collect();
     // Get the maximum length of each element in the tuple vector created above.
     let (mut s_len, mut c_len, mut d_len) = commands
         .iter()

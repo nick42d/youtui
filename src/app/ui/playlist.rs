@@ -543,8 +543,8 @@ impl Playlist {
 fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
     vec![
         Keybind::new_global_from_code(KeyCode::F(5), PlaylistAction::ViewBrowser),
-        Keybind::new_from_code(KeyCode::Down, PlaylistAction::Down),
-        Keybind::new_from_code(KeyCode::Up, PlaylistAction::Up),
+        Keybind::new_hidden_from_code(KeyCode::Down, PlaylistAction::Down),
+        Keybind::new_hidden_from_code(KeyCode::Up, PlaylistAction::Up),
         Keybind::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
         Keybind::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
         Keybind::new_action_only_mode(

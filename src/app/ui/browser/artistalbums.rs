@@ -530,12 +530,11 @@ fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
             BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
         ),
         // XXX: Consider if these type of actions can be for all lists.
-        // TODO: Hide these commands from help menu.
-        Keybind::new_from_code(
+        Keybind::new_hidden_from_code(
             KeyCode::Down,
             BrowserAction::ArtistSongs(ArtistSongsAction::SortDown),
         ),
-        Keybind::new_from_code(
+        Keybind::new_hidden_from_code(
             KeyCode::Up,
             BrowserAction::ArtistSongs(ArtistSongsAction::SortUp),
         ),
@@ -549,8 +548,8 @@ fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
             BrowserAction::Artist(ArtistAction::DisplayAlbums),
         ),
         // XXX: Consider if these type of actions can be for all lists.
-        Keybind::new_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
-        Keybind::new_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
+        Keybind::new_hidden_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
+        Keybind::new_hidden_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
         Keybind::new_from_code(KeyCode::PageUp, BrowserAction::Artist(ArtistAction::PageUp)),
         Keybind::new_from_code(
             KeyCode::PageDown,
@@ -573,11 +572,11 @@ pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
             KeyCode::PageDown,
             BrowserAction::ArtistSongs(ArtistSongsAction::PageDown),
         ),
-        Keybind::new_from_code(
+        Keybind::new_hidden_from_code(
             KeyCode::Down,
             BrowserAction::ArtistSongs(ArtistSongsAction::Down),
         ),
-        Keybind::new_from_code(
+        Keybind::new_hidden_from_code(
             KeyCode::Up,
             BrowserAction::ArtistSongs(ArtistSongsAction::Up),
         ),
