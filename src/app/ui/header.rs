@@ -1,10 +1,13 @@
 use crate::{
-    app::component::actionhandler::{Action, DisplayableKeyRouter, KeyHandler, KeybindVisibility},
+    app::{
+        component::actionhandler::{Action, DisplayableKeyRouter, KeyHandler},
+        keycommand::CommandVisibility,
+    },
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
 };
 use ratatui::{
     layout::Rect,
-    style::{Color, Style},
+    style::Style,
     terminal::Frame,
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
@@ -21,7 +24,7 @@ where
     Box::new(
         context
             .get_keybinds()
-            .filter(|kb| kb.visibility == KeybindVisibility::Global)
+            .filter(|kb| kb.visibility == CommandVisibility::Global)
             .map(|c| (c.describe(), format!("{c}"))),
     )
 }

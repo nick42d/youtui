@@ -1,8 +1,9 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
-    KeyRouter, Keybind, KeybindVisibility, Keymap, TextHandler,
+    KeyRouter, TextHandler,
 };
+use super::keycommand::{CommandVisibility, KeyCommand, Keymap};
 use super::structures::*;
 use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
@@ -55,7 +56,7 @@ pub struct YoutuiWindow {
     browser: Browser,
     logger: Logger,
     callback_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<Keybind<UIAction>>,
+    keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help_shown: bool,
     mutable_state: YoutuiMutableState,
@@ -99,28 +100,28 @@ impl DisplayableKeyRouter for YoutuiWindow {
         let kb = self
             .keybinds
             .iter()
-            .filter(|kb| kb.visibility == KeybindVisibility::Global)
+            .filter(|kb| kb.visibility == CommandVisibility::Global)
             .map(|kb| kb.as_readable());
         let cx = match self.context {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
                     .get_keybinds()
-                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .filter(|kb| kb.visibility == CommandVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
                     .get_keybinds()
-                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .filter(|kb| kb.visibility == CommandVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Logs => Box::new(
                 self.logger
                     .get_keybinds()
-                    .filter(|kb| kb.visibility == KeybindVisibility::Global)
+                    .filter(|kb| kb.visibility == CommandVisibility::Global)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
@@ -134,28 +135,28 @@ impl DisplayableKeyRouter for YoutuiWindow {
         let kb = self
             .keybinds
             .iter()
-            .filter(|kb| kb.visibility != KeybindVisibility::Hidden)
+            .filter(|kb| kb.visibility != CommandVisibility::Hidden)
             .map(|kb| kb.as_readable());
         let cx = match self.context {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
                     .get_all_keybinds()
-                    .filter(|kb| kb.visibility != KeybindVisibility::Hidden)
+                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
                     .get_all_keybinds()
-                    .filter(|kb| kb.visibility != KeybindVisibility::Hidden)
+                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Logs => Box::new(
                 self.logger
                     .get_all_keybinds()
-                    .filter(|kb| kb.visibility != KeybindVisibility::Hidden)
+                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
@@ -166,7 +167,7 @@ impl DisplayableKeyRouter for YoutuiWindow {
 
 impl KeyHandler<UIAction> for YoutuiWindow {
     // XXX: Need to determine how this should really be implemented.
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<UIAction>> + 'a> {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<UIAction>> + 'a> {
         Box::new(self.keybinds.iter())
     }
 }
@@ -474,16 +475,20 @@ impl YoutuiWindow {
     }
 }
 
-fn global_keybinds() -> Vec<Keybind<UIAction>> {
+fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
     vec![
-        Keybind::new_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
-        Keybind::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
-        Keybind::new_from_code(KeyCode::Char('<'), UIAction::Prev),
-        Keybind::new_from_code(KeyCode::Char('>'), UIAction::Next),
-        Keybind::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
-        Keybind::new_global_from_code(KeyCode::F(10), UIAction::Quit),
-        Keybind::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
-        Keybind::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
-        Keybind::new_modified_from_code(KeyCode::Char('c'), KeyModifiers::CONTROL, UIAction::Quit),
+        KeyCommand::new_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
+        KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
+        KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
+        KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
+        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
+        KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
+        KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
+        KeyCommand::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
+        KeyCommand::new_modified_from_code(
+            KeyCode::Char('c'),
+            KeyModifiers::CONTROL,
+            UIAction::Quit,
+        ),
     ]
 }

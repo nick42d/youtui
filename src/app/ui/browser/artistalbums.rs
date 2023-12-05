@@ -1,7 +1,8 @@
 use crate::app::ui::browser::BrowserAction;
 use crate::app::view::{SortDirection, SortableTableView, TableSortCommand};
 use crate::app::{
-    component::actionhandler::{Action, KeyHandler, KeyRouter, Keybind, Suggestable, TextHandler},
+    component::actionhandler::{Action, KeyHandler, KeyRouter, Suggestable, TextHandler},
+    keycommand::KeyCommand,
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, ListView, Loadable, Scrollable, SortableList, TableView},
 };
@@ -35,8 +36,8 @@ pub struct ArtistSearchPanel {
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
-    keybinds: Vec<Keybind<BrowserAction>>,
-    search_keybinds: Vec<Keybind<BrowserAction>>,
+    keybinds: Vec<KeyCommand<BrowserAction>>,
+    search_keybinds: Vec<KeyCommand<BrowserAction>>,
     pub search_popped: bool,
     pub search: SearchBlock,
 }
@@ -59,8 +60,8 @@ pub struct SearchBlock {
 #[derive(Default, Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Vec<Keybind<BrowserAction>>,
-    sort_keybinds: Vec<Keybind<BrowserAction>>,
+    keybinds: Vec<KeyCommand<BrowserAction>>,
+    sort_keybinds: Vec<KeyCommand<BrowserAction>>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManger,
 }
@@ -312,19 +313,21 @@ impl Action for ArtistSongsAction {
             Self::CloseSort => "Close sort",
             Self::ClearSort => "Clear sort",
             Self::SortSelectedAsc => "Sort ascending",
-            Self::SortSelectedDesc => "Sort ascending",
+            Self::SortSelectedDesc => "Sort descending",
         }
         .into()
     }
 }
 impl KeyRouter<BrowserAction> for ArtistSearchPanel {
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(self.keybinds.iter().chain(self.search_keybinds.iter()))
     }
 }
 
 impl KeyHandler<BrowserAction> for ArtistSearchPanel {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(match self.route {
             ArtistInputRouting::List => self.keybinds.iter(),
             ArtistInputRouting::Search => self.search_keybinds.iter(),
@@ -374,13 +377,15 @@ impl ListView for ArtistSearchPanel {
 }
 
 impl KeyRouter<BrowserAction> for AlbumSongsPanel {
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(self.keybinds.iter().chain(self.sort_keybinds.iter()))
     }
 }
 
 impl KeyHandler<BrowserAction> for AlbumSongsPanel {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(match self.route {
             AlbumSongsInputRouting::List => self.keybinds.iter(),
             AlbumSongsInputRouting::Sort => self.sort_keybinds.iter(),
@@ -491,96 +496,96 @@ fn get_adjusted_list_column(target_col: usize, adjusted_cols: &[usize]) -> Resul
         .map(|r| *r)
 }
 
-fn search_keybinds() -> Vec<Keybind<BrowserAction>> {
+fn search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     vec![
-        Keybind::new_from_code(KeyCode::Enter, BrowserAction::Artist(ArtistAction::Search)),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(KeyCode::Enter, BrowserAction::Artist(ArtistAction::Search)),
+        KeyCommand::new_from_code(
             KeyCode::Down,
             BrowserAction::Artist(ArtistAction::NextSearchSuggestion),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::Up,
             BrowserAction::Artist(ArtistAction::PrevSearchSuggestion),
         ),
     ]
 }
 
-fn sort_keybinds() -> Vec<Keybind<BrowserAction>> {
+fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     // Consider a blocking type of keybind for this that stops all other commands being received.
     vec![
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::Enter,
             BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedAsc),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::Esc,
             BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::F(4),
             BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
         ),
-        Keybind::new_modified_from_code(
+        KeyCommand::new_modified_from_code(
             KeyCode::Enter,
             KeyModifiers::ALT,
             BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedDesc),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::Char('C'),
             BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
         ),
         // XXX: Consider if these type of actions can be for all lists.
-        Keybind::new_hidden_from_code(
-            KeyCode::Down,
+        KeyCommand::new_from_codes(
+            vec![KeyCode::Down, KeyCode::Char('j')],
             BrowserAction::ArtistSongs(ArtistSongsAction::SortDown),
         ),
-        Keybind::new_hidden_from_code(
+        KeyCommand::new_hidden_from_code(
             KeyCode::Up,
             BrowserAction::ArtistSongs(ArtistSongsAction::SortUp),
         ),
     ]
 }
 
-fn browser_artist_search_keybinds() -> Vec<Keybind<BrowserAction>> {
+fn browser_artist_search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     vec![
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::Enter,
             BrowserAction::Artist(ArtistAction::DisplayAlbums),
         ),
         // XXX: Consider if these type of actions can be for all lists.
-        Keybind::new_hidden_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
-        Keybind::new_hidden_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
-        Keybind::new_from_code(KeyCode::PageUp, BrowserAction::Artist(ArtistAction::PageUp)),
-        Keybind::new_from_code(
+        KeyCommand::new_hidden_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
+        KeyCommand::new_hidden_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
+        KeyCommand::new_from_code(KeyCode::PageUp, BrowserAction::Artist(ArtistAction::PageUp)),
+        KeyCommand::new_from_code(
             KeyCode::PageDown,
             BrowserAction::Artist(ArtistAction::PageDown),
         ),
     ]
 }
 
-pub fn songs_keybinds() -> Vec<Keybind<BrowserAction>> {
+pub fn songs_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     vec![
-        Keybind::new_global_from_code(
+        KeyCommand::new_global_from_code(
             KeyCode::F(4),
             BrowserAction::ArtistSongs(ArtistSongsAction::PopSort),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::PageUp,
             BrowserAction::ArtistSongs(ArtistSongsAction::PageUp),
         ),
-        Keybind::new_from_code(
+        KeyCommand::new_from_code(
             KeyCode::PageDown,
             BrowserAction::ArtistSongs(ArtistSongsAction::PageDown),
         ),
-        Keybind::new_hidden_from_code(
+        KeyCommand::new_hidden_from_code(
             KeyCode::Down,
             BrowserAction::ArtistSongs(ArtistSongsAction::Down),
         ),
-        Keybind::new_hidden_from_code(
+        KeyCommand::new_hidden_from_code(
             KeyCode::Up,
             BrowserAction::ArtistSongs(ArtistSongsAction::Up),
         ),
-        Keybind::new_action_only_mode(
+        KeyCommand::new_action_only_mode(
             vec![
                 (
                     KeyCode::Enter,

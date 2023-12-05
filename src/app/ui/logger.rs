@@ -1,7 +1,8 @@
 use crate::app::{
     component::actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, TextHandler,
     },
+    keycommand::KeyCommand,
     ui::AppCallback,
     view::Drawable,
 };
@@ -54,7 +55,7 @@ impl Action for LoggerAction {
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
     ui_tx: Sender<AppCallback>,
-    keybinds: Vec<Keybind<LoggerAction>>,
+    keybinds: Vec<KeyCommand<LoggerAction>>,
 }
 
 impl Drawable for Logger {
@@ -64,7 +65,7 @@ impl Drawable for Logger {
 }
 
 impl KeyHandler<LoggerAction> for Logger {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<LoggerAction>> + 'a> {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
         Box::new(self.keybinds.iter())
     }
 }
@@ -82,7 +83,9 @@ impl TextHandler for Logger {
 }
 
 impl KeyRouter<LoggerAction> for Logger {
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<LoggerAction>> + 'a> {
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
         self.get_keybinds()
     }
 }
@@ -162,21 +165,21 @@ impl Logger {
     }
 }
 
-fn logger_keybinds() -> Vec<Keybind<LoggerAction>> {
+fn logger_keybinds() -> Vec<KeyCommand<LoggerAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(5), LoggerAction::ViewBrowser),
-        Keybind::new_from_code(KeyCode::Char('['), LoggerAction::ReduceCaptured),
-        Keybind::new_from_code(KeyCode::Char(']'), LoggerAction::IncreaseCaptured),
-        Keybind::new_from_code(KeyCode::Left, LoggerAction::ReduceShown),
-        Keybind::new_from_code(KeyCode::Right, LoggerAction::IncreaseShown),
-        Keybind::new_from_code(KeyCode::Up, LoggerAction::Up),
-        Keybind::new_from_code(KeyCode::Down, LoggerAction::Down),
-        Keybind::new_from_code(KeyCode::PageUp, LoggerAction::PageUp),
-        Keybind::new_from_code(KeyCode::PageDown, LoggerAction::PageDown),
-        Keybind::new_from_code(KeyCode::Char(' '), LoggerAction::ToggleHideFiltered),
-        Keybind::new_from_code(KeyCode::Esc, LoggerAction::ExitPageMode),
-        Keybind::new_from_code(KeyCode::Char('f'), LoggerAction::ToggleTargetFocus),
-        Keybind::new_from_code(KeyCode::Char('h'), LoggerAction::ToggleTargetSelector),
+        KeyCommand::new_global_from_code(KeyCode::F(5), LoggerAction::ViewBrowser),
+        KeyCommand::new_from_code(KeyCode::Char('['), LoggerAction::ReduceCaptured),
+        KeyCommand::new_from_code(KeyCode::Char(']'), LoggerAction::IncreaseCaptured),
+        KeyCommand::new_from_code(KeyCode::Left, LoggerAction::ReduceShown),
+        KeyCommand::new_from_code(KeyCode::Right, LoggerAction::IncreaseShown),
+        KeyCommand::new_from_code(KeyCode::Up, LoggerAction::Up),
+        KeyCommand::new_from_code(KeyCode::Down, LoggerAction::Down),
+        KeyCommand::new_from_code(KeyCode::PageUp, LoggerAction::PageUp),
+        KeyCommand::new_from_code(KeyCode::PageDown, LoggerAction::PageDown),
+        KeyCommand::new_from_code(KeyCode::Char(' '), LoggerAction::ToggleHideFiltered),
+        KeyCommand::new_from_code(KeyCode::Esc, LoggerAction::ExitPageMode),
+        KeyCommand::new_from_code(KeyCode::Char('f'), LoggerAction::ToggleTargetFocus),
+        KeyCommand::new_from_code(KeyCode::Char('h'), LoggerAction::ToggleTargetSelector),
     ]
 }
 

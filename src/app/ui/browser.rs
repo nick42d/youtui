@@ -8,11 +8,9 @@ use crate::app::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
-    view::{
-        DrawableMut, Scrollable, SortDirection, SortableTableView, TableSortCommand, TableView,
-    },
+    view::{DrawableMut, Scrollable},
 };
-use crate::{app::component::actionhandler::Keybind, core::send_or_error};
+use crate::{app::keycommand::KeyCommand, core::send_or_error};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
@@ -49,7 +47,7 @@ pub struct Browser {
     pub prev_input_routing: InputRouting,
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
-    keybinds: Vec<Keybind<BrowserAction>>,
+    keybinds: Vec<KeyCommand<BrowserAction>>,
 }
 
 impl InputRouting {
@@ -155,7 +153,9 @@ impl DrawableMut for Browser {
     }
 }
 impl KeyRouter<BrowserAction> for Browser {
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(
             self.keybinds
                 .iter()
@@ -165,7 +165,7 @@ impl KeyRouter<BrowserAction> for Browser {
     }
 }
 impl KeyHandler<BrowserAction> for Browser {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Keybind<BrowserAction>> + 'a> {
+    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         let additional_binds = match self.input_routing {
             InputRouting::Song => Some(self.album_songs_list.get_keybinds()),
             InputRouting::Artist => Some(self.artist_list.get_keybinds()),
@@ -478,11 +478,11 @@ impl Browser {
     }
 }
 
-fn browser_keybinds() -> Vec<Keybind<BrowserAction>> {
+fn browser_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(5), BrowserAction::ViewPlaylist),
-        Keybind::new_global_from_code(KeyCode::F(2), BrowserAction::ToggleSearch),
-        Keybind::new_from_code(KeyCode::Left, BrowserAction::Left),
-        Keybind::new_from_code(KeyCode::Right, BrowserAction::Right),
+        KeyCommand::new_global_from_code(KeyCode::F(5), BrowserAction::ViewPlaylist),
+        KeyCommand::new_global_from_code(KeyCode::F(2), BrowserAction::ToggleSearch),
+        KeyCommand::new_from_code(KeyCode::Left, BrowserAction::Left),
+        KeyCommand::new_from_code(KeyCode::Right, BrowserAction::Right),
     ]
 }

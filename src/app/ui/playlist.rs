@@ -5,8 +5,9 @@ use crate::app::view::{BasicConstraint, DrawableMut, SortableTableView, TableIte
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Keybind, TextHandler,
+        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, TextHandler,
     },
+    keycommand::KeyCommand,
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{AppCallback, WindowContext},
 };
@@ -32,7 +33,7 @@ pub struct Playlist {
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
     pub help_shown: bool,
-    keybinds: Vec<Keybind<PlaylistAction>>,
+    keybinds: Vec<KeyCommand<PlaylistAction>>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -69,18 +70,14 @@ impl Action for PlaylistAction {
 impl KeyHandler<PlaylistAction> for Playlist {
     fn get_keybinds<'a>(
         &'a self,
-    ) -> Box<
-        dyn Iterator<Item = &'a crate::app::component::actionhandler::Keybind<PlaylistAction>> + 'a,
-    > {
+    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
         Box::new(self.keybinds.iter())
     }
 }
 impl KeyRouter<PlaylistAction> for Playlist {
     fn get_all_keybinds<'a>(
         &'a self,
-    ) -> Box<
-        dyn Iterator<Item = &'a crate::app::component::actionhandler::Keybind<PlaylistAction>> + 'a,
-    > {
+    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
         self.get_keybinds()
     }
 }
@@ -540,14 +537,14 @@ impl Playlist {
     }
 }
 
-fn playlist_keybinds() -> Vec<Keybind<PlaylistAction>> {
+fn playlist_keybinds() -> Vec<KeyCommand<PlaylistAction>> {
     vec![
-        Keybind::new_global_from_code(KeyCode::F(5), PlaylistAction::ViewBrowser),
-        Keybind::new_hidden_from_code(KeyCode::Down, PlaylistAction::Down),
-        Keybind::new_hidden_from_code(KeyCode::Up, PlaylistAction::Up),
-        Keybind::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
-        Keybind::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
-        Keybind::new_action_only_mode(
+        KeyCommand::new_global_from_code(KeyCode::F(5), PlaylistAction::ViewBrowser),
+        KeyCommand::new_hidden_from_code(KeyCode::Down, PlaylistAction::Down),
+        KeyCommand::new_hidden_from_code(KeyCode::Up, PlaylistAction::Up),
+        KeyCommand::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
+        KeyCommand::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
+        KeyCommand::new_action_only_mode(
             vec![
                 (KeyCode::Enter, PlaylistAction::PlaySelected),
                 (KeyCode::Char('d'), PlaylistAction::DeleteSelected),

@@ -20,6 +20,7 @@ use ui::YoutuiWindow;
 use ytmapi_rs::{ChannelID, VideoID};
 
 mod component;
+mod keycommand;
 mod musiccache;
 mod server;
 mod structures;

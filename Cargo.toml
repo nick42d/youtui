@@ -28,3 +28,6 @@ rodio = { version = "0.17.2", features = ["symphonia-all"] }
 directories = "5.0.1"
 gag = "1.0.0"
 toml = "0.8.8"
+# For intersperse feature. RFC in progress to bring to std
+# https://github.com/rust-lang/rust/issues/79524
+itertools = "0.12.0"
