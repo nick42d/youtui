@@ -71,6 +71,7 @@ pub trait KeyDisplayer {
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
     /// Get a context-specific list of all keybinds marked global.
+    // TODO: Put under DisplayableKeyHandler
     fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
