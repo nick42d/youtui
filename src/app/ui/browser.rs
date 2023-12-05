@@ -147,8 +147,8 @@ impl DrawableMut for Browser {
             f,
             self,
             chunk,
-            &mut mutable_state.browser_artists,
-            &mut mutable_state.browser_album_songs,
+            &mut mutable_state.browser_artists_state,
+            &mut mutable_state.browser_album_songs_state,
         );
     }
 }

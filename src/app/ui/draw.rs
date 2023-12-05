@@ -1,7 +1,9 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::DisplayableKeyRouter;
 use crate::app::view::{Drawable, DrawableMut};
-use crate::drawutils::{left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TEXT_COLOUR};
+use crate::drawutils::{
+    highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+};
 use ratatui::prelude::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Clear, Row, Table};
@@ -34,7 +36,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
                 .draw_mut_chunk(f, base_layout[1], &mut w.mutable_state)
         }
     }
-    if w.help_shown {
+    if w.help.shown {
         draw_help(f, w, base_layout[1]);
     }
     if w.key_pending() {
@@ -97,35 +99,40 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     f.render_widget(block, area);
 }
 
-fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk: Rect) {
+fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
-    // Collect to a Vec so we can create more iterators. Dynamically dispatched Iterator can't be cloned.
-    let commands: Vec<_> = context
-        .get_all_visible_keybinds_as_readable_iter()
-        .collect();
-    // Get the maximum length of each element in the tuple vector created above.
-    let (mut s_len, mut c_len, mut d_len) = commands
-        .iter()
+    // Set up mutable state
+    w.mutable_state.help_state.select(Some(w.help.cur));
+    let commands = w.get_all_visible_keybinds_as_readable_iter();
+    // Get the maximum length of each element in the tuple vector created above, as well as the number of items.
+    let (mut s_len, mut c_len, mut d_len, items) = commands
         .map(|(s, c, d)| (s.len(), c.len(), d.len()))
-        .fold((0, 0, 0), |(smax, cmax, dmax), (s, c, d)| {
-            (smax.max(s), cmax.max(c), dmax.max(d))
+        .fold((0, 0, 0, 0), |(smax, cmax, dmax, n), (s, c, d)| {
+            (smax.max(s), cmax.max(c), dmax.max(d), n + 1)
         });
     // Ensure the width of each column is at least as wide as header.
     (s_len, c_len, d_len) = (s_len.max(3), c_len.max(7), d_len.max(7));
     // Total block width required, including padding and borders.
     let width = s_len + c_len + d_len + 4;
     // Total block height required, including header and borders.
-    let height = commands.len() + 3;
+    let height = items + 3;
     // Naive implementation
-    let commands_table = commands.iter().map(|(s, c, d)| {
-        Row::new(vec![s.as_ref(), c.as_ref(), d.as_ref()]).style(Style::new().fg(TEXT_COLOUR))
-    });
+    let commands_table: Vec<_> = w
+        .get_all_visible_keybinds_as_readable_iter()
+        .map(|(s, c, d)| {
+            // Allocate to avoid collision with the mutable state used below.
+            // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
+            Row::new(vec![s.to_string(), c.to_string(), d.to_string()])
+                .style(Style::new().fg(TEXT_COLOUR))
+        })
+        .collect();
     let table_constraints = [
         Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(c_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(d_len.try_into().unwrap_or(u16::MAX)),
     ];
     let block = Table::new(commands_table)
+        .highlight_style(highlight_style())
         .header(Row::new(vec!["Key", "Context", "Command"]))
         .block(
             Block::default()
@@ -141,5 +148,5 @@ fn draw_help<D: DisplayableKeyRouter + ?Sized>(f: &mut Frame, context: &D, chunk
         chunk,
     );
     f.render_widget(Clear, area);
-    f.render_widget(block, area);
+    f.render_stateful_widget(block, area, &mut w.mutable_state.help_state);
 }

@@ -1,6 +1,6 @@
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
-    style::Color,
+    style::{Color, Style},
 };
 
 // Standard app colour scheme
@@ -58,6 +58,11 @@ pub fn bottom_of_rect(r: Rect) -> Rect {
         width: r.width - 2,
         height: 1,
     }
+}
+
+/// Return the standard list / table highlight style
+pub fn highlight_style() -> Style {
+    Style::new().bg(ROW_HIGHLIGHT_COLOUR)
 }
 
 mod tests {
