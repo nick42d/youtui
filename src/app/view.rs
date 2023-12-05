@@ -27,6 +27,8 @@ enum _TableFilter {
 }
 enum _Filter {
     Contains(String),
+    NotContains(String),
+    Equal(String),
 }
 
 pub enum BasicConstraint {

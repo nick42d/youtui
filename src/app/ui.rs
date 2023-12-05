@@ -79,6 +79,7 @@ pub struct YoutuiMutableState {
     pub playlist_state: TableState,
 }
 
+// We can't implemnent KeyRouter, as it would require us to have a single Action type for the whole application.
 impl DisplayableKeyRouter for YoutuiWindow {
     // XXX: Can turn these boxed iterators into types.
     fn get_all_keybinds_as_readable_iter<'a>(
@@ -115,25 +116,20 @@ impl DisplayableKeyRouter for YoutuiWindow {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
-                    .get_keybinds()
-                    .filter(|kb| kb.visibility == CommandVisibility::Global)
+                    .get_global_keybinds()
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
-                    .get_keybinds()
-                    .filter(|kb| kb.visibility == CommandVisibility::Global)
+                    .get_global_keybinds()
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
-            WindowContext::Logs => Box::new(
-                self.logger
-                    .get_keybinds()
-                    .filter(|kb| kb.visibility == CommandVisibility::Global)
-                    .map(|kb| kb.as_readable()),
-            )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+            WindowContext::Logs => {
+                Box::new(self.logger.get_global_keybinds().map(|kb| kb.as_readable()))
+                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
+            }
         };
         Box::new(kb.chain(cx))
     }
@@ -150,22 +146,19 @@ impl DisplayableKeyRouter for YoutuiWindow {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
-                    .get_all_keybinds()
-                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
+                    .get_all_visible_keybinds()
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
-                    .get_all_keybinds()
-                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
+                    .get_all_visible_keybinds()
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
             WindowContext::Logs => Box::new(
                 self.logger
-                    .get_all_keybinds()
-                    .filter(|kb| kb.visibility != CommandVisibility::Hidden)
+                    .get_all_visible_keybinds()
                     .map(|kb| kb.as_readable()),
             )
                 as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,

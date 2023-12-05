@@ -1,17 +1,24 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::DisplayableKeyRouter;
-use crate::app::view::{Drawable, DrawableMut};
+use crate::app::view::draw::draw_panel;
+use crate::app::view::{basic_constraints_to_constraints, BasicConstraint, Drawable, DrawableMut};
 use crate::drawutils::{
-    highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
+    TEXT_COLOUR,
 };
-use ratatui::prelude::Rect;
-use ratatui::style::{Color, Style};
-use ratatui::widgets::{Block, Borders, Clear, Row, Table};
+use ratatui::prelude::{Margin, Rect};
+use ratatui::style::{Modifier, Style};
+use ratatui::symbols::{block, line};
+use ratatui::widgets::{
+    Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
+};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     terminal::Frame,
 };
+use std::borrow::Cow;
 
+// Add tests to try and draw app with oddly sized windows.
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     let base_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -101,8 +108,6 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
 
 fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
-    // Set up mutable state
-    w.mutable_state.help_state.select(Some(w.help.cur));
     let commands = w.get_all_visible_keybinds_as_readable_iter();
     // Get the maximum length of each element in the tuple vector created above, as well as the number of items.
     let (mut s_len, mut c_len, mut d_len, items) = commands
@@ -120,10 +125,11 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     let commands_table: Vec<_> = w
         .get_all_visible_keybinds_as_readable_iter()
         .map(|(s, c, d)| {
-            // Allocate to avoid collision with the mutable state used below.
-            // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
+            // TODO: Remove vec allocation?
             Row::new(vec![s.to_string(), c.to_string(), d.to_string()])
                 .style(Style::new().fg(TEXT_COLOUR))
+            // Allocate to avoid collision with the mutable state used below.
+            // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
         })
         .collect();
     let table_constraints = [
@@ -131,22 +137,74 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
         Constraint::Min(c_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(d_len.try_into().unwrap_or(u16::MAX)),
     ];
-    let block = Table::new(commands_table)
-        .highlight_style(highlight_style())
-        .header(Row::new(vec!["Key", "Context", "Command"]))
-        .block(
-            Block::default()
-                // TODO: Remove borrow.
-                .title("Help")
-                .borders(Borders::ALL)
-                .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
-        )
-        .widths(&table_constraints);
+    let headings = ["Key", "Context", "Command"];
     let area = left_bottom_corner_rect(
         height.try_into().unwrap_or(u16::MAX),
         width.try_into().unwrap_or(u16::MAX),
         chunk,
     );
     f.render_widget(Clear, area);
-    f.render_stateful_widget(block, area, &mut w.mutable_state.help_state);
+    draw_generic_scrollable_table(
+        f,
+        commands_table,
+        "Help".into(),
+        w.help.cur,
+        items,
+        &table_constraints,
+        &headings,
+        area,
+        &mut w.mutable_state.help_state,
+        true,
+    );
+}
+
+fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
+    f: &mut Frame,
+    table_items: T,
+    title: Cow<str>,
+    cur: usize,
+    len: usize,
+    layout: &[Constraint], // Can this be done better?
+    headings: &[&'static str],
+    chunk: Rect,
+    state: &mut TableState,
+    selected: bool,
+) {
+    // TODO: theming
+    // Set the state to the currently selected item.
+    state.select(Some(cur));
+    // Minus for height of block and heading.
+    let table_height = chunk.height.saturating_sub(4) as usize;
+    let headings_iter = headings.iter().map(|h| *h);
+    let table_widget = Table::new(table_items)
+        .highlight_style(highlight_style())
+        .header(
+            Row::new(headings_iter).style(
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(TABLE_HEADINGS_COLOUR),
+            ),
+        )
+        .widths(layout)
+        .column_spacing(1);
+    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+        .thumb_symbol(block::FULL)
+        .track_symbol(Some(line::VERTICAL))
+        .begin_symbol(None)
+        .end_symbol(None);
+    let scrollable_lines = len.saturating_sub(table_height);
+    let inner_chunk = draw_panel(f, title, chunk, selected);
+    f.render_stateful_widget(table_widget, inner_chunk, state);
+    // Call this after rendering table, as offset is mutated.
+    let mut scrollbar_state = ScrollbarState::default()
+        .position(state.offset().min(scrollable_lines))
+        .content_length(scrollable_lines);
+    f.render_stateful_widget(
+        scrollbar,
+        chunk.inner(&Margin {
+            vertical: 1,
+            horizontal: 0,
+        }),
+        &mut scrollbar_state,
+    )
 }

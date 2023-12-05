@@ -2,7 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
-use crate::app::keycommand::{KeyCommand, Keymap};
+use crate::app::keycommand::{CommandVisibility, KeyCommand, Keymap};
 
 // An action that can be sent to a component.
 pub trait Action {
@@ -15,14 +15,31 @@ pub trait KeyHandler<A: Action> {
     // XXX: This doesn't work recursively as children could contain different Action types.
     // Consider a different approach.
     fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    fn get_global_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
+        Box::new(
+            self.get_keybinds()
+                .filter(|kb| kb.visibility == CommandVisibility::Global),
+        )
+    }
 }
 /// A component of the application that has different keybinds depending on what is focussed.
 /// For example, keybinds for browser may differ depending on selected pane.
+/// A keyrouter does not necessarily need to be a keyhandler and vice-versa.
+/// e.g a component that routes all keys and doesn't have its own commands,
+/// Or a component that handles but does not route.
 /// Not every KeyHandler is a KeyRouter - e.g the individual panes themselves.
-// Could possibly be a part of EventHandler instead.
-pub trait KeyRouter<A: Action>: KeyHandler<A> {
+/// NOTE: To implment this, the component can only have a single Action type.
+// XXX: Could possibly be a part of EventHandler instead.
+// XXX: Does this actually need to be a keyhandler?
+pub trait KeyRouter<A: Action> {
     /// Get the list of keybinds that the KeyHandler and any child items can contain.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    fn get_all_visible_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
+        Box::new(
+            self.get_all_keybinds()
+                .filter(|kb| kb.visibility != CommandVisibility::Hidden),
+        )
+    }
 }
 /// A component of the application that can block parent keybinds.
 /// For example, a modal dialog that will prevent other inputs.
@@ -46,14 +63,10 @@ pub trait DisplayableKeyRouter {
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
     /// Get a context-specific list of all keybinds marked global.
+    // TODO: Put under DisplayableKeyHandler
     fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
-}
-/// A component of the application that handles actions.
-/// Where an action is a message specifically sent to the component.
-pub trait ActionHandler<A: Action + Clone> {
-    async fn handle_action(&mut self, action: &A);
 }
 /// A component of the application that handles text entry.
 // TODO: Cursor position and movement.
@@ -101,6 +114,12 @@ pub enum KeyHandleOutcome {
     ActionHandled,
     Mode,
     NoMap,
+}
+/// A component of the application that handles actions.
+/// Where an action is a message specifically sent to the component.
+/// Consider if this should be inside ActionProcessor
+pub trait ActionHandler<A: Action + Clone> {
+    async fn handle_action(&mut self, action: &A);
 }
 /// A component of the application that can check if an action has occurred and act on it.
 // XXX: Not fully implemented yet, as ignores many event types by default e.g text..
