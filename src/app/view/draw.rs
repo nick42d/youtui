@@ -8,7 +8,7 @@ use crate::{
 };
 use ratatui::{
     prelude::{Margin, Rect},
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     symbols::{block, line},
     widgets::{
         Block, Borders, List, ListItem, ListState, Paragraph, Row, Scrollbar, ScrollbarOrientation,
