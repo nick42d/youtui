@@ -98,7 +98,7 @@ impl TextHandler for Playlist {
 
 impl DrawableMut for Playlist {
     fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: &mut YoutuiMutableState) {
-        draw_table(f, self, chunk, &mut mutable_state.playlist, true);
+        draw_table(f, self, chunk, &mut mutable_state.playlist_state, true);
     }
 }
 

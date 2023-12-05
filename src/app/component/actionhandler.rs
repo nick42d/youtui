@@ -21,14 +21,21 @@ pub trait KeyHandler<A: Action> {
 /// Not every KeyHandler is a KeyRouter - e.g the individual panes themselves.
 // Could possibly be a part of EventHandler instead.
 pub trait KeyRouter<A: Action>: KeyHandler<A> {
-    // Get the list of keybinds that the KeyHandler and any child items can contain.
+    /// Get the list of keybinds that the KeyHandler and any child items can contain.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+}
+/// A component of the application that can block parent keybinds.
+/// For example, a modal dialog that will prevent other inputs.
+pub trait DominantKeyRouter<A: Action>: KeyHandler<A> {
+    /// Return true if dominant keybinds are active.
+    fn dominant_keybinds_active(&self) -> bool;
 }
 /// A component of the application that has different keybinds depending on what is focussed.
 /// For example, keybinds for browser may differ depending on selected pane.
 /// Not every KeyHandler is a DisplayableKeyRouter - e.g the individual panes themselves.
 // Could possibly be a part of EventHandler instead.
 pub trait DisplayableKeyRouter {
+    // XXX: Can these all just be derived from KeyRouter?
     /// Get the list of all keybinds that the KeyHandler and any child items can contain, regardless of context.
     fn get_all_visible_keybinds_as_readable_iter<'a>(
         &'a self,
@@ -84,7 +91,7 @@ pub trait TextHandler {
         }
     }
 }
-// A next handler that can receive suggestions
+// A text handler that can receive suggestions
 // TODO: Seperate library and binary APIs
 pub trait Suggestable: TextHandler {
     fn get_search_suggestions(&self) -> &[SearchSuggestion];

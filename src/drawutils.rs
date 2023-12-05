@@ -58,7 +58,15 @@ pub fn bottom_of_rect(r: Rect) -> Rect {
     }
 }
 
+<<<<<<< HEAD
 #[cfg(test)]
+=======
+/// Return the standard list / table highlight style
+pub fn highlight_style() -> Style {
+    Style::new().bg(ROW_HIGHLIGHT_COLOUR)
+}
+
+>>>>>>> 5475f7e (Added selection to help menu)
 mod tests {
     use super::{below_left_rect, centered_rect, left_bottom_corner_rect};
     use ratatui::layout::Rect;

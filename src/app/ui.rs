@@ -58,16 +58,25 @@ pub struct YoutuiWindow {
     callback_tx: mpsc::Sender<AppCallback>,
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
-    help_shown: bool,
+    help: HelpMenu,
     mutable_state: YoutuiMutableState,
 }
 
 #[derive(Default)]
+pub struct HelpMenu {
+    shown: bool,
+    cur: usize,
+}
+
+// Mutable state for scrollable widgets.
+// This needs to be stored seperately so that we don't have concurrent mutable access.
+#[derive(Default)]
 pub struct YoutuiMutableState {
-    pub filter_list: ListState,
-    pub browser_album_songs: TableState,
-    pub browser_artists: ListState,
-    pub playlist: TableState,
+    pub filter_state: ListState,
+    pub help_state: TableState,
+    pub browser_album_songs_state: TableState,
+    pub browser_artists_state: ListState,
+    pub playlist_state: TableState,
 }
 
 impl DisplayableKeyRouter for YoutuiWindow {
@@ -183,7 +192,7 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => self.help_shown = !self.help_shown,
+            UIAction::ToggleHelp => self.help.shown = !self.help.shown,
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
         }
     }
@@ -264,7 +273,7 @@ impl YoutuiWindow {
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
-            help_shown: false,
+            help: Default::default(),
             mutable_state: Default::default(),
             callback_tx,
         }
