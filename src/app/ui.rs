@@ -84,7 +84,8 @@ impl Default for HelpMenu {
 
 impl Scrollable for HelpMenu {
     fn increment_list(&mut self, amount: isize) {
-        self.cur
+        self.cur = self
+            .cur
             .saturating_add_signed(amount)
             .min(self.len.saturating_sub(1));
     }
@@ -232,7 +233,7 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => self.help.shown = !self.help.shown,
+            UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
             UIAction::HelpUp => self.help.increment_list(-1),
             UIAction::HelpDown => self.help.increment_list(1),
@@ -348,7 +349,6 @@ impl YoutuiWindow {
     pub async fn handle_api_error(&mut self, e: Error) {
         send_or_error(&self.callback_tx, AppCallback::HandleApiError(e)).await;
     }
-
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
@@ -459,7 +459,20 @@ impl YoutuiWindow {
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
     }
-
+    fn toggle_help(&mut self) {
+        if self.help.shown {
+            self.help.shown = false;
+        } else {
+            self.help.shown = true;
+            // Setup Help menu parameters
+            self.help.cur = 0;
+            // We have to get the keybind length this way as the help menu iterator is not ExactSized
+            self.help.len = self
+                .get_all_visible_keybinds_as_readable_iter()
+                .fold(0, |acc, _| acc + 1);
+            tracing::info!("Help length {}", self.help.len)
+        }
+    }
     /// Visually increment the volume, note, does not actually change the volume.
     fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
