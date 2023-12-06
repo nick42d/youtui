@@ -1,4 +1,4 @@
-use super::{structures::Percentage, ui::YoutuiMutableState};
+use super::{structures::Percentage, YoutuiMutableState};
 use crate::Result;
 use ratatui::{
     prelude::{Constraint, Rect},

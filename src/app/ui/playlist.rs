@@ -1,7 +1,7 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::app::structures::Percentage;
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut, SortableTableView, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::actionhandler::{
@@ -12,6 +12,7 @@ use crate::app::{
     ui::{AppCallback, WindowContext},
 };
 
+use crate::app::YoutuiMutableState;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
 use ratatui::{layout::Rect, terminal::Frame};
@@ -20,8 +21,6 @@ use std::sync::Arc;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
-
-use super::YoutuiMutableState;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;

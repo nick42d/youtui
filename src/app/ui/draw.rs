@@ -3,6 +3,7 @@ use crate::app::component::actionhandler::KeyDisplayer;
 use crate::app::keycommand::DisplayableCommand;
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
+use crate::app::YoutuiMutableState;
 use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
@@ -20,7 +21,7 @@ use ratatui::{
 use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.
-pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
+pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
     let base_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -35,17 +36,12 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
         .split(f.size());
     header::draw_header(f, w, base_layout[0]);
     match w.context {
-        WindowContext::Browser => w
-            .browser
-            .draw_mut_chunk(f, base_layout[1], &mut w.mutable_state),
+        WindowContext::Browser => w.browser.draw_mut_chunk(f, base_layout[1], m),
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
-        WindowContext::Playlist => {
-            w.playlist
-                .draw_mut_chunk(f, base_layout[1], &mut w.mutable_state)
-        }
+        WindowContext::Playlist => w.playlist.draw_mut_chunk(f, base_layout[1], m),
     }
     if w.help.shown {
-        draw_help(f, w, base_layout[1]);
+        draw_help(f, w, &mut m.help_state, base_layout[1]);
     }
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);
@@ -106,7 +102,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     f.render_widget(block, area);
 }
 
-fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
+fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
     let commands = w.get_all_visible_keybinds_as_readable_iter();
     // Get the maximum length of each element in the tuple vector created above, as well as the number of items.
@@ -132,26 +128,21 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Naive implementation
     // XXX: We're running get_all_visible_keybinds a second time here.
     // Better to move to the fold above.
-    let commands_table: Vec<_> = w
-        .get_all_visible_keybinds_as_readable_iter()
-        .map(
-            |DisplayableCommand {
-                 keybinds,
-                 context,
-                 description,
-             }| {
-                // TODO: Remove vec allocation?
-                Row::new(vec![
-                    keybinds.to_string(),
-                    context.to_string(),
-                    description.to_string(),
-                ])
-                .style(Style::new().fg(TEXT_COLOUR))
-                // Allocate to avoid collision with the mutable state used below.
-                // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
-            },
-        )
-        .collect();
+    let commands_table = w.get_all_visible_keybinds_as_readable_iter().map(
+        |DisplayableCommand {
+             keybinds,
+             context,
+             description,
+         }| {
+            // TODO: Remove vec allocation?
+            Row::new(vec![
+                keybinds.to_string(),
+                context.to_string(),
+                description.to_string(),
+            ])
+            .style(Style::new().fg(TEXT_COLOUR))
+        },
+    );
     let table_constraints = [
         Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(c_len.try_into().unwrap_or(u16::MAX)),
@@ -173,7 +164,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
         &table_constraints,
         &headings,
         area,
-        &mut w.mutable_state.help_state,
+        state,
         true,
     );
 }

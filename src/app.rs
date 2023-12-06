@@ -10,6 +10,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use ratatui::widgets::{ListState, TableState};
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
@@ -36,9 +37,21 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
+    window_mutable_state: YoutuiMutableState,
     task_manager: TaskManager,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
+}
+
+// Mutable state for scrollable widgets.
+// This needs to be stored seperately so that we don't have concurrent mutable access.
+#[derive(Default)]
+pub struct YoutuiMutableState {
+    pub filter_state: ListState,
+    pub help_state: TableState,
+    pub browser_album_songs_state: TableState,
+    pub browser_artists_state: ListState,
+    pub playlist_state: TableState,
 }
 
 #[derive(PartialEq)]
@@ -111,6 +124,7 @@ impl Youtui {
             terminal,
             event_handler,
             window_state,
+            window_mutable_state: Default::default(),
             task_manager,
             callback_rx,
         })
@@ -128,7 +142,7 @@ impl Youtui {
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to instantly react to.
                     self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &mut self.window_state);
+                        ui::draw::draw_app(f, &self.window_state, &mut self.window_mutable_state);
                     })?;
                 }
                 AppStatus::Exiting(s) => {

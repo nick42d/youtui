@@ -1,10 +1,11 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    Action, ActionHandler, ActionProcessor, KeyDisplayer, KeyHandleOutcome, KeyHandler, KeyRouter,
-    TextHandler,
+    Action, ActionHandler, ActionProcessor, DominantKeyHandler, DominantKeyRouter, KeyDisplayer,
+    KeyHandleOutcome, KeyHandler, KeyRouter, TextHandler,
 };
 use super::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
 use super::structures::*;
+use super::view::Scrollable;
 use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
@@ -46,6 +47,8 @@ pub enum UIAction {
     StepVolUp,
     StepVolDown,
     ToggleHelp,
+    HelpUp,
+    HelpDown,
     ViewLogs,
 }
 
@@ -59,24 +62,62 @@ pub struct YoutuiWindow {
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
-    mutable_state: YoutuiMutableState,
 }
 
-#[derive(Default)]
 pub struct HelpMenu {
     shown: bool,
     cur: usize,
+    len: usize,
+    keybinds: Vec<KeyCommand<UIAction>>,
 }
 
-// Mutable state for scrollable widgets.
-// This needs to be stored seperately so that we don't have concurrent mutable access.
-#[derive(Default)]
-pub struct YoutuiMutableState {
-    pub filter_state: ListState,
-    pub help_state: TableState,
-    pub browser_album_songs_state: TableState,
-    pub browser_artists_state: ListState,
-    pub playlist_state: TableState,
+impl Default for HelpMenu {
+    fn default() -> Self {
+        HelpMenu {
+            shown: Default::default(),
+            cur: Default::default(),
+            len: Default::default(),
+            keybinds: help_keybinds(),
+        }
+    }
+}
+
+impl Scrollable for HelpMenu {
+    fn increment_list(&mut self, amount: isize) {
+        self.cur
+            .saturating_add_signed(amount)
+            .min(self.len.saturating_sub(1));
+    }
+
+    fn get_selected_item(&self) -> usize {
+        self.cur
+    }
+}
+
+impl DominantKeyRouter for YoutuiWindow {
+    fn dominant_keybinds_active(&self) -> bool {
+        self.help.shown
+            || match self.context {
+                WindowContext::Browser => false,
+                WindowContext::Playlist => false,
+                WindowContext::Logs => false,
+            }
+    }
+}
+impl DominantKeyHandler<UIAction> for YoutuiWindow {
+    fn is_dominant_keybinds(&self) -> bool {
+        self.help.shown
+    }
+
+    fn get_dominant_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<UIAction>> + 'a> {
+        if self.help.shown {
+            Box::new(self.help.keybinds.iter())
+        } else {
+            Box::new(std::iter::empty())
+        }
+    }
 }
 
 // We can't implemnent KeyRouter, as it would require us to have a single Action type for the whole application.
@@ -140,6 +181,7 @@ impl KeyDisplayer for YoutuiWindow {
     fn get_all_visible_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
+        // Self.keybinds is incorrect
         let kb = self
             .keybinds
             .iter()
@@ -171,7 +213,11 @@ impl KeyDisplayer for YoutuiWindow {
 impl KeyHandler<UIAction> for YoutuiWindow {
     // XXX: Need to determine how this should really be implemented.
     fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<UIAction>> + 'a> {
-        Box::new(self.keybinds.iter())
+        if self.help.shown {
+            Box::new(self.help.keybinds.iter())
+        } else {
+            Box::new(self.keybinds.iter())
+        }
     }
 }
 
@@ -188,6 +234,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.help.shown = !self.help.shown,
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
+            UIAction::HelpUp => self.help.increment_list(-1),
+            UIAction::HelpDown => self.help.increment_list(1),
         }
     }
 }
@@ -202,6 +250,8 @@ impl Action for UIAction {
             UIAction::ToggleHelp => "Global".into(),
             UIAction::ViewLogs => "Global".into(),
             UIAction::Pause => "Global".into(),
+            UIAction::HelpUp => "Help".into(),
+            UIAction::HelpDown => "Help".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -214,6 +264,8 @@ impl Action for UIAction {
             UIAction::StepVolDown => "Vol Down".into(),
             UIAction::ToggleHelp => "Toggle Help".into(),
             UIAction::ViewLogs => "View Logs".into(),
+            UIAction::HelpUp => "Help".into(),
+            UIAction::HelpDown => "Help".into(),
         }
     }
 }
@@ -268,7 +320,6 @@ impl YoutuiWindow {
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help: Default::default(),
-            mutable_state: Default::default(),
             callback_tx,
         }
     }
@@ -375,18 +426,32 @@ impl YoutuiWindow {
     }
 
     async fn global_handle_key_stack(&mut self) {
-        // First handle my own keybinds, otherwise forward.
-        if let KeyHandleOutcome::ActionHandled =
-            // TODO: Remove allocation
-            self.handle_key_stack(self.key_stack.clone()).await
-        {
-            self.key_stack.clear()
-        } else if let KeyHandleOutcome::Mode = match self.context {
+        // First handle my own keybinds, otherwise forward if our keybinds are not dominant.
+        // TODO: Remove allocation
+        match self.handle_key_stack(self.key_stack.clone()).await {
+            KeyHandleOutcome::ActionHandled => {
+                self.key_stack.clear();
+                return;
+            }
+            KeyHandleOutcome::Mode => {
+                if self.is_dominant_keybinds() {
+                    return;
+                }
+            }
+            KeyHandleOutcome::NoMap => {
+                if self.is_dominant_keybinds() {
+                    self.key_stack.clear();
+                    return;
+                }
+            }
+        };
+        if let KeyHandleOutcome::Mode = match self.context {
             // TODO: Remove allocation
             WindowContext::Browser => self.browser.handle_key_stack(self.key_stack.clone()).await,
             WindowContext::Playlist => self.playlist.handle_key_stack(self.key_stack.clone()).await,
             WindowContext::Logs => self.logger.handle_key_stack(self.key_stack.clone()).await,
         } {
+            return;
         } else {
             self.key_stack.clear()
         }
@@ -493,5 +558,13 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
             KeyModifiers::CONTROL,
             UIAction::Quit,
         ),
+    ]
+}
+fn help_keybinds() -> Vec<KeyCommand<UIAction>> {
+    vec![
+        KeyCommand::new_hidden_from_code(KeyCode::Down, UIAction::HelpDown),
+        KeyCommand::new_hidden_from_code(KeyCode::Up, UIAction::HelpUp),
+        KeyCommand::new_hidden_from_code(KeyCode::Esc, UIAction::ToggleHelp),
+        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
     ]
 }

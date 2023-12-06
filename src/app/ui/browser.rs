@@ -2,13 +2,14 @@ use self::{
     artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
     draw::draw_browser,
 };
-use super::{AppCallback, WindowContext, YoutuiMutableState};
+use super::{AppCallback, WindowContext};
 use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
     view::{DrawableMut, Scrollable},
+    YoutuiMutableState,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
 use crossterm::event::KeyCode;
