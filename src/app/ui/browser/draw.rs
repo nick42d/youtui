@@ -1,5 +1,6 @@
-use super::artistalbums::AlbumSongsPanel;
-use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
+use super::artistalbums::albumsongs::AlbumSongsPanel;
+use super::artistalbums::artistsearch::ArtistInputRouting;
+use super::{Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::{SortableTableView, TableView};
@@ -24,22 +25,23 @@ pub fn draw_browser(
     chunk: Rect,
     artist_list_state: &mut ListState,
     album_songs_table_state: &mut TableState,
+    selected: bool,
 ) {
     let layout = Layout::new()
         .constraints([Constraint::Max(30), Constraint::Min(0)])
         .direction(ratatui::prelude::Direction::Horizontal)
         .split(chunk);
-    // XXX: Naive implementation.
-    let _albumsongsselected = browser.input_routing == InputRouting::Song;
-    let _artistselected =
-        !_albumsongsselected && browser.artist_list.route == ArtistInputRouting::List;
+    // Potentially could handle this better.
+    let albumsongsselected = selected && browser.input_routing == InputRouting::Song;
+    let artistselected =
+        !albumsongsselected && selected && browser.artist_list.route == ArtistInputRouting::List;
 
     if !browser.artist_list.search_popped {
         draw_list(
             f,
             &browser.artist_list,
             layout[0],
-            _artistselected,
+            artistselected,
             artist_list_state,
         );
     } else {
@@ -52,7 +54,7 @@ pub fn draw_browser(
             f,
             &browser.artist_list,
             s[1],
-            _artistselected,
+            artistselected,
             artist_list_state,
         );
         draw_sort_box(f, &browser, s[0]);
@@ -66,18 +68,16 @@ pub fn draw_browser(
         &browser.album_songs_list,
         layout[1],
         album_songs_table_state,
-        _albumsongsselected,
+        albumsongsselected,
     );
-    if browser.album_songs_list.sort.sort_popped {
+    if browser.album_songs_list.sort.shown {
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
 }
 
 // TODO: Generalize
 fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
-    let title_l = "Sort";
-    let title_r = "Clear: C / Cancel: Esc";
-    let footer = "Asc: Enter / Desc: Alt-Enter";
+    let title = "Sort";
     let sortable_columns = album_songs_panel.get_sortable_columns();
     let headers: Vec<_> = album_songs_panel
         .get_headings()
@@ -93,18 +93,16 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         // TODO: Remove allocation
         .collect();
     let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
-    let width = max_header_len.max(footer.len()) + 2;
+    let width = max_header_len.max(title.len()) + 2;
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
     // TODO: Save the state.
-    let mut state = ListState::default().with_selected(Some(album_songs_panel.sort.sort_cur));
+    let mut state = ListState::default().with_selected(Some(album_songs_panel.sort.cur));
     let list = List::new(headers)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .block(
             Block::new()
-                .title(title_l)
-                .title(Title::from(title_r).alignment(Alignment::Right))
-                .title(Title::from(footer).position(ratatui::widgets::block::Position::Bottom))
+                .title(title)
                 .borders(Borders::ALL)
                 .border_style(Style::new().fg(SELECTED_BORDER_COLOUR)),
         );

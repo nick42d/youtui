@@ -8,19 +8,6 @@ pub trait Action {
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
-/// A component of the application that has its own set of keybinds when focussed.
-pub trait KeyHandler<A: Action> {
-    /// Get the list of keybinds that are active for the KeyHandler.
-    // XXX: This doesn't work recursively as children could contain different Action types.
-    // Consider a different approach.
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
-    fn get_global_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
-        Box::new(
-            self.get_keybinds()
-                .filter(|kb| kb.visibility == CommandVisibility::Global),
-        )
-    }
-}
 /// A component of the application that has different keybinds depending on what is focussed.
 /// For example, keybinds for browser may differ depending on selected pane.
 /// A keyrouter does not necessarily need to be a keyhandler and vice-versa.
@@ -31,12 +18,24 @@ pub trait KeyHandler<A: Action> {
 // XXX: Could possibly be a part of EventHandler instead.
 // XXX: Does this actually need to be a keyhandler?
 pub trait KeyRouter<A: Action> {
-    /// Get the list of keybinds that the KeyHandler and any child items can contain.
+    /// Get the list of active keybinds that the component and its route contain.
+    fn get_routed_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    /// Get the list of keybinds that the component and any child items can contain, regardless of current route.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    // e.g - for use in help menu.
     fn get_all_visible_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
         Box::new(
             self.get_all_keybinds()
                 .filter(|kb| kb.visibility != CommandVisibility::Hidden),
+        )
+    }
+    // e.g - for use in header.
+    fn get_routed_global_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
+        Box::new(
+            self.get_routed_keybinds()
+                .filter(|kb| kb.visibility == CommandVisibility::Global),
         )
     }
 }
@@ -45,14 +44,6 @@ pub trait KeyRouter<A: Action> {
 pub trait DominantKeyRouter {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
-}
-/// A component of the application that can block parent keybinds, and has it's own keybinds.
-/// For example, a modal dialog that will prevent other inputs.
-pub trait DominantKeyHandler<A: Action> {
-    /// Return true if this component is emmitting dominant keybinds.
-    fn is_dominant_keybinds(&self) -> bool;
-    /// If is_dominant_keybinds, get the list of dominant keybinds the component is emmitting.
-    fn get_dominant_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
 }
 
 /// A component of the application that can display all it's keybinds.
@@ -118,31 +109,11 @@ pub trait Suggestable: TextHandler {
     fn get_search_suggestions(&self) -> &[SearchSuggestion];
     fn has_search_suggestions(&self) -> bool;
 }
-pub enum KeyHandleOutcome {
-    ActionHandled,
-    Mode,
-    NoMap,
-}
 /// A component of the application that handles actions.
 /// Where an action is a message specifically sent to the component.
 /// Consider if this should be inside ActionProcessor
 pub trait ActionHandler<A: Action + Clone> {
     async fn handle_action(&mut self, action: &A);
-}
-/// A component of the application that can check if an action has occurred and act on it.
-// XXX: Not fully implemented yet, as ignores many event types by default e.g text..
-pub trait ActionProcessor<A: Action + Clone>: ActionHandler<A> + KeyHandler<A> + Sized {
-    /// Return a list of the current keymap for the provided stack of key_codes.
-    /// Note, if multiple options are available returns the first one.
-    fn get_key_subset(&self, key_stack: &[KeyEvent]) -> Option<&Keymap<A>> {
-        get_key_subset(self.get_keybinds(), key_stack)
-    }
-    /// Try to handle the passed key_stack if it processes an action.
-    /// Returns if it was handle or why not. to see if an action would be taken.
-    /// If an action was taken, return true.
-    async fn handle_key_stack(&mut self, key_stack: Vec<KeyEvent>) -> KeyHandleOutcome {
-        handle_key_stack(&mut *self, key_stack).await
-    }
 }
 
 pub trait MouseHandler {
@@ -152,6 +123,18 @@ pub trait MouseHandler {
     }
 }
 
+/// The action to do after handling a key event
+pub enum KeyHandleAction<A: Action> {
+    Action(A),
+    Mode,
+    NoMap,
+}
+/// The action from handling a key event (no Action type required)
+pub enum KeyHandleOutcome {
+    Action,
+    Mode,
+    NoMap,
+}
 /// Return a list of the current keymap for the provided stack of key_codes.
 /// Note, if multiple options are available returns the first one.
 pub fn get_key_subset<'a, A: Action>(
@@ -161,32 +144,53 @@ pub fn get_key_subset<'a, A: Action>(
     let first = index_keybinds(binds, key_stack.get(0)?)?;
     index_keymap(first, key_stack.get(1..)?)
 }
+/// Check if key stack will result in an action for binds.
+// Requires returning an action type so can be awkward.
+pub fn handle_key_stack<'a, A>(
+    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
+    key_stack: Vec<KeyEvent>,
+) -> KeyHandleAction<A>
+where
+    A: Action + Clone,
+{
+    if let Some(subset) = get_key_subset(binds, &*key_stack) {
+        match &subset {
+            Keymap::Action(a) => {
+                // As Action is simply a message that is being passed around
+                // I am comfortable to clone it. Receiver should own the message.
+                // We may be able to improve on this using GATs or reference counting.
+                return KeyHandleAction::Action(a.clone());
+            }
+            Keymap::Mode(_) => return KeyHandleAction::Mode,
+        }
+    }
+    KeyHandleAction::NoMap
+}
 /// Try to handle the passed key_stack if it processes an action.
-/// Returns if it was handle or why not. to see if an action would be taken.
-/// If an action was taken, return true.
-pub async fn handle_key_stack<'a, A, B>(
+/// Returns if it was handled or why it was not.
+// Doesn't require returning an Action type.
+pub async fn handle_key_stack_and_action<'a, A, B>(
     handler: &mut B,
     key_stack: Vec<KeyEvent>,
 ) -> KeyHandleOutcome
 where
     A: Action + Clone,
-    B: ActionHandler<A> + KeyHandler<A>,
+    B: KeyRouter<A> + ActionHandler<A>,
 {
-    if let Some(subset) = get_key_subset(handler.get_keybinds(), &*key_stack) {
+    if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &*key_stack) {
         match &subset {
             Keymap::Action(a) => {
                 // As Action is simply a message that is being passed around
                 // I am comfortable to clone it. Receiver should own the message.
                 // We may be able to improve on this using GATs or reference counting.
                 handler.handle_action(&a.clone()).await;
-                return KeyHandleOutcome::ActionHandled;
+                return KeyHandleOutcome::Action;
             }
             Keymap::Mode(_) => return KeyHandleOutcome::Mode,
         }
     }
     KeyHandleOutcome::NoMap
 }
-
 /// If a list of Keybinds contains a binding for the index KeyEvent, return that KeyEvent.
 pub fn index_keybinds<'a, A: Action>(
     binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,

@@ -1,6 +1,6 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::KeyDisplayer;
-use crate::app::keycommand::DisplayableCommand;
+use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::app::YoutuiMutableState;
@@ -35,10 +35,16 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
         )
         .split(f.size());
     header::draw_header(f, w, base_layout[0]);
+    let context_selected = !w.help.shown && !w.key_pending();
     match w.context {
-        WindowContext::Browser => w.browser.draw_mut_chunk(f, base_layout[1], m),
-        WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1]),
-        WindowContext::Playlist => w.playlist.draw_mut_chunk(f, base_layout[1], m),
+        WindowContext::Browser => w
+            .browser
+            .draw_mut_chunk(f, base_layout[1], m, context_selected),
+        WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1], context_selected),
+        WindowContext::Playlist => {
+            w.playlist
+                .draw_mut_chunk(f, base_layout[1], m, context_selected)
+        }
     }
     if w.help.shown {
         draw_help(f, w, &mut m.help_state, base_layout[1]);
@@ -51,11 +57,11 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
     // If there are no commands, no need to draw anything.
-    let Some(title) = w.get_cur_mode_description() else {
-        return;
-    };
-    // If there are no commands, no need to draw anything.
-    let Some(commands) = w.get_cur_mode() else {
+    let Some(DisplayableMode {
+        displayable_commands: commands,
+        description: title,
+    }) = w.get_cur_displayable_mode()
+    else {
         return;
     };
     let shortcuts_descriptions = commands.collect::<Vec<_>>();

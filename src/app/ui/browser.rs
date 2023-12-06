@@ -1,11 +1,14 @@
 use self::{
-    artistalbums::{AlbumSongsPanel, ArtistAction, ArtistSearchPanel, ArtistSongsAction},
+    artistalbums::{
+        albumsongs::{AlbumSongsPanel, ArtistSongsAction},
+        artistsearch::{ArtistAction, ArtistSearchPanel},
+    },
     draw::draw_browser,
 };
 use super::{AppCallback, WindowContext};
 use crate::app::{
     component::actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, Suggestable, TextHandler,
+        Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     structures::ListStatus,
     view::{DrawableMut, Scrollable},
@@ -143,6 +146,7 @@ impl DrawableMut for Browser {
         f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
         mutable_state: &mut YoutuiMutableState,
+        selected: bool,
     ) {
         draw_browser(
             f,
@@ -150,6 +154,7 @@ impl DrawableMut for Browser {
             chunk,
             &mut mutable_state.browser_artists_state,
             &mut mutable_state.browser_album_songs_state,
+            selected,
         );
     }
 }
@@ -164,19 +169,23 @@ impl KeyRouter<BrowserAction> for Browser {
                 .chain(self.album_songs_list.get_all_keybinds()),
         )
     }
-}
-impl KeyHandler<BrowserAction> for Browser {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
+    fn get_routed_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         let additional_binds = match self.input_routing {
-            InputRouting::Song => Some(self.album_songs_list.get_keybinds()),
-            InputRouting::Artist => Some(self.artist_list.get_keybinds()),
+            InputRouting::Song => self.album_songs_list.get_routed_keybinds(),
+            InputRouting::Artist => self.artist_list.get_routed_keybinds(),
+        };
+        // TODO: Better implementation
+        if self.album_songs_list.dominant_keybinds_active()
+            || self.album_songs_list.dominant_keybinds_active()
+        {
+            additional_binds
+        } else {
+            Box::new(self.keybinds.iter().chain(additional_binds))
         }
-        .into_iter()
-        .flatten();
-        Box::new(self.keybinds.iter().chain(additional_binds))
     }
 }
-impl ActionProcessor<BrowserAction> for Browser {}
 impl ActionHandler<ArtistAction> for Browser {
     async fn handle_action(&mut self, action: &ArtistAction) {
         match action {
@@ -228,12 +237,20 @@ impl ActionHandler<BrowserAction> for Browser {
                 )
                 .await
             }
-            // TODO: fix routing changes etc
             BrowserAction::ToggleSearch => self.handle_toggle_search(),
         }
     }
-    // KeyCode::F(3) => self.artist_list.push_sort_command("test".to_owned()),
 }
+
+impl DominantKeyRouter for Browser {
+    fn dominant_keybinds_active(&self) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => false,
+            InputRouting::Song => self.album_songs_list.dominant_keybinds_active(),
+        }
+    }
+}
+
 impl Browser {
     pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         Self {
@@ -421,7 +438,7 @@ impl Browser {
         self.artist_list.list = artist_list;
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
-        self.increment_cur_list(0).await;
+        self.increment_cur_list(0);
     }
     pub fn handle_replace_search_suggestions(
         &mut self,
@@ -458,7 +475,7 @@ impl Browser {
         self.album_songs_list.list.cur_selected = Some(0);
         self.album_songs_list.list.state = ListStatus::InProgress;
     }
-    pub async fn increment_cur_list(&mut self, increment: isize) {
+    fn increment_cur_list(&mut self, increment: isize) {
         match self.input_routing {
             InputRouting::Artist => {
                 self.artist_list.increment_list(increment);

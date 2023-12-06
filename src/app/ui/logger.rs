@@ -1,7 +1,5 @@
 use crate::app::{
-    component::actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, TextHandler,
-    },
+    component::actionhandler::{Action, ActionHandler, KeyRouter, TextHandler},
     keycommand::KeyCommand,
     ui::AppCallback,
     view::Drawable,
@@ -59,14 +57,22 @@ pub struct Logger {
 }
 
 impl Drawable for Logger {
-    fn draw_chunk(&self, f: &mut Frame, chunk: Rect) {
-        draw_logger(f, self, chunk)
+    fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) {
+        draw_logger(f, self, chunk, selected)
     }
 }
 
-impl KeyHandler<LoggerAction> for Logger {
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
+impl KeyRouter<LoggerAction> for Logger {
+    // XXX: Duplication of effort here due to trait structure - not the worst.
+    fn get_routed_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
         Box::new(self.keybinds.iter())
+    }
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
+        self.get_routed_keybinds()
     }
 }
 
@@ -81,16 +87,6 @@ impl TextHandler for Logger {
     }
     fn replace_text(&mut self, _text: String) {}
 }
-
-impl KeyRouter<LoggerAction> for Logger {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
-        self.get_keybinds()
-    }
-}
-
-impl ActionProcessor<LoggerAction> for Logger {}
 
 impl ActionHandler<LoggerAction> for Logger {
     async fn handle_action(&mut self, action: &LoggerAction) {
@@ -184,50 +180,29 @@ fn logger_keybinds() -> Vec<KeyCommand<LoggerAction>> {
 }
 
 pub mod draw {
+    use super::Logger;
+    use crate::drawutils::{DESELECTED_BORDER_COLOUR, SELECTED_BORDER_COLOUR};
     use ratatui::{
-        prelude::{Constraint, Direction, Layout, Rect},
+        prelude::Rect,
         style::{Color, Style},
         Frame,
     };
 
-    use super::Logger;
-
-    pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect) {
+    pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect, selected: bool) {
+        let border_colour = if selected {
+            SELECTED_BORDER_COLOUR
+        } else {
+            DESELECTED_BORDER_COLOUR
+        };
         let log = tui_logger::TuiLoggerSmartWidget::default()
             .style_error(Style::default().fg(Color::Red))
             .style_debug(Style::default().fg(Color::Green))
             .style_warn(Style::default().fg(Color::Yellow))
             .style_trace(Style::default().fg(Color::Magenta))
             .style_info(Style::default().fg(Color::Cyan))
-            .border_style(Style::default().fg(Color::Cyan))
+            .border_style(Style::default().fg(border_colour))
             .state(&l.logger_state)
             .output_timestamp(Some("%H:%M:%S:%3f".to_string()));
         f.render_widget(log, chunk);
-    }
-    /// helper function to create a centered rect using up certain percentage of the available rect `r`
-    fn _centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-        let popup_layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(
-                [
-                    Constraint::Percentage((100 - percent_y) / 2),
-                    Constraint::Percentage(percent_y),
-                    Constraint::Percentage((100 - percent_y) / 2),
-                ]
-                .as_ref(),
-            )
-            .split(r);
-
-        Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Percentage((100 - percent_x) / 2),
-                    Constraint::Percentage(percent_x),
-                    Constraint::Percentage((100 - percent_x) / 2),
-                ]
-                .as_ref(),
-            )
-            .split(popup_layout[1])[1]
     }
 }

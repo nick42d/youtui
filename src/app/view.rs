@@ -1,3 +1,4 @@
+/// Traits related to viewable application components.
 use super::{structures::Percentage, YoutuiMutableState};
 use crate::Result;
 use ratatui::{
@@ -36,6 +37,7 @@ pub enum BasicConstraint {
     Percentage(Percentage),
 }
 
+// TODO: Add tests
 pub fn basic_constraints_to_constraints(
     basic_constraints: &[BasicConstraint],
     length: u16,
@@ -69,11 +71,19 @@ pub trait Scrollable {
     fn increment_list(&mut self, amount: isize);
     fn get_selected_item(&self) -> usize;
 }
+/// A struct that can either be scrolled or forward scroll commands to a component.
+// XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
+pub trait MaybeScrollable {
+    /// Try to increment the list by the selected amount, return true if command was handled.
+    fn increment_list(&mut self, amount: isize) -> bool;
+    /// Return true if a scrollable component in the application is active.
+    fn scrollable_component_active(&self) -> bool;
+}
 
-// A simple row in the table.
+/// A simple row in a table.
 pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
-// A struct that we are able to draw a table from using the underlying data.
+/// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
     // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a SortableTable), as possible we don't want to sort the Playlist (what happens to play order, for eg).
     // Could have a "commontitle" trait to prevent the need for this in both Table and List
@@ -114,26 +124,24 @@ pub trait FilterableList {
 // A drawable part of the application.
 pub trait Drawable {
     // Helper function to draw.
-    fn draw_chunk(&self, f: &mut Frame, chunk: Rect);
-    fn draw(&self, f: &mut Frame) {
-        self.draw_chunk(f, f.size());
+    fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
+    fn draw(&self, f: &mut Frame, selected: bool) {
+        self.draw_chunk(f, f.size(), selected);
     }
 }
 // A drawable part of the application that mutates its state on draw.
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: &mut YoutuiMutableState);
-    fn draw_mut(&self, f: &mut Frame, mutable_state: &mut YoutuiMutableState) {
-        self.draw_mut_chunk(f, f.size(), mutable_state);
-    }
-}
-// A selectable part of the application.
-pub trait Selectable: Drawable {
-    fn draw_selectable_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
-
-    fn draw_selectable(&self, f: &mut Frame, selected: bool) {
-        self.draw_selectable_chunk(f, f.size(), selected);
+    fn draw_mut_chunk(
+        &self,
+        f: &mut Frame,
+        chunk: Rect,
+        mutable_state: &mut YoutuiMutableState,
+        selected: bool,
+    );
+    fn draw_mut(&self, f: &mut Frame, mutable_state: &mut YoutuiMutableState, selected: bool) {
+        self.draw_mut_chunk(f, f.size(), mutable_state, selected);
     }
 }
 // A part of the application that can be in a Loading state.

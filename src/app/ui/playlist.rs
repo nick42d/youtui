@@ -4,9 +4,7 @@ use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
-    component::actionhandler::{
-        Action, ActionHandler, ActionProcessor, KeyHandler, KeyRouter, TextHandler,
-    },
+    component::actionhandler::{Action, ActionHandler, KeyRouter, TextHandler},
     keycommand::KeyCommand,
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{AppCallback, WindowContext},
@@ -66,22 +64,18 @@ impl Action for PlaylistAction {
     }
 }
 
-impl KeyHandler<PlaylistAction> for Playlist {
-    fn get_keybinds<'a>(
+impl KeyRouter<PlaylistAction> for Playlist {
+    fn get_all_keybinds<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
+        self.get_routed_keybinds()
+    }
+    fn get_routed_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
         Box::new(self.keybinds.iter())
     }
 }
-impl KeyRouter<PlaylistAction> for Playlist {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
-        self.get_keybinds()
-    }
-}
-
-impl ActionProcessor<PlaylistAction> for Playlist {}
 
 impl TextHandler for Playlist {
     fn push_text(&mut self, _c: char) {}
@@ -96,8 +90,14 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: &mut YoutuiMutableState) {
-        draw_table(f, self, chunk, &mut mutable_state.playlist_state, true);
+    fn draw_mut_chunk(
+        &self,
+        f: &mut Frame,
+        chunk: Rect,
+        mutable_state: &mut YoutuiMutableState,
+        selected: bool,
+    ) {
+        draw_table(f, self, chunk, &mut mutable_state.playlist_state, selected);
     }
 }
 

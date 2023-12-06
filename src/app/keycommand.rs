@@ -46,6 +46,10 @@ pub struct DisplayableCommand<'a> {
     pub context: Cow<'a, str>,
     pub description: Cow<'a, str>,
 }
+pub struct DisplayableMode<'a> {
+    pub displayable_commands: Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>,
+    pub description: Cow<'a, str>,
+}
 
 impl<'a, A: Action + 'a> From<&'a KeyCommand<A>> for DisplayableCommand<'a> {
     fn from(value: &'a KeyCommand<A>) -> Self {
@@ -189,6 +193,17 @@ impl<A: Action> KeyCommand<A> {
             keybinds: vec![Keybind { code, modifiers }],
             key_map: Keymap::Action(action),
             visibility: CommandVisibility::Standard,
+        }
+    }
+    pub fn new_global_modified_from_code(
+        code: KeyCode,
+        modifiers: KeyModifiers,
+        action: A,
+    ) -> KeyCommand<A> {
+        KeyCommand {
+            keybinds: vec![Keybind { code, modifiers }],
+            key_map: Keymap::Action(action),
+            visibility: CommandVisibility::Global,
         }
     }
     pub fn new_global_from_code(code: KeyCode, action: A) -> KeyCommand<A> {

@@ -1,9 +1,11 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    Action, ActionHandler, ActionProcessor, DominantKeyHandler, DominantKeyRouter, KeyDisplayer,
-    KeyHandleOutcome, KeyHandler, KeyRouter, TextHandler,
+    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ActionHandler,
+    DominantKeyRouter, KeyDisplayer, KeyHandleAction, KeyHandleOutcome, KeyRouter, TextHandler,
 };
-use super::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
+use super::keycommand::{
+    CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
+};
 use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
@@ -11,7 +13,6 @@ use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
@@ -99,25 +100,10 @@ impl DominantKeyRouter for YoutuiWindow {
     fn dominant_keybinds_active(&self) -> bool {
         self.help.shown
             || match self.context {
-                WindowContext::Browser => false,
+                WindowContext::Browser => self.browser.dominant_keybinds_active(),
                 WindowContext::Playlist => false,
                 WindowContext::Logs => false,
             }
-    }
-}
-impl DominantKeyHandler<UIAction> for YoutuiWindow {
-    fn is_dominant_keybinds(&self) -> bool {
-        self.help.shown
-    }
-
-    fn get_dominant_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<UIAction>> + 'a> {
-        if self.help.shown {
-            Box::new(self.help.keybinds.iter())
-        } else {
-            Box::new(std::iter::empty())
-        }
     }
 }
 
@@ -153,26 +139,28 @@ impl KeyDisplayer for YoutuiWindow {
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
         let kb = self
-            .keybinds
-            .iter()
-            .filter(|kb| kb.visibility == CommandVisibility::Global)
+            .get_this_keybinds()
+            .filter(|kc| kc.visibility == CommandVisibility::Global)
             .map(|kb| kb.as_displayable());
+        if self.is_dominant_keybinds() {
+            return Box::new(kb);
+        }
         let cx = match self.context {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
-                    .get_global_keybinds()
+                    .get_routed_global_keybinds()
                     .map(|kb| kb.as_displayable()),
             ) as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
-                    .get_global_keybinds()
+                    .get_routed_global_keybinds()
                     .map(|kb| kb.as_displayable()),
             )
                 as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Logs => Box::new(
                 self.logger
-                    .get_global_keybinds()
+                    .get_routed_global_keybinds()
                     .map(|kb| kb.as_displayable()),
             ) as Box<dyn Iterator<Item = DisplayableCommand>>,
         };
@@ -210,19 +198,6 @@ impl KeyDisplayer for YoutuiWindow {
         Box::new(kb.chain(cx))
     }
 }
-
-impl KeyHandler<UIAction> for YoutuiWindow {
-    // XXX: Need to determine how this should really be implemented.
-    fn get_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<UIAction>> + 'a> {
-        if self.help.shown {
-            Box::new(self.help.keybinds.iter())
-        } else {
-            Box::new(self.keybinds.iter())
-        }
-    }
-}
-
-impl ActionProcessor<UIAction> for YoutuiWindow {}
 
 impl ActionHandler<UIAction> for YoutuiWindow {
     async fn handle_action(&mut self, action: &UIAction) {
@@ -424,21 +399,32 @@ impl YoutuiWindow {
     pub fn handle_search_artist_error(&mut self) {
         self.browser.handle_search_artist_error();
     }
+    fn is_dominant_keybinds(&self) -> bool {
+        self.help.shown
+    }
+    fn get_this_keybinds(&self) -> Box<dyn Iterator<Item = &KeyCommand<UIAction>> + '_> {
+        Box::new(if self.help.shown {
+            Box::new(self.help.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
+        } else if self.dominant_keybinds_active() {
+            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
+        } else {
+            Box::new(self.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
+        })
+    }
 
     async fn global_handle_key_stack(&mut self) {
         // First handle my own keybinds, otherwise forward if our keybinds are not dominant.
         // TODO: Remove allocation
-        match self.handle_key_stack(self.key_stack.clone()).await {
-            KeyHandleOutcome::ActionHandled => {
+        match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
+            KeyHandleAction::Action(a) => {
+                self.handle_action(&a).await;
                 self.key_stack.clear();
                 return;
             }
-            KeyHandleOutcome::Mode => {
-                if self.is_dominant_keybinds() {
-                    return;
-                }
+            KeyHandleAction::Mode => {
+                return;
             }
-            KeyHandleOutcome::NoMap => {
+            KeyHandleAction::NoMap => {
                 if self.is_dominant_keybinds() {
                     self.key_stack.clear();
                     return;
@@ -447,9 +433,15 @@ impl YoutuiWindow {
         };
         if let KeyHandleOutcome::Mode = match self.context {
             // TODO: Remove allocation
-            WindowContext::Browser => self.browser.handle_key_stack(self.key_stack.clone()).await,
-            WindowContext::Playlist => self.playlist.handle_key_stack(self.key_stack.clone()).await,
-            WindowContext::Logs => self.logger.handle_key_stack(self.key_stack.clone()).await,
+            WindowContext::Browser => {
+                handle_key_stack_and_action(&mut self.browser, self.key_stack.clone()).await
+            }
+            WindowContext::Playlist => {
+                handle_key_stack_and_action(&mut self.playlist, self.key_stack.clone()).await
+            }
+            WindowContext::Logs => {
+                handle_key_stack_and_action(&mut self.logger, self.key_stack.clone()).await
+            }
         } {
             return;
         } else {
@@ -470,7 +462,6 @@ impl YoutuiWindow {
             self.help.len = self
                 .get_all_visible_keybinds_as_readable_iter()
                 .fold(0, |acc, _| acc + 1);
-            tracing::info!("Help length {}", self.help.len)
         }
     }
     /// Visually increment the volume, note, does not actually change the volume.
@@ -484,70 +475,52 @@ impl YoutuiWindow {
     fn _revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
     }
-    // TODO: also return Mode description.
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = DisplayableCommand> + 'a>> {
-        if let Some(map) = self.get_key_subset(&self.key_stack) {
+    fn get_cur_displayable_mode<'a>(&'a self) -> Option<DisplayableMode<'a>> {
+        if let Some(map) = get_key_subset(self.get_this_keybinds(), &self.key_stack) {
             if let Keymap::Mode(mode) = map {
-                return Some(mode.as_displayable_iter());
+                return Some(DisplayableMode {
+                    displayable_commands: mode.as_displayable_iter(),
+                    description: mode.describe(),
+                });
             }
         }
         match self.context {
             WindowContext::Browser => {
-                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
+                if let Some(map) =
+                    get_key_subset(self.browser.get_routed_keybinds(), &self.key_stack)
+                {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_displayable_iter());
+                        return Some(DisplayableMode {
+                            displayable_commands: mode.as_displayable_iter(),
+                            description: mode.describe(),
+                        });
                     }
                 }
             }
             WindowContext::Playlist => {
-                if let Some(map) = self.playlist.get_key_subset(&self.key_stack) {
+                if let Some(map) =
+                    get_key_subset(self.playlist.get_routed_keybinds(), &self.key_stack)
+                {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_displayable_iter());
+                        return Some(DisplayableMode {
+                            displayable_commands: mode.as_displayable_iter(),
+                            description: mode.describe(),
+                        });
                     }
                 }
             }
             WindowContext::Logs => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
+                if let Some(map) =
+                    get_key_subset(self.logger.get_routed_keybinds(), &self.key_stack)
+                {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_displayable_iter());
-                    }
-                }
-            }
-        }
-        None
-    }
-    // TODO: also return Mode description.
-    // The downside of this approach is that if draw_popup is calling this function,
-    // it is gettign called every tick.
-    // Consider a way to set this in the in state memory.
-    fn get_cur_mode_description(&self) -> Option<Cow<str>> {
-        if let Some(map) = self.get_key_subset(&self.key_stack) {
-            if let Keymap::Mode(mode) = map {
-                return Some(mode.describe());
-            }
-        }
-        match self.context {
-            WindowContext::Browser => {
-                if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.describe());
-                    }
-                }
-            }
-            WindowContext::Playlist => {
-                if let Some(map) = self.playlist.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.describe());
-                    }
-                }
-            }
-            WindowContext::Logs => {
-                if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(mode.describe());
+                        return Some(DisplayableMode {
+                            displayable_commands: mode.as_displayable_iter(),
+                            description: mode.describe(),
+                        });
                     }
                 }
             }
