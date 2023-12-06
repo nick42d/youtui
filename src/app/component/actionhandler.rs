@@ -1,8 +1,7 @@
+use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
-
-use crate::app::keycommand::{CommandVisibility, KeyCommand, Keymap};
 
 // An action that can be sent to a component.
 pub trait Action {
@@ -47,26 +46,26 @@ pub trait DominantKeyRouter<A: Action>: KeyHandler<A> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
 }
-/// A component of the application that has different keybinds depending on what is focussed.
-/// For example, keybinds for browser may differ depending on selected pane.
-/// Not every KeyHandler is a DisplayableKeyRouter - e.g the individual panes themselves.
+
+/// A component of the application that can display all it's keybinds.
+/// Not every KeyHandler/KeyRouter is a DisplayableKeyRouter - as DisplayAbleKeyRouter unables conversion of typed Actions to generic.
+// TODO: Type safety
 // Could possibly be a part of EventHandler instead.
-pub trait DisplayableKeyRouter {
+pub trait KeyDisplayer {
     // XXX: Can these all just be derived from KeyRouter?
     /// Get the list of all keybinds that the KeyHandler and any child items can contain, regardless of context.
     fn get_all_visible_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
-    /// Get the list of all non-hidden keybinds that the KeyHandler and any child items can contain
-    /// , regardless of context.
+    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
+    /// Get the list of all non-hidden keybinds that the KeyHandler and any child items can contain,
+    /// regardless of context.
     fn get_all_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
+    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
     /// Get a context-specific list of all keybinds marked global.
-    // TODO: Put under DisplayableKeyHandler
     fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a>;
+    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
 }
 /// A component of the application that handles text entry.
 // TODO: Cursor position and movement.

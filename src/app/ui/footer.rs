@@ -1,19 +1,18 @@
-use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
-    prelude::Alignment,
-    style::{Color, Modifier, Style},
-    terminal::Frame,
-    text::{Line, Span},
-    widgets::{block::Title, Block, Borders, Gauge, Paragraph},
-};
-use ytmapi_rs::common::youtuberesult::YoutubeResult;
-
 use crate::{
     app::structures::PlayState,
     drawutils::{
         BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR, TEXT_COLOUR,
     },
 };
+use ratatui::{
+    layout::{Constraint, Direction, Layout, Rect},
+    prelude::Alignment,
+    style::{Modifier, Style},
+    terminal::Frame,
+    text::{Line, Span},
+    widgets::{block::Title, Block, Borders, Gauge, Paragraph},
+};
+use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string

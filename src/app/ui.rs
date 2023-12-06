@@ -1,9 +1,9 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    Action, ActionHandler, ActionProcessor, DisplayableKeyRouter, KeyHandleOutcome, KeyHandler,
-    KeyRouter, TextHandler,
+    Action, ActionHandler, ActionProcessor, KeyDisplayer, KeyHandleOutcome, KeyHandler, KeyRouter,
+    TextHandler,
 };
-use super::keycommand::{CommandVisibility, KeyCommand, Keymap};
+use super::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
 use super::structures::*;
 use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
@@ -80,25 +80,28 @@ pub struct YoutuiMutableState {
 }
 
 // We can't implemnent KeyRouter, as it would require us to have a single Action type for the whole application.
-impl DisplayableKeyRouter for YoutuiWindow {
+impl KeyDisplayer for YoutuiWindow {
     // XXX: Can turn these boxed iterators into types.
     fn get_all_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
-        let kb = self.keybinds.iter().map(|kb| kb.as_readable());
+    ) -> Box<(dyn Iterator<Item = DisplayableCommand<'a>> + 'a)> {
+        let kb = self.keybinds.iter().map(|kb| kb.as_displayable());
         let cx = match self.context {
             // Consider if double boxing can be removed.
-            WindowContext::Browser => {
-                Box::new(self.browser.get_all_keybinds().map(|kb| kb.as_readable()))
-                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
-            }
-            WindowContext::Playlist => {
-                Box::new(self.playlist.get_all_keybinds().map(|kb| kb.as_readable()))
-                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
-            }
+            WindowContext::Browser => Box::new(
+                self.browser
+                    .get_all_keybinds()
+                    .map(|kb| kb.as_displayable()),
+            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
+            WindowContext::Playlist => Box::new(
+                self.playlist
+                    .get_all_keybinds()
+                    .map(|kb| kb.as_displayable()),
+            )
+                as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Logs => {
-                Box::new(self.logger.get_all_keybinds().map(|kb| kb.as_readable()))
-                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
+                Box::new(self.logger.get_all_keybinds().map(|kb| kb.as_displayable()))
+                    as Box<dyn Iterator<Item = DisplayableCommand>>
             }
         };
         Box::new(kb.chain(cx))
@@ -106,62 +109,60 @@ impl DisplayableKeyRouter for YoutuiWindow {
 
     fn get_context_global_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
+    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
         let kb = self
             .keybinds
             .iter()
             .filter(|kb| kb.visibility == CommandVisibility::Global)
-            .map(|kb| kb.as_readable());
+            .map(|kb| kb.as_displayable());
         let cx = match self.context {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
                     .get_global_keybinds()
-                    .map(|kb| kb.as_readable()),
-            )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+                    .map(|kb| kb.as_displayable()),
+            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
                     .get_global_keybinds()
-                    .map(|kb| kb.as_readable()),
+                    .map(|kb| kb.as_displayable()),
             )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
-            WindowContext::Logs => {
-                Box::new(self.logger.get_global_keybinds().map(|kb| kb.as_readable()))
-                    as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>
-            }
+                as Box<dyn Iterator<Item = DisplayableCommand>>,
+            WindowContext::Logs => Box::new(
+                self.logger
+                    .get_global_keybinds()
+                    .map(|kb| kb.as_displayable()),
+            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
         };
         Box::new(kb.chain(cx))
     }
 
     fn get_all_visible_keybinds_as_readable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
+    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
         let kb = self
             .keybinds
             .iter()
             .filter(|kb| kb.visibility != CommandVisibility::Hidden)
-            .map(|kb| kb.as_readable());
+            .map(|kb| kb.as_displayable());
         let cx = match self.context {
             // Consider if double boxing can be removed.
             WindowContext::Browser => Box::new(
                 self.browser
                     .get_all_visible_keybinds()
-                    .map(|kb| kb.as_readable()),
-            )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+                    .map(|kb| kb.as_displayable()),
+            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Playlist => Box::new(
                 self.playlist
                     .get_all_visible_keybinds()
-                    .map(|kb| kb.as_readable()),
+                    .map(|kb| kb.as_displayable()),
             )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+                as Box<dyn Iterator<Item = DisplayableCommand>>,
             WindowContext::Logs => Box::new(
                 self.logger
                     .get_all_visible_keybinds()
-                    .map(|kb| kb.as_readable()),
-            )
-                as Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)>>,
+                    .map(|kb| kb.as_displayable()),
+            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
         };
         Box::new(kb.chain(cx))
     }
@@ -409,31 +410,31 @@ impl YoutuiWindow {
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a>> {
+    fn get_cur_mode<'a>(&'a self) -> Option<Box<dyn Iterator<Item = DisplayableCommand> + 'a>> {
         if let Some(map) = self.get_key_subset(&self.key_stack) {
             if let Keymap::Mode(mode) = map {
-                return Some(mode.as_readable_short_iter());
+                return Some(mode.as_displayable_iter());
             }
         }
         match self.context {
             WindowContext::Browser => {
                 if let Some(map) = self.browser.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
+                        return Some(mode.as_displayable_iter());
                     }
                 }
             }
             WindowContext::Playlist => {
                 if let Some(map) = self.playlist.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
+                        return Some(mode.as_displayable_iter());
                     }
                 }
             }
             WindowContext::Logs => {
                 if let Some(map) = self.logger.get_key_subset(&self.key_stack) {
                     if let Keymap::Mode(mode) = map {
-                        return Some(mode.as_readable_short_iter());
+                        return Some(mode.as_displayable_iter());
                     }
                 }
             }

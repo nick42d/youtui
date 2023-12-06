@@ -1,7 +1,8 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::DisplayableKeyRouter;
+use crate::app::component::actionhandler::KeyDisplayer;
+use crate::app::keycommand::DisplayableCommand;
 use crate::app::view::draw::draw_panel;
-use crate::app::view::{basic_constraints_to_constraints, BasicConstraint, Drawable, DrawableMut};
+use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
@@ -62,29 +63,28 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
         return;
     };
     let shortcuts_descriptions = commands.collect::<Vec<_>>();
-    // Cloning here only clones iterators, so it's low-cost.
-    // let shortcut_len = shortcuts.clone().map(|s| s.len()).max().unwrap_or_default();
-    // let description_len = descriptions
-    //     .clone()
-    //     .map(|d| d.len())
-    //     .max()
-    //     .unwrap_or_default();
-    // XXX: temporary
-    let (shortcut_len, description_len) = shortcuts_descriptions
-        .iter()
-        .fold((0, 0), |(acc1, acc2), (s, c)| {
-            (s.len().max(acc1), c.len().max(acc2))
-        });
+    // TODO: Make commands_vec an iterator instead of a vec
+    let (shortcut_len, description_len, commands_vec) = shortcuts_descriptions.iter().fold(
+        (0, 0, Vec::new()),
+        |(acc1, acc2, mut commands_vec),
+         DisplayableCommand {
+             keybinds,
+             context: _,
+             description,
+         }| {
+            commands_vec.push(
+                Row::new(vec![format!("{}", keybinds), format!("{}", description)])
+                    .style(Style::new().fg(TEXT_COLOUR)),
+            );
+            (
+                keybinds.len().max(acc1),
+                description.len().max(acc2),
+                commands_vec,
+            )
+        },
+    );
     let width = shortcut_len + description_len + 3;
-    // let height = commands.len() + 2;
-    // XXX: temporary
-    let height = shortcuts_descriptions.len() + 2;
-    let mut commands_vec = Vec::new();
-    for (s, d) in shortcuts_descriptions {
-        commands_vec.push(
-            Row::new(vec![format!("{}", s), format!("{}", d)]).style(Style::new().fg(TEXT_COLOUR)),
-        );
-    }
+    let height = commands_vec.len() + 2;
     let table_constraints = [
         Constraint::Min(shortcut_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(description_len.try_into().unwrap_or(u16::MAX)),
@@ -110,8 +110,16 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
     let commands = w.get_all_visible_keybinds_as_readable_iter();
     // Get the maximum length of each element in the tuple vector created above, as well as the number of items.
+    // XXX: Probably don't need to map then fold, just fold.
+    // XXX: Fold closure could be written as a function, then becomes testable.
     let (mut s_len, mut c_len, mut d_len, items) = commands
-        .map(|(s, c, d)| (s.len(), c.len(), d.len()))
+        .map(
+            |DisplayableCommand {
+                 keybinds,
+                 context,
+                 description,
+             }| (keybinds.len(), context.len(), description.len()),
+        )
         .fold((0, 0, 0, 0), |(smax, cmax, dmax, n), (s, c, d)| {
             (smax.max(s), cmax.max(c), dmax.max(d), n + 1)
         });
@@ -122,15 +130,27 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Total block height required, including header and borders.
     let height = items + 3;
     // Naive implementation
+    // XXX: We're running get_all_visible_keybinds a second time here.
+    // Better to move to the fold above.
     let commands_table: Vec<_> = w
         .get_all_visible_keybinds_as_readable_iter()
-        .map(|(s, c, d)| {
-            // TODO: Remove vec allocation?
-            Row::new(vec![s.to_string(), c.to_string(), d.to_string()])
+        .map(
+            |DisplayableCommand {
+                 keybinds,
+                 context,
+                 description,
+             }| {
+                // TODO: Remove vec allocation?
+                Row::new(vec![
+                    keybinds.to_string(),
+                    context.to_string(),
+                    description.to_string(),
+                ])
                 .style(Style::new().fg(TEXT_COLOUR))
-            // Allocate to avoid collision with the mutable state used below.
-            // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
-        })
+                // Allocate to avoid collision with the mutable state used below.
+                // TODO: Remove allocation (Store mutable state outside of YoutuiWindow?)
+            },
+        )
         .collect();
     let table_constraints = [
         Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),

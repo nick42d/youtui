@@ -39,6 +39,24 @@ pub struct Mode<A: Action> {
     pub name: &'static str,
     pub commands: Vec<KeyCommand<A>>,
 }
+#[derive(PartialEq, Debug, Clone)]
+pub struct DisplayableCommand<'a> {
+    // XXX: Do we also want to display sub-keys in Modes?
+    pub keybinds: Cow<'a, str>,
+    pub context: Cow<'a, str>,
+    pub description: Cow<'a, str>,
+}
+
+impl<'a, A: Action + 'a> From<&'a KeyCommand<A>> for DisplayableCommand<'a> {
+    fn from(value: &'a KeyCommand<A>) -> Self {
+        // XXX: Do we also want to display sub-keys in Modes?
+        Self {
+            keybinds: value.to_string().into(),
+            context: value.context(),
+            description: value.describe(),
+        }
+    }
+}
 
 impl Keybind {
     fn new(code: KeyCode, modifiers: KeyModifiers) -> Self {
@@ -109,15 +127,10 @@ impl<A: Action> Mode<A> {
     pub fn describe(&self) -> Cow<str> {
         self.name.into()
     }
-    pub fn as_readable_short_iter<'a>(
+    pub fn as_displayable_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>)> + 'a> {
-        Box::new(self.commands.iter().map(|bind| bind.as_readable_short()))
-    }
-    pub fn _as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<str>, Cow<str>, Cow<str>)> + 'a> {
-        Box::new(self.commands.iter().map(|bind| bind.as_readable()))
+    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
+        Box::new(self.commands.iter().map(|bind| bind.as_displayable()))
     }
 }
 
@@ -135,12 +148,8 @@ impl<A: Action> KeyCommand<A> {
             Keymap::Mode(m) => m.describe(),
         }
     }
-    pub fn as_readable_short(&self) -> (Cow<str>, Cow<str>) {
-        (self.to_string().into(), self.describe())
-    }
-    pub fn as_readable(&self) -> (Cow<str>, Cow<str>, Cow<str>) {
-        // XXX: Do we also want to display sub-keys in Modes?
-        (self.to_string().into(), self.context(), self.describe())
+    pub fn as_displayable(&self) -> DisplayableCommand<'_> {
+        self.into()
     }
     pub fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         for kb in self.keybinds.iter() {

@@ -1,7 +1,7 @@
 use crate::{
     app::{
-        component::actionhandler::{Action, DisplayableKeyRouter, KeyHandler},
-        keycommand::CommandVisibility,
+        component::actionhandler::{Action, KeyDisplayer, KeyHandler},
+        keycommand::{CommandVisibility, DisplayableCommand},
     },
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
 };
@@ -34,17 +34,24 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
 
     let help_string = Line::from(
         keybinds
-            .flat_map(|(d, _, k)| {
-                vec![
-                    Span::styled(
-                        d,
-                        Style::default().bg(BUTTON_BG_COLOUR).fg(BUTTON_FG_COLOUR),
-                    ),
-                    Span::raw(" "),
-                    Span::raw(k),
-                    Span::raw(" "),
-                ]
-            })
+            .flat_map(
+                |DisplayableCommand {
+                     keybinds,
+                     description,
+                     ..
+                 }| {
+                    vec![
+                        Span::styled(
+                            keybinds,
+                            Style::default().bg(BUTTON_BG_COLOUR).fg(BUTTON_FG_COLOUR),
+                        ),
+                        Span::raw(" "),
+                        Span::raw(description),
+                        Span::raw(" "),
+                    ]
+                },
+            )
+            // XXX: Consider removing allocation
             .collect::<Vec<_>>(),
     );
 

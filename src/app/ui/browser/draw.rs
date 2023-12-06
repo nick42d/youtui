@@ -1,17 +1,17 @@
 use super::artistalbums::AlbumSongsPanel;
 use super::{artistalbums::ArtistInputRouting, Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
-use crate::app::view::draw::{draw_list, draw_sortable_table, draw_table};
+use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
 use ratatui::prelude::Alignment;
 use ratatui::widgets::block::Title;
-use ratatui::widgets::{TableState, Wrap};
+use ratatui::widgets::TableState;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
     Frame,
