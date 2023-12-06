@@ -22,43 +22,63 @@ pub enum SortDirection {
     Desc,
 }
 
-enum _TableFilter {
-    All(_Filter),
-    Column { filter: _Filter, column: usize },
+#[derive(Clone, Debug)]
+pub enum TableFilterCommand {
+    All(Filter),
+    Column { filter: Filter, column: usize },
 }
-enum _Filter {
+#[derive(Clone, Debug)]
+pub enum Filter {
     Contains(String),
     NotContains(String),
     Equal(String),
 }
 
+impl TableFilterCommand {
+    fn as_readable(&self) -> String {
+        match self {
+            TableFilterCommand::All(f) => format!("ALL{}", f.as_readable()),
+            TableFilterCommand::Column { filter, column } => {
+                format!("COL{}{}", column, filter.as_readable())
+            }
+        }
+    }
+}
+impl Filter {
+    fn as_readable(&self) -> String {
+        match self {
+            Filter::Contains(f) => format!("~{f}"),
+            Filter::NotContains(f) => format!("!={f}"),
+            Filter::Equal(f) => format!("={f}"),
+        }
+    }
+}
+
+/// Basic wrapper around constraint to allow mixing of percentage and length.
 pub enum BasicConstraint {
     Length(u16),
     Percentage(Percentage),
 }
 
-// TODO: Add tests
-pub fn basic_constraints_to_constraints(
+// TODO: Add more tests
+/// Use basic constraints to construct dynamic column widths for a table.
+pub fn basic_constraints_to_table_constraints(
     basic_constraints: &[BasicConstraint],
     length: u16,
     margin: u16,
 ) -> Vec<Constraint> {
-    let sum_lengths = basic_constraints
-        .iter()
-        .fold(0, |acc, c| {
-            acc + match c {
-                BasicConstraint::Length(l) => *l,
-                BasicConstraint::Percentage(_) => 0,
-            } + margin
-        })
-        // One less margin than number of rows.
-        .saturating_sub(1);
+    let sum_lengths = basic_constraints.iter().fold(0, |acc, c| {
+        acc + match c {
+            BasicConstraint::Length(l) => *l,
+            BasicConstraint::Percentage(_) => 0,
+        } + margin
+    });
     basic_constraints
         .iter()
         .map(|bc| match bc {
             BasicConstraint::Length(l) => Constraint::Length(*l),
             BasicConstraint::Percentage(p) => {
-                Constraint::Length(p.0 as u16 * (length.saturating_sub(sum_lengths)) / 100)
+                Constraint::Length(p.0 as u16 * length.saturating_sub(sum_lengths) / 100)
             }
         })
         .collect()
@@ -72,7 +92,7 @@ pub trait Scrollable {
     fn get_selected_item(&self) -> usize;
 }
 /// A struct that can either be scrolled or forward scroll commands to a component.
-// XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
+// To allow scrolling at a top level.
 pub trait MaybeScrollable {
     /// Try to increment the list by the selected amount, return true if command was handled.
     fn increment_list(&mut self, amount: isize) -> bool;
@@ -103,6 +123,11 @@ pub trait SortableTableView: TableView {
     /// This can fail if the TableSortCommand is not within the range of sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()>;
     fn clear_sort_commands(&mut self);
+    // Assuming a SortableTable is also Filterable.
+    fn get_filterable_columns(&self) -> &[usize];
+    fn get_filter_commands(&self) -> &[TableFilterCommand];
+    fn push_filter_command(&mut self, filter_command: TableFilterCommand);
+    fn clear_filter_commands(&mut self);
 }
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView: Scrollable + SortableList + Loadable {
@@ -147,4 +172,42 @@ pub trait DrawableMut {
 // A part of the application that can be in a Loading state.
 pub trait Loadable {
     fn is_loading(&self) -> bool;
+}
+
+#[cfg(test)]
+mod tests {
+    use ratatui::prelude::Constraint;
+
+    use super::{basic_constraints_to_table_constraints, BasicConstraint};
+    use crate::app::structures::Percentage;
+
+    #[test]
+    fn test_constraints() {
+        let basic_constraints = &[
+            BasicConstraint::Length(5),
+            BasicConstraint::Length(5),
+            BasicConstraint::Percentage(Percentage(100)),
+        ];
+        let constraints = vec![
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(10),
+        ];
+        let converted = basic_constraints_to_table_constraints(basic_constraints, 20, 0);
+        assert_eq!(converted, constraints);
+        let basic_constraints = &[
+            BasicConstraint::Length(5),
+            BasicConstraint::Length(5),
+            BasicConstraint::Percentage(Percentage(50)),
+            BasicConstraint::Percentage(Percentage(50)),
+        ];
+        let constraints = vec![
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+            Constraint::Length(5),
+        ];
+        let converted = basic_constraints_to_table_constraints(basic_constraints, 20, 0);
+        assert_eq!(converted, constraints);
+    }
 }

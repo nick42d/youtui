@@ -1,4 +1,4 @@
-use super::artistalbums::albumsongs::AlbumSongsPanel;
+use super::artistalbums::albumsongs::{AlbumSongsInputRouting, AlbumSongsPanel};
 use super::artistalbums::artistsearch::ArtistInputRouting;
 use super::{Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
@@ -7,8 +7,6 @@ use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
-use ratatui::prelude::Alignment;
-use ratatui::widgets::block::Title;
 use ratatui::widgets::TableState;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
@@ -32,7 +30,9 @@ pub fn draw_browser(
         .direction(ratatui::prelude::Direction::Horizontal)
         .split(chunk);
     // Potentially could handle this better.
-    let albumsongsselected = selected && browser.input_routing == InputRouting::Song;
+    let albumsongsselected = selected
+        && browser.input_routing == InputRouting::Song
+        && browser.album_songs_list.route == AlbumSongsInputRouting::List;
     let artistselected =
         !albumsongsselected && selected && browser.artist_list.route == ArtistInputRouting::List;
 
@@ -57,7 +57,7 @@ pub fn draw_browser(
             artistselected,
             artist_list_state,
         );
-        draw_sort_box(f, &browser, s[0]);
+        draw_search_box(f, &browser, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
             draw_search_suggestions(f, &browser, s[0], layout[0])
@@ -72,6 +72,9 @@ pub fn draw_browser(
     );
     if browser.album_songs_list.sort.shown {
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
+    }
+    if browser.album_songs_list.filter.shown {
+        draw_filter_popup(f, &browser.album_songs_list, layout[1]);
     }
 }
 
@@ -93,7 +96,8 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         // TODO: Remove allocation
         .collect();
     let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
-    let width = max_header_len.max(title.len()) + 2;
+    // List looks a bit nicer with a minimum width, so passing a hardcoded minimum here.
+    let width = max_header_len.max(title.len()).min(15) + 2;
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
     // TODO: Save the state.
@@ -110,17 +114,43 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
     f.render_stateful_widget(list, popup_chunk, &mut state);
 }
 
-fn draw_sort_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
-    let search_widget = Paragraph::new(browser.artist_list.search.search_contents.as_str()).block(
+fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+    let title = "Filter";
+    // Hardocde dimensions of filter input.
+    let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
+    f.render_widget(Clear, popup_chunk);
+    draw_text_box(
+        f,
+        title,
+        album_songs_panel.filter.filter_text.as_ref(),
+        album_songs_panel.filter.filter_cur,
+        popup_chunk,
+    );
+}
+
+/// Draw a text input box
+// TODO: Shift to a more general module.
+fn draw_text_box<S: AsRef<str>>(f: &mut Frame, title: S, contents: S, cur: usize, chunk: Rect) {
+    // TODO: Scrolling, if input larger than box.
+    let search_widget = Paragraph::new(contents.as_ref()).block(
         Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
-            .title("Search"),
+            .title(title.as_ref()),
     );
     f.render_widget(search_widget, chunk);
     f.set_cursor(
-        chunk.x + browser.artist_list.search.text_cur as u16 + 1,
+        (chunk.x + cur as u16 + 1).min(chunk.right().saturating_sub(2)),
         chunk.y + 1,
+    );
+}
+fn draw_search_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
+    draw_text_box(
+        f,
+        "Search",
+        browser.artist_list.search.search_contents.as_str(),
+        browser.artist_list.search.text_cur,
+        chunk,
     );
 }
 

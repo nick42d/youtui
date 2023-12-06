@@ -106,36 +106,40 @@ impl Suggestable for Browser {
 impl TextHandler for Browser {
     fn push_text(&mut self, c: char) {
         match self.input_routing {
-            InputRouting::Artist => self.artist_list.push_text(c),
-            InputRouting::Song => (),
+            InputRouting::Artist => {
+                self.artist_list.push_text(c);
+                // Should be on artist_list instead?
+                self.fetch_search_suggestions();
+            }
+            InputRouting::Song => self.album_songs_list.push_text(c),
         }
-        self.fetch_search_suggestions();
     }
     fn pop_text(&mut self) {
         match self.input_routing {
             InputRouting::Artist => {
                 self.artist_list.pop_text();
+                // Should be on artist_list instead?
+                self.fetch_search_suggestions();
             }
-            InputRouting::Song => (),
+            InputRouting::Song => self.album_songs_list.pop_text(),
         }
-        self.fetch_search_suggestions();
     }
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.is_text_handling(),
-            InputRouting::Song => false,
+            InputRouting::Song => self.album_songs_list.is_text_handling(),
         }
     }
     fn take_text(&mut self) -> String {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.take_text(),
-            InputRouting::Song => Default::default(),
+            InputRouting::Song => self.album_songs_list.take_text(),
         }
     }
     fn replace_text(&mut self, text: String) {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.replace_text(text),
-            InputRouting::Song => (),
+            InputRouting::Song => self.album_songs_list.replace_text(text),
         }
     }
 }
@@ -220,6 +224,9 @@ impl ActionHandler<ArtistSongsAction> for Browser {
             ArtistSongsAction::SortDown => self.album_songs_list.handle_sort_down(),
             ArtistSongsAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
             ArtistSongsAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
+            ArtistSongsAction::ToggleFilter => self.album_songs_list.toggle_filter(),
+            ArtistSongsAction::ApplyFilter => self.album_songs_list.apply_filter(),
+            ArtistSongsAction::ClearFilter => self.album_songs_list.clear_filter(),
         }
     }
 }

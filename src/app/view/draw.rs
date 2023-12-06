@@ -1,4 +1,6 @@
-use super::{basic_constraints_to_constraints, SortableTableView, TableSortCommand, TableView};
+use super::{
+    basic_constraints_to_table_constraints, SortableTableView, TableSortCommand, TableView,
+};
 use crate::{
     app::view::ListView,
     drawutils::{
@@ -11,6 +13,7 @@ use ratatui::{
     style::{Modifier, Style},
     symbols::{block, line},
     widgets::{
+        block::{Position, Title},
         Block, Borders, List, ListItem, ListState, Paragraph, Row, Scrollbar, ScrollbarOrientation,
         ScrollbarState, Table, TableState,
     },
@@ -39,22 +42,37 @@ pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec
 }
 
 // Draw a block, and return the inner rectangle.
-// XXX: title could be Into<Cow<str>>
-pub fn draw_panel(f: &mut Frame, title: Cow<str>, chunk: Rect, is_selected: bool) -> Rect {
+pub fn draw_panel<S: AsRef<str>>(
+    f: &mut Frame,
+    title: S,
+    // NOTE: Type is tied to title (same type S - weird quirk!)
+    footer: Option<S>,
+    chunk: Rect,
+    is_selected: bool,
+) -> Rect {
     let border_colour = if is_selected {
         SELECTED_BORDER_COLOUR
     } else {
         DESELECTED_BORDER_COLOUR
     };
-    let block = Block::new()
-        // TODO: Remove allocation
-        .title(title.as_ref())
-        .borders(Borders::ALL)
-        .border_style(Style::new().fg(border_colour));
-
-    let inner_chunk = block.inner(chunk);
-    f.render_widget(block, chunk);
-    inner_chunk
+    if let Some(s) = footer {
+        let block = Block::new()
+            .title(title.as_ref())
+            .title(Title::from(s.as_ref()).position(Position::Bottom))
+            .borders(Borders::ALL)
+            .border_style(Style::new().fg(border_colour));
+        let inner_chunk = block.inner(chunk);
+        f.render_widget(block, chunk);
+        return inner_chunk;
+    } else {
+        let block = Block::new()
+            .title(title.as_ref())
+            .borders(Borders::ALL)
+            .border_style(Style::new().fg(border_colour));
+        let inner_chunk = block.inner(chunk);
+        f.render_widget(block, chunk);
+        return inner_chunk;
+    };
 }
 
 pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool, state: &mut ListState)
@@ -77,7 +95,7 @@ where
     let _title = format!("{list_title} - {list_len} items");
     let list_widget =
         List::new(list_items).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
-    let inner_chunk = draw_panel(f, list_title, chunk, selected);
+    let inner_chunk = draw_panel(f, list_title, None, chunk, selected);
     f.render_stateful_widget(list_widget, inner_chunk, state);
 }
 
@@ -92,8 +110,11 @@ where
     let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
-    let table_widths =
-        basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
+    let table_widths = basic_constraints_to_table_constraints(
+        table.get_layout(),
+        chunk.width.saturating_sub(2),
+        1,
+    ); // Minus block
     let heading_names = table.get_headings();
     let table_widget = Table::new(table_items)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
@@ -112,7 +133,7 @@ where
         .begin_symbol(None)
         .end_symbol(None);
     let scrollable_lines = number_items.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, table.get_title(), chunk, selected);
+    let inner_chunk = draw_panel(f, table.get_title(), None, chunk, selected);
     if table.is_loading() {
         draw_loading(f, inner_chunk)
     } else {
@@ -148,8 +169,11 @@ pub fn draw_sortable_table<T>(
     let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
-    let table_widths =
-        basic_constraints_to_constraints(table.get_layout(), chunk.width.saturating_sub(2), 1); // Minus block
+    let table_widths = basic_constraints_to_table_constraints(
+        table.get_layout(),
+        chunk.width.saturating_sub(2),
+        1,
+    ); // Minus block
     let heading_names = table.get_headings();
     let mut sort_headings = get_table_sort_character_array(table.get_sort_commands()).into_iter();
     let sortable_headings = table.get_sortable_columns();
@@ -162,6 +186,17 @@ pub fn draw_sortable_table<T>(
         hstr.push(sort_char);
         hstr
     });
+    let filter_str: String = itertools::intersperse(
+        table.get_filter_commands().iter().map(|f| f.as_readable()),
+        ", ".to_string(),
+    )
+    .collect();
+    // Naive implementation
+    let filter_str = if filter_str.len() > 1 {
+        "Filter: ".to_string() + &filter_str
+    } else {
+        filter_str
+    };
     let table_widget = Table::new(table_items)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
@@ -179,7 +214,13 @@ pub fn draw_sortable_table<T>(
         .begin_symbol(None)
         .end_symbol(None);
     let scrollable_lines = number_items.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, table.get_title(), chunk, selected);
+    let inner_chunk = draw_panel(
+        f,
+        table.get_title(),
+        Some(filter_str.into()),
+        chunk,
+        selected,
+    );
     if table.is_loading() {
         draw_loading(f, inner_chunk)
     } else {

@@ -211,7 +211,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
         .begin_symbol(None)
         .end_symbol(None);
     let scrollable_lines = len.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, title, chunk, selected);
+    let inner_chunk = draw_panel(f, title, None, chunk, selected);
     f.render_stateful_widget(table_widget, inner_chunk, state);
     // Call this after rendering table, as offset is mutated.
     let mut scrollbar_state = ScrollbarState::default()

@@ -1,7 +1,7 @@
 use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::DominantKeyRouter;
+use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
 use crate::app::ui::browser::BrowserAction;
-use crate::app::view::{SortDirection, SortableTableView, TableSortCommand};
+use crate::app::view::{SortDirection, SortableTableView, TableFilterCommand, TableSortCommand};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
     keycommand::KeyCommand,
@@ -16,9 +16,10 @@ use tracing::warn;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum AlbumSongsInputRouting {
-    Sort,
     #[default]
     List,
+    Sort,
+    Filter,
 }
 
 #[derive(Clone)]
@@ -27,8 +28,20 @@ pub struct AlbumSongsPanel {
     keybinds: Vec<KeyCommand<BrowserAction>>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
+    pub filter: FilterManager,
 }
 
+// TODO: refactor
+#[derive(Clone)]
+pub struct FilterManager {
+    filter_commands: Vec<TableFilterCommand>,
+    pub filter_text: String,
+    pub filter_cur: usize,
+    pub shown: bool,
+    keybinds: Vec<KeyCommand<BrowserAction>>,
+}
+
+// TODO: refactor
 #[derive(Clone)]
 pub struct SortManager {
     sort_commands: Vec<TableSortCommand>,
@@ -47,6 +60,46 @@ impl Default for SortManager {
         }
     }
 }
+impl FilterManager {
+    fn move_cursor_to_end(&mut self) {
+        self.filter_cur = self.filter_text.len();
+    }
+}
+
+impl Default for FilterManager {
+    fn default() -> Self {
+        Self {
+            filter_text: Default::default(),
+            filter_cur: 0,
+            filter_commands: Default::default(),
+            shown: Default::default(),
+            keybinds: filter_keybinds(),
+        }
+    }
+}
+
+impl TextHandler for FilterManager {
+    // XXX: This is copy/paste from SearchBlock, so can an interface be made for this?
+    fn push_text(&mut self, c: char) {
+        self.filter_text.push(c);
+        self.filter_cur += 1;
+    }
+    fn pop_text(&mut self) {
+        self.filter_text.pop();
+        self.filter_cur = self.filter_cur.saturating_sub(1);
+    }
+    fn is_text_handling(&self) -> bool {
+        true
+    }
+    fn take_text(&mut self) -> String {
+        self.filter_cur = 0;
+        std::mem::take(&mut self.filter_text)
+    }
+    fn replace_text(&mut self, text: String) {
+        self.filter_text = text;
+        self.move_cursor_to_end();
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistSongsAction {
@@ -60,13 +113,17 @@ pub enum ArtistSongsAction {
     Down,
     PageUp,
     PageDown,
-    PopSort,
     SortUp,
     SortDown,
+    // Could just be two commands.
+    PopSort,
     CloseSort,
     ClearSort,
     SortSelectedAsc,
     SortSelectedDesc,
+    ToggleFilter,
+    ApplyFilter,
+    ClearFilter,
 }
 
 impl AlbumSongsPanel {
@@ -76,6 +133,7 @@ impl AlbumSongsPanel {
             list: Default::default(),
             route: Default::default(),
             sort: Default::default(),
+            filter: Default::default(),
         }
     }
     pub fn subcolumns_of_vec() -> &'static [usize] {
@@ -93,16 +151,39 @@ impl AlbumSongsPanel {
         }
         Ok(())
     }
+    pub fn apply_filter(&mut self) {
+        let filter = self.filter.take_text();
+        self.filter.shown = false;
+        let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(filter));
+        self.filter.filter_commands.push(cmd);
+    }
+    pub fn clear_filter(&mut self) {
+        self.filter.shown = false;
+        self.filter.filter_commands.clear();
+    }
     fn open_sort(&mut self) {
         self.sort.shown = true;
         self.route = AlbumSongsInputRouting::Sort;
+    }
+    pub fn toggle_filter(&mut self) {
+        let shown = self.filter.shown;
+        if !shown {
+            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do it at the time of showing,
+            // so it cannot be missed.
+            self.filter.filter_cur = 0;
+            self.filter.filter_text.clear();
+            self.route = AlbumSongsInputRouting::Filter;
+        } else {
+            self.route = AlbumSongsInputRouting::List;
+        }
+        self.filter.shown = !shown;
     }
     pub fn close_sort(&mut self) {
         self.sort.shown = false;
         self.route = AlbumSongsInputRouting::List;
     }
     pub fn handle_pop_sort(&mut self) {
-        // If no sortable columns, should we not handle this?
+        // If no sortable columns, should we not handle this command?
         self.sort.cur = 0;
         self.open_sort();
     }
@@ -151,27 +232,52 @@ impl AlbumSongsPanel {
     }
 }
 
+impl TextHandler for AlbumSongsPanel {
+    fn push_text(&mut self, c: char) {
+        self.filter.push_text(c)
+    }
+
+    fn pop_text(&mut self) {
+        self.filter.pop_text()
+    }
+
+    fn take_text(&mut self) -> String {
+        self.filter.take_text()
+    }
+
+    fn replace_text(&mut self, text: String) {
+        self.filter.replace_text(text)
+    }
+
+    fn is_text_handling(&self) -> bool {
+        self.route == AlbumSongsInputRouting::Filter
+    }
+}
+
 impl Action for ArtistSongsAction {
     fn context(&self) -> Cow<str> {
         "Artist Songs Panel".into()
     }
     fn describe(&self) -> Cow<str> {
         match &self {
-            Self::PlaySong => "Play song",
-            Self::PlaySongs => "Play songs",
-            Self::PlayAlbum => "Play album",
-            Self::AddSongToPlaylist => "Add song to playlist",
-            Self::AddSongsToPlaylist => "Add songs to playlist",
-            Self::AddAlbumToPlaylist => "Add album to playlist",
-            Self::Up | Self::SortUp => "Up",
-            Self::Down | Self::SortDown => "Down",
-            Self::PageUp => "Page Up",
-            Self::PageDown => "Page Down",
-            Self::PopSort => "Sort",
-            Self::CloseSort => "Close sort",
-            Self::ClearSort => "Clear sort",
-            Self::SortSelectedAsc => "Sort ascending",
-            Self::SortSelectedDesc => "Sort descending",
+            ArtistSongsAction::PlaySong => "Play song",
+            ArtistSongsAction::PlaySongs => "Play songs",
+            ArtistSongsAction::PlayAlbum => "Play album",
+            ArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
+            ArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            ArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            ArtistSongsAction::Up | Self::SortUp => "Up",
+            ArtistSongsAction::Down | Self::SortDown => "Down",
+            ArtistSongsAction::PageUp => "Page Up",
+            ArtistSongsAction::PageDown => "Page Down",
+            ArtistSongsAction::PopSort => "Sort",
+            ArtistSongsAction::ToggleFilter => "Filter",
+            ArtistSongsAction::ApplyFilter => "Apply filter",
+            ArtistSongsAction::ClearFilter => "Clear filter",
+            ArtistSongsAction::CloseSort => "Close sort",
+            ArtistSongsAction::ClearSort => "Clear sort",
+            ArtistSongsAction::SortSelectedAsc => "Sort ascending",
+            ArtistSongsAction::SortSelectedDesc => "Sort descending",
         }
         .into()
     }
@@ -179,7 +285,7 @@ impl Action for ArtistSongsAction {
 
 impl DominantKeyRouter for AlbumSongsPanel {
     fn dominant_keybinds_active(&self) -> bool {
-        self.sort.shown
+        self.sort.shown || self.filter.shown
     }
 }
 
@@ -195,6 +301,7 @@ impl KeyRouter<BrowserAction> for AlbumSongsPanel {
         Box::new(match self.route {
             AlbumSongsInputRouting::List => self.keybinds.iter(),
             AlbumSongsInputRouting::Sort => self.sort.keybinds.iter(),
+            AlbumSongsInputRouting::Filter => self.filter.keybinds.iter(),
         })
     }
 }
@@ -260,7 +367,6 @@ impl TableView for AlbumSongsPanel {
 }
 impl SortableTableView for AlbumSongsPanel {
     fn get_sortable_columns(&self) -> &[usize] {
-        // Not quite what we're expecting here.
         &[1, 4]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
@@ -289,6 +395,18 @@ impl SortableTableView for AlbumSongsPanel {
     }
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
+    }
+    fn get_filterable_columns(&self) -> &[usize] {
+        &[1, 2, 4]
+    }
+    fn get_filter_commands(&self) -> &[TableFilterCommand] {
+        &self.filter.filter_commands
+    }
+    fn push_filter_command(&mut self, filter_command: TableFilterCommand) {
+        self.filter.filter_commands.push(filter_command)
+    }
+    fn clear_filter_commands(&mut self) {
+        self.filter.filter_commands.clear()
     }
 }
 
@@ -329,8 +447,30 @@ fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     ]
 }
 
+fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
+    // Consider a blocking type of keybind for this that stops all other commands being received.
+    vec![
+        KeyCommand::new_global_from_code(
+            KeyCode::F(3),
+            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
+        ),
+        KeyCommand::new_global_from_code(
+            KeyCode::Char('C'),
+            BrowserAction::ArtistSongs(ArtistSongsAction::ClearFilter),
+        ),
+        KeyCommand::new_global_from_code(
+            KeyCode::Enter,
+            BrowserAction::ArtistSongs(ArtistSongsAction::ApplyFilter),
+        ),
+    ]
+}
+
 pub fn songs_keybinds() -> Vec<KeyCommand<BrowserAction>> {
     vec![
+        KeyCommand::new_global_from_code(
+            KeyCode::F(3),
+            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
+        ),
         KeyCommand::new_global_from_code(
             KeyCode::F(4),
             BrowserAction::ArtistSongs(ArtistSongsAction::PopSort),

@@ -176,10 +176,7 @@ impl<A: Action> KeyCommand<A> {
     }
     pub fn new_from_code(code: KeyCode, action: A) -> KeyCommand<A> {
         KeyCommand {
-            keybinds: vec![Keybind {
-                code,
-                modifiers: KeyModifiers::empty(),
-            }],
+            keybinds: vec![Keybind::new(code, KeyModifiers::empty())],
             key_map: Keymap::Action(action),
             visibility: CommandVisibility::Standard,
         }
@@ -190,7 +187,7 @@ impl<A: Action> KeyCommand<A> {
         action: A,
     ) -> KeyCommand<A> {
         KeyCommand {
-            keybinds: vec![Keybind { code, modifiers }],
+            keybinds: vec![Keybind::new(code, modifiers)],
             key_map: Keymap::Action(action),
             visibility: CommandVisibility::Standard,
         }
