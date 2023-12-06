@@ -347,6 +347,7 @@ impl TableView for AlbumSongsPanel {
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
+        // TODO: Add filter implementation
         let b = self.list.list.iter().map(|ls| {
             let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
                 if Self::subcolumns_of_vec().contains(&i) {
