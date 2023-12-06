@@ -456,7 +456,7 @@ fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
             BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
         ),
         KeyCommand::new_global_from_code(
-            KeyCode::Char('C'),
+            KeyCode::F(6),
             BrowserAction::ArtistSongs(ArtistSongsAction::ClearFilter),
         ),
         KeyCommand::new_global_from_code(
