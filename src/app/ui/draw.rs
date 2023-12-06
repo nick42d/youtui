@@ -207,6 +207,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
         )
         .widths(layout)
         .column_spacing(1);
+    // TODO: Don't display scrollbar if all items fit on the screen.
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)
         .track_symbol(Some(line::VERTICAL))
