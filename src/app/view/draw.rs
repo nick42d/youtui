@@ -19,7 +19,6 @@ use ratatui::{
     },
     Frame,
 };
-use std::borrow::Cow;
 
 pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec<Option<char>> {
     let Some(max_col) = sort_commands
@@ -165,7 +164,7 @@ pub fn draw_sortable_table<T>(
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     // TODO: theming
-    let table_items = table.get_items().map(|item| Row::new(item));
+    let table_items = table.get_filtered_items().map(|item| Row::new(item));
     let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;

@@ -125,6 +125,8 @@ pub trait SortableTableView: TableView {
     fn clear_sort_commands(&mut self);
     // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];
+    // This can't be ExactSized as return type may be Filter<T>
+    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = TableItem> + '_>;
     fn get_filter_commands(&self) -> &[TableFilterCommand];
     fn push_filter_command(&mut self, filter_command: TableFilterCommand);
     fn clear_filter_commands(&mut self);

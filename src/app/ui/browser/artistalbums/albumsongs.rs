@@ -1,7 +1,9 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
 use crate::app::ui::browser::BrowserAction;
-use crate::app::view::{SortDirection, SortableTableView, TableFilterCommand, TableSortCommand};
+use crate::app::view::{
+    Filter, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
+};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
     keycommand::KeyCommand,
@@ -349,7 +351,6 @@ impl TableView for AlbumSongsPanel {
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        // TODO: Add filter implementation
         let b = self.list.list.iter().map(|ls| {
             let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
                 if Self::subcolumns_of_vec().contains(&i) {
@@ -398,6 +399,57 @@ impl SortableTableView for AlbumSongsPanel {
     }
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
+    }
+    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
+        // We are doing a lot here every draw cycle!
+        let mapped_filterable_cols: Vec<_> = self
+            .get_filterable_columns()
+            .iter()
+            .map(|c| Self::subcolumns_of_vec().get(*c))
+            .collect();
+        let b = self.list.list.iter().filter_map(move |ls| {
+            // Naive implementation.
+            // TODO: Do this in a single pass and optimise.
+            let row_matches_filter = self.get_filter_commands().iter().fold(true, |acc, e| {
+                let match_found = match e {
+                    TableFilterCommand::All(f) => {
+                        let mut filterable_cols_iter =
+                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                                if mapped_filterable_cols.contains(&Some(&i)) {
+                                    Some(f)
+                                } else {
+                                    None
+                                }
+                            });
+                        match f {
+                            Filter::Contains(s) => filterable_cols_iter
+                                .find(|item| item.contains(s.as_str()))
+                                .is_some(),
+                            Filter::NotContains(_) => todo!(),
+                            Filter::Equal(_) => todo!(),
+                        }
+                    }
+                    TableFilterCommand::Column { filter, column } => todo!(),
+                };
+                // If we find a match for each filter, can display the row.
+                acc && match_found
+            });
+
+            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                if Self::subcolumns_of_vec().contains(&i) {
+                    Some(f)
+                } else {
+                    None
+                }
+            });
+            if row_matches_filter {
+                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+                Some(Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>)
+            } else {
+                None
+            }
+        });
+        Box::new(b)
     }
     fn get_filterable_columns(&self) -> &[usize] {
         &[1, 2, 4]
