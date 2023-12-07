@@ -154,11 +154,13 @@ impl AlbumSongsPanel {
     pub fn apply_filter(&mut self) {
         let filter = self.filter.take_text();
         self.filter.shown = false;
+        self.route = AlbumSongsInputRouting::List;
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(filter));
         self.filter.filter_commands.push(cmd);
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
+        self.route = AlbumSongsInputRouting::List;
         self.filter.filter_commands.clear();
     }
     fn open_sort(&mut self) {
