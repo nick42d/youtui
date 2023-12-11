@@ -17,6 +17,9 @@ use ratatui::{
 };
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
+// Popups look aesthetically weird when really small, so setting a minimum.
+const MIN_POPUP_WIDTH: usize = 20;
+
 pub fn draw_browser(
     f: &mut Frame,
     browser: &Browser,
@@ -97,7 +100,7 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         .collect();
     let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
     // List looks a bit nicer with a minimum width, so passing a hardcoded minimum here.
-    let width = max_header_len.max(title.len()).min(15) + 2;
+    let width = max_header_len.max(title.len()).max(MIN_POPUP_WIDTH) + 2;
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
     // TODO: Save the state.

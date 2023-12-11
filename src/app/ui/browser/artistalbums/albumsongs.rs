@@ -2,7 +2,7 @@ use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
 use crate::app::ui::browser::BrowserAction;
 use crate::app::view::{
-    Filter, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
+    Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
@@ -157,8 +157,17 @@ impl AlbumSongsPanel {
         let filter = self.filter.take_text();
         self.filter.shown = false;
         self.route = AlbumSongsInputRouting::List;
-        let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(filter));
+        let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
+            FilterString::CaseInsensitive(filter),
+        ));
         self.filter.filter_commands.push(cmd);
+        // Need to match current selected row to length of list.
+        if let Some(idx) = self.list.cur_selected {
+            // Naive method to count the iterator. Consider making iterator exact sized...
+            // XXX: May not need to set here in all cases.
+            self.list.cur_selected =
+                Some(idx.min(self.get_filtered_items().count().saturating_sub(1)))
+        }
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
@@ -422,9 +431,9 @@ impl SortableTableView for AlbumSongsPanel {
                                 }
                             });
                         match f {
-                            Filter::Contains(s) => filterable_cols_iter
-                                .find(|item| item.contains(s.as_str()))
-                                .is_some(),
+                            Filter::Contains(s) => {
+                                filterable_cols_iter.find(|item| s.is_in(item)).is_some()
+                            }
                             Filter::NotContains(_) => todo!(),
                             Filter::Equal(_) => todo!(),
                         }

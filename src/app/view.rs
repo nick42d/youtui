@@ -29,9 +29,14 @@ pub enum TableFilterCommand {
 }
 #[derive(Clone, Debug)]
 pub enum Filter {
-    Contains(String),
-    NotContains(String),
-    Equal(String),
+    Contains(FilterString),
+    NotContains(FilterString),
+    Equal(FilterString),
+}
+#[derive(Clone, Debug)]
+pub enum FilterString {
+    CaseSensitive(String),
+    CaseInsensitive(String),
 }
 
 impl TableFilterCommand {
@@ -47,9 +52,27 @@ impl TableFilterCommand {
 impl Filter {
     fn as_readable(&self) -> String {
         match self {
-            Filter::Contains(f) => format!("~{f}"),
-            Filter::NotContains(f) => format!("!={f}"),
-            Filter::Equal(f) => format!("={f}"),
+            Filter::Contains(f) => format!("~{}", f.as_readable()),
+            Filter::NotContains(f) => format!("!={}", f.as_readable()),
+            Filter::Equal(f) => format!("={}", f.as_readable()),
+        }
+    }
+}
+impl FilterString {
+    fn as_readable(&self) -> String {
+        match self {
+            FilterString::CaseSensitive(s) => format!("A:{s}"),
+            FilterString::CaseInsensitive(s) => format!("a:{s}"),
+        }
+    }
+    pub fn is_in<S: AsRef<str>>(&self, test_str: S) -> bool {
+        match self {
+            FilterString::CaseSensitive(s) => test_str.as_ref().contains(s),
+            // XXX: Ascii lowercase may not be correct.
+            FilterString::CaseInsensitive(s) => test_str
+                .as_ref()
+                .to_ascii_lowercase()
+                .contains(s.to_ascii_lowercase().as_str()),
         }
     }
 }
