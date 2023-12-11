@@ -165,7 +165,8 @@ pub fn draw_sortable_table<T>(
     state.select(Some(table.get_selected_item()));
     // TODO: theming
     let table_items = table.get_filtered_items().map(|item| Row::new(item));
-    let number_items = table.len();
+    // Likely expensive, and could be optimised.
+    let number_items = table.get_filtered_items().count();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
     let table_widths = basic_constraints_to_table_constraints(

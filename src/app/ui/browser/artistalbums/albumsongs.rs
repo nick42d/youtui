@@ -1,5 +1,6 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
+use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::browser::BrowserAction;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -31,6 +32,7 @@ pub struct AlbumSongsPanel {
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
+    cur_selected: usize,
 }
 
 // TODO: refactor
@@ -132,6 +134,7 @@ impl AlbumSongsPanel {
     pub fn new() -> AlbumSongsPanel {
         AlbumSongsPanel {
             keybinds: songs_keybinds(),
+            cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
             sort: Default::default(),
@@ -153,6 +156,48 @@ impl AlbumSongsPanel {
         }
         Ok(())
     }
+    pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
+        let mapped_filterable_cols: Vec<_> = self
+            .get_filterable_columns()
+            .iter()
+            .map(|c| Self::subcolumns_of_vec().get(*c))
+            .collect();
+        Box::new(self.list.get_list_iter().filter_map(move |ls| {
+            // Naive implementation.
+            // TODO: Do this in a single pass and optimise.
+            let row_matches_filter = self.get_filter_commands().iter().fold(true, |acc, e| {
+                let match_found = match e {
+                    TableFilterCommand::All(f) => {
+                        let mut filterable_cols_iter =
+                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                                if mapped_filterable_cols.contains(&Some(&i)) {
+                                    Some(f)
+                                } else {
+                                    None
+                                }
+                            });
+                        match f {
+                            Filter::Contains(s) => {
+                                filterable_cols_iter.find(|item| s.is_in(item)).is_some()
+                            }
+                            Filter::NotContains(_) => todo!(),
+                            Filter::Equal(_) => todo!(),
+                        }
+                    }
+                    TableFilterCommand::Column { filter, column } => todo!(),
+                };
+                // If we find a match for each filter, can display the row.
+                acc && match_found
+            });
+
+            if row_matches_filter {
+                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+                Some(ls)
+            } else {
+                None
+            }
+        }))
+    }
     pub fn apply_filter(&mut self) {
         let filter = self.filter.take_text();
         self.filter.shown = false;
@@ -162,12 +207,10 @@ impl AlbumSongsPanel {
         ));
         self.filter.filter_commands.push(cmd);
         // Need to match current selected row to length of list.
-        if let Some(idx) = self.list.cur_selected {
-            // Naive method to count the iterator. Consider making iterator exact sized...
-            // XXX: May not need to set here in all cases.
-            self.list.cur_selected =
-                Some(idx.min(self.get_filtered_items().count().saturating_sub(1)))
-        }
+        // Naive method to count the iterator. Consider making iterator exact sized...
+        self.cur_selected = self
+            .cur_selected
+            .min(self.get_filtered_items().count().saturating_sub(1))
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
@@ -242,6 +285,19 @@ impl AlbumSongsPanel {
             warn!("Tried to sort a column that is not sortable - error {e}")
         };
         self.close_sort();
+    }
+    pub fn handle_songs_found(&mut self) {
+        self.list.clear();
+        // XXX: Consider clearing sort params here, so that we don't need to sort all the incoming songs. Performance seems OK for now.
+        // XXX: Consider also clearing filter params here.
+        self.cur_selected = 0;
+        self.list.state = ListStatus::InProgress;
+    }
+}
+
+impl SongListComponent for AlbumSongsPanel {
+    fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
+        self.get_filtered_list_iter().nth(idx)
     }
 }
 
@@ -330,10 +386,14 @@ impl Loadable for AlbumSongsPanel {
 }
 impl Scrollable for AlbumSongsPanel {
     fn increment_list(&mut self, amount: isize) {
-        self.list.increment_list(amount)
+        // Naive check using iterator - consider using exact size iterator
+        self.cur_selected = self
+            .cur_selected
+            .saturating_add_signed(amount)
+            .min(self.get_filtered_items().count().saturating_sub(1))
     }
     fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
+        self.cur_selected
     }
 }
 
@@ -342,10 +402,14 @@ impl TableView for AlbumSongsPanel {
         match self.list.state {
             ListStatus::New => "Songs".into(),
             ListStatus::Loading => "Songs - loading".into(),
-            ListStatus::InProgress => {
-                format!("Songs - {} results - loading", self.list.list.len()).into()
+            ListStatus::InProgress => format!(
+                "Songs - {} results - loading",
+                self.list.get_list_iter().len()
+            )
+            .into(),
+            ListStatus::Loaded => {
+                format!("Songs - {} results", self.list.get_list_iter().len()).into()
             }
-            ListStatus::Loaded => format!("Songs - {} results", self.list.list.len()).into(),
             ListStatus::Error => "Songs - Error receieved".into(),
         }
     }
@@ -360,7 +424,7 @@ impl TableView for AlbumSongsPanel {
     }
 
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        let b = self.list.list.iter().map(|ls| {
+        let b = self.list.get_list_iter().map(|ls| {
             let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
                 if Self::subcolumns_of_vec().contains(&i) {
                     Some(f)
@@ -411,54 +475,15 @@ impl SortableTableView for AlbumSongsPanel {
     }
     fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
         // We are doing a lot here every draw cycle!
-        let mapped_filterable_cols: Vec<_> = self
-            .get_filterable_columns()
-            .iter()
-            .map(|c| Self::subcolumns_of_vec().get(*c))
-            .collect();
-        let b = self.list.list.iter().filter_map(move |ls| {
-            // Naive implementation.
-            // TODO: Do this in a single pass and optimise.
-            let row_matches_filter = self.get_filter_commands().iter().fold(true, |acc, e| {
-                let match_found = match e {
-                    TableFilterCommand::All(f) => {
-                        let mut filterable_cols_iter =
-                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                                if mapped_filterable_cols.contains(&Some(&i)) {
-                                    Some(f)
-                                } else {
-                                    None
-                                }
-                            });
-                        match f {
-                            Filter::Contains(s) => {
-                                filterable_cols_iter.find(|item| s.is_in(item)).is_some()
-                            }
-                            Filter::NotContains(_) => todo!(),
-                            Filter::Equal(_) => todo!(),
-                        }
-                    }
-                    TableFilterCommand::Column { filter, column } => todo!(),
-                };
-                // If we find a match for each filter, can display the row.
-                acc && match_found
-            });
-
-            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+        Box::new(self.get_filtered_list_iter().map(|ls| {
+            Box::new(ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
                 if Self::subcolumns_of_vec().contains(&i) {
                     Some(f)
                 } else {
                     None
                 }
-            });
-            if row_matches_filter {
-                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
-                Some(Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>)
-            } else {
-                None
-            }
-        });
-        Box::new(b)
+            })) as Box<dyn Iterator<Item = Cow<str>>>
+        }))
     }
     fn get_filterable_columns(&self) -> &[usize] {
         &[1, 2, 4]

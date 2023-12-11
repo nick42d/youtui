@@ -2,7 +2,7 @@
 // As opposed to simply part of the interface.
 
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, ops::Deref};
+use std::borrow::Cow;
 
 use crate::Error;
 
