@@ -31,6 +31,7 @@ pub struct Playlist {
     ui_tx: mpsc::Sender<AppCallback>,
     pub help_shown: bool,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
+    cur_selected: usize,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -109,10 +110,13 @@ impl Loadable for Playlist {
 
 impl Scrollable for Playlist {
     fn increment_list(&mut self, amount: isize) {
-        self.list.increment_list(amount)
+        self.cur_selected = self
+            .cur_selected
+            .saturating_add_signed(amount)
+            .min(self.list.list.len().saturating_sub(1))
     }
     fn get_selected_item(&self) -> usize {
-        self.list.get_selected_item()
+        self.cur_selected
     }
 }
 
@@ -179,6 +183,7 @@ impl Playlist {
             list: Default::default(),
             cur_played_secs: None,
             keybinds: playlist_keybinds(),
+            cur_selected: 0,
         }
     }
     pub async fn handle_tick(&mut self) {
@@ -297,6 +302,12 @@ impl Playlist {
             }
         }
         self.list.remove_song_index(cur_selected_idx);
+        // If we are removing a song at a position less than current index, decrement current index.
+        // NOTE: Ok to simply take, if list only had one element.
+        if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
+            // Safe, as checked above that cur_idx >= 0
+            self.cur_selected -= 1;
+        }
     }
     pub async fn delete_all(&mut self) {
         self.reset().await;

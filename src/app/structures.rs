@@ -10,7 +10,6 @@ pub struct AlbumSongsList {
     pub state: ListStatus,
     pub list: Vec<ListSong>,
     pub next_id: ListSongID,
-    pub cur_selected: Option<usize>,
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
@@ -142,27 +141,10 @@ impl YoutubeResult for ListSong {
     }
 }
 
-impl Scrollable for AlbumSongsList {
-    fn increment_list(&mut self, amount: isize) {
-        // Naive
-        self.cur_selected = Some(
-            self.cur_selected
-                .unwrap_or(0)
-                .checked_add_signed(amount)
-                .unwrap_or(0)
-                .min(self.list.len().checked_add_signed(-1).unwrap_or(0)),
-        );
-    }
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected.unwrap_or_default()
-    }
-}
-
 impl Default for AlbumSongsList {
     fn default() -> Self {
         AlbumSongsList {
             state: ListStatus::New,
-            cur_selected: None,
             list: Vec::new(),
             next_id: ListSongID::default(),
         }
@@ -188,7 +170,6 @@ impl AlbumSongsList {
         // We can't reset the ID, so it's left out and we'll keep incrementing.
         self.state = ListStatus::New;
         self.list.clear();
-        self.cur_selected = None;
     }
     // Naive implementation
     pub fn append_raw_songs(
@@ -228,11 +209,6 @@ impl AlbumSongsList {
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, mut song_list: Vec<ListSong>) -> ListSongID {
-        // Set a current selected index if we haven't already got one
-        // so that we can start using commands right away.
-        if !song_list.is_empty() && self.cur_selected.is_none() {
-            self.cur_selected = Some(0);
-        }
         let first_id = self.create_next_id();
         song_list.first_mut().map(|song| song.id = first_id);
         // XXX: Below panics - consider a better option.
@@ -248,14 +224,6 @@ impl AlbumSongsList {
         // Guard against index out of bounds
         if self.list.len() <= idx {
             return None;
-        }
-        // If we are removing a song at a position less than current index, decrement current index.
-        if let Some(cur_idx) = self.cur_selected {
-            // NOTE: Ok to simply take, if list only had one element.
-            if cur_idx >= idx && idx != 0 {
-                // Safe, as checked above that cur_idx >= 0
-                self.cur_selected = Some(cur_idx - 1);
-            }
         }
         Some(self.list.remove(idx))
     }

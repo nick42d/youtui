@@ -46,7 +46,7 @@ pub enum InputRouting {
 }
 
 pub struct Browser {
-    ui_tx: mpsc::Sender<AppCallback>,
+    callback_tx: mpsc::Sender<AppCallback>,
     pub input_routing: InputRouting,
     pub prev_input_routing: InputRouting,
     pub artist_list: ArtistSearchPanel,
@@ -239,7 +239,7 @@ impl ActionHandler<BrowserAction> for Browser {
             BrowserAction::Right => self.right(),
             BrowserAction::ViewPlaylist => {
                 send_or_error(
-                    &self.ui_tx,
+                    &self.callback_tx,
                     AppCallback::ChangeContext(WindowContext::Playlist),
                 )
                 .await
@@ -261,7 +261,7 @@ impl DominantKeyRouter for Browser {
 impl Browser {
     pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         Self {
-            ui_tx,
+            callback_tx: ui_tx,
             artist_list: ArtistSearchPanel::new(),
             album_songs_list: AlbumSongsPanel::new(),
             input_routing: InputRouting::Artist,
@@ -295,7 +295,7 @@ impl Browser {
             self.artist_list.search.search_suggestions.clear();
             return;
         }
-        if let Err(e) = self.ui_tx.try_send(AppCallback::GetSearchSuggestions(
+        if let Err(e) = self.callback_tx.try_send(AppCallback::GetSearchSuggestions(
             self.artist_list.search.search_contents.clone(),
         )) {
             error!("Error <{e}> recieved sending message")
@@ -308,7 +308,7 @@ impl Browser {
         };
         if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
             send_or_error(
-                &self.ui_tx,
+                &self.callback_tx,
                 AppCallback::AddSongsToPlaylistAndPlay(vec![cur_song.clone()]),
             )
             .await;
@@ -329,7 +329,7 @@ impl Browser {
             .cloned()
             .collect();
         send_or_error(
-            &self.ui_tx,
+            &self.callback_tx,
             AppCallback::AddSongsToPlaylistAndPlay(song_list),
         )
         .await;
@@ -348,7 +348,11 @@ impl Browser {
             .skip(cur_song)
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, AppCallback::AddSongsToPlaylist(song_list)).await;
+        send_or_error(
+            &self.callback_tx,
+            AppCallback::AddSongsToPlaylist(song_list),
+        )
+        .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn add_song_to_playlist(&mut self) {
@@ -358,7 +362,7 @@ impl Browser {
         };
         if let Some(cur_song) = self.album_songs_list.list.list.get(cur_song_idx) {
             send_or_error(
-                &self.ui_tx,
+                &self.callback_tx,
                 AppCallback::AddSongsToPlaylist(vec![cur_song.clone()]),
             )
             .await;
@@ -381,7 +385,11 @@ impl Browser {
             .filter(|song| song.get_album() == cur_song.get_album())
             .cloned()
             .collect();
-        send_or_error(&self.ui_tx, AppCallback::AddSongsToPlaylist(song_list)).await;
+        send_or_error(
+            &self.callback_tx,
+            AppCallback::AddSongsToPlaylist(song_list),
+        )
+        .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     async fn play_album(&mut self) {
@@ -402,7 +410,7 @@ impl Browser {
             .cloned()
             .collect();
         send_or_error(
-            &self.ui_tx,
+            &self.callback_tx,
             AppCallback::AddSongsToPlaylistAndPlay(song_list),
         )
         .await;
@@ -423,13 +431,17 @@ impl Browser {
             error!("Tried to get item from list with index out of range");
             return;
         };
-        send_or_error(&self.ui_tx, AppCallback::GetArtistSongs(cur_artist_id)).await;
+        send_or_error(
+            &self.callback_tx,
+            AppCallback::GetArtistSongs(cur_artist_id),
+        )
+        .await;
         tracing::info!("Sent request to UI to get songs");
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
         let search_query = self.artist_list.search.take_text();
-        send_or_error(&self.ui_tx, AppCallback::SearchArtist(search_query)).await;
+        send_or_error(&self.callback_tx, AppCallback::SearchArtist(search_query)).await;
         tracing::info!("Sent request to UI to search");
     }
     pub fn handle_search_artist_error(&mut self) {
