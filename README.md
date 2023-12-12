@@ -54,6 +54,7 @@ Chrome example (Select manually and paste):
 - [ ] Configurable key bindings
 ## API
 - [ ] Document public API
+- [ ] Automatically update User Agent using a library
 - [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
 - [x] OAuth authentication
