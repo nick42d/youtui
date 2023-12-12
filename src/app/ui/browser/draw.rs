@@ -36,8 +36,10 @@ pub fn draw_browser(
     let albumsongsselected = selected
         && browser.input_routing == InputRouting::Song
         && browser.album_songs_list.route == AlbumSongsInputRouting::List;
-    let artistselected =
-        !albumsongsselected && selected && browser.artist_list.route == ArtistInputRouting::List;
+    let artistselected = !albumsongsselected
+        && selected
+        && browser.input_routing == InputRouting::Artist
+        && browser.artist_list.route == ArtistInputRouting::List;
 
     if !browser.artist_list.search_popped {
         draw_list(

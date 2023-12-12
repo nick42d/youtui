@@ -551,6 +551,10 @@ fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
             KeyCode::Enter,
             BrowserAction::ArtistSongs(ArtistSongsAction::ApplyFilter),
         ),
+        KeyCommand::new_hidden_from_code(
+            KeyCode::Esc,
+            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
+        ),
     ]
 }
 
