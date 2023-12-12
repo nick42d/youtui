@@ -412,7 +412,7 @@ impl Browser {
             .cloned()
             .and_then(|a| a.browse_id)
         else {
-            warn!("Tried to get item from list with index out of range");
+            tracing::warn!("Tried to get item from list with index out of range");
             return;
         };
         send_or_error(
