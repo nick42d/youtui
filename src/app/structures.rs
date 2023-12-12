@@ -5,10 +5,14 @@ use std::sync::Arc;
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::SongResult;
 
+pub trait SongListComponent {
+    fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
+}
+
 #[derive(Clone)]
 pub struct AlbumSongsList {
     pub state: ListStatus,
-    pub list: Vec<ListSong>,
+    list: Vec<ListSong>,
     pub next_id: ListSongID,
 }
 
@@ -152,6 +156,12 @@ impl Default for AlbumSongsList {
 }
 
 impl AlbumSongsList {
+    pub fn get_list_iter(&self) -> std::slice::Iter<ListSong> {
+        self.list.iter()
+    }
+    pub fn get_list_iter_mut(&mut self) -> std::slice::IterMut<ListSong> {
+        self.list.iter_mut()
+    }
     pub fn sort(&mut self, column: usize, direction: SortDirection) {
         self.list.sort_by(|a, b| match direction {
             SortDirection::Asc => a

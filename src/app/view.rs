@@ -136,6 +136,7 @@ pub trait TableView: Scrollable + Loadable {
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_>;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
+    // Not a particularyl useful function for a sortabletableview
     fn len(&self) -> usize {
         self.get_items().len()
     }

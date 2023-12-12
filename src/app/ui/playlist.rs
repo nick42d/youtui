@@ -1,5 +1,5 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
-use crate::app::structures::Percentage;
+use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
@@ -113,7 +113,7 @@ impl Scrollable for Playlist {
         self.cur_selected = self
             .cur_selected
             .saturating_add_signed(amount)
-            .min(self.list.list.len().saturating_sub(1))
+            .min(self.list.get_list_iter().len().saturating_sub(1))
     }
     fn get_selected_item(&self) -> usize {
         self.cur_selected
@@ -122,7 +122,7 @@ impl Scrollable for Playlist {
 
 impl TableView for Playlist {
     fn get_title(&self) -> Cow<str> {
-        format!("Local playlist - {} songs", self.list.list.len()).into()
+        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
     }
     fn get_layout(&self) -> &[BasicConstraint] {
         // Not perfect as this method doesn't know the size of the parent.
@@ -139,7 +139,7 @@ impl TableView for Playlist {
         ]
     }
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
-        Box::new(self.list.list.iter().enumerate().map(|(i, ls)| {
+        Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
             Box::new(iter::once((i + 1).to_string().into()).chain(ls.get_fields_iter()))
                 as Box<dyn Iterator<Item = Cow<str>>>
         }))
@@ -166,6 +166,12 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::DeleteSelected => self.delete_selected().await,
             PlaylistAction::DeleteAll => self.delete_all().await,
         }
+    }
+}
+
+impl SongListComponent for Playlist {
+    fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong> {
+        self.list.get_list_iter().nth(idx)
     }
 }
 
@@ -217,9 +223,8 @@ impl Playlist {
         tracing::info!("Task valid - updating song download status");
         match update {
             DownloadProgressUpdateType::Started => {
-                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Queued;
-                    // while let Ok(_) = self.player_rx.try_recv() {}
                 }
             }
             DownloadProgressUpdateType::Completed(song_buf) => {
@@ -235,12 +240,12 @@ impl Playlist {
                 }
             }
             DownloadProgressUpdateType::Error => {
-                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Failed;
                 }
             }
             DownloadProgressUpdateType::Downloading(p) => {
-                if let Some(song) = self.list.list.iter_mut().find(|x| x.id == id) {
+                if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Downloading(p);
                 }
             }
@@ -281,19 +286,13 @@ impl Playlist {
         }
     }
     pub async fn play_selected(&mut self) {
-        let Some(index) = self.list.cur_selected else {
-            return;
-        };
-        let Some(id) = self.get_id_from_index(index) else {
+        let Some(id) = self.get_id_from_index(self.cur_selected) else {
             return;
         };
         self.play_song_id(id).await;
     }
     pub async fn delete_selected(&mut self) {
-        info!("Cur selected: {:?}", self.list.cur_selected);
-        let Some(cur_selected_idx) = self.list.cur_selected else {
-            return;
-        };
+        let cur_selected_idx = self.cur_selected;
         // If current song is playing, stop it.
         if let Some(cur_playing_id) = self.get_cur_playing_id() {
             if Some(cur_selected_idx) == self.get_cur_playing_index() {
@@ -371,9 +370,7 @@ impl Playlist {
         self.download_upcoming_from_id(id).await;
         if let Some(song_index) = self.get_index_from_id(id) {
             if let DownloadStatus::Downloaded(pointer) = &self
-                .list
-                .list
-                .get(song_index)
+                .get_song_from_idx(song_index)
                 .expect("Checked previously")
                 .download_status
             {
@@ -390,8 +387,8 @@ impl Playlist {
         };
         let song = self
             .list
-            .list
-            .get_mut(song_index)
+            .get_list_iter_mut()
+            .nth(song_index)
             .expect("We got the index from the id, so song must exist");
         // Won't download if already downloaded, or downloading.
         match song.download_status {
@@ -442,7 +439,7 @@ impl Playlist {
         let mut song_ids_list = Vec::new();
         song_ids_list.push(id);
         for i in 1..SONGS_AHEAD_TO_BUFFER {
-            let next_id = self.list.list.get(song_index + i).map(|song| song.id);
+            let next_id = self.get_song_from_idx(song_index + i).map(|song| song.id);
             if let Some(id) = next_id {
                 song_ids_list.push(id);
             }
@@ -457,25 +454,13 @@ impl Playlist {
             return;
         };
         let forward_limit = song_index + SONGS_AHEAD_TO_BUFFER;
-        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
-        for song in self
-            .list
-            .list
-            .get_mut(0..backwards_limit)
-            .into_iter()
-            .flatten()
-        {
+        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE) + 1;
+        for song in self.list.get_list_iter_mut().take(backwards_limit) {
             // TODO: Also cancel in progress downloads
             // TODO: Write a change download status function that will warn if song is not dropped from memory.
             song.download_status = DownloadStatus::None
         }
-        for song in self
-            .list
-            .list
-            .get_mut(forward_limit..)
-            .into_iter()
-            .flatten()
-        {
+        for song in self.list.get_list_iter_mut().skip(forward_limit) {
             // TODO: Also cancel in progress downloads
             // TODO: Write a change download status function that will warn if song is not dropped from memory.
             song.download_status = DownloadStatus::None
@@ -491,7 +476,7 @@ impl Playlist {
                 let prev_song_id = self
                     .get_index_from_id(*id)
                     .and_then(|i| i.checked_sub(1))
-                    .and_then(|i| self.list.list.get(i))
+                    .and_then(|i| self.get_song_from_idx(i))
                     .map(|i| i.id);
                 info!("Next song id {:?}", prev_song_id);
                 match prev_song_id {
@@ -527,16 +512,16 @@ impl Playlist {
         }
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
-        self.list.list.iter().position(|s| s.id == id)
+        self.list.get_list_iter().position(|s| s.id == id)
     }
     pub fn get_id_from_index(&self, index: usize) -> Option<ListSongID> {
-        self.list.list.get(index).map(|s| s.id)
+        self.get_song_from_idx(index).map(|s| s.id)
     }
     pub fn get_mut_song_from_id(&mut self, id: ListSongID) -> Option<&mut ListSong> {
-        self.list.list.iter_mut().find(|s| s.id == id)
+        self.list.get_list_iter_mut().find(|s| s.id == id)
     }
     pub fn get_song_from_id(&self, id: ListSongID) -> Option<&ListSong> {
-        self.list.list.iter().find(|s| s.id == id)
+        self.list.get_list_iter().find(|s| s.id == id)
     }
     pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
         self.get_cur_playing_id().is_some_and(|id| id == check_id)
