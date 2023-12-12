@@ -454,7 +454,8 @@ impl Playlist {
             return;
         };
         let forward_limit = song_index + SONGS_AHEAD_TO_BUFFER;
-        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE) + 1;
+        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
+        info!(forward_limit, backwards_limit);
         for song in self.list.get_list_iter_mut().take(backwards_limit) {
             // TODO: Also cancel in progress downloads
             // TODO: Write a change download status function that will warn if song is not dropped from memory.
