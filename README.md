@@ -50,7 +50,8 @@ Chrome example (Select manually and paste):
 - [ ] Theming
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
-- [ ] Filtering
+- [ ] Filtering (target for 0.0.3)
+- [ ] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Configurable key bindings
 ## API
 - [ ] Document public API
