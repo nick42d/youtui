@@ -187,13 +187,16 @@ pub fn draw_sortable_table<T>(
         hstr
     });
     let filter_str: String = itertools::intersperse(
-        table.get_filter_commands().iter().map(|f| f.as_readable()),
+        table
+            .get_filter_commands()
+            .iter()
+            .map(|f| f.as_basic_readable()),
         ", ".to_string(),
     )
     .collect();
     // Naive implementation
     let filter_str = if filter_str.len() > 1 {
-        "Filter: ".to_string() + &filter_str
+        ": ".to_string() + &filter_str
     } else {
         filter_str
     };

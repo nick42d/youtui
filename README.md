@@ -43,15 +43,17 @@ Chrome example (Select manually and paste):
 # Roadmap
 ## Application
 - [x] Windows support (target for 0.0.1)
-- [ ] Offline cache
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
+- [x] Filtering (target for 0.0.3)
+- [ ] Release to AUR (target for 0.0.4)
+- [ ] Remove reliance on rust nightly (target for 0.0.4)
+- [ ] Mouse support
+- [ ] Offline cache
 - [ ] Streaming of buffered tracks
-- [ ] Theming
 - [ ] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
-- [ ] Filtering (target for 0.0.3)
-- [ ] Remove reliance on rust nightly (target for 0.0.4)
+- [ ] Theming
 - [ ] Configurable key bindings
 ## API
 - [ ] Document public API

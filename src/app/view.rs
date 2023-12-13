@@ -48,6 +48,20 @@ impl TableFilterCommand {
             }
         }
     }
+    #[deprecated = "Temporary function to be replaced with as_readable"]
+    fn as_basic_readable(&self) -> String {
+        match self {
+            TableFilterCommand::All(f) => match f {
+                Filter::Contains(f) => match f {
+                    FilterString::CaseSensitive(_) => todo!(),
+                    FilterString::CaseInsensitive(s) => format!("[a-Z]*{}*", s),
+                },
+                Filter::NotContains(_) => todo!(),
+                Filter::Equal(_) => todo!(),
+            },
+            TableFilterCommand::Column { .. } => todo!(),
+        }
+    }
 }
 impl Filter {
     fn as_readable(&self) -> String {
