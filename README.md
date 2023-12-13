@@ -46,6 +46,7 @@ Chrome example (Select manually and paste):
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
+- [ ] Logging to a file (target for 0.0.4)
 - [ ] Release to AUR (target for 0.0.4)
 - [ ] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Seeking
