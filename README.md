@@ -8,7 +8,7 @@ This project is not supported or endorsed by Google.
 - Quickly and easily display entire artist's discography
 - Buffer upcoming songs
 - Search suggestions
-- Sorting
+- Sorting and filtering
 # Demo
 Version 0.0.1 as of 03/Dec/23 and is still a work in progress.
 [![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
