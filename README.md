@@ -48,6 +48,7 @@ Chrome example (Select manually and paste):
 - [x] Filtering (target for 0.0.3)
 - [ ] Release to AUR (target for 0.0.4)
 - [ ] Remove reliance on rust nightly (target for 0.0.4)
+- [ ] Seeking
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks
