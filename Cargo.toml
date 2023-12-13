@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["nick42d"]
 license = "MIT"
@@ -12,19 +12,19 @@ keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
 
 [dependencies]
-clap = { version = "4.3.5", features = ["derive"] }
+clap = { version = "4.4.11", features = ["derive"] }
 crossterm = { version = "0.27", features = ["event-stream"] }
-futures = "0.3.28"
+futures = "0.3.29"
 ratatui = { version = "0.24.0", features = ["all-widgets"] }
-serde = "1.0.164"
-serde_json = "1.0.97"
-tokio = "1.29.1"
+serde = "1.0.193"
+serde_json = "1.0.108"
+tokio = "1.35.0"
 ytmapi-rs = { path = "./ytmapi-rs", version = "0.0.1" }
-tracing = "0.1.37"
+tracing = "0.1.40"
 tui-logger = { version = "0.10.0", default-features = false, features = [ "crossterm", "tracing-support"] }
-tracing-subscriber = "0.3.17"
-rusty_ytdl = { version = "0.6.5" }
-rodio = { version = "0.17.2", features = ["symphonia-all"] }
+tracing-subscriber = "0.3.18"
+rusty_ytdl = { version = "0.6.6" }
+rodio = { version = "0.17.3", features = ["symphonia-all"] }
 directories = "5.0.1"
 gag = "1.0.0"
 toml = "0.8.8"
