@@ -49,6 +49,7 @@ Chrome example (Select manually and paste):
 - [ ] Logging to a file (target for 0.0.4)
 - [ ] Release to AUR (target for 0.0.4)
 - [ ] Remove reliance on rust nightly (target for 0.0.4)
+- [ ] Dbus support for media keys
 - [ ] Seeking
 - [ ] Mouse support
 - [ ] Offline cache
