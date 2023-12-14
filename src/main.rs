@@ -13,7 +13,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::path::PathBuf;
-use ytmapi_rs::auth::OAuthToken;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -111,16 +111,21 @@ async fn try_main() -> Result<()> {
     Ok(())
 }
 
-async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic> {
+async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic<BrowserToken>> {
     let confdir = get_config_dir()?;
     let api = match config.get_auth_type() {
-        config::AuthType::OAuth => {
-            let mut oauth_loc = PathBuf::from(confdir);
-            oauth_loc.push(OAUTH_FILENAME);
-            let file = tokio::fs::read_to_string(oauth_loc).await?;
-            let oath_tok = serde_json::from_str(&file)?;
-            ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
+        config::AuthType::OAuth =>
+        // TODO: Add OAutho back in
+        {
+            unimplemented!()
         }
+        // {
+        //     let mut oauth_loc = PathBuf::from(confdir);
+        //     oauth_loc.push(OAUTH_FILENAME);
+        //     let file = tokio::fs::read_to_string(oauth_loc).await?;
+        //     let oath_tok = serde_json::from_str(&file)?;
+        //     ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
+        // }
         config::AuthType::Browser => {
             let mut cookies_loc = PathBuf::from(confdir);
             cookies_loc.push(COOKIE_FILENAME);

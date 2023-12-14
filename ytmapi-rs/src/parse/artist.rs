@@ -447,10 +447,14 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
 }
 
 impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
-    pub fn parse(mut self) -> Result<Vec<crate::Album>> {
+    pub fn parse(self) -> Result<Vec<crate::Album>> {
         let mut albums = Vec::new();
-        for mut r in self
-            .json_crawler
+        let mut json_crawler = self.json_crawler.navigate_pointer(concatcp!(
+            SINGLE_COLUMN_TAB,
+            SECTION_LIST_ITEM,
+            GRID_ITEMS
+        ))?;
+        for mut r in json_crawler
             .borrow_mut()
             .into_array_iter_mut()?
             .into_iter()
@@ -487,6 +491,7 @@ mod tests {
         crawler::JsonCrawler,
         nav_consts::{GRID_ITEMS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB},
         parse::ProcessedResult,
+        process::JsonCloner,
         query::GetArtistAlbumsQuery,
         ChannelID,
     };
@@ -498,14 +503,10 @@ mod tests {
         let file = tokio::fs::read_to_string(path)
             .await
             .expect("Expect file read to pass during tests");
-        // Processing - normally done in Process.
-        let json: serde_json::Value = serde_json::from_str::<Value>(&file)
-            .unwrap()
-            .pointer_mut(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID_ITEMS))
-            .unwrap()
-            .take();
+        let json_clone = JsonCloner::from_string(file).unwrap();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json(json), query).parse();
+        let output =
+            ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query).parse();
     }
 }

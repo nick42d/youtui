@@ -1,3 +1,4 @@
+use super::AuthToken;
 use crate::error::{Error, Result};
 use crate::{
     process::RawResult,
@@ -13,7 +14,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::AuthToken;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
@@ -80,7 +80,11 @@ impl OAuthDeviceCode {
 }
 
 impl AuthToken for OAuthToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
+    async fn raw_query<Q: Query>(
+        &self,
+        client: &Client,
+        query: Q,
+    ) -> Result<RawResult<Q, OAuthToken>> {
         // TODO: Functionize - used for Browser Auth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
@@ -130,11 +134,7 @@ impl AuthToken for OAuthToken {
             .await?
             .text()
             .await?;
-        let result = RawResult::from_raw(
-            // TODO: Better error
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?,
-            query,
-        );
+        let result = RawResult::from_raw(result, query, self);
         Ok(result)
     }
 }

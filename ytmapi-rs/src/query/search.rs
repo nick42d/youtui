@@ -18,6 +18,7 @@ impl SearchType for BasicSearch {}
 impl SearchType for FilteredSearch {}
 impl SearchType for UploadSearch {}
 
+/// An API search query.
 #[derive(PartialEq, Debug, Clone)]
 pub struct SearchQuery<'a, S: SearchType> {
     query: Cow<'a, str>,

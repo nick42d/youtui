@@ -19,7 +19,11 @@ pub struct BrowserToken {
 }
 
 impl AuthToken for BrowserToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
+    async fn raw_query<'a, Q: Query>(
+        &'a self,
+        client: &Client,
+        query: Q,
+    ) -> Result<RawResult<Q, BrowserToken>> {
         // TODO: Functionize - used for OAuth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let mut body = json!({
@@ -50,25 +54,8 @@ impl AuthToken for BrowserToken {
             .await?
             .text()
             .await?;
-        // TODO: Better error
-        let result: serde_json::Value =
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
-        // Guard against error codes in json response.
-        // TODO: Can we determine if this is because the cookie has expired?
-        // TODO: Add a test for this
-        if let Some(error) = result.get("error") {
-            let Some(code) = error.get("code").and_then(|code| code.as_u64()) else {
-                return Err(Error::other(
-                    "Error message received from server, but doesn't have an error code",
-                ));
-            };
-            match code {
-                401 => return Err(Error::not_authenticated()),
-                other => return Err(Error::other_code(other)),
-            }
-        }
 
-        let result = RawResult::from_raw(result, query);
+        let result = RawResult::from_raw(result, query, self);
         Ok(result)
     }
 }

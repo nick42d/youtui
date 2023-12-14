@@ -378,14 +378,15 @@ fn parse_song_runs(runs: &serde_json::Value) -> Result<ParsedSongList> {
 mod tests {
     use serde_json::json;
 
-    use crate::query::SearchQuery;
+    use crate::{process::JsonCloner, query::SearchQuery};
 
     use super::*;
 
     #[tokio::test]
     async fn test_all_processed_impl() {
         let query = SearchQuery::new("Beatles");
-        let json_crawler = JsonCrawler::from_json(json!({"name": "John Doe"}));
+        let cloner = JsonCloner::from_string("\"name\": \"John Doe\"".to_string()).unwrap();
+        let json_crawler = JsonCrawler::from_json_cloner(cloner);
         let json_crawler_clone = json_crawler.clone();
         let raw = ProcessedResult::from_raw(json_crawler, query.clone());
         assert_eq!(&query, raw.get_query());

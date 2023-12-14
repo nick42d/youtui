@@ -57,7 +57,7 @@ impl SearchSuggestion {
     pub fn get_type(&self) -> SuggestionType {
         self.suggestion_type
     }
-    pub fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
+    pub(crate) fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
         Self {
             runs,
             suggestion_type,

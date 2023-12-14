@@ -6,6 +6,7 @@ use crate::error::Error;
 use crate::Result;
 use tokio::sync::mpsc;
 use tracing::{error, info};
+use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::common::youtuberesult::YoutubeResult;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
@@ -39,8 +40,8 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Option<ytmapi_rs::YtMusic>,
-    api_init: Option<tokio::task::JoinHandle<Result<ytmapi_rs::YtMusic>>>,
+    api: Option<ytmapi_rs::YtMusic<BrowserToken>>,
+    api_init: Option<tokio::task::JoinHandle<Result<ytmapi_rs::YtMusic<BrowserToken>>>>,
     response_tx: mpsc::Sender<super::Response>,
 }
 
@@ -51,7 +52,12 @@ impl Api {
             // TODO: Error handling
             let api = match api_key {
                 ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await?,
-                ApiKey::OAuthToken(t) => ytmapi_rs::YtMusic::from_oauth_token(t),
+                ApiKey::OAuthToken(t) =>
+                // TODO: Add OAuth
+                {
+                    unimplemented!()
+                }
+                // ytmapi_rs::YtMusic::from_oauth_token(t),
             };
             info!("API initialised");
             Ok(api)
@@ -62,7 +68,7 @@ impl Api {
             response_tx,
         }
     }
-    async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic> {
+    async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic<BrowserToken>> {
         // NOTE: This function returns a different type of error if not called before, due to difficulties
         // I'm having in saving Result<T,E> but returning Result<&T, E>.
         if let Some(handle) = self.api_init.take() {

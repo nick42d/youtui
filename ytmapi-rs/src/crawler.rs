@@ -1,4 +1,4 @@
-use crate::{error::ParseTarget, Error, Result};
+use crate::{error::ParseTarget, process::JsonCloner, Error, Result};
 use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc};
 
@@ -285,10 +285,11 @@ impl JsonCrawler {
             path,
         })
     }
-    pub fn from_json(json: serde_json::Value) -> Self {
+    pub fn from_json_cloner(json_cloner: JsonCloner) -> Self {
+        let (source, crawler) = json_cloner.destructure();
         Self {
-            source: Arc::new(format!("{:#}", json)),
-            crawler: json,
+            source: Arc::new(source),
+            crawler,
             path: PathList::default(),
         }
     }

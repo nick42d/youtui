@@ -1,23 +1,23 @@
-use std::io::IntoInnerError;
-
-use serde_json::json;
-
 use super::common::{BrowseID, ChannelID};
 use super::query::*;
 use super::*;
-use crate::common::{AlbumID, LyricsID, PlaylistID, YoutubeID};
+use crate::common::{AlbumID, LyricsID, PlaylistID, TextRun, YoutubeID};
 use crate::Error;
+use serde_json::json;
+use std::io::IntoInnerError;
 
 const EXPIRED_HEADERS_PATH: &str = "expired-headers.txt";
 const EXPIRED_OAUTH_PATH: &str = "expired-oauth.json";
 const COOKIE_PATH: &str = "cookie.txt";
 const OAUTH_PATH: &str = "oauth.json";
 
-async fn new_standard_oauth_api() -> Result<YtMusic> {
+async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
     let oauth_token = tokio::fs::read(OAUTH_PATH).await.unwrap();
-    Ok(YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await)
+    Ok(YtMusic::from_oauth_token(
+        serde_json::from_slice(&oauth_token).unwrap(),
+    ))
 }
-async fn new_standard_api() -> Result<YtMusic> {
+async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
     YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
 }
 
@@ -26,7 +26,7 @@ async fn test_expired_oauth() {
     let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
-    let api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap()).await;
+    let api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap());
     // Library query needs authentication.
     let res = api.json_query(GetLibraryPlaylistsQuery).await;
     // TODO: Add matching functions to error type. Current method not very ergonomic.

@@ -153,6 +153,7 @@ mod tests {
         },
         crawler::JsonCrawler,
         parse::ProcessedResult,
+        process::JsonCloner,
         query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
     };
 
@@ -160,8 +161,8 @@ mod tests {
     #[test]
     fn test_library_playlists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
-        let testfile_json = serde_json::from_str(&testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json(testfile_json);
+        let cloner = JsonCloner::from_string(testfile).unwrap();
+        let json_crawler = JsonCrawler::from_json_cloner(cloner);
         let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistsQuery {});
         let result = processed.parse().unwrap();
         let expected = json!([
@@ -248,8 +249,8 @@ mod tests {
     #[test]
     fn test_library_artists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_artists.json").unwrap();
-        let testfile_json = serde_json::from_str(&testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json(testfile_json);
+        let cloner = JsonCloner::from_string(testfile).unwrap();
+        let json_crawler = JsonCrawler::from_json_cloner(cloner);
         let processed = ProcessedResult::from_raw(json_crawler, GetLibraryArtistsQuery::default());
         let result = processed.parse().unwrap();
         let expected = json!(
