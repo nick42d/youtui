@@ -1,4 +1,5 @@
 use crate::error::Result;
+use crate::parse::ProcessedResult;
 use crate::{process::RawResult, query::Query};
 pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
@@ -15,4 +16,5 @@ pub(crate) trait AuthToken: Sized {
         client: &Client,
         query: Q,
     ) -> Result<RawResult<'a, Q, Self>>;
+    fn serialize_json<Q: Query>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }

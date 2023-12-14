@@ -91,120 +91,12 @@ impl YtMusic<BrowserToken> {
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
-    // TODO: add use statements to cleanup path.
-    // XXX: Consider taking into<SearchQuery>
-    pub async fn search<'a, S: SearchType>(
-        &self,
-        query: SearchQuery<'a, S>,
-    ) -> Result<Vec<SearchResult<'a>>> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    #[deprecated = "In progress, not complete"]
-    pub async fn get_continuations<S: SearchType>(
-        &self,
-        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
-    ) -> Result<()> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
-        &self,
-        query: S,
-    ) -> Result<WatchPlaylist> {
-        self.raw_query(query.into()).await?.process()?.parse()
-    }
-    pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
-        &self,
-        query: S,
-    ) -> Result<Vec<SearchSuggestion>> {
-        self.raw_query(query.into()).await?.process()?.parse()
-    }
-    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
-        // TODO: investigate why returning empty array
-        self.raw_query(GetLibraryPlaylistsQuery)
-            .await?
-            .process()?
-            .parse()
-    }
-    pub async fn get_library_artists(
-        // TODO: investigate why returning empty array
-        // TODO: Better constructor for query
-        &self,
-        query: GetLibraryArtistsQuery,
-    ) -> Result<Vec<LibraryArtist>> {
-        self.raw_query(query).await?.process()?.parse()
-    }
 }
 impl YtMusic<OAuthToken> {
     /// Create a new API handle using an OAuthToken.
     pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
         let client = Client::new();
         YtMusic { client, token }
-    }
-    // TODO: add use statements to cleanup path.
-    // XXX: Consider taking into<SearchQuery>
-    pub async fn search<'a, S: SearchType>(
-        &self,
-        query: SearchQuery<'a, S>,
-    ) -> Result<Vec<SearchResult<'a>>> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    #[deprecated = "In progress, not complete"]
-    pub async fn get_continuations<S: SearchType>(
-        &self,
-        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
-    ) -> Result<()> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
-        self.raw_query(query).await?.process()?.parse()
-    }
-    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
-        &self,
-        query: S,
-    ) -> Result<WatchPlaylist> {
-        self.raw_query(query.into()).await?.process()?.parse()
-    }
-    pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
-        &self,
-        query: S,
-    ) -> Result<Vec<SearchSuggestion>> {
-        self.raw_query(query.into()).await?.process()?.parse()
-    }
-    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
-        // TODO: investigate why returning empty array
-        self.raw_query(GetLibraryPlaylistsQuery)
-            .await?
-            .process()?
-            .parse()
-    }
-    pub async fn get_library_artists(
-        // TODO: investigate why returning empty array
-        // TODO: Better constructor for query
-        &self,
-        query: GetLibraryArtistsQuery,
-    ) -> Result<Vec<LibraryArtist>> {
-        self.raw_query(query).await?.process()?.parse()
     }
 }
 impl<A: AuthToken> YtMusic<A> {
@@ -216,6 +108,60 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
         let json = self.raw_query(query).await?.destructure_json();
         Ok(json)
+    }
+    // TODO: add use statements to cleanup path.
+    // XXX: Consider taking into<SearchQuery>
+    pub async fn search<'a, S: SearchType>(
+        &self,
+        query: SearchQuery<'a, S>,
+    ) -> Result<Vec<SearchResult<'a>>> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    #[deprecated = "In progress, not complete"]
+    pub async fn get_continuations<S: SearchType>(
+        &self,
+        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
+    ) -> Result<()> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
+        self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
+        &self,
+        query: S,
+    ) -> Result<WatchPlaylist> {
+        self.raw_query(query.into()).await?.process()?.parse()
+    }
+    pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
+        &self,
+        query: S,
+    ) -> Result<Vec<SearchSuggestion>> {
+        self.raw_query(query.into()).await?.process()?.parse()
+    }
+    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
+        // TODO: investigate why returning empty array
+        self.raw_query(GetLibraryPlaylistsQuery)
+            .await?
+            .process()?
+            .parse()
+    }
+    pub async fn get_library_artists(
+        // TODO: investigate why returning empty array
+        // TODO: Better constructor for query
+        &self,
+        query: GetLibraryArtistsQuery,
+    ) -> Result<Vec<LibraryArtist>> {
+        self.raw_query(query).await?.process()?.parse()
     }
 }
 // TODO: Keep session alive after calling these methods.

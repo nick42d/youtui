@@ -1,5 +1,8 @@
 use super::AuthToken;
-use crate::error::{Error, Result};
+use crate::crawler::JsonCrawler;
+use crate::error::{self, Error, Result};
+use crate::parse::ProcessedResult;
+use crate::process::JsonCloner;
 use crate::{
     process::RawResult,
     query::Query,
@@ -136,6 +139,17 @@ impl AuthToken for OAuthToken {
             .await?;
         let result = RawResult::from_raw(result, query, self);
         Ok(result)
+    }
+    fn serialize_json<Q: Query>(
+        raw: RawResult<Q, Self>,
+    ) -> Result<crate::parse::ProcessedResult<Q>> {
+        let (json, query) = raw.destructure();
+        let json_cloner = JsonCloner::from_string(json)
+            .map_err(|_| error::Error::response("Error deserializing"))?;
+        Ok(ProcessedResult::from_raw(
+            JsonCrawler::from_json_cloner(json_cloner),
+            query,
+        ))
     }
 }
 

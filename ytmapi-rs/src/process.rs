@@ -69,51 +69,10 @@ impl<'tok, Q: Query, A: AuthToken> RawResult<'tok, Q, A> {
     pub fn destructure_json(self) -> String {
         self.json
     }
-}
-impl<'tok, Q: Query> RawResult<'tok, Q, OAuthToken> {
-    pub fn process(self) -> Result<ProcessedResult<Q>> {
-        match self {
-            // TODO: error handling here
-            RawResult { query, json, .. } => {
-                let json_cloner = JsonCloner::from_string(json)
-                    .map_err(|_| error::Error::response("Error deserializing"))?;
-                Ok(ProcessedResult::from_raw(
-                    JsonCrawler::from_json_cloner(json_cloner),
-                    query,
-                ))
-            }
-        }
+    pub fn destructure(self) -> (String, Q) {
+        (self.json, self.query)
     }
-}
-impl<'tok, Q: Query> RawResult<'tok, Q, BrowserToken> {
     pub fn process(self) -> Result<ProcessedResult<Q>> {
-        match self {
-            // TODO: error handling here
-            // // todo: better error
-            // let result: serde_json::value =
-            //     serde_json::from_str(&result).map_err(|_| error::response(&result))?;
-            // // guard against error codes in json response.
-            // // todo: can we determine if this is because the cookie has expired?
-            // // todo: add a test for this
-            // if let some(error) = result.get("error") {
-            //     let some(code) = error.get("code").and_then(|code| code.as_u64()) else {
-            //         return err(error::other(
-            //             "error message received from server, but doesn't have an error code",
-            //         ));
-            //     };
-            //     match code {
-            //         401 => return err(error::not_authenticated()),
-            //         other => return err(error::other_code(other)),
-            //     }
-            // }
-            RawResult { query, json, .. } => {
-                let json_cloner = JsonCloner::from_string(json)
-                    .map_err(|_| error::Error::response("Error serializing"))?;
-                Ok(ProcessedResult::from_raw(
-                    JsonCrawler::from_json_cloner(json_cloner),
-                    query,
-                ))
-            }
-        }
+        A::serialize_json(self)
     }
 }
