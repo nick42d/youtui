@@ -1,3 +1,4 @@
+//! Type safe queries to pass to the API.
 use crate::common::BrowseID;
 pub use album::*;
 pub use artist::*;
