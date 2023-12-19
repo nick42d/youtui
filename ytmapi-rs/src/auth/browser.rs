@@ -85,6 +85,11 @@ impl BrowserToken {
             .await?
             .text()
             .await?;
+        // parse for user agent issues here.
+        if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
+            return Err(Error::other("Expired User Agent"));
+        };
+        // TODO: Better error.
         let client_version = response
             .split_once("INNERTUBE_CLIENT_VERSION\":\"")
             .ok_or(Error::header())?

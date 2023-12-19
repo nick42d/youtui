@@ -124,6 +124,7 @@ impl AuthToken for OAuthToken {
         let result = client
             // Could include gzip deflation in headers - may improve performance?
             .post(&url)
+            // TODO: Confirm if parsing for expired user agent also relevant here.
             .header("User-Agent", USER_AGENT)
             .header("X-Origin", YTM_URL)
             .header("Content-Type", "application/json")

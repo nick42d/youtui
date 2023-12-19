@@ -6,7 +6,7 @@ use crate::Error;
 use serde_json::json;
 use std::io::IntoInnerError;
 
-const EXPIRED_HEADERS_PATH: &str = "expired-headers.txt";
+const EXPIRED_HEADERS_PATH: &str = "expired-cookie.txt";
 const EXPIRED_OAUTH_PATH: &str = "expired-oauth.json";
 const COOKIE_PATH: &str = "cookie.txt";
 const OAUTH_PATH: &str = "oauth.json";
@@ -20,7 +20,12 @@ async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
 async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
     YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
 }
-
+#[tokio::test]
+async fn test_refresh_expired_oauth() {
+    let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
+    let mut api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap());
+    api.refresh_token().await.unwrap();
+}
 #[tokio::test]
 async fn test_expired_oauth() {
     let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
@@ -101,7 +106,7 @@ async fn test_get_library_artists() {
 #[tokio::test]
 async fn test_watch_playlist() {
     // TODO: Make more generic
-    let api = YtMusic::from_cookie_file(Path::new("headers.txt"))
+    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
         .await
         .unwrap();
     let res = api
@@ -120,7 +125,7 @@ async fn test_watch_playlist() {
 #[tokio::test]
 async fn test_get_lyrics() {
     // TODO: Make more generic
-    let api = YtMusic::from_cookie_file(Path::new("headers.txt"))
+    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
         .await
         .unwrap();
     let res = api
@@ -168,7 +173,7 @@ async fn test_search_suggestions() {
 #[tokio::test]
 async fn test_get_artist() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new("headers.txt"))
+    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
         .await
         .unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
@@ -188,7 +193,7 @@ async fn test_get_artist() {
 #[tokio::test]
 async fn test_get_artist_albums() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new("headers.txt"))
+    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
         .await
         .unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
@@ -228,7 +233,7 @@ async fn test_get_oauth_code() {
 #[tokio::test]
 async fn test_get_artist_album_songs() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new("headers.txt"))
+    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
         .await
         .unwrap();
     println!("API took {} ms", now.elapsed().as_millis());

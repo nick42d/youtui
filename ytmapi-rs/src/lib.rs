@@ -98,6 +98,12 @@ impl YtMusic<OAuthToken> {
         let client = Client::new();
         YtMusic { client, token }
     }
+    /// Refresh the internal oauth token, and return a clone of it (for user to story locally, e.g).
+    pub async fn refresh_token(&mut self) -> Result<OAuthToken> {
+        let refreshed_token = self.token.refresh(&self.client).await?;
+        self.token = refreshed_token.clone();
+        Ok(refreshed_token)
+    }
 }
 impl<A: AuthToken> YtMusic<A> {
     async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
