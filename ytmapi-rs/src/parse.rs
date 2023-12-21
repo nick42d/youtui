@@ -1,3 +1,4 @@
+//! Results from parsing Innertube queries.
 use crate::{
     common::{
         AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PlaylistType, Thumbnail, VideoID,

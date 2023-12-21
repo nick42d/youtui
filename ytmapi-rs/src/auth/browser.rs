@@ -67,10 +67,25 @@ impl AuthToken for BrowserToken {
         let (json, query) = raw.destructure();
         let json_cloner = JsonCloner::from_string(json)
             .map_err(|_| error::Error::response("Error serializing"))?;
-        Ok(ProcessedResult::from_raw(
-            JsonCrawler::from_json_cloner(json_cloner),
-            query,
-        ))
+        let mut json_crawler = JsonCrawler::from_json_cloner(json_cloner);
+        // Guard against error codes in json response.
+        // TODO: Add a test for this
+        if let Ok(mut error) = json_crawler.borrow_pointer("/error") {
+            let Ok(code) = error.take_value_pointer::<u64, &str>("/code") else {
+                return Err(Error::other(
+                    "Error message received from server, but doesn't have an error code",
+                ));
+            };
+            match code {
+                // Assuming Error:NotAuthenticated means browser token has expired.
+                // May be incorrect - browser token may be invalid?
+                // TODO: Investigate.
+                401 => return Err(Error::browser_token_expired()),
+                other => return Err(Error::other_code(other)),
+            }
+        }
+
+        Ok(ProcessedResult::from_raw(json_crawler, query))
     }
 }
 

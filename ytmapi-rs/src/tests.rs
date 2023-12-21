@@ -53,7 +53,7 @@ async fn test_expired_header() {
     let Err(error) = res else {
         panic!("Expected an error")
     };
-    assert!(error.is_not_authenticated());
+    assert!(error.is_browser_expired());
 }
 
 #[tokio::test]

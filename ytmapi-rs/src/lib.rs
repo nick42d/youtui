@@ -16,10 +16,12 @@
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi-rs::Error> {
 //!     let (code, url) = ytmapi-rs::generate_oauth_code_and_url().await?;
-//!     println!("{url}");
-//!     // Open URL in your browser and complete the login flow.
+//!     println!("Go to {url}, finish the login flow, and press enter when done");
+//!     let mut _buf = String::new();
+//!     let _ = std::io::stdin().read_line(&mut _buf);
 //!     let token = ytmapi-rs::generate_oauth_token(code).await?
-//!     // NOTE: The token can be re-used until it expires, so it's recommended to save it to a file here.
+//!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
+//!     // so it's recommended to save it to a file here.
 //!     let yt = ytmapi-rs::YtMusic::from_oauth_token(token);
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
@@ -98,7 +100,7 @@ impl YtMusic<OAuthToken> {
         let client = Client::new();
         YtMusic { client, token }
     }
-    /// Refresh the internal oauth token, and return a clone of it (for user to story locally, e.g).
+    /// Refresh the internal oauth token, and return a clone of it (for user to store locally, e.g).
     pub async fn refresh_token(&mut self) -> Result<OAuthToken> {
         let refreshed_token = self.token.refresh(&self.client).await?;
         self.token = refreshed_token.clone();

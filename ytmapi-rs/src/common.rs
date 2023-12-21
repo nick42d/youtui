@@ -1,6 +1,6 @@
+//! Re-usable core structures.
 // Intended to be for structures that are also suitable to be reused by other libraries.
 // As opposed to simply part of the interface.
-
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 

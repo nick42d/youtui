@@ -1,3 +1,4 @@
+//! Available authorisation tokens.
 use crate::error::Result;
 use crate::parse::ProcessedResult;
 use crate::{process::RawResult, query::Query};
