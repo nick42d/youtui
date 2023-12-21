@@ -10,6 +10,8 @@ mod artist;
 mod library;
 mod search;
 
+// TODO: Check visibility.
+/// Represents a query that can be passed to Innertube.
 pub trait Query {
     // XXX: Consider if this should just return a tuple, Header seems overkill.
     // e.g fn header(&self) -> (Cow<str>, Cow<str>);
