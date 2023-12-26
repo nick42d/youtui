@@ -56,8 +56,7 @@ impl Api {
                 // TODO: Add OAuth
                 {
                     unimplemented!()
-                }
-                // ytmapi_rs::YtMusic::from_oauth_token(t),
+                } // ytmapi_rs::YtMusic::from_oauth_token(t),
             };
             info!("API initialised");
             Ok(api)
@@ -172,9 +171,9 @@ impl Api {
                 //            let search_res = api.search_artists(&self.search_contents, 20);
                 tracing::info!("Running search query");
                 let search_res = match api
-                    .search(
+                    .search_artists(
                         ytmapi_rs::query::SearchQuery::new(artist)
-                            .with_filter(ytmapi_rs::query::Filter::Artists)
+                            .with_filter(ytmapi_rs::query::ArtistsFilter)
                             .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
                     )
                     .await
@@ -188,13 +187,7 @@ impl Api {
                         return;
                     }
                 };
-                let artist_list = search_res
-                    .into_iter()
-                    .map(|r| match r {
-                        ytmapi_rs::parse::SearchResult::Artist(a) => a,
-                        _ => unimplemented!(),
-                    })
-                    .collect();
+                let artist_list = search_res.into_iter().collect();
                 tracing::info!("Requesting caller to replace artist list");
                 let _ = tx
                     .send(super::Response::Api(Response::ReplaceArtistList(

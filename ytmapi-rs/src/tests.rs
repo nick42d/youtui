@@ -20,6 +20,14 @@ async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
 async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
     YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
 }
+pub fn write_json(e: &Error) {
+    if let Some((json, key)) = e.get_json_and_key() {
+        std::fs::write("err.json", json)
+            .unwrap_or_else(|_| eprintln!("Error writing json to err.json"));
+        panic!("{key} not found, wrote to err.json");
+    }
+}
+
 #[tokio::test]
 async fn test_refresh_expired_oauth() {
     let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
@@ -62,24 +70,28 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 #[tokio::test]
-async fn test_search_oauth() {
-    let api = new_standard_oauth_api().await.unwrap();
+async fn test_search_artists_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
     let query = SearchQuery::new("Beatles")
-        .with_filter(Filter::Artists)
+        .with_filter(ArtistsFilter)
         .with_spelling_mode(SpellingMode::ExactMatch);
-    let res = api.search(query).await.unwrap();
+    let res = api.search_artists(query).await.unwrap();
 }
 #[tokio::test]
-async fn test_search() {
+async fn test_search_artists() {
     let api = new_standard_api().await.unwrap();
     let query = SearchQuery::new("Beatles")
-        .with_filter(Filter::Artists)
+        .with_filter(ArtistsFilter)
         .with_spelling_mode(SpellingMode::ExactMatch);
-    let res = api.search(query).await.unwrap();
+    let res = api.search_artists(query).await.unwrap();
 }
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
-    let api = new_standard_oauth_api().await.unwrap();
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
     let res = api.get_library_playlists().await.unwrap();
     assert!(res.len() > 0);
 }
@@ -91,7 +103,9 @@ async fn test_get_library_playlists() {
 }
 #[tokio::test]
 async fn test_get_library_artists_oauth() {
-    let api = new_standard_oauth_api().await.unwrap();
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
     let query = GetLibraryArtistsQuery::default();
     let res = api.get_library_artists(query).await.unwrap();
     assert!(res.len() > 0);
@@ -146,7 +160,9 @@ async fn test_get_lyrics() {
 }
 #[tokio::test]
 async fn test_search_suggestions_oauth() {
-    let api = new_standard_oauth_api().await.unwrap();
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
     let res = api.get_search_suggestions("faded").await.unwrap();
     let example = SearchSuggestion::new(
         common::SuggestionType::Prediction,
@@ -276,11 +292,4 @@ async fn test_get_artist_album_songs() {
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
     let res = res.parse().unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
-}
-pub fn write_json(e: &Error) {
-    if let Some((json, key)) = e.get_json_and_key() {
-        std::fs::write("err.json", json)
-            .unwrap_or_else(|_| eprintln!("Error writing json to err.json"));
-        panic!("{key} not found, wrote to err.json");
-    }
 }

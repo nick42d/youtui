@@ -17,6 +17,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+// The original reason for the two different structs was that we did not save the refresh token.
+// But now we do, so consider simply making this only one struct.
+// Otherwise the only difference is not including Scope which is not super relevant.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
@@ -37,7 +40,13 @@ struct GoogleOAuthToken {
     pub scope: String,
     pub token_type: String,
 }
-
+#[derive(Debug, Clone, Deserialize)]
+struct GoogleOAuthRefreshToken {
+    pub access_token: String,
+    pub expires_in: usize,
+    pub scope: String,
+    pub token_type: String,
+}
 #[derive(Debug, Clone, Deserialize)]
 pub struct OAuthTokenGenerator {
     pub device_code: OAuthDeviceCode,
@@ -52,10 +61,28 @@ impl OAuthToken {
         serde_json::from_str(json_string.as_ref())
             .map_err(|_| Error::other("Error parsing json oauth string"))
     }
+    fn from_google_refresh_token(
+        google_token: GoogleOAuthRefreshToken,
+        request_time: SystemTime,
+        refresh_token: String,
+    ) -> Self {
+        // See comment above on OAuthToken
+        let GoogleOAuthRefreshToken {
+            access_token,
+            expires_in,
+            token_type,
+            ..
+        } = google_token;
+        Self {
+            token_type,
+            refresh_token,
+            access_token,
+            request_time,
+            expires_in,
+        }
+    }
     fn from_google_token(google_token: GoogleOAuthToken, request_time: SystemTime) -> Self {
-        // Assuming we don't need to re-write refresh token to disk for now (probably loaded from disk)
-        // we'll generate it every time on load if needed.
-        // This is to avoid needing to write to disk in this library.
+        // See comment above on OAuthToken
         let GoogleOAuthToken {
             access_token,
             expires_in,
@@ -182,6 +209,7 @@ impl OAuthToken {
             "client_secret" : OAUTH_CLIENT_SECRET,
             "grant_type" : "refresh_token",
             "refresh_token" : self.refresh_token,
+            "client_id" : OAUTH_CLIENT_ID,
         });
         let result = client
             .post(OAUTH_TOKEN_URL)
@@ -191,11 +219,13 @@ impl OAuthToken {
             .await?
             .text()
             .await?;
-        let google_token: GoogleOAuthToken =
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
-        Ok(OAuthToken::from_google_token(
+        let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result)
+            .map_err(|e| Error::unable_to_serialize_oauth(&result, e))?;
+        Ok(OAuthToken::from_google_refresh_token(
             google_token,
             SystemTime::now(),
+            // TODO: Remove clone.
+            self.refresh_token.clone(),
         ))
     }
 }

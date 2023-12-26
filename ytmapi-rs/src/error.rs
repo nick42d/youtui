@@ -46,6 +46,10 @@ enum Inner {
     // XXX: Seems to get returned when Innertube Browser Authentication Response doesn't contain the required fields.
     Header,
     Other(String), // Generic catchall - TODO: Remove all of these.
+    UnableToSerializeGoogleOAuthToken {
+        response: String,
+        err: serde_json::Error,
+    },
     BrowserTokenExpired,
     OAuthTokenExpired,
     // Received an error code in the JSON message from Innertube.
@@ -111,6 +115,12 @@ impl Error {
             inner: Box::new(Inner::InvalidResponse { response }),
         }
     }
+    pub fn unable_to_serialize_oauth<S: Into<String>>(response: S, err: serde_json::Error) -> Self {
+        let response = response.into();
+        Self {
+            inner: Box::new(Inner::UnableToSerializeGoogleOAuthToken { response, err }),
+        }
+    }
     pub fn other<S: Into<String>>(msg: S) -> Self {
         Self {
             inner: Box::new(Inner::Other(msg.into())),
@@ -130,6 +140,7 @@ impl Error {
             | Inner::InvalidResponse { .. }
             | Inner::Header
             | Inner::Other(_)
+            | Inner::UnableToSerializeGoogleOAuthToken { .. }
             | Inner::OtherErrorCodeInResponse(_) => None,
             Inner::OAuthTokenExpired => None,
             Inner::BrowserTokenExpired => None,
@@ -161,6 +172,11 @@ impl Display for Inner {
             } => write!(f, "Unable to parse into {:?} at {key}", target),
             Inner::OAuthTokenExpired => write!(f, "OAuth token has expired"),
             Inner::BrowserTokenExpired => write!(f, "Browser token has expired"),
+            Inner::UnableToSerializeGoogleOAuthToken { response, err } => write!(
+                f,
+                "Unable to serialize Google auth token {}, received error {}",
+                response, err
+            ),
         }
     }
 }

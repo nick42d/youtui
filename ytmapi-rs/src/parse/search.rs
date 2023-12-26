@@ -1,11 +1,13 @@
-use const_format::concatcp;
-
-use super::{parse_search_result, parse_search_results, ProcessedResult, SearchResult};
-use crate::common::{AlbumType, SearchSuggestion, SuggestionType, TextRun};
+use super::{
+    parse_item_text, parse_search_result, parse_search_results, parse_thumbnails, Parse,
+    ProcessedResult, SearchResult, SearchResultArtist,
+};
+use crate::common::{AlbumType, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
 use crate::crawler::JsonCrawlerBorrowed;
-use crate::nav_consts::SECTION_LIST;
-use crate::query::*;
+use crate::nav_consts::{NAVIGATION_BROWSE_ID, SECTION_LIST, THUMBNAILS};
+use crate::{query::*, ChannelID};
 use crate::{Error, Result};
+use const_format::concatcp;
 
 // May be redundant due to encoding this in type system
 #[derive(Debug, Clone)]
@@ -19,7 +21,6 @@ pub enum SearchResultType {
 }
 impl TryFrom<&String> for SearchResultType {
     type Error = crate::Error;
-
     fn try_from(value: &String) -> std::result::Result<Self, Self::Error> {
         match value.as_str() {
             // Dirty hack to get artist outputting
@@ -39,10 +40,10 @@ impl TryFrom<&String> for SearchResultType {
         }
     }
 }
-impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
-    // TODO: Take the search suggestions param.
-    // TODO: Handle errors
-    pub fn parse(self) -> Result<Vec<super::SearchResult<'a>>> {
+
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, BasicSearch>> {
+    type Output = Vec<super::SearchResult<'a>>;
+    fn parse(self) -> Result<Self::Output> {
         let ProcessedResult {
             mut json_crawler, ..
         } = self;
@@ -115,9 +116,47 @@ impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
         Ok(search_results)
     }
 }
+// TODO: Type safety
+fn parse_artist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultArtist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    // Will this find none and error? Note from previously.
+    let artist = parse_item_text(&mut mrlir, 0, 0)?;
+    let browse_id = mrlir
+        .take_value_pointer::<String, &str>(NAVIGATION_BROWSE_ID)
+        .map(|s| ChannelID::from_raw(s))
+        .ok();
+    let thumbnails = mrlir
+        .navigate_pointer(THUMBNAILS)
+        .and_then(|mut t| parse_thumbnails(&mut t))?;
+    Ok(SearchResultArtist {
+        artist,
+        thumbnails,
+        browse_id,
+    })
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
+    type Output = Vec<SearchResultArtist>;
+    fn parse(self) -> Result<Self::Output> {
+        let ProcessedResult {
+            mut json_crawler, ..
+        } = self;
+        json_crawler
+            .navigate_pointer(concatcp!(
+                "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
+                SECTION_LIST,
+                "/0/musicShelfRenderer/contents"
+            ))?
+            .as_array_iter_mut()?
+            .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
 
-impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
-    pub fn parse(self) -> Result<Vec<SearchSuggestion>> {
+impl<'a> Parse for ProcessedResult<GetSearchSuggestionsQuery<'a>> {
+    type Output = Vec<SearchSuggestion>;
+    fn parse(self) -> Result<Self::Output> {
         let ProcessedResult { json_crawler, .. } = self;
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
@@ -153,6 +192,7 @@ impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
     }
 }
 
+// Continuation functions for future use
 fn get_continuations(res: &SearchResult) {}
 
 fn get_reloadable_continuation_params(json: &mut JsonCrawlerBorrowed) -> Result<String> {
@@ -175,4 +215,38 @@ fn get_continuation_params(
 
 fn get_continuation_string(ctoken: String) -> String {
     format!("&ctoken={0}&continuation={0}", ctoken)
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::expect;
+
+    use crate::{
+        crawler::JsonCrawler,
+        parse::{Parse, ProcessedResult},
+        process::JsonCloner,
+        query::{ArtistsFilter, SearchQuery},
+    };
+    use std::path::Path;
+
+    #[tokio::test]
+    async fn test_search_artists() {
+        let source_path = Path::new("./test_json/search_artists_20231226.json");
+        let expected_path = Path::new("./test_json/search_artists_20231226_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let json_clone = JsonCloner::from_string(source).unwrap();
+        // Blank query has no bearing on function
+        let query = SearchQuery::new("").with_filter(ArtistsFilter);
+        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+            .parse()
+            .unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
+    }
 }

@@ -9,8 +9,9 @@ use reqwest::Client;
 pub mod browser;
 pub mod oauth;
 
+// TODO: Seal
 /// An authentication token into Youtube Music that can be used to query the API.
-pub(crate) trait AuthToken: Sized {
+pub trait AuthToken: Sized {
     // TODO: Continuations - as Stream?
     async fn raw_query<'a, Q: Query>(
         &'a self,

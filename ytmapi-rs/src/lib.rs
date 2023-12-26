@@ -27,7 +27,7 @@
 //!     println!("{:?}", result);
 //! }
 //! ```
-// TODO Confirm if should be pub
+// TODO: Confirm if auth should be pub
 pub mod auth;
 mod utils;
 mod locales {}
@@ -54,12 +54,13 @@ use common::{
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
-use parse::{AlbumParams, ArtistParams, SearchResult};
+use parse::{AlbumParams, ArtistParams, Parse, SearchResult, SearchResultArtist};
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
+    ArtistsFilter, BasicSearch, FilteredSearch, FilteredSearchType, GetAlbumQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -112,24 +113,24 @@ impl<A: AuthToken> YtMusic<A> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
-    // TODO: Add validation here
+    // TODO: Add validation here?
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
         let json = self.raw_query(query).await?.destructure_json();
         Ok(json)
     }
-    // TODO: add use statements to cleanup path.
-    // XXX: Consider taking into<SearchQuery>
-    pub async fn search<'a, S: SearchType>(
+    pub async fn search<'a, S: SearchType, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
-        query: SearchQuery<'a, S>,
+        query: Q,
     ) -> Result<Vec<SearchResult<'a>>> {
+        let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
-    #[deprecated = "In progress, not complete"]
-    pub async fn get_continuations<S: SearchType>(
+    /// API Search Query for Artists only.
+    pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
         &self,
-        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
-    ) -> Result<()> {
+        query: Q,
+    ) -> Result<Vec<SearchResultArtist>> {
+        let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
     pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {

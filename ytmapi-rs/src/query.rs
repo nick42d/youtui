@@ -21,11 +21,9 @@ pub trait Query {
 }
 
 pub mod album {
-    use serde_json::json;
-
+    use super::Query;
     use crate::common::{AlbumID, YoutubeID};
-
-    use super::{BrowseID, Query};
+    use serde_json::json;
     use std::borrow::Cow;
 
     pub struct GetAlbumQuery<'a> {
@@ -56,16 +54,19 @@ pub mod album {
     }
 }
 
+// For future use.
 pub mod continuations {
     use std::borrow::Cow;
 
-    use super::{FilteredSearch, Query, SearchQuery};
+    use super::{FilteredSearch, FilteredSearchType, Query, SearchQuery};
 
     pub struct GetContinuationsQuery<Q: Query> {
         c_params: String,
         query: Q,
     }
-    impl<'a> Query for GetContinuationsQuery<SearchQuery<'a, FilteredSearch>> {
+    impl<'a, F: FilteredSearchType> Query
+        for GetContinuationsQuery<SearchQuery<'a, FilteredSearch<F>>>
+    {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             self.query.header()
         }

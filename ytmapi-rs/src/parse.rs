@@ -17,12 +17,21 @@ use const_format::concatcp;
 pub use continuations::*;
 pub use library::*;
 pub use search::*;
+use serde::{Deserialize, Serialize};
 
 mod album;
 mod artist;
 mod continuations;
 mod library;
 mod search;
+
+// TODO: Seal
+// TODO: Implement for all types.
+/// Trait to represent a YouTube struct that can be parsed.
+pub trait Parse {
+    type Output;
+    fn parse(self) -> Result<Self::Output>;
+}
 
 #[derive(Debug, Clone)]
 pub enum SearchResult<'a> {
@@ -61,11 +70,9 @@ pub struct ParsedSongList {
     year: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResultArtist {
     pub artist: String,
-    // Given by calling function, consider removing.
-    // pub category: String,
     pub browse_id: Option<ChannelID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }

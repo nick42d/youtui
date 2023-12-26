@@ -142,10 +142,7 @@ pub async fn print_library_playlists_json(config: &Config) -> Result<()> {
 }
 // NOTE: Currently only searches artists. Not strictly correct.
 pub async fn search(config: &Config, query: String) -> Result<()> {
-    let res = get_api(&config)
-        .await?
-        .search(SearchQuery::new(query).with_filter(ytmapi_rs::query::Filter::Artists))
-        .await?;
+    let res = get_api(&config).await?.search_artists(query).await?;
     println!("{:#?}", res);
     Ok(())
 }
