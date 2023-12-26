@@ -5,6 +5,7 @@ use crate::Commands;
 use crate::Result;
 use crate::RuntimeInfo;
 use std::path::PathBuf;
+use ytmapi_rs::query::ArtistsFilter;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
 use ytmapi_rs::query::SearchQuery;
@@ -76,7 +77,6 @@ pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) -> Result<()
 async fn get_oauth_token() -> Result<String> {
     let (code, url) = generate_oauth_code_and_url().await?;
     // Hack to wait for input
-    // TODO: Remove unwraps
     println!("Go to {url}, finish the login flow, and press enter when done");
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
@@ -85,7 +85,6 @@ async fn get_oauth_token() -> Result<String> {
 }
 
 pub async fn print_artist(config: &Config, query: String) -> Result<()> {
-    // TODO: remove unwrap
     let res = get_api(&config)
         .await?
         .get_artist(GetArtistQuery::new(ChannelID::from_raw(query)))
@@ -95,12 +94,10 @@ pub async fn print_artist(config: &Config, query: String) -> Result<()> {
 }
 
 pub async fn print_artist_json(config: &Config, query: String) -> Result<()> {
-    // TODO: remove unwrap
     let json = get_api(&config)
         .await?
         .json_query(GetArtistQuery::new(ChannelID::from_raw(query)))
         .await?;
-    // TODO: remove unwrap
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
@@ -116,12 +113,11 @@ pub async fn print_search_suggestions(config: &Config, query: String) -> Result<
 }
 
 pub async fn print_search_suggestions_json(config: &Config, query: String) -> Result<()> {
-    // TODO: remove unwrap
     let json = get_api(&config)
         .await?
         .json_query(GetSearchSuggestionsQuery::from(query))
         .await?;
-    // TODO: remove unwrap
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
@@ -137,6 +133,7 @@ pub async fn print_library_playlists_json(config: &Config) -> Result<()> {
         .await?
         .json_query(GetLibraryPlaylistsQuery)
         .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
@@ -147,11 +144,13 @@ pub async fn search(config: &Config, query: String) -> Result<()> {
     Ok(())
 }
 
+// NOTE: Currently only searches artists. Not strictly correct.
 pub async fn search_json(config: &Config, query: String) -> Result<()> {
     let json = get_api(&config)
         .await?
-        .json_query(SearchQuery::new(query))
+        .json_query(SearchQuery::new(query).with_filter(ArtistsFilter))
         .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }

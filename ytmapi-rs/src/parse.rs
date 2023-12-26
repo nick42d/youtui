@@ -70,7 +70,7 @@ pub struct ParsedSongList {
     year: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResultArtist {
     pub artist: String,
     pub browse_id: Option<ChannelID<'static>>,

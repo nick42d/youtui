@@ -142,12 +142,19 @@ impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>
         let ProcessedResult {
             mut json_crawler, ..
         } = self;
-        json_crawler
-            .navigate_pointer(concatcp!(
-                "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
-                SECTION_LIST,
-                "/0/musicShelfRenderer/contents"
-            ))?
+        let section_contents = json_crawler.navigate_pointer(concatcp!(
+            "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
+            SECTION_LIST,
+            "/0"
+        ))?;
+        // In this case, we've searched for an artist and had no results found.
+        // We are being quite explicit here to avoid a false positive.
+        // See tests for an example.
+        if section_contents.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer") {
+            return Ok(Vec::new());
+        }
+        section_contents
+            .navigate_pointer("/musicShelfRenderer/contents")?
             .as_array_iter_mut()?
             .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
             .collect()
@@ -248,5 +255,19 @@ mod tests {
             .unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
+    }
+    #[tokio::test]
+    async fn test_search_artists_empty() {
+        let source_path = Path::new("./test_json/search_artists_no_results_20231226.json");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let json_clone = JsonCloner::from_string(source).unwrap();
+        // Blank query has no bearing on function
+        let query = SearchQuery::new("").with_filter(ArtistsFilter);
+        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+            .parse()
+            .unwrap();
+        assert_eq!(output, Vec::new());
     }
 }

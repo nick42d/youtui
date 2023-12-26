@@ -214,7 +214,7 @@ impl<'a, Q: Into<Cow<'a, str>>, S: SearchType> From<Q> for SearchQuery<'a, S> {
     fn from(value: Q) -> SearchQuery<'a, S> {
         SearchQuery {
             query: value.into(),
-            spelling_mode: SpellingMode::ExactMatch,
+            spelling_mode: SpellingMode::default(),
             searchtype: S::default(),
         }
     }
@@ -225,7 +225,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
     pub fn new<Q: Into<Cow<'a, str>>>(q: Q) -> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: q.into(),
-            spelling_mode: SpellingMode::ExactMatch,
+            spelling_mode: SpellingMode::default(),
             searchtype: BasicSearch {},
         }
     }
