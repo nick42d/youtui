@@ -36,7 +36,7 @@ pub trait Parse {
 #[derive(Debug, Clone)]
 pub enum SearchResult<'a> {
     TopResult,
-    Song(SearchResultSong<'a>),
+    Song(SearchResultSong),
     Album(SearchResultAlbum),
     Playlist(SearchResultPlaylist<'a>),
     Video,
@@ -73,8 +73,8 @@ pub struct ParsedSongList {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// An artist search result.
 pub struct SearchResultArtist {
-    // TODO: Add subscribers
     pub artist: String,
+    pub subscribers: String,
     pub browse_id: Option<ChannelID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -92,15 +92,16 @@ pub struct SearchResultAlbum {
 }
 
 #[derive(Debug, Clone)]
-pub struct SearchResultSong<'a> {
+pub struct SearchResultSong {
+    // Potentially can include links to artist and album.
     pub title: String,
-    pub artists: Vec<ParsedSongArtist>,
-    pub album: ParsedSongAlbum,
+    pub artist: String,
+    pub album: String,
+    pub duration: String,
+    pub plays: String,
     pub explicit: Explicit,
-    pub video_id: Option<VideoID<'a>>,
-    pub album_type: AlbumType,
+    pub video_id: Option<VideoID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
-    pub feedback_tockens: FeedbackTokens,
 }
 
 #[derive(Debug, Clone)]
@@ -111,9 +112,6 @@ pub struct SearchResultPlaylist<'a> {
     pub playlist_id: Option<PlaylistID<'a>>,
     pub item_count: u32,
 }
-
-#[derive(Debug, Clone)]
-pub struct FeedbackTokens;
 
 pub struct ProcessedResult<T>
 where
@@ -176,16 +174,6 @@ fn parse_song_album(data: &mut JsonCrawlerBorrowed, col_idx: usize) -> Result<Pa
     })
 }
 
-// Maybe doesn't need to be function
-pub fn parse_thumbnails(thumbnails: &mut JsonCrawlerBorrowed) -> crate::Result<Vec<Thumbnail>> {
-    let mut thumb_array = Vec::new();
-    for mut thumb_json in thumbnails.as_array_iter_mut()? {
-        let thumb = thumb_json.take_value()?;
-        thumb_array.push(thumb)
-    }
-    Ok(thumb_array)
-}
-
 fn parse_item_text(
     item: &mut JsonCrawlerBorrowed,
     col_idx: usize,
@@ -194,117 +182,6 @@ fn parse_item_text(
     // Consider early return over the and_then calls.
     let pointer = format!("/text/runs/{run_idx}/text");
     process_flex_column_item(item, col_idx)?.take_value_pointer(pointer)
-}
-
-// Looks to only do Artists currently
-pub fn parse_search_results<'a>(results: JsonCrawlerBorrowed) -> Result<Vec<SearchResult<'a>>> {
-    results
-        .into_array_iter_mut()?
-        .map(|r| {
-            r.navigate_pointer("/musicResponsiveListItemRenderer")
-                .and_then(|r| parse_search_result(r, SearchResultType::Artist))
-        })
-        .collect()
-}
-
-// Currently only searches and returns artists.
-// TODO: i18n
-pub fn parse_search_result<'a>(
-    mut data: JsonCrawlerBorrowed,
-    _category: SearchResultType,
-) -> Result<SearchResult<'a>> {
-    // Unsure what this does
-    //        default_offset = (not result_type) * 2
-    let video_type = data.take_value_pointer::<String, &str>(concatcp!(
-        PLAY_BUTTON,
-        "/playNavigationEndpoint",
-        NAVIGATION_VIDEO_TYPE
-    ));
-    let result_type = match video_type.as_deref() {
-        Ok("MUSIC_VIDEO_TYPE_ATV") => SearchResultType::Song,
-        Ok(_) => SearchResultType::Video,
-        // Note - ASCII lowercase function only here.
-        // Should use the try_from method on SearchResultType.
-        Err(_) => match parse_item_text(&mut data, 1, 0)?
-            .to_ascii_lowercase()
-            .as_str()
-        {
-            "artist" => SearchResultType::Artist,
-            "station" => SearchResultType::Station,
-            "video" => SearchResultType::Video,
-            "song" => SearchResultType::Song,
-            "playlist" => SearchResultType::Playlist,
-            // Likely one of the multiple "Album" types.
-            x => todo!("result type {x} not implemented yet"),
-        },
-    };
-    let _title = match result_type {
-        SearchResultType::Artist => None,
-        _ => Some(parse_item_text(&mut data, 0, 0)?),
-    };
-    // Will this find none and error? Note from previously.
-    let artist = match result_type {
-        //below is some bs with side effects. Don't do it.
-        //parse_menu_playlists(data, search_result);
-        SearchResultType::Artist => Some(parse_item_text(&mut data, 0, 0)?),
-        _ => None,
-    };
-    let browse_id = data
-        .take_value_pointer::<String, &str>(NAVIGATION_BROWSE_ID)
-        .map(|s| ChannelID::from_raw(s))
-        .ok();
-    let thumbnails = data
-        .navigate_pointer(THUMBNAILS)
-        .and_then(|mut t| parse_thumbnails(&mut t))?;
-    let search_result = match result_type {
-        SearchResultType::Artist => {
-            // TODO: Fix this shit
-            let artist = artist
-                .ok_or_else(|| Error::other("Artist wasn't found, but it's a required field."))?;
-            SearchResult::Artist(SearchResultArtist {
-                artist,
-                thumbnails,
-                // category is given by the calling function. Not sure if we need it here.
-                // category,
-                browse_id,
-            })
-        }
-        #[allow(unreachable_code, unused_variables)]
-        SearchResultType::Album(album_type) => {
-            let artist = todo!();
-            let year = todo!();
-            let title = todo!();
-            let explicit = todo!();
-            SearchResult::Album(SearchResultAlbum {
-                artist,
-                browse_id,
-                year,
-                title,
-                explicit,
-                album_type,
-                thumbnails,
-            })
-        }
-        // Should Playlist take the type in the enum definition?
-        #[allow(unreachable_code, unused_variables)]
-        SearchResultType::Playlist => {
-            let author = todo!();
-            let item_count = todo!();
-            let title = todo!();
-            let playlist_type = todo!();
-            SearchResult::Playlist(SearchResultPlaylist {
-                playlist_id: browse_id
-                    .as_ref()
-                    .map(|id| PlaylistID::from_raw(id.get_raw())),
-                title,
-                author,
-                item_count,
-                playlist_type,
-            })
-        }
-        _ => todo!("type not yet implemented"),
-    };
-    Ok(search_result)
 }
 
 pub fn parse_top_result(mut data: JsonCrawlerBorrowed) -> Result<TopResult> {

@@ -56,13 +56,14 @@ pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AlbumParams, ArtistParams, Parse, SearchResult, SearchResultAlbum, SearchResultArtist,
+    SearchResultSong,
 };
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
     AlbumsFilter, ArtistsFilter, BasicSearch, FilteredSearch, FilteredSearchType, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
+    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType, SongsFilter,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -141,6 +142,14 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: Q,
     ) -> Result<Vec<SearchResultAlbum>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Songs only.
+    pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultSong>> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }

@@ -89,7 +89,7 @@ impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
                 .as_str(),
         )?;
         let description = header.take_value_pointer("/description/runs/0/text").ok();
-        let thumbnails = super::parse_thumbnails(&mut header.borrow_pointer(THUMBNAIL_CROPPED)?)?;
+        let thumbnails: Vec<Thumbnail> = header.take_value_pointer(THUMBNAIL_CROPPED)?;
         // If NAVIGATION_WATCH_PLAYLIST ID, then return that, else try NAVIGATION_PLAYLIST_ID else
         // None.
         // Seems a bit of a hacky way to do this.

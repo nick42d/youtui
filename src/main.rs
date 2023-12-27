@@ -57,6 +57,7 @@ enum Commands {
     GetLibraryArtists, //TODO: Allow sorting
     SearchArtists { query: String },
     SearchAlbums { query: String },
+    SearchSongs { query: String },
 }
 
 pub struct RuntimeInfo {

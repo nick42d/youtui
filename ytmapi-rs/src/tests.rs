@@ -74,18 +74,36 @@ async fn test_search_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let query = SearchQuery::new("Beatles")
-        .with_filter(ArtistsFilter)
-        .with_spelling_mode(SpellingMode::ExactMatch);
-    let res = api.search_artists(query).await.unwrap();
+    let res = api.search_artists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_artists() {
     let api = new_standard_api().await.unwrap();
-    let query = SearchQuery::new("Beatles")
-        .with_filter(ArtistsFilter)
-        .with_spelling_mode(SpellingMode::ExactMatch);
-    let res = api.search_artists(query).await.unwrap();
+    let res = api.search_artists("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_songs_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
+    let res = api.search_songs("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_songs() {
+    let api = new_standard_api().await.unwrap();
+    let res = api.search_songs("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_albums_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
+    let res = api.search_albums("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_albums() {
+    let api = new_standard_api().await.unwrap();
+    let res = api.search_albums("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {

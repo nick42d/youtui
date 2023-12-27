@@ -1,3 +1,6 @@
+use super::MusicShelfContents;
+use super::ParsedSongAlbum;
+use super::ProcessedResult;
 use crate::common::youtuberesult::ResultCore;
 use crate::common::youtuberesult::YoutubeResult;
 use crate::common::AlbumID;
@@ -15,11 +18,6 @@ use crate::ChannelID;
 use crate::Thumbnail;
 use crate::{Error, Result};
 use const_format::concatcp;
-
-use super::parse_thumbnails;
-use super::MusicShelfContents;
-use super::ParsedSongAlbum;
-use super::ProcessedResult;
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
@@ -292,7 +290,7 @@ pub fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<Albu
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
     let year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
     let browse_id: String = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
-    let thumbnails = super::parse_thumbnails(&mut navigator.borrow_pointer(THUMBNAIL_RENDERER)?)?;
+    let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
     let is_explicit = navigator.path_exists(concatcp!(TITLE, SUBTITLE_BADGE_LABEL));
     let core = ResultCore::new(
         None,
@@ -391,11 +389,10 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
         } else {
             None
         };
-
+        // Thumbnails is supposedly optional here, so we'll return an empty Vec if failed to find.
+        // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
         let thumbnails = data
-            .borrow_pointer(THUMBNAILS)
-            .and_then(|mut t| parse_thumbnails(&mut t))
-            // Thumbnails may not exist. If not found, instead of returning None, we'll return an empty Vec.
+            .take_value_pointer::<Vec<Thumbnail>, &str>(THUMBNAILS)
             .into_iter()
             .flatten()
             .collect();
@@ -463,7 +460,7 @@ impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
             let browse_id = r.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
             let playlist_id = r.take_value_pointer(MENU_PLAYLIST_ID).ok();
             let title = r.take_value_pointer(TITLE_TEXT)?;
-            let thumbnails = super::parse_thumbnails(&mut r.borrow_pointer(THUMBNAIL_RENDERER)?)?;
+            let thumbnails = r.take_value_pointer(THUMBNAIL_RENDERER)?;
             // TODO: category
             let category = r.take_value_pointer(SUBTITLE).ok();
             albums.push(crate::Album {
