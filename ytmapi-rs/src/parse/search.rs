@@ -1,10 +1,10 @@
 use super::{
     parse_item_text, parse_search_result, parse_search_results, parse_thumbnails, Parse,
-    ProcessedResult, SearchResult, SearchResultArtist,
+    ProcessedResult, SearchResult, SearchResultAlbum, SearchResultArtist,
 };
-use crate::common::{AlbumType, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
-use crate::crawler::JsonCrawlerBorrowed;
-use crate::nav_consts::{NAVIGATION_BROWSE_ID, SECTION_LIST, THUMBNAILS};
+use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use crate::nav_consts::{BADGE_LABEL, NAVIGATION_BROWSE_ID, SECTION_LIST, THUMBNAILS};
 use crate::{query::*, ChannelID};
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -136,27 +136,93 @@ fn parse_artist_search_result_from_music_shelf_contents(
         browse_id,
     })
 }
-impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
-    type Output = Vec<SearchResultArtist>;
-    fn parse(self) -> Result<Self::Output> {
+// TODO: Type safety
+fn parse_album_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultAlbum> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    // Will this find none and error? Note from previously.
+    let artist = parse_item_text(&mut mrlir, 0, 0)?;
+    let album_type = parse_item_text(&mut mrlir, 1, 0).and_then(|a| AlbumType::try_from_str(a))?;
+    let title = parse_item_text(&mut mrlir, 1, 2)?;
+    let year = parse_item_text(&mut mrlir, 1, 4)?;
+    let explicit = if mrlir.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let browse_id = mrlir
+        .take_value_pointer::<String, &str>(NAVIGATION_BROWSE_ID)
+        .map(|s| ChannelID::from_raw(s))
+        .ok();
+    let thumbnails = mrlir
+        .navigate_pointer(THUMBNAILS)
+        .and_then(|mut t| parse_thumbnails(&mut t))?;
+    Ok(SearchResultAlbum {
+        artist,
+        thumbnails,
+        browse_id,
+        title,
+        year,
+        album_type,
+        explicit,
+    })
+}
+struct SectionContentsCrawler(JsonCrawler);
+// In this case, we've searched and had no results found.
+// We are being quite explicit here to avoid a false positive.
+// See tests for an example.
+// TODO: Test this function.
+fn section_contents_is_empty(section_contents: &SectionContentsCrawler) -> bool {
+    section_contents
+        .0
+        .path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")
+}
+impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>>
+    for SectionContentsCrawler
+{
+    type Error = Error;
+    fn try_from(value: ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>) -> Result<Self> {
         let ProcessedResult {
             mut json_crawler, ..
-        } = self;
+        } = value;
         let section_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
             SECTION_LIST,
             "/0"
         ))?;
-        // In this case, we've searched for an artist and had no results found.
-        // We are being quite explicit here to avoid a false positive.
-        // See tests for an example.
-        if section_contents.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer") {
+        Ok(SectionContentsCrawler(section_contents))
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
+    type Output = Vec<SearchResultArtist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
         }
+        // TODO: Make this a From method.
         section_contents
+            .0
             .navigate_pointer("/musicShelfRenderer/contents")?
             .as_array_iter_mut()?
             .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> {
+    type Output = Vec<SearchResultAlbum>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        // TODO: Make this a From method.
+        section_contents
+            .0
+            .navigate_pointer("/musicShelfRenderer/contents")?
+            .as_array_iter_mut()?
+            .map(|a| parse_album_search_result_from_music_shelf_contents(a))
             .collect()
     }
 }
@@ -232,7 +298,7 @@ mod tests {
         crawler::JsonCrawler,
         parse::{Parse, ProcessedResult},
         process::JsonCloner,
-        query::{ArtistsFilter, SearchQuery},
+        query::{AlbumsFilter, ArtistsFilter, SearchQuery},
     };
     use std::path::Path;
 
@@ -269,5 +335,25 @@ mod tests {
             .parse()
             .unwrap();
         assert_eq!(output, Vec::new());
+    }
+    #[tokio::test]
+    async fn test_search_albums() {
+        let source_path = Path::new("./test_json/search_albums_20231226.json");
+        let expected_path = Path::new("./test_json/search_albums_20231226_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let json_clone = JsonCloner::from_string(source).unwrap();
+        // Blank query has no bearing on function
+        let query = SearchQuery::new("").with_filter(AlbumsFilter);
+        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+            .parse()
+            .unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
     }
 }

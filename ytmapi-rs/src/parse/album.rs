@@ -83,7 +83,7 @@ impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
         // Type annotation is required because I use title before its used as a struct field.
         let title: String = header.take_value_pointer(TITLE_TEXT)?;
         // I am not sure why the error here is OK but I'll take it!
-        let category = AlbumType::try_from(
+        let category = AlbumType::try_from_str(
             header
                 .take_value_pointer::<String, &str>(SUBTITLE)?
                 .as_str(),

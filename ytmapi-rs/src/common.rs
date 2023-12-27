@@ -80,7 +80,7 @@ pub struct _Artist {
     radio_id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Explicit {
     IsExplicit,
     NotExplicit,
@@ -109,7 +109,7 @@ pub trait YoutubeID<'a> {
 }
 pub trait BrowseID<'a>: YoutubeID<'a> {}
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AlbumType {
     Single,
     Album,
@@ -187,10 +187,12 @@ impl<'a> BrowseParams<'a> {
     }
 }
 
-impl TryFrom<&str> for AlbumType {
-    type Error = crate::Error;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
+// As we can't implement generic TryFrom, instead implement a method. See below:
+// https://stackoverflow.com/questions/37347311/how-is-there-a-conflicting-implementation-of-from-when-using-a-generic-type
+// Specialization may assist in future.
+impl AlbumType {
+    pub fn try_from_str<S: AsRef<str>>(value: S) -> Result<Self, crate::Error> {
+        match value.as_ref() {
             "Album" => Ok(AlbumType::Album),
             "EP" => Ok(AlbumType::EP),
             "Single" => Ok(AlbumType::Single),

@@ -37,7 +37,7 @@ pub trait Parse {
 pub enum SearchResult<'a> {
     TopResult,
     Song(SearchResultSong<'a>),
-    Album(SearchResultAlbum<'a>),
+    Album(SearchResultAlbum),
     Playlist(SearchResultPlaylist<'a>),
     Video,
     Artist(SearchResultArtist),
@@ -71,19 +71,22 @@ pub struct ParsedSongList {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// An artist search result.
 pub struct SearchResultArtist {
+    // TODO: Add subscribers
     pub artist: String,
     pub browse_id: Option<ChannelID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }
 
-#[derive(Debug, Clone)]
-pub struct SearchResultAlbum<'a> {
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// An album search result.
+pub struct SearchResultAlbum {
     pub title: String,
     pub artist: String,
-    pub year: u32,
+    pub year: String,
     pub explicit: Explicit,
-    pub browse_id: Option<ChannelID<'a>>,
+    pub browse_id: Option<ChannelID<'static>>,
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }

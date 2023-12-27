@@ -5,6 +5,7 @@ use crate::Commands;
 use crate::Result;
 use crate::RuntimeInfo;
 use std::path::PathBuf;
+use ytmapi_rs::query::AlbumsFilter;
 use ytmapi_rs::query::ArtistsFilter;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
@@ -54,13 +55,21 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             show_source: true,
         } => print_artist_json(&config, channel_id).await?,
         Cli {
-            command: Some(Commands::Search { query }),
+            command: Some(Commands::SearchArtists { query }),
             show_source: false,
-        } => search(&config, query).await?,
+        } => search_artists(&config, query).await?,
         Cli {
-            command: Some(Commands::Search { query }),
+            command: Some(Commands::SearchArtists { query }),
             show_source: true,
-        } => search_json(&config, query).await?,
+        } => search_artists_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchAlbums { query }),
+            show_source: false,
+        } => search_albums(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchAlbums { query }),
+            show_source: true,
+        } => search_albums_json(&config, query).await?,
     }
     Ok(())
 }
@@ -137,18 +146,30 @@ pub async fn print_library_playlists_json(config: &Config) -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
-// NOTE: Currently only searches artists. Not strictly correct.
-pub async fn search(config: &Config, query: String) -> Result<()> {
+pub async fn search_artists(config: &Config, query: String) -> Result<()> {
     let res = get_api(&config).await?.search_artists(query).await?;
     println!("{:#?}", res);
     Ok(())
 }
 
-// NOTE: Currently only searches artists. Not strictly correct.
-pub async fn search_json(config: &Config, query: String) -> Result<()> {
+pub async fn search_artists_json(config: &Config, query: String) -> Result<()> {
     let json = get_api(&config)
         .await?
         .json_query(SearchQuery::new(query).with_filter(ArtistsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_albums(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_albums(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_albums_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(AlbumsFilter))
         .await?;
     let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);

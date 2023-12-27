@@ -55,7 +55,8 @@ enum Commands {
     GetArtist { channel_id: String },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
-    Search { query: String },
+    SearchArtists { query: String },
+    SearchAlbums { query: String },
 }
 
 pub struct RuntimeInfo {

@@ -54,11 +54,13 @@ use common::{
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
-use parse::{AlbumParams, ArtistParams, Parse, SearchResult, SearchResultArtist};
+use parse::{
+    AlbumParams, ArtistParams, Parse, SearchResult, SearchResultAlbum, SearchResultArtist,
+};
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    ArtistsFilter, BasicSearch, FilteredSearch, FilteredSearchType, GetAlbumQuery,
+    AlbumsFilter, ArtistsFilter, BasicSearch, FilteredSearch, FilteredSearchType, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
 };
@@ -114,6 +116,7 @@ impl<A: AuthToken> YtMusic<A> {
         self.token.raw_query(&self.client, query).await
     }
     // TODO: Add validation here?
+    /// Return the raw JSON returned by YouTube music for Query Q.
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
         let json = self.raw_query(query).await?.destructure_json();
         Ok(json)
@@ -130,6 +133,14 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: Q,
     ) -> Result<Vec<SearchResultArtist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Albums only.
+    pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultAlbum>> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
