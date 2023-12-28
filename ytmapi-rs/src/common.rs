@@ -116,11 +116,6 @@ pub enum AlbumType {
     EP,
 }
 
-#[derive(Debug, Clone)]
-pub enum PlaylistType {
-    CommunityPlaylists,
-}
-
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]

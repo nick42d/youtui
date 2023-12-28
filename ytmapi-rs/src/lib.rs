@@ -56,14 +56,17 @@ pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AlbumParams, ArtistParams, Parse, SearchResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultSong,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultSong, SearchResultVideo,
 };
 use process::RawResult;
 use query::{
     continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    AlbumsFilter, ArtistsFilter, BasicSearch, FilteredSearch, FilteredSearchType, GetAlbumQuery,
+    AlbumsFilter, ArtistsFilter, BasicSearch, CommunityPlaylistsFilter, EpisodesFilter,
+    FeaturedPlaylistsFilter, FilteredSearch, FilteredSearchType, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetSearchSuggestionsQuery, Query, SearchQuery, SearchType, SongsFilter,
+    GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, Query, SearchQuery, SearchType,
+    SongsFilter, VideosFilter,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -125,7 +128,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn search<'a, S: SearchType, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
         query: Q,
-    ) -> Result<Vec<SearchResult<'a>>> {
+    ) -> Result<Vec<SearchResult>> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
@@ -150,6 +153,60 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: Q,
     ) -> Result<Vec<SearchResultSong>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Playlists only.
+    pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Community Playlists only.
+    pub async fn search_community_playlists<
+        'a,
+        Q: Into<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
+    >(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Featured Playlists only.
+    pub async fn search_featured_playlists<
+        'a,
+        Q: Into<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
+    >(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultFeaturedPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Episodes only.
+    pub async fn search_episodes<'a, Q: Into<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultEpisode>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Podcasts only.
+    pub async fn search_podcasts<'a, Q: Into<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPodcast>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Videos only.
+    pub async fn search_videos<'a, Q: Into<SearchQuery<'a, FilteredSearch<VideosFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultVideo>> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }

@@ -1,9 +1,6 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    common::{
-        AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PlaylistType, Thumbnail, VideoID,
-        YoutubeID,
-    },
+    common::{AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, Thumbnail, VideoID, YoutubeID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
     process::{self, process_flex_column_item},
@@ -34,11 +31,11 @@ pub trait Parse {
 }
 
 #[derive(Debug, Clone)]
-pub enum SearchResult<'a> {
+pub enum SearchResult {
     TopResult,
     Song(SearchResultSong),
     Album(SearchResultAlbum),
-    Playlist(SearchResultPlaylist<'a>),
+    Playlist(SearchResultPlaylist),
     Video,
     Artist(SearchResultArtist),
 }
@@ -78,7 +75,21 @@ pub struct SearchResultArtist {
     pub browse_id: Option<ChannelID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }
-
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A podcast search result.
+pub struct SearchResultPodcast {
+    pub title: String,
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A podcast episode search result.
+pub struct SearchResultEpisode {
+    pub title: String,
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A video search result.
+pub struct SearchResultVideo {
+    pub title: String,
+}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// An album search result.
 pub struct SearchResultAlbum {
@@ -90,7 +101,6 @@ pub struct SearchResultAlbum {
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }
-
 #[derive(Debug, Clone)]
 pub struct SearchResultSong {
     // Potentially can include links to artist and album.
@@ -103,14 +113,19 @@ pub struct SearchResultSong {
     pub video_id: Option<VideoID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }
-
 #[derive(Debug, Clone)]
-pub struct SearchResultPlaylist<'a> {
+pub struct SearchResultPlaylist {
     pub title: String,
-    pub author: Option<String>,
-    pub playlist_type: PlaylistType,
-    pub playlist_id: Option<PlaylistID<'a>>,
-    pub item_count: u32,
+    pub author: String,
+    pub views: String,
+    pub playlist_id: Option<PlaylistID<'static>>,
+}
+#[derive(Debug, Clone)]
+pub struct SearchResultFeaturedPlaylist {
+    pub title: String,
+    pub author: String,
+    pub songs: String,
+    pub playlist_id: Option<PlaylistID<'static>>,
 }
 
 pub struct ProcessedResult<T>
