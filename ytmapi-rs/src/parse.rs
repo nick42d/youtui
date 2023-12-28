@@ -1,6 +1,9 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    common::{AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, Thumbnail, VideoID, YoutubeID},
+    common::{
+        AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PodcastID, Thumbnail, VideoID,
+        YoutubeID,
+    },
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
     process::{self, process_flex_column_item},
@@ -79,6 +82,8 @@ pub struct SearchResultArtist {
 /// A podcast search result.
 pub struct SearchResultPodcast {
     pub title: String,
+    pub publisher: String,
+    pub podcast_id: Option<PodcastID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A podcast episode search result.

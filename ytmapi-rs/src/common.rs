@@ -124,12 +124,22 @@ pub struct PlaylistID<'a>(Cow<'a, str>);
 pub struct AlbumID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct PodcastID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
+    fn get_raw(&self) -> &str {
+        &self.0
+    }
+    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
+        Self(raw_str.into())
+    }
+}
+impl<'a> YoutubeID<'a> for PodcastID<'a> {
     fn get_raw(&self) -> &str {
         &self.0
     }

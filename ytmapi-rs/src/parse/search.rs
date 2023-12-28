@@ -142,7 +142,13 @@ fn parse_podcast_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultPodcast> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
-    Ok(SearchResultPodcast { title })
+    let publisher = parse_item_text(&mut mrlir, 1, 0)?;
+    let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    Ok(SearchResultPodcast {
+        title,
+        publisher,
+        podcast_id,
+    })
 }
 // TODO: Type safety
 // TODO: Tests
