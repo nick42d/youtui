@@ -57,7 +57,7 @@ pub use error::{Error, Result};
 use parse::{
     AlbumParams, ArtistParams, Parse, SearchResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultSong, SearchResultVideo,
+    SearchResultProfile, SearchResultSong, SearchResultVideo,
 };
 use process::RawResult;
 use query::{
@@ -65,8 +65,8 @@ use query::{
     AlbumsFilter, ArtistsFilter, BasicSearch, CommunityPlaylistsFilter, EpisodesFilter,
     FeaturedPlaylistsFilter, FilteredSearch, FilteredSearchType, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, Query, SearchQuery, SearchType,
-    SongsFilter, VideosFilter,
+    GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery,
+    SearchType, SongsFilter, VideosFilter,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -207,6 +207,14 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: Q,
     ) -> Result<Vec<SearchResultVideo>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Profiles only.
+    pub async fn search_profiles<'a, Q: Into<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultProfile>> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }

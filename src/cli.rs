@@ -7,11 +7,17 @@ use crate::RuntimeInfo;
 use std::path::PathBuf;
 use ytmapi_rs::query::AlbumsFilter;
 use ytmapi_rs::query::ArtistsFilter;
+use ytmapi_rs::query::CommunityPlaylistsFilter;
+use ytmapi_rs::query::EpisodesFilter;
+use ytmapi_rs::query::FeaturedPlaylistsFilter;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
 use ytmapi_rs::query::PlaylistsFilter;
+use ytmapi_rs::query::PodcastsFilter;
+use ytmapi_rs::query::ProfilesFilter;
 use ytmapi_rs::query::SearchQuery;
 use ytmapi_rs::query::SongsFilter;
+use ytmapi_rs::query::VideosFilter;
 use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
@@ -88,6 +94,54 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             command: Some(Commands::SearchPlaylists { query }),
             show_source: true,
         } => search_playlists_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchEpisodes { query }),
+            show_source: false,
+        } => search_episodes(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchEpisodes { query }),
+            show_source: true,
+        } => search_episodes_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchPodcasts { query }),
+            show_source: false,
+        } => search_podcasts(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchPodcasts { query }),
+            show_source: true,
+        } => search_podcasts_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchCommunityPlaylists { query }),
+            show_source: false,
+        } => search_community_playlists(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchCommunityPlaylists { query }),
+            show_source: true,
+        } => search_community_playlists_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchFeaturedPlaylists { query }),
+            show_source: false,
+        } => search_featured_playlists(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchFeaturedPlaylists { query }),
+            show_source: true,
+        } => search_featured_playlists_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchProfiles { query }),
+            show_source: false,
+        } => search_profiles(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchProfiles { query }),
+            show_source: true,
+        } => search_profiles_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchVideos { query }),
+            show_source: false,
+        } => search_videos(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchVideos { query }),
+            show_source: true,
+        } => search_videos_json(&config, query).await?,
     }
     Ok(())
 }
@@ -216,6 +270,96 @@ pub async fn search_playlists_json(config: &Config, query: String) -> Result<()>
     let json = get_api(&config)
         .await?
         .json_query(SearchQuery::new(query).with_filter(PlaylistsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_featured_playlists(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config)
+        .await?
+        .search_featured_playlists(query)
+        .await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_featured_playlists_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(FeaturedPlaylistsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_community_playlists(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config)
+        .await?
+        .search_community_playlists(query)
+        .await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_community_playlists_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(CommunityPlaylistsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_episodes(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_episodes(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_episodes_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(EpisodesFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_podcasts(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_podcasts(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_podcasts_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(PodcastsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_profiles(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_profiles(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_profiles_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(ProfilesFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_videos(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_videos(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_videos_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(VideosFilter))
         .await?;
     let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);

@@ -1,8 +1,8 @@
 //! Results from parsing Innertube queries.
 use crate::{
     common::{
-        AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PodcastID, Thumbnail, VideoID,
-        YoutubeID,
+        AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail,
+        VideoID, YoutubeID,
     },
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
@@ -33,6 +33,19 @@ pub trait Parse {
     fn parse(self) -> Result<Self::Output>;
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SearchResults {
+    pub top_results: Vec<TopResult>,
+    pub artists: Vec<SearchResultArtist>,
+    pub albums: Vec<SearchResultAlbum>,
+    pub featured_playlists: Vec<SearchResultFeaturedPlaylist>,
+    pub community_playlists: Vec<SearchResultCommunityPlaylist>,
+    pub songs: Vec<SearchResultSong>,
+    pub videos: Vec<SearchResultVideo>,
+    pub podcasts: Vec<SearchResultPodcast>,
+    pub episodes: Vec<SearchResultEpisode>,
+    pub profiles: Vec<SearchResultProfile>,
+}
 #[derive(Debug, Clone)]
 pub enum SearchResult {
     TopResult,
@@ -43,17 +56,17 @@ pub enum SearchResult {
     Artist(SearchResultArtist),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
     name: String,
     id: Option<String>,
 }
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongAlbum {
     pub name: Option<String>,
     id: Option<String>,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TopResult {
     result_type: SearchResultType,
     subscribers: Option<String>,
@@ -61,7 +74,7 @@ pub struct TopResult {
     // XXX: more to come
     artist_info: Option<ParsedSongList>,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongList {
     artists: Vec<ParsedSongArtist>,
     album: Option<ParsedSongAlbum>,
@@ -94,6 +107,20 @@ pub struct SearchResultEpisode {
 /// A video search result.
 pub struct SearchResultVideo {
     pub title: String,
+    /// Note: Either Youtube channel name, or artist name.
+    // Potentially can include link to channel.
+    pub channel_name: String,
+    pub views: String,
+    pub length: String,
+    pub thumbnails: Vec<Thumbnail>,
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A profile search result.
+pub struct SearchResultProfile {
+    pub title: String,
+    pub username: String,
+    pub profile_id: ProfileID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// An album search result.

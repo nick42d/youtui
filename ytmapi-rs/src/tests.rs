@@ -139,7 +139,19 @@ async fn test_search_podcasts_oauth() {
 #[tokio::test]
 async fn test_search_podcasts() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_albums("Beatles").await.unwrap();
+    let res = api.search_podcasts("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_profiles_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
+    let res = api.search_profiles("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_search_profiles() {
+    let api = new_standard_api().await.unwrap();
+    let res = api.search_profiles("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_featured_playlists_oauth() {

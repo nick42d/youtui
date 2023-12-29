@@ -1,7 +1,8 @@
 use super::{
     parse_item_text, Parse, ProcessedResult, SearchResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
-    SearchResultPlaylist, SearchResultPodcast, SearchResultSong, SearchResultVideo,
+    SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
+    SearchResultVideo,
 };
 use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
@@ -11,13 +12,16 @@ use crate::nav_consts::{
 use crate::{query::*, ChannelID, Thumbnail, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
+use serde::{Deserialize, Serialize};
 
+#[cfg(test)]
+mod tests;
 // watchPlaylistEndpoint params within overlay.
 const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
 const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // May be redundant due to encoding this in type system
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SearchResultType {
     Artist,
     Album(AlbumType), // Does albumtype matter here?
@@ -72,6 +76,23 @@ fn parse_artist_search_result_from_music_shelf_contents(
         subscribers,
         thumbnails,
         browse_id,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_profile_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultProfile> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let username = parse_item_text(&mut mrlir, 1, 2)?;
+    let profile_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultProfile {
+        title,
+        username,
+        profile_id,
+        thumbnails,
     })
 }
 // TODO: Type safety
@@ -137,7 +158,13 @@ fn parse_video_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultVideo> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
-    Ok(SearchResultVideo { title })
+    Ok(SearchResultVideo {
+        title,
+        channel_name: todo!(),
+        views: todo!(),
+        length: todo!(),
+        thumbnails: todo!(),
+    })
 }
 // TODO: Type safety
 // TODO: Tests
@@ -161,6 +188,7 @@ fn parse_episode_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultEpisode> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
+    todo!("To implement remaining fields");
     Ok(SearchResultEpisode { title })
 }
 // TODO: Type safety
@@ -289,6 +317,19 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultAlbum> {
             .collect()
     }
 }
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultProfile> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_profile_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
 impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultArtist> {
     type Error = Error;
     fn try_from(
@@ -395,6 +436,16 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
 }
 impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
     type Output = Vec<SearchResultArtist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> {
+    type Output = Vec<SearchResultProfile>;
     fn parse(self) -> Result<Self::Output> {
         let section_contents = SectionContentsCrawler::try_from(self)?;
         if section_contents_is_empty(&section_contents) {
@@ -545,195 +596,4 @@ fn get_continuation_params(
 
 fn get_continuation_string(ctoken: String) -> String {
     format!("&ctoken={0}&continuation={0}", ctoken)
-}
-
-#[cfg(test)]
-mod tests {
-    use chrono::expect;
-
-    use crate::{
-        crawler::JsonCrawler,
-        parse::{Parse, ProcessedResult},
-        process::JsonCloner,
-        query::{
-            AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
-            FeaturedPlaylistsFilter, PodcastsFilter, SearchQuery, SongsFilter, VideosFilter,
-        },
-    };
-    use std::path::Path;
-
-    #[tokio::test]
-    async fn test_search_artists() {
-        let source_path = Path::new("./test_json/search_artists_20231226.json");
-        let expected_path = Path::new("./test_json/search_artists_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(ArtistsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_artists_empty() {
-        let source_path = Path::new("./test_json/search_artists_no_results_20231226.json");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(ArtistsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        assert_eq!(output, Vec::new());
-    }
-    #[tokio::test]
-    async fn test_search_albums() {
-        let source_path = Path::new("./test_json/search_albums_20231226.json");
-        let expected_path = Path::new("./test_json/search_albums_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(AlbumsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_songs() {
-        let source_path = Path::new("./test_json/search_songs_20231226.json");
-        let expected_path = Path::new("./test_json/search_songs_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(SongsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_videos() {
-        let source_path = Path::new("./test_json/search_videos_20231226.json");
-        let expected_path = Path::new("./test_json/search_videos_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(VideosFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_featured_playlists() {
-        let source_path = Path::new("./test_json/search_featured_playlists_20231226.json");
-        let expected_path = Path::new("./test_json/search_featured_playlists_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(FeaturedPlaylistsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_community_playlists() {
-        let source_path = Path::new("./test_json/search_community_playlists_20231226.json");
-        let expected_path = Path::new("./test_json/search_community_playlists_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(CommunityPlaylistsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_episodes() {
-        let source_path = Path::new("./test_json/search_episodes_20231226.json");
-        let expected_path = Path::new("./test_json/search_episodes_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(EpisodesFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
-    #[tokio::test]
-    async fn test_search_podcasts() {
-        let source_path = Path::new("./test_json/search_podcasts_20231226.json");
-        let expected_path = Path::new("./test_json/search_podcasts_20231226_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
-        // Blank query has no bearing on function
-        let query = SearchQuery::new("").with_filter(PodcastsFilter);
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
-    }
 }
