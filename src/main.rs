@@ -58,6 +58,7 @@ enum Commands {
     SearchArtists { query: String },
     SearchAlbums { query: String },
     SearchSongs { query: String },
+    SearchPlaylists { query: String },
 }
 
 pub struct RuntimeInfo {

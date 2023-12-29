@@ -1,16 +1,20 @@
 use super::{
     parse_item_text, Parse, ProcessedResult, SearchResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultSong, SearchResultVideo,
+    SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
+    SearchResultPlaylist, SearchResultPodcast, SearchResultSong, SearchResultVideo,
 };
 use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
-    BADGE_LABEL, NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID, SECTION_LIST, THUMBNAILS,
+    BADGE_LABEL, NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, THUMBNAILS,
 };
 use crate::{query::*, ChannelID, Thumbnail, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
+
+// watchPlaylistEndpoint params within overlay.
+const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
+const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // May be redundant due to encoding this in type system
 #[derive(Debug, Clone)]
@@ -180,18 +184,59 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
 // TODO: Tests
 fn parse_community_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
-) -> Result<SearchResultPlaylist> {
+) -> Result<SearchResultCommunityPlaylist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
     let author = parse_item_text(&mut mrlir, 1, 0)?;
     let views = parse_item_text(&mut mrlir, 1, 2)?;
     let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
-    Ok(SearchResultPlaylist {
+    Ok(SearchResultCommunityPlaylist {
         title,
         author,
         playlist_id,
         views,
     })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_playlist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultPlaylist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let author = parse_item_text(&mut mrlir, 1, 0)?;
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    // The playlist search contains a mix of Community and Featured playlists.
+    let playlist_params: String = mrlir.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint/watchPlaylistEndpoint/params"
+    ))?;
+    let playlist_params_str = playlist_params.as_str();
+    let playlist = match playlist_params_str {
+        FEATURED_PLAYLIST_ENDPOINT_PARAMS => {
+            SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
+                title,
+                author,
+                songs: parse_item_text(&mut mrlir, 1, 2)?,
+                playlist_id,
+            })
+        }
+        COMMUNITY_PLAYLIST_ENDPOINT_PARAMS => {
+            SearchResultPlaylist::Community(SearchResultCommunityPlaylist {
+                title,
+                author,
+                views: parse_item_text(&mut mrlir, 1, 2)?,
+                playlist_id,
+            })
+        }
+        other => {
+            return Err(Error::other(format!(
+                "Unexpected playlist params: {}",
+                other
+            )));
+        }
+    };
+    Ok(playlist)
 }
 
 // TODO: Rename FilteredSearchSectionContents
@@ -310,6 +355,19 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPodcast> {
     }
 }
 impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPlaylist> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_playlist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultCommunityPlaylist> {
     type Error = Error;
     fn try_from(
         mut value: FilteredSearchMSRContents,

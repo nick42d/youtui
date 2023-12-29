@@ -9,7 +9,9 @@ use ytmapi_rs::query::AlbumsFilter;
 use ytmapi_rs::query::ArtistsFilter;
 use ytmapi_rs::query::GetLibraryArtistsQuery;
 use ytmapi_rs::query::GetLibraryPlaylistsQuery;
+use ytmapi_rs::query::PlaylistsFilter;
 use ytmapi_rs::query::SearchQuery;
+use ytmapi_rs::query::SongsFilter;
 use ytmapi_rs::{
     common::YoutubeID,
     generate_oauth_code_and_url, generate_oauth_token,
@@ -78,6 +80,14 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             command: Some(Commands::SearchSongs { query }),
             show_source: true,
         } => search_songs_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchPlaylists { query }),
+            show_source: false,
+        } => search_playlists(&config, query).await?,
+        Cli {
+            command: Some(Commands::SearchPlaylists { query }),
+            show_source: true,
+        } => search_playlists_json(&config, query).await?,
     }
     Ok(())
 }
@@ -192,6 +202,20 @@ pub async fn search_songs_json(config: &Config, query: String) -> Result<()> {
     let json = get_api(&config)
         .await?
         .json_query(SearchQuery::new(query).with_filter(SongsFilter))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
+pub async fn search_playlists(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search_playlists(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_playlists_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query).with_filter(PlaylistsFilter))
         .await?;
     let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
     println!("{}", serde_json::to_string_pretty(&json)?);

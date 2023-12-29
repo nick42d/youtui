@@ -9,7 +9,7 @@ use reqwest::Client;
 pub mod browser;
 pub mod oauth;
 
-// TODO: Seal
+// TODO: Seal and ignore warning.
 /// An authentication token into Youtube Music that can be used to query the API.
 pub trait AuthToken: Sized {
     // TODO: Continuations - as Stream?

@@ -106,7 +106,7 @@ pub struct SearchResultAlbum {
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResultSong {
     // Potentially can include links to artist and album.
     pub title: String,
@@ -118,14 +118,22 @@ pub struct SearchResultSong {
     pub video_id: Option<VideoID<'static>>,
     pub thumbnails: Vec<Thumbnail>,
 }
-#[derive(Debug, Clone)]
-pub struct SearchResultPlaylist {
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// A playlist search result may be a featured or community playlist.
+pub enum SearchResultPlaylist {
+    Featured(SearchResultFeaturedPlaylist),
+    Community(SearchResultCommunityPlaylist),
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A community playlist search result.
+pub struct SearchResultCommunityPlaylist {
     pub title: String,
     pub author: String,
     pub views: String,
     pub playlist_id: Option<PlaylistID<'static>>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// A featured playlist search result.
 pub struct SearchResultFeaturedPlaylist {
     pub title: String,
     pub author: String,
