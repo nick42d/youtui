@@ -7,8 +7,10 @@ use super::{
 use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
-    BADGE_LABEL, NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, THUMBNAILS,
+    BADGE_LABEL, LIVE_BADGE_LABEL, NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID,
+    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, THUMBNAILS,
 };
+use crate::parse::EpisodeDate;
 use crate::{query::*, ChannelID, Thumbnail, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -69,7 +71,7 @@ fn parse_artist_search_result_from_music_shelf_contents(
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let artist = parse_item_text(&mut mrlir, 0, 0)?;
     let subscribers = parse_item_text(&mut mrlir, 1, 2)?;
-    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultArtist {
         artist,
@@ -110,7 +112,7 @@ fn parse_album_search_result_from_music_shelf_contents(
     } else {
         Explicit::NotExplicit
     };
-    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultAlbum {
         artist,
@@ -138,7 +140,7 @@ fn parse_song_search_result_from_music_shelf_contents(
     } else {
         Explicit::NotExplicit
     };
-    let video_id = mrlir.take_value_pointer(NAVIGATION_VIDEO_ID).ok();
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultSong {
         artist,
@@ -158,12 +160,18 @@ fn parse_video_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultVideo> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let channel_name = parse_item_text(&mut mrlir, 1, 0)?;
+    let views = parse_item_text(&mut mrlir, 1, 2)?;
+    let length = parse_item_text(&mut mrlir, 1, 4)?;
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultVideo {
         title,
-        channel_name: todo!(),
-        views: todo!(),
-        length: todo!(),
-        thumbnails: todo!(),
+        channel_name,
+        views,
+        length,
+        thumbnails,
+        video_id,
     })
 }
 // TODO: Type safety
@@ -174,11 +182,13 @@ fn parse_podcast_search_result_from_music_shelf_contents(
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
     let publisher = parse_item_text(&mut mrlir, 1, 0)?;
-    let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultPodcast {
         title,
         publisher,
         podcast_id,
+        thumbnails,
     })
 }
 // TODO: Type safety
@@ -188,8 +198,26 @@ fn parse_episode_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultEpisode> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
-    todo!("To implement remaining fields");
-    Ok(SearchResultEpisode { title })
+    let date = if mrlir.path_exists(LIVE_BADGE_LABEL) {
+        EpisodeDate::Live
+    } else {
+        EpisodeDate::Recorded {
+            date: parse_item_text(&mut mrlir, 1, 0)?,
+        }
+    };
+    let channel_name = match date {
+        EpisodeDate::Live => parse_item_text(&mut mrlir, 1, 0)?,
+        EpisodeDate::Recorded { .. } => parse_item_text(&mut mrlir, 1, 2)?,
+    };
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultEpisode {
+        title,
+        date,
+        video_id,
+        channel_name,
+        thumbnails,
+    })
 }
 // TODO: Type safety
 // TODO: Tests
@@ -200,12 +228,14 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
     let title = parse_item_text(&mut mrlir, 0, 0)?;
     let author = parse_item_text(&mut mrlir, 1, 0)?;
     let songs = parse_item_text(&mut mrlir, 1, 2)?;
-    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultFeaturedPlaylist {
         title,
         author,
         playlist_id,
         songs,
+        thumbnails,
     })
 }
 // TODO: Type safety
@@ -217,29 +247,33 @@ fn parse_community_playlist_search_result_from_music_shelf_contents(
     let title = parse_item_text(&mut mrlir, 0, 0)?;
     let author = parse_item_text(&mut mrlir, 1, 0)?;
     let views = parse_item_text(&mut mrlir, 1, 2)?;
-    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultCommunityPlaylist {
         title,
         author,
         playlist_id,
         views,
+        thumbnails,
     })
 }
 // TODO: Type safety
 // TODO: Tests
+// TODO: Generalize using other parse functions.
 fn parse_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultPlaylist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
     let author = parse_item_text(&mut mrlir, 1, 0)?;
-    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     // The playlist search contains a mix of Community and Featured playlists.
     let playlist_params: String = mrlir.take_value_pointer(concatcp!(
         PLAY_BUTTON,
         "/playNavigationEndpoint/watchPlaylistEndpoint/params"
     ))?;
     let playlist_params_str = playlist_params.as_str();
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     let playlist = match playlist_params_str {
         FEATURED_PLAYLIST_ENDPOINT_PARAMS => {
             SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
@@ -247,6 +281,7 @@ fn parse_playlist_search_result_from_music_shelf_contents(
                 author,
                 songs: parse_item_text(&mut mrlir, 1, 2)?,
                 playlist_id,
+                thumbnails,
             })
         }
         COMMUNITY_PLAYLIST_ENDPOINT_PARAMS => {
@@ -255,6 +290,7 @@ fn parse_playlist_search_result_from_music_shelf_contents(
                 author,
                 views: parse_item_text(&mut mrlir, 1, 2)?,
                 playlist_id,
+                thumbnails,
             })
         }
         other => {

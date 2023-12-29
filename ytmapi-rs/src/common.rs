@@ -8,11 +8,10 @@ use crate::Error;
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
-
 #[derive(PartialEq, Debug, Clone, Deserialize)]
 pub struct SearchSuggestion {
-    runs: Vec<TextRun>,
-    suggestion_type: SuggestionType,
+    pub runs: Vec<TextRun>,
+    pub suggestion_type: SuggestionType,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Copy)]
@@ -29,12 +28,14 @@ pub enum TextRun {
 }
 
 impl TextRun {
+    /// Take the text from the run, ignoring format.
     pub fn take_text(self) -> String {
         match self {
             TextRun::Bold(s) => s,
             TextRun::Normal(s) => s,
         }
     }
+    /// Get a reference to the text from the run, ignoring format.
     pub fn get_text(&self) -> &str {
         match self {
             TextRun::Bold(s) => s,
@@ -50,12 +51,6 @@ impl SearchSuggestion {
         self.runs
             .iter()
             .fold(String::new(), |acc, r| acc + &r.get_text())
-    }
-    pub fn get_runs(&self) -> &[TextRun] {
-        &self.runs
-    }
-    pub fn get_type(&self) -> SuggestionType {
-        self.suggestion_type
     }
     pub(crate) fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
         Self {

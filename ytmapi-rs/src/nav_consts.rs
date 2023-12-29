@@ -28,6 +28,7 @@ pub const THUMBNAIL: &str = "/thumbnail/thumbnails";
 pub const FEEDBACK_TOKEN: &str = "/feedbackEndpoint/feedbackToken";
 pub const BADGE_PATH: &str =
     "/0/musicInlineBadgeRenderer/accessibilityData/accessibilityData/label";
+pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibilityData/label";
 pub const _CATEGORY_PARAMS: &str =
     "/musicNavigationButtonRenderer/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
@@ -42,6 +43,7 @@ pub const _IMMERSIVE_CAROUSEL: &str = "/musicImmersiveCarouselShelfRenderer";
 pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/mutations";
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);
 pub const NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VIDEO_ID);
+pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
 pub const SINGLE_COLUMN_TAB: &str = concatcp!(SINGLE_COLUMN, TAB_CONTENT);
 pub const SECTION_LIST_ITEM: &str = concatcp!("/sectionListRenderer", CONTENT);
 pub const ITEM_SECTION: &str = concatcp!("/itemSectionRenderer", CONTENT);
@@ -62,6 +64,7 @@ pub const THUMBNAIL_RENDERER: &str =
 pub const THUMBNAIL_CROPPED: &str =
     concatcp!("/thumbnail/croppedSquareThumbnailRenderer", THUMBNAIL);
 pub const BADGE_LABEL: &str = concatcp!("/badges", BADGE_PATH);
+pub const LIVE_BADGE_LABEL: &str = concatcp!("/badges", LIVE_BADGE_PATH);
 pub const SUBTITLE_BADGE_LABEL: &str = concatcp!("/subtitleBadges", BADGE_PATH);
 pub const _CATEGORY_TITLE: &str = concatcp!("/musicNavigationButtonRenderer/buttonText", RUN_TEXT);
 pub const MENU_PLAYLIST_ID: &str = concatcp!(

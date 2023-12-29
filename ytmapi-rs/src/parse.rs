@@ -14,8 +14,6 @@ use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
-pub use continuations::*;
-pub use library::*;
 pub use search::*;
 use serde::{Deserialize, Serialize};
 
@@ -34,6 +32,12 @@ pub trait Parse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum EpisodeDate {
+    Live,
+    Recorded { date: String },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResults {
     pub top_results: Vec<TopResult>,
     pub artists: Vec<SearchResultArtist>,
@@ -46,6 +50,7 @@ pub struct SearchResults {
     pub episodes: Vec<SearchResultEpisode>,
     pub profiles: Vec<SearchResultProfile>,
 }
+#[deprecated]
 #[derive(Debug, Clone)]
 pub enum SearchResult {
     TopResult,
@@ -88,7 +93,7 @@ pub struct ParsedSongList {
 pub struct SearchResultArtist {
     pub artist: String,
     pub subscribers: String,
-    pub browse_id: Option<ChannelID<'static>>,
+    pub browse_id: ChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -96,12 +101,18 @@ pub struct SearchResultArtist {
 pub struct SearchResultPodcast {
     pub title: String,
     pub publisher: String,
-    pub podcast_id: Option<PodcastID<'static>>,
+    pub podcast_id: PodcastID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A podcast episode search result.
 pub struct SearchResultEpisode {
     pub title: String,
+    pub date: EpisodeDate,
+    pub channel_name: String,
+    pub video_id: VideoID<'static>,
+    // Potentially can include link to channel.
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A video search result.
@@ -110,6 +121,7 @@ pub struct SearchResultVideo {
     /// Note: Either Youtube channel name, or artist name.
     // Potentially can include link to channel.
     pub channel_name: String,
+    pub video_id: VideoID<'static>,
     pub views: String,
     pub length: String,
     pub thumbnails: Vec<Thumbnail>,
@@ -129,7 +141,7 @@ pub struct SearchResultAlbum {
     pub artist: String,
     pub year: String,
     pub explicit: Explicit,
-    pub browse_id: Option<ChannelID<'static>>,
+    pub browse_id: ChannelID<'static>,
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -142,7 +154,7 @@ pub struct SearchResultSong {
     pub duration: String,
     pub plays: String,
     pub explicit: Explicit,
-    pub video_id: Option<VideoID<'static>>,
+    pub video_id: VideoID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -157,7 +169,8 @@ pub struct SearchResultCommunityPlaylist {
     pub title: String,
     pub author: String,
     pub views: String,
-    pub playlist_id: Option<PlaylistID<'static>>,
+    pub playlist_id: PlaylistID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A featured playlist search result.
@@ -165,7 +178,8 @@ pub struct SearchResultFeaturedPlaylist {
     pub title: String,
     pub author: String,
     pub songs: String,
-    pub playlist_id: Option<PlaylistID<'static>>,
+    pub playlist_id: PlaylistID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 
 pub struct ProcessedResult<T>
