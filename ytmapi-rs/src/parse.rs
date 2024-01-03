@@ -50,17 +50,78 @@ pub struct SearchResults {
     pub episodes: Vec<SearchResultEpisode>,
     pub profiles: Vec<SearchResultProfile>,
 }
-#[deprecated]
-#[derive(Debug, Clone)]
-pub enum SearchResult {
-    TopResult,
-    Song(SearchResultSong),
-    Album(SearchResultAlbum),
-    Playlist(SearchResultPlaylist),
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Each Top Result has it's own type.
+pub enum TopResultType {
+    Artist,
+    // We are able to re-use the album type defined elsewhere in the application.
+    Album(AlbumType),
+    Playlist,
+    Song,
     Video,
-    Artist(SearchResultArtist),
+    Station,
+    Podcast,
 }
-
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// Helper enum for parsing different search result types.
+enum SearchResultType {
+    TopResults,
+    Artists,
+    Albums,
+    FeaturedPlaylists,
+    CommunityPlaylists,
+    Songs,
+    Videos,
+    Podcasts,
+    Episodes,
+    Profiles,
+}
+impl TryFrom<String> for SearchResultType {
+    type Error = Error;
+    fn try_from(value: String) -> Result<Self> {
+        let result = match value.as_str() {
+            "Songs" => Self::Songs,
+            "Top result" => Self::TopResults,
+            "Albums" => Self::Albums,
+            "Artists" => Self::Artists,
+            "Videos" => Self::Videos,
+            "Podcasts" => Self::Podcasts,
+            "Episodes" => Self::Episodes,
+            "Profiles" => Self::Profiles,
+            "Community playlists" => Self::CommunityPlaylists,
+            "Featured playlists" => Self::FeaturedPlaylists,
+            // TODO: Better error.
+            other => {
+                return Err(Error::other(format!(
+                    "Error parsing, value {other} outside expected range for search result types."
+                )))
+            }
+        };
+        Ok(result)
+    }
+}
+impl TryFrom<String> for TopResultType {
+    type Error = Error;
+    fn try_from(value: String) -> Result<Self> {
+        let result = match value.as_str() {
+            "Song" => Self::Song,
+            "Album" => Self::Album(AlbumType::Album),
+            "EP" => Self::Album(AlbumType::EP),
+            "Single" => Self::Album(AlbumType::Single),
+            "Artist" => Self::Artist,
+            "Video" => Self::Video,
+            "Podcast" => Self::Podcast,
+            "Station" => Self::Station,
+            // TODO: Better error.
+            other => {
+                return Err(Error::other(format!(
+                    "Error parsing, value {other} outside expected range for top result types."
+                )))
+            }
+        };
+        Ok(result)
+    }
+}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
     name: String,
@@ -72,12 +133,23 @@ pub struct ParsedSongAlbum {
     id: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Dynamically defined top result.
+/// Some fields are optional as they are not defined for all result types.
+// In future, may be possible to make this type safe.
 pub struct TopResult {
-    result_type: SearchResultType,
-    subscribers: Option<String>,
-    thumbnails: Option<String>, //own type?
-    // XXX: more to come
-    artist_info: Option<ParsedSongList>,
+    pub result_name: String,
+    pub result_type: TopResultType,
+    pub thumbnails: Vec<Thumbnail>,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub duration: Option<String>,
+    pub year: Option<String>,
+    pub subscribers: Option<String>,
+    pub plays: Option<String>,
+    pub artist_info: Option<ParsedSongList>,
+    /// Podcast publisher.
+    pub publisher: Option<String>,
+    // TODO: Add endpoint id.
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongList {
@@ -253,84 +325,6 @@ fn parse_item_text(
     process_flex_column_item(item, col_idx)?.take_value_pointer(pointer)
 }
 
-pub fn parse_top_result(mut data: JsonCrawlerBorrowed) -> Result<TopResult> {
-    // Should be if-let?
-    // XXX: The artist from the call to nav has quotation marks around it, causes error when
-    // calleing get_search_result_type. I fix this with a hack.
-    // TODO: i18n - search results can be in a different language.
-    let st: String = data.take_value_pointer(SUBTITLE)?;
-    let result_type = SearchResultType::try_from(&st)?;
-    let _category = data.take_value_pointer(CARD_SHELF_TITLE)?;
-    let thumbnails = data.take_value_pointer(THUMBNAILS).ok();
-    let subscribers = if let SearchResultType::Artist = result_type {
-        // TODO scrub / split subscribers.
-        data.take_value_pointer(SUBTITLE2).ok()
-    } else {
-        todo!("Only handles Artist currently");
-    };
-
-    // TODO: artist_info
-    let artist_info = Some(parse_song_runs(&data._take_json_pointer("/title/runs")?)?);
-    Ok(TopResult {
-        subscribers,
-        result_type,
-        thumbnails,
-        artist_info,
-    })
-}
-
-fn parse_song_runs(runs: &serde_json::Value) -> Result<ParsedSongList> {
-    let mut artists = Vec::new();
-    let year = None;
-    let mut album = None;
-    let views = None;
-    let duration = None;
-    if let serde_json::Value::Array(a) = runs {
-        for (i, r) in a.iter().enumerate() {
-            // Uneven items are always separators
-            if (i % 2) == 1 {
-                continue;
-            }
-            // TODO: Handle None
-            let text = r.get("text").unwrap().to_string();
-            // TODO: Handle None
-            if let serde_json::Value::Object(_) = r.get("navigationEndpoint").unwrap() {
-                // XXX: Is this definitely supposed to be an if let?
-                let name = text;
-                let id = r.pointer(NAVIGATION_BROWSE_ID).map(|id| id.to_string());
-                // album
-                // TODO: Cleanup unnecessary allocation
-                if id
-                    .clone()
-                    .map_or(false, |item_id| item_id.contains("release_detail"))
-                    || id
-                        .clone()
-                        .map_or(false, |item_id| item_id.starts_with("MPRE"))
-                {
-                    album = Some(ParsedSongAlbum {
-                        name: Some(name),
-                        id,
-                    });
-                } else {
-                    //artist
-                    artists.push(ParsedSongArtist { id, name });
-                }
-            } else {
-                // XXX: Note, if artist doesn't have ID, will end up here and panic.
-                todo!("Handle non artists or albums");
-            }
-        }
-    } else {
-        unreachable!("Assume input is valid");
-    }
-    Ok(ParsedSongList {
-        artists,
-        year,
-        album,
-        views,
-        duration,
-    })
-}
 #[cfg(test)]
 mod tests {
     use serde_json::json;

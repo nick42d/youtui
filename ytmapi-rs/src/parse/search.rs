@@ -1,20 +1,19 @@
 use super::{
-    parse_item_text, Parse, ProcessedResult, SearchResult, SearchResultAlbum, SearchResultArtist,
+    parse_item_text, Parse, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
-    SearchResultVideo,
+    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
-use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun, YoutubeID};
+use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
-    BADGE_LABEL, LIVE_BADGE_LABEL, NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID,
-    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, THUMBNAILS,
+    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_SHELF, NAVIGATION_BROWSE_ID, PLAYLIST_ITEM_VIDEO_ID,
+    PLAY_BUTTON, SECTION_LIST, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
-use crate::{query::*, ChannelID, Thumbnail, VideoID};
+use crate::{query::*, Thumbnail};
 use crate::{Error, Result};
 use const_format::concatcp;
-use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
 mod tests;
@@ -22,46 +21,168 @@ mod tests;
 const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
 const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
-// May be redundant due to encoding this in type system
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum SearchResultType {
-    Artist,
-    Album(AlbumType), // Does albumtype matter here?
-    Playlist,
-    Song,
-    Video,
-    Station,
-}
-impl TryFrom<&String> for SearchResultType {
-    type Error = crate::Error;
-    fn try_from(value: &String) -> std::result::Result<Self, Self::Error> {
-        match value.as_str() {
-            // Dirty hack to get artist outputting
-            "\"Artist\"" => Ok(Self::Artist),
-            "artist" => Ok(Self::Artist),
-            "album" => Ok(Self::Album(AlbumType::Album)),
-            "ep" => Ok(Self::Album(AlbumType::EP)),
-            "single" => Ok(Self::Album(AlbumType::Single)),
-            "playlist" => Ok(Self::Playlist),
-            "song" => Ok(Self::Song),
-            "video" => Ok(Self::Video),
-            "station" => Ok(Self::Station),
-            // TODO: Better error
-            _ => Err(Error::other(format!(
-                "Unable to parse SearchResultType {value}"
-            ))),
+// TODO: Type safety
+// TODO: Tests
+fn parse_basic_search_result_from_xx(
+    mut section_list_contents: BasicSearchSectionListContents,
+) -> Result<SearchResults> {
+    // Imperative solution, may be able to make more functional.
+    let mut top_results = Vec::new();
+    let mut artists = Vec::new();
+    let mut albums = Vec::new();
+    let mut featured_playlists = Vec::new();
+    let mut community_playlists = Vec::new();
+    let mut songs = Vec::new();
+    let mut videos = Vec::new();
+    let mut podcasts = Vec::new();
+    let mut episodes = Vec::new();
+    let mut profiles = Vec::new();
+    for category in section_list_contents
+        .0
+        .as_array_iter_mut()?
+        .map(|r| r.navigate_pointer(MUSIC_SHELF))
+    {
+        let mut category = category?;
+        match SearchResultType::try_from(
+            // TODO: Better navigation
+            category.take_value_pointer::<String, &str>(TITLE_TEXT)?,
+        )? {
+            SearchResultType::TopResults => {
+                top_results = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_top_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<TopResult>>>()?;
+            }
+            // TODO: Use a navigation constant
+            SearchResultType::Artists => {
+                artists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_artist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultArtist>>>()?;
+            }
+            SearchResultType::Albums => {
+                albums = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_album_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultAlbum>>>()?
+            }
+            SearchResultType::FeaturedPlaylists => {
+                featured_playlists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_featured_playlist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultFeaturedPlaylist>>>()?
+            }
+            SearchResultType::CommunityPlaylists => {
+                community_playlists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_community_playlist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultCommunityPlaylist>>>()?
+            }
+            SearchResultType::Songs => {
+                songs = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_song_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultSong>>>()?
+            }
+            SearchResultType::Videos => {
+                videos = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_video_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultVideo>>>()?
+            }
+            SearchResultType::Podcasts => {
+                podcasts = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_podcast_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultPodcast>>>()?
+            }
+            SearchResultType::Episodes => {
+                episodes = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_episode_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultEpisode>>>()?
+            }
+            SearchResultType::Profiles => {
+                profiles = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_profile_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultProfile>>>()?
+            }
         }
     }
+    Ok(SearchResults {
+        top_results,
+        artists,
+        albums,
+        featured_playlists,
+        community_playlists,
+        songs,
+        videos,
+        podcasts,
+        episodes,
+        profiles,
+    })
 }
-
-impl<'a> Parse for ProcessedResult<SearchQuery<'a, BasicSearch>> {
-    type Output = Vec<super::SearchResult>;
-    fn parse(self) -> Result<Self::Output> {
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = self;
-        todo!();
+// TODO: Type safety
+// TODO: Tests
+fn parse_top_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<TopResult> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let result_name = parse_item_text(&mut mrlir, 0, 0)?;
+    let result_type = TopResultType::try_from(parse_item_text(&mut mrlir, 1, 0)?)?;
+    // Imperative solution, may be able to make more functional.
+    let mut subscribers = None;
+    let mut artist_info = None;
+    let mut publisher = None;
+    let mut artist = None;
+    let mut album = None;
+    let mut duration = None;
+    let mut year = None;
+    let mut plays = None;
+    match result_type {
+        // XXX: Perhaps also populate Artist field.
+        TopResultType::Artist => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        TopResultType::Album(_) => {
+            // XXX: Perhaps also populate Album field.
+            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            year = Some(parse_item_text(&mut mrlir, 1, 4)?);
+        }
+        TopResultType::Playlist => todo!(),
+        TopResultType::Song => {
+            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            album = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
+            plays = Some(parse_item_text(&mut mrlir, 1, 8)?);
+        }
+        TopResultType::Video => todo!(),
+        TopResultType::Station => todo!(),
+        TopResultType::Podcast => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
     }
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(TopResult {
+        result_type,
+        subscribers,
+        thumbnails,
+        artist_info,
+        result_name,
+        publisher,
+        artist,
+        album,
+        duration,
+        year,
+        plays,
+    })
 }
 // TODO: Type safety
 // TODO: Tests
@@ -305,6 +426,7 @@ fn parse_playlist_search_result_from_music_shelf_contents(
 
 // TODO: Rename FilteredSearchSectionContents
 struct SectionContentsCrawler(JsonCrawler);
+struct BasicSearchSectionListContents(JsonCrawler);
 // In this case, we've searched and had no results found.
 // We are being quite explicit here to avoid a false positive.
 // See tests for an example.
@@ -313,6 +435,20 @@ fn section_contents_is_empty(section_contents: &SectionContentsCrawler) -> bool 
     section_contents
         .0
         .path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")
+}
+impl<'a> TryFrom<ProcessedResult<SearchQuery<'a, BasicSearch>>> for BasicSearchSectionListContents {
+    type Error = Error;
+    fn try_from(value: ProcessedResult<SearchQuery<'a, BasicSearch>>) -> Result<Self> {
+        let ProcessedResult {
+            mut json_crawler, ..
+        } = value;
+        let section_list_contents = json_crawler.navigate_pointer(concatcp!(
+            "/contents/tabbedSearchResultsRenderer",
+            TAB_CONTENT,
+            SECTION_LIST
+        ))?;
+        Ok(BasicSearchSectionListContents(section_list_contents))
+    }
 }
 impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>>
     for SectionContentsCrawler
@@ -323,7 +459,8 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, Filtered
             mut json_crawler, ..
         } = value;
         let section_contents = json_crawler.navigate_pointer(concatcp!(
-            "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
+            "/contents/tabbedSearchResultsRenderer",
+            TAB_CONTENT,
             SECTION_LIST,
             "/0"
         ))?;
@@ -470,6 +607,13 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
             .collect()
     }
 }
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, BasicSearch>> {
+    type Output = SearchResults;
+    fn parse(self) -> Result<Self::Output> {
+        let section_list_contents = BasicSearchSectionListContents::try_from(self)?;
+        parse_basic_search_result_from_xx(section_list_contents)
+    }
+}
 impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
     type Output = Vec<SearchResultArtist>;
     fn parse(self) -> Result<Self::Output> {
@@ -608,9 +752,6 @@ impl<'a> Parse for ProcessedResult<GetSearchSuggestionsQuery<'a>> {
         Ok(results)
     }
 }
-
-// Continuation functions for future use
-fn get_continuations(res: &SearchResult) {}
 
 fn get_reloadable_continuation_params(json: &mut JsonCrawlerBorrowed) -> Result<String> {
     let ctoken = json.take_value_pointer("/continuations/0/reloadContinuationData/continuation")?;

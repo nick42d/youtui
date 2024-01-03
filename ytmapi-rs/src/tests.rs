@@ -49,6 +49,11 @@ async fn test_expired_oauth() {
     assert!(error.is_oauth_expired());
 }
 #[tokio::test]
+async fn test_expired_oauth_is_not_disconnected() {
+    // TODO: Test that expired oauth definitely is expired and not just network being disconnected.
+    todo!()
+}
+#[tokio::test]
 async fn test_expired_header() {
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
@@ -68,6 +73,18 @@ async fn test_expired_header() {
 async fn test_new() {
     new_standard_api().await.unwrap();
     new_standard_oauth_api().await.unwrap();
+}
+#[tokio::test]
+async fn test_basic_search() {
+    let api = new_standard_api().await.unwrap();
+    let res = api.search("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_basic_search_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
+    api.refresh_token().await;
+    let res = api.search("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_artists_oauth() {

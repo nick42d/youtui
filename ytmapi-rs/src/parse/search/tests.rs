@@ -27,6 +27,53 @@ async fn test_search_artists_empty() {
     assert_eq!(output, Vec::new());
 }
 #[tokio::test]
+// Test results appear for the correct categories.
+async fn test_basic_search_has_simple_top_result() {
+    let source_path = Path::new("./test_json/search_basic_top_result_20231228.json");
+    let source = tokio::fs::read_to_string(source_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let json_clone = JsonCloner::from_string(source).unwrap();
+    // Blank query has no bearing on function
+    let query = SearchQuery::new("");
+    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+        .parse()
+        .unwrap();
+    assert!(!output.top_results.is_empty());
+}
+#[tokio::test]
+// Test results appear for the correct categories.
+async fn basic_test_to_test_basic_search() {
+    let source_path = Path::new("./test_json/search_no_top_result_20231228.json");
+    let source = tokio::fs::read_to_string(source_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let json_clone = JsonCloner::from_string(source).unwrap();
+    // Blank query has no bearing on function
+    let query = SearchQuery::new("");
+    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+        .parse()
+        .unwrap();
+    assert!(!output.songs.is_empty());
+    assert!(!output.featured_playlists.is_empty());
+    assert!(!output.videos.is_empty());
+    assert!(!output.community_playlists.is_empty());
+    assert!(!output.episodes.is_empty());
+    assert!(!output.artists.is_empty());
+    assert!(!output.podcasts.is_empty());
+    assert!(!output.profiles.is_empty());
+    assert!(output.top_results.is_empty());
+}
+
+#[tokio::test]
+async fn test_basic_search() {
+    panic!("Not fully implemented yet");
+}
+#[tokio::test]
+async fn test_basic_search_is_empty() {
+    panic!("Not fully implemented yet");
+}
+#[tokio::test]
 async fn test_search_artists() {
     let source_path = Path::new("./test_json/search_artists_20231226.json");
     let expected_path = Path::new("./test_json/search_artists_20231226_output.txt");

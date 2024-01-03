@@ -55,9 +55,9 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, Parse, SearchResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo,
+    AlbumParams, ArtistParams, Parse, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults,
 };
 use process::RawResult;
 use query::{
@@ -125,10 +125,10 @@ impl<A: AuthToken> YtMusic<A> {
         let json = self.raw_query(query).await?.destructure_json();
         Ok(json)
     }
-    pub async fn search<'a, S: SearchType, Q: Into<SearchQuery<'a, BasicSearch>>>(
+    pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
         query: Q,
-    ) -> Result<Vec<SearchResult>> {
+    ) -> Result<SearchResults> {
         let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
