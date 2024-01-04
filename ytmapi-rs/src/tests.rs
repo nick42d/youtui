@@ -10,6 +10,8 @@ const EXPIRED_HEADERS_PATH: &str = "expired-cookie.txt";
 const EXPIRED_OAUTH_PATH: &str = "expired-oauth.json";
 const COOKIE_PATH: &str = "cookie.txt";
 const OAUTH_PATH: &str = "oauth.json";
+// Cookie filled with nonsense values to test this case.
+const INVALID_COOKIE: &str = "HSID=abc; SSID=abc; APISID=abc; SAPISID=abc; __Secure-1PAPISID=abc; __Secure-3PAPISID=abc; YSC=abc; LOGIN_INFO=abc; VISITOR_INFO1_LIVE=abc; _gcl_au=abc; PREF=tz=Australia.Perth&f6=40000000&f7=abc; VISITOR_PRIVACY_METADATA=abc; __Secure-1PSIDTS=abc; __Secure-3PSIDTS=abc; SID=abc; __Secure-1PSID=abc; __Secure-3PSID=abc; SIDCC=abc; __Secure-1PSIDCC=abc; __Secure-3PSIDCC=abc";
 
 async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
     let oauth_token = tokio::fs::read(OAUTH_PATH).await.unwrap();
@@ -53,20 +55,23 @@ async fn test_expired_oauth_is_not_disconnected() {
     // TODO: Test that expired oauth definitely is expired and not just network being disconnected.
     todo!()
 }
+// Placeholder for future implementation.
+// #[tokio::test]
+// async fn test_expired_header() {
+// }
 #[tokio::test]
-async fn test_expired_header() {
+async fn test_invalid_header() {
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
-    let api = YtMusic::from_cookie_file(Path::new(EXPIRED_HEADERS_PATH))
-        .await
-        .unwrap();
+    let api = YtMusic::from_cookie(INVALID_COOKIE).await;
     // Library query needs authentication.
-    let res = api.json_query(GetLibraryPlaylistsQuery).await;
+    let res = api.unwrap().json_query(GetLibraryPlaylistsQuery).await;
     // TODO: Add matching functions to error type. Current method not very ergonomic.
     let Err(error) = res else {
+        eprintln!("{:#?}", res);
         panic!("Expected an error")
     };
-    assert!(error.is_browser_expired());
+    assert!(error.is_browser_authentication_failed());
 }
 
 #[tokio::test]

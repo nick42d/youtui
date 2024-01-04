@@ -63,7 +63,9 @@ fn parse_basic_search_result_from_xx(
         let mut category = category?;
         match SearchResultType::try_from(
             // TODO: Better navigation
-            category.take_value_pointer::<String, &str>(TITLE_TEXT)?,
+            category
+                .take_value_pointer::<String, &str>(TITLE_TEXT)?
+                .as_str(),
         )? {
             SearchResultType::TopResults => {
                 top_results = category
@@ -158,7 +160,9 @@ fn parse_top_results_from_music_card_shelf_contents(
     // Begin - first result parsing
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
     let result_type = TopResultType::try_from(
-        music_shelf_contents.take_value_pointer::<String, &str>(SUBTITLE)?,
+        music_shelf_contents
+            .take_value_pointer::<String, &str>(SUBTITLE)?
+            .as_str(),
     )?;
     // Possibly artists only.
     let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
@@ -171,7 +175,8 @@ fn parse_top_results_from_music_card_shelf_contents(
     let plays = None;
     let thumbnails: Vec<Thumbnail> = music_shelf_contents.take_value_pointer(THUMBNAILS)?;
     let first_result = TopResult {
-        result_type,
+        // Assuming that in non-card case top result always has a result type.
+        result_type: Some(result_type),
         subscribers,
         thumbnails,
         result_name,
@@ -201,7 +206,8 @@ fn parse_top_result_from_music_shelf_contents(
 ) -> Result<TopResult> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let result_name = parse_item_text(&mut mrlir, 0, 0)?;
-    let result_type = TopResultType::try_from(parse_item_text(&mut mrlir, 1, 0)?)?;
+    let result_type_string = parse_item_text(&mut mrlir, 1, 0)?;
+    let result_type = TopResultType::try_from(result_type_string.as_str());
     // Imperative solution, may be able to make more functional.
     let mut subscribers = None;
     let mut publisher = None;
@@ -212,28 +218,39 @@ fn parse_top_result_from_music_shelf_contents(
     let mut plays = None;
     match result_type {
         // XXX: Perhaps also populate Artist field.
-        TopResultType::Artist => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
-        TopResultType::Album(_) => {
+        Ok(TopResultType::Artist) => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Ok(TopResultType::Album(_)) => {
             // XXX: Perhaps also populate Album field.
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             year = Some(parse_item_text(&mut mrlir, 1, 4)?);
         }
-        TopResultType::Playlist => todo!(),
-        TopResultType::Song => {
+        Ok(TopResultType::Playlist) => todo!(),
+        Ok(TopResultType::Song) => {
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             album = Some(parse_item_text(&mut mrlir, 1, 4)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
-            // This does not show up in Card renderer results and so we'll define it as optional.
+            // This does not show up in all Card renderer results and so we'll define it as optional.
             // TODO: Could make this more type safe in future.
             plays = parse_item_text(&mut mrlir, 1, 8).ok();
         }
-        TopResultType::Video => todo!(),
-        TopResultType::Station => todo!(),
-        TopResultType::Podcast => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Ok(TopResultType::Video) => todo!(),
+        Ok(TopResultType::Station) => todo!(),
+        Ok(TopResultType::Podcast) => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        // It's possible to have artist name in the first position instead of a TopResultType.
+        // There may be a way to differentiate this even further.
+        // TODO: Add tests.
+        Err(_) => {
+            artist = Some(result_type_string);
+            album = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            duration = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            // This does not show up in all Card renderer results and so we'll define it as optional.
+            // TODO: Could make this more type safe in future.
+            plays = parse_item_text(&mut mrlir, 1, 6).ok();
+        }
     }
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(TopResult {
-        result_type,
+        result_type: result_type.ok(),
         subscribers,
         thumbnails,
         result_name,
@@ -252,7 +269,7 @@ fn parse_artist_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultArtist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let artist = parse_item_text(&mut mrlir, 0, 0)?;
-    let subscribers = parse_item_text(&mut mrlir, 1, 2)?;
+    let subscribers = parse_item_text(&mut mrlir, 1, 2).ok();
     let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultArtist {

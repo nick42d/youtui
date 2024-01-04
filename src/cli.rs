@@ -142,6 +142,14 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             command: Some(Commands::SearchVideos { query }),
             show_source: true,
         } => search_videos_json(&config, query).await?,
+        Cli {
+            command: Some(Commands::Search { query }),
+            show_source: false,
+        } => search(&config, query).await?,
+        Cli {
+            command: Some(Commands::Search { query }),
+            show_source: true,
+        } => search_json(&config, query).await?,
     }
     Ok(())
 }
@@ -218,12 +226,25 @@ pub async fn print_library_playlists_json(config: &Config) -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&json)?);
     Ok(())
 }
+pub async fn search(config: &Config, query: String) -> Result<()> {
+    let res = get_api(&config).await?.search(query).await?;
+    println!("{:#?}", res);
+    Ok(())
+}
+pub async fn search_json(config: &Config, query: String) -> Result<()> {
+    let json = get_api(&config)
+        .await?
+        .json_query(SearchQuery::new(query))
+        .await?;
+    let json: serde_json::Value = serde_json::from_str(json.as_ref())?;
+    println!("{}", serde_json::to_string_pretty(&json)?);
+    Ok(())
+}
 pub async fn search_artists(config: &Config, query: String) -> Result<()> {
     let res = get_api(&config).await?.search_artists(query).await?;
     println!("{:#?}", res);
     Ok(())
 }
-
 pub async fn search_artists_json(config: &Config, query: String) -> Result<()> {
     let json = get_api(&config)
         .await?

@@ -1,7 +1,7 @@
 use crate::{
     common::Explicit,
     crawler::JsonCrawler,
-    parse::{Parse, ProcessedResult},
+    parse::{Parse, ProcessedResult, SearchResults},
     process::JsonCloner,
     query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
@@ -82,11 +82,37 @@ async fn basic_test_to_test_basic_search() {
 
 #[tokio::test]
 async fn test_basic_search() {
-    panic!("Not fully implemented yet");
+    let source_path = Path::new("./test_json/search_highlighted_top_result_20231228.json");
+    let expected_path = Path::new("./test_json/search_highlighted_top_result_20231228_output.txt");
+    let source = tokio::fs::read_to_string(source_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let expected = tokio::fs::read_to_string(expected_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let expected = expected.trim();
+    let json_clone = JsonCloner::from_string(source).unwrap();
+    // Blank query has no bearing on function
+    let query = SearchQuery::new("Black Flag");
+    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+        .parse()
+        .unwrap();
+    let output = format!("{:#?}", output);
+    assert_eq!(output, expected);
 }
 #[tokio::test]
 async fn test_basic_search_is_empty() {
-    panic!("Not fully implemented yet");
+    let source_path = Path::new("./test_json/search_no_results_20240104.json");
+    let source = tokio::fs::read_to_string(source_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let json_clone = JsonCloner::from_string(source).unwrap();
+    // Blank query has no bearing on function
+    let query = SearchQuery::new("ajhkjhdslkfjhsdfglkjdsf");
+    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+        .parse()
+        .unwrap();
+    assert_eq!(output, SearchResults::default());
 }
 #[tokio::test]
 async fn test_search_artists() {

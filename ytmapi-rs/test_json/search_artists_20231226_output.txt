@@ -1,7 +1,9 @@
 [
     SearchResultArtist {
         artist: "The Beatles",
-        subscribers: "8.04M subscribers",
+        subscribers: Some(
+            "8.04M subscribers",
+        ),
         browse_id: ChannelID(
             "UC2XdaAVUannpujzv32jcouQ",
         ),
@@ -20,7 +22,9 @@
     },
     SearchResultArtist {
         artist: "John Lennon",
-        subscribers: "2.11M subscribers",
+        subscribers: Some(
+            "2.11M subscribers",
+        ),
         browse_id: ChannelID(
             "UCcSL2nYSJp_IgdzH0xBBdcg",
         ),
@@ -39,7 +43,9 @@
     },
     SearchResultArtist {
         artist: "George Harrison",
-        subscribers: "911K subscribers",
+        subscribers: Some(
+            "911K subscribers",
+        ),
         browse_id: ChannelID(
             "UCGVnHHo1u7Xfyht_psktcUQ",
         ),
@@ -58,7 +64,9 @@
     },
     SearchResultArtist {
         artist: "Wings",
-        subscribers: "65.4K subscribers",
+        subscribers: Some(
+            "65.4K subscribers",
+        ),
         browse_id: ChannelID(
             "UCyyYmEud7d9iGVOYNMG9sAA",
         ),
@@ -77,7 +85,9 @@
     },
     SearchResultArtist {
         artist: "Paul McCartney",
-        subscribers: "1.25M subscribers",
+        subscribers: Some(
+            "1.25M subscribers",
+        ),
         browse_id: ChannelID(
             "UC0guXwTSf4hAOvCSgmViojw",
         ),
@@ -96,7 +106,9 @@
     },
     SearchResultArtist {
         artist: "The Beatles Revival Band",
-        subscribers: "381 subscribers",
+        subscribers: Some(
+            "381 subscribers",
+        ),
         browse_id: ChannelID(
             "UCV_-_pF4QSBQQV2ittXJbfw",
         ),
@@ -115,7 +127,9 @@
     },
     SearchResultArtist {
         artist: "The Analogues",
-        subscribers: "3.28K subscribers",
+        subscribers: Some(
+            "3.28K subscribers",
+        ),
         browse_id: ChannelID(
             "UCRYdAI0iN-PJY69Sz0_7IJA",
         ),
@@ -134,7 +148,9 @@
     },
     SearchResultArtist {
         artist: "Stars on 45",
-        subscribers: "28.5K subscribers",
+        subscribers: Some(
+            "28.5K subscribers",
+        ),
         browse_id: ChannelID(
             "UCY6PIZYIBoR2xhieIgMGZKA",
         ),
@@ -153,7 +169,9 @@
     },
     SearchResultArtist {
         artist: "Blues Beatles",
-        subscribers: "1.83K subscribers",
+        subscribers: Some(
+            "1.83K subscribers",
+        ),
         browse_id: ChannelID(
             "UCJkVRAwjqPle_ghndYQsQfA",
         ),
@@ -172,7 +190,9 @@
     },
     SearchResultArtist {
         artist: "I Hate The Beatles",
-        subscribers: "196 subscribers",
+        subscribers: Some(
+            "196 subscribers",
+        ),
         browse_id: ChannelID(
             "UC5C_P9hl7q5P3EWdZxdH4RQ",
         ),
@@ -191,7 +211,9 @@
     },
     SearchResultArtist {
         artist: "Ringo Starr",
-        subscribers: "229K subscribers",
+        subscribers: Some(
+            "229K subscribers",
+        ),
         browse_id: ChannelID(
             "UCJWrY1uIUlnGvs0sUz5ydwQ",
         ),
@@ -210,7 +232,9 @@
     },
     SearchResultArtist {
         artist: "1964 the Tribute",
-        subscribers: "271 subscribers",
+        subscribers: Some(
+            "271 subscribers",
+        ),
         browse_id: ChannelID(
             "UCXWmOLenQ4_6oCzQBgCeC8g",
         ),
@@ -229,7 +253,9 @@
     },
     SearchResultArtist {
         artist: "Oasis",
-        subscribers: "3.42M subscribers",
+        subscribers: Some(
+            "3.42M subscribers",
+        ),
         browse_id: ChannelID(
             "UCmMUZbaYdNH0bEd1PAlAqsA",
         ),
@@ -248,7 +274,9 @@
     },
     SearchResultArtist {
         artist: "Linda McCartney",
-        subscribers: "6.94K subscribers",
+        subscribers: Some(
+            "6.94K subscribers",
+        ),
         browse_id: ChannelID(
             "UCLLVHpNblwdDcq8QSB07uhA",
         ),
@@ -267,7 +295,9 @@
     },
     SearchResultArtist {
         artist: "Karaoke/Tribute - The Beatles",
-        subscribers: "1.85K subscribers",
+        subscribers: Some(
+            "1.85K subscribers",
+        ),
         browse_id: ChannelID(
             "UC2D06idn3O0W9UBlCXDn5ww",
         ),
@@ -286,7 +316,9 @@
     },
     SearchResultArtist {
         artist: "Jeff Lynne",
-        subscribers: "8.93K subscribers",
+        subscribers: Some(
+            "8.93K subscribers",
+        ),
         browse_id: ChannelID(
             "UCx3s72oZ09wHS2UuWmFGJEw",
         ),
@@ -305,7 +337,9 @@
     },
     SearchResultArtist {
         artist: "The Rolling Stones",
-        subscribers: "3.13M subscribers",
+        subscribers: Some(
+            "3.13M subscribers",
+        ),
         browse_id: ChannelID(
             "UCNYhhkQqeFLUc-YEDcLpSYQ",
         ),
@@ -324,7 +358,9 @@
     },
     SearchResultArtist {
         artist: "Tony Sheridan",
-        subscribers: "1.75K subscribers",
+        subscribers: Some(
+            "1.75K subscribers",
+        ),
         browse_id: ChannelID(
             "UC3zG71a_GbDfpblpiuFCL9A",
         ),
@@ -343,7 +379,9 @@
     },
     SearchResultArtist {
         artist: "The Quarrymen",
-        subscribers: "5.49K subscribers",
+        subscribers: Some(
+            "5.49K subscribers",
+        ),
         browse_id: ChannelID(
             "UCm_5Rfq0-eFFIPfLIcB9KNQ",
         ),
@@ -362,7 +400,9 @@
     },
     SearchResultArtist {
         artist: "Sex Beatles",
-        subscribers: "91 subscribers",
+        subscribers: Some(
+            "91 subscribers",
+        ),
         browse_id: ChannelID(
             "UCfgboBe5iXZu85FwT_gBAHQ",
         ),

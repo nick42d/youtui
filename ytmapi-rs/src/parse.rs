@@ -37,7 +37,7 @@ pub enum EpisodeDate {
     Recorded { date: String },
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResults {
     pub top_results: Vec<TopResult>,
     pub artists: Vec<SearchResultArtist>,
@@ -76,10 +76,10 @@ enum SearchResultType {
     Episodes,
     Profiles,
 }
-impl TryFrom<String> for SearchResultType {
+impl TryFrom<&str> for SearchResultType {
     type Error = Error;
-    fn try_from(value: String) -> Result<Self> {
-        let result = match value.as_str() {
+    fn try_from(value: &str) -> Result<Self> {
+        let result = match value {
             "Songs" => Self::Songs,
             "Top result" => Self::TopResults,
             "Albums" => Self::Albums,
@@ -100,10 +100,10 @@ impl TryFrom<String> for SearchResultType {
         Ok(result)
     }
 }
-impl TryFrom<String> for TopResultType {
+impl TryFrom<&str> for TopResultType {
     type Error = Error;
-    fn try_from(value: String) -> Result<Self> {
-        let result = match value.as_str() {
+    fn try_from(value: &str) -> Result<Self> {
+        let result = match value {
             "Song" => Self::Song,
             "Album" => Self::Album(AlbumType::Album),
             "EP" => Self::Album(AlbumType::EP),
@@ -138,7 +138,8 @@ pub struct ParsedSongAlbum {
 // In future, may be possible to make this type safe.
 pub struct TopResult {
     pub result_name: String,
-    pub result_type: TopResultType,
+    /// Both Videos and Songs can have this left out.
+    pub result_type: Option<TopResultType>,
     pub thumbnails: Vec<Thumbnail>,
     pub artist: Option<String>,
     pub album: Option<String>,
@@ -154,7 +155,8 @@ pub struct TopResult {
 /// An artist search result.
 pub struct SearchResultArtist {
     pub artist: String,
-    pub subscribers: String,
+    /// An artist with no subscribers won't contain this field.
+    pub subscribers: Option<String>,
     pub browse_id: ChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -263,6 +265,9 @@ impl<T: Query> ProcessedResult<T> {
     }
     pub fn get_crawler(&self) -> &JsonCrawler {
         &self.json_crawler
+    }
+    pub fn clone_json(self) -> String {
+        self.json_crawler.get_source().to_string()
     }
 }
 

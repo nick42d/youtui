@@ -162,16 +162,6 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: path_clone,
         })
     }
-    // XXX: Temporary function until code refactored.
-    #[deprecated = "Temporary function - in future pass navigator around instead"]
-    pub fn _take_json_pointer(&mut self, path: &str) -> Result<serde_json::Value> {
-        let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::pointer(path));
-        self.crawler
-            .pointer_mut(path)
-            .map(|v| v.take())
-            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
-    }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())
             // XXX: ParseTarget String is incorrect
@@ -309,15 +299,6 @@ impl JsonCrawler {
         )
         // XXX: ParseTarget String is incorrect
         .map_err(|_| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
-    }
-    #[deprecated = "Temporary function until code refactored"]
-    pub fn _take_json_pointer(&mut self, path: &str) -> Result<serde_json::Value> {
-        let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::pointer(path));
-        self.crawler
-            .pointer_mut(path)
-            .map(|v| v.take())
-            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
     }
     pub fn get_source(&self) -> &str {
         &self.source

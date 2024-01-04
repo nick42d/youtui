@@ -119,10 +119,10 @@ impl<A: AuthToken> YtMusic<A> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
-    // TODO: Add validation here?
     /// Return the raw JSON returned by YouTube music for Query Q.
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
-        let json = self.raw_query(query).await?.destructure_json();
+        // TODO: Remove allocation
+        let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(

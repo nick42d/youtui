@@ -50,7 +50,7 @@ enum Inner {
         response: String,
         err: serde_json::Error,
     },
-    BrowserTokenExpired,
+    BrowserAuthenticationFailed,
     OAuthTokenExpired,
     // Received an error code in the JSON message from Innertube.
     // This is a u64 not a usize as that is what serde_json will deserialize to.
@@ -75,13 +75,13 @@ impl Error {
             false
         }
     }
-    pub fn browser_token_expired() -> Self {
+    pub fn browser_authentication_failed() -> Self {
         Self {
-            inner: Box::new(Inner::BrowserTokenExpired),
+            inner: Box::new(Inner::BrowserAuthenticationFailed),
         }
     }
-    pub fn is_browser_expired(&self) -> bool {
-        if let Inner::BrowserTokenExpired = *self.inner {
+    pub fn is_browser_authentication_failed(&self) -> bool {
+        if let Inner::BrowserAuthenticationFailed = *self.inner {
             true
         } else {
             false
@@ -143,7 +143,7 @@ impl Error {
             | Inner::UnableToSerializeGoogleOAuthToken { .. }
             | Inner::OtherErrorCodeInResponse(_) => None,
             Inner::OAuthTokenExpired => None,
-            Inner::BrowserTokenExpired => None,
+            Inner::BrowserAuthenticationFailed => None,
         }
     }
 }
@@ -171,7 +171,7 @@ impl Display for Inner {
                 target,
             } => write!(f, "Unable to parse into {:?} at {key}", target),
             Inner::OAuthTokenExpired => write!(f, "OAuth token has expired"),
-            Inner::BrowserTokenExpired => write!(f, "Browser token has expired"),
+            Inner::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
             Inner::UnableToSerializeGoogleOAuthToken { response, err } => write!(
                 f,
                 "Unable to serialize Google auth token {}, received error {}",
