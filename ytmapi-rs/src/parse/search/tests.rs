@@ -43,6 +43,21 @@ async fn test_basic_search_has_simple_top_result() {
 }
 #[tokio::test]
 // Test results appear for the correct categories.
+async fn test_basic_search_has_card_top_result() {
+    let source_path = Path::new("./test_json/search_highlighted_top_result_20231228.json");
+    let source = tokio::fs::read_to_string(source_path)
+        .await
+        .expect("Expect file read to pass during tests");
+    let json_clone = JsonCloner::from_string(source).unwrap();
+    // Blank query has no bearing on function
+    let query = SearchQuery::new("");
+    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+        .parse()
+        .unwrap();
+    assert!(!output.top_results.is_empty());
+}
+#[tokio::test]
+// Test results appear for the correct categories.
 async fn basic_test_to_test_basic_search() {
     let source_path = Path::new("./test_json/search_no_top_result_20231228.json");
     let source = tokio::fs::read_to_string(source_path)

@@ -7,6 +7,7 @@ pub const _TAB_1_CONTENT: &str = "/tabs/1/tabRenderer/content";
 pub const SINGLE_COLUMN: &str = "/contents/singleColumnBrowseResultsRenderer";
 pub const SECTION_LIST: &str = "/sectionListRenderer/contents";
 pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
+pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
 pub const GRID: &str = "/gridRenderer";
 pub const MENU: &str = "/menu/menuRenderer";
 pub const MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";

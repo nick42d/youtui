@@ -95,6 +95,7 @@ async fn test_search_artists_oauth() {
 }
 #[tokio::test]
 async fn test_search_artists() {
+    // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
     let res = api.search_artists("Beatles").await.unwrap();
 }

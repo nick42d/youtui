@@ -146,20 +146,10 @@ pub struct TopResult {
     pub year: Option<String>,
     pub subscribers: Option<String>,
     pub plays: Option<String>,
-    pub artist_info: Option<ParsedSongList>,
     /// Podcast publisher.
     pub publisher: Option<String>,
     // TODO: Add endpoint id.
 }
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ParsedSongList {
-    artists: Vec<ParsedSongArtist>,
-    album: Option<ParsedSongAlbum>,
-    views: Option<String>,
-    duration: Option<String>, // TODO: Duration as a time
-    year: Option<String>,
-}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// An artist search result.
 pub struct SearchResultArtist {

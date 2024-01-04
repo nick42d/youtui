@@ -7,8 +7,9 @@ use super::{
 use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
-    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_SHELF, NAVIGATION_BROWSE_ID, PLAYLIST_ITEM_VIDEO_ID,
-    PLAY_BUTTON, SECTION_LIST, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
+    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
+    THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
 use crate::{query::*, Thumbnail};
@@ -37,11 +38,28 @@ fn parse_basic_search_result_from_xx(
     let mut podcasts = Vec::new();
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
-    for category in section_list_contents
-        .0
-        .as_array_iter_mut()?
-        .map(|r| r.navigate_pointer(MUSIC_SHELF))
+    let mut results = section_list_contents.0.as_array_iter_mut()?.peekable();
+    // TODO: Better error.
+    // XXX: Naive solution.
+    if results
+        .peek()
+        .ok_or(Error::other(
+            "Expected more than one element in search results",
+        ))?
+        .path_exists(MUSIC_CARD_SHELF)
     {
+        // TODO: Better error.
+        top_results = parse_top_results_from_music_card_shelf_contents(
+            results
+                .next()
+                .ok_or(Error::other(
+                    "Expected more than one element in search results",
+                ))?
+                .navigate_pointer(MUSIC_CARD_SHELF)?,
+        )?;
+    }
+
+    for category in results.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
         let mut category = category?;
         match SearchResultType::try_from(
             // TODO: Better navigation
@@ -133,7 +151,50 @@ fn parse_basic_search_result_from_xx(
         profiles,
     })
 }
-// TODO: Type safety
+fn parse_top_results_from_music_card_shelf_contents(
+    mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<Vec<TopResult>> {
+    let mut results = Vec::new();
+    // Begin - first result parsing
+    let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
+    let result_type = TopResultType::try_from(
+        music_shelf_contents.take_value_pointer::<String, &str>(SUBTITLE)?,
+    )?;
+    // Possibly artists only.
+    let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
+    // Imperative solution, may be able to make more functional.
+    let publisher = None;
+    let artist = None;
+    let album = None;
+    let duration = None;
+    let year = None;
+    let plays = None;
+    let thumbnails: Vec<Thumbnail> = music_shelf_contents.take_value_pointer(THUMBNAILS)?;
+    let first_result = TopResult {
+        result_type,
+        subscribers,
+        thumbnails,
+        result_name,
+        publisher,
+        artist,
+        album,
+        duration,
+        year,
+        plays,
+    };
+    // End - first result parsing.
+    // TODO: Improve efficiency.
+    results.push(first_result);
+    let mut other_results = music_shelf_contents
+        .navigate_pointer("/contents")?
+        .as_array_iter_mut()?
+        // Seems this won't work, as Song in Card renderer has less fields than Song in basic renderer.
+        .map(|r| parse_top_result_from_music_shelf_contents(r))
+        // TODO: Remove allocation.
+        .collect::<Result<Vec<TopResult>>>()?;
+    results.append(&mut other_results);
+    Ok(results)
+}
 // TODO: Tests
 fn parse_top_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
@@ -143,7 +204,6 @@ fn parse_top_result_from_music_shelf_contents(
     let result_type = TopResultType::try_from(parse_item_text(&mut mrlir, 1, 0)?)?;
     // Imperative solution, may be able to make more functional.
     let mut subscribers = None;
-    let mut artist_info = None;
     let mut publisher = None;
     let mut artist = None;
     let mut album = None;
@@ -163,7 +223,9 @@ fn parse_top_result_from_music_shelf_contents(
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             album = Some(parse_item_text(&mut mrlir, 1, 4)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
-            plays = Some(parse_item_text(&mut mrlir, 1, 8)?);
+            // This does not show up in Card renderer results and so we'll define it as optional.
+            // TODO: Could make this more type safe in future.
+            plays = parse_item_text(&mut mrlir, 1, 8).ok();
         }
         TopResultType::Video => todo!(),
         TopResultType::Station => todo!(),
@@ -174,7 +236,6 @@ fn parse_top_result_from_music_shelf_contents(
         result_type,
         subscribers,
         thumbnails,
-        artist_info,
         result_name,
         publisher,
         artist,
