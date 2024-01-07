@@ -44,7 +44,7 @@ async fn test_basic_search_has_simple_top_result() {
 #[tokio::test]
 // Test results appear for the correct categories.
 async fn test_basic_search_has_card_top_result() {
-    let source_path = Path::new("./test_json/search_highlighted_top_result_20231228.json");
+    let source_path = Path::new("./test_json/search_highlighted_top_result_20240107.json");
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
@@ -82,8 +82,8 @@ async fn basic_test_to_test_basic_search() {
 
 #[tokio::test]
 async fn test_basic_search() {
-    let source_path = Path::new("./test_json/search_highlighted_top_result_20231228.json");
-    let expected_path = Path::new("./test_json/search_highlighted_top_result_20231228_output.txt");
+    let source_path = Path::new("./test_json/search_highlighted_top_result_20240107.json");
+    let expected_path = Path::new("./test_json/search_highlighted_top_result_20240107_output.txt");
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");

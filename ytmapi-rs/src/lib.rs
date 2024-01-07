@@ -3,28 +3,30 @@
 //! Basic usage with a pre-created cookie file :
 //! ```no_run
 //! #[tokio::main]
-//! pub async fn main() -> Result<(), ytmapi-rs::Error> {
-//!     let cookie_path = Path::new("./cookie.txt");
-//!     let yt = ytmapi-rs::YtMusic::from_cookie_file(cookie_path).await?;
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let cookie_path = std::path::Path::new("./cookie.txt");
+//!     let yt = ytmapi_rs::YtMusic::from_cookie_file(cookie_path).await?;
 //!     yt.get_search_suggestions("Beatles").await?;
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
+//!     Ok(())
 //! }
 //! ```
 //! Basic usage - oauth:
 //! ```no_run
 //! #[tokio::main]
-//! pub async fn main() -> Result<(), ytmapi-rs::Error> {
-//!     let (code, url) = ytmapi-rs::generate_oauth_code_and_url().await?;
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
 //!     println!("Go to {url}, finish the login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
-//!     let token = ytmapi-rs::generate_oauth_token(code).await?
+//!     let token = ytmapi_rs::generate_oauth_token(code).await?;
 //!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
 //!     // so it's recommended to save it to a file here.
-//!     let yt = ytmapi-rs::YtMusic::from_oauth_token(token);
+//!     let yt = ytmapi_rs::YtMusic::from_oauth_token(token);
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
+//!     Ok(())
 //! }
 //! ```
 // TODO: Confirm if auth should be pub
