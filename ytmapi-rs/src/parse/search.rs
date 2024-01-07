@@ -514,6 +514,12 @@ fn section_contents_is_empty(section_contents: &SectionContentsCrawler) -> bool 
         .0
         .path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")
 }
+// TODO: Consolidate these two functions into single function.
+fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListContents) -> bool {
+    section_contents
+        .0
+        .path_exists("/0/itemSectionRenderer/contents/0/didYouMeanRenderer")
+}
 impl<'a> TryFrom<ProcessedResult<SearchQuery<'a, BasicSearch>>> for BasicSearchSectionListContents {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, BasicSearch>>) -> Result<Self> {
@@ -689,6 +695,9 @@ impl<'a> Parse for ProcessedResult<SearchQuery<'a, BasicSearch>> {
     type Output = SearchResults;
     fn parse(self) -> Result<Self::Output> {
         let section_list_contents = BasicSearchSectionListContents::try_from(self)?;
+        if section_list_contents_is_empty(&section_list_contents) {
+            return Ok(Self::Output::default());
+        }
         parse_basic_search_result_from_xx(section_list_contents)
     }
 }

@@ -50,19 +50,12 @@ async fn test_expired_oauth() {
     };
     assert!(error.is_oauth_expired());
 }
-#[tokio::test]
-async fn test_expired_oauth_is_not_disconnected() {
-    // TODO: Test that expired oauth definitely is expired and not just network being disconnected.
-    todo!()
-}
 // Placeholder for future implementation.
 // #[tokio::test]
 // async fn test_expired_header() {
 // }
 #[tokio::test]
 async fn test_invalid_header() {
-    // XXX: Assuming this error only occurs for expired headers.
-    // This assumption may be incorrect.
     let api = YtMusic::from_cookie(INVALID_COOKIE).await;
     // Library query needs authentication.
     let res = api.unwrap().json_query(GetLibraryPlaylistsQuery).await;
