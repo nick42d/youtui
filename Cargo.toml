@@ -10,6 +10,8 @@ repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
+# Required for async trait support
+rust-version = "1.75"
 
 [dependencies]
 clap = { version = "4.4.11", features = ["derive"] }
