@@ -4,23 +4,42 @@ use super::*;
 use crate::common::{AlbumID, LyricsID, PlaylistID, TextRun, YoutubeID};
 use crate::Error;
 use serde_json::json;
+use std::env;
 use std::io::IntoInnerError;
 
-const EXPIRED_HEADERS_PATH: &str = "expired-cookie.txt";
-const EXPIRED_OAUTH_PATH: &str = "expired-oauth.json";
 const COOKIE_PATH: &str = "cookie.txt";
-const OAUTH_PATH: &str = "oauth.json";
+const EXPIRED_OAUTH_PATH: &str = "oauth.json";
 // Cookie filled with nonsense values to test this case.
 const INVALID_COOKIE: &str = "HSID=abc; SSID=abc; APISID=abc; SAPISID=abc; __Secure-1PAPISID=abc; __Secure-3PAPISID=abc; YSC=abc; LOGIN_INFO=abc; VISITOR_INFO1_LIVE=abc; _gcl_au=abc; PREF=tz=Australia.Perth&f6=40000000&f7=abc; VISITOR_PRIVACY_METADATA=abc; __Secure-1PSIDTS=abc; __Secure-3PSIDTS=abc; SID=abc; __Secure-1PSID=abc; __Secure-3PSID=abc; SIDCC=abc; __Secure-1PSIDCC=abc; __Secure-3PSIDCC=abc";
+// Placeholder for future implementation.
+// const INVALID_EXPIRED_OAUTH: &str = "
+// {
+//   \"token_type\": \"Bearer\",
+//   \"access_token\": \"abc\",
+//   \"refresh_token\": \"abc\",
+//   \"expires_in\": 62609,
+//   \"request_time\": {
+//     \"secs_since_epoch\": 1702907669,
+//     \"nanos_since_epoch\": 594642820
+//   }
+// }";
 
 async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
-    let oauth_token = tokio::fs::read(OAUTH_PATH).await.unwrap();
+    let oauth_token = if let Ok(tok) = env::var("youtui_test_oauth") {
+        tok
+    } else {
+        tokio::fs::read_to_string(EXPIRED_OAUTH_PATH).await.unwrap()
+    };
     Ok(YtMusic::from_oauth_token(
-        serde_json::from_slice(&oauth_token).unwrap(),
+        serde_json::from_slice(oauth_token.as_bytes()).unwrap(),
     ))
 }
 async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
-    YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
+    if let Ok(cookie) = env::var("youtui_test_cookie") {
+        YtMusic::from_cookie(cookie).await
+    } else {
+        YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
+    }
 }
 pub fn write_json(e: &Error) {
     if let Some((json, key)) = e.get_json_and_key() {
@@ -32,16 +51,14 @@ pub fn write_json(e: &Error) {
 
 #[tokio::test]
 async fn test_refresh_expired_oauth() {
-    let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
-    let mut api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap());
+    let mut api = new_standard_oauth_api().await.unwrap();
     api.refresh_token().await.unwrap();
 }
 #[tokio::test]
 async fn test_expired_oauth() {
-    let oauth_token = tokio::fs::read(EXPIRED_OAUTH_PATH).await.unwrap();
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
-    let api = YtMusic::from_oauth_token(serde_json::from_slice(&oauth_token).unwrap());
+    let api = new_standard_oauth_api().await.unwrap();
     // Library query needs authentication.
     let res = api.json_query(GetLibraryPlaylistsQuery).await;
     // TODO: Add matching functions to error type. Current method not very ergonomic.
@@ -66,6 +83,21 @@ async fn test_invalid_header() {
     };
     assert!(error.is_browser_authentication_failed());
 }
+// Placeholder for future implementation
+// #[tokio::test]
+// async fn test_invalid_expired_oauth() {
+//     let oauth_token: OAuthToken = serde_json::from_str(INVALID_EXPIRED_OAUTH).unwrap();
+//     let api = YtMusic::from_oauth_token(oauth_token);
+//     // Library query needs authentication.
+//     let res = api.json_query(GetLibraryPlaylistsQuery).await;
+//     // TODO: Add matching functions to error type. Current method not very ergonomic.
+//     let Err(error) = res else {
+//         eprintln!("{:#?}", res);
+//         panic!("Expected an error")
+//     };
+//     eprintln!("{:#?}", error);
+//     assert!(error.is_browser_authentication_failed());
+// }
 
 #[tokio::test]
 async fn test_new() {
@@ -238,9 +270,7 @@ async fn test_get_library_artists() {
 #[tokio::test]
 async fn test_watch_playlist() {
     // TODO: Make more generic
-    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
-        .await
-        .unwrap();
+    let api = new_standard_api().await.unwrap();
     let res = api
         .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
             "9mWr4c_ig54",
@@ -257,9 +287,7 @@ async fn test_watch_playlist() {
 #[tokio::test]
 async fn test_get_lyrics() {
     // TODO: Make more generic
-    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
-        .await
-        .unwrap();
+    let api = new_standard_api().await.unwrap();
     let res = api
         .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
             "9mWr4c_ig54",
@@ -307,9 +335,7 @@ async fn test_search_suggestions() {
 #[tokio::test]
 async fn test_get_artist() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
-        .await
-        .unwrap();
+    let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = api
@@ -327,9 +353,7 @@ async fn test_get_artist() {
 #[tokio::test]
 async fn test_get_artist_albums() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
-        .await
-        .unwrap();
+    let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = api
@@ -367,9 +391,7 @@ async fn test_get_oauth_code() {
 #[tokio::test]
 async fn test_get_artist_album_songs() {
     let now = std::time::Instant::now();
-    let api = YtMusic::from_cookie_file(Path::new(COOKIE_PATH))
-        .await
-        .unwrap();
+    let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = api
