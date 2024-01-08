@@ -43,7 +43,7 @@ pub struct AlbumParams {
     like_status: Option<AlbumLikeStatus>,
 }
 
-pub struct MusicShelfContents<'a> {
+pub(crate) struct MusicShelfContents<'a> {
     pub json: JsonCrawlerBorrowed<'a>,
 }
 impl<'a, 'b> MusicShelfContents<'a> {

@@ -1,8 +1,6 @@
 use crate::{
     app::structures::PlayState,
-    drawutils::{
-        BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR, TEXT_COLOUR,
-    },
+    drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR},
 };
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},

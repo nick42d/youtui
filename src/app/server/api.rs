@@ -52,7 +52,7 @@ impl Api {
             // TODO: Error handling
             let api = match api_key {
                 ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await?,
-                ApiKey::OAuthToken(t) =>
+                ApiKey::OAuthToken(_) =>
                 // TODO: Add OAuth
                 {
                     unimplemented!()

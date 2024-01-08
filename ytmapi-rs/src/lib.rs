@@ -63,12 +63,11 @@ use parse::{
 };
 use process::RawResult;
 use query::{
-    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    AlbumsFilter, ArtistsFilter, BasicSearch, CommunityPlaylistsFilter, EpisodesFilter,
-    FeaturedPlaylistsFilter, FilteredSearch, FilteredSearchType, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery,
-    SearchType, SongsFilter, VideosFilter,
+    lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery, AlbumsFilter, ArtistsFilter, BasicSearch,
+    CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter, FilteredSearch,
+    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
+    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
+    ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
 };
 use reqwest::Client;
 use std::path::Path;

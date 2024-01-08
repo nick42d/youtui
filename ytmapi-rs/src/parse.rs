@@ -1,9 +1,6 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    common::{
-        AlbumID, AlbumType, BrowseID, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail,
-        VideoID, YoutubeID,
-    },
+    common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
     process::{self, process_flex_column_item},
@@ -14,7 +11,6 @@ use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
-pub use search::*;
 use serde::{Deserialize, Serialize};
 
 mod album;
@@ -254,19 +250,13 @@ where
     json_crawler: JsonCrawler,
 }
 impl<T: Query> ProcessedResult<T> {
-    pub fn from_raw(json_crawler: JsonCrawler, query: T) -> Self {
+    pub(crate) fn from_raw(json_crawler: JsonCrawler, query: T) -> Self {
         Self {
             query,
             json_crawler,
         }
     }
-    pub fn get_query(&self) -> &T {
-        &self.query
-    }
-    pub fn get_crawler(&self) -> &JsonCrawler {
-        &self.json_crawler
-    }
-    pub fn clone_json(self) -> String {
+    pub(crate) fn clone_json(self) -> String {
         self.json_crawler.get_source().to_string()
     }
 }

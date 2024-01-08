@@ -37,14 +37,14 @@ struct GoogleOAuthToken {
     pub access_token: String,
     pub expires_in: usize,
     pub refresh_token: String,
-    pub scope: String,
+    pub _scope: String,
     pub token_type: String,
 }
 #[derive(Debug, Clone, Deserialize)]
 struct GoogleOAuthRefreshToken {
     pub access_token: String,
     pub expires_in: usize,
-    pub scope: String,
+    pub _scope: String,
     pub token_type: String,
 }
 #[derive(Debug, Clone, Deserialize)]
@@ -57,10 +57,6 @@ pub struct OAuthTokenGenerator {
 }
 
 impl OAuthToken {
-    fn from_json_string<S: AsRef<str>>(json_string: S) -> Result<Self> {
-        serde_json::from_str(json_string.as_ref())
-            .map_err(|_| Error::other("Error parsing json oauth string"))
-    }
     fn from_google_refresh_token(
         google_token: GoogleOAuthRefreshToken,
         request_time: SystemTime,

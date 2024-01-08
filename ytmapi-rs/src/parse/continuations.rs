@@ -1,8 +1,4 @@
-/// Placeholder module for future work
-use crate::query::{continuations::GetContinuationsQuery, FilteredSearch, SearchQuery};
-use crate::Result;
-
-use super::ProcessedResult;
+// Placeholder module for future work
 
 // impl<'a> ProcessedResult<GetContinuationsQuery<SearchQuery<'a, FilteredSearch>>> {
 //     pub fn parse(self) -> Result<()> {

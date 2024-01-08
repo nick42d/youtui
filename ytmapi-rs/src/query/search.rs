@@ -265,7 +265,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         }
     }
     /// Search only library.
-    pub fn library(mut self) -> SearchQuery<'a, LibrarySearch> {
+    pub fn library(self) -> SearchQuery<'a, LibrarySearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,

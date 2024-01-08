@@ -523,9 +523,7 @@ fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListConte
 impl<'a> TryFrom<ProcessedResult<SearchQuery<'a, BasicSearch>>> for BasicSearchSectionListContents {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, BasicSearch>>) -> Result<Self> {
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = value;
+        let ProcessedResult { json_crawler, .. } = value;
         let section_list_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
@@ -539,9 +537,7 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, Filtered
 {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>) -> Result<Self> {
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = value;
+        let ProcessedResult { json_crawler, .. } = value;
         let section_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,

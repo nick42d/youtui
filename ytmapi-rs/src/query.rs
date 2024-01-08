@@ -1,5 +1,4 @@
 //! Type safe queries to pass to the API.
-use crate::common::BrowseID;
 pub use album::*;
 pub use artist::*;
 pub use library::*;
@@ -127,7 +126,7 @@ pub mod watch {
     use serde_json::json;
 
     use crate::{
-        common::{LyricsID, PlaylistID, YoutubeID},
+        common::{PlaylistID, YoutubeID},
         VideoID,
     };
 

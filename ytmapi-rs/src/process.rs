@@ -1,8 +1,8 @@
-use crate::auth::{AuthToken, BrowserToken, OAuthToken};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use crate::auth::AuthToken;
+use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
-use crate::{error, Result};
+use crate::Result;
 
 // Could return FixedColumnItem
 // consider if should be optional / error also.

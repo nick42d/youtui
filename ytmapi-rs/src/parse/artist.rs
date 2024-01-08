@@ -10,13 +10,11 @@ use crate::common::VideoID;
 use crate::common::YoutubeID;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::*;
-use crate::process;
 use crate::process::process_fixed_column_item;
 use crate::query::*;
-use crate::BrowseID;
 use crate::ChannelID;
+use crate::Result;
 use crate::Thumbnail;
-use crate::{Error, Result};
 use const_format::concatcp;
 
 #[derive(Debug, Clone)]
@@ -286,7 +284,7 @@ impl ArtistTopReleaseCategory {
         }
     }
 }
-pub fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
+pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
     let year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
     let browse_id: String = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
@@ -312,7 +310,7 @@ pub fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<Albu
 
 //TODO: Menu entries
 //TODO: Consider rename
-pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongResult>> {
+pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongResult>> {
     let MusicShelfContents { json } = music_shelf;
     let mut results = Vec::new();
     // this should be set in each loop not here...
@@ -377,7 +375,7 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
         // It depends on the query type so consider reflecting this in the code.
         // XXX: Consider which parts of this query are mandatory as currently erroring.
         // Using OK as a crutch to avoid error.
-        let artists = super::parse_song_artists(&mut data, 1)?;
+        let _artists = super::parse_song_artists(&mut data, 1)?;
         // Album may not exist, using an Option to reflect this.
         // It depends on the query type so consider reflecting this in the code.
         let album = super::parse_song_album(&mut data, 2).ok();

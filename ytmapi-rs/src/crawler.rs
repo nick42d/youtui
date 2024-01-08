@@ -12,19 +12,19 @@ struct PathList {
     list: Vec<JsonPath>,
 }
 #[derive(Clone, PartialEq, Debug)]
-pub struct JsonCrawler {
+pub(crate) struct JsonCrawler {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
-pub struct JsonCrawlerBorrowed<'a> {
+pub(crate) struct JsonCrawlerBorrowed<'a> {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
 }
-pub struct JsonCrawlerArrayIterMut<'a> {
+pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
     path: PathList,

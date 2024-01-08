@@ -67,14 +67,6 @@ pub struct Thumbnail {
     pub url: String,
 }
 
-// Should this be a trait?
-pub struct _Artist {
-    name: String,
-    browse_id: String,
-    shuffle_id: String,
-    radio_id: String,
-}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Explicit {
     IsExplicit,
