@@ -286,7 +286,7 @@ impl ArtistTopReleaseCategory {
 }
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
-    let year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
+    let _year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
     let browse_id: String = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
     let is_explicit = navigator.path_exists(concatcp!(TITLE, SUBTITLE_BADGE_LABEL));

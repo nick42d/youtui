@@ -20,7 +20,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // The original reason for the two different structs was that we did not save the refresh token.
 // But now we do, so consider simply making this only one struct.
 // Otherwise the only difference is not including Scope which is not super relevant.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
     access_token: String,
@@ -29,25 +29,25 @@ pub struct OAuthToken {
     request_time: SystemTime,
 }
 // TODO: Lock down construction of this type.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct OAuthDeviceCode(String);
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 struct GoogleOAuthToken {
     pub access_token: String,
     pub expires_in: usize,
     pub refresh_token: String,
-    pub _scope: String,
+    pub scope: String,
     pub token_type: String,
 }
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 struct GoogleOAuthRefreshToken {
     pub access_token: String,
     pub expires_in: usize,
-    pub _scope: String,
+    pub scope: String,
     pub token_type: String,
 }
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct OAuthTokenGenerator {
     pub device_code: OAuthDeviceCode,
     pub expires_in: usize,

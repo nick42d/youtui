@@ -143,7 +143,17 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
     Ok(results)
 }
 
+#[cfg(test)]
 mod tests {
+    use crate::{
+        common::library::{LibraryArtist, Playlist},
+        crawler::JsonCrawler,
+        parse::ProcessedResult,
+        process::JsonCloner,
+        query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
+    };
+    use serde_json::json;
+
     // Consider if the parse function itself should be removed from impl.
     #[test]
     fn test_library_playlists_dummy_json() {

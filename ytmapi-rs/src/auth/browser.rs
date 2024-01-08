@@ -1,3 +1,4 @@
+use super::AuthToken;
 use crate::crawler::JsonCrawler;
 use crate::error::{self, Error, Result};
 use crate::parse::ProcessedResult;
@@ -13,8 +14,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::path::Path;
 
-use super::AuthToken;
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct BrowserToken {
     sapisid: String,
     client_version: String,

@@ -259,6 +259,16 @@ impl<T: Query> ProcessedResult<T> {
     pub(crate) fn clone_json(self) -> String {
         self.json_crawler.get_source().to_string()
     }
+    // Only required when running tests
+    #[cfg(test)]
+    pub(crate) fn get_query(&self) -> &T {
+        &self.query
+    }
+    // Only required when running tests
+    #[cfg(test)]
+    pub(crate) fn get_crawler(&self) -> &JsonCrawler {
+        &self.json_crawler
+    }
 }
 
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto fixedcolumnitem also.
