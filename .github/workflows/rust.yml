@@ -20,6 +20,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Update rust
+      run: rustup update
     
     - name: Install linux deps
       run: |
