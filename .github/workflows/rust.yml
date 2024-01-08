@@ -30,12 +30,10 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    - name: Use secrets in tests
+    - name: Run tests
       env:
           youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
           youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
-
-    - name: Run tests
       run: | 
         cargo test --verbose
         cargo test -p ytmapi-rs --verbose
