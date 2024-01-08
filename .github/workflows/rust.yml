@@ -38,4 +38,5 @@ jobs:
           youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
           youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
       run: | 
-        cargo test --verbose --workspace
+        cargo test --verbose
+        cargo test -p ytmapi-rs --manifest-path ytmapi-rs/Cargo.toml --verbose
