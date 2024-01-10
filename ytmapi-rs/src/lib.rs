@@ -29,22 +29,6 @@
 //!     Ok(())
 //! }
 //! ```
-// TODO: Confirm if auth should be pub
-pub mod auth;
-mod utils;
-mod locales {}
-mod nav_consts;
-// Consider if pub is correct for this
-pub mod common;
-mod crawler;
-mod error;
-pub mod parse;
-mod process;
-pub mod query;
-
-#[cfg(test)]
-mod tests;
-
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
@@ -71,6 +55,21 @@ use query::{
 };
 use reqwest::Client;
 use std::path::Path;
+
+// TODO: Confirm if auth should be pub
+pub mod auth;
+mod utils;
+mod locales {}
+mod nav_consts;
+// Consider if pub is correct for this
+pub mod common;
+mod crawler;
+mod error;
+pub mod parse;
+mod process;
+pub mod query;
+#[cfg(test)]
+mod tests;
 
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
@@ -126,6 +125,7 @@ impl<A: AuthToken> YtMusic<A> {
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
+    /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
         query: Q,
@@ -231,6 +231,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
         self.raw_query(query).await?.process()?.parse()
     }
+    // TODO: Implement for other cases of query.
     pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
         &self,
         query: S,

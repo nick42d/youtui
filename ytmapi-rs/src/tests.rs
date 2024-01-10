@@ -1,11 +1,11 @@
-use super::common::{BrowseID, ChannelID};
+use super::common::{ChannelID};
 use super::query::*;
 use super::*;
-use crate::common::{AlbumID, LyricsID, PlaylistID, TextRun, YoutubeID};
+use crate::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use crate::Error;
-use serde_json::json;
+
 use std::env;
-use std::io::IntoInnerError;
+
 
 const COOKIE_PATH: &str = "cookie.txt";
 const EXPIRED_OAUTH_PATH: &str = "oauth.json";
@@ -107,135 +107,135 @@ async fn test_new() {
 #[tokio::test]
 async fn test_basic_search() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search("Beatles").await.unwrap();
+    let _res = api.search("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_basic_search_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search("Beatles").await.unwrap();
+    let _res = api.search("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_artists("Beatles").await.unwrap();
+    let _res = api.search_artists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_artists() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
-    let res = api.search_artists("Beatles").await.unwrap();
+    let _res = api.search_artists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_songs_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_songs("Beatles").await.unwrap();
+    let _res = api.search_songs("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_songs() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_songs("Beatles").await.unwrap();
+    let _res = api.search_songs("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_albums_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_albums("Beatles").await.unwrap();
+    let _res = api.search_albums("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_albums() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_albums("Beatles").await.unwrap();
+    let _res = api.search_albums("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_videos_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_videos("Beatles").await.unwrap();
+    let _res = api.search_videos("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_videos() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_videos("Beatles").await.unwrap();
+    let _res = api.search_videos("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_episodes_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_episodes("Beatles").await.unwrap();
+    let _res = api.search_episodes("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_episodes() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_episodes("Beatles").await.unwrap();
+    let _res = api.search_episodes("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_podcasts_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_podcasts("Beatles").await.unwrap();
+    let _res = api.search_podcasts("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_podcasts() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_podcasts("Beatles").await.unwrap();
+    let _res = api.search_podcasts("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_profiles_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_profiles("Beatles").await.unwrap();
+    let _res = api.search_profiles("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_profiles() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_profiles("Beatles").await.unwrap();
+    let _res = api.search_profiles("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_featured_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_featured_playlists("Beatles").await.unwrap();
+    let _res = api.search_featured_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_featured_playlists() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_featured_playlists("Beatles").await.unwrap();
+    let _res = api.search_featured_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_community_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_community_playlists("Beatles").await.unwrap();
+    let _res = api.search_community_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_community_playlists() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_community_playlists("Beatles").await.unwrap();
+    let _res = api.search_community_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just refresh it each time.
     api.refresh_token().await;
-    let res = api.search_playlists("Beatles").await.unwrap();
+    let _res = api.search_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_search_playlists() {
     let api = new_standard_api().await.unwrap();
-    let res = api.search_playlists("Beatles").await.unwrap();
+    let _res = api.search_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
@@ -347,7 +347,7 @@ async fn test_get_artist() {
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res = res.parse().unwrap();
+    let _res = res.parse().unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
 }
 #[tokio::test]
@@ -371,7 +371,7 @@ async fn test_get_artist_albums() {
     let res = res.process().unwrap();
     let res = res.parse().unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
+    let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     // For some reason the params is wrong. needs investigation.
@@ -385,7 +385,7 @@ async fn test_get_artist_albums() {
 #[tokio::test]
 async fn test_get_oauth_code() {
     let client = Client::new();
-    let code = OAuthTokenGenerator::new(&client).await.unwrap();
+    let _code = OAuthTokenGenerator::new(&client).await.unwrap();
 }
 
 #[tokio::test]
@@ -430,6 +430,6 @@ async fn test_get_artist_album_songs() {
     println!("Get album took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
-    let res = res.parse().unwrap();
+    let _res = res.parse().unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

@@ -10,7 +10,6 @@ This project is not supported or endorsed by Google.
 - Search suggestions
 - Sorting and filtering
 # Demo
-Version 0.0.1 as of 03/Dec/23 and is still a work in progress.
 [![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
 # How to install and run
 1. The easiest way to install is using crates.io by running `cargo +nightly install youtui`. (Nightly Rust is required to allow async methods in API trait, and this is expected to stabilise shortly.)
@@ -46,9 +45,9 @@ Chrome example (Select manually and paste):
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
-- [ ] Logging to a file (target for 0.0.4)
+- [ ] Logging to a file (target for 0.0.5)
 - [ ] Release to AUR (target for 0.0.4)
-- [ ] Remove reliance on rust nightly (target for 0.0.4)
+- [x] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Dbus support for media keys
 - [ ] Seeking
 - [ ] Mouse support
@@ -59,7 +58,7 @@ Chrome example (Select manually and paste):
 - [ ] Theming
 - [ ] Configurable key bindings
 ## API
-- [ ] Document public API
+- [x] Document public API
 - [ ] Automatically update User Agent using a library
 - [ ] Implement endpoint continuations
 - [ ] Implement all endpoints
@@ -115,7 +114,6 @@ Chrome example (Select manually and paste):
 |DeleteUploadEntity|[ ]|
 
 \* search is partially implemented only 
-- only returns artists
 - does not implement continuations - only first x results returned.
 
 \* get watch playlist is partially implemented only

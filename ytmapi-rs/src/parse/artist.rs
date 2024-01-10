@@ -19,15 +19,15 @@ use const_format::concatcp;
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
-    description: String,
-    views: String,
+    pub description: String,
+    pub views: String,
     pub name: String,
     pub channel_id: String,
-    shuffle_id: Option<String>,
-    radio_id: Option<String>,
-    subscribers: Option<String>,
-    subscribed: Option<String>,
-    thumbnails: Option<String>,
+    pub shuffle_id: Option<String>,
+    pub radio_id: Option<String>,
+    pub subscribers: Option<String>,
+    pub subscribed: Option<String>,
+    pub thumbnails: Option<String>,
     pub top_releases: GetArtistTopReleases,
 }
 
@@ -477,14 +477,9 @@ impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
 mod tests {
     use std::path::Path;
 
-    use const_format::concatcp;
-    use serde_json::Value;
-    use tokio::fs::File;
-
     use crate::{
         common::{BrowseParams, YoutubeID},
         crawler::JsonCrawler,
-        nav_consts::{GRID_ITEMS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB},
         parse::ProcessedResult,
         process::JsonCloner,
         query::GetArtistAlbumsQuery,
@@ -501,7 +496,7 @@ mod tests {
         let json_clone = JsonCloner::from_string(file).unwrap();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let output =
+        let _output =
             ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query).parse();
     }
 }

@@ -14,8 +14,9 @@ pub mod oauth;
 mod private {
     pub trait Sealed {}
 }
-// TODO: Seal and ignore warning.
 /// An authentication token into Youtube Music that can be used to query the API.
+// Allow async_fn_in_trait, as trait currently sealed.
+#[allow(async_fn_in_trait)]
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
     async fn raw_query<'a, Q: Query>(

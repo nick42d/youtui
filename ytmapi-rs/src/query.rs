@@ -120,17 +120,13 @@ pub mod lyrics {
 }
 
 pub mod watch {
-
-    use std::borrow::Cow;
-
-    use serde_json::json;
-
+    use super::Query;
     use crate::{
         common::{PlaylistID, YoutubeID},
         VideoID,
     };
-
-    use super::Query;
+    use serde_json::json;
+    use std::borrow::Cow;
 
     pub struct VideoAndPlaylistID<'a> {
         video_id: VideoID<'a>,
