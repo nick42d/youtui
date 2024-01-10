@@ -1,4 +1,5 @@
 //! Available authorisation tokens.
+use self::private::Sealed;
 use crate::error::Result;
 use crate::parse::ProcessedResult;
 use crate::{process::RawResult, query::Query};
@@ -9,9 +10,13 @@ use reqwest::Client;
 pub mod browser;
 pub mod oauth;
 
+// Seal AuthToken for now, due to instability of async trait currently.
+mod private {
+    pub trait Sealed {}
+}
 // TODO: Seal and ignore warning.
 /// An authentication token into Youtube Music that can be used to query the API.
-pub trait AuthToken: Sized {
+pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
     async fn raw_query<'a, Q: Query>(
         &'a self,

@@ -1,3 +1,4 @@
+use super::private::Sealed;
 use super::AuthToken;
 use crate::crawler::JsonCrawler;
 use crate::error::{self, Error, Result};
@@ -21,6 +22,7 @@ pub struct BrowserToken {
     cookies: String,
 }
 
+impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
     async fn raw_query<'a, Q: Query>(
         &'a self,

@@ -1,3 +1,4 @@
+use super::private::Sealed;
 use super::AuthToken;
 use crate::crawler::JsonCrawler;
 use crate::error::{self, Error, Result};
@@ -105,6 +106,7 @@ impl OAuthDeviceCode {
     }
 }
 
+impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
     async fn raw_query<Q: Query>(
         &self,
