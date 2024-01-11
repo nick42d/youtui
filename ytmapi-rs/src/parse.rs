@@ -120,13 +120,13 @@ impl TryFrom<&str> for TopResultType {
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
-    name: String,
-    id: Option<String>,
+    pub name: String,
+    pub id: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongAlbum {
     pub name: Option<String>,
-    id: Option<String>,
+    pub id: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Dynamically defined top result.
@@ -322,7 +322,6 @@ fn parse_item_text(
 
 #[cfg(test)]
 mod tests {
-    
 
     use crate::{process::JsonCloner, query::SearchQuery};
 
