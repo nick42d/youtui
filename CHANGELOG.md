@@ -1,3 +1,7 @@
+# v0.0.4
+- Removed nightly requirement.
+- Updated to latest version of API.
+- Added pkgbuild for AUR.
 # v0.0.3
 Features
 - Added filtering for browser.
@@ -5,7 +9,6 @@ Features
 - Reduced number of help commands shown (e.g for list methods like Up / Down).
 - Help commands now scrollable if they don't fit on the screen.
 - Now able to exit app with Ctrl-C
-
 Bugfixes
 - Resolved #6 and #5. Thanks @SeseMueller for the reports!
 # v0.0.2

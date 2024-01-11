@@ -1,8 +1,7 @@
 use ratatui::{
-    prelude::{Constraint, Direction, Layout, Rect},
+    prelude::Rect,
     style::{Color, Style},
 };
-use tracing::info;
 
 // Standard app colour scheme
 pub const SELECTED_BORDER_COLOUR: Color = Color::Cyan;

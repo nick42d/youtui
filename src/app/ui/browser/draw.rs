@@ -179,12 +179,12 @@ fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bo
         .into_iter()
         .map(|s| {
             ListItem::new(Line::from(
-                std::iter::once(s.get_type())
+                std::iter::once(s.suggestion_type)
                     .map(|ty| match ty {
                         SuggestionType::History => Span::raw(" "),
                         SuggestionType::Prediction => Span::raw(" "),
                     })
-                    .chain(s.get_runs().iter().map(|s| match s {
+                    .chain(s.runs.iter().map(|s| match s {
                         TextRun::Bold(str) => {
                             Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
                         }

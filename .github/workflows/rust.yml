@@ -15,13 +15,16 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        toolchain: [nightly]
+        toolchain: [stable]
 
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Update rust
+      run: rustup update
     
-    - name: install linux deps
+    - name: Install linux deps
       run: |
         sudo apt update
         sudo apt install -y --no-install-recommends libasound2-dev pkg-config
@@ -29,5 +32,11 @@ jobs:
       
     - name: Build
       run: cargo build --verbose
+
     - name: Run tests
-      run: cargo test --verbose
+      env:
+          youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
+          youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
+      run: | 
+        cargo test --verbose
+        cargo test -p ytmapi-rs --manifest-path ytmapi-rs/Cargo.toml --verbose

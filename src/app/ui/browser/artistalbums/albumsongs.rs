@@ -184,7 +184,7 @@ impl AlbumSongsPanel {
                             Filter::Equal(_) => todo!(),
                         }
                     }
-                    TableFilterCommand::Column { filter, column } => todo!(),
+                    TableFilterCommand::Column { .. } => todo!(),
                 };
                 // If we find a match for each filter, can display the row.
                 acc && match_found

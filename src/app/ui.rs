@@ -13,7 +13,6 @@ use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use std::borrow::Cow;
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::{SearchResultArtist, SongResult};

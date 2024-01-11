@@ -27,7 +27,7 @@ impl<'a> ProcessedResult<GetLibraryPlaylistsQuery> {
     }
 }
 
-fn parse_library_artists(mut json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
+fn parse_library_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
     if let Some(contents) = process_library_contents_music_shelf(json_crawler) {
         parse_content_list_artists(contents)
     } else {
@@ -35,7 +35,7 @@ fn parse_library_artists(mut json_crawler: JsonCrawler) -> Result<Vec<LibraryArt
     }
 }
 
-fn parse_library_playlist_query(mut json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
+fn parse_library_playlist_query(json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
     if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
@@ -100,7 +100,7 @@ fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryAr
     Ok(results)
 }
 
-fn parse_content_list_playlist(mut json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
+fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
     // TODO: Implement count and author fields
     let mut results = Vec::new();
     for result in json_crawler
@@ -143,25 +143,23 @@ fn parse_content_list_playlist(mut json_crawler: JsonCrawler) -> Result<Vec<Play
     Ok(results)
 }
 
+#[cfg(test)]
 mod tests {
-    use serde_json::json;
-
     use crate::{
-        common::{
-            library::{LibraryArtist, Playlist},
-            PlaylistID, YoutubeID,
-        },
+        common::library::{LibraryArtist, Playlist},
         crawler::JsonCrawler,
         parse::ProcessedResult,
+        process::JsonCloner,
         query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
     };
+    use serde_json::json;
 
     // Consider if the parse function itself should be removed from impl.
     #[test]
     fn test_library_playlists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
-        let testfile_json = serde_json::from_str(&testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json(testfile_json);
+        let cloner = JsonCloner::from_string(testfile).unwrap();
+        let json_crawler = JsonCrawler::from_json_cloner(cloner);
         let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistsQuery {});
         let result = processed.parse().unwrap();
         let expected = json!([
@@ -248,8 +246,8 @@ mod tests {
     #[test]
     fn test_library_artists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_artists.json").unwrap();
-        let testfile_json = serde_json::from_str(&testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json(testfile_json);
+        let cloner = JsonCloner::from_string(testfile).unwrap();
+        let json_crawler = JsonCrawler::from_json_cloner(cloner);
         let processed = ProcessedResult::from_raw(json_crawler, GetLibraryArtistsQuery::default());
         let result = processed.parse().unwrap();
         let expected = json!(

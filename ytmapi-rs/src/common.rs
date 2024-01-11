@@ -1,6 +1,6 @@
+//! Re-usable core structures.
 // Intended to be for structures that are also suitable to be reused by other libraries.
 // As opposed to simply part of the interface.
-
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
@@ -8,11 +8,10 @@ use crate::Error;
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
-
 #[derive(PartialEq, Debug, Clone, Deserialize)]
 pub struct SearchSuggestion {
-    runs: Vec<TextRun>,
-    suggestion_type: SuggestionType,
+    pub runs: Vec<TextRun>,
+    pub suggestion_type: SuggestionType,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Copy)]
@@ -29,12 +28,14 @@ pub enum TextRun {
 }
 
 impl TextRun {
+    /// Take the text from the run, ignoring format.
     pub fn take_text(self) -> String {
         match self {
             TextRun::Bold(s) => s,
             TextRun::Normal(s) => s,
         }
     }
+    /// Get a reference to the text from the run, ignoring format.
     pub fn get_text(&self) -> &str {
         match self {
             TextRun::Bold(s) => s,
@@ -51,13 +52,7 @@ impl SearchSuggestion {
             .iter()
             .fold(String::new(), |acc, r| acc + &r.get_text())
     }
-    pub fn get_runs(&self) -> &[TextRun] {
-        &self.runs
-    }
-    pub fn get_type(&self) -> SuggestionType {
-        self.suggestion_type
-    }
-    pub fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
+    pub(crate) fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
         Self {
             runs,
             suggestion_type,
@@ -72,15 +67,7 @@ pub struct Thumbnail {
     pub url: String,
 }
 
-// Should this be a trait?
-pub struct _Artist {
-    name: String,
-    browse_id: String,
-    shuffle_id: String,
-    radio_id: String,
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Explicit {
     IsExplicit,
     NotExplicit,
@@ -109,16 +96,11 @@ pub trait YoutubeID<'a> {
 }
 pub trait BrowseID<'a>: YoutubeID<'a> {}
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AlbumType {
     Single,
     Album,
     EP,
-}
-
-#[derive(Debug, Clone)]
-pub enum PlaylistType {
-    CommunityPlaylists,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -129,12 +111,32 @@ pub struct PlaylistID<'a>(Cow<'a, str>);
 pub struct AlbumID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct ProfileID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct PodcastID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
 
 impl<'a> YoutubeID<'a> for AlbumID<'a> {
+    fn get_raw(&self) -> &str {
+        &self.0
+    }
+    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
+        Self(raw_str.into())
+    }
+}
+impl<'a> YoutubeID<'a> for ProfileID<'a> {
+    fn get_raw(&self) -> &str {
+        &self.0
+    }
+    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
+        Self(raw_str.into())
+    }
+}
+impl<'a> YoutubeID<'a> for PodcastID<'a> {
     fn get_raw(&self) -> &str {
         &self.0
     }
@@ -187,10 +189,12 @@ impl<'a> BrowseParams<'a> {
     }
 }
 
-impl TryFrom<&str> for AlbumType {
-    type Error = crate::Error;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
+// As we can't implement generic TryFrom, instead implement a method. See below:
+// https://stackoverflow.com/questions/37347311/how-is-there-a-conflicting-implementation-of-from-when-using-a-generic-type
+// Specialization may assist in future.
+impl AlbumType {
+    pub fn try_from_str<S: AsRef<str>>(value: S) -> Result<Self, crate::Error> {
+        match value.as_ref() {
             "Album" => Ok(AlbumType::Album),
             "EP" => Ok(AlbumType::EP),
             "Single" => Ok(AlbumType::Single),

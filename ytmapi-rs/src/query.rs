@@ -1,4 +1,4 @@
-use crate::common::BrowseID;
+//! Type safe queries to pass to the API.
 pub use album::*;
 pub use artist::*;
 pub use library::*;
@@ -9,6 +9,8 @@ mod artist;
 mod library;
 mod search;
 
+// TODO: Check visibility.
+/// Represents a query that can be passed to Innertube.
 pub trait Query {
     // XXX: Consider if this should just return a tuple, Header seems overkill.
     // e.g fn header(&self) -> (Cow<str>, Cow<str>);
@@ -18,11 +20,9 @@ pub trait Query {
 }
 
 pub mod album {
-    use serde_json::json;
-
+    use super::Query;
     use crate::common::{AlbumID, YoutubeID};
-
-    use super::{BrowseID, Query};
+    use serde_json::json;
     use std::borrow::Cow;
 
     pub struct GetAlbumQuery<'a> {
@@ -53,16 +53,19 @@ pub mod album {
     }
 }
 
+// For future use.
 pub mod continuations {
     use std::borrow::Cow;
 
-    use super::{FilteredSearch, Query, SearchQuery};
+    use super::{FilteredSearch, FilteredSearchType, Query, SearchQuery};
 
     pub struct GetContinuationsQuery<Q: Query> {
         c_params: String,
         query: Q,
     }
-    impl<'a> Query for GetContinuationsQuery<SearchQuery<'a, FilteredSearch>> {
+    impl<'a, F: FilteredSearchType> Query
+        for GetContinuationsQuery<SearchQuery<'a, FilteredSearch<F>>>
+    {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             self.query.header()
         }
@@ -117,17 +120,13 @@ pub mod lyrics {
 }
 
 pub mod watch {
-
-    use std::borrow::Cow;
-
-    use serde_json::json;
-
+    use super::Query;
     use crate::{
-        common::{LyricsID, PlaylistID, YoutubeID},
+        common::{PlaylistID, YoutubeID},
         VideoID,
     };
-
-    use super::Query;
+    use serde_json::json;
+    use std::borrow::Cow;
 
     pub struct VideoAndPlaylistID<'a> {
         video_id: VideoID<'a>,

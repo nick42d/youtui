@@ -1,0 +1,106 @@
+{
+    "responseContext": {
+        "serviceTrackingParams": [
+            {
+                "service": "GFEEDBACK",
+                "params": [
+                    {
+                        "key": "has_unlimited_entitlement",
+                        "value": "True"
+                    },
+                    {
+                        "key": "browse_id",
+                        "value": "MPLYt_iF0uEXwERPq-1"
+                    },
+                    {
+                        "key": "browse_id_prefix",
+                        "value": ""
+                    },
+                    {
+                        "key": "logged_in",
+                        "value": "1"
+                    },
+                    {
+                        "key": "e",
+                        "value": "9405958,23804281,23946420,23966208,23983296,23998056,24004644,24007246,24034168,24036948,24077241,24080738,24120819,24135310,24140247,24181174,24187377,24208765,24241378,24255543,24255545,24258343,24288664,24290971,24362629,24362687,24367580,24377598,24377910,24382552,24385728,24390675,24428788,24428941,24428945,24439361,24451319,24458317,24458324,24458329,24458839,24468724,24469243,24485421,24506784,24515423,24518452,24524098,24525682,24526644,24526774,24526787,24526792,24526799,24526808,24526811,24526825,24528550,24528555,24528577,24528582,24528640,24528647,24528661,24528668,24537200,24542367,24542452,24546059,24546075,24548627,24548629,24549786,24555431,24559327,24560416,24561210,24561383,24563006,24566293,24566687,24589493,24694842,24697067,24698453,51003636,51004018,51006181,51009781,51009900,51010235,51012165,51012291,51014091,51016856,51017346,51019626,51020570,51021953,51025415,51026268,51026715,51027643,51027870,51028271,51029412,51030103,51030169,51033399,51033577,51035288,51035565,51036511,51037324,51037342,51037353,51037540,51037819,51037893,51038399,51039493,51041333,51041497,51043942,51045885,51045889,51045969,51046752,51047537,51048240,51048489,51049006,51049131,51051724,51053689,51056261,51056268,51056363,51057746,51057755,51057813,51057818,51057842,51057853,51057863,51059323,51059543,51059572,51060897,51061000,51061018,51063129,51063138,51063145,51063156,51063290,51063326,51063643,51065188,51065651,51065706,51068590,51069269,51069593,51070203,51070732,51071412,51073315,51073483,51073619,51073662,51074391,51074662,51074717,51075839,51077150,51078193,51078484,51079309,51079353,51080182,51080511,51080715,51082173,51083230,51083536,51084267,51084279,51084290,51086360,51086856"
+                    }
+                ]
+            },
+            {
+                "service": "CSI",
+                "params": [
+                    {
+                        "key": "c",
+                        "value": "WEB_REMIX"
+                    },
+                    {
+                        "key": "cver",
+                        "value": "1.20231208.05.02"
+                    },
+                    {
+                        "key": "yt_li",
+                        "value": "1"
+                    },
+                    {
+                        "key": "GetBrowseTrackLyricsPage_rid",
+                        "value": "0xa64266fcc0f34276"
+                    }
+                ]
+            },
+            {
+                "service": "ECATCHER",
+                "params": [
+                    {
+                        "key": "client.version",
+                        "value": "1.20000101"
+                    },
+                    {
+                        "key": "client.name",
+                        "value": "WEB_REMIX"
+                    },
+                    {
+                        "key": "client.fexp",
+                        "value": "51063129,24255543,24549786,24526644,51057813,24004644,51073483,51079353,51057863,51084279,51069269,24036948,51027870,24077241,51057755,24526774,51037353,51006181,51080511,24385728,51071412,51074662,51069593,24542452,24241378,51019626,24560416,51037540,24528550,51033399,24469243,51079309,24526825,24566687,24697067,51047537,51028271,24525682,51043942,51057842,24187377,51041497,24526811,24548629,51010235,51061000,24007246,51037893,9405958,51063156,24135310,24382552,51014091,24080738,24546059,51037819,51048489,51004018,51030169,24694842,51020570,24034168,51056268,51012165,24563006,51035288,51065651,23966208,51051724,24468724,51056261,51080182,51009900,23946420,51082173,24362629,51049006,51045885,24698453,51083230,51041333,51056363,51003636,51033577,24258343,51078484,24458839,24537200,51073619,51037324,24362687,24439361,51030103,24589493,24546075,24528668,24566293,24377598,51059323,51036511,24548627,51073662,24428941,51060897,51070203,51084290,51025415,51049131,24140247,24528647,23804281,24528661,51070732,24528582,51037342,24559327,51053689,24485421,24526792,51086856,24390675,51029412,24526799,51068590,24290971,51086360,24458329,24528640,51027643,51063643,51074717,24561383,51073315,51075839,24515423,24181174,51026715,24451319,51065188,24561210,51057853,51084267,23983296,51065706,51061018,24428788,51063326,51080715,51039493,51063290,24288664,24377910,24458317,51063138,51016856,51012291,24528555,51074391,51057818,51045969,51063145,24458324,24526808,24428945,51046752,51059543,51083536,51057746,51009781,24524098,24528577,23998056,51059572,51026268,24506784,51038399,24526787,24542367,24367580,51045889,51048240,51077150,24518452,51078193,24555431,51035565,24255545,51017346,51021953,24120819,24208765"
+                    }
+                ]
+            }
+        ]
+    },
+    "contents": {
+        "sectionListRenderer": {
+            "contents": [
+                {
+                    "musicDescriptionShelfRenderer": {
+                        "description": {
+                            "runs": [
+                                {
+                                    "text": "Push \r\nCome on, she almost there push, come on\r\nCome on, come on, push, it's almost there \r\nOne more time, come one\r\nCome on, push, baby, one more time \r\nHarder, harder, push it harder \r\nPush, push, come on \r\nOne more time, here it goes \r\nI see the head\r\nYeah, come on\r\nYeah, yeah\r\nYou did it, baby, yeah\r\n\r\nBut if you lose, don't ask no questions why\r\nThe only game you know is do or die\r\nAh-ha-ha\r\nHard to understand what a hell of a man\r\n\r\nHip hop the hippie the hippie\r\nTp the hip hop and you don't stop \r\nRock it out, baby bubba, to the boogie, the bang-bang\r\nThe boogie to the boogie that be\r\nNow what you hear is not a test, I'm rappin', to the beat \r\n\r\nGoddamn it, Voletta, what the fuck are you doin'?\r\nYou can't control that goddamn boy? (What?)\r\nI just saw Mr. Johnson, he told me he caught the motherfucking boy shoplifting \r\nWhat the fuck are you doing? (Kiss my black ass, motherfucker)\r\nYou can't control that god-, I don't know what the fuck to do with that boy\r\n(What the fuck do you want me to do?)\r\nIf if you can't fucking control that boy, I'ma send him\r\n(All you fucking do is bitch at me)\r\nBitch, bitch, I'ma send his motherfuckin' ass to a group home goddamnit, what?\r\nI'll smack the shit outta you bitch, what, what the fuck?\r\n(Kiss my black ass, motherfucker)\r\nYou're fuckin' up\r\n(Comin' in here smelling like sour socks you, dumb motherfucker) \r\n\r\nWhen I'm bustin' up a party I feel no guilt\r\nGizmo's cuttin' up for thee \r\nSuckers that's down with nei-\r\n\r\nWhat, nigga, you wanna rob them motherfuckin' trains, you crazy? \r\nYes, yes, motherfucker, motherfuckin' right, nigga, yes \r\nNigga, what the fuck, nigga? We gonna get-\r\nNigga, it's eighty-seven nigga, is you dead broke? \r\nYeah, nigga, but, but\r\nMotherfucker, is you broke, motherfucker? \r\nWe need to get some motherfuckin' paper, nigga \r\nNigga it's a train, ain't nobody never robbed no motherfuckin' train \r\nJust listen, man, is your mother givin' you money, nigga? \r\nMy moms don't give me shit nigga, it's time to get paid, nigga \r\nIs you with me? Motherfucker, is you with me? \r\nYeah, I'm with you, nigga, come on \r\nAlright then, nigga, lets make it happen then \r\nAll you motherfuckers get on the fuckin' floor \r\nGet on the motherfuckin' floor\r\nChill, give me all your motherfuckin' money \r\nAnd don't move, nigga\r\nI want the fuckin' jewelry \r\nGive me every fuckin' thing \r\nNigga, I'd shut the fuck up or I'ma blow your motherfuckin' brains out \r\nShut the fuck up, bitch, give me your fuckin' money, motherfucker\r\nFuck you, bitch, get up off that shit \r\nWhat the fuck you holdin' on to that shit for, bitch? \r\n\r\nI get money, money I got\r\nStunts call me honey if they feel real hot\r\n\r\nOpen C-74, Smalls \r\nMr. Smalls, let me walk you to the door \r\nSo how does it feel leavin' us? \r\nCome on, man, what kind of fuckin' question is that, man? \r\nTryin' to get the fuck up out this joint, dog \r\nYeah, yeah, you'll be back \r\nYou niggas always are \r\nGo ahead, man, what the fuck is you hollerin' about? \r\nYou won't see me up in this motherfucker no more \r\nWe'll see \r\nI got big plans nigga, big plans, hahaha"
+                                }
+                            ]
+                        },
+                        "trackingParams": "CAIQ2fQEGAAiEwjh2YjQv5uDAxWXG7cAHQNVDhM=",
+                        "maxCollapsedLines": 0,
+                        "maxExpandedLines": 0,
+                        "onShowCommands": [
+                            {
+                                "clickTrackingParams": "CAIQ2fQEGAAiEwjh2YjQv5uDAxWXG7cAHQNVDhM=",
+                                "logLyricEventCommand": {
+                                    "serializedLyricInfo": "CgowMDItMTk0NDE3Eg90X2lGMHVFWHdFUlBxLTEYASIKMDAyLTE5NDQxNw=="
+                                }
+                            }
+                        ],
+                        "footer": {
+                            "runs": [
+                                {
+                                    "text": "Source: LyricFind"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "trackingParams": "CAEQui8iEwjh2YjQv5uDAxWXG7cAHQNVDhM="
+        }
+    },
+    "trackingParams": "CAAQhGciEwjh2YjQv5uDAxWXG7cAHQNVDhM="
+}

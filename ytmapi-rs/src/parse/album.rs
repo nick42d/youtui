@@ -9,18 +9,18 @@ use const_format::concatcp;
 use super::{parse_playlist_items, ProcessedResult, SongResult};
 
 #[derive(Debug)]
-enum AlbumLikeStatus {
+pub enum AlbumLikeStatus {
     Like,
     Indifferent,
 }
 
 #[derive(Debug)]
 pub struct AlbumParamsOtherVersion {
-    title: String,
-    year: String,
-    browse_id: String,
-    thumbnails: Vec<Thumbnail>,
-    is_explicit: Explicit,
+    pub title: String,
+    pub year: String,
+    pub browse_id: String,
+    pub thumbnails: Vec<Thumbnail>,
+    pub is_explicit: Explicit,
 }
 
 // Is this similar to another struct?
@@ -28,22 +28,22 @@ pub struct AlbumParamsOtherVersion {
 #[derive(Debug)]
 pub struct AlbumParams {
     pub title: String,
-    category: AlbumType,
-    thumbnails: Vec<Thumbnail>,
-    description: Option<String>,
-    artists: Option<String>, // Should be super::ParsedSongArtist<'a>, // Basic Artists
+    pub category: AlbumType,
+    pub thumbnails: Vec<Thumbnail>,
+    pub description: Option<String>,
+    pub artists: Option<String>, // Should be super::ParsedSongArtist<'a>, // Basic Artists
     pub year: String,
-    track_count: Option<u64>,
-    duration: String,
-    audio_playlist_id: Option<String>,
+    pub track_count: Option<u64>,
+    pub duration: String,
+    pub audio_playlist_id: Option<String>,
     // TODO: better interface
-    pub tracks: Vec<SongResult>, //consider moving this struct up to
-    //super.
-    other_versions: Option<Vec<AlbumParamsOtherVersion>>,
-    like_status: Option<AlbumLikeStatus>,
+    pub tracks: Vec<SongResult>,
+    //consider moving this struct up to super.
+    pub other_versions: Option<Vec<AlbumParamsOtherVersion>>,
+    pub like_status: Option<AlbumLikeStatus>,
 }
 
-pub struct MusicShelfContents<'a> {
+pub(crate) struct MusicShelfContents<'a> {
     pub json: JsonCrawlerBorrowed<'a>,
 }
 impl<'a, 'b> MusicShelfContents<'a> {
@@ -83,13 +83,13 @@ impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
         // Type annotation is required because I use title before its used as a struct field.
         let title: String = header.take_value_pointer(TITLE_TEXT)?;
         // I am not sure why the error here is OK but I'll take it!
-        let category = AlbumType::try_from(
+        let category = AlbumType::try_from_str(
             header
                 .take_value_pointer::<String, &str>(SUBTITLE)?
                 .as_str(),
         )?;
         let description = header.take_value_pointer("/description/runs/0/text").ok();
-        let thumbnails = super::parse_thumbnails(&mut header.borrow_pointer(THUMBNAIL_CROPPED)?)?;
+        let thumbnails: Vec<Thumbnail> = header.take_value_pointer(THUMBNAIL_CROPPED)?;
         // If NAVIGATION_WATCH_PLAYLIST ID, then return that, else try NAVIGATION_PLAYLIST_ID else
         // None.
         // Seems a bit of a hacky way to do this.

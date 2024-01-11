@@ -1,0 +1,92 @@
+[
+    SearchResultFeaturedPlaylist {
+        title: "Beatles Jukebox",
+        author: "YouTube Music",
+        songs: "218 songs",
+        playlist_id: PlaylistID(
+            "VLRDCLAK5uy_lHIiCEeknPkpJOowyykpfBu-ECJB9Q32I",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/iKkqDTwLa-6sAFxIAoWRexO3sxbqMv9LqghjT-fhWWkxWe124zQiWWTpM38GfZ7uthHsfs4jMFT6wwE=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/iKkqDTwLa-6sAFxIAoWRexO3sxbqMv9LqghjT-fhWWkxWe124zQiWWTpM38GfZ7uthHsfs4jMFT6wwE=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/iKkqDTwLa-6sAFxIAoWRexO3sxbqMv9LqghjT-fhWWkxWe124zQiWWTpM38GfZ7uthHsfs4jMFT6wwE=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/iKkqDTwLa-6sAFxIAoWRexO3sxbqMv9LqghjT-fhWWkxWe124zQiWWTpM38GfZ7uthHsfs4jMFT6wwE=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultFeaturedPlaylist {
+        title: "Presenting The Beatles",
+        author: "YouTube Music",
+        songs: "52 songs",
+        playlist_id: PlaylistID(
+            "VLRDCLAK5uy_nhetVOKK6_8JKmkKrLcfiXZAVWhNEAPC4",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultFeaturedPlaylist {
+        title: "'70s Lite Hits",
+        author: "YouTube Music",
+        songs: "110 songs",
+        playlist_id: PlaylistID(
+            "VLRDCLAK5uy_maC8_YA458CPC-VeeLpyPPJbj2mA9Y6lY",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w544-h544-l90-rj",
+            },
+        ],
+    },
+]

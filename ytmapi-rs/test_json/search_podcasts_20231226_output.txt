@@ -1,0 +1,547 @@
+[
+    SearchResultPodcast {
+        title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
+        publisher: "Rock Band ",
+        podcast_id: PodcastID(
+            "MPSPPLkb88Pl7FrP6u9PB-zx5mlFDMStyI9arX",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLkb88Pl7FrP6u9PB-zx5mlFDMStyI9arX/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3n22LCtXMV7jnxyAEc_DETgoSv-LA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLkb88Pl7FrP6u9PB-zx5mlFDMStyI9arX/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3kC4TvABZoQkF6kaMRVm5pUlYDU0A",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLkb88Pl7FrP6u9PB-zx5mlFDMStyI9arX/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kPTj4tG68WHVP6ls8mXWIgQRfNcQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLkb88Pl7FrP6u9PB-zx5mlFDMStyI9arX/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3kKAaI_athWwYj7PZpUlwXytFx7ew",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Beatles Films Podcast",
+        publisher: "The Beatles Films Podcast",
+        podcast_id: PodcastID(
+            "MPSPPL6VJrPcjROtq6cCJJHzfAucKB4q6Anb3Z",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PL6VJrPcjROtq6cCJJHzfAucKB4q6Anb3Z/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3kETnr9CRHWQhSRz3NQ77FOdFMMLA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PL6VJrPcjROtq6cCJJHzfAucKB4q6Anb3Z/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3nXw7jlceguZq4u7t7efkJ2cnBzwQ",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PL6VJrPcjROtq6cCJJHzfAucKB4q6Anb3Z/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3lENu6jqv2yGsF3Cvlbuy9dGAGshg",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PL6VJrPcjROtq6cCJJHzfAucKB4q6Anb3Z/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3kzRVGlDom9aaPKMF1asAEmHlM5GA",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Beatles City podcast",
+        publisher: "Liverpool ECHO",
+        podcast_id: PodcastID(
+            "MPSPPLMet60wO_-L1xeJMAwjDR0UN7HMsqLlW2",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://yt3.googleusercontent.com/ytc/AIf8zZS2qppqoXNCoQ_cf10RdTzKSPvRyChsw6x18C9jLA=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://yt3.googleusercontent.com/ytc/AIf8zZS2qppqoXNCoQ_cf10RdTzKSPvRyChsw6x18C9jLA=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://yt3.googleusercontent.com/ytc/AIf8zZS2qppqoXNCoQ_cf10RdTzKSPvRyChsw6x18C9jLA=w226-c-h226-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://yt3.googleusercontent.com/ytc/AIf8zZS2qppqoXNCoQ_cf10RdTzKSPvRyChsw6x18C9jLA=w544-c-h544-k-c0x00ffffff-no-l90-rj",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "American English Beatles Tribute at Independence Grove 062123",
+        publisher: "ChicagoLand BandStand",
+        podcast_id: PodcastID(
+            "MPSPPLBTqyWsmuWQaVm-WxB543cw_TqhHVQJne",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaVm-WxB543cw_TqhHVQJne/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3n-eeYLfYl2o8GF4_TGjrWWL1FnbA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaVm-WxB543cw_TqhHVQJne/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3mpcT6LR_T0OQ0z_ptwkcepSGiwUQ",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaVm-WxB543cw_TqhHVQJne/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kjeRJVgGEd-b3C8ikXi0uWvxw0cQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaVm-WxB543cw_TqhHVQJne/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mCRJISNsOxMQ4wz5QBG5lI0UzoFQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Beatles",
+        publisher: "T7GZ - Gacha Music",
+        podcast_id: PodcastID(
+            "MPSPPLj4BDo-uZERS_W7zVu_hMIvFsHGvSMzp1",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLj4BDo-uZERS_W7zVu_hMIvFsHGvSMzp1/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3k9NnO2Ia_tz3JDXJ4cs-8rDvKkYw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLj4BDo-uZERS_W7zVu_hMIvFsHGvSMzp1/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3lLBfKWGwvHZHzj3ZEus3ic3cgOAQ",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLj4BDo-uZERS_W7zVu_hMIvFsHGvSMzp1/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3nVgdWHjZO13P25G-RQaK0O-ggFrQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLj4BDo-uZERS_W7zVu_hMIvFsHGvSMzp1/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3kF6elL57ttFSly20BFjGyWuBEx6w",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Kinks and Beatles Daily Deep Dive",
+        publisher: "Hero Habit",
+        podcast_id: PodcastID(
+            "MPSPPLVvniNMJ0rVTASqud2CarNLoJm6B2kup5",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLVvniNMJ0rVTASqud2CarNLoJm6B2kup5/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3l32eT3jwAN3GgKoPTccdqN7YcTEA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLVvniNMJ0rVTASqud2CarNLoJm6B2kup5/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3mrfJepoSosB67Zf3dXQZl-WBS9yw",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLVvniNMJ0rVTASqud2CarNLoJm6B2kup5/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kDZpKvmwMFmkascFzc9OCahU42Zw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLVvniNMJ0rVTASqud2CarNLoJm6B2kup5/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mgkSxA86oB2gvtbUxxsAQym1gcHQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Analogues Interview - How They Became the Best Beatles Tribute Band Ever",
+        publisher: "The Trout Show",
+        podcast_id: PodcastID(
+            "MPSPPLVYA1t0JJHOUtnh_-L39Fy-F_Z2NNOMYq",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLVYA1t0JJHOUtnh_-L39Fy-F_Z2NNOMYq/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3l8mEYZNY2C3UZ5VVSTQc0r4iwHPw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLVYA1t0JJHOUtnh_-L39Fy-F_Z2NNOMYq/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3nPUEkRfeFz0zQ2q46tnUYHSpfIYA",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLVYA1t0JJHOUtnh_-L39Fy-F_Z2NNOMYq/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3me2qnbkQggXiCuv-ipe8v6uIyGJw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLVYA1t0JJHOUtnh_-L39Fy-F_Z2NNOMYq/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mu9G985lnj41nWosP9ljPq74-1pg",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "American English Beatles Tribute Band All Shows",
+        publisher: "ChicagoLand BandStand",
+        podcast_id: PodcastID(
+            "MPSPPLBTqyWsmuWQaBwGUqlzYvL0Var9pNi9fK",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaBwGUqlzYvL0Var9pNi9fK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3lBnhnmKWP9E3-7bIgBLHkNySUv_w",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaBwGUqlzYvL0Var9pNi9fK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3lNfRES14DysgtWI6rRulPdlX05LQ",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaBwGUqlzYvL0Var9pNi9fK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3lJlIsJk-UzXEsWbCu3ytKVvLhKlA",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQaBwGUqlzYvL0Var9pNi9fK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3nKcw6Dd0z-TnKGKLTBB2LfkP2ZUg",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Here, There, and Everywhere: A Beatles Podcast",
+        publisher: "BeatlesEarth",
+        podcast_id: PodcastID(
+            "MPSPPL3BHHkyKQXM8Jt9DajcGrZeDGOcbcn9eV",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PL3BHHkyKQXM8Jt9DajcGrZeDGOcbcn9eV/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3nP3hsyP2vLlwZ7MNvShOtZT_5c6g",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PL3BHHkyKQXM8Jt9DajcGrZeDGOcbcn9eV/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3kZHGS_Q2XbakqrheknBQhDoFb67A",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PL3BHHkyKQXM8Jt9DajcGrZeDGOcbcn9eV/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kmk74E-Y1vlZxLKuyn1VJNOyxCbQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PL3BHHkyKQXM8Jt9DajcGrZeDGOcbcn9eV/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mvqpuN38gIgiDMj3io0fCLVaqEoQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "American English Beatles Tribute at Rosemont 083123",
+        publisher: "ChicagoLand BandStand",
+        podcast_id: PodcastID(
+            "MPSPPLBTqyWsmuWQYqNThdceNq6xHBUqlr06Gc",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQYqNThdceNq6xHBUqlr06Gc/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3kUkQ21-0Zx1QNXTFF-8LAIfD_MfA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQYqNThdceNq6xHBUqlr06Gc/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3khIrPacwvVlI0KWvNmUu_RZuzrCg",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQYqNThdceNq6xHBUqlr06Gc/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3mKNwDhWiWgQdu5fAy4yb7QXlPXPQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLBTqyWsmuWQYqNThdceNq6xHBUqlr06Gc/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3lI949IyvKdLLEN4yWjlHE0UruBTw",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "\"FAB GAB!\" - A Beatles Talk Show",
+        publisher: "MeanMrMayo",
+        podcast_id: PodcastID(
+            "MPSPPL94iC1Cs3YnIbnDyldM_oVPXxQhE2yIZ-",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 270,
+                width: 270,
+                url: "https://i.ytimg.com/vi/GPb87Tnmc4o/hqdefault.jpg?sqp=-oaymwExCI4CEI4CIAQqCggAEOADGC0guwJIWvKriqkDFZoCEghAECUYJyABLQAAoEE1zcxMPw&rs=AMzJL3keqRjRL_XbdPbqR5RI8UmJecSImw",
+            },
+            Thumbnail {
+                height: 360,
+                width: 360,
+                url: "https://i.ytimg.com/vi/GPb87Tnmc4o/sddefault.jpg?sqp=-oaymwExCOgCEOgCIAQqCggAEIAFGDwgpANIWvKriqkDFZoCEghAECUYJyABLQAAoEE1zcxMPw&rs=AMzJL3nE8eIwuIZhcHFAl-Y2aTPuGg_dsQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Beatles Rocksmith - Only Bass",
+        publisher: "Rocksmith_Bass",
+        podcast_id: PodcastID(
+            "MPSPPLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3m4pGQIcEX22HkiE4AXBJoLy4WReg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3nMvuyjLk5Il135Xy9i2m5xUFJ8XQ",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kSjjfo0ge66Dwy1ENEhlnzbdWuPw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3m66MjWb8Q1G1mScJpCvgnexOsnQw",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Beatles by Naudo",
+        publisher: "Juan & Naudo",
+        podcast_id: PodcastID(
+            "MPSPPLsloW6jIqvqJzwZRz-jTohGxad-ybSroK",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3kqbHvZ7TeiL0QMBRpKhfym_lbxtA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3m5J5xHgvxNuKM7BaH_J-yfFdcLfw",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3mjYbeA2R5epxMYzU-Ik03JifU-TQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3ljDaqPUgV_ZNsLKBqTAWy88h6AHw",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "All you need is a Beatle and more",
+        publisher: "Elvic Ramble",
+        podcast_id: PodcastID(
+            "MPSPPLUklK3tD3EvuI9qiGajXSnZMop9Y-rKhE",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLUklK3tD3EvuI9qiGajXSnZMop9Y-rKhE/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3kz85JPeoHSO5JjtSYnao34JHrgzA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLUklK3tD3EvuI9qiGajXSnZMop9Y-rKhE/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3mxbbKSLnm4HFLhFVyXzRVzk22TMg",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLUklK3tD3EvuI9qiGajXSnZMop9Y-rKhE/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3llP1V0wEPJfdWEYbNSO37iCk5Iaw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLUklK3tD3EvuI9qiGajXSnZMop9Y-rKhE/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3kr-9Gkn3vRBenV33ot9CNlUGe-Lg",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "I Am The Podman: A Beatles Podcast Review",
+        publisher: "The Podman",
+        podcast_id: PodcastID(
+            "MPSPPLY42a1I9G81Eyv0mpqIgiowN31oVxE213",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLY42a1I9G81Eyv0mpqIgiowN31oVxE213/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3kFZwvF-4oRDDwC0CTiFNq_y4_UMQ",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLY42a1I9G81Eyv0mpqIgiowN31oVxE213/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3kohZdqUalK1hJ30VrwtlqoGG_8ww",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLY42a1I9G81Eyv0mpqIgiowN31oVxE213/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3lXmmD884ly35a_hLWzjNkhBpNMwg",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLY42a1I9G81Eyv0mpqIgiowN31oVxE213/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3km8Z3vvCpQ7a7bJLEgn7FDhlUngw",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Beatles Bass Tabs Lesions",
+        publisher: "Chamis Bass",
+        podcast_id: PodcastID(
+            "MPSPPLkJtvjgL6A8JsQMCxJVVwywNbF81k3b42",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLkJtvjgL6A8JsQMCxJVVwywNbF81k3b42/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3mWbJBBitb1VPEM4OAAk5N_pKc6og",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLkJtvjgL6A8JsQMCxJVVwywNbF81k3b42/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3m6tETaLzDBI_DRTPO4nK-ViF2pgw",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLkJtvjgL6A8JsQMCxJVVwywNbF81k3b42/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3k60CQlHR2J_BRoKMSo1OrrgmY9WQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLkJtvjgL6A8JsQMCxJVVwywNbF81k3b42/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mFAcbjpSh7qBuCO9pXWyagGMKgbw",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Frumess on the Beatles",
+        publisher: "Frumess",
+        podcast_id: PodcastID(
+            "MPSPPLtXy6VHHvEt_b4UnHzJ_Kf-9Dmq6qM5-m",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 270,
+                width: 270,
+                url: "https://i.ytimg.com/vi/KkDLswJk52g/hqdefault.jpg?sqp=-oaymwExCI4CEI4CIAQqCggAEOADGC0guwJIWvKriqkDFZoCEgg4EDgYOCABLQAAoEE1zcxMPw&rs=AMzJL3mz5Aszeov1iVfoQyezXZnRZmSQcA",
+            },
+            Thumbnail {
+                height: 720,
+                width: 720,
+                url: "https://i.ytimg.com/vi/KkDLswJk52g/hq720.jpg?sqp=-oaymwElCNAFENAFIAZIWvKriqkDFZoCEgg4EDgYOCABLQAAoEE1zcxMPw&rs=AMzJL3msAIOd-7Nd6FPROWNhnPESoyLaKQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "The Beatles: Get Back Podcast Review Series",
+        publisher: "Super Mader Bros. Podcasting",
+        podcast_id: PodcastID(
+            "MPSPPL99bREWI39uBm8_6PbfgMnJjSIeYP7GXo",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PL99bREWI39uBm8_6PbfgMnJjSIeYP7GXo/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3nLu6CqhOr9BJOFbNIoHgf1tZAajw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PL99bREWI39uBm8_6PbfgMnJjSIeYP7GXo/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3kRpHiBDZWHq3fDQ_nYxDX6VdliEA",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PL99bREWI39uBm8_6PbfgMnJjSIeYP7GXo/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3nNL_PPRoABYW2m3uZiFZv2Z2ij3Q",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PL99bREWI39uBm8_6PbfgMnJjSIeYP7GXo/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3n2aTp6RDjYHPMso9oeJxyySgvF6A",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Season Two: Nothing Is Real",
+        publisher: "Nothing Is Real",
+        podcast_id: PodcastID(
+            "MPSPPLQGKTmELEAZynkgIx_JLEA-XRcA8irgWm",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 360,
+                width: 360,
+                url: "https://i.ytimg.com/vi/uujfQUPp-wg/sddefault.jpg?sqp=-oaymwExCOgCEOgCIAQqCggAEIAFGDwgpANIWvKriqkDFZoCEghAEDMYLyABLQAAoEE1zcxMPw&rs=AMzJL3nwlfeHI7axRuCUTsF4QTIr7gZMGQ",
+            },
+        ],
+    },
+    SearchResultPodcast {
+        title: "Beatles / John Lennon / Paul McCartney / George Harrison / Ringo Starr songs (new lyrics to classic songs by Karen / Kazzaville)",
+        publisher: "Kazzaville / Karen",
+        podcast_id: PodcastID(
+            "MPSPPLYSLonE5UinXr9P1pmqWE88JcQkUcdhXL",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i.ytimg.com/pl_c/PLYSLonE5UinXr9P1pmqWE88JcQkUcdhXL/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICDwQPCAASFo&rs=AMzJL3nWyayjf4kc7Zj0SzVJ7LDVJSh1YA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i.ytimg.com/pl_c/PLYSLonE5UinXr9P1pmqWE88JcQkUcdhXL/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEICHgQeCAASFo&rs=AMzJL3n9ipnJsj0Ily9etqvoeb2Ze0cPfA",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLYSLonE5UinXr9P1pmqWE88JcQkUcdhXL/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3lEiZeDx0BnV5JP3uVDnL5dEbZ0Aw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLYSLonE5UinXr9P1pmqWE88JcQkUcdhXL/studio_square_thumbnail.jpg?sqp=CNTaqawG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3lXzwNuSyWHbx2yqEEgygmZ26dzFA",
+            },
+        ],
+    },
+]

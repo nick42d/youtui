@@ -1,18 +1,9 @@
+use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
+use crate::parse::ProcessedResult;
 use crate::query::Query;
+use crate::Result;
 
-use crate::{Error, Result};
-pub use album::*;
-pub use artist::*;
-pub use library::*;
-pub use search::*;
-mod album;
-mod artist;
-mod library;
-mod search;
-
-mod continuations;
-pub use continuations::*;
 // Could return FixedColumnItem
 // consider if should be optional / error also.
 pub fn process_fixed_column_item<'a>(
@@ -34,88 +25,54 @@ pub fn process_flex_column_item<'a>(
     item.borrow_pointer(pointer)
 }
 
-// Should trait be Result?
-#[derive(PartialEq, Debug)]
-pub struct RawResult<T>
-where
-    T: Query,
-{
-    query: T,
+pub(crate) struct JsonCloner {
+    string: String,
     json: serde_json::Value,
 }
-
-impl<T: Query> RawResult<T> {
-    pub fn from_raw(json: serde_json::Value, query: T) -> Self {
-        Self { query, json }
+// TODO: Return local error.
+impl JsonCloner {
+    pub fn from_string(string: String) -> std::result::Result<Self, serde_json::Error> {
+        Ok(Self {
+            json: serde_json::from_str(string.as_ref())?,
+            string,
+        })
     }
-    pub fn get_query(&self) -> &T {
+    pub fn destructure(self) -> (String, serde_json::Value) {
+        let Self { string, json } = self;
+        (string, json)
+    }
+}
+
+// Should trait be Result?
+/// The raw result of a query to the API.
+#[derive(PartialEq, Debug)]
+pub struct RawResult<'tok, Q, A>
+where
+    Q: Query,
+    A: AuthToken,
+{
+    query: Q,
+    token: &'tok A,
+    json: String,
+}
+
+impl<'tok, Q: Query, A: AuthToken> RawResult<'tok, Q, A> {
+    pub fn from_raw(json: String, query: Q, token: &'tok A) -> Self {
+        Self { query, token, json }
+    }
+    pub fn get_query(&self) -> &Q {
         &self.query
     }
-    pub fn get_json(&self) -> &serde_json::Value {
+    pub fn get_json(&self) -> &str {
         &self.json
     }
-    pub fn destructure_json(self) -> serde_json::Value {
+    pub fn destructure_json(self) -> String {
         self.json
     }
-}
-#[cfg(test)]
-mod tests {
-    use serde_json::json;
-
-    use crate::query::SearchQuery;
-
-    use super::*;
-
-    #[tokio::test]
-    async fn test_all_raw_impl() {
-        let query = SearchQuery::new("Beatles");
-        let json = json!({"name": "John Doe"});
-        let raw = RawResult::from_raw(json.clone(), query.clone());
-        assert_eq!(&query, raw.get_query());
-        assert_eq!(&json, raw.get_json());
+    pub fn destructure(self) -> (String, Q) {
+        (self.json, self.query)
     }
-}
-
-pub mod lyrics {
-
-    use crate::crawler::JsonCrawler;
-    use crate::parse::ProcessedResult;
-    use crate::query::lyrics::GetLyricsQuery;
-    use crate::Result;
-
-    use super::RawResult;
-
-    impl<'a> RawResult<GetLyricsQuery<'a>> {
-        pub fn process(self) -> Result<ProcessedResult<GetLyricsQuery<'a>>> {
-            match self {
-                RawResult { query, json } => Ok(ProcessedResult::from_raw(
-                    JsonCrawler::from_json(json),
-                    query,
-                )),
-            }
-        }
-    }
-}
-pub mod watch {
-    use crate::{
-        crawler::JsonCrawler,
-        parse::ProcessedResult,
-        query::{watch::GetWatchPlaylistQuery, Query},
-        Result,
-    };
-
-    use super::RawResult;
-    impl<T> RawResult<GetWatchPlaylistQuery<T>>
-    where
-        GetWatchPlaylistQuery<T>: Query,
-    {
-        pub fn process(self) -> Result<ProcessedResult<GetWatchPlaylistQuery<T>>> {
-            match self {
-                RawResult { query, json } => Ok(ProcessedResult::from_raw(
-                    JsonCrawler::from_json(json),
-                    query,
-                )),
-            }
-        }
+    pub fn process(self) -> Result<ProcessedResult<Q>> {
+        A::serialize_json(self)
     }
 }

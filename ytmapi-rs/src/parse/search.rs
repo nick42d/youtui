@@ -1,123 +1,806 @@
+use super::{
+    parse_item_text, Parse, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
+    SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
+    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
+};
+use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use crate::nav_consts::{
+    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
+    THUMBNAILS, TITLE_TEXT,
+};
+use crate::parse::EpisodeDate;
+use crate::{query::*, Thumbnail};
+use crate::{Error, Result};
 use const_format::concatcp;
 
-use super::{parse_search_result, parse_search_results, ProcessedResult, SearchResult};
-use crate::common::{AlbumType, SearchSuggestion, SuggestionType, TextRun};
-use crate::crawler::JsonCrawlerBorrowed;
-use crate::nav_consts::SECTION_LIST;
-use crate::query::*;
-use crate::{Error, Result};
+#[cfg(test)]
+mod tests;
+// watchPlaylistEndpoint params within overlay.
+const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
+const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
-// May be redundant due to encoding this in type system
-#[derive(Debug, Clone)]
-pub enum SearchResultType {
-    Artist,
-    Album(AlbumType), // Does albumtype matter here?
-    Playlist,
-    Song,
-    Video,
-    Station,
-}
-impl TryFrom<&String> for SearchResultType {
-    type Error = crate::Error;
+// TODO: Type safety
+// TODO: Tests
+fn parse_basic_search_result_from_xx(
+    mut section_list_contents: BasicSearchSectionListContents,
+) -> Result<SearchResults> {
+    // Imperative solution, may be able to make more functional.
+    let mut top_results = Vec::new();
+    let mut artists = Vec::new();
+    let mut albums = Vec::new();
+    let mut featured_playlists = Vec::new();
+    let mut community_playlists = Vec::new();
+    let mut songs = Vec::new();
+    let mut videos = Vec::new();
+    let mut podcasts = Vec::new();
+    let mut episodes = Vec::new();
+    let mut profiles = Vec::new();
+    let mut results = section_list_contents.0.as_array_iter_mut()?.peekable();
+    // TODO: Better error.
+    // XXX: Naive solution.
+    if results
+        .peek()
+        .ok_or(Error::other(
+            "Expected more than one element in search results",
+        ))?
+        .path_exists(MUSIC_CARD_SHELF)
+    {
+        // TODO: Better error.
+        top_results = parse_top_results_from_music_card_shelf_contents(
+            results
+                .next()
+                .ok_or(Error::other(
+                    "Expected more than one element in search results",
+                ))?
+                .navigate_pointer(MUSIC_CARD_SHELF)?,
+        )?;
+    }
 
-    fn try_from(value: &String) -> std::result::Result<Self, Self::Error> {
-        match value.as_str() {
-            // Dirty hack to get artist outputting
-            "\"Artist\"" => Ok(Self::Artist),
-            "artist" => Ok(Self::Artist),
-            "album" => Ok(Self::Album(AlbumType::Album)),
-            "ep" => Ok(Self::Album(AlbumType::EP)),
-            "single" => Ok(Self::Album(AlbumType::Single)),
-            "playlist" => Ok(Self::Playlist),
-            "song" => Ok(Self::Song),
-            "video" => Ok(Self::Video),
-            "station" => Ok(Self::Station),
-            // TODO: Better error
-            _ => Err(Error::other(format!(
-                "Unable to parse SearchResultType {value}"
-            ))),
+    for category in results.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
+        let mut category = category?;
+        match SearchResultType::try_from(
+            // TODO: Better navigation
+            category
+                .take_value_pointer::<String, &str>(TITLE_TEXT)?
+                .as_str(),
+        )? {
+            SearchResultType::TopResults => {
+                top_results = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_top_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<TopResult>>>()?;
+            }
+            // TODO: Use a navigation constant
+            SearchResultType::Artists => {
+                artists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_artist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultArtist>>>()?;
+            }
+            SearchResultType::Albums => {
+                albums = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_album_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultAlbum>>>()?
+            }
+            SearchResultType::FeaturedPlaylists => {
+                featured_playlists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_featured_playlist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultFeaturedPlaylist>>>()?
+            }
+            SearchResultType::CommunityPlaylists => {
+                community_playlists = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_community_playlist_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultCommunityPlaylist>>>()?
+            }
+            SearchResultType::Songs => {
+                songs = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_song_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultSong>>>()?
+            }
+            SearchResultType::Videos => {
+                videos = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_video_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultVideo>>>()?
+            }
+            SearchResultType::Podcasts => {
+                podcasts = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_podcast_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultPodcast>>>()?
+            }
+            SearchResultType::Episodes => {
+                episodes = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_episode_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultEpisode>>>()?
+            }
+            SearchResultType::Profiles => {
+                profiles = category
+                    .navigate_pointer("/contents")?
+                    .as_array_iter_mut()?
+                    .map(|r| parse_profile_search_result_from_music_shelf_contents(r))
+                    .collect::<Result<Vec<SearchResultProfile>>>()?
+            }
         }
     }
+    Ok(SearchResults {
+        top_results,
+        artists,
+        albums,
+        featured_playlists,
+        community_playlists,
+        songs,
+        videos,
+        podcasts,
+        episodes,
+        profiles,
+    })
 }
-impl<'a, S: SearchType> ProcessedResult<SearchQuery<'a, S>> {
-    // TODO: Take the search suggestions param.
-    // TODO: Handle errors
-    pub fn parse(self) -> Result<Vec<super::SearchResult<'a>>> {
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = self;
-        //TODO top_result
-        //        let mut top_result = None;
-        // May receive a tabbedSearchResultRenderer
-        // TODO: tab index depends on scope or filter (currently just 0 in the pointer)
-        let result = if let Ok(r) = json_crawler.borrow_pointer(concatcp!(
-            "/contents/tabbedSearchResultsRenderer/tabs/0/tabRenderer/content",
-            SECTION_LIST
-        )) {
-            r
-        } else {
-            json_crawler.borrow_pointer("/contents")?
-        };
-        //        if let Some(r) = json_data
-        //            .get("contents")
-        //            .expect("json format is known")
-        //            .get("tabbedSearchResultsRenderer")
-        //        {
-        //            // TODO: tab index depends on scope or filter
-        //            let tab_index = 0;
-        //            result = &r["tabs"][tab_index]["tabRenderer"]["content"];
-        //        } else {
-        //            result = json_data.get_mut("contents").expect("json format is known");
-        //        }
-        //        let result =
-        //            nav_utils::nav(result, &nav_utils::SECTION_LIST).expect("json format is known");
-        // TODO: Return early if no results.
-        // TODO: guard against not being an array.
-        // let mut new_result = serde_json::Value::Null;
-        // for mut r in result.into_array_iter_mut()? {
-        //     // Sometimes is mcs, sometimes ms.
-        //     if let Ok(mut mcs) = r.borrow_pointer("/musicCardShelfRenderer") {
-        //         // TODO: Categories, more from youtube is missing sometimes.
-        //         new_result = mcs._take_json_pointer("/contents")?;
-        //         // TODO return top_result
-        //         let _top_result = Some(super::parse_top_result(mcs));
-        //     } else if let Ok(mut ms) = r.borrow_pointer("/musicShelfRenderer") {
-        //         // TODO: Categories
-        //         new_result = ms._take_json_pointer("/contents")?;
-        //     } else {
-        //         continue;
-        //     }
-        // }
-
-        // New_result may exist in musicCardShelfRenderer or musicShelfRendererer.
-        // If either of the renderers exist then contents must exist. Else error.
-        // Note - not yet doing top_result - see code above.
-        // XXX: Should break if contensts not found
-        let search_results = result
-            .into_array_iter_mut()?
-            .find_map(|mut a| {
-                if let Ok(ab) = a.borrow_pointer("/musicCardShelfRenderer") {
-                    Ok(ab
-                        .navigate_pointer("/contents")
-                        .and_then(|ab| parse_search_results(ab)))
-                } else {
-                    a.borrow_pointer("/musicShelfRenderer").map(|a| {
-                        a.navigate_pointer("/contents")
-                            .and_then(|a| parse_search_results(a))
-                    })
-                }
-                .ok()
+fn parse_top_results_from_music_card_shelf_contents(
+    mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<Vec<TopResult>> {
+    let mut results = Vec::new();
+    // Begin - first result parsing
+    let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
+    let result_type = TopResultType::try_from(
+        music_shelf_contents
+            .take_value_pointer::<String, &str>(SUBTITLE)?
+            .as_str(),
+    )?;
+    // Possibly artists only.
+    let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
+    // Imperative solution, may be able to make more functional.
+    let publisher = None;
+    let artist = None;
+    let album = None;
+    let duration = None;
+    let year = None;
+    let plays = None;
+    let thumbnails: Vec<Thumbnail> = music_shelf_contents.take_value_pointer(THUMBNAILS)?;
+    let first_result = TopResult {
+        // Assuming that in non-card case top result always has a result type.
+        result_type: Some(result_type),
+        subscribers,
+        thumbnails,
+        result_name,
+        publisher,
+        artist,
+        album,
+        duration,
+        year,
+        plays,
+    };
+    // End - first result parsing.
+    // TODO: Improve efficiency.
+    results.push(first_result);
+    let mut other_results = music_shelf_contents
+        .navigate_pointer("/contents")?
+        .as_array_iter_mut()?
+        // Seems this won't work, as Song in Card renderer has less fields than Song in basic renderer.
+        .map(|r| parse_top_result_from_music_shelf_contents(r))
+        // TODO: Remove allocation.
+        .collect::<Result<Vec<TopResult>>>()?;
+    results.append(&mut other_results);
+    Ok(results)
+}
+// TODO: Tests
+fn parse_top_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<TopResult> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let result_name = parse_item_text(&mut mrlir, 0, 0)?;
+    let result_type_string = parse_item_text(&mut mrlir, 1, 0)?;
+    let result_type = TopResultType::try_from(result_type_string.as_str());
+    // Imperative solution, may be able to make more functional.
+    let mut subscribers = None;
+    let mut publisher = None;
+    let mut artist = None;
+    let mut album = None;
+    let mut duration = None;
+    let mut year = None;
+    let mut plays = None;
+    match result_type {
+        // XXX: Perhaps also populate Artist field.
+        Ok(TopResultType::Artist) => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Ok(TopResultType::Album(_)) => {
+            // XXX: Perhaps also populate Album field.
+            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            year = Some(parse_item_text(&mut mrlir, 1, 4)?);
+        }
+        Ok(TopResultType::Playlist) => todo!(),
+        Ok(TopResultType::Song) => {
+            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            album = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
+            // This does not show up in all Card renderer results and so we'll define it as optional.
+            // TODO: Could make this more type safe in future.
+            plays = parse_item_text(&mut mrlir, 1, 8).ok();
+        }
+        Ok(TopResultType::Video) => todo!(),
+        Ok(TopResultType::Station) => todo!(),
+        Ok(TopResultType::Podcast) => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        // It's possible to have artist name in the first position instead of a TopResultType.
+        // There may be a way to differentiate this even further.
+        // TODO: Add tests.
+        Err(_) => {
+            artist = Some(result_type_string);
+            album = Some(parse_item_text(&mut mrlir, 1, 2)?);
+            duration = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            // This does not show up in all Card renderer results and so we'll define it as optional.
+            // TODO: Could make this more type safe in future.
+            plays = parse_item_text(&mut mrlir, 1, 6).ok();
+        }
+    }
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(TopResult {
+        result_type: result_type.ok(),
+        subscribers,
+        thumbnails,
+        result_name,
+        publisher,
+        artist,
+        album,
+        duration,
+        year,
+        plays,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_artist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultArtist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let artist = parse_item_text(&mut mrlir, 0, 0)?;
+    let subscribers = parse_item_text(&mut mrlir, 1, 2).ok();
+    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultArtist {
+        artist,
+        subscribers,
+        thumbnails,
+        browse_id,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_profile_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultProfile> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let username = parse_item_text(&mut mrlir, 1, 2)?;
+    let profile_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultProfile {
+        title,
+        username,
+        profile_id,
+        thumbnails,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_album_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultAlbum> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let artist = parse_item_text(&mut mrlir, 0, 0)?;
+    let album_type = parse_item_text(&mut mrlir, 1, 0).and_then(|a| AlbumType::try_from_str(a))?;
+    let title = parse_item_text(&mut mrlir, 1, 2)?;
+    let year = parse_item_text(&mut mrlir, 1, 4)?;
+    let explicit = if mrlir.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultAlbum {
+        artist,
+        thumbnails,
+        browse_id,
+        title,
+        year,
+        album_type,
+        explicit,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_song_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultSong> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let artist = parse_item_text(&mut mrlir, 1, 0)?;
+    let album = parse_item_text(&mut mrlir, 1, 2)?;
+    let duration = parse_item_text(&mut mrlir, 1, 4)?;
+    let plays = parse_item_text(&mut mrlir, 2, 0)?;
+    let explicit = if mrlir.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultSong {
+        artist,
+        thumbnails,
+        title,
+        explicit,
+        plays,
+        album,
+        video_id,
+        duration,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_video_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultVideo> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let channel_name = parse_item_text(&mut mrlir, 1, 0)?;
+    let views = parse_item_text(&mut mrlir, 1, 2)?;
+    let length = parse_item_text(&mut mrlir, 1, 4)?;
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultVideo {
+        title,
+        channel_name,
+        views,
+        length,
+        thumbnails,
+        video_id,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_podcast_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultPodcast> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let publisher = parse_item_text(&mut mrlir, 1, 0)?;
+    let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultPodcast {
+        title,
+        publisher,
+        podcast_id,
+        thumbnails,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_episode_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultEpisode> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let date = if mrlir.path_exists(LIVE_BADGE_LABEL) {
+        EpisodeDate::Live
+    } else {
+        EpisodeDate::Recorded {
+            date: parse_item_text(&mut mrlir, 1, 0)?,
+        }
+    };
+    let channel_name = match date {
+        EpisodeDate::Live => parse_item_text(&mut mrlir, 1, 0)?,
+        EpisodeDate::Recorded { .. } => parse_item_text(&mut mrlir, 1, 2)?,
+    };
+    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultEpisode {
+        title,
+        date,
+        video_id,
+        channel_name,
+        thumbnails,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_featured_playlist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultFeaturedPlaylist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let author = parse_item_text(&mut mrlir, 1, 0)?;
+    let songs = parse_item_text(&mut mrlir, 1, 2)?;
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultFeaturedPlaylist {
+        title,
+        author,
+        playlist_id,
+        songs,
+        thumbnails,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+fn parse_community_playlist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultCommunityPlaylist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let author = parse_item_text(&mut mrlir, 1, 0)?;
+    let views = parse_item_text(&mut mrlir, 1, 2)?;
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    Ok(SearchResultCommunityPlaylist {
+        title,
+        author,
+        playlist_id,
+        views,
+        thumbnails,
+    })
+}
+// TODO: Type safety
+// TODO: Tests
+// TODO: Generalize using other parse functions.
+fn parse_playlist_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<SearchResultPlaylist> {
+    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let author = parse_item_text(&mut mrlir, 1, 0)?;
+    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    // The playlist search contains a mix of Community and Featured playlists.
+    let playlist_params: String = mrlir.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint/watchPlaylistEndpoint/params"
+    ))?;
+    let playlist_params_str = playlist_params.as_str();
+    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+    let playlist = match playlist_params_str {
+        FEATURED_PLAYLIST_ENDPOINT_PARAMS => {
+            SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
+                title,
+                author,
+                songs: parse_item_text(&mut mrlir, 1, 2)?,
+                playlist_id,
+                thumbnails,
             })
-            .transpose()?
-            .into_iter()
-            .flatten()
-            .collect();
-        Ok(search_results)
+        }
+        COMMUNITY_PLAYLIST_ENDPOINT_PARAMS => {
+            SearchResultPlaylist::Community(SearchResultCommunityPlaylist {
+                title,
+                author,
+                views: parse_item_text(&mut mrlir, 1, 2)?,
+                playlist_id,
+                thumbnails,
+            })
+        }
+        other => {
+            return Err(Error::other(format!(
+                "Unexpected playlist params: {}",
+                other
+            )));
+        }
+    };
+    Ok(playlist)
+}
+
+// TODO: Rename FilteredSearchSectionContents
+struct SectionContentsCrawler(JsonCrawler);
+struct BasicSearchSectionListContents(JsonCrawler);
+// In this case, we've searched and had no results found.
+// We are being quite explicit here to avoid a false positive.
+// See tests for an example.
+// TODO: Test this function.
+fn section_contents_is_empty(section_contents: &SectionContentsCrawler) -> bool {
+    section_contents
+        .0
+        .path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")
+}
+// TODO: Consolidate these two functions into single function.
+fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListContents) -> bool {
+    section_contents
+        .0
+        .path_exists("/0/itemSectionRenderer/contents/0/didYouMeanRenderer")
+}
+impl<'a> TryFrom<ProcessedResult<SearchQuery<'a, BasicSearch>>> for BasicSearchSectionListContents {
+    type Error = Error;
+    fn try_from(value: ProcessedResult<SearchQuery<'a, BasicSearch>>) -> Result<Self> {
+        let ProcessedResult { json_crawler, .. } = value;
+        let section_list_contents = json_crawler.navigate_pointer(concatcp!(
+            "/contents/tabbedSearchResultsRenderer",
+            TAB_CONTENT,
+            SECTION_LIST
+        ))?;
+        Ok(BasicSearchSectionListContents(section_list_contents))
+    }
+}
+impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>>
+    for SectionContentsCrawler
+{
+    type Error = Error;
+    fn try_from(value: ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>) -> Result<Self> {
+        let ProcessedResult { json_crawler, .. } = value;
+        let section_contents = json_crawler.navigate_pointer(concatcp!(
+            "/contents/tabbedSearchResultsRenderer",
+            TAB_CONTENT,
+            SECTION_LIST,
+            "/0"
+        ))?;
+        Ok(SectionContentsCrawler(section_contents))
+    }
+}
+// XXX: Should this also contain query type?
+struct FilteredSearchMSRContents(JsonCrawler);
+impl TryFrom<SectionContentsCrawler> for FilteredSearchMSRContents {
+    type Error = Error;
+    fn try_from(value: SectionContentsCrawler) -> std::prelude::v1::Result<Self, Self::Error> {
+        Ok(FilteredSearchMSRContents(
+            value.0.navigate_pointer("/musicShelfRenderer/contents")?,
+        ))
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultAlbum> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_album_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultProfile> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_profile_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultArtist> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultSong> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_song_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultVideo> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_video_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultEpisode> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_episode_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPodcast> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_podcast_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPlaylist> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_playlist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultCommunityPlaylist> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_community_playlist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
+    type Error = Error;
+    fn try_from(
+        mut value: FilteredSearchMSRContents,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        // TODO: Make this a From method.
+        value
+            .0
+            .as_array_iter_mut()?
+            .map(|a| parse_featured_playlist_search_result_from_music_shelf_contents(a))
+            .collect()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, BasicSearch>> {
+    type Output = SearchResults;
+    fn parse(self) -> Result<Self::Output> {
+        let section_list_contents = BasicSearchSectionListContents::try_from(self)?;
+        if section_list_contents_is_empty(&section_list_contents) {
+            return Ok(Self::Output::default());
+        }
+        parse_basic_search_result_from_xx(section_list_contents)
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> {
+    type Output = Vec<SearchResultArtist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> {
+    type Output = Vec<SearchResultProfile>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> {
+    type Output = Vec<SearchResultAlbum>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<SongsFilter>>> {
+    type Output = Vec<SearchResultSong>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<VideosFilter>>> {
+    type Output = Vec<SearchResultVideo>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<EpisodesFilter>>> {
+    type Output = Vec<SearchResultEpisode>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<PodcastsFilter>>> {
+    type Output = Vec<SearchResultPodcast>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>> {
+    type Output = Vec<SearchResultPlaylist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>> {
+    type Output = Vec<SearchResultFeaturedPlaylist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+    }
+}
+impl<'a> Parse for ProcessedResult<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> {
+    type Output = Vec<SearchResultPlaylist>;
+    fn parse(self) -> Result<Self::Output> {
+        let section_contents = SectionContentsCrawler::try_from(self)?;
+        if section_contents_is_empty(&section_contents) {
+            return Ok(Vec::new());
+        }
+        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
 
-impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
-    pub fn parse(self) -> Result<Vec<SearchSuggestion>> {
+impl<'a> Parse for ProcessedResult<GetSearchSuggestionsQuery<'a>> {
+    type Output = Vec<SearchSuggestion>;
+    fn parse(self) -> Result<Self::Output> {
         let ProcessedResult { json_crawler, .. } = self;
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
@@ -152,8 +835,6 @@ impl<'a> ProcessedResult<GetSearchSuggestionsQuery<'a>> {
         Ok(results)
     }
 }
-
-fn get_continuations(res: &SearchResult) {}
 
 fn get_reloadable_continuation_params(json: &mut JsonCrawlerBorrowed) -> Result<String> {
     let ctoken = json.take_value_pointer("/continuations/0/reloadContinuationData/continuation")?;

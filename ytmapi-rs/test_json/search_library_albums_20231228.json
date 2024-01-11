@@ -1,0 +1,645 @@
+{
+    "responseContext": {
+        "serviceTrackingParams": [
+            {
+                "service": "CSI",
+                "params": [
+                    {
+                        "key": "c",
+                        "value": "WEB_REMIX"
+                    },
+                    {
+                        "key": "cver",
+                        "value": "1.20231214.00.00"
+                    },
+                    {
+                        "key": "yt_li",
+                        "value": "1"
+                    },
+                    {
+                        "key": "GetSearch_rid",
+                        "value": "0x043439fce7fa4dfc"
+                    }
+                ]
+            },
+            {
+                "service": "GFEEDBACK",
+                "params": [
+                    {
+                        "key": "logged_in",
+                        "value": "1"
+                    },
+                    {
+                        "key": "e",
+                        "value": "9405958,23804281,23946420,23966208,23983296,23998056,24004644,24007246,24034168,24036948,24077241,24080738,24120819,24135310,24140247,24181174,24187377,24208765,24241378,24255543,24255545,24258343,24288664,24290971,24362629,24362687,24367580,24377598,24377910,24382552,24385728,24390675,24428788,24428941,24428945,24439361,24451319,24458317,24458324,24458329,24458839,24468724,24469243,24485421,24506784,24515423,24518452,24524098,24525682,24526644,24526774,24526787,24526792,24526799,24526808,24526811,24526825,24528550,24528555,24528577,24528582,24528640,24528647,24528661,24528668,24537200,24542367,24542452,24546059,24546075,24548627,24548629,24549786,24555431,24559327,24560416,24561210,24561383,24566687,24589493,24694842,24697067,24698453,51003636,51004018,51006181,51009781,51009900,51010235,51012165,51012291,51014091,51016856,51017346,51019626,51020570,51021953,51025415,51026268,51026715,51027643,51027870,51028271,51029412,51030103,51030169,51033399,51033577,51035288,51035565,51036511,51037324,51037342,51037353,51037540,51037819,51037893,51038399,51039493,51041333,51041497,51043942,51045885,51045889,51045969,51046752,51047537,51048240,51048279,51049006,51049131,51051724,51053689,51056261,51056268,51056363,51057746,51057755,51057813,51057818,51057842,51057853,51057863,51059543,51059572,51059971,51060897,51061000,51061018,51063129,51063138,51063145,51063156,51063290,51063643,51065188,51065651,51065706,51068590,51069269,51069593,51070203,51070732,51072102,51073483,51073619,51074391,51074662,51074717,51075006,51075839,51077150,51077517,51078193,51078484,51079309,51079353,51080182,51080511,51080715,51080904,51082173,51083230,51084267,51084279,51084290,51084696,51085923,51086360,51086857,51088825,51090887"
+                    }
+                ]
+            },
+            {
+                "service": "ECATCHER",
+                "params": [
+                    {
+                        "key": "client.version",
+                        "value": "1.20000101"
+                    },
+                    {
+                        "key": "client.name",
+                        "value": "WEB_REMIX"
+                    },
+                    {
+                        "key": "client.fexp",
+                        "value": "24004644,51030169,51063129,24135310,24528550,51074391,51012291,24077241,51079353,51072102,51073619,51041497,24362687,51061000,24255545,51069269,24036948,24120819,51010235,51028271,24546075,51043942,24526644,24007246,24187377,51047537,24548629,51033399,51059971,51090887,24526825,24469243,24560416,51079309,24697067,24526774,51056268,24542452,51045969,23998056,51069593,51056261,9405958,51073483,51020570,51063156,24694842,51084696,51084279,51057863,24589493,51048279,24546059,51057813,24525682,23804281,24566687,51030103,51057842,51039493,51004018,24288664,51025415,24526811,24428941,51082173,51083230,51014091,51045885,51074717,51060897,51036511,24537200,51033577,51088825,24548627,24367580,51049006,24362629,23946420,51012165,51019626,51035288,24390675,51051724,51003636,51065651,51070203,51037342,51038399,51078484,24385728,51006181,24258343,51009900,51041333,24382552,24468724,51057755,51080511,24377598,24290971,51057818,51037819,51027643,24528647,24458317,24140247,24458324,51065188,24526799,24080738,51075006,51063643,24528668,24528582,51026715,24561210,51080715,51061018,23983296,51065706,24528661,24439361,51084267,51070732,51068590,51059572,51063290,51086360,24561383,24181174,24428788,51059543,51075839,51053689,24528640,51080182,51029412,24515423,51057746,23966208,24559327,51026268,24451319,24034168,24526792,24549786,51016856,51086857,24528555,51063138,51021953,24485421,51049131,51078193,51077517,51063145,51084290,24428945,24526808,51037893,24255543,51045889,24208765,24377910,24555431,51057853,51080904,24526787,24458839,51017346,51048240,51056363,24542367,24506784,24698453,51037324,51085923,51027870,24241378,51046752,51009781,24528577,51035565,24458329,24524098,24518452,51074662,51037540,51077150,51037353"
+                    }
+                ]
+            }
+        ]
+    },
+    "contents": {
+        "tabbedSearchResultsRenderer": {
+            "tabs": [
+                {
+                    "tabRenderer": {
+                        "title": "Library",
+                        "selected": true,
+                        "content": {
+                            "sectionListRenderer": {
+                                "contents": [
+                                    {
+                                        "musicShelfRenderer": {
+                                            "title": {
+                                                "runs": [
+                                                    {
+                                                        "text": "Albums"
+                                                    }
+                                                ]
+                                            },
+                                            "contents": [
+                                                {
+                                                    "musicResponsiveListItemRenderer": {
+                                                        "trackingParams": "CAkQyfQCGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                        "thumbnail": {
+                                                            "musicThumbnailRenderer": {
+                                                                "thumbnail": {
+                                                                    "thumbnails": [
+                                                                        {
+                                                                            "url": "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                                                                            "width": 60,
+                                                                            "height": 60
+                                                                        },
+                                                                        {
+                                                                            "url": "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                                                                            "width": 120,
+                                                                            "height": 120
+                                                                        },
+                                                                        {
+                                                                            "url": "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w226-h226-l90-rj",
+                                                                            "width": 226,
+                                                                            "height": 226
+                                                                        },
+                                                                        {
+                                                                            "url": "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w544-h544-l90-rj",
+                                                                            "width": 544,
+                                                                            "height": 544
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                                                                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                                                                "trackingParams": "CBYQhL8CIhMIjZ_PpaS0gwMVycNzAR2upwKo"
+                                                            }
+                                                        },
+                                                        "overlay": {
+                                                            "musicItemThumbnailOverlayRenderer": {
+                                                                "background": {
+                                                                    "verticalGradient": {
+                                                                        "gradientLayerColors": [
+                                                                            "3422552064",
+                                                                            "3422552064"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "content": {
+                                                                    "musicPlayButtonRenderer": {
+                                                                        "playNavigationEndpoint": {
+                                                                            "clickTrackingParams": "CBUQyN4CIhMIjZ_PpaS0gwMVycNzAR2upwKo",
+                                                                            "watchEndpoint": {
+                                                                                "videoId": "d9zk2j3JPK4",
+                                                                                "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+                                                                                "loggingContext": {
+                                                                                    "vssLoggingContext": {
+                                                                                        "serializedContextData": "GilPTEFLNXV5X204WWFuX01TQWlhX1pZbVpwbDZ4bTFBSU5EZzhMRjFOSQ%3D%3D"
+                                                                                    }
+                                                                                },
+                                                                                "watchEndpointMusicSupportedConfigs": {
+                                                                                    "watchEndpointMusicConfig": {
+                                                                                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "trackingParams": "CBUQyN4CIhMIjZ_PpaS0gwMVycNzAR2upwKo",
+                                                                        "playIcon": {
+                                                                            "iconType": "PLAY_ARROW"
+                                                                        },
+                                                                        "pauseIcon": {
+                                                                            "iconType": "PAUSE"
+                                                                        },
+                                                                        "iconColor": 4294967295,
+                                                                        "backgroundColor": 0,
+                                                                        "activeBackgroundColor": 0,
+                                                                        "loadingIndicatorColor": 4294901760,
+                                                                        "playingIcon": {
+                                                                            "iconType": "VOLUME_UP"
+                                                                        },
+                                                                        "iconLoadingColor": 0,
+                                                                        "activeScaleFactor": 1,
+                                                                        "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                                                                        "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                                                                        "accessibilityPlayData": {
+                                                                            "accessibilityData": {
+                                                                                "label": "Play KID A MNESIA"
+                                                                            }
+                                                                        },
+                                                                        "accessibilityPauseData": {
+                                                                            "accessibilityData": {
+                                                                                "label": "Pause KID A MNESIA"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                                                                "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                                                            }
+                                                        },
+                                                        "flexColumns": [
+                                                            {
+                                                                "musicResponsiveListItemFlexColumnRenderer": {
+                                                                    "text": {
+                                                                        "runs": [
+                                                                            {
+                                                                                "text": "KID A MNESIA"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                                                }
+                                                            },
+                                                            {
+                                                                "musicResponsiveListItemFlexColumnRenderer": {
+                                                                    "text": {
+                                                                        "runs": [
+                                                                            {
+                                                                                "text": "Album"
+                                                                            },
+                                                                            {
+                                                                                "text": " • "
+                                                                            },
+                                                                            {
+                                                                                "text": "Radiohead",
+                                                                                "navigationEndpoint": {
+                                                                                    "clickTrackingParams": "CAkQyfQCGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                    "browseEndpoint": {
+                                                                                        "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                                                                        "browseEndpointContextSupportedConfigs": {
+                                                                                            "browseEndpointContextMusicConfig": {
+                                                                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "text": " • "
+                                                                            },
+                                                                            {
+                                                                                "text": "2021"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                                                }
+                                                            }
+                                                        ],
+                                                        "menu": {
+                                                            "menuRenderer": {
+                                                                "items": [
+                                                                    {
+                                                                        "menuNavigationItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Shuffle play"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "MUSIC_SHUFFLE"
+                                                                            },
+                                                                            "navigationEndpoint": {
+                                                                                "clickTrackingParams": "CBQQmvMFGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "watchPlaylistEndpoint": {
+                                                                                    "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+                                                                                    "params": "wAEB8gECKAE%3D"
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CBQQmvMFGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuNavigationItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Start radio"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "MIX"
+                                                                            },
+                                                                            "navigationEndpoint": {
+                                                                                "clickTrackingParams": "CBMQm_MFGAEiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "watchPlaylistEndpoint": {
+                                                                                    "playlistId": "RDAMPLOLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+                                                                                    "params": "wAEB"
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CBMQm_MFGAEiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuServiceItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Play next"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "QUEUE_PLAY_NEXT"
+                                                                            },
+                                                                            "serviceEndpoint": {
+                                                                                "clickTrackingParams": "CBEQvu4FGAIiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "queueAddEndpoint": {
+                                                                                    "queueTarget": {
+                                                                                        "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+                                                                                        "onEmptyQueue": {
+                                                                                            "clickTrackingParams": "CBEQvu4FGAIiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                            "watchEndpoint": {
+                                                                                                "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                                                                    "commands": [
+                                                                                        {
+                                                                                            "clickTrackingParams": "CBEQvu4FGAIiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                            "addToToastAction": {
+                                                                                                "item": {
+                                                                                                    "notificationTextRenderer": {
+                                                                                                        "successResponseText": {
+                                                                                                            "runs": [
+                                                                                                                {
+                                                                                                                    "text": "Album will play next"
+                                                                                                                }
+                                                                                                            ]
+                                                                                                        },
+                                                                                                        "trackingParams": "CBIQyscDIhMIjZ_PpaS0gwMVycNzAR2upwKo"
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CBEQvu4FGAIiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuServiceItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Add to queue"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "ADD_TO_REMOTE_QUEUE"
+                                                                            },
+                                                                            "serviceEndpoint": {
+                                                                                "clickTrackingParams": "CA8Q--8FGAMiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "queueAddEndpoint": {
+                                                                                    "queueTarget": {
+                                                                                        "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+                                                                                        "onEmptyQueue": {
+                                                                                            "clickTrackingParams": "CA8Q--8FGAMiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                            "watchEndpoint": {
+                                                                                                "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "queueInsertPosition": "INSERT_AT_END",
+                                                                                    "commands": [
+                                                                                        {
+                                                                                            "clickTrackingParams": "CA8Q--8FGAMiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                            "addToToastAction": {
+                                                                                                "item": {
+                                                                                                    "notificationTextRenderer": {
+                                                                                                        "successResponseText": {
+                                                                                                            "runs": [
+                                                                                                                {
+                                                                                                                    "text": "Album added to queue"
+                                                                                                                }
+                                                                                                            ]
+                                                                                                        },
+                                                                                                        "trackingParams": "CBAQyscDIhMIjZ_PpaS0gwMVycNzAR2upwKo"
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CA8Q--8FGAMiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "toggleMenuServiceItemRenderer": {
+                                                                            "defaultText": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Remove album from library"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "defaultIcon": {
+                                                                                "iconType": "LIBRARY_SAVED"
+                                                                            },
+                                                                            "defaultServiceEndpoint": {
+                                                                                "clickTrackingParams": "CA4QhP8FGAQiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "likeEndpoint": {
+                                                                                    "status": "INDIFFERENT",
+                                                                                    "target": {
+                                                                                        "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "toggledText": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Save album to library"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "toggledIcon": {
+                                                                                "iconType": "LIBRARY_ADD"
+                                                                            },
+                                                                            "toggledServiceEndpoint": {
+                                                                                "clickTrackingParams": "CA4QhP8FGAQiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "likeEndpoint": {
+                                                                                    "status": "LIKE",
+                                                                                    "target": {
+                                                                                        "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI"
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CA4QhP8FGAQiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuNavigationItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Save to playlist"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "ADD_TO_PLAYLIST"
+                                                                            },
+                                                                            "navigationEndpoint": {
+                                                                                "clickTrackingParams": "CA0Qw5QGGAUiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "addToPlaylistEndpoint": {
+                                                                                    "playlistId": "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI"
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CA0Qw5QGGAUiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuNavigationItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Go to artist"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "ARTIST"
+                                                                            },
+                                                                            "navigationEndpoint": {
+                                                                                "clickTrackingParams": "CAwQkPsFGAYiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "browseEndpoint": {
+                                                                                    "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                                                                    "browseEndpointContextSupportedConfigs": {
+                                                                                        "browseEndpointContextMusicConfig": {
+                                                                                            "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CAwQkPsFGAYiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "menuNavigationItemRenderer": {
+                                                                            "text": {
+                                                                                "runs": [
+                                                                                    {
+                                                                                        "text": "Share"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "icon": {
+                                                                                "iconType": "SHARE"
+                                                                            },
+                                                                            "navigationEndpoint": {
+                                                                                "clickTrackingParams": "CAsQkfsFGAciEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                                "shareEntityEndpoint": {
+                                                                                    "serializedShareEntity": "EilPTEFLNXV5X204WWFuX01TQWlhX1pZbVpwbDZ4bTFBSU5EZzhMRjFOSQ%3D%3D",
+                                                                                    "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                                                                                }
+                                                                            },
+                                                                            "trackingParams": "CAsQkfsFGAciEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "trackingParams": "CAoQpzsiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                                "accessibility": {
+                                                                    "accessibilityData": {
+                                                                        "label": "Action menu"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+                                                        "navigationEndpoint": {
+                                                            "clickTrackingParams": "CAkQyfQCGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                                            "browseEndpoint": {
+                                                                "browseId": "MPREb_E7NpKw54NIT",
+                                                                "browseEndpointContextSupportedConfigs": {
+                                                                    "browseEndpointContextMusicConfig": {
+                                                                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+                                                    }
+                                                }
+                                            ],
+                                            "trackingParams": "CAgQ-V4YACITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                            "shelfDivider": {
+                                                "musicShelfDividerRenderer": {
+                                                    "hidden": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                ],
+                                "trackingParams": "CAIQui8iEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                "header": {
+                                    "chipCloudRenderer": {
+                                        "chips": [
+                                            {
+                                                "chipCloudChipRenderer": {
+                                                    "style": {
+                                                        "styleType": "STYLE_SECONDARY"
+                                                    },
+                                                    "navigationEndpoint": {
+                                                        "clickTrackingParams": "CAcQ_V0YACITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                        "searchEndpoint": {
+                                                            "query": "kid a",
+                                                            "params": "agIYBA%3D%3D"
+                                                        }
+                                                    },
+                                                    "trackingParams": "CAcQ_V0YACITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                    "icon": {
+                                                        "iconType": "CLOSE"
+                                                    },
+                                                    "accessibilityData": {
+                                                        "accessibilityData": {
+                                                            "label": "Clear filters"
+                                                        }
+                                                    },
+                                                    "isSelected": false
+                                                }
+                                            },
+                                            {
+                                                "chipCloudChipRenderer": {
+                                                    "style": {
+                                                        "styleType": "STYLE_DEFAULT"
+                                                    },
+                                                    "text": {
+                                                        "runs": [
+                                                            {
+                                                                "text": "Artists"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "navigationEndpoint": {
+                                                        "clickTrackingParams": "CAYQ_V0YASITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                        "searchEndpoint": {
+                                                            "query": "kid a",
+                                                            "params": "EgWKAQIgAWoIEAUQCRADGAQ%3D"
+                                                        }
+                                                    },
+                                                    "trackingParams": "CAYQ_V0YASITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                    "accessibilityData": {
+                                                        "accessibilityData": {
+                                                            "label": "Show artist results"
+                                                        }
+                                                    },
+                                                    "isSelected": false,
+                                                    "uniqueId": "Artists"
+                                                }
+                                            },
+                                            {
+                                                "chipCloudChipRenderer": {
+                                                    "style": {
+                                                        "styleType": "STYLE_PRIMARY"
+                                                    },
+                                                    "text": {
+                                                        "runs": [
+                                                            {
+                                                                "text": "Albums"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "navigationEndpoint": {
+                                                        "clickTrackingParams": "CAUQ_V0YAiITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                        "searchEndpoint": {
+                                                            "query": "kid a",
+                                                            "params": "EgWKAQIYAWoIEAUQCRADGAQ%3D"
+                                                        }
+                                                    },
+                                                    "trackingParams": "CAUQ_V0YAiITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                    "accessibilityData": {
+                                                        "accessibilityData": {
+                                                            "label": "Show album results selected"
+                                                        }
+                                                    },
+                                                    "isSelected": true,
+                                                    "uniqueId": "Albums"
+                                                }
+                                            },
+                                            {
+                                                "chipCloudChipRenderer": {
+                                                    "style": {
+                                                        "styleType": "STYLE_DEFAULT"
+                                                    },
+                                                    "text": {
+                                                        "runs": [
+                                                            {
+                                                                "text": "Songs"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "navigationEndpoint": {
+                                                        "clickTrackingParams": "CAQQ_V0YAyITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                        "searchEndpoint": {
+                                                            "query": "kid a",
+                                                            "params": "EgWKAQIIAWoIEAUQCRADGAQ%3D"
+                                                        }
+                                                    },
+                                                    "trackingParams": "CAQQ_V0YAyITCI2fz6WktIMDFcnDcwEdrqcCqA==",
+                                                    "accessibilityData": {
+                                                        "accessibilityData": {
+                                                            "label": "Show song results"
+                                                        }
+                                                    },
+                                                    "isSelected": false,
+                                                    "uniqueId": "Songs"
+                                                }
+                                            }
+                                        ],
+                                        "collapsedRowCount": 1,
+                                        "trackingParams": "CAMQ_F0iEwiNn8-lpLSDAxXJw3MBHa6nAqg=",
+                                        "horizontalScrollable": true
+                                    }
+                                }
+                            }
+                        },
+                        "tabIdentifier": "music_search_library",
+                        "trackingParams": "CAEQ8JMBGAAiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+                    }
+                }
+            ]
+        }
+    },
+    "trackingParams": "CAAQvGkiEwiNn8-lpLSDAxXJw3MBHa6nAqg="
+}

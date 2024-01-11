@@ -1,0 +1,3 @@
+# As we are reading in some test text files that were created on Linux, to ensure tests pass, declare them as LF to avoid autoconversion.
+# In future tests should be made more robust to avoid this.
+*output.txt text eol=lf

@@ -1,3 +1,0 @@
-# Using nightly for async traits
-[toolchain]
-channel = "nightly"

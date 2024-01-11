@@ -1,0 +1,642 @@
+[
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Chocolate Starfish And The Hot Dog Flavored Water",
+        year: "2000",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_isdHayivN53",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/6LNef5JKBLTBgNUiJyizF7dN23nHUrhqFu7bMisArZhfLEcuPcIIdiDDQSCEhnlZ_2RBO372Pqlaho6J=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/6LNef5JKBLTBgNUiJyizF7dN23nHUrhqFu7bMisArZhfLEcuPcIIdiDDQSCEhnlZ_2RBO372Pqlaho6J=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/6LNef5JKBLTBgNUiJyizF7dN23nHUrhqFu7bMisArZhfLEcuPcIIdiDDQSCEhnlZ_2RBO372Pqlaho6J=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/6LNef5JKBLTBgNUiJyizF7dN23nHUrhqFu7bMisArZhfLEcuPcIIdiDDQSCEhnlZ_2RBO372Pqlaho6J=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Significant Other",
+        year: "1999",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_hNaIPnuYrtX",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/3FHmZ4bcWViFozJ_r5SRST3VLjGsg-Ft--QpGyAoEkm_ZWdeFKoBH91dFLKiSAPOUg6sN1YmW2heyppB=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/3FHmZ4bcWViFozJ_r5SRST3VLjGsg-Ft--QpGyAoEkm_ZWdeFKoBH91dFLKiSAPOUg6sN1YmW2heyppB=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/3FHmZ4bcWViFozJ_r5SRST3VLjGsg-Ft--QpGyAoEkm_ZWdeFKoBH91dFLKiSAPOUg6sN1YmW2heyppB=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/3FHmZ4bcWViFozJ_r5SRST3VLjGsg-Ft--QpGyAoEkm_ZWdeFKoBH91dFLKiSAPOUg6sN1YmW2heyppB=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Results May Vary",
+        year: "2003",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_nMiTt4IbiwD",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/VXMfXfjVQtVR-FzyFTn-TUx-nXQ6B4BVleLaRE2Yjc_DzxkkcSWwbYyQMcCgBP3nfxHRWdMTfH8Wx-Q=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/VXMfXfjVQtVR-FzyFTn-TUx-nXQ6B4BVleLaRE2Yjc_DzxkkcSWwbYyQMcCgBP3nfxHRWdMTfH8Wx-Q=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/VXMfXfjVQtVR-FzyFTn-TUx-nXQ6B4BVleLaRE2Yjc_DzxkkcSWwbYyQMcCgBP3nfxHRWdMTfH8Wx-Q=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/VXMfXfjVQtVR-FzyFTn-TUx-nXQ6B4BVleLaRE2Yjc_DzxkkcSWwbYyQMcCgBP3nfxHRWdMTfH8Wx-Q=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "STILL SUCKS",
+        year: "2021",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_KWbcdJIIFRM",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/f2RTgBJiYMvwlEm8xuSqNYG8iZqUDoPRNVgaZHdUUxdR4bc5yP8M2fcSw049ppNeNeYT6OmJTrPZgJM=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/f2RTgBJiYMvwlEm8xuSqNYG8iZqUDoPRNVgaZHdUUxdR4bc5yP8M2fcSw049ppNeNeYT6OmJTrPZgJM=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/f2RTgBJiYMvwlEm8xuSqNYG8iZqUDoPRNVgaZHdUUxdR4bc5yP8M2fcSw049ppNeNeYT6OmJTrPZgJM=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/f2RTgBJiYMvwlEm8xuSqNYG8iZqUDoPRNVgaZHdUUxdR4bc5yP8M2fcSw049ppNeNeYT6OmJTrPZgJM=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Three Dollar Bill, Y'All$",
+        year: "1997",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_kxKpExr2AHi",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/F_QXO7PP2_7M0GL8TNJH5UOVJ0TcZzaihX3Tg3opBjtccR5Ix7GBvtwNFAl2fJwnLmg-ZYLFtUfqBnI=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/F_QXO7PP2_7M0GL8TNJH5UOVJ0TcZzaihX3Tg3opBjtccR5Ix7GBvtwNFAl2fJwnLmg-ZYLFtUfqBnI=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/F_QXO7PP2_7M0GL8TNJH5UOVJ0TcZzaihX3Tg3opBjtccR5Ix7GBvtwNFAl2fJwnLmg-ZYLFtUfqBnI=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/F_QXO7PP2_7M0GL8TNJH5UOVJ0TcZzaihX3Tg3opBjtccR5Ix7GBvtwNFAl2fJwnLmg-ZYLFtUfqBnI=w544-h544-s-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "The Who",
+        artist: "Who's Next (Remastered 2022)",
+        year: "1971",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_gq8S7Z17pMW",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/U6mihsJ9wBru37J2jvXUmUGOrVmfu4uf8mH3BfwkXHsSiSPZ4xJJVMuvdg_Z0Lu9JkIjuVcOU_YzlKA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/U6mihsJ9wBru37J2jvXUmUGOrVmfu4uf8mH3BfwkXHsSiSPZ4xJJVMuvdg_Z0Lu9JkIjuVcOU_YzlKA=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/U6mihsJ9wBru37J2jvXUmUGOrVmfu4uf8mH3BfwkXHsSiSPZ4xJJVMuvdg_Z0Lu9JkIjuVcOU_YzlKA=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/U6mihsJ9wBru37J2jvXUmUGOrVmfu4uf8mH3BfwkXHsSiSPZ4xJJVMuvdg_Z0Lu9JkIjuVcOU_YzlKA=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Gold Cobra",
+        year: "2011",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_5Xr7fwdmKIH",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/TJISGr3q-CE9G3h_4j6KKEER1ZbH4VVMr_j1Vn2UhyPKbj---Tw8tTfjQsg5aUYjMqchCs7IpGzZX7Vaqg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/TJISGr3q-CE9G3h_4j6KKEER1ZbH4VVMr_j1Vn2UhyPKbj---Tw8tTfjQsg5aUYjMqchCs7IpGzZX7Vaqg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/TJISGr3q-CE9G3h_4j6KKEER1ZbH4VVMr_j1Vn2UhyPKbj---Tw8tTfjQsg5aUYjMqchCs7IpGzZX7Vaqg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/TJISGr3q-CE9G3h_4j6KKEER1ZbH4VVMr_j1Vn2UhyPKbj---Tw8tTfjQsg5aUYjMqchCs7IpGzZX7Vaqg=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Korn",
+        artist: "Follow The Leader",
+        year: "1998",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_juYedhgZbpn",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/4SvxoyJf8oscWyfPEN3sQsiTpzcQ_4ko4x0ywY_-p4GNkLql4RQJh0GfF85Bumm8O2ODKfhsS2tya1Px0Q=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/4SvxoyJf8oscWyfPEN3sQsiTpzcQ_4ko4x0ywY_-p4GNkLql4RQJh0GfF85Bumm8O2ODKfhsS2tya1Px0Q=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/4SvxoyJf8oscWyfPEN3sQsiTpzcQ_4ko4x0ywY_-p4GNkLql4RQJh0GfF85Bumm8O2ODKfhsS2tya1Px0Q=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/4SvxoyJf8oscWyfPEN3sQsiTpzcQ_4ko4x0ywY_-p4GNkLql4RQJh0GfF85Bumm8O2ODKfhsS2tya1Px0Q=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "New Old Songs",
+        year: "2001",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_J0MosCf7S5B",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/IX6_ykKmuYJbTZ79g0bQeCLcFGTK476M8TdwC2OF5NWm9-AWKgOtDbl8MrLQwyD_rwDtaurdtJIJH7DUCA=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/IX6_ykKmuYJbTZ79g0bQeCLcFGTK476M8TdwC2OF5NWm9-AWKgOtDbl8MrLQwyD_rwDtaurdtJIJH7DUCA=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/IX6_ykKmuYJbTZ79g0bQeCLcFGTK476M8TdwC2OF5NWm9-AWKgOtDbl8MrLQwyD_rwDtaurdtJIJH7DUCA=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/IX6_ykKmuYJbTZ79g0bQeCLcFGTK476M8TdwC2OF5NWm9-AWKgOtDbl8MrLQwyD_rwDtaurdtJIJH7DUCA=w544-h544-s-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Greatest Hitz",
+        year: "2005",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_IZ7nwJGwbVb",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xLGe4kzHqJqWQzMu45PUxjXtv6scGJG2fvDNG8BB30C82qwnhZf0Qp5zQ4P0z7CSWj0vepOBuAQxo2U=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xLGe4kzHqJqWQzMu45PUxjXtv6scGJG2fvDNG8BB30C82qwnhZf0Qp5zQ4P0z7CSWj0vepOBuAQxo2U=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/xLGe4kzHqJqWQzMu45PUxjXtv6scGJG2fvDNG8BB30C82qwnhZf0Qp5zQ4P0z7CSWj0vepOBuAQxo2U=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/xLGe4kzHqJqWQzMu45PUxjXtv6scGJG2fvDNG8BB30C82qwnhZf0Qp5zQ4P0z7CSWj0vepOBuAQxo2U=w544-h544-s-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Metallica",
+        artist: "Master of Puppets",
+        year: "1986",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_EvUaRykfAC1",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/YArfdE0OKeDbWBrrps0MPrrVEzkMwu-SmUiDQV7VbfaS1eSqhA29i_IkD3RnTuG_g9MrlQQBbjCugZN0=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/YArfdE0OKeDbWBrrps0MPrrVEzkMwu-SmUiDQV7VbfaS1eSqhA29i_IkD3RnTuG_g9MrlQQBbjCugZN0=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/YArfdE0OKeDbWBrrps0MPrrVEzkMwu-SmUiDQV7VbfaS1eSqhA29i_IkD3RnTuG_g9MrlQQBbjCugZN0=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/YArfdE0OKeDbWBrrps0MPrrVEzkMwu-SmUiDQV7VbfaS1eSqhA29i_IkD3RnTuG_g9MrlQQBbjCugZN0=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Linkin Park",
+        artist: "Hybrid Theory",
+        year: "2000",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_bivSECiIj20",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/lkNJVMp3siDfSw_zVYj3tE6fQS7G6Gj2gzoxrIwS7K4TwqmL_uSBb9-PKACNLIP_7XLQib4tC5XwWbpD=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/lkNJVMp3siDfSw_zVYj3tE6fQS7G6Gj2gzoxrIwS7K4TwqmL_uSBb9-PKACNLIP_7XLQib4tC5XwWbpD=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/lkNJVMp3siDfSw_zVYj3tE6fQS7G6Gj2gzoxrIwS7K4TwqmL_uSBb9-PKACNLIP_7XLQib4tC5XwWbpD=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/lkNJVMp3siDfSw_zVYj3tE6fQS7G6Gj2gzoxrIwS7K4TwqmL_uSBb9-PKACNLIP_7XLQib4tC5XwWbpD=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "The Unquestionable Truth (Pt. 1)",
+        year: "2005",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_EHrFamOULZJ",
+        ),
+        album_type: EP,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/WazgYjlAX0XZnnuexG0zETFq6dYx4VKdiyg9ORzFI_RFN4QvilbDKxxjCMuFJud12-hSxecJpGGIhC4=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/WazgYjlAX0XZnnuexG0zETFq6dYx4VKdiyg9ORzFI_RFN4QvilbDKxxjCMuFJud12-hSxecJpGGIhC4=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/WazgYjlAX0XZnnuexG0zETFq6dYx4VKdiyg9ORzFI_RFN4QvilbDKxxjCMuFJud12-hSxecJpGGIhC4=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/WazgYjlAX0XZnnuexG0zETFq6dYx4VKdiyg9ORzFI_RFN4QvilbDKxxjCMuFJud12-hSxecJpGGIhC4=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Endless Slaughter",
+        year: "2014",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_eL3tjEUrmJx",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/el4jrAy1m4zcc9VrP3N8dJNNVmUdZYLjpR7izstspvc6-Ebf6WeD9MtaiE95sCfSqFQQ86n6zxXqsCqH=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/el4jrAy1m4zcc9VrP3N8dJNNVmUdZYLjpR7izstspvc6-Ebf6WeD9MtaiE95sCfSqFQQ86n6zxXqsCqH=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/el4jrAy1m4zcc9VrP3N8dJNNVmUdZYLjpR7izstspvc6-Ebf6WeD9MtaiE95sCfSqFQQ86n6zxXqsCqH=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/el4jrAy1m4zcc9VrP3N8dJNNVmUdZYLjpR7izstspvc6-Ebf6WeD9MtaiE95sCfSqFQQ86n6zxXqsCqH=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "D12",
+        artist: "Devils Night",
+        year: "2001",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_fIx7ZejmLQd",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/uRe6K_UBVRpLSw5xsSslc6GYGvNDtFRRPlR8K9bia8-dlXOyIK7359nXX42NmdpFL2UsfEnV4t8WAgLb=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/uRe6K_UBVRpLSw5xsSslc6GYGvNDtFRRPlR8K9bia8-dlXOyIK7359nXX42NmdpFL2UsfEnV4t8WAgLb=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/uRe6K_UBVRpLSw5xsSslc6GYGvNDtFRRPlR8K9bia8-dlXOyIK7359nXX42NmdpFL2UsfEnV4t8WAgLb=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/uRe6K_UBVRpLSw5xsSslc6GYGvNDtFRRPlR8K9bia8-dlXOyIK7359nXX42NmdpFL2UsfEnV4t8WAgLb=w544-h544-s-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "AchtVier",
+        artist: "Limp Bizkit",
+        year: "2021",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_yNFQ4XTCyPz",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/3Sw9-2usHDMMpvJ7b14MVvFfjlVtkl1y-ghz_XW5DMUBIntH3Xb_pdLpHtyia6KCDKUo4IIa21HS1r0=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/3Sw9-2usHDMMpvJ7b14MVvFfjlVtkl1y-ghz_XW5DMUBIntH3Xb_pdLpHtyia6KCDKUo4IIa21HS1r0=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/3Sw9-2usHDMMpvJ7b14MVvFfjlVtkl1y-ghz_XW5DMUBIntH3Xb_pdLpHtyia6KCDKUo4IIa21HS1r0=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/3Sw9-2usHDMMpvJ7b14MVvFfjlVtkl1y-ghz_XW5DMUBIntH3Xb_pdLpHtyia6KCDKUo4IIa21HS1r0=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Counterfeit Countdown",
+        year: "1997",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_edHAO1rYneW",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/sWwrN06Qr8NnBOS5hGABK9qLFww6eTH9wzPoNBux-50Fl3yedZbpCJen8_bJoPAo_MvNqYn1lNRLaS3Y=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/sWwrN06Qr8NnBOS5hGABK9qLFww6eTH9wzPoNBux-50Fl3yedZbpCJen8_bJoPAo_MvNqYn1lNRLaS3Y=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/sWwrN06Qr8NnBOS5hGABK9qLFww6eTH9wzPoNBux-50Fl3yedZbpCJen8_bJoPAo_MvNqYn1lNRLaS3Y=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/sWwrN06Qr8NnBOS5hGABK9qLFww6eTH9wzPoNBux-50Fl3yedZbpCJen8_bJoPAo_MvNqYn1lNRLaS3Y=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Linkin Park",
+        artist: "Meteora",
+        year: "2003",
+        explicit: NotExplicit,
+        browse_id: ChannelID(
+            "MPREb_qMlbe7gLeuH",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/dNfpEZtqYYsrHaHpSE9ik5vGgUSVLKE5DycRz8VMLdIQV_GYz7GpGUkMnU9I0926zLRQEAIUwdsjYCuG=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/dNfpEZtqYYsrHaHpSE9ik5vGgUSVLKE5DycRz8VMLdIQV_GYz7GpGUkMnU9I0926zLRQEAIUwdsjYCuG=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/dNfpEZtqYYsrHaHpSE9ik5vGgUSVLKE5DycRz8VMLdIQV_GYz7GpGUkMnU9I0926zLRQEAIUwdsjYCuG=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/dNfpEZtqYYsrHaHpSE9ik5vGgUSVLKE5DycRz8VMLdIQV_GYz7GpGUkMnU9I0926zLRQEAIUwdsjYCuG=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Various Artists",
+        artist: "Family Values Tour '98",
+        year: "1999",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_nVZDkecPblM",
+        ),
+        album_type: Album,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/R-6MGMaCb84SsUe2xYSqkTHRlnkLXfxW-gyjcMeO55YqAjnR-WmY9OVP71re-d8f98WTuE0Bj84dD_Uk=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/R-6MGMaCb84SsUe2xYSqkTHRlnkLXfxW-gyjcMeO55YqAjnR-WmY9OVP71re-d8f98WTuE0Bj84dD_Uk=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/R-6MGMaCb84SsUe2xYSqkTHRlnkLXfxW-gyjcMeO55YqAjnR-WmY9OVP71re-d8f98WTuE0Bj84dD_Uk=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/R-6MGMaCb84SsUe2xYSqkTHRlnkLXfxW-gyjcMeO55YqAjnR-WmY9OVP71re-d8f98WTuE0Bj84dD_Uk=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Limp Bizkit",
+        artist: "Eat You Alive",
+        year: "2003",
+        explicit: IsExplicit,
+        browse_id: ChannelID(
+            "MPREb_YI3tr47oA4L",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/1OUVTMmsW-cHHPRRg5LwFOlq_ajshejxfk5Nr5RuYB514O_ezglN_CybACV_eRL7xm8nAvQKymR675O5=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/1OUVTMmsW-cHHPRRg5LwFOlq_ajshejxfk5Nr5RuYB514O_ezglN_CybACV_eRL7xm8nAvQKymR675O5=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/1OUVTMmsW-cHHPRRg5LwFOlq_ajshejxfk5Nr5RuYB514O_ezglN_CybACV_eRL7xm8nAvQKymR675O5=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/1OUVTMmsW-cHHPRRg5LwFOlq_ajshejxfk5Nr5RuYB514O_ezglN_CybACV_eRL7xm8nAvQKymR675O5=w544-h544-l90-rj",
+            },
+        ],
+    },
+]

@@ -1,4 +1,9 @@
-use crate::error::{Error, Result};
+use super::private::Sealed;
+use super::AuthToken;
+use crate::crawler::JsonCrawler;
+use crate::error::{self, Error, Result};
+use crate::parse::ProcessedResult;
+use crate::process::JsonCloner;
 use crate::{
     process::RawResult,
     query::Query,
@@ -13,8 +18,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::AuthToken;
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// The original reason for the two different structs was that we did not save the refresh token.
+// But now we do, so consider simply making this only one struct.
+// Otherwise the only difference is not including Scope which is not super relevant.
+#[derive(Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
     access_token: String,
@@ -23,10 +30,10 @@ pub struct OAuthToken {
     request_time: SystemTime,
 }
 // TODO: Lock down construction of this type.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct OAuthDeviceCode(String);
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 struct GoogleOAuthToken {
     pub access_token: String,
     pub expires_in: usize,
@@ -34,8 +41,14 @@ struct GoogleOAuthToken {
     pub scope: String,
     pub token_type: String,
 }
-
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
+struct GoogleOAuthRefreshToken {
+    pub access_token: String,
+    pub expires_in: usize,
+    pub scope: String,
+    pub token_type: String,
+}
+#[derive(Clone, Deserialize)]
 pub struct OAuthTokenGenerator {
     pub device_code: OAuthDeviceCode,
     pub expires_in: usize,
@@ -45,14 +58,28 @@ pub struct OAuthTokenGenerator {
 }
 
 impl OAuthToken {
-    fn from_json_string<S: AsRef<str>>(json_string: S) -> Result<Self> {
-        serde_json::from_str(json_string.as_ref())
-            .map_err(|_| Error::other("Error parsing json oauth string"))
+    fn from_google_refresh_token(
+        google_token: GoogleOAuthRefreshToken,
+        request_time: SystemTime,
+        refresh_token: String,
+    ) -> Self {
+        // See comment above on OAuthToken
+        let GoogleOAuthRefreshToken {
+            access_token,
+            expires_in,
+            token_type,
+            ..
+        } = google_token;
+        Self {
+            token_type,
+            refresh_token,
+            access_token,
+            request_time,
+            expires_in,
+        }
     }
     fn from_google_token(google_token: GoogleOAuthToken, request_time: SystemTime) -> Self {
-        // Assuming we don't need to re-write refresh token to disk for now (probably loaded from disk)
-        // we'll generate it every time on load if needed.
-        // This is to avoid needing to write to disk in this library.
+        // See comment above on OAuthToken
         let GoogleOAuthToken {
             access_token,
             expires_in,
@@ -79,8 +106,13 @@ impl OAuthDeviceCode {
     }
 }
 
+impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
+    async fn raw_query<Q: Query>(
+        &self,
+        client: &Client,
+        query: Q,
+    ) -> Result<RawResult<Q, OAuthToken>> {
         // TODO: Functionize - used for Browser Auth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
@@ -117,6 +149,7 @@ impl AuthToken for OAuthToken {
         let result = client
             // Could include gzip deflation in headers - may improve performance?
             .post(&url)
+            // TODO: Confirm if parsing for expired user agent also relevant here.
             .header("User-Agent", USER_AGENT)
             .header("X-Origin", YTM_URL)
             .header("Content-Type", "application/json")
@@ -130,12 +163,19 @@ impl AuthToken for OAuthToken {
             .await?
             .text()
             .await?;
-        let result = RawResult::from_raw(
-            // TODO: Better error
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?,
-            query,
-        );
+        let result = RawResult::from_raw(result, query, self);
         Ok(result)
+    }
+    fn serialize_json<Q: Query>(
+        raw: RawResult<Q, Self>,
+    ) -> Result<crate::parse::ProcessedResult<Q>> {
+        let (json, query) = raw.destructure();
+        let json_cloner = JsonCloner::from_string(json)
+            .map_err(|_| error::Error::response("Error deserializing"))?;
+        Ok(ProcessedResult::from_raw(
+            JsonCrawler::from_json_cloner(json_cloner),
+            query,
+        ))
     }
 }
 
@@ -167,6 +207,7 @@ impl OAuthToken {
             "client_secret" : OAUTH_CLIENT_SECRET,
             "grant_type" : "refresh_token",
             "refresh_token" : self.refresh_token,
+            "client_id" : OAUTH_CLIENT_ID,
         });
         let result = client
             .post(OAUTH_TOKEN_URL)
@@ -176,11 +217,13 @@ impl OAuthToken {
             .await?
             .text()
             .await?;
-        let google_token: GoogleOAuthToken =
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
-        Ok(OAuthToken::from_google_token(
+        let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result)
+            .map_err(|e| Error::unable_to_serialize_oauth(&result, e))?;
+        Ok(OAuthToken::from_google_refresh_token(
             google_token,
             SystemTime::now(),
+            // TODO: Remove clone.
+            self.refresh_token.clone(),
         ))
     }
 }

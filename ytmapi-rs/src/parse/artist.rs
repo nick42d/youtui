@@ -1,3 +1,6 @@
+use super::MusicShelfContents;
+use super::ParsedSongAlbum;
+use super::ProcessedResult;
 use crate::common::youtuberesult::ResultCore;
 use crate::common::youtuberesult::YoutubeResult;
 use crate::common::AlbumID;
@@ -7,31 +10,24 @@ use crate::common::VideoID;
 use crate::common::YoutubeID;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::*;
-use crate::process;
 use crate::process::process_fixed_column_item;
 use crate::query::*;
-use crate::BrowseID;
 use crate::ChannelID;
+use crate::Result;
 use crate::Thumbnail;
-use crate::{Error, Result};
 use const_format::concatcp;
-
-use super::parse_thumbnails;
-use super::MusicShelfContents;
-use super::ParsedSongAlbum;
-use super::ProcessedResult;
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
-    description: String,
-    views: String,
+    pub description: String,
+    pub views: String,
     pub name: String,
     pub channel_id: String,
-    shuffle_id: Option<String>,
-    radio_id: Option<String>,
-    subscribers: Option<String>,
-    subscribed: Option<String>,
-    thumbnails: Option<String>,
+    pub shuffle_id: Option<String>,
+    pub radio_id: Option<String>,
+    pub subscribers: Option<String>,
+    pub subscribed: Option<String>,
+    pub thumbnails: Option<String>,
     pub top_releases: GetArtistTopReleases,
 }
 
@@ -288,11 +284,11 @@ impl ArtistTopReleaseCategory {
         }
     }
 }
-pub fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
+pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
-    let year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
+    let _year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
     let browse_id: String = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
-    let thumbnails = super::parse_thumbnails(&mut navigator.borrow_pointer(THUMBNAIL_RENDERER)?)?;
+    let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
     let is_explicit = navigator.path_exists(concatcp!(TITLE, SUBTITLE_BADGE_LABEL));
     let core = ResultCore::new(
         None,
@@ -314,7 +310,7 @@ pub fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<Albu
 
 //TODO: Menu entries
 //TODO: Consider rename
-pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongResult>> {
+pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongResult>> {
     let MusicShelfContents { json } = music_shelf;
     let mut results = Vec::new();
     // this should be set in each loop not here...
@@ -379,7 +375,7 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
         // It depends on the query type so consider reflecting this in the code.
         // XXX: Consider which parts of this query are mandatory as currently erroring.
         // Using OK as a crutch to avoid error.
-        let artists = super::parse_song_artists(&mut data, 1)?;
+        let _artists = super::parse_song_artists(&mut data, 1)?;
         // Album may not exist, using an Option to reflect this.
         // It depends on the query type so consider reflecting this in the code.
         let album = super::parse_song_album(&mut data, 2).ok();
@@ -391,11 +387,10 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
         } else {
             None
         };
-
+        // Thumbnails is supposedly optional here, so we'll return an empty Vec if failed to find.
+        // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
         let thumbnails = data
-            .borrow_pointer(THUMBNAILS)
-            .and_then(|mut t| parse_thumbnails(&mut t))
-            // Thumbnails may not exist. If not found, instead of returning None, we'll return an empty Vec.
+            .take_value_pointer::<Vec<Thumbnail>, &str>(THUMBNAILS)
             .into_iter()
             .flatten()
             .collect();
@@ -447,10 +442,14 @@ pub fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongR
 }
 
 impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
-    pub fn parse(mut self) -> Result<Vec<crate::Album>> {
+    pub fn parse(self) -> Result<Vec<crate::Album>> {
         let mut albums = Vec::new();
-        for mut r in self
-            .json_crawler
+        let mut json_crawler = self.json_crawler.navigate_pointer(concatcp!(
+            SINGLE_COLUMN_TAB,
+            SECTION_LIST_ITEM,
+            GRID_ITEMS
+        ))?;
+        for mut r in json_crawler
             .borrow_mut()
             .into_array_iter_mut()?
             .into_iter()
@@ -459,7 +458,7 @@ impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
             let browse_id = r.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
             let playlist_id = r.take_value_pointer(MENU_PLAYLIST_ID).ok();
             let title = r.take_value_pointer(TITLE_TEXT)?;
-            let thumbnails = super::parse_thumbnails(&mut r.borrow_pointer(THUMBNAIL_RENDERER)?)?;
+            let thumbnails = r.take_value_pointer(THUMBNAIL_RENDERER)?;
             // TODO: category
             let category = r.take_value_pointer(SUBTITLE).ok();
             albums.push(crate::Album {
@@ -478,15 +477,11 @@ impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
 mod tests {
     use std::path::Path;
 
-    use const_format::concatcp;
-    use serde_json::Value;
-    use tokio::fs::File;
-
     use crate::{
         common::{BrowseParams, YoutubeID},
         crawler::JsonCrawler,
-        nav_consts::{GRID_ITEMS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB},
         parse::ProcessedResult,
+        process::JsonCloner,
         query::GetArtistAlbumsQuery,
         ChannelID,
     };
@@ -498,14 +493,10 @@ mod tests {
         let file = tokio::fs::read_to_string(path)
             .await
             .expect("Expect file read to pass during tests");
-        // Processing - normally done in Process.
-        let json: serde_json::Value = serde_json::from_str::<Value>(&file)
-            .unwrap()
-            .pointer_mut(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID_ITEMS))
-            .unwrap()
-            .take();
+        let json_clone = JsonCloner::from_string(file).unwrap();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json(json), query).parse();
+        let _output =
+            ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query).parse();
     }
 }

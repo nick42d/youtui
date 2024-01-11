@@ -1,4 +1,62 @@
-// TODO Confirm if should be pub
+//! Library into YouTube Music's internal API.
+//! ## Examples
+//! Basic usage with a pre-created cookie file :
+//! ```no_run
+//! #[tokio::main]
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let cookie_path = std::path::Path::new("./cookie.txt");
+//!     let yt = ytmapi_rs::YtMusic::from_cookie_file(cookie_path).await?;
+//!     yt.get_search_suggestions("Beatles").await?;
+//!     let result = yt.get_search_suggestions("Beatles").await?;
+//!     println!("{:?}", result);
+//!     Ok(())
+//! }
+//! ```
+//! Basic usage - oauth:
+//! ```no_run
+//! #[tokio::main]
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+//!     println!("Go to {url}, finish the login flow, and press enter when done");
+//!     let mut _buf = String::new();
+//!     let _ = std::io::stdin().read_line(&mut _buf);
+//!     let token = ytmapi_rs::generate_oauth_token(code).await?;
+//!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
+//!     // so it's recommended to save it to a file here.
+//!     let yt = ytmapi_rs::YtMusic::from_oauth_token(token);
+//!     let result = yt.get_search_suggestions("Beatles").await?;
+//!     println!("{:?}", result);
+//!     Ok(())
+//! }
+//! ```
+use auth::{
+    browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
+};
+use common::{
+    browsing::Lyrics,
+    library::{LibraryArtist, Playlist},
+    watch::WatchPlaylist,
+    SearchSuggestion,
+};
+pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
+pub use error::{Error, Result};
+use parse::{
+    AlbumParams, ArtistParams, Parse, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults,
+};
+use process::RawResult;
+use query::{
+    lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery, AlbumsFilter, ArtistsFilter, BasicSearch,
+    CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter, FilteredSearch,
+    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
+    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
+    ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
+};
+use reqwest::Client;
+use std::path::Path;
+
+// TODO: Confirm if auth should be pub
 pub mod auth;
 mod utils;
 mod locales {}
@@ -10,101 +68,155 @@ mod error;
 pub mod parse;
 mod process;
 pub mod query;
-
 #[cfg(test)]
 mod tests;
 
-use std::path::Path;
-
-use auth::{
-    browser::BrowserToken, oauth::OAuthDeviceCode, Auth, AuthToken, OAuthToken, OAuthTokenGenerator,
-};
-use common::{
-    browsing::Lyrics,
-    library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    SearchSuggestion, TextRun,
-};
-pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
-pub use error::{Error, Result};
-use parse::{AlbumParams, ArtistParams, SearchResult};
-use process::RawResult;
-use query::{
-    continuations::GetContinuationsQuery, lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery,
-    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query, SearchQuery, SearchType,
-};
-use reqwest::Client;
-use utils::constants::{USER_AGENT, YTM_URL};
-
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
-pub struct YtMusic {
+/// A handle to the YouTube Music API, wrapping a reqwest::Client.
+/// Generic over AuthToken, as different AuthTokens may allow different queries to be executed.
+pub struct YtMusic<A: AuthToken> {
     // TODO: add language
     // TODO: add location
     client: Client,
-    auth: Auth,
+    token: A,
 }
 
-impl YtMusic {
-    // TODO: Methods to create with a pre-existing client.
-    pub fn get_auth_type(&self) -> &Auth {
-        &self.auth
-    }
-    pub fn set_auth_type_oauth(&mut self, token: OAuthToken) {
-        self.auth = Auth::OAuth(token)
-    }
-    pub async fn set_auth_type_header<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
-        let token = BrowserToken::from_cookie_file(path, &self.client).await?;
-        self.auth = Auth::Browser(token);
-        Ok(())
-    }
-    /// Create a new API handle using an OAuthToken.
-    pub fn from_oauth_token(token: OAuthToken) -> Self {
-        let client = Client::new();
-        let auth = Auth::OAuth(token);
-        Self { client, auth }
-    }
+impl YtMusic<BrowserToken> {
     /// Create a new API handle using a BrowserToken.
-    pub fn from_browser_token(token: BrowserToken) -> Self {
+    pub fn from_browser_token(token: BrowserToken) -> YtMusic<BrowserToken> {
         let client = Client::new();
-        let auth = Auth::Browser(token);
-        Self { client, auth }
+        YtMusic { client, token }
     }
-    /// Create a new API handle using browser authentication details saved to a file on disk.
-    /// The file should contain the Cookie response from a real logged in browser interaction with YouTube Music.
+    /// Create a new API handle using a real browser authentication cookie saved to a file on disk.
     pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
-        let auth = Auth::Browser(BrowserToken::from_cookie_file(path, &client).await?);
-        Ok(Self { client, auth })
+        let token = BrowserToken::from_cookie_file(path, &client).await?;
+        Ok(Self { client, token })
     }
-    /// Create a new API handle using browser authentication details in a String.
+    /// Create a new API handle using a real browser authentication cookie in a String.
     pub async fn from_cookie<S: AsRef<str>>(cookie: S) -> Result<Self> {
         let client = Client::new();
-        let auth = Auth::Browser(BrowserToken::from_str(cookie.as_ref(), &client).await?);
-        Ok(Self { client, auth })
+        let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
+        Ok(Self { client, token })
     }
-    async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q>> {
+}
+impl YtMusic<OAuthToken> {
+    /// Create a new API handle using an OAuthToken.
+    pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
+        let client = Client::new();
+        YtMusic { client, token }
+    }
+    /// Refresh the internal oauth token, and return a clone of it (for user to store locally, e.g).
+    pub async fn refresh_token(&mut self) -> Result<OAuthToken> {
+        let refreshed_token = self.token.refresh(&self.client).await?;
+        self.token = refreshed_token.clone();
+        Ok(refreshed_token)
+    }
+}
+impl<A: AuthToken> YtMusic<A> {
+    async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
-        self.auth.raw_query(&self.client, query).await
+        self.token.raw_query(&self.client, query).await
     }
-    pub async fn json_query<Q: Query>(&self, query: Q) -> Result<serde_json::Value> {
-        let json = self.raw_query(query).await?.destructure_json();
+    /// Return the raw JSON returned by YouTube music for Query Q.
+    pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
+        // TODO: Remove allocation
+        let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
-    // TODO: add use statements to cleanup path.
-    // XXX: Consider taking into<SearchQuery>
-    pub async fn search<'a, S: SearchType>(
+    /// API Search Query that returns results for each category if available.
+    pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
-        query: SearchQuery<'a, S>,
-    ) -> Result<Vec<SearchResult<'a>>> {
+        query: Q,
+    ) -> Result<SearchResults> {
+        let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
-    #[deprecated = "In progress, not complete"]
-    pub async fn get_continuations<S: SearchType>(
+    /// API Search Query for Artists only.
+    pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
         &self,
-        query: GetContinuationsQuery<SearchQuery<'_, FilteredSearch>>,
-    ) -> Result<()> {
+        query: Q,
+    ) -> Result<Vec<SearchResultArtist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Albums only.
+    pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultAlbum>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Songs only.
+    pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultSong>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Playlists only.
+    pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Community Playlists only.
+    pub async fn search_community_playlists<
+        'a,
+        Q: Into<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
+    >(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Featured Playlists only.
+    pub async fn search_featured_playlists<
+        'a,
+        Q: Into<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
+    >(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultFeaturedPlaylist>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Episodes only.
+    pub async fn search_episodes<'a, Q: Into<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultEpisode>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Podcasts only.
+    pub async fn search_podcasts<'a, Q: Into<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultPodcast>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Videos only.
+    pub async fn search_videos<'a, Q: Into<SearchQuery<'a, FilteredSearch<VideosFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultVideo>> {
+        let query = query.into();
+        self.raw_query(query).await?.process()?.parse()
+    }
+    /// API Search Query for Profiles only.
+    pub async fn search_profiles<'a, Q: Into<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>>(
+        &self,
+        query: Q,
+    ) -> Result<Vec<SearchResultProfile>> {
+        let query = query.into();
         self.raw_query(query).await?.process()?.parse()
     }
     pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
@@ -119,6 +231,7 @@ impl YtMusic {
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
         self.raw_query(query).await?.process()?.parse()
     }
+    // TODO: Implement for other cases of query.
     pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
         &self,
         query: S,
@@ -147,6 +260,7 @@ impl YtMusic {
         self.raw_query(query).await?.process()?.parse()
     }
 }
+// TODO: Keep session alive after calling these methods.
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
 /// (OAuthDeviceCode, URL)
 pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
@@ -155,7 +269,6 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
     let url = format!("{}?user_code={}", code.verification_url, code.user_code);
     Ok((code.device_code, url))
 }
-
 // TODO: Keep session alive after calling these methods.
 /// Generates an OAuth Token when given an OAuthDeviceCode.
 pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {

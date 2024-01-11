@@ -1,4 +1,4 @@
-use crate::{error::ParseTarget, Error, Result};
+use crate::{error::ParseTarget, process::JsonCloner, Error, Result};
 use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc};
 
@@ -12,19 +12,19 @@ struct PathList {
     list: Vec<JsonPath>,
 }
 #[derive(Clone, PartialEq, Debug)]
-pub struct JsonCrawler {
+pub(crate) struct JsonCrawler {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
-pub struct JsonCrawlerBorrowed<'a> {
+pub(crate) struct JsonCrawlerBorrowed<'a> {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
 }
-pub struct JsonCrawlerArrayIterMut<'a> {
+pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
     path: PathList,
@@ -162,16 +162,6 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: path_clone,
         })
     }
-    // XXX: Temporary function until code refactored.
-    #[deprecated = "Temporary function - in future pass navigator around instead"]
-    pub fn _take_json_pointer(&mut self, path: &str) -> Result<serde_json::Value> {
-        let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::pointer(path));
-        self.crawler
-            .pointer_mut(path)
-            .map(|v| v.take())
-            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
-    }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())
             // XXX: ParseTarget String is incorrect
@@ -285,10 +275,11 @@ impl JsonCrawler {
             path,
         })
     }
-    pub fn from_json(json: serde_json::Value) -> Self {
+    pub fn from_json_cloner(json_cloner: JsonCloner) -> Self {
+        let (source, crawler) = json_cloner.destructure();
         Self {
-            source: Arc::new(format!("{:#}", json)),
-            crawler: json,
+            source: Arc::new(source),
+            crawler,
             path: PathList::default(),
         }
     }
@@ -308,15 +299,6 @@ impl JsonCrawler {
         )
         // XXX: ParseTarget String is incorrect
         .map_err(|_| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
-    }
-    #[deprecated = "Temporary function until code refactored"]
-    pub fn _take_json_pointer(&mut self, path: &str) -> Result<serde_json::Value> {
-        let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::pointer(path));
-        self.crawler
-            .pointer_mut(path)
-            .map(|v| v.take())
-            .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))
     }
     pub fn get_source(&self) -> &str {
         &self.source

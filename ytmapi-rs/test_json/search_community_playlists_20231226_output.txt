@@ -1,0 +1,532 @@
+[
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - Beatles 100 (Official Playlist)",
+            author: "The Beatles",
+            views: "21M views",
+            playlist_id: PlaylistID(
+                "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles greatest hits",
+            author: "Danny boi",
+            views: "23M views",
+            playlist_id: PlaylistID(
+                "VLPLxI9rM7N2E01D8pIt0sYF-k5JY4OfAJDe",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - Sgt. Pepper’s Lonely Hearts Club Band (1967 - Full Album)",
+            author: "Le Sémaphore",
+            views: "2.2M views",
+            playlist_id: PlaylistID(
+                "VLPLiN-7mukU_RGPPUIQW-QxH2Q2FJ81NqO0",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/9jDsaiwoHDc9WAQ66S0K8wtKqIpoqTKs96OqX1uWGdNfxcOfKZP1rodJftmjrSthZOJwPTCJ8Ag=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/9jDsaiwoHDc9WAQ66S0K8wtKqIpoqTKs96OqX1uWGdNfxcOfKZP1rodJftmjrSthZOJwPTCJ8Ag=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/9jDsaiwoHDc9WAQ66S0K8wtKqIpoqTKs96OqX1uWGdNfxcOfKZP1rodJftmjrSthZOJwPTCJ8Ag=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - All currently available mono tracks",
+            author: "Forevopera",
+            views: "133K views",
+            playlist_id: PlaylistID(
+                "VLPLHDBXmj6ib8MHyRF5WjK6LEV30Vij6Jq2",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/k3gw0wBkz056EcnQ_2AYVmrzbkhCCh3x5vt94RLhS1YWcP5no6T8DxLZo-bmL_cSH9IolretCw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/k3gw0wBkz056EcnQ_2AYVmrzbkhCCh3x5vt94RLhS1YWcP5no6T8DxLZo-bmL_cSH9IolretCw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/k3gw0wBkz056EcnQ_2AYVmrzbkhCCh3x5vt94RLhS1YWcP5no6T8DxLZo-bmL_cSH9IolretCw=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Best Early Beatles Songs",
+            author: "Brody Olson",
+            views: "114K views",
+            playlist_id: PlaylistID(
+                "VLPLTcAx3bPA-hHSxo8IUltpbITIBC-S2FTx",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/7BOmBWOaq0cBCQRl7tMVR2bi78b8qvQwm-1Ga-1FNWzLI2g2Mads4Dz-U7dbYI6pje_1G7ErXZs=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/7BOmBWOaq0cBCQRl7tMVR2bi78b8qvQwm-1Ga-1FNWzLI2g2Mads4Dz-U7dbYI6pje_1G7ErXZs=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/7BOmBWOaq0cBCQRl7tMVR2bi78b8qvQwm-1Ga-1FNWzLI2g2Mads4Dz-U7dbYI6pje_1G7ErXZs=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "🎸 The Beatles: Songs (LYRICS/LETRA) [Original] [+ Ryohei Kanayama mix's]",
+            author: "el perro beatle",
+            views: "2.5M views",
+            playlist_id: PlaylistID(
+                "VLPL632iTavofD48JGlFY4VkYDKxoWfX17a1",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/_Paqe2-BCYM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l2wc-6rdIEQrSs2Yj7FauzXq2rTA",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/_Paqe2-BCYM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l0k9oJyvplEr_VuUuY9Qub8-jFpQ",
+                },
+                Thumbnail {
+                    height: 480,
+                    width: 853,
+                    url: "https://i.ytimg.com/vi/_Paqe2-BCYM/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ne489fj1eU4zHnIdIQ0M8GNbQuuQ",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - White Album (Remastered 2009)",
+            author: "Theo",
+            views: "3.2M views",
+            playlist_id: PlaylistID(
+                "VLPLCy4nKC35jSaYzacBrBXx-VN53lQqL47q",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/2EPB8NKNCzkmCtaFf8owIXaX0JvjVXHKVY-S27gDf7hdGR0QeAYt20W8plej4osLDHVtcH_MWuKc=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/2EPB8NKNCzkmCtaFf8owIXaX0JvjVXHKVY-S27gDf7hdGR0QeAYt20W8plej4osLDHVtcH_MWuKc=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/2EPB8NKNCzkmCtaFf8owIXaX0JvjVXHKVY-S27gDf7hdGR0QeAYt20W8plej4osLDHVtcH_MWuKc=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Complete Beatles Playlist (Every Album Track and Single)",
+            author: "Titans vs. Olympians",
+            views: "33M views",
+            playlist_id: PlaylistID(
+                "VLPLYq_mcte9NvDA2Xi5Qjl1DrH5LuDKDlAI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/MK0rvRVW8v6pbJw3JSeGo3vaVxtIIDTWjygza6Z7zrvLJ1946Yfe_r4f_djW6mMKerJnjluG4RM=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/MK0rvRVW8v6pbJw3JSeGo3vaVxtIIDTWjygza6Z7zrvLJ1946Yfe_r4f_djW6mMKerJnjluG4RM=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/MK0rvRVW8v6pbJw3JSeGo3vaVxtIIDTWjygza6Z7zrvLJ1946Yfe_r4f_djW6mMKerJnjluG4RM=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "beatles songs that make me happy",
+            author: "melancholy -",
+            views: "229K views",
+            playlist_id: PlaylistID(
+                "VLPLkeb4ahIcuKh1EA-xLcXDlGTmLqkooc-i",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/SYpqlZWZOH8Qa2RTc8elHdFqQLbQyXk2P-MO82ESB8lv3dwXC401o_iHP8bp_LojfF03D-C5-sM=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/SYpqlZWZOH8Qa2RTc8elHdFqQLbQyXk2P-MO82ESB8lv3dwXC401o_iHP8bp_LojfF03D-C5-sM=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/SYpqlZWZOH8Qa2RTc8elHdFqQLbQyXk2P-MO82ESB8lv3dwXC401o_iHP8bp_LojfF03D-C5-sM=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Beatles Songs Sung by George",
+            author: "rslitman",
+            views: "446K views",
+            playlist_id: PlaylistID(
+                "VLPLVwvyzz17cDIjtHTiodWU2r5NWnGqgrHL",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/xARt56-g6vZzFG-Ca87XY8Fgzt39Ef2m2cvqQ7YBHV-pVfVFm-pdgzYhAWXeO80Fbv_fk-HT2C0=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/xARt56-g6vZzFG-Ca87XY8Fgzt39Ef2m2cvqQ7YBHV-pVfVFm-pdgzYhAWXeO80Fbv_fk-HT2C0=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/xARt56-g6vZzFG-Ca87XY8Fgzt39Ef2m2cvqQ7YBHV-pVfVFm-pdgzYhAWXeO80Fbv_fk-HT2C0=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles -  Magical Mystery Tour (Full Album, Super Deluxe Edition)",
+            author: "Gerónimo Vélez",
+            views: "21K views",
+            playlist_id: PlaylistID(
+                "VLPLLZypaWYt2xxKmIaeG1UDR05iv5MreGDC",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/Jvq7R9TYHqHtH9AbrihfE-nlFH57j101JvtBZzZXORE8KdPN6IGCPuos6nhEW2m0jJ6UBWzRMg=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/Jvq7R9TYHqHtH9AbrihfE-nlFH57j101JvtBZzZXORE8KdPN6IGCPuos6nhEW2m0jJ6UBWzRMg=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/Jvq7R9TYHqHtH9AbrihfE-nlFH57j101JvtBZzZXORE8KdPN6IGCPuos6nhEW2m0jJ6UBWzRMg=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles ~ Rare & Unreleased Demos/Outtakes 🎸",
+            author: "Michelle MaBelle 🎼 ",
+            views: "167K views",
+            playlist_id: PlaylistID(
+                "VLPLNZ4pVtD8MsGm4-Rg5VFS7tNyLpowVwX2",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/O2VtHq2ATqA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kKi9_ut8KX8y3BveeoOUWULiymRA",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/O2VtHq2ATqA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lsAJ2G2LpK3aWLk9unTx4VhAq6cw",
+                },
+                Thumbnail {
+                    height: 480,
+                    width: 853,
+                    url: "https://i.ytimg.com/vi/O2VtHq2ATqA/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mR6xmfGNBDEbeHoRmKgWwiv4n8_Q",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles’ Second Album",
+            author: "Miranda K",
+            views: "18K views",
+            playlist_id: PlaylistID(
+                "VLPLTkHJ3DxFNY2UWBP8doIpC_d54wlH4HFP",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/bC8pbz-XT9t9PmdAXlJmJX3DYgE5Mf0L5nAA1qefY0D6acOH0AGYMk8b5zfgBb_yPdQRtt57Ryk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/bC8pbz-XT9t9PmdAXlJmJX3DYgE5Mf0L5nAA1qefY0D6acOH0AGYMk8b5zfgBb_yPdQRtt57Ryk=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/bC8pbz-XT9t9PmdAXlJmJX3DYgE5Mf0L5nAA1qefY0D6acOH0AGYMk8b5zfgBb_yPdQRtt57Ryk=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "beatles",
+            author: "KaraokeJP",
+            views: "268K views",
+            playlist_id: PlaylistID(
+                "VLPLPdkHcfYVYfjZJiWXpbIkVjeIdY9EgWcH",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/37vnNbCqejc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n3gory8rEvYfPg4DehETynTrPREg",
+                },
+                Thumbnail {
+                    height: 240,
+                    width: 426,
+                    url: "https://i.ytimg.com/vi/37vnNbCqejc/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kPnBaSXZShUVjzBB-39XY_HL9_tA",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Upbeat Beatles Songs",
+            author: "Elam Fox",
+            views: "246K views",
+            playlist_id: PlaylistID(
+                "VLPLcpI_CYC2qblO-LhM1ij-EsPBIs4f2CDu",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/BJXMo6T2fC6I_6tJrvK45nloZN-49l_oXMob7FH7f9yzcZB72ZHA9s23HNoidCF_WMJNz3euCA=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/BJXMo6T2fC6I_6tJrvK45nloZN-49l_oXMob7FH7f9yzcZB72ZHA9s23HNoidCF_WMJNz3euCA=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/BJXMo6T2fC6I_6tJrvK45nloZN-49l_oXMob7FH7f9yzcZB72ZHA9s23HNoidCF_WMJNz3euCA=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "THE BEATLES : ROCK 'N ROLL MUSIC  [PCSP-719]",
+            author: "SOUNDS GREAT",
+            views: "5.2K views",
+            playlist_id: PlaylistID(
+                "VLPLwrj3HGuxTWzQ-UfGiE0_Jz1_TUGNsHF4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/eP3YasQYV-oDLPk2IG3ozcb-f7kDaC9ir57zDWvoBdCFTh_segLcGejFG2BHPXPaMkJEIO3uztk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/eP3YasQYV-oDLPk2IG3ozcb-f7kDaC9ir57zDWvoBdCFTh_segLcGejFG2BHPXPaMkJEIO3uztk=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/eP3YasQYV-oDLPk2IG3ozcb-f7kDaC9ir57zDWvoBdCFTh_segLcGejFG2BHPXPaMkJEIO3uztk=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - All Music Videos in Chronological Order",
+            author: "iansonofthor",
+            views: "10K views",
+            playlist_id: PlaylistID(
+                "VLPLSZxRPbKmR3uu26f4KftR8GbhINzfacVN",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/gmoUr0Xhd9OxdHv1mWmqUkaAoTPfXq-4sZOBXqQxqUx2NxGgvT_mCnn3pErTRvJYebN6w772fQeg=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/gmoUr0Xhd9OxdHv1mWmqUkaAoTPfXq-4sZOBXqQxqUx2NxGgvT_mCnn3pErTRvJYebN6w772fQeg=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/gmoUr0Xhd9OxdHv1mWmqUkaAoTPfXq-4sZOBXqQxqUx2NxGgvT_mCnn3pErTRvJYebN6w772fQeg=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Beatles greatest hits of the 60's",
+            author: "Varcardo Ricardo",
+            views: "521K views",
+            playlist_id: PlaylistID(
+                "VLPLsIFeK_CcH0dnSNjuB0TxdqmCzjBPZxJj",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/oKdsh2B2cmaQSJCpMH433nOr6dCr3Hs-K6dfXCe6fJJxY0HQ9vWmXYLHRZ9nLY1kOwW0YsF8_Vw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/oKdsh2B2cmaQSJCpMH433nOr6dCr3Hs-K6dfXCe6fJJxY0HQ9vWmXYLHRZ9nLY1kOwW0YsF8_Vw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/oKdsh2B2cmaQSJCpMH433nOr6dCr3Hs-K6dfXCe6fJJxY0HQ9vWmXYLHRZ9nLY1kOwW0YsF8_Vw=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Remastered Rare Beatles Songs",
+            author: "redhectormusic",
+            views: "139K views",
+            playlist_id: PlaylistID(
+                "VLPLDExMYfjDdP2wFX32BZC0YnR0Q9qhbUv4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/I0OgHsEakO8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kmKpcuZfROIHNIddpVKxpnoGxVdw",
+                },
+                Thumbnail {
+                    height: 240,
+                    width: 426,
+                    url: "https://i.ytimg.com/vi/I0OgHsEakO8/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mOyOdvlsnup5gyg4u1CRkKxZQJBw",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "THE BEATLES OFFICIAL VEVO❤",
+            author: "Paula Wallrider",
+            views: "130K views",
+            playlist_id: PlaylistID(
+                "VLPLHHd2gFQTR0ltRKoLRyJIHonpVCN2FVLy",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/3YHkj_bwNNxwjINjf2Ft-jxxHqIRqcnhjcsd6A395Ou1HaBjnx_KWU_jh8JMVhrUY0zuF8lzDmk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/3YHkj_bwNNxwjINjf2Ft-jxxHqIRqcnhjcsd6A395Ou1HaBjnx_KWU_jh8JMVhrUY0zuF8lzDmk=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/3YHkj_bwNNxwjINjf2Ft-jxxHqIRqcnhjcsd6A395Ou1HaBjnx_KWU_jh8JMVhrUY0zuF8lzDmk=s1200",
+                },
+            ],
+        },
+    ),
+]

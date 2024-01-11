@@ -1,4 +1,9 @@
-use crate::error::{Error, Result};
+use super::private::Sealed;
+use super::AuthToken;
+use crate::crawler::JsonCrawler;
+use crate::error::{self, Error, Result};
+use crate::parse::ProcessedResult;
+use crate::process::JsonCloner;
 use crate::utils;
 use crate::{
     process::RawResult,
@@ -10,16 +15,20 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::path::Path;
 
-use super::AuthToken;
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct BrowserToken {
     sapisid: String,
     client_version: String,
     cookies: String,
 }
 
+impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q>> {
+    async fn raw_query<'a, Q: Query>(
+        &'a self,
+        client: &Client,
+        query: Q,
+    ) -> Result<RawResult<Q, BrowserToken>> {
         // TODO: Functionize - used for OAuth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let mut body = json!({
@@ -50,26 +59,35 @@ impl AuthToken for BrowserToken {
             .await?
             .text()
             .await?;
-        // TODO: Better error
-        let result: serde_json::Value =
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
+
+        let result = RawResult::from_raw(result, query, self);
+        Ok(result)
+    }
+    fn serialize_json<Q: Query>(
+        raw: RawResult<Q, Self>,
+    ) -> Result<crate::parse::ProcessedResult<Q>> {
+        let (json, query) = raw.destructure();
+        let json_cloner = JsonCloner::from_string(json)
+            .map_err(|_| error::Error::response("Error serializing"))?;
+        let mut json_crawler = JsonCrawler::from_json_cloner(json_cloner);
         // Guard against error codes in json response.
-        // TODO: Can we determine if this is because the cookie has expired?
         // TODO: Add a test for this
-        if let Some(error) = result.get("error") {
-            let Some(code) = error.get("code").and_then(|code| code.as_u64()) else {
+        if let Ok(mut error) = json_crawler.borrow_pointer("/error") {
+            let Ok(code) = error.take_value_pointer::<u64, &str>("/code") else {
                 return Err(Error::other(
                     "Error message received from server, but doesn't have an error code",
                 ));
             };
             match code {
-                401 => return Err(Error::not_authenticated()),
+                // Assuming Error:NotAuthenticated means browser token has expired.
+                // May be incorrect - browser token may be invalid?
+                // TODO: Investigate.
+                401 => return Err(Error::browser_authentication_failed()),
                 other => return Err(Error::other_code(other)),
             }
         }
 
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
+        Ok(ProcessedResult::from_raw(json_crawler, query))
     }
 }
 
@@ -84,6 +102,11 @@ impl BrowserToken {
             .await?
             .text()
             .await?;
+        // parse for user agent issues here.
+        if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
+            return Err(Error::other("Expired User Agent"));
+        };
+        // TODO: Better error.
         let client_version = response
             .split_once("INNERTUBE_CLIENT_VERSION\":\"")
             .ok_or(Error::header())?

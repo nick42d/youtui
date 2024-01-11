@@ -1,0 +1,422 @@
+[
+    SearchResultArtist {
+        artist: "The Beatles",
+        subscribers: Some(
+            "8.04M subscribers",
+        ),
+        browse_id: ChannelID(
+            "UC2XdaAVUannpujzv32jcouQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "John Lennon",
+        subscribers: Some(
+            "2.11M subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCcSL2nYSJp_IgdzH0xBBdcg",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "George Harrison",
+        subscribers: Some(
+            "911K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCGVnHHo1u7Xfyht_psktcUQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/a-/ALV-UjUjtxx7DMEfHCFgRtNtqgycuhRoVxLLx_RBB9sZQ_gnhj0=w60-h60-l90-rj-dclZaASboF",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/a-/ALV-UjUjtxx7DMEfHCFgRtNtqgycuhRoVxLLx_RBB9sZQ_gnhj0=w120-h120-l90-rj-dclZaASboF",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Wings",
+        subscribers: Some(
+            "65.4K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCyyYmEud7d9iGVOYNMG9sAA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/0dpYchlcEe0AOjkzOCKJWJY0T8U847JcMwI5_YmOJVZouGw9c2p0zM8yXH3A0j5wFtQ96eeKDM3Zk4M=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/0dpYchlcEe0AOjkzOCKJWJY0T8U847JcMwI5_YmOJVZouGw9c2p0zM8yXH3A0j5wFtQ96eeKDM3Zk4M=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Paul McCartney",
+        subscribers: Some(
+            "1.25M subscribers",
+        ),
+        browse_id: ChannelID(
+            "UC0guXwTSf4hAOvCSgmViojw",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/2Z1KGtSXh-zHQbaH0wgnrSQe8cHk64dvxAyqgRaFCFviMLwms2ZdhKIFC5EgW36_GKKVI8yNUj6OQ_Of=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/2Z1KGtSXh-zHQbaH0wgnrSQe8cHk64dvxAyqgRaFCFviMLwms2ZdhKIFC5EgW36_GKKVI8yNUj6OQ_Of=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "The Beatles Revival Band",
+        subscribers: Some(
+            "381 subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCV_-_pF4QSBQQV2ittXJbfw",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/a6Mr1oV9S5oGJT2hLj64-3dyEmJOec_Zg0QrumrW_CP2MS_Pi3mxQmiOMEafDjpIORpMaScHE42h8jG4=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/a6Mr1oV9S5oGJT2hLj64-3dyEmJOec_Zg0QrumrW_CP2MS_Pi3mxQmiOMEafDjpIORpMaScHE42h8jG4=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "The Analogues",
+        subscribers: Some(
+            "3.28K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCRYdAI0iN-PJY69Sz0_7IJA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/TTjF6U8A5L6l428HXI_BrpBpXEKrLBnOBemZCtHSobUAOtULRikFRnjkaGZbz8bHK_fKXPda9Rt7m6Y=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/TTjF6U8A5L6l428HXI_BrpBpXEKrLBnOBemZCtHSobUAOtULRikFRnjkaGZbz8bHK_fKXPda9Rt7m6Y=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Stars on 45",
+        subscribers: Some(
+            "28.5K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCY6PIZYIBoR2xhieIgMGZKA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/dw9YI-vH8i4fmikgUj3wXzHapLwZcZajZvHkrO-ggYZ13tKZtyUkDe-BCK0dLzyABpmiVTeeRyiRiUP3cQ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/dw9YI-vH8i4fmikgUj3wXzHapLwZcZajZvHkrO-ggYZ13tKZtyUkDe-BCK0dLzyABpmiVTeeRyiRiUP3cQ=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Blues Beatles",
+        subscribers: Some(
+            "1.83K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCJkVRAwjqPle_ghndYQsQfA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/jHoXILdqYEBA9_34Hf2yRAIaVvcCsao-me3NV-oxD2eYHjkrVpSF-qymXrxiQJWNOyo9sKPZKFvzS6DXEQ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/jHoXILdqYEBA9_34Hf2yRAIaVvcCsao-me3NV-oxD2eYHjkrVpSF-qymXrxiQJWNOyo9sKPZKFvzS6DXEQ=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "I Hate The Beatles",
+        subscribers: Some(
+            "196 subscribers",
+        ),
+        browse_id: ChannelID(
+            "UC5C_P9hl7q5P3EWdZxdH4RQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/y21AIzcDy-XwibH7DNzYLfFsVdUZeCE-63nQmkjMkFCDBO8a7bYWrLNwNWc98WeQRrTFewfH5UY7tLu3=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/y21AIzcDy-XwibH7DNzYLfFsVdUZeCE-63nQmkjMkFCDBO8a7bYWrLNwNWc98WeQRrTFewfH5UY7tLu3=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Ringo Starr",
+        subscribers: Some(
+            "229K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCJWrY1uIUlnGvs0sUz5ydwQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/ND8Ly3CII-7CzLNAwcCs8JM9UrghC-7UbAGNFjtvUpJ1Z1f9pp2tf2QAvIE9uZglPf4onl4SBnNqdfwM=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/ND8Ly3CII-7CzLNAwcCs8JM9UrghC-7UbAGNFjtvUpJ1Z1f9pp2tf2QAvIE9uZglPf4onl4SBnNqdfwM=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "1964 the Tribute",
+        subscribers: Some(
+            "271 subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCXWmOLenQ4_6oCzQBgCeC8g",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/JWZ5vFot40dgGmp7r62RgJHKTBXZUE6QP2FjjiwYwH_S2EQZeayuBI7OqZaTiSbmq63r5FwiNuiE0VnF=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/JWZ5vFot40dgGmp7r62RgJHKTBXZUE6QP2FjjiwYwH_S2EQZeayuBI7OqZaTiSbmq63r5FwiNuiE0VnF=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Oasis",
+        subscribers: Some(
+            "3.42M subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCmMUZbaYdNH0bEd1PAlAqsA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/FmjOEUfSlCYS5m-Q6IrKH6eZCl8GBceMpmNW7LKx7G-cmUqCqz27_gAgQ3QhbuPOGePRuvOpiA=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/FmjOEUfSlCYS5m-Q6IrKH6eZCl8GBceMpmNW7LKx7G-cmUqCqz27_gAgQ3QhbuPOGePRuvOpiA=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Linda McCartney",
+        subscribers: Some(
+            "6.94K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCLLVHpNblwdDcq8QSB07uhA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/jMoN43715EWFEpZLRrFVgbweospkIUXPcz5mCKga887CoRW2nltkb1_hIx9nCM2UlIeFhRXY4bUmFDA=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/jMoN43715EWFEpZLRrFVgbweospkIUXPcz5mCKga887CoRW2nltkb1_hIx9nCM2UlIeFhRXY4bUmFDA=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Karaoke/Tribute - The Beatles",
+        subscribers: Some(
+            "1.85K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UC2D06idn3O0W9UBlCXDn5ww",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/iOTUF1i0tGE5HRzW8BKQ9SgKH2aeL5pwVJNOfhkxsZuJ1-q3AAt3HCDV9hAjNQdffRQv30jJs36bZ9Na=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/iOTUF1i0tGE5HRzW8BKQ9SgKH2aeL5pwVJNOfhkxsZuJ1-q3AAt3HCDV9hAjNQdffRQv30jJs36bZ9Na=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Jeff Lynne",
+        subscribers: Some(
+            "8.93K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCx3s72oZ09wHS2UuWmFGJEw",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/rseeW56SQkJRwR5hRArau8ZR41ktZUdAG4tIYW_K0zRLu8xDeiPPMMr22FBxApvJKSPJ-8hO2UVfZS6U=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/rseeW56SQkJRwR5hRArau8ZR41ktZUdAG4tIYW_K0zRLu8xDeiPPMMr22FBxApvJKSPJ-8hO2UVfZS6U=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "The Rolling Stones",
+        subscribers: Some(
+            "3.13M subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCNYhhkQqeFLUc-YEDcLpSYQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/VayRnJfZC6MAdZZEkGa_O8Zegu9qoyhlwcYA73fFqRAr5C8no_DLdMqGY3LXtdDQFX91V4GMWrtnjmk=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/VayRnJfZC6MAdZZEkGa_O8Zegu9qoyhlwcYA73fFqRAr5C8no_DLdMqGY3LXtdDQFX91V4GMWrtnjmk=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Tony Sheridan",
+        subscribers: Some(
+            "1.75K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UC3zG71a_GbDfpblpiuFCL9A",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/XDvLnohlWWONbpOZe7mrwZBiyUGqIsdwJcppszsFSH0eEZr_3U2p0Cllm6PHveaD6EpRDl1fS80Gricc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/XDvLnohlWWONbpOZe7mrwZBiyUGqIsdwJcppszsFSH0eEZr_3U2p0Cllm6PHveaD6EpRDl1fS80Gricc=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "The Quarrymen",
+        subscribers: Some(
+            "5.49K subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCm_5Rfq0-eFFIPfLIcB9KNQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/BvxPuIUaNF15kH7w7b1mJrDdw6Whg4Pfgq9R88jF-jjlShH5A8FF4ZawTa7hZD_Ac_Z7NO2SVUU5HGU=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/BvxPuIUaNF15kH7w7b1mJrDdw6Whg4Pfgq9R88jF-jjlShH5A8FF4ZawTa7hZD_Ac_Z7NO2SVUU5HGU=w120-h120-l90-rj",
+            },
+        ],
+    },
+    SearchResultArtist {
+        artist: "Sex Beatles",
+        subscribers: Some(
+            "91 subscribers",
+        ),
+        browse_id: ChannelID(
+            "UCfgboBe5iXZu85FwT_gBAHQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Ir42vshT49VdT_7cVpv63S19M4ycBNiYTR5dSnU0ClVlJz7qXG90ckwDTRgiJIHUad3BKTmFVsP6izCnCA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Ir42vshT49VdT_7cVpv63S19M4ycBNiYTR5dSnU0ClVlJz7qXG90ckwDTRgiJIHUad3BKTmFVsP6izCnCA=w120-h120-l90-rj",
+            },
+        ],
+    },
+]
