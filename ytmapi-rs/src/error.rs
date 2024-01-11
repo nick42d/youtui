@@ -1,5 +1,4 @@
 //! Module to contain code related to errors that could be produced by the API.
-//! This module aims to wrap any non-std crates to avoid leaking dependencies.
 use core::fmt::{Debug, Display};
 use std::{io, sync::Arc};
 
@@ -9,170 +8,196 @@ pub type Result<T> = core::result::Result<T, Error>;
 /// This type represents all errors this API could produce.
 pub struct Error {
     // This is boxed to avoid passing around very large errors - in the case of an Api error we want to provide the source file to the caller.
-    inner: Box<Inner>,
+    inner: Box<ErrorKind>,
 }
 
-enum Inner {
-    // Wrapper for reqwest::Error currently
+/// The kind of the error.
+pub enum ErrorKind {
+    /// General web error.
+    // TODO: improve and avoid leaking reqwest::Error
     Web(reqwest::Error),
-    // Wrapper for std::io::Error currently
+    /// General io error.
+    // TODO: improve
     Io(io::Error),
     // Api was not in the expected format for the library (e.g, expected an array).
     // TODO: Add query type to error.
+    /// Field of the JSON file was not in the expected format.
     Parsing {
-        // The target path (JSON pointer notation) that we tried to parse.
+        /// The target path (JSON pointer notation) that we tried to parse.
         key: String,
-        // The source json from Innertube that we were trying to parse.
+        /// The source json from Innertube that we were trying to parse.
         // NOTE: API could theoretically produce multiple errors referring to the same source json.
         // Hence reference counted, Arc particularly to ensure Error is thread safe.
         json: Arc<String>,
+        /// The format we were trying to parse into.
         target: ParseTarget,
     },
-    // Expected key did not occur in the JSON file.
+    /// Expected key did not occur in the JSON file.
     Navigation {
-        // The target path (JSON pointer notation) that we tried to parse.
+        /// The target path (JSON pointer notation) that we tried to parse.
         key: String,
-        // The source json from Innertube.
+        /// The source json from Innertube.
         // NOTE: API could theoretically produce multiple errors referring to the same source json.
         // Hence reference counted, Arc particularly to ensure Error is thread safe.
         json: Arc<String>,
     },
-    // TODO: Add more detail.
-    // Guessing this means we got an invalid response from Innertube.
-    // Currently looks to be getting returned when we fail to deserialize the JSON initially.
+    /// Received a response from InnerTube that was not in the expected (JSON) format.
     InvalidResponse {
         response: String,
     },
-    // XXX: Seems to get returned when Innertube Browser Authentication Response doesn't contain the required fields.
+    /// InnerTube credential header not in expected format.
     Header,
     Other(String), // Generic catchall - TODO: Remove all of these.
     UnableToSerializeGoogleOAuthToken {
         response: String,
         err: serde_json::Error,
     },
+    /// InnerTube rejected the User Agent we are using.
+    InvalidUserAgent(String),
+    /// Failed to authenticate using Browse Auth credentials (may have expired, or been incorrectly provided).
     BrowserAuthenticationFailed,
+    /// OAuthToken has expired.
     OAuthTokenExpired,
-    // Received an error code in the JSON message from Innertube.
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
+    /// Recieved an error code in the Json reply from InnerTube.
     OtherErrorCodeInResponse(u64),
 }
+/// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
 pub enum ParseTarget {
     Array,
     String,
+    Enum,
 }
 impl Error {
-    pub fn oauth_token_expired() -> Self {
-        Self {
-            inner: Box::new(Inner::OAuthTokenExpired),
-        }
+    /// Extract the inner kind from the error for pattern matching.
+    pub fn into_kind(self) -> ErrorKind {
+        *self.inner
     }
-    pub fn is_oauth_expired(&self) -> bool {
-        if let Inner::OAuthTokenExpired = *self.inner {
+    // Only used for tests currently.
+    pub(crate) fn is_oauth_expired(&self) -> bool {
+        if let ErrorKind::OAuthTokenExpired = *self.inner {
             true
         } else {
             false
         }
     }
-    pub fn browser_authentication_failed() -> Self {
-        Self {
-            inner: Box::new(Inner::BrowserAuthenticationFailed),
-        }
-    }
-    pub fn is_browser_authentication_failed(&self) -> bool {
-        if let Inner::BrowserAuthenticationFailed = *self.inner {
+    // Only used for tests currently.
+    pub(crate) fn is_browser_authentication_failed(&self) -> bool {
+        if let ErrorKind::BrowserAuthenticationFailed = *self.inner {
             true
         } else {
             false
         }
     }
-    pub fn navigation<S: Into<String>>(key: S, json: Arc<String>) -> Self {
+    /// If an error is a Navigation or Parsing error, return the source Json and key at the location of the error.
+    pub fn get_json_and_key(&self) -> Option<(String, &String)> {
+        match self.inner.as_ref() {
+            ErrorKind::Navigation { json, key } => Some((json.to_string(), &key)),
+            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), &key)),
+            ErrorKind::Web(_)
+            | ErrorKind::Io(_)
+            | ErrorKind::InvalidResponse { .. }
+            | ErrorKind::Header
+            | ErrorKind::Other(_)
+            | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
+            | ErrorKind::OtherErrorCodeInResponse(_)
+            | ErrorKind::OAuthTokenExpired
+            | ErrorKind::BrowserAuthenticationFailed
+            | ErrorKind::InvalidUserAgent(_) => None,
+        }
+    }
+    pub(crate) fn invalid_user_agent<S: Into<String>>(user_agent: S) -> Self {
         Self {
-            inner: Box::new(Inner::Navigation {
+            inner: Box::new(ErrorKind::InvalidUserAgent(user_agent.into())),
+        }
+    }
+    pub(crate) fn oauth_token_expired() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::OAuthTokenExpired),
+        }
+    }
+    pub(crate) fn browser_authentication_failed() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::BrowserAuthenticationFailed),
+        }
+    }
+    pub(crate) fn navigation<S: Into<String>>(key: S, json: Arc<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::Navigation {
                 key: key.into(),
                 json,
             }),
         }
     }
-    pub fn parsing<S: Into<String>>(key: S, json: Arc<String>, target: ParseTarget) -> Self {
+    pub(crate) fn parsing<S: Into<String>>(key: S, json: Arc<String>, target: ParseTarget) -> Self {
         Self {
-            inner: Box::new(Inner::Parsing {
+            inner: Box::new(ErrorKind::Parsing {
                 key: key.into(),
                 json,
                 target,
             }),
         }
     }
-    pub fn header() -> Self {
+    pub(crate) fn header() -> Self {
         Self {
-            inner: Box::new(Inner::Header),
+            inner: Box::new(ErrorKind::Header),
         }
     }
-    pub fn response<S: Into<String>>(response: S) -> Self {
+    pub(crate) fn response<S: Into<String>>(response: S) -> Self {
         let response = response.into();
         Self {
-            inner: Box::new(Inner::InvalidResponse { response }),
+            inner: Box::new(ErrorKind::InvalidResponse { response }),
         }
     }
-    pub fn unable_to_serialize_oauth<S: Into<String>>(response: S, err: serde_json::Error) -> Self {
+    pub(crate) fn unable_to_serialize_oauth<S: Into<String>>(
+        response: S,
+        err: serde_json::Error,
+    ) -> Self {
         let response = response.into();
         Self {
-            inner: Box::new(Inner::UnableToSerializeGoogleOAuthToken { response, err }),
+            inner: Box::new(ErrorKind::UnableToSerializeGoogleOAuthToken { response, err }),
         }
     }
-    pub fn other<S: Into<String>>(msg: S) -> Self {
+    pub(crate) fn other<S: Into<String>>(msg: S) -> Self {
         Self {
-            inner: Box::new(Inner::Other(msg.into())),
+            inner: Box::new(ErrorKind::Other(msg.into())),
         }
     }
-    pub fn other_code(code: u64) -> Self {
+    pub(crate) fn other_code(code: u64) -> Self {
         Self {
-            inner: Box::new(Inner::OtherErrorCodeInResponse(code)),
-        }
-    }
-    pub fn get_json_and_key(&self) -> Option<(String, &String)> {
-        match self.inner.as_ref() {
-            Inner::Navigation { json, key } => Some((json.to_string(), &key)),
-            Inner::Parsing { json, key, .. } => Some((json.to_string(), &key)),
-            Inner::Web(_)
-            | Inner::Io(_)
-            | Inner::InvalidResponse { .. }
-            | Inner::Header
-            | Inner::Other(_)
-            | Inner::UnableToSerializeGoogleOAuthToken { .. }
-            | Inner::OtherErrorCodeInResponse(_) => None,
-            Inner::OAuthTokenExpired => None,
-            Inner::BrowserAuthenticationFailed => None,
+            inner: Box::new(ErrorKind::OtherErrorCodeInResponse(code)),
         }
     }
 }
 
 impl std::error::Error for Error {}
-impl Display for Inner {
+impl Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Inner::Web(e) => write!(f, "Web error {e} received."),
-            Inner::Io(e) => write!(f, "IO error {e} recieved."),
-            Inner::Header => write!(f, "Error parsing header."),
-            Inner::InvalidResponse { response: _ } => {
+            ErrorKind::Web(e) => write!(f, "Web error {e} received."),
+            ErrorKind::Io(e) => write!(f, "IO error {e} recieved."),
+            ErrorKind::Header => write!(f, "Error parsing header."),
+            ErrorKind::InvalidResponse { response: _ } => {
                 write!(f, "Response is invalid json - unable to deserialize.")
             }
-            Inner::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
-            Inner::OtherErrorCodeInResponse(code) => {
+            ErrorKind::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
+            ErrorKind::OtherErrorCodeInResponse(code) => {
                 write!(f, "Http error code {code} recieved in response.")
             }
-            Inner::Navigation { key, json: _ } => {
+            ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")
             }
-            Inner::Parsing {
+            ErrorKind::Parsing {
                 key,
                 json: _,
                 target,
             } => write!(f, "Unable to parse into {:?} at {key}", target),
-            Inner::OAuthTokenExpired => write!(f, "OAuth token has expired"),
-            Inner::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
-            Inner::UnableToSerializeGoogleOAuthToken { response, err } => write!(
+            ErrorKind::OAuthTokenExpired => write!(f, "OAuth token has expired"),
+            ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
+            ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
+            ErrorKind::UnableToSerializeGoogleOAuthToken { response, err } => write!(
                 f,
                 "Unable to serialize Google auth token {}, received error {}",
                 response, err
@@ -196,14 +221,14 @@ impl Display for Error {
 impl From<reqwest::Error> for Error {
     fn from(e: reqwest::Error) -> Self {
         Self {
-            inner: Box::new(Inner::Web(e)),
+            inner: Box::new(ErrorKind::Web(e)),
         }
     }
 }
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Self {
-            inner: Box::new(Inner::Io(err)),
+            inner: Box::new(ErrorKind::Io(err)),
         }
     }
 }

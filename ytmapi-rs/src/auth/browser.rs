@@ -94,17 +94,18 @@ impl AuthToken for BrowserToken {
 impl BrowserToken {
     pub async fn from_str(cookie_str: &str, client: &Client) -> Result<Self> {
         let cookies = cookie_str.trim().to_string();
+        let user_agent = USER_AGENT;
         let response = client
             .get(YTM_URL)
             .header(reqwest::header::COOKIE, &cookies)
-            .header(reqwest::header::USER_AGENT, USER_AGENT)
+            .header(reqwest::header::USER_AGENT, user_agent)
             .send()
             .await?
             .text()
             .await?;
         // parse for user agent issues here.
         if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
-            return Err(Error::other("Expired User Agent"));
+            return Err(Error::invalid_user_agent(user_agent));
         };
         // TODO: Better error.
         let client_version = response
