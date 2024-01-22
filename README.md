@@ -12,7 +12,8 @@ This project is not supported or endorsed by Google.
 # Demo
 [![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
 # How to install and run
-1. The easiest way to install is using crates.io by running `cargo +nightly install youtui`. (Nightly Rust is required to allow async methods in API trait, and this is expected to stabilise shortly.)
+1. The easiest way to install is using crates.io by running `cargo install youtui`.
+    1. Alternatively, youtui is now available in the AUR, install using your favourite helper (e.g `paru -S youtui`).
 1. Give the application an authorisation header:
     1. Open YouTube Music in your browser - ensure you are logged in.
     1. Open web developer tools (F12).
@@ -46,7 +47,7 @@ Chrome example (Select manually and paste):
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
 - [ ] Logging to a file (target for 0.0.5)
-- [ ] Release to AUR (target for 0.0.4)
+- [x] Release to AUR (target for 0.0.4)
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Dbus support for media keys
 - [ ] Seeking
