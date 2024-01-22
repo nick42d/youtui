@@ -10,7 +10,7 @@ license=('MIT')
 depends=('alsa-lib' 'openssl')
 makedepends=('cargo')
 source=("$pkgname-$pkgver.tar.gz::https://static.crates.io/crates/$pkgname/$pkgname-$pkgver.crate")
-sha256sums=('')
+sha256sums=('ccd55ed8eb9995f8be06dedbbf589f337842d40dfe87a12ea5131eacd852e6a5')
 
 prepare() {
   cd $pkgname-$pkgver
@@ -34,6 +34,6 @@ check() {
 
 package() {
   cd $pkgname-$pkgver
-  install -Dm0644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dm0644 LICENSE.txt -t "$pkgdir/usr/share/licenses/$pkgname"
   install -Dm0755 -t "$pkgdir/usr/bin/" "target/release/$pkgname"
 }
