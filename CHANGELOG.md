@@ -1,7 +1,9 @@
 # v0.0.4
 - Removed nightly requirement.
-- Updated to latest version of API.
+- Updated to latest version of API and bumped some other dependencies.
 - Added pkgbuild for AUR.
+## Bugfixes
+- Resolved #16.
 # v0.0.3
 Features
 - Added filtering for browser.

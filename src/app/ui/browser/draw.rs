@@ -28,10 +28,11 @@ pub fn draw_browser(
     album_songs_table_state: &mut TableState,
     selected: bool,
 ) {
-    let layout = Layout::new()
-        .constraints([Constraint::Max(30), Constraint::Min(0)])
-        .direction(ratatui::prelude::Direction::Horizontal)
-        .split(chunk);
+    let layout = Layout::new(
+        ratatui::prelude::Direction::Horizontal,
+        [Constraint::Max(30), Constraint::Min(0)],
+    )
+    .split(chunk);
     // Potentially could handle this better.
     let albumsongsselected = selected
         && browser.input_routing == InputRouting::Song

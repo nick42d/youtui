@@ -2487,17 +2487,18 @@ dependencies = [
 
 [[package]]
 name = "ratatui"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ebc917cfb527a566c37ecb94c7e3fd098353516fb4eb6bea17015ade0182425"
+checksum = "a5659e52e4ba6e07b2dad9f1158f578ef84a73762625ddb51536019f34d180eb"
 dependencies = [
  "bitflags 2.4.1",
  "cassowary",
  "crossterm",
  "indoc",
- "itertools 0.11.0",
+ "itertools 0.12.0",
  "lru",
  "paste",
+ "stability",
  "strum",
  "time",
  "unicode-segmentation",
@@ -3030,6 +3031,16 @@ name = "sptr"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b9b39299b249ad65f3b7e96443bad61c02ca5cd3589f46cb6d610a0fd6c0d6a"
+
+[[package]]
+name = "stability"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebd1b177894da2a2d9120208c3386066af06a488255caabc5de8ddca22dbc3ce"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "stable_deref_trait"
@@ -3610,9 +3621,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "tui-logger"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8534ddd1aab94e4f52ce82dfc886cc55ca1fdf0c843e5a0b8dfee37673254e88"
+checksum = "426be87a7a18b7da1a3f93785e0ffbba7bbdb81bc4c7c80118a48cc3d1a26180"
 dependencies = [
  "chrono",
  "crossterm",
@@ -4165,7 +4176,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "clap",
  "crossterm",

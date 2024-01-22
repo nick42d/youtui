@@ -1,4 +1,4 @@
-use super::view::{Scrollable, SortDirection, TableItem};
+use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;

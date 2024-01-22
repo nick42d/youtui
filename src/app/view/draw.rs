@@ -115,7 +115,7 @@ where
         1,
     ); // Minus block
     let heading_names = table.get_headings();
-    let table_widget = Table::new(table_items)
+    let table_widget = Table::new(table_items, table_widths)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(heading_names).style(
@@ -124,7 +124,6 @@ where
                     .fg(TABLE_HEADINGS_COLOUR),
             ),
         )
-        .widths(table_widths.as_slice())
         .column_spacing(1);
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)
@@ -200,7 +199,7 @@ pub fn draw_sortable_table<T>(
     } else {
         filter_str
     };
-    let table_widget = Table::new(table_items)
+    let table_widget = Table::new(table_items, table_widths)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(combined_headings).style(
@@ -209,7 +208,6 @@ pub fn draw_sortable_table<T>(
                     .fg(TABLE_HEADINGS_COLOUR),
             ),
         )
-        .widths(table_widths.as_slice())
         .column_spacing(1);
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
         .thumb_symbol(block::FULL)

@@ -36,8 +36,8 @@ Chrome example (Select manually and paste):
   - `libssl-dev` (Ubuntu)
   - `openssl-devel` (Fedora)
 # Limitations
+- Github version number and tags are only relevant for the binary component of the application. For the latest release version of ytmapi-rs, please refer to crates.io.
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
-- The Ytmapi-rs library is currently undocumented. It is published to crates.io due to Cargo limitations.
 - The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
 # Roadmap
 ## Application

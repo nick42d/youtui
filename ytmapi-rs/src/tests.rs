@@ -1,11 +1,10 @@
-use super::common::{ChannelID};
+use super::common::ChannelID;
 use super::query::*;
 use super::*;
 use crate::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use crate::Error;
 
 use std::env;
-
 
 const COOKIE_PATH: &str = "cookie.txt";
 const EXPIRED_OAUTH_PATH: &str = "oauth.json";

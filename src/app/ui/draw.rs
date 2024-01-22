@@ -91,14 +91,12 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
         Constraint::Min(shortcut_len.try_into().unwrap_or(u16::MAX)),
         Constraint::Min(description_len.try_into().unwrap_or(u16::MAX)),
     ];
-    let block = Table::new(commands_vec)
-        .block(
-            Block::default()
-                .title(title.as_ref())
-                .borders(Borders::ALL)
-                .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
-        )
-        .widths(&table_constraints);
+    let block = Table::new(commands_vec, table_constraints).block(
+        Block::default()
+            .title(title.as_ref())
+            .borders(Borders::ALL)
+            .style(Style::new().fg(SELECTED_BORDER_COLOUR)),
+    );
     let area = left_bottom_corner_rect(
         height.try_into().unwrap_or(u16::MAX),
         width.try_into().unwrap_or(u16::MAX),
@@ -193,7 +191,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
     let headings_iter = headings.iter().map(|h| *h);
-    let table_widget = Table::new(table_items)
+    let table_widget = Table::new(table_items, layout)
         .highlight_style(highlight_style())
         .header(
             Row::new(headings_iter).style(
@@ -202,7 +200,6 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
                     .fg(TABLE_HEADINGS_COLOUR),
             ),
         )
-        .widths(layout)
         .column_spacing(1);
     // TODO: Don't display scrollbar if all items fit on the screen.
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
