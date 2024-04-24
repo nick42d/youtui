@@ -22,3 +22,8 @@ chrono = "0.4.31"
 
 [dev-dependencies]
 pretty_assertions = "1"
+
+[features]
+default-tls = ["reqwest/default-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
