@@ -13,5 +13,5 @@
 /target/*
 .vscode/
 *.webm
-/ytmapi-rs/Cargo.toml
+/ytmapi-rs/Cargo.lock
 /ytmapi-rs/target
