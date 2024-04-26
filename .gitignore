@@ -15,4 +15,3 @@
 *.webm
 /ytmapi-rs/Cargo.toml
 /ytmapi-rs/target
-Cargo.lock
