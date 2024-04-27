@@ -11,7 +11,12 @@ readme = "README.md"
 
 [dependencies]
 tokio = {version = "1.29.1", features = ["full"]}
-reqwest = {version = "0.12.1", features = ["json"]}
+# To allow alternative TLS options, we need to opt out of a single reqwest feature.
+# This isn't possible in Cargo, so we need to opt back into the other default features.
+# https://github.com/rust-lang/cargo/issues/3126
+# As of 26/4/24 the following are reqwest default features:
+# http2, default-tls, charset
+reqwest = {version = "0.12.1", features = ["json", "http2", "charset"], default-features = false}
 serde = {version = "1.0.164", features = ["derive"]}
 serde_json = "1.0.99"
 sha1 = "0.10.5"
@@ -22,3 +27,15 @@ chrono = "0.4.31"
 
 [dev-dependencies]
 pretty_assertions = "1"
+
+[features]
+# Provide alternative TLS options, but use reqwest's default by default.
+# NOTE: To use an alternative TLS, you will need to specify default-features = false
+# As reqwest preferentially uses default-tls when multiple TLS features are enabled.
+# See reqwest docs for more information.
+# https://docs.rs/reqwest/latest/reqwest/tls/index.html
+# TODO: Implement builder functions that allow us to ensure we use a specific TLS.
+default = ["default-tls"]
+default-tls = ["reqwest/default-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
