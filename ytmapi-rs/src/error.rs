@@ -12,6 +12,8 @@ pub struct Error {
 }
 
 /// The kind of the error.
+/// This list may grow over time, and it's not recommended to exhaustively match on it.
+#[non_exhaustive]
 pub enum ErrorKind {
     /// General web error.
     // TODO: improve and avoid leaking reqwest::Error
