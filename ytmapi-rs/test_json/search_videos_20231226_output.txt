@@ -1,5 +1,5 @@
 [
-    SearchResultVideo {
+    Video {
         title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
         channel_name: "Music Collection",
         video_id: VideoID(
@@ -15,7 +15,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Now And Then",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -31,7 +31,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles / 1967 - 1970 (2023 Edition - The Blue Album) [PART 2 - FULL ALBUM] ☆☆☆☆☆",
         channel_name: "Atypeek Mag",
         video_id: VideoID(
@@ -47,7 +47,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Now And Then",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -63,7 +63,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Now And Then - The Last Beatles Song (Short Film)",
         channel_name: "TheBeatlesVEVO",
         video_id: VideoID(
@@ -79,7 +79,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Don't Let Me Down [blank]",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -95,7 +95,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles - The Beatles / 1967-1970 (2023 Mix) VOL.2 [FULL ALBUM] ☆☆☆☆☆",
         channel_name: "Atypeek Mag",
         video_id: VideoID(
@@ -111,7 +111,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles (Live At Circus Krone, Munich, Germany 1966)",
         channel_name: "Live Akustik",
         video_id: VideoID(
@@ -127,7 +127,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Beyond Borders - Beatles go Egypt - I Want you",
         channel_name: "Beyond Borders",
         video_id: VideoID(
@@ -143,7 +143,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Best The Beatles Songs Collection - The Beatles Greatest Hits Full Album 2021",
         channel_name: "Music Que",
         video_id: VideoID(
@@ -159,7 +159,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Something (Studio Demo / Audio)",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -175,7 +175,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Yellow Submarine",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -191,7 +191,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Oh! Darling (Take 4 / Audio)",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -207,7 +207,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Something (Take 39 / Instrumental / Strings Only / Audio)",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -223,7 +223,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Hey Jude [blank]",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -239,7 +239,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles - Now And Then | Epic Orchestra",
         channel_name: "Epic Orchestra",
         video_id: VideoID(
@@ -255,7 +255,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles - Hey Jude (Lyrics)",
         channel_name: "Weather",
         video_id: VideoID(
@@ -271,7 +271,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "Back In The U.S.S.R. (Esher Demo / Audio)",
         channel_name: "The Beatles",
         video_id: VideoID(
@@ -287,7 +287,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles - Now And Then (Music Video)",
         channel_name: "TheFreddyShow",
         video_id: VideoID(
@@ -303,7 +303,7 @@
             },
         ],
     },
-    SearchResultVideo {
+    Video {
         title: "The Beatles - Don't Let Me Down Take 1 | Rooftop Concert",
         channel_name: "jose navea",
         video_id: VideoID(
