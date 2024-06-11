@@ -359,19 +359,71 @@ fn parse_video_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultVideo> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let channel_name = parse_item_text(&mut mrlir, 1, 0)?;
-    let views = parse_item_text(&mut mrlir, 1, 2)?;
-    let length = parse_item_text(&mut mrlir, 1, 4)?;
-    let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
-    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-    Ok(SearchResultVideo {
-        title,
-        channel_name,
-        views,
-        length,
-        thumbnails,
-        video_id,
-    })
+    let first_field = parse_item_text(&mut mrlir, 1, 0)?;
+    // Handle video podcasts - seems to be 2 different ways to display these.
+    match first_field.as_str() {
+        "Video" => {
+            let channel_name = parse_item_text(&mut mrlir, 1, 2)?;
+            let views = parse_item_text(&mut mrlir, 1, 4)?;
+            let length = parse_item_text(&mut mrlir, 1, 6)?;
+            let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+            let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+            return Ok(SearchResultVideo::Video {
+                title,
+                channel_name,
+                views,
+                length,
+                thumbnails,
+                video_id,
+            });
+        }
+        "Episode" => {
+            //TODO: Handle live episode
+            let date = EpisodeDate::Recorded {
+                date: parse_item_text(&mut mrlir, 1, 2)?,
+            };
+            let channel_name = parse_item_text(&mut mrlir, 1, 4)?;
+            let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+            let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+            return Ok(SearchResultVideo::VideoEpisode {
+                title,
+                channel_name,
+                date,
+                thumbnails,
+                video_id,
+            });
+        }
+        _ => {
+            // Assume that if a watch endpoint exists, it's a video.
+            if mrlir.path_exists("/flexColumns/0/musicResponsiveListItemFlexColumnRenderer/text/runs/0/navigationEndpoint/watchEndpoint") {
+
+            let views = parse_item_text(&mut mrlir, 1, 2)?;
+            let length = parse_item_text(&mut mrlir, 1, 4)?;
+            let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+            let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+            return Ok(SearchResultVideo::Video {
+                title,
+                channel_name: first_field,
+                views,
+                length,
+                thumbnails,
+                video_id,
+            });
+            } else {
+            let channel_name = parse_item_text(&mut mrlir, 1, 2)?;
+            let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+            let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
+            return Ok(SearchResultVideo::VideoEpisode {
+                title,
+                channel_name,
+            //TODO: Handle live episode
+                date: EpisodeDate::Recorded { date: first_field },
+                thumbnails,
+                video_id,
+            });
+            }
+        }
+    }
 }
 // TODO: Type safety
 // TODO: Tests
