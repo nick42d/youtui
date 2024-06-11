@@ -501,7 +501,7 @@ SearchResults {
         },
     ],
     videos: [
-        SearchResultVideo {
+        Video {
             title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
             channel_name: "Music Collection",
             video_id: VideoID(
@@ -517,7 +517,7 @@ SearchResults {
                 },
             ],
         },
-        SearchResultVideo {
+        Video {
             title: "The Beatles   The Beatles  1962   1966 2023 Mix VOL 1 FULL ALBUM ☆☆☆☆☆",
             channel_name: "No One",
             video_id: VideoID(
@@ -533,7 +533,7 @@ SearchResults {
                 },
             ],
         },
-        SearchResultVideo {
+        Video {
             title: "Now And Then",
             channel_name: "The Beatles",
             video_id: VideoID(
