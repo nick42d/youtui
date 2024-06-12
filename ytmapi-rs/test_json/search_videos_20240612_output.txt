@@ -1,0 +1,324 @@
+[
+    VideoEpisode {
+        title: "The Beatles Greatest Hits Full Album - Best The Beatles Songs Playlist",
+        date: Recorded {
+            date: "May 31",
+        },
+        channel_name: "Rock Melody",
+        video_id: VideoID(
+            "SVK_hDGgddM",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/SVK_hDGgddM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nM1J4c5pNjW_IcPfMF096UgvU7Bw",
+            },
+        ],
+    },
+    VideoEpisode {
+        title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
+        date: Recorded {
+            date: "Jan 31",
+        },
+        channel_name: "Rock Band ",
+        video_id: VideoID(
+            "0YrXgBgdabc",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/0YrXgBgdabc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nRlJOjuIzt8SeaLmo1AF3qJbX2ZQ",
+            },
+        ],
+    },
+    Video {
+        title: "BGM The Beatles in JAZZ 30  Greatest Hits - Relaxing Guitar Music for Studying, Working, Running",
+        channel_name: "Massimo Roberti",
+        video_id: VideoID(
+            "y7gfL33XA70",
+        ),
+        views: "185K views",
+        length: "1:33:40",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/y7gfL33XA70/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mg9Qpwby8WTWY_hYi5rF0JbK0o6Q",
+            },
+        ],
+    },
+    Video {
+        title: "8 HOURS of Beatles Lullabies for Babies ♫ Chalk Art",
+        channel_name: "McClung Music",
+        video_id: VideoID(
+            "YGwG1q5-AAs",
+        ),
+        views: "1.1M views",
+        length: "8:00:33",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/YGwG1q5-AAs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mE6BZpA-RsKIksBIkYnL1kgFx_hQ",
+            },
+        ],
+    },
+    Video {
+        title: "The Fab Four - Beatles Tribute Full Concert",
+        channel_name: "Joe Lucero",
+        video_id: VideoID(
+            "4rHiDArtjuM",
+        ),
+        views: "16M views",
+        length: "1:50:59",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/4rHiDArtjuM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mNNYy9zHV4oNjbSuwstZL7uqDgjQ",
+            },
+        ],
+    },
+    Video {
+        title: "Don't Let Me Down [blank]",
+        channel_name: "The Beatles",
+        video_id: VideoID(
+            "NCtzkaL2t_Y",
+        ),
+        views: "495M views",
+        length: "3:32",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/NCtzkaL2t_Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3leGajvuS0AoS4PeDMGdZPOJBw9rw",
+            },
+        ],
+    },
+    Video {
+        title: "Now And Then",
+        channel_name: "The Beatles",
+        video_id: VideoID(
+            "Opxhh9Oh3rg",
+        ),
+        views: "52M views",
+        length: "4:36",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Opxhh9Oh3rg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m_fXwdP9MEwcnf8ZtQgX2WgJ5pUg",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Live at Washington D.C. (Master Tape)",
+        channel_name: "Pepe_Java",
+        video_id: VideoID(
+            "TarF1_OIqMg",
+        ),
+        views: "579K views",
+        length: "38:11",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/TarF1_OIqMg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lTaGM2OwTD94EQudBmzHweeOA2zA",
+            },
+        ],
+    },
+    Video {
+        title: "Yesterday - The Beatles (Acoustic Karaoke)",
+        channel_name: "GUITARISTA",
+        video_id: VideoID(
+            "-IrjnHSi4UU",
+        ),
+        views: "521 views",
+        length: "2:20",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/-IrjnHSi4UU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kF7UiMbdJggKdEP7sE-xHaqsINNQ",
+            },
+        ],
+    },
+    Video {
+        title: "Let It Be",
+        channel_name: "The Beatles",
+        video_id: VideoID(
+            "CGj85pVzRJs",
+        ),
+        views: "5.5M views",
+        length: "4:03",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/CGj85pVzRJs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nLsAc077mgRPVqYJEdUP97ogx6zQ",
+            },
+        ],
+    },
+    Video {
+        title: "Hey Jude [blank]",
+        channel_name: "The Beatles",
+        video_id: VideoID(
+            "A_MjCqQoLLA",
+        ),
+        views: "389M views",
+        length: "8:10",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/A_MjCqQoLLA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lBbkuyY7UKcfsFCUDm1_xkAeo5Lw",
+            },
+        ],
+    },
+    Video {
+        title: "Here Comes The Sun (2019 Mix)",
+        channel_name: "The Beatles",
+        video_id: VideoID(
+            "KQetemT1sWc",
+        ),
+        views: "149M views",
+        length: "3:12",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/KQetemT1sWc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m-nPn8oEeGkbLKqgRTPRuGDKXRxg",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
+        channel_name: "Music Collection",
+        video_id: VideoID(
+            "l9ZhYl11TpM",
+        ),
+        views: "3.1M views",
+        length: "59:55",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/l9ZhYl11TpM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nxfODqmYmLj0cDI5sN-EWn_VCI2g",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Roll Over Beethoven - VARA TV (The Netherlands, 1964).",
+        channel_name: "BeatleAlex",
+        video_id: VideoID(
+            "itDGOUqTsW8",
+        ),
+        views: "623K views",
+        length: "3:07",
+        thumbnails: [
+            Thumbnail {
+                height: 180,
+                width: 320,
+                url: "https://i.ytimg.com/vi/itDGOUqTsW8/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3lHr8NEMqYSP5A0UdBdB6Y3XpIwIw",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Here Comes The Sun (Remastered 2009)",
+        channel_name: "Galactoicerebrósido",
+        video_id: VideoID(
+            "tDEzmaZHuS0",
+        ),
+        views: "156K views",
+        length: "3:10",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/tDEzmaZHuS0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mo2ZMstqOZPr6mdcieUPLaQHG2kg",
+            },
+        ],
+    },
+    Video {
+        title: "Best Live Songs Of The Beatles",
+        channel_name: "You Rock Productions",
+        video_id: VideoID(
+            "uJK4r1p9d90",
+        ),
+        views: "5.9M views",
+        length: "23:00",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/uJK4r1p9d90/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m0j_39neaT7vtyiMuVGMSEIQ1K5Q",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles 'Come Together' | 2024 Remix,  Separated Vocals & Centered Drums For A Fresh New Listen",
+        channel_name: "britt2001b",
+        video_id: VideoID(
+            "S_GEQsm_MdA",
+        ),
+        views: "9K views",
+        length: "4:31",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/S_GEQsm_MdA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n1dWuXE57ezNGdiD0AasU_r-CU-Q",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Blackbird (lyrics)",
+        channel_name: "Lauren",
+        video_id: VideoID(
+            "7epRPz0LGPE",
+        ),
+        views: "5.5M views",
+        length: "2:19",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/7epRPz0LGPE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lPc5BTJ-9Fjo_RKWx8lwuvyYlYHQ",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Live in Australia 1964 - Full concert",
+        channel_name: "zoon_video",
+        video_id: VideoID(
+            "1aU8Of01izY",
+        ),
+        views: "1.3M views",
+        length: "25:53",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/1aU8Of01izY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nDuuYqRh46DhMAl6kG_gB07x1YcA",
+            },
+        ],
+    },
+    Video {
+        title: "The Beatles - Help! [Blackpool Night Out, ABC Theatre, Blackpool, United Kingdom]",
+        channel_name: "HDBeatles",
+        video_id: VideoID(
+            "CTsB-llTzyc",
+        ),
+        views: "38M views",
+        length: "3:04",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/CTsB-llTzyc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nzTbQcSVtsTY4tGw9GcEOg5t0OaQ",
+            },
+        ],
+    },
+]
