@@ -175,17 +175,29 @@ pub struct SearchResultEpisode {
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A video search result.
-pub struct SearchResultVideo {
-    pub title: String,
-    /// Note: Either Youtube channel name, or artist name.
-    // Potentially can include link to channel.
-    pub channel_name: String,
-    pub video_id: VideoID<'static>,
-    pub views: String,
-    pub length: String,
-    pub thumbnails: Vec<Thumbnail>,
+/// A video search result. May be a video or a video episode of a podcast.
+pub enum SearchResultVideo {
+    Video {
+        title: String,
+        /// Note: Either Youtube channel name, or artist name.
+        // Potentially can include link to channel.
+        channel_name: String,
+        video_id: VideoID<'static>,
+        views: String,
+        length: String,
+        thumbnails: Vec<Thumbnail>,
+    },
+    VideoEpisode {
+        // Potentially asame as SearchResultEpisode
+        title: String,
+        date: EpisodeDate,
+        channel_name: String,
+        video_id: VideoID<'static>,
+        // Potentially can include link to channel.
+        thumbnails: Vec<Thumbnail>,
+    },
 }
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A profile search result.
 pub struct SearchResultProfile {
