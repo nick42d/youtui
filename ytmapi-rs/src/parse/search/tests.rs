@@ -101,8 +101,10 @@ async fn test_basic_search() {
 }
 #[tokio::test]
 async fn test_basic_search_with_vodcasts_type_not_specified() {
-    let source_path = Path::new("./test_json/search_basic_with_vodcasts_type_not_specified.json");
-    let expected_path = Path::new("./test_json/search_basic_with_vodcasts_type_not_specified.txt");
+    let source_path =
+        Path::new("./test_json/search_basic_with_vodcasts_type_not_specified_20240612.json");
+    let expected_path =
+        Path::new("./test_json/search_basic_with_vodcasts_type_not_specified_20240612_output.txt");
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
@@ -220,8 +222,8 @@ async fn test_search_videos() {
 #[tokio::test]
 async fn test_search_videos_2024() {
     // Vodcasts were added for this version
-    let source_path = Path::new("./test_json/search_videos_20240611.json");
-    let expected_path = Path::new("./test_json/search_videos_20240611.txt");
+    let source_path = Path::new("./test_json/search_videos_20240612.json");
+    let expected_path = Path::new("./test_json/search_videos_20240612_output.txt");
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
