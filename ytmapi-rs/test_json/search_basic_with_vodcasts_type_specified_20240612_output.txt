@@ -1,0 +1,774 @@
+SearchResults {
+    top_results: [
+        TopResult {
+            result_name: "The Beatles",
+            result_type: Some(
+                Artist,
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w120-h120-p-l90-rj",
+                },
+            ],
+            artist: None,
+            album: None,
+            duration: None,
+            year: None,
+            subscribers: Some(
+                "8.32M subscribers",
+            ),
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "Come Together (Remastered 2009)",
+            result_type: Some(
+                Song,
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            artist: Some(
+                "The Beatles",
+            ),
+            album: Some(
+                "Abbey Road",
+            ),
+            duration: Some(
+                "4:20",
+            ),
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "Norwegian Wood (This Bird Has Flown) (Remastered 2009)",
+            result_type: Some(
+                Song,
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            artist: Some(
+                "The Beatles",
+            ),
+            album: Some(
+                "Rubber Soul",
+            ),
+            duration: Some(
+                "2:05",
+            ),
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "Get Back (Rooftop Performance)",
+            result_type: Some(
+                Album(
+                    Album,
+                ),
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/ZMbbfFua2T4giKdxPw32r1LAOqJit-yhjneipMCSl07-WCHmx6Gz5lENjMh7jZ_-0K3KVR7FLb5HUQ=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/ZMbbfFua2T4giKdxPw32r1LAOqJit-yhjneipMCSl07-WCHmx6Gz5lENjMh7jZ_-0K3KVR7FLb5HUQ=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/ZMbbfFua2T4giKdxPw32r1LAOqJit-yhjneipMCSl07-WCHmx6Gz5lENjMh7jZ_-0K3KVR7FLb5HUQ=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/ZMbbfFua2T4giKdxPw32r1LAOqJit-yhjneipMCSl07-WCHmx6Gz5lENjMh7jZ_-0K3KVR7FLb5HUQ=w544-h544-l90-rj",
+                },
+            ],
+            artist: Some(
+                "The Beatles",
+            ),
+            album: None,
+            duration: None,
+            year: Some(
+                "2022",
+            ),
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+    ],
+    artists: [
+        SearchResultArtist {
+            artist: "John Lennon",
+            subscribers: Some(
+                "2.17M subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCcSL2nYSJp_IgdzH0xBBdcg",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "George Harrison",
+            subscribers: Some(
+                "956K subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCGVnHHo1u7Xfyht_psktcUQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/a-/ALV-UjVjKbwkJvnfjYY0SLxOC3amOqjfqCyTbgqubc-JGo2q0sT8KhYi=w60-h60-l90-rj-dclZaASboF",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/a-/ALV-UjVjKbwkJvnfjYY0SLxOC3amOqjfqCyTbgqubc-JGo2q0sT8KhYi=w120-h120-l90-rj-dclZaASboF",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Paul McCartney",
+            subscribers: Some(
+                "1.3M subscribers",
+            ),
+            browse_id: ChannelID(
+                "UC0guXwTSf4hAOvCSgmViojw",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/2Z1KGtSXh-zHQbaH0wgnrSQe8cHk64dvxAyqgRaFCFviMLwms2ZdhKIFC5EgW36_GKKVI8yNUj6OQ_Of=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/2Z1KGtSXh-zHQbaH0wgnrSQe8cHk64dvxAyqgRaFCFviMLwms2ZdhKIFC5EgW36_GKKVI8yNUj6OQ_Of=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+    ],
+    albums: [
+        SearchResultAlbum {
+            title: "The Beatles",
+            artist: "The Beatles",
+            year: "1968",
+            explicit: NotExplicit,
+            browse_id: ChannelID(
+                "MPREb_S5TiUIYvI78",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "The Beatles",
+            artist: "Abbey Road (Super Deluxe Edition)",
+            year: "1969",
+            explicit: NotExplicit,
+            browse_id: ChannelID(
+                "MPREb_tQfaWH32ovE",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "The Beatles",
+            artist: "The Beatles 1967 - 1970",
+            year: "1973",
+            explicit: NotExplicit,
+            browse_id: ChannelID(
+                "MPREb_LAgCGKzQToD",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    featured_playlists: [
+        SearchResultFeaturedPlaylist {
+            title: "Beatles Jukebox",
+            author: "Playlist",
+            songs: "YouTube Music",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_lHIiCEeknPkpJOowyykpfBu-ECJB9Q32I",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Sc6_hFRZfgjOvyTBA1N71YkqV1W2hUhFB2AFn8YAIevj58tKZoeuDHU9eH32DYQz6qTUNnLRgZB4onOX=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Sc6_hFRZfgjOvyTBA1N71YkqV1W2hUhFB2AFn8YAIevj58tKZoeuDHU9eH32DYQz6qTUNnLRgZB4onOX=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/Sc6_hFRZfgjOvyTBA1N71YkqV1W2hUhFB2AFn8YAIevj58tKZoeuDHU9eH32DYQz6qTUNnLRgZB4onOX=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/Sc6_hFRZfgjOvyTBA1N71YkqV1W2hUhFB2AFn8YAIevj58tKZoeuDHU9eH32DYQz6qTUNnLRgZB4onOX=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Presenting The Beatles",
+            author: "Playlist",
+            songs: "YouTube Music",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_nhetVOKK6_8JKmkKrLcfiXZAVWhNEAPC4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/jGf8Fhs5mcuymBGeSNt1XgIEo0yC9sBN7hwEBQ5x590ZO_dHu0XVtzTVBD_OkY5tYcwTywu9A9IZ4bI=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "'70s Lite Hits",
+            author: "Playlist",
+            songs: "YouTube Music",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_maC8_YA458CPC-VeeLpyPPJbj2mA9Y6lY",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/Fy78DamI5JWemzCYbJyTx8WJREjwPEyhbeQc0AxDjU3mZm8tBojsU75-1Rt2BM0SQa7VS7eQkdDYQA=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    community_playlists: [
+        SearchResultCommunityPlaylist {
+            title: "The Beatles greatest hits",
+            author: "Playlist",
+            views: "Danny boi",
+            playlist_id: PlaylistID(
+                "VLPLxI9rM7N2E01D8pIt0sYF-k5JY4OfAJDe",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s1200",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - Beatles 100 (Official Playlist)",
+            author: "Playlist",
+            views: "The Beatles",
+            playlist_id: PlaylistID(
+                "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "The Beatles - 30 Greatest Hits, Grandes Éxitos",
+            author: "Playlist",
+            views: "Play List Music",
+            playlist_id: PlaylistID(
+                "VLPL4iSbgi3WlCohRy6WQyQU09ihS9V1P7TR",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/tdKuGKJkmWXUokaEZfz2YRNMxP-4DvdKRdXCLqIkKEAc4P5f4NJxVmL0PcrDxzUqXNkZPLVUkQU=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/tdKuGKJkmWXUokaEZfz2YRNMxP-4DvdKRdXCLqIkKEAc4P5f4NJxVmL0PcrDxzUqXNkZPLVUkQU=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/tdKuGKJkmWXUokaEZfz2YRNMxP-4DvdKRdXCLqIkKEAc4P5f4NJxVmL0PcrDxzUqXNkZPLVUkQU=s1200",
+                },
+            ],
+        },
+    ],
+    songs: [
+        SearchResultSong {
+            title: "Blackbird (Remastered 2009)",
+            artist: "The Beatles",
+            album: "The Beatles",
+            duration: "2:19",
+            plays: "62M\u{a0}plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "Man4Xw8Xypo",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "The Long And Winding Road (Remastered 2009)",
+            artist: "The Beatles",
+            album: "Let It Be",
+            duration: "3:39",
+            plays: "30M\u{a0}plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "fR4HjTH_fTM",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Let It Be (Remastered 2009)",
+            artist: "The Beatles",
+            album: "Let It Be",
+            duration: "4:04",
+            plays: "273M\u{a0}plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "QDYfEBY9NM4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w120-h120-l90-rj",
+                },
+            ],
+        },
+    ],
+    videos: [
+        VideoEpisode {
+            title: "The Beatles Greatest Hits Full Album - Best The Beatles Songs Playlist",
+            date: Recorded {
+                date: "31 May",
+            },
+            channel_name: "Rock Melody",
+            video_id: VideoID(
+                "SVK_hDGgddM",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/SVK_hDGgddM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nM1J4c5pNjW_IcPfMF096UgvU7Bw",
+                },
+            ],
+        },
+        Video {
+            title: "Don't Let Me Down [blank]",
+            channel_name: "The Beatles",
+            video_id: VideoID(
+                "NCtzkaL2t_Y",
+            ),
+            views: "495M views",
+            length: "3:32",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/NCtzkaL2t_Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3leGajvuS0AoS4PeDMGdZPOJBw9rw",
+                },
+            ],
+        },
+        Video {
+            title: "Now And Then",
+            channel_name: "The Beatles",
+            video_id: VideoID(
+                "Opxhh9Oh3rg",
+            ),
+            views: "52M views",
+            length: "4:36",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/Opxhh9Oh3rg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m_fXwdP9MEwcnf8ZtQgX2WgJ5pUg",
+                },
+            ],
+        },
+    ],
+    podcasts: [
+        SearchResultPodcast {
+            title: "The Beatles by Naudo",
+            publisher: "Podcast",
+            podcast_id: PodcastID(
+                "MPSPPLsloW6jIqvqJzwZRz-jTohGxad-ybSroK",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEICDwQPCAASFo&rs=AMzJL3mtO3u00a5CBZB2NTn-2jMIOCbc8w",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEICHgQeCAASFo&rs=AMzJL3lZNyMIey5VGhWCfUQLJeT0loj-Uw",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3mk893UpkDJIrL3lVi4IlI3I_ChGg",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://i.ytimg.com/pl_c/PLsloW6jIqvqJzwZRz-jTohGxad-ybSroK/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3l3MZ43D-5UArNR2JZ8TRROjiDjIA",
+                },
+            ],
+        },
+        SearchResultPodcast {
+            title: "Season Two: Nothing Is Real",
+            publisher: "Podcast",
+            podcast_id: PodcastID(
+                "MPSPPLQGKTmELEAZynkgIx_JLEA-XRcA8irgWm",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 360,
+                    url: "https://i.ytimg.com/vi/uujfQUPp-wg/sddefault.jpg?sqp=-oaymwExCOgCEOgCIAQqCggAEIAFGDwgpANIWvKriqkDFZoCEghAEDMYLyABLQAAoEE1zcxMPw&rs=AMzJL3nwlfeHI7axRuCUTsF4QTIr7gZMGQ",
+                },
+            ],
+        },
+        SearchResultPodcast {
+            title: "The Beatles Rocksmith - Only Bass",
+            publisher: "Podcast",
+            podcast_id: PodcastID(
+                "MPSPPLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEICDwQPCAASFo&rs=AMzJL3kjDy-WKZlAG_KKZWVS1dxG9ngZUw",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEICHgQeCAASFo&rs=AMzJL3n_9iadhxlidZE2erXQs2GmnYqoLg",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3mI6_bezTtAnDr-lhdQQVHx7NH6KA",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://i.ytimg.com/pl_c/PLeKreMf0HhRpnAo9Yl1KHuk2R7U49sJBH/studio_square_thumbnail.jpg?sqp=CLmZpLMG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3lD5S-l2iuNUoemGJ2P3WjVDxNTkA",
+                },
+            ],
+        },
+    ],
+    episodes: [
+        SearchResultEpisode {
+            title: "Are The Beatles the Most Overrated Band Ever?  |  The History of Rock",
+            date: Recorded {
+                date: "Episode",
+            },
+            channel_name: "30 Oct 2022",
+            video_id: VideoID(
+                "KiR1Ptot8tI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 270,
+                    width: 480,
+                    url: "https://i.ytimg.com/vi/KiR1Ptot8tI/hqdefault.jpg?sqp=-oaymwEWCOADEI4CIAQqCggAEOADGC0guwJIWg&rs=AMzJL3m9x-OlWH72L5njKa6TXv1FI4kTmQ",
+                },
+            ],
+        },
+        SearchResultEpisode {
+            title: "ear-Jerking Reaction to The Beatles' New Song 'Now And Then' Will Move You",
+            date: Recorded {
+                date: "Episode",
+            },
+            channel_name: "18 Nov 2023",
+            video_id: VideoID(
+                "RQrqIGx9S-A",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 270,
+                    width: 480,
+                    url: "https://i.ytimg.com/vi/RQrqIGx9S-A/hqdefault.jpg?sqp=-oaymwEWCOADEI4CIAQqCggAEOADGC0guwJIWg&rs=AMzJL3lTHMnPoJlfxfdISbbFXIJCcZHLmg",
+                },
+            ],
+        },
+        SearchResultEpisode {
+            title: "Running My Mouth About The Beatles",
+            date: Recorded {
+                date: "Episode",
+            },
+            channel_name: "4 Dec 2021",
+            video_id: VideoID(
+                "JIIl40z7OC8",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 270,
+                    width: 480,
+                    url: "https://i.ytimg.com/vi/JIIl40z7OC8/hqdefault.jpg?sqp=-oaymwEWCOADEI4CIAQqCggAEOADGC0guwJIWg&rs=AMzJL3kInd6dphgeFocucAk7FXLZi1A_pA",
+                },
+            ],
+        },
+    ],
+    profiles: [
+        SearchResultProfile {
+            title: "The Beatles",
+            username: "@thebeatlesfan.",
+            profile_id: ProfileID(
+                "UCIFVxbgRHVe3KyikhcKqTfA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://yt3.googleusercontent.com/QqWQDqy5s_dL2b0qVLITkjIAf9VODIEOcX8CHsvD4hyHy82LFQ8Nu1oFm_BZdKeX_P_TbovsYQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://yt3.googleusercontent.com/QqWQDqy5s_dL2b0qVLITkjIAf9VODIEOcX8CHsvD4hyHy82LFQ8Nu1oFm_BZdKeX_P_TbovsYQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                },
+            ],
+        },
+        SearchResultProfile {
+            title: "The Dung Beatles",
+            username: "@thedungbeatles3272",
+            profile_id: ProfileID(
+                "UC7DWdJ5bgAahclU7F411BPQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://yt3.googleusercontent.com/RsjzHIk00kSzPQ2fPmFAPN3DzMOZ4NTP08BS01wl4wkxSkEjbilgSsHJp2nU6pKdvLfwro998I4=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://yt3.googleusercontent.com/RsjzHIk00kSzPQ2fPmFAPN3DzMOZ4NTP08BS01wl4wkxSkEjbilgSsHJp2nU6pKdvLfwro998I4=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                },
+            ],
+        },
+        SearchResultProfile {
+            title: "The Beatles",
+            username: "@TheBeatles-cs4ql",
+            profile_id: ProfileID(
+                "UC5JMsZOYUg4DfX0OWdzOJHA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://yt3.googleusercontent.com/ytc/AIdro_nsrz4zSg5dCaCCnEm7_KS4-_Sfa1doGWI7EyxUDUrudZ1ahvhxsdDwvXeOce18W0Drwg=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://yt3.googleusercontent.com/ytc/AIdro_nsrz4zSg5dCaCCnEm7_KS4-_Sfa1doGWI7EyxUDUrudZ1ahvhxsdDwvXeOce18W0Drwg=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                },
+            ],
+        },
+    ],
+}
