@@ -13,3 +13,10 @@ updates:
     directory: "/ytmapi-rs"
     schedule:
       interval: "weekly"
+      
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    # Check for updates every Monday
+    schedule:
+      interval: "weekly"
