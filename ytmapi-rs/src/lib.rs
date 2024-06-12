@@ -1,3 +1,4 @@
+//! # ytmapi_rs
 //! Library into YouTube Music's internal API.
 //! ## Examples
 //! Basic usage with a pre-created cookie file :
@@ -29,6 +30,15 @@
 //!     Ok(())
 //! }
 //! ```
+//! ## Optional Features
+//! ### TLS
+//! NOTE: To use an alternative TLS, you will need to specify `default-features = false`.
+//! As reqwest preferentially uses default-tls when multiple TLS features are enabled.
+//! See reqwest docs for more information.
+//! https://docs.rs/reqwest/latest/reqwest/tls/index.html
+//! - **default-tls** *(enabled by default)*: Utilises the default TLS from reqwest - at the time of writing is native-tls.
+//! - **native-tls**: This feature forces use of the the native-tls crate, reliant on vendors tls.
+//! - **rustls-tls**: This feature forces use of the rustls crate, written in rust.
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
