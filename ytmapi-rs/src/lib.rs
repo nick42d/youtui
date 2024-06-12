@@ -64,7 +64,7 @@ mod nav_consts;
 // Consider if pub is correct for this
 pub mod common;
 mod crawler;
-mod error;
+pub mod error;
 pub mod parse;
 mod process;
 pub mod query;
