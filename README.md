@@ -33,9 +33,6 @@ Chrome example (Select manually and paste):
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
-- The Reqwest library requires ssl which can be found in the following packages:
-  - `libssl-dev` (Ubuntu)
-  - `openssl-devel` (Fedora)
 # Limitations
 - Github version number and tags are only relevant for the binary component of the application. For the latest release version of ytmapi-rs, please refer to crates.io.
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
