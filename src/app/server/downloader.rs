@@ -106,9 +106,11 @@ impl Downloader {
                 let mut songbuffer = Vec::new();
                 loop {
                     match stream.chunk().await {
-                        Ok(Some(mut chunk)) => {
+                        Ok(Some(chunk)) => {
                             i += 1;
-                            songbuffer.append(&mut chunk);
+                            // Originally chunk was a Vec<u8>, but breaking change to rusty_ytdl changed it to Bytes.
+                            // May be able to improve performance from the below.
+                            songbuffer.append(&mut chunk.into());
                             let progress =
                                 (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
                             info!("Sending song progress update");
