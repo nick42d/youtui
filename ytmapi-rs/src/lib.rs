@@ -37,7 +37,7 @@
 //! See reqwest docs for more information.
 //! https://docs.rs/reqwest/latest/reqwest/tls/index.html
 //! - **default-tls** *(enabled by default)*: Utilises the default TLS from reqwest - at the time of writing is native-tls.
-//! - **native-tls**: This feature forces use of the the native-tls crate, reliant on vendors tls.
+//! - **native-tls**: This feature forces use of the the native-tls crate, reliant on vendors tls. Note on Linux this may require OpenSSL as a dependency.
 //! - **rustls-tls**: This feature forces use of the rustls crate, written in rust.
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
