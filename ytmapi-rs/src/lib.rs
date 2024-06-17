@@ -55,11 +55,11 @@ use parse::{
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults,
 };
-use process::RawResult;
+pub use process::RawResult;
 use query::{
     lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery, AlbumsFilter, ArtistsFilter, BasicSearch,
-    CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter, FilteredSearch,
-    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
+    CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter,
+    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
     GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
     ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
 };
@@ -125,7 +125,8 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
-    async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    /// Return a raw result from YouTube music for query Q that requires further processing.
+    pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
@@ -268,6 +269,13 @@ impl<A: AuthToken> YtMusic<A> {
         query: GetLibraryArtistsQuery,
     ) -> Result<Vec<LibraryArtist>> {
         self.raw_query(query).await?.process()?.parse()
+    }
+    pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
+        &self,
+        query: Q,
+    ) -> Result<String> {
+        // For now, don't process parse this. Don't know if it actually returns JSON.
+        Ok(self.raw_query(query.into()).await?.destructure_json())
     }
 }
 // TODO: Keep session alive after calling these methods.

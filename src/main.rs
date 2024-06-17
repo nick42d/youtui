@@ -12,7 +12,7 @@ use config::{ApiKey, Config};
 use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
@@ -38,6 +38,9 @@ pub struct Cli {
     /// Print the source output Json from YouTube Music's API instead of the processed value.
     #[arg(short, long, default_value_t = false)]
     show_source: bool,
+    /// Process the passed Json file as if it were received from YouTube Music.
+    #[arg(short, long)]
+    input_json: Option<PathBuf>,
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -51,21 +54,54 @@ enum AuthCmd {
 }
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
-    GetSearchSuggestions { query: String },
-    GetArtist { channel_id: String },
+    GetSearchSuggestions {
+        query: String,
+    },
+    GetArtist {
+        channel_id: String,
+    },
+    GetArtistAlbums {
+        channel_id: String,
+        browse_params: String,
+    },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
-    Search { query: String },
-    SearchArtists { query: String },
-    SearchAlbums { query: String },
-    SearchSongs { query: String },
-    SearchPlaylists { query: String },
-    SearchCommunityPlaylists { query: String },
-    SearchFeaturedPlaylists { query: String },
-    SearchVideos { query: String },
-    SearchEpisodes { query: String },
-    SearchProfiles { query: String },
-    SearchPodcasts { query: String },
+    Search {
+        query: String,
+    },
+    SearchArtists {
+        query: String,
+    },
+    SearchAlbums {
+        query: String,
+    },
+    SearchSongs {
+        query: String,
+    },
+    SearchPlaylists {
+        query: String,
+    },
+    SearchCommunityPlaylists {
+        query: String,
+    },
+    SearchFeaturedPlaylists {
+        query: String,
+    },
+    SearchVideos {
+        query: String,
+    },
+    SearchEpisodes {
+        query: String,
+    },
+    SearchProfiles {
+        query: String,
+    },
+    SearchPodcasts {
+        query: String,
+    },
+    DeletePlaylist {
+        playlist_id: String,
+    },
 }
 
 pub struct RuntimeInfo {

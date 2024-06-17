@@ -489,14 +489,22 @@ mod tests {
     #[tokio::test]
     async fn test_get_albums_query() {
         // Radiohead's albums.
-        let path = Path::new("./test_json/browse_artist_albums.json");
-        let file = tokio::fs::read_to_string(path)
+        let source_path = Path::new("./test_json/browse_artist_albums.json");
+        let expected_path = Path::new("./test_json/browse_artist_albums_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
             .await
             .expect("Expect file read to pass during tests");
-        let json_clone = JsonCloner::from_string(file).unwrap();
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let json_clone = JsonCloner::from_string(source).unwrap();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let _output =
-            ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query).parse();
+        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
+            .parse()
+            .unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
     }
 }

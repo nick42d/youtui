@@ -3,7 +3,7 @@ use crate::{
     common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
-    process::{self, process_flex_column_item},
+    process::{self, process_flex_column_item, JsonCloner},
     query::Query,
     ChannelID,
 };
@@ -11,12 +11,14 @@ use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
+pub use playlists::*;
 use serde::{Deserialize, Serialize};
 
 mod album;
 mod artist;
 mod continuations;
 mod library;
+mod playlists;
 mod search;
 
 // TODO: Seal
@@ -254,6 +256,7 @@ pub struct SearchResultFeaturedPlaylist {
     pub thumbnails: Vec<Thumbnail>,
 }
 
+/// A result from the api that has been checked for errors and processed into JSON.
 pub struct ProcessedResult<T>
 where
     T: Query,
@@ -261,7 +264,15 @@ where
     query: T,
     json_crawler: JsonCrawler,
 }
+
 impl<T: Query> ProcessedResult<T> {
+    pub fn from_string(string: String, query: T) -> Self {
+        let json_clone = JsonCloner::from_string(string).unwrap();
+        Self {
+            query,
+            json_crawler: JsonCrawler::from_json_cloner(json_clone),
+        }
+    }
     pub(crate) fn from_raw(json_crawler: JsonCrawler, query: T) -> Self {
         Self {
             query,
