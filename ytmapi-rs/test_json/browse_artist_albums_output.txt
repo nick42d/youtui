@@ -1,0 +1,602 @@
+[
+    Album {
+        title: "KID A MNESIA",
+        playlist_id: Some(
+            "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
+        ),
+        browse_id: AlbumID(
+            "MPREb_E7NpKw54NIT",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "A Moon Shaped Pool",
+        playlist_id: Some(
+            "OLAK5uy_l2JdqQ9q-aHSQmRiz3NfIkU2kkbxd1-ps",
+        ),
+        browse_id: AlbumID(
+            "MPREb_zwdwliUWiJm",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/zhUubAG27CeM7pofkoJFJwyWsN0mqrTYeQ7NkWH0YLKan8gykddpDzxRu8ih-vGwACPGgLx4Bu6qwBIS=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/zhUubAG27CeM7pofkoJFJwyWsN0mqrTYeQ7NkWH0YLKan8gykddpDzxRu8ih-vGwACPGgLx4Bu6qwBIS=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "The King Of Limbs",
+        playlist_id: Some(
+            "OLAK5uy_kkxS8q1obnji_VjkWtpgWgpZAzAePSSA0",
+        ),
+        browse_id: AlbumID(
+            "MPREb_0MasdQ0OscT",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/mdFzWlwK2T-W-ZVZKiLYXiAm0gG8tIyzY9vmb3c1-SjQKBnPcp9tmiAQoMa0lB8TUMrAHje3NhvM5PNc=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/mdFzWlwK2T-W-ZVZKiLYXiAm0gG8tIyzY9vmb3c1-SjQKBnPcp9tmiAQoMa0lB8TUMrAHje3NhvM5PNc=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "In Rainbows (Bonus Album)",
+        playlist_id: Some(
+            "OLAK5uy_mXbNXlc9onrp6Rb6XnX2noXE0khaT1A8E",
+        ),
+        browse_id: AlbumID(
+            "MPREb_YtIbyjkuDJN",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/34czD9R-iLgQ4CXS2HUjYdz-V9CKptCleqLOP3oRpC0iadmlI3vY92rlgoRdnC96QusnHR0vdr-fgZgT-A=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/34czD9R-iLgQ4CXS2HUjYdz-V9CKptCleqLOP3oRpC0iadmlI3vY92rlgoRdnC96QusnHR0vdr-fgZgT-A=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "In Rainbows",
+        playlist_id: Some(
+            "OLAK5uy_m59x-hBFsC789l1_qWwFXwH3gjntwy_CA",
+        ),
+        browse_id: AlbumID(
+            "MPREb_R6C9lU4QEg2",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/BAl1FqoDaFrpWSSrr95Yjii4fJSeitdRcVt7f-uOVrhxQfmo5ActMNysFErQfI-CiOZR4GH2fePoVQtd=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/BAl1FqoDaFrpWSSrr95Yjii4fJSeitdRcVt7f-uOVrhxQfmo5ActMNysFErQfI-CiOZR4GH2fePoVQtd=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Hail To The Thief",
+        playlist_id: Some(
+            "OLAK5uy_mRDhp5c2KZe2Penu4PLevXa7z5cBk4DXY",
+        ),
+        browse_id: AlbumID(
+            "MPREb_HBwHC7oaiOz",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/gr6wVIJfPqUPFR-MbaZfekLxRk8iK9oT12rKfggkVcfSxtJyn5gB_WXeOK1YTANdzEFU0b-0m12Vps29=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/gr6wVIJfPqUPFR-MbaZfekLxRk8iK9oT12rKfggkVcfSxtJyn5gB_WXeOK1YTANdzEFU0b-0m12Vps29=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Knives Out",
+        playlist_id: Some(
+            "OLAK5uy_nLVf-4Cgs84lLD_AchfudswMoWIMuOIbA",
+        ),
+        browse_id: AlbumID(
+            "MPREb_TO8AOGMIAio",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/p9c78QuQhMMkvHw0O9ojjcwcTPS1n7U7upp5AeowYgu1fjTsHOFAMi4UIT3-F6dAKJX5lo6wGVJMuclt=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/p9c78QuQhMMkvHw0O9ojjcwcTPS1n7U7upp5AeowYgu1fjTsHOFAMi4UIT3-F6dAKJX5lo6wGVJMuclt=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Pyramid Song",
+        playlist_id: Some(
+            "OLAK5uy_m7ToVnaKcPCN19ONmKOHl1F29TlHzkMQU",
+        ),
+        browse_id: AlbumID(
+            "MPREb_fJhu6dGJXTo",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/K2rJLPEJe0QEwMb9TpMF3V--8J1D69_EWRTk714nQadKYJ41qUsn0EYTtN_pBnGgEFNjMKK8hIJ9uq8=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/K2rJLPEJe0QEwMb9TpMF3V--8J1D69_EWRTk714nQadKYJ41qUsn0EYTtN_pBnGgEFNjMKK8hIJ9uq8=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Amnesiac",
+        playlist_id: Some(
+            "OLAK5uy_nRHRKov8jjIYbNTQXsAfx_Rr7P7lnigYU",
+        ),
+        browse_id: AlbumID(
+            "MPREb_DyYPOfs7HPD",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/IztVMgq0rRLUhtQa6IxD4Vx145SQYQjnUQtuSHUl12b4B6Oyf-e-M0S1lrtIBnXCQFSeNABeanlxcdk=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/IztVMgq0rRLUhtQa6IxD4Vx145SQYQjnUQtuSHUl12b4B6Oyf-e-M0S1lrtIBnXCQFSeNABeanlxcdk=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Kid A",
+        playlist_id: Some(
+            "OLAK5uy_lDotrFl8LXo4UMq_XeVB1areFI_b8Par8",
+        ),
+        browse_id: AlbumID(
+            "MPREb_ob5cslgCNc0",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/yJLXG7QJySOUp57Nff9te1cqhRqvz9BHusWk8c9ek08m-DRv5TJhCqW0HV2tAk5K2ErChBlHEUeFfGt_6A=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/yJLXG7QJySOUp57Nff9te1cqhRqvz9BHusWk8c9ek08m-DRv5TJhCqW0HV2tAk5K2ErChBlHEUeFfGt_6A=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Karma Police",
+        playlist_id: Some(
+            "OLAK5uy_k7Lk_w4EAe2NQmm6RuwU_fSXjOmXtjF6k",
+        ),
+        browse_id: AlbumID(
+            "MPREb_qxaMiL4YnAQ",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/9fi2HM0LyCp2OywmjL4oN9TPbioOgW69j7HWopI8Wzhf_F2C0Y4m1im7WZA5gwM0ioZnMkrJaLeB44ww=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/9fi2HM0LyCp2OywmjL4oN9TPbioOgW69j7HWopI8Wzhf_F2C0Y4m1im7WZA5gwM0ioZnMkrJaLeB44ww=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "OK Computer",
+        playlist_id: Some(
+            "OLAK5uy_nc6afxSnmK8OFML8dF9q_0D1MBMXsGnL4",
+        ),
+        browse_id: AlbumID(
+            "MPREb_yXhSI4FCUo6",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/SPHeXqlEhzw-pPbAx3AQU4HSD-XuSMlPtLsptfvHOjOTd6F_1ZbELaOYn1d8-jGZ5HW8O1R0pLqausuVZw=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/SPHeXqlEhzw-pPbAx3AQU4HSD-XuSMlPtLsptfvHOjOTd6F_1ZbELaOYn1d8-jGZ5HW8O1R0pLqausuVZw=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Paranoid Android",
+        playlist_id: Some(
+            "OLAK5uy_n61gFIaKMlrPPj-4MbGZ-72RPXXh-T8GY",
+        ),
+        browse_id: AlbumID(
+            "MPREb_qcBQFrhPGhz",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/fZcy55afh1uvx5uHYCPZr608-f2u8G5wFazPZ_tzHp_9cSFqddTY3sobtNL_YSFqiqjw7HhAUkH1BfQE=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/fZcy55afh1uvx5uHYCPZr608-f2u8G5wFazPZ_tzHp_9cSFqddTY3sobtNL_YSFqiqjw7HhAUkH1BfQE=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Street Spirit (Fade Out)",
+        playlist_id: Some(
+            "OLAK5uy_kdCFKArfUObjngCbjoJwgCVsmBW17TpfU",
+        ),
+        browse_id: AlbumID(
+            "MPREb_jzCLHmaJdYp",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/IkJ5uPMHdoZxVduKXYRZim32SReglGuofjHxzWTrGoJU-AoYhvLIzcj2Q5amGIrtwxqDU-UE2ejSOVbz=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/IkJ5uPMHdoZxVduKXYRZim32SReglGuofjHxzWTrGoJU-AoYhvLIzcj2Q5amGIrtwxqDU-UE2ejSOVbz=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "The Bends",
+        playlist_id: Some(
+            "OLAK5uy_mjfZt29ZKuw9FnglSH4_LLqWBPIPicLjI",
+        ),
+        browse_id: AlbumID(
+            "MPREb_xsmDKhqhQrG",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/TWWT47cHLv3yAugk4h9eOzQ46FHmXc_g-KmBVy2d4sbg_F-Gv6xrPglztRVzp8D_l-yzOnvh-QToM8s=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/TWWT47cHLv3yAugk4h9eOzQ46FHmXc_g-KmBVy2d4sbg_F-Gv6xrPglztRVzp8D_l-yzOnvh-QToM8s=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "High & Dry / Planet Telex",
+        playlist_id: Some(
+            "OLAK5uy_m8kiir_1NWyx_AZOLIa0h9sQ1N1hFMzhw",
+        ),
+        browse_id: AlbumID(
+            "MPREb_7sBnPEyrgeY",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/RE88aEgSeUHUrL4sVfFwslHs5FnraxAU0i9guBkCOFrU0MP3bBmFX2nMMU8sAso1vftfSDCMR3G2ue0_=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/RE88aEgSeUHUrL4sVfFwslHs5FnraxAU0i9guBkCOFrU0MP3bBmFX2nMMU8sAso1vftfSDCMR3G2ue0_=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "My Iron Lung",
+        playlist_id: Some(
+            "OLAK5uy_nOMkErKhpKy7PA_CYVOggmIq4bzsoszDg",
+        ),
+        browse_id: AlbumID(
+            "MPREb_x4TEG6N2JhR",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/6zldi67DusVnp_snuFz-sGTteUe6Oj-_eEij71aMJyp22792HQyhppqCRHeStEJ6K8Jp0zcNO18H7wORWw=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/6zldi67DusVnp_snuFz-sGTteUe6Oj-_eEij71aMJyp22792HQyhppqCRHeStEJ6K8Jp0zcNO18H7wORWw=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Pablo Honey",
+        playlist_id: Some(
+            "OLAK5uy_lCl8VFn-xBO9PlDF2E0FXSjhaU0dLJP9I",
+        ),
+        browse_id: AlbumID(
+            "MPREb_DciERiuADkS",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/U7k2oSmy45dhhj8ACdsUr1hQAvoY1IcOlHI_ZwU2rckJte1UEcTyrBUPUGr6Q-HT9-zeY0BwJ05xlOOJ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/U7k2oSmy45dhhj8ACdsUr1hQAvoY1IcOlHI_ZwU2rckJte1UEcTyrBUPUGr6Q-HT9-zeY0BwJ05xlOOJ=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Creep",
+        playlist_id: Some(
+            "OLAK5uy_l1_KgYytnFrThUgqIjsEA7-WaQ8M4Y-No",
+        ),
+        browse_id: AlbumID(
+            "MPREb_TgQPwAzodvg",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/-h_EmlrGLsJwhih3lVHGDmK3CAmLdpqEIeerAuJ71qmJeZ_5zYf9ElWIEBNiB_6_CbXh4qHchBpOqhCu=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/-h_EmlrGLsJwhih3lVHGDmK3CAmLdpqEIeerAuJ71qmJeZ_5zYf9ElWIEBNiB_6_CbXh4qHchBpOqhCu=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Drill EP",
+        playlist_id: Some(
+            "OLAK5uy_mOLRx-caOv6p2hvCY4A1DLEesUhk6vi2M",
+        ),
+        browse_id: AlbumID(
+            "MPREb_bPBNzHn3Faz",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/iTEe3FoB3nX2HzUxNEZ_FLVroIrfgIxJ-xLvRFuY3EEbvdbiB_flJZymP8V45By_8wMgGrSXRb2_TEeo=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/iTEe3FoB3nX2HzUxNEZ_FLVroIrfgIxJ-xLvRFuY3EEbvdbiB_flJZymP8V45By_8wMgGrSXRb2_TEeo=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "TKOL RMX 1234567",
+        playlist_id: Some(
+            "OLAK5uy_mpP0BwIgxqdY3byyQDaoBMfkS6XjWabfM",
+        ),
+        browse_id: AlbumID(
+            "MPREb_0lUBE22oiip",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/dBvlIE6omwLQTzS9ZZcdLTvkvOtxitcoc9bSm1ortenr4hErNFcjnLxKIbNyhXDrd_NWVIQbEZ0HpD8-=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/dBvlIE6omwLQTzS9ZZcdLTvkvOtxitcoc9bSm1ortenr4hErNFcjnLxKIbNyhXDrd_NWVIQbEZ0HpD8-=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "TKOL RMX 8",
+        playlist_id: Some(
+            "OLAK5uy_lPELHnTGqFBAKbOLyZKSOKCEN0gOe1rCc",
+        ),
+        browse_id: AlbumID(
+            "MPREb_kyVVLTlOd4U",
+        ),
+        category: Some(
+            "EP",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/wcjyLemlwgAAiZxxUYNfdEkug5toPdnoiI94x_jfxlDLgfhh0ZixavXJMIZs-pplafdBgYrJ9Bkpn-Mv=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/wcjyLemlwgAAiZxxUYNfdEkug5toPdnoiI94x_jfxlDLgfhh0ZixavXJMIZs-pplafdBgYrJ9Bkpn-Mv=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "Com Lag: 2+2=5",
+        playlist_id: Some(
+            "OLAK5uy_khBf-OqzahfJhFkLozz7cYunqEudm3UdQ",
+        ),
+        browse_id: AlbumID(
+            "MPREb_6Or5FbpBteh",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/SRUoXfyB2jcGe_34JAKCIf3Eq2Zk_xpkJN5Z6VhvNlf-3ugVrOHUSm5fAAcBRSDOppl9ndzEHBMNikszIQ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/SRUoXfyB2jcGe_34JAKCIf3Eq2Zk_xpkJN5Z6VhvNlf-3ugVrOHUSm5fAAcBRSDOppl9ndzEHBMNikszIQ=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+    Album {
+        title: "I Might Be Wrong",
+        playlist_id: Some(
+            "OLAK5uy_kV91KZNvcYmEwK2heGhxZjwfmpGeF1r0s",
+        ),
+        browse_id: AlbumID(
+            "MPREb_WHT29n5quUP",
+        ),
+        category: Some(
+            "Album",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/kiB3ZQeeE2s93YBkk9CTC4Pf1GTv8exEnn5qhdmUuhh7jLsAYT7_m81ejrx6IzaEHBrRj6qG56Y_tfE=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/kiB3ZQeeE2s93YBkk9CTC4Pf1GTv8exEnn5qhdmUuhh7jLsAYT7_m81ejrx6IzaEHBrRj6qG56Y_tfE=w544-h544-l90-rj",
+            },
+        ],
+        year: None,
+    },
+]
