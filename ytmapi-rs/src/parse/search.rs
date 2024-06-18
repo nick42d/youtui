@@ -15,6 +15,11 @@ use crate::parse::EpisodeDate;
 use crate::{query::*, Thumbnail};
 use crate::{Error, Result};
 use const_format::concatcp;
+use filteredsearch::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
+    SongsFilter, VideosFilter,
+};
 
 #[cfg(test)]
 mod tests;

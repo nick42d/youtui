@@ -1,6 +1,7 @@
 use super::Query;
 use crate::{
     common::{PlaylistID, YoutubeID},
+    parse::GetPlaylist,
     VideoID,
 };
 use serde::{Deserialize, Serialize};
@@ -85,6 +86,7 @@ impl<'a> DeletePlaylistQuery<'a> {
 }
 
 impl<'a> Query for GetPlaylistQuery<'a> {
+    type Output = GetPlaylist;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -103,6 +105,8 @@ impl<'a> Query for GetPlaylistQuery<'a> {
 }
 
 impl<'a> Query for DeletePlaylistQuery<'a> {
+    // TODO
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -125,6 +129,8 @@ impl<'a> Into<DeletePlaylistQuery<'a>> for PlaylistID<'a> {
     }
 }
 impl<'a> Query for EditPlaylistQuery<'a> {
+    // TODO
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         todo!();
         // let actions = Vec::new();
@@ -146,6 +152,8 @@ impl<'a> Query for EditPlaylistQuery<'a> {
 }
 
 impl<'a> Query for RemovePlaylistItemsQuery<'a> {
+    // TODO
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         todo!();
         // let serde_json::Value::Object(map) = json!({
@@ -170,6 +178,8 @@ impl<'a> Query for RemovePlaylistItemsQuery<'a> {
 }
 
 impl<'a> Query for AddPlaylistItemsQuery<'a> {
+    //TODO
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         todo!();
         // let serde_json::Value::Object(map) = json!({

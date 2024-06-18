@@ -31,6 +31,8 @@ use ytmapi_rs::{
     ChannelID,
 };
 
+mod querybuilder;
+
 pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
     let config = rt.config;
     match cli {

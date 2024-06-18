@@ -1,7 +1,11 @@
 use serde_json::json;
 
 use super::Query;
-use crate::common::{BrowseParams, ChannelID, YoutubeID};
+use crate::{
+    common::{BrowseParams, ChannelID, YoutubeID},
+    parse::ArtistParams,
+    Album,
+};
 use std::borrow::Cow;
 
 pub struct GetArtistQuery<'a> {
@@ -25,6 +29,7 @@ impl<'a> GetArtistAlbumsQuery<'a> {
 }
 
 impl<'a> Query for GetArtistQuery<'a> {
+    type Output = ArtistParams;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
         // or even better, could do this first time called, and store state so not required
@@ -46,6 +51,7 @@ impl<'a> Query for GetArtistQuery<'a> {
 }
 // TODO: Check if the MPLA strip is correct for both of these.
 impl<'a> Query for GetArtistAlbumsQuery<'a> {
+    type Output = Vec<Album>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: should do in new
         // XXX: Think I could remove allocation here

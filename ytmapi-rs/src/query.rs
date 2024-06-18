@@ -14,8 +14,7 @@ mod search;
 // TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.
 pub trait Query {
-    // XXX: Consider if this should just return a tuple, Header seems overkill.
-    // e.g fn header(&self) -> (Cow<str>, Cow<str>);
+    type Output;
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
@@ -23,7 +22,10 @@ pub trait Query {
 
 pub mod album {
     use super::Query;
-    use crate::common::{AlbumID, YoutubeID};
+    use crate::{
+        common::{AlbumID, YoutubeID},
+        parse::AlbumParams,
+    };
     use serde_json::json;
     use std::borrow::Cow;
 
@@ -31,6 +33,7 @@ pub mod album {
         browse_id: AlbumID<'a>,
     }
     impl<'a> Query for GetAlbumQuery<'a> {
+        type Output = AlbumParams;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                  "browseId" : self.browse_id.get_raw(),
@@ -57,17 +60,16 @@ pub mod album {
 
 // For future use.
 pub mod continuations {
+    use super::{BasicSearch, Query, SearchQuery};
     use std::borrow::Cow;
-
-    use super::{FilteredSearch, FilteredSearchType, Query, SearchQuery};
 
     pub struct GetContinuationsQuery<Q: Query> {
         c_params: String,
         query: Q,
     }
-    impl<'a, F: FilteredSearchType> Query
-        for GetContinuationsQuery<SearchQuery<'a, FilteredSearch<F>>>
-    {
+    // TODO: Output type
+    impl<'a> Query for GetContinuationsQuery<SearchQuery<'a, BasicSearch>> {
+        type Output = ();
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             self.query.header()
         }
@@ -91,7 +93,7 @@ pub mod lyrics {
 
     use serde_json::json;
 
-    use crate::common::LyricsID;
+    use crate::common::{browsing::Lyrics, LyricsID};
 
     use super::Query;
 
@@ -99,6 +101,7 @@ pub mod lyrics {
         id: LyricsID<'a>,
     }
     impl<'a> Query for GetLyricsQuery<'a> {
+        type Output = Lyrics;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                 "browseId": self.id.0.as_ref(),
@@ -124,7 +127,7 @@ pub mod lyrics {
 pub mod watch {
     use super::Query;
     use crate::{
-        common::{PlaylistID, YoutubeID},
+        common::{watch::WatchPlaylist, PlaylistID, YoutubeID},
         VideoID,
     };
     use serde_json::json;
@@ -139,6 +142,7 @@ pub mod watch {
         id: T,
     }
     impl<'a> Query for GetWatchPlaylistQuery<VideoID<'a>> {
+        type Output = WatchPlaylist;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                 "enablePersistentPlaylistPanel": true,

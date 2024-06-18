@@ -1,3 +1,5 @@
+use crate::common::library::{LibraryArtist, Playlist};
+
 // NOTE: Authentication is required to use the queries in this module.
 // Currently, all queries are implemented with authentication however in future this could be scaled back.
 use super::Query;
@@ -6,6 +8,7 @@ use std::borrow::Cow;
 
 pub struct GetLibraryPlaylistsQuery;
 impl Query for GetLibraryPlaylistsQuery {
+    type Output = Vec<Playlist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
              "browseId" : "FEmusic_liked_playlists"
@@ -37,6 +40,7 @@ pub struct GetLibraryArtistsQuery {
     sort_order: LibraryArtistsSortOrder,
 }
 impl Query for GetLibraryArtistsQuery {
+    type Output = Vec<LibraryArtist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
              "browseId" : "FEmusic_library_corpus_track_artists"

@@ -1,16 +1,15 @@
 use super::ProcessedResult;
 use crate::{
-    common::{library::Playlist, PlaylistID},
+    common::PlaylistID,
     nav_consts::{SECTION_LIST_ITEM, SINGLE_COLUMN_TAB},
     query::{DeletePlaylistQuery, GetPlaylistQuery},
     Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-struct GetPlaylist {
+pub struct GetPlaylist {
     id: PlaylistID<'static>,
     privacy: (),
     title: String,

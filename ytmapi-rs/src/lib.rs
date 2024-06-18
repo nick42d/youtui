@@ -17,8 +17,8 @@
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
-//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
-//!     println!("Go to {url}, finish the login flow, and press enter when done");
+//!     let (code, url) = ytmapi:generate_oauth_code_and_url().await?;
+//!     println!("Go to {url}, fhe login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
 //!     let token = ytmapi_rs::generate_oauth_token(code).await?;
@@ -57,11 +57,16 @@ use parse::{
 };
 pub use process::RawResult;
 use query::{
-    lyrics::GetLyricsQuery, watch::GetWatchPlaylistQuery, AlbumsFilter, ArtistsFilter, BasicSearch,
-    CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter,
-    FilteredSearch, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
-    ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
+    filteredsearch::{
+        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
+        FeaturedPlaylistsFilter, FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
+        SongsFilter, VideosFilter,
+    },
+    lyrics::GetLyricsQuery,
+    watch::GetWatchPlaylistQuery,
+    BasicSearch, DeletePlaylistQuery, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query,
+    SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -135,6 +140,13 @@ impl<A: AuthToken> YtMusic<A> {
         // TODO: Remove allocation
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
+    }
+    pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
+        self.token
+            .raw_query(&self.client, query)
+            .await?
+            .process()?
+            .parse()
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
