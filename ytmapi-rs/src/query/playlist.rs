@@ -45,7 +45,8 @@ struct CreatePlaylistQuery<'a> {
 
 // Is this really a query? It's more of an action/command.
 // TODO: Confirm if all options can be passed - or mutually exclusive.
-struct EditPlaylistQuery<'a> {
+// XXX: Private until completed
+pub(crate) struct EditPlaylistQuery<'a> {
     id: PlaylistID<'a>,
     new_title: Option<Cow<'a, str>>,
     new_description: Option<Cow<'a, str>>,
@@ -59,7 +60,8 @@ pub struct DeletePlaylistQuery<'a> {
     id: PlaylistID<'a>,
 }
 
-struct AddPlaylistItemsQuery<'a> {
+// XXX: Private until completed
+pub(crate) struct AddPlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
     video_ids: Vec<VideoID<'a>>,
     source_playlist: Option<PlaylistID<'a>>,
@@ -67,7 +69,8 @@ struct AddPlaylistItemsQuery<'a> {
     duplicate_handling_mode: DuplicateHandlingMode,
 }
 
-struct RemovePlaylistItemsQuery<'a> {
+// XXX: Private until completed
+pub(crate) struct RemovePlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
     // TODO: Should be a Track returned by get_playlist - as it requires both a PlaylistID and SetPlaylistID
     video_items: Vec<()>,

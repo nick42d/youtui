@@ -1,4 +1,4 @@
-use super::{parse_item_text, ProcessedResult};
+use super::{parse_item_text, ParseFrom, ProcessedResult};
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::PlaylistID;
 use crate::crawler::JsonCrawler;
@@ -10,19 +10,25 @@ use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
 use crate::{Result, Thumbnail};
 use const_format::concatcp;
 
-impl<'a> ProcessedResult<GetLibraryArtistsQuery> {
-    // TODO: Continuations
-    pub fn parse(self) -> Result<Vec<LibraryArtist>> {
-        let ProcessedResult { json_crawler, .. } = self;
+impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: GetLibraryArtistsQuery,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
         parse_library_artists(json_crawler)
     }
 }
 
-impl<'a> ProcessedResult<GetLibraryPlaylistsQuery> {
-    // TODO: Continuations
-    // TODO: Implement count and author fields
-    pub fn parse(self) -> Result<Vec<Playlist>> {
-        let ProcessedResult { json_crawler, .. } = self;
+impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: GetLibraryPlaylistsQuery,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        // TODO: Implement count and author fields
+        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
         parse_library_playlist_query(json_crawler)
     }
 }

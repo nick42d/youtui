@@ -1,9 +1,12 @@
-use super::ProcessedResult;
+use super::{ParseFrom, ProcessedResult};
 use crate::{
     common::PlaylistID,
     nav_consts::{SECTION_LIST_ITEM, SINGLE_COLUMN_TAB},
-    query::{DeletePlaylistQuery, GetPlaylistQuery},
-    Result, Thumbnail,
+    query::{
+        AddPlaylistItemsQuery, DeletePlaylistQuery, EditPlaylistQuery, GetPlaylistQuery,
+        RemovePlaylistItemsQuery,
+    },
+    Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -24,15 +27,45 @@ pub struct GetPlaylist {
     tracks: Vec<()>,
 }
 
-impl<'a> ProcessedResult<DeletePlaylistQuery<'a>> {
-    pub fn parse(self) -> Result<()> {
+impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: RemovePlaylistItemsQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query>::Output> {
+        todo!()
+    }
+}
+impl<'a> ParseFrom<AddPlaylistItemsQuery<'a>> for () {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: AddPlaylistItemsQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<AddPlaylistItemsQuery<'a> as crate::query::Query>::Output> {
+        todo!()
+    }
+}
+impl<'a> ParseFrom<EditPlaylistQuery<'a>> for () {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: EditPlaylistQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<EditPlaylistQuery<'a> as crate::query::Query>::Output> {
+        todo!()
+    }
+}
+impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: DeletePlaylistQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<DeletePlaylistQuery<'a> as crate::query::Query>::Output> {
         todo!()
     }
 }
 
-impl<'a> ProcessedResult<GetPlaylistQuery<'a>> {
-    pub fn parse(self) -> Result<GetPlaylist> {
-        let ProcessedResult { json_crawler, .. } = self;
+impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: GetPlaylistQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<GetPlaylistQuery<'a> as crate::query::Query>::Output> {
+        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
         let mut results = json_crawler.navigate_pointer(concatcp!(
             SINGLE_COLUMN_TAB,
             SECTION_LIST_ITEM,

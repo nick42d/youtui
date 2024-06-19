@@ -1,11 +1,14 @@
 //! Results from parsing Innertube queries.
+use std::ops::Deref;
+
 use crate::{
+    auth::AuthToken,
     common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::*,
     process::{self, process_flex_column_item, JsonCloner},
     query::Query,
-    ChannelID,
+    ChannelID, YtMusic,
 };
 use crate::{Error, Result};
 pub use album::*;
@@ -21,12 +24,11 @@ mod library;
 mod playlists;
 mod search;
 
-// TODO: Seal
-// TODO: Implement for all types.
-/// Trait to represent a YouTube struct that can be parsed.
-pub trait Parse {
-    type Output;
-    fn parse(self) -> Result<Self::Output>;
+pub(crate) trait ParseFrom<T>
+where
+    T: Query,
+{
+    async fn parse_from<A: AuthToken>(q: T, yt: &YtMusic<A>) -> crate::Result<T::Output>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -257,11 +259,11 @@ pub struct SearchResultFeaturedPlaylist {
 }
 
 /// A result from the api that has been checked for errors and processed into JSON.
-pub struct ProcessedResult<T>
+pub struct ProcessedResult<Q>
 where
-    T: Query,
+    Q: Query,
 {
-    query: T,
+    query: Q,
     json_crawler: JsonCrawler,
 }
 
@@ -363,18 +365,18 @@ mod tests {
 }
 
 mod lyrics {
-    use const_format::concatcp;
-
+    use super::{ParseFrom, ProcessedResult};
     use crate::common::browsing::Lyrics;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
-    use crate::Result;
+    use const_format::concatcp;
 
-    use super::ProcessedResult;
-
-    impl<'a> ProcessedResult<GetLyricsQuery<'a>> {
-        pub fn parse(self) -> Result<Lyrics> {
-            let ProcessedResult { json_crawler, .. } = self;
+    impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
+        async fn parse_from<A: crate::auth::AuthToken>(
+            q: GetLyricsQuery<'a>,
+            yt: &crate::YtMusic<A>,
+        ) -> crate::Result<<GetLyricsQuery<'a> as crate::query::Query>::Output> {
+            let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
                 "/contents",
                 SECTION_LIST_ITEM,
@@ -432,12 +434,16 @@ mod watch {
         Result, VideoID,
     };
 
-    use super::ProcessedResult;
+    use super::{ParseFrom, ProcessedResult};
 
-    impl<'a> ProcessedResult<GetWatchPlaylistQuery<VideoID<'a>>> {
-        // TODO: Continuations
-        pub fn parse(self) -> Result<WatchPlaylist> {
-            let ProcessedResult { json_crawler, .. } = self;
+    impl<'a> ParseFrom<GetWatchPlaylistQuery<VideoID<'a>>> for WatchPlaylist {
+        async fn parse_from<A: crate::auth::AuthToken>(
+            q: GetWatchPlaylistQuery<VideoID<'a>>,
+            yt: &crate::YtMusic<A>,
+        ) -> crate::Result<<GetWatchPlaylistQuery<VideoID<'a>> as crate::query::Query>::Output>
+        {
+            // TODO: Continuations
+            let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;
             let lyrics_id =
                 get_tab_browse_id(&mut watch_next_renderer.borrow_mut(), 1)?.take_value()?;

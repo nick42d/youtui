@@ -6,7 +6,7 @@ use crate::query::*;
 use crate::{Error, Result};
 use const_format::concatcp;
 
-use super::{parse_playlist_items, ProcessedResult, SongResult};
+use super::{parse_playlist_items, ParseFrom, ProcessedResult, SongResult};
 
 #[derive(Debug)]
 pub enum AlbumLikeStatus {
@@ -62,8 +62,11 @@ fn take_music_shelf_contents(nav: &mut JsonCrawler) -> Result<MusicShelfContents
     Ok(MusicShelfContents { json })
 }
 
-impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
-    pub fn parse(self) -> Result<AlbumParams> {
+impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+    async fn parse_from<A: crate::auth::AuthToken>(
+        q: GetAlbumQuery<'a>,
+        yt: &crate::YtMusic<A>,
+    ) -> crate::Result<<GetAlbumQuery<'a> as Query>::Output> {
         // Due to limitation of the borrow checker, we can't simply pass a reference
         // to ok_or_else. So instead, we'll keep a clone handy in case of error.
         // The advantage of this approach is that the entire json
@@ -74,7 +77,7 @@ impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
         // also reports enter json_debug file.
         let ProcessedResult {
             mut json_crawler, ..
-        } = self;
+        } = yt.processed_query(q).await?;
         // TODO parse_song_runs - returns id, views and a few others.
         // Other verisions = parse_content_list.
         // Fill in Tracks album title and artist (not sure if needed).
@@ -155,6 +158,7 @@ impl<'a> ProcessedResult<GetAlbumQuery<'a>> {
         let mut year = String::new();
         // Pretty hacky way to handle this, as the runs are quite free text.
         // TODO: Add a regex crate.
+        // NOTE: See the search parser for a better way to implement.
         for mut a in header
             .navigate_pointer("/subtitle/runs")
             .and_then(|s| s.into_array_iter_mut())

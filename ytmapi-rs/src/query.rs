@@ -1,10 +1,14 @@
 //! Type safe queries to pass to the API.
+use crate::auth::AuthToken;
+use crate::parse::ParseFrom;
+use crate::{Result, YtMusic};
 pub use album::*;
 pub use artist::*;
 pub use library::*;
 pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
+use std::future::Future;
 
 mod artist;
 mod library;
@@ -14,10 +18,18 @@ mod search;
 // TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.
 pub trait Query {
-    type Output;
+    type Output: ParseFrom<Self>
+    where
+        Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
+    fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
+    where
+        Self: Sized,
+    {
+        Self::Output::parse_from(self, yt)
+    }
 }
 
 pub mod album {
@@ -25,6 +37,7 @@ pub mod album {
     use crate::{
         common::{AlbumID, YoutubeID},
         parse::AlbumParams,
+        Result,
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -60,12 +73,23 @@ pub mod album {
 
 // For future use.
 pub mod continuations {
+    use crate::parse::ParseFrom;
+
     use super::{BasicSearch, Query, SearchQuery};
     use std::borrow::Cow;
 
     pub struct GetContinuationsQuery<Q: Query> {
         c_params: String,
         query: Q,
+    }
+    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
+        async fn parse_from<A: crate::auth::AuthToken>(
+            q: GetContinuationsQuery<SearchQuery<'a, BasicSearch>>,
+            yt: &crate::YtMusic<A>,
+        ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query>::Output>
+        {
+            todo!()
+        }
     }
     // TODO: Output type
     impl<'a> Query for GetContinuationsQuery<SearchQuery<'a, BasicSearch>> {
@@ -89,13 +113,10 @@ pub mod continuations {
 
 pub mod lyrics {
 
-    use std::borrow::Cow;
-
-    use serde_json::json;
-
-    use crate::common::{browsing::Lyrics, LyricsID};
-
     use super::Query;
+    use crate::common::{browsing::Lyrics, LyricsID};
+    use serde_json::json;
+    use std::borrow::Cow;
 
     pub struct GetLyricsQuery<'a> {
         id: LyricsID<'a>,

@@ -51,9 +51,9 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, Parse, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
-    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
-    SearchResultSong, SearchResultVideo, SearchResults,
+    AlbumParams, ArtistParams, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
 };
 pub use process::RawResult;
 use query::{
@@ -131,9 +131,14 @@ impl YtMusic<OAuthToken> {
 }
 impl<A: AuthToken> YtMusic<A> {
     /// Return a raw result from YouTube music for query Q that requires further processing.
-    pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    pub(crate) async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
+    }
+    /// Return a result from YouTube music that has had errors removed and been processed into parsable JSON.
+    pub(crate) async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
+        // TODO: Check for a response the reflects an expired Headers token
+        self.token.raw_query(&self.client, query).await?.process()
     }
     /// Return the raw JSON returned by YouTube music for Query Q.
     pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
@@ -142,11 +147,7 @@ impl<A: AuthToken> YtMusic<A> {
         Ok(json)
     }
     pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
-        self.token
-            .raw_query(&self.client, query)
-            .await?
-            .process()?
-            .parse()
+        query.call(self).await
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
@@ -154,7 +155,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<SearchResults> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Artists only.
     pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
@@ -162,7 +163,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultArtist>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Albums only.
     pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
@@ -170,7 +171,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultAlbum>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Songs only.
     pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
@@ -178,7 +179,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultSong>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Playlists only.
     pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
@@ -186,7 +187,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPlaylist>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Community Playlists only.
     pub async fn search_community_playlists<
@@ -197,7 +198,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPlaylist>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Featured Playlists only.
     pub async fn search_featured_playlists<
@@ -208,7 +209,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultFeaturedPlaylist>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Episodes only.
     pub async fn search_episodes<'a, Q: Into<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>>(
@@ -216,7 +217,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultEpisode>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Podcasts only.
     pub async fn search_podcasts<'a, Q: Into<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>>(
@@ -224,7 +225,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPodcast>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Videos only.
     pub async fn search_videos<'a, Q: Into<SearchQuery<'a, FilteredSearch<VideosFilter>>>>(
@@ -232,7 +233,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultVideo>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     /// API Search Query for Profiles only.
     pub async fn search_profiles<'a, Q: Into<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>>(
@@ -240,39 +241,39 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultProfile>> {
         let query = query.into();
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     // TODO: Implement for other cases of query.
     pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
         &self,
         query: S,
     ) -> Result<WatchPlaylist> {
-        self.raw_query(query.into()).await?.process()?.parse()
+        let query = query.into();
+        query.call(self).await
     }
     pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
         query: S,
     ) -> Result<Vec<SearchSuggestion>> {
-        self.raw_query(query.into()).await?.process()?.parse()
+        let query = query.into();
+        query.call(self).await
     }
     pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
         // TODO: investigate why returning empty array
-        self.raw_query(GetLibraryPlaylistsQuery)
-            .await?
-            .process()?
-            .parse()
+        let query = GetLibraryPlaylistsQuery;
+        query.call(self).await
     }
     pub async fn get_library_artists(
         // TODO: investigate why returning empty array
@@ -280,7 +281,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: GetLibraryArtistsQuery,
     ) -> Result<Vec<LibraryArtist>> {
-        self.raw_query(query).await?.process()?.parse()
+        query.call(self).await
     }
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,
