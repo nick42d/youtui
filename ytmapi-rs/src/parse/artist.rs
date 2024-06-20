@@ -9,6 +9,7 @@ use crate::common::BrowseParams;
 use crate::common::PlaylistID;
 use crate::common::VideoID;
 use crate::common::YoutubeID;
+use crate::crawler::JsonCrawler;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::*;
 use crate::process::process_fixed_column_item;
@@ -33,14 +34,11 @@ pub struct ArtistParams {
 }
 
 impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
-    async fn parse_from<A: crate::auth::AuthToken>(
-        q: GetArtistQuery<'a>,
-        yt: &crate::YtMusic<A>,
+    fn parse_from(
+        p: ProcessedResult<GetArtistQuery<'a>>,
     ) -> crate::Result<<GetArtistQuery<'a> as Query>::Output> {
         // TODO: Make this optional.
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = yt.processed_query(q).await?;
+        let mut json_crawler: JsonCrawler = p.into();
         let mut results =
             json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         //        artist = {'description': None, 'views': None}
@@ -445,11 +443,10 @@ pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Ve
     Ok(results)
 }
 impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
-    async fn parse_from<A: crate::auth::AuthToken>(
-        q: GetArtistAlbumsQuery<'a>,
-        yt: &crate::YtMusic<A>,
+    fn parse_from(
+        p: ProcessedResult<GetArtistAlbumsQuery<'a>>,
     ) -> crate::Result<<GetArtistAlbumsQuery<'a> as Query>::Output> {
-        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
+        let json_crawler: JsonCrawler = p.into();
         let mut albums = Vec::new();
         let mut json_crawler = json_crawler.navigate_pointer(concatcp!(
             SINGLE_COLUMN_TAB,

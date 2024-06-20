@@ -11,24 +11,22 @@ use crate::{Result, Thumbnail};
 use const_format::concatcp;
 
 impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
-    async fn parse_from<A: crate::auth::AuthToken>(
-        q: GetLibraryArtistsQuery,
-        yt: &crate::YtMusic<A>,
+    fn parse_from(
+        p: ProcessedResult<GetLibraryArtistsQuery>,
     ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query>::Output> {
         // TODO: Continuations
-        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
+        let json_crawler = p.into();
         parse_library_artists(json_crawler)
     }
 }
 
 impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
-    async fn parse_from<A: crate::auth::AuthToken>(
-        q: GetLibraryPlaylistsQuery,
-        yt: &crate::YtMusic<A>,
+    fn parse_from(
+        p: ProcessedResult<GetLibraryPlaylistsQuery>,
     ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query>::Output> {
         // TODO: Continuations
         // TODO: Implement count and author fields
-        let ProcessedResult { json_crawler, .. } = yt.processed_query(q).await?;
+        let json_crawler = p.into();
         parse_library_playlist_query(json_crawler)
     }
 }
