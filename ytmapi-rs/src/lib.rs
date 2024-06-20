@@ -51,7 +51,7 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    AlbumParams, ArtistParams, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
 };

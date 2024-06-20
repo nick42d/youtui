@@ -24,5 +24,7 @@ pub trait AuthToken: Sized + Sealed {
         client: &Client,
         query: Q,
     ) -> Result<RawResult<'a, Q, Self>>;
-    fn serialize_json<Q: Query>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+    /// Process the result, by deserializing into JSON.
+    /// Current implementations do error checking against expected responses for the token here too.
+    fn deserialize_json<Q: Query>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }

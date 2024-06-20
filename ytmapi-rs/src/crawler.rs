@@ -1,4 +1,9 @@
-use crate::{error::ParseTarget, process::JsonCloner, Error, Result};
+use crate::{
+    error::{self, ParseTarget},
+    parse::ProcessedResult,
+    query::Query,
+    Error, Result,
+};
 use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc};
 
@@ -31,6 +36,17 @@ pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     cur: usize,
     len: usize,
 }
+impl<Q: Query> From<ProcessedResult<Q>> for JsonCrawler {
+    fn from(value: ProcessedResult<Q>) -> Self {
+        let (_, source, crawler) = value.destructure();
+        Self {
+            source: Arc::new(source),
+            crawler,
+            path: Default::default(),
+        }
+    }
+}
+
 impl From<&JsonPath> for String {
     fn from(value: &JsonPath) -> Self {
         match value {
@@ -275,13 +291,13 @@ impl JsonCrawler {
             path,
         })
     }
-    pub fn from_json_cloner(json_cloner: JsonCloner) -> Self {
-        let (source, crawler) = json_cloner.destructure();
-        Self {
-            source: Arc::new(source),
-            crawler,
+    pub fn from_string(string: String) -> Result<Self> {
+        Ok(Self {
+            crawler: serde_json::from_str(string.as_ref())
+                .map_err(|_| error::Error::response("Error serializing"))?,
+            source: Arc::new(string),
             path: PathList::default(),
-        }
+        })
     }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())

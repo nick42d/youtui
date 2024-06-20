@@ -1,9 +1,7 @@
 use super::private::Sealed;
 use super::AuthToken;
-use crate::crawler::JsonCrawler;
-use crate::error::{self, Error, Result};
+use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::JsonCloner;
 use crate::utils;
 use crate::{
     process::RawResult,
@@ -63,17 +61,15 @@ impl AuthToken for BrowserToken {
         let result = RawResult::from_raw(result, query, self);
         Ok(result)
     }
-    fn serialize_json<Q: Query>(
+    fn deserialize_json<Q: Query>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let (json, query) = raw.destructure();
-        let json_cloner = JsonCloner::from_string(json)
-            .map_err(|_| error::Error::response("Error serializing"))?;
-        let mut json_crawler = JsonCrawler::from_json_cloner(json_cloner);
+        let processed = ProcessedResult::from_raw(json, query)?;
         // Guard against error codes in json response.
         // TODO: Add a test for this
-        if let Ok(mut error) = json_crawler.borrow_pointer("/error") {
-            let Ok(code) = error.take_value_pointer::<u64, &str>("/code") else {
+        if let Some(error) = processed.get_json().pointer("/error") {
+            let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
                 return Err(Error::other(
                     "Error message received from server, but doesn't have an error code",
                 ));
@@ -86,8 +82,7 @@ impl AuthToken for BrowserToken {
                 other => return Err(Error::other_code(other)),
             }
         }
-
-        Ok(ProcessedResult::from_raw(json_crawler, query))
+        Ok(processed)
     }
 }
 

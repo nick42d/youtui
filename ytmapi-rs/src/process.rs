@@ -17,24 +17,6 @@ where
     json: String,
 }
 
-pub(crate) struct JsonCloner {
-    string: String,
-    json: serde_json::Value,
-}
-// TODO: Return local error.
-impl JsonCloner {
-    pub fn from_string(string: String) -> std::result::Result<Self, serde_json::Error> {
-        Ok(Self {
-            json: serde_json::from_str(string.as_ref())?,
-            string,
-        })
-    }
-    pub fn destructure(self) -> (String, serde_json::Value) {
-        let Self { string, json } = self;
-        (string, json)
-    }
-}
-
 impl<'tok, Q: Query, A: AuthToken> RawResult<'tok, Q, A> {
     pub fn from_raw(json: String, query: Q, token: &'tok A) -> Self {
         Self { query, token, json }
@@ -52,7 +34,7 @@ impl<'tok, Q: Query, A: AuthToken> RawResult<'tok, Q, A> {
         (self.json, self.query)
     }
     pub fn process(self) -> Result<ProcessedResult<Q>> {
-        A::serialize_json(self)
+        A::deserialize_json(self)
     }
 }
 // Could return FixedColumnItem

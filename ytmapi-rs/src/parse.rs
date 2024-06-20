@@ -1,14 +1,12 @@
 //! Results from parsing Innertube queries.
-use std::{fmt::Debug, future::Future, ops::Deref};
-
 use crate::{
-    auth::AuthToken,
     common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::JsonCrawlerBorrowed,
+    error,
     nav_consts::*,
-    process::{self, process_flex_column_item, JsonCloner},
+    process::{self, process_flex_column_item},
     query::Query,
-    ChannelID, YtMusic,
+    ChannelID,
 };
 use crate::{Error, Result};
 pub use album::*;
@@ -16,6 +14,7 @@ pub use artist::*;
 use const_format::concatcp;
 pub use playlists::*;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 mod album;
 mod artist;
@@ -28,10 +27,7 @@ pub trait ParseFrom<T>: Debug
 where
     T: Query,
 {
-    fn parse_from<A: AuthToken>(
-        q: T,
-        yt: &YtMusic<A>,
-    ) -> impl Future<Output = crate::Result<T::Output>>;
+    fn parse_from(p: ProcessedResult<T>) -> crate::Result<T::Output>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -267,35 +263,38 @@ where
     Q: Query,
 {
     query: Q,
-    json_crawler: JsonCrawler,
+    source: String,
+    json: serde_json::Value,
 }
 
 impl<T: Query> ProcessedResult<T> {
-    pub fn from_string(string: String, query: T) -> Self {
-        let json_clone = JsonCloner::from_string(string).unwrap();
-        Self {
+    pub(crate) fn from_raw(source: String, query: T) -> Result<Self> {
+        let json = serde_json::from_str(source.as_ref())
+            .map_err(|_| error::Error::response("Error deserializing"))?;
+        Ok(Self {
             query,
-            json_crawler: JsonCrawler::from_json_cloner(json_clone),
-        }
+            source,
+            json,
+        })
     }
-    pub(crate) fn from_raw(json_crawler: JsonCrawler, query: T) -> Self {
-        Self {
+    pub(crate) fn destructure(self) -> (T, String, serde_json::Value) {
+        let ProcessedResult {
             query,
-            json_crawler,
-        }
+            source,
+            json,
+        } = self;
+        (query, source, json)
     }
     pub(crate) fn clone_json(self) -> String {
-        self.json_crawler.get_source().to_string()
+        self.json.to_string()
+    }
+    pub(crate) fn get_json(&self) -> &serde_json::Value {
+        &self.json
     }
     // Only required when running tests
     #[cfg(test)]
     pub(crate) fn get_query(&self) -> &T {
         &self.query
-    }
-    // Only required when running tests
-    #[cfg(test)]
-    pub(crate) fn get_crawler(&self) -> &JsonCrawler {
-        &self.json_crawler
     }
 }
 

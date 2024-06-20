@@ -8,7 +8,6 @@ pub use library::*;
 pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
-use std::future::Future;
 
 mod artist;
 mod library;
@@ -25,11 +24,11 @@ pub trait Query {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
-    fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
+    async fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> Result<Self::Output>
     where
         Self: Sized,
     {
-        Self::Output::parse_from(self, yt)
+        Self::Output::parse_from(yt.processed_query(self).await?)
     }
 }
 
@@ -74,7 +73,7 @@ pub mod album {
 
 // For future use.
 pub mod continuations {
-    use crate::parse::ParseFrom;
+    use crate::parse::{ParseFrom, ProcessedResult};
 
     use super::{BasicSearch, Query, SearchQuery};
     use std::borrow::Cow;
@@ -84,9 +83,8 @@ pub mod continuations {
         query: Q,
     }
     impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
-        async fn parse_from<A: crate::auth::AuthToken>(
-            q: GetContinuationsQuery<SearchQuery<'a, BasicSearch>>,
-            yt: &crate::YtMusic<A>,
+        fn parse_from(
+            p: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
         ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query>::Output>
         {
             todo!()

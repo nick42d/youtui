@@ -63,9 +63,8 @@ fn take_music_shelf_contents(nav: &mut JsonCrawler) -> Result<MusicShelfContents
 }
 
 impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
-    async fn parse_from<A: crate::auth::AuthToken>(
-        q: GetAlbumQuery<'a>,
-        yt: &crate::YtMusic<A>,
+    fn parse_from(
+        p: ProcessedResult<GetAlbumQuery<'a>>,
     ) -> crate::Result<<GetAlbumQuery<'a> as Query>::Output> {
         // Due to limitation of the borrow checker, we can't simply pass a reference
         // to ok_or_else. So instead, we'll keep a clone handy in case of error.
@@ -75,9 +74,7 @@ impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
         // TODO: Implement pointer trace so that we can see exactly where error occurs.
         // TODO: Allow error composition - so that an error in the parsing function
         // also reports enter json_debug file.
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = yt.processed_query(q).await?;
+        let mut json_crawler = JsonCrawler::from(p);
         // TODO parse_song_runs - returns id, views and a few others.
         // Other verisions = parse_content_list.
         // Fill in Tracks album title and artist (not sure if needed).
