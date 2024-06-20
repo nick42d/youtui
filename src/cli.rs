@@ -47,16 +47,17 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
                 }),
             ..
         } => {
-            let file = tokio::fs::read_to_string(path).await?;
-            let res = ProcessedResult::from_string(
-                file,
-                GetArtistAlbumsQuery::new(
-                    ChannelID::from_raw(channel_id),
-                    BrowseParams::from_raw(browse_params),
-                ),
-            )
-            .parse()?;
-            println!("{:#?}", res);
+            // let file = tokio::fs::read_to_string(path).await?;
+            // let res = ProcessedResult::from_string(
+            //     file,
+            //     GetArtistAlbumsQuery::new(
+            //         ChannelID::from_raw(channel_id),
+            //         BrowseParams::from_raw(browse_params),
+            //     ),
+            // )
+            // .parse()?;
+            // println!("{:#?}", res);
+            todo!();
         }
         Cli {
             input_json: Some(path),

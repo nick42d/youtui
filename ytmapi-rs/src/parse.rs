@@ -1,5 +1,5 @@
 //! Results from parsing Innertube queries.
-use std::ops::Deref;
+use std::{fmt::Debug, future::Future, ops::Deref};
 
 use crate::{
     auth::AuthToken,
@@ -24,11 +24,14 @@ mod library;
 mod playlists;
 mod search;
 
-pub(crate) trait ParseFrom<T>
+pub trait ParseFrom<T>: Debug
 where
     T: Query,
 {
-    async fn parse_from<A: AuthToken>(q: T, yt: &YtMusic<A>) -> crate::Result<T::Output>;
+    fn parse_from<A: AuthToken>(
+        q: T,
+        yt: &YtMusic<A>,
+    ) -> impl Future<Output = crate::Result<T::Output>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

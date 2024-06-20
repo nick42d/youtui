@@ -18,6 +18,7 @@ mod search;
 // TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.
 pub trait Query {
+    // TODO: Consider if it's possible to remove the Self: Sized restriction to turn this into a trait object.
     type Output: ParseFrom<Self>
     where
         Self: Sized;
