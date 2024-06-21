@@ -1,0 +1,3 @@
+# Auto format comment width for this project. Note that this is an unstable feature.
+unstable_features = true
+wrap_comments = true
