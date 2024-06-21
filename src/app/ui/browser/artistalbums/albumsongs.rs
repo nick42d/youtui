@@ -83,7 +83,8 @@ impl Default for FilterManager {
 }
 
 impl TextHandler for FilterManager {
-    // XXX: This is copy/paste from SearchBlock, so can an interface be made for this?
+    // XXX: This is copy/paste from SearchBlock, so can an interface be made for
+    // this?
     fn push_text(&mut self, c: char) {
         self.filter_text.push(c);
         self.filter_cur += 1;
@@ -191,7 +192,8 @@ impl AlbumSongsPanel {
             });
 
             if row_matches_filter {
-                // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+                // XXX: Seems to be a double allocation here - may be able to use dereferences
+                // to address.
                 Some(ls)
             } else {
                 None
@@ -224,8 +226,8 @@ impl AlbumSongsPanel {
     pub fn toggle_filter(&mut self) {
         let shown = self.filter.shown;
         if !shown {
-            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do it at the time of showing,
-            // so it cannot be missed.
+            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
+            // it at the time of showing, so it cannot be missed.
             self.filter.filter_cur = 0;
             self.filter.filter_text.clear();
             self.route = AlbumSongsInputRouting::Filter;
@@ -288,8 +290,9 @@ impl AlbumSongsPanel {
     }
     pub fn handle_songs_found(&mut self) {
         self.list.clear();
-        // XXX: Consider clearing sort params here, so that we don't need to sort all the incoming songs. Performance seems OK for now.
-        // XXX: Consider also clearing filter params here.
+        // XXX: Consider clearing sort params here, so that we don't need to sort all
+        // the incoming songs. Performance seems OK for now. XXX: Consider also
+        // clearing filter params here.
         self.cur_selected = 0;
         self.list.state = ListStatus::InProgress;
     }
@@ -432,7 +435,8 @@ impl TableView for AlbumSongsPanel {
                     None
                 }
             });
-            // XXX: Seems to be a double allocation here - may be able to use dereferences to address.
+            // XXX: Seems to be a double allocation here - may be able to use dereferences
+            // to address.
             Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
         });
         Box::new(b)
@@ -459,8 +463,9 @@ impl SortableTableView for AlbumSongsPanel {
             get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
-        // Remove commands that already exist for the same column, as this new command will trump the old ones.
-        // Slightly naive - loops the whole vec, could short circuit.
+        // Remove commands that already exist for the same column, as this new command
+        // will trump the old ones. Slightly naive - loops the whole vec, could
+        // short circuit.
         self.sort
             .sort_commands
             .retain(|cmd| cmd.column != sort_command.column);
@@ -500,7 +505,8 @@ impl SortableTableView for AlbumSongsPanel {
 }
 
 fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands being received.
+    // Consider a blocking type of keybind for this that stops all other commands
+    // being received.
     vec![
         KeyCommand::new_global_from_code(
             KeyCode::F(4),
@@ -537,7 +543,8 @@ fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
 }
 
 fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands being received.
+    // Consider a blocking type of keybind for this that stops all other commands
+    // being received.
     vec![
         KeyCommand::new_global_from_code(
             KeyCode::F(3),

@@ -23,9 +23,12 @@ pub struct TaskManager {
 }
 
 enum _TaskType {
-    Killable(KillableTask), // A task that can be called by the caller. Once killed, the caller will stop receiving messages to prevent race conditions.
-    Blockable(TaskID), // A task that the caller can block from receiving further messages, but cannot be killed.
-    Completable(TaskID), // A task that cannot be killed or blocked. Will always run until completion.
+    Killable(KillableTask), /* A task that can be called by the caller. Once killed, the caller
+                             * will stop receiving messages to prevent race conditions. */
+    Blockable(TaskID), /* A task that the caller can block from receiving further messages, but
+                        * cannot be killed. */
+    Completable(TaskID), /* A task that cannot be killed or blocked. Will always run until
+                          * completion. */
 }
 
 #[derive(PartialEq, Default, Debug, Copy, Clone)]
@@ -102,7 +105,8 @@ impl TaskManager {
     }
     pub async fn send_request(&mut self, request: AppRequest) {
         let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
-        // NOTE: We allocate as we want to keep a copy of the same message that was sent.
+        // NOTE: We allocate as we want to keep a copy of the same message that was
+        // sent.
         let id = self.add_task(kill_tx, request.clone());
         match request {
             AppRequest::SearchArtists(a) => self.spawn_search_artists(a, id, kill_rx).await,
@@ -121,7 +125,8 @@ impl TaskManager {
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
         };
     }
-    // TODO: Consider if this should create it's own channel and return a KillableTask.
+    // TODO: Consider if this should create it's own channel and return a
+    // KillableTask.
     fn add_task(
         &mut self,
         kill: tokio::sync::oneshot::Sender<KillRequest>,

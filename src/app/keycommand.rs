@@ -68,8 +68,9 @@ impl Keybind {
     }
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         match self.code {
-            // If key code is a character it may have shift pressed, if that's the case ignore the shift
-            // As may have been used to capitalise the letter, which will already be counted in the key code.
+            // If key code is a character it may have shift pressed, if that's the case ignore the
+            // shift As may have been used to capitalise the letter, which will already
+            // be counted in the key code.
             KeyCode::Char(_) => {
                 self.code == keyevent.code
                     && self.modifiers.union(KeyModifiers::SHIFT)

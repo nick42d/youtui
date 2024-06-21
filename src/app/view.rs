@@ -122,16 +122,19 @@ pub fn basic_constraints_to_table_constraints(
 }
 
 // A struct that is able to be "scrolled". An item will always be selected.
-// XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have common keybinds.
+// XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have
+// common keybinds.
 pub trait Scrollable {
     // Increment the list by the specified amount.
     fn increment_list(&mut self, amount: isize);
     fn get_selected_item(&self) -> usize;
 }
-/// A struct that can either be scrolled or forward scroll commands to a component.
+/// A struct that can either be scrolled or forward scroll commands to a
+/// component.
 // To allow scrolling at a top level.
 pub trait MaybeScrollable {
-    /// Try to increment the list by the selected amount, return true if command was handled.
+    /// Try to increment the list by the selected amount, return true if command
+    /// was handled.
     fn increment_list(&mut self, amount: isize) -> bool;
     /// Return true if a scrollable component in the application is active.
     fn scrollable_component_active(&self) -> bool;
@@ -142,8 +145,10 @@ pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
-    // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a SortableTable), as possible we don't want to sort the Playlist (what happens to play order, for eg).
-    // Could have a "commontitle" trait to prevent the need for this in both Table and List
+    // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
+    // SortableTable), as possible we don't want to sort the Playlist (what happens
+    // to play order, for eg). Could have a "commontitle" trait to prevent the
+    // need for this in both Table and List
     fn get_title(&self) -> Cow<str>;
     fn get_layout(&self) -> &[BasicConstraint];
     // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
@@ -158,7 +163,8 @@ pub trait TableView: Scrollable + Loadable {
 pub trait SortableTableView: TableView {
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
-    /// This can fail if the TableSortCommand is not within the range of sortable columns.
+    /// This can fail if the TableSortCommand is not within the range of
+    /// sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()>;
     fn clear_sort_commands(&mut self);
     // Assuming a SortableTable is also Filterable.

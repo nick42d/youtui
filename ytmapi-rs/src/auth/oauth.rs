@@ -36,6 +36,8 @@ struct GoogleOAuthToken {
     pub access_token: String,
     pub expires_in: usize,
     pub refresh_token: String,
+    // Unused currently - for future use
+    #[allow(dead_code)]
     pub scope: String,
     pub token_type: String,
 }
@@ -43,6 +45,8 @@ struct GoogleOAuthToken {
 struct GoogleOAuthRefreshToken {
     pub access_token: String,
     pub expires_in: usize,
+    // Unused currently - for future use
+    #[allow(dead_code)]
     pub scope: String,
     pub token_type: String,
 }

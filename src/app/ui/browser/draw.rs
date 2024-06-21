@@ -102,7 +102,8 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         // TODO: Remove allocation
         .collect();
     let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
-    // List looks a bit nicer with a minimum width, so passing a hardcoded minimum here.
+    // List looks a bit nicer with a minimum width, so passing a hardcoded minimum
+    // here.
     let width = max_header_len.max(title.len()).max(MIN_POPUP_WIDTH) + 2;
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
@@ -191,7 +192,8 @@ fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bo
                         }
                         TextRun::Normal(str) => Span::raw(str),
                     }))
-                    // XXX: Ratatui upgrades may allow this to be passed lazily instead of collecting.
+                    // XXX: Ratatui upgrades may allow this to be passed lazily instead of
+                    // collecting.
                     .collect::<Vec<Span>>(),
             ))
         })

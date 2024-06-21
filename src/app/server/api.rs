@@ -68,8 +68,9 @@ impl Api {
         }
     }
     async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic<BrowserToken>> {
-        // NOTE: This function returns a different type of error if not called before, due to difficulties
-        // I'm having in saving Result<T,E> but returning Result<&T, E>.
+        // NOTE: This function returns a different type of error if not called before,
+        // due to difficulties I'm having in saving Result<T,E> but returning
+        // Result<&T, E>.
         if let Some(handle) = self.api_init.take() {
             let api = handle.await??;
             self.api = Some(api);
@@ -230,7 +231,8 @@ impl Api {
                     .await;
                 tracing::info!("Running songs query");
                 // Should this be a ChannelID or BrowseID? Should take a trait?.
-                // Should this actually take ChannelID::try_from(BrowseID::Artist) -> ChannelID::Artist?
+                // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
+                // ChannelID::Artist?
                 let artist = api
                     .get_artist(ytmapi_rs::query::GetArtistQuery::new(
                         ytmapi_rs::ChannelID::from_raw(browse_id.get_raw()),

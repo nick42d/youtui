@@ -198,7 +198,8 @@ fn parse_top_results_from_music_card_shelf_contents(
     let mut other_results = music_shelf_contents
         .navigate_pointer("/contents")?
         .as_array_iter_mut()?
-        // Seems this won't work, as Song in Card renderer has less fields than Song in basic renderer.
+        // Seems this won't work, as Song in Card renderer has less fields than Song in basic
+        // renderer.
         .map(|r| parse_top_result_from_music_shelf_contents(r))
         // TODO: Remove allocation.
         .collect::<Result<Vec<TopResult>>>()?;
@@ -234,8 +235,8 @@ fn parse_top_result_from_music_shelf_contents(
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             album = Some(parse_item_text(&mut mrlir, 1, 4)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
-            // This does not show up in all Card renderer results and so we'll define it as optional.
-            // TODO: Could make this more type safe in future.
+            // This does not show up in all Card renderer results and so we'll define it as
+            // optional. TODO: Could make this more type safe in future.
             plays = parse_item_text(&mut mrlir, 1, 8).ok();
         }
         Ok(TopResultType::Video) => todo!(),
@@ -248,8 +249,8 @@ fn parse_top_result_from_music_shelf_contents(
             artist = Some(result_type_string);
             album = Some(parse_item_text(&mut mrlir, 1, 2)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 4)?);
-            // This does not show up in all Card renderer results and so we'll define it as optional.
-            // TODO: Could make this more type safe in future.
+            // This does not show up in all Card renderer results and so we'll define it as
+            // optional. TODO: Could make this more type safe in future.
             plays = parse_item_text(&mut mrlir, 1, 6).ok();
         }
     }

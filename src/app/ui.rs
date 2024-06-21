@@ -106,7 +106,8 @@ impl DominantKeyRouter for YoutuiWindow {
     }
 }
 
-// We can't implemnent KeyRouter, as it would require us to have a single Action type for the whole application.
+// We can't implemnent KeyRouter, as it would require us to have a single Action
+// type for the whole application.
 impl KeyDisplayer for YoutuiWindow {
     // XXX: Can turn these boxed iterators into types.
     fn get_all_keybinds_as_readable_iter<'a>(
@@ -412,8 +413,8 @@ impl YoutuiWindow {
     }
 
     async fn global_handle_key_stack(&mut self) {
-        // First handle my own keybinds, otherwise forward if our keybinds are not dominant.
-        // TODO: Remove allocation
+        // First handle my own keybinds, otherwise forward if our keybinds are not
+        // dominant. TODO: Remove allocation
         match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
             KeyHandleAction::Action(a) => {
                 self.handle_action(&a).await;
@@ -457,11 +458,13 @@ impl YoutuiWindow {
             self.help.shown = true;
             // Setup Help menu parameters
             self.help.cur = 0;
-            // We have to get the keybind length this way as the help menu iterator is not ExactSized
+            // We have to get the keybind length this way as the help menu iterator is not
+            // ExactSized
             self.help.len = self.get_all_visible_keybinds_as_readable_iter().count();
         }
     }
-    /// Visually increment the volume, note, does not actually change the volume.
+    /// Visually increment the volume, note, does not actually change the
+    /// volume.
     fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
     }

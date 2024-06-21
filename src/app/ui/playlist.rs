@@ -177,7 +177,8 @@ impl SongListComponent for Playlist {
 
 impl Playlist {
     pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
-        // This could fail, made to try send to avoid needing to change function signature to asynchronous. Should change.
+        // This could fail, made to try send to avoid needing to change function
+        // signature to asynchronous. Should change.
         ui_tx
             .try_send(AppCallback::GetVolume)
             .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
@@ -209,7 +210,8 @@ impl Playlist {
         update: DownloadProgressUpdateType,
         id: ListSongID,
     ) {
-        // Not valid if song doesn't exist or hasn't initiated download (i.e - task cancelled).
+        // Not valid if song doesn't exist or hasn't initiated download (i.e - task
+        // cancelled).
         if let Some(song) = self.get_song_from_id(id) {
             match song.download_status {
                 DownloadStatus::None | DownloadStatus::Downloaded(_) | DownloadStatus::Failed => {
@@ -301,8 +303,8 @@ impl Playlist {
             }
         }
         self.list.remove_song_index(cur_selected_idx);
-        // If we are removing a song at a position less than current index, decrement current index.
-        // NOTE: Ok to simply take, if list only had one element.
+        // If we are removing a song at a position less than current index, decrement
+        // current index. NOTE: Ok to simply take, if list only had one element.
         if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
             // Safe, as checked above that cur_idx >= 0
             self.cur_selected -= 1;
@@ -330,8 +332,8 @@ impl Playlist {
         self.play_prev().await;
     }
     pub fn increase_volume(&mut self, inc: i8) {
-        // Update the volume in the UI for immediate visual feedback - response will be delayed one tick.
-        // NOTE: could cause some visual race conditions.
+        // Update the volume in the UI for immediate visual feedback - response will be
+        // delayed one tick. NOTE: could cause some visual race conditions.
         self.volume.0 = self.volume.0.saturating_add_signed(inc).clamp(0, 100);
     }
     // Returns the ID of the first song added.
@@ -353,7 +355,8 @@ impl Playlist {
         }
         self.clear()
         // XXX: Also need to kill pending download tasks
-        // Alternatively, songs could kill their own download tasks on drop (RAII).
+        // Alternatively, songs could kill their own download tasks on drop
+        // (RAII).
     }
     pub fn clear(&mut self) {
         self.cur_played_secs = None;
@@ -448,7 +451,8 @@ impl Playlist {
             self.download_song_if_exists(song_id).await;
         }
     }
-    /// Drop strong reference from previous songs or songs above the buffer list size to drop them from memory.
+    /// Drop strong reference from previous songs or songs above the buffer list
+    /// size to drop them from memory.
     pub fn drop_unscoped_from_id(&mut self, id: ListSongID) {
         let Some(song_index) = self.get_index_from_id(id) else {
             return;
@@ -458,12 +462,14 @@ impl Playlist {
         info!(forward_limit, backwards_limit);
         for song in self.list.get_list_iter_mut().take(backwards_limit) {
             // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not dropped from memory.
+            // TODO: Write a change download status function that will warn if song is not
+            // dropped from memory.
             song.download_status = DownloadStatus::None
         }
         for song in self.list.get_list_iter_mut().skip(forward_limit) {
             // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not dropped from memory.
+            // TODO: Write a change download status function that will warn if song is not
+            // dropped from memory.
             song.download_status = DownloadStatus::None
         }
     }

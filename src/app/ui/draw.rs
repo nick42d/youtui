@@ -55,8 +55,8 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
     footer::draw_footer(f, w, base_layout[2]);
 }
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
-    // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
-    // If there are no commands, no need to draw anything.
+    // NOTE: if there are more commands than we can fit on the screen, some will be
+    // cut off. If there are no commands, no need to draw anything.
     let Some(DisplayableMode {
         displayable_commands: commands,
         description: title,
@@ -107,11 +107,13 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
 }
 
 fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rect) {
-    // NOTE: if there are more commands than we can fit on the screen, some will be cut off.
+    // NOTE: if there are more commands than we can fit on the screen, some will be
+    // cut off.
     let commands = w.get_all_visible_keybinds_as_readable_iter();
-    // Get the maximum length of each element in the tuple vector created above, as well as the number of items.
-    // XXX: Probably don't need to map then fold, just fold.
-    // XXX: Fold closure could be written as a function, then becomes testable.
+    // Get the maximum length of each element in the tuple vector created above, as
+    // well as the number of items. XXX: Probably don't need to map then fold,
+    // just fold. XXX: Fold closure could be written as a function, then becomes
+    // testable.
     let (mut s_len, mut c_len, mut d_len, items) = commands
         .map(
             |DisplayableCommand {

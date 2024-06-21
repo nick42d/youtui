@@ -69,8 +69,9 @@ pub fn spawn_rodio_thread(
     response_tx: mpsc::Sender<super::Response>,
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
-        // Rodio can produce output to stderr when we don't want it to, so we use Gag to suppress stdout/stderr.
-        // The downside is that even though this runs in a seperate thread all stderr for the whole app may be gagged.
+        // Rodio can produce output to stderr when we don't want it to, so we use Gag to
+        // suppress stdout/stderr. The downside is that even though this runs in
+        // a seperate thread all stderr for the whole app may be gagged.
         // Also seems to spew out characters?
         // TODO: also handle the errors from Rodio, or write to a file.
         let _gag = match gag::Gag::stderr() {
@@ -107,7 +108,8 @@ pub fn spawn_rodio_thread(
                             sink.play();
                         }
                         debug!("Now playing {:?}", id);
-                        // Send the Now Playing message for good orders sake to avoid synchronization issues.
+                        // Send the Now Playing message for good orders sake to avoid
+                        // synchronization issues.
                         blocking_send_or_error(
                             &response_tx,
                             super::Response::Player(Response::Playing(song_id, id)),
@@ -142,7 +144,8 @@ pub fn spawn_rodio_thread(
                                 &response_tx,
                                 super::Response::Player(Response::Playing(song_id, id)),
                             );
-                        // We don't want to pause if sink is empty (but case could be handled in Playlist also)
+                        // We don't want to pause if sink is empty (but case
+                        // could be handled in Playlist also)
                         } else if !sink.is_paused() && !sink.empty() {
                             sink.pause();
                             info!("Sending Pause message {:?}", id);
@@ -152,7 +155,8 @@ pub fn spawn_rodio_thread(
                             );
                         }
                     }
-                    // XXX: May be able to handle this by reporting progress updates when playing instead of needing to request/response here.
+                    // XXX: May be able to handle this by reporting progress updates when playing
+                    // instead of needing to request/response here.
                     Request::GetPlayProgress(song_id, id) => {
                         debug!("Got message to provide song progress update");
                         if cur_song_id == song_id {
@@ -195,8 +199,9 @@ pub fn spawn_rodio_thread(
                     }
                 }
             }
-            // Avoid empty infinite loop, but still poll more frequently than when sending progress updates for responsiveness.
-            // TODO: Maintain the responsiveness whilst still sending progress updates.
+            // Avoid empty infinite loop, but still poll more frequently than when sending
+            // progress updates for responsiveness. TODO: Maintain the
+            // responsiveness whilst still sending progress updates.
             // TODO: Better architecture for this component in general.
             last_tick_time = std::time::Instant::now();
             std::thread::sleep(EVENT_POLL_INTERVAL);

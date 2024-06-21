@@ -8,6 +8,7 @@ pub use library::*;
 pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
+use std::future::Future;
 
 mod artist;
 mod library;
@@ -24,11 +25,11 @@ pub trait Query {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
-    async fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> Result<Self::Output>
+    fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
     where
         Self: Sized,
     {
-        Self::Output::parse_from(yt.processed_query(self).await?)
+        async { Self::Output::parse_from(yt.processed_query(self).await?) }
     }
 }
 
@@ -37,7 +38,6 @@ pub mod album {
     use crate::{
         common::{AlbumID, YoutubeID},
         parse::AlbumParams,
-        Result,
     };
     use serde_json::json;
     use std::borrow::Cow;

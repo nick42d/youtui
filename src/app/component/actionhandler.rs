@@ -8,19 +8,21 @@ pub trait Action {
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
-/// A component of the application that has different keybinds depending on what is focussed.
-/// For example, keybinds for browser may differ depending on selected pane.
-/// A keyrouter does not necessarily need to be a keyhandler and vice-versa.
-/// e.g a component that routes all keys and doesn't have its own commands,
-/// Or a component that handles but does not route.
+/// A component of the application that has different keybinds depending on what
+/// is focussed. For example, keybinds for browser may differ depending on
+/// selected pane. A keyrouter does not necessarily need to be a keyhandler and
+/// vice-versa. e.g a component that routes all keys and doesn't have its own
+/// commands, Or a component that handles but does not route.
 /// Not every KeyHandler is a KeyRouter - e.g the individual panes themselves.
 /// NOTE: To implment this, the component can only have a single Action type.
 // XXX: Could possibly be a part of EventHandler instead.
 // XXX: Does this actually need to be a keyhandler?
 pub trait KeyRouter<A: Action> {
-    /// Get the list of active keybinds that the component and its route contain.
+    /// Get the list of active keybinds that the component and its route
+    /// contain.
     fn get_routed_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
-    /// Get the list of keybinds that the component and any child items can contain, regardless of current route.
+    /// Get the list of keybinds that the component and any child items can
+    /// contain, regardless of current route.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
     // e.g - for use in help menu.
     fn get_all_visible_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
@@ -40,24 +42,27 @@ pub trait KeyRouter<A: Action> {
     }
 }
 /// A component of the application that can block parent keybinds.
-/// For example, a component that can display a modal dialog that will prevent other inputs.
+/// For example, a component that can display a modal dialog that will prevent
+/// other inputs.
 pub trait DominantKeyRouter {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
 }
 
 /// A component of the application that can display all it's keybinds.
-/// Not every KeyHandler/KeyRouter is a DisplayableKeyRouter - as DisplayAbleKeyRouter unables conversion of typed Actions to generic.
+/// Not every KeyHandler/KeyRouter is a DisplayableKeyRouter - as
+/// DisplayAbleKeyRouter unables conversion of typed Actions to generic.
 // TODO: Type safety
 // Could possibly be a part of EventHandler instead.
 pub trait KeyDisplayer {
     // XXX: Can these all just be derived from KeyRouter?
-    /// Get the list of all keybinds that the KeyHandler and any child items can contain, regardless of context.
+    /// Get the list of all keybinds that the KeyHandler and any child items can
+    /// contain, regardless of context.
     fn get_all_visible_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
-    /// Get the list of all non-hidden keybinds that the KeyHandler and any child items can contain,
-    /// regardless of context.
+    /// Get the list of all non-hidden keybinds that the KeyHandler and any
+    /// child items can contain, regardless of context.
     fn get_all_keybinds_as_readable_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
@@ -75,16 +80,16 @@ pub trait TextHandler {
     fn pop_text(&mut self);
     // Assume internal representation is a String.
     fn take_text(&mut self) -> String;
-    // Assume internal representation is a String and we'll simply replace it with text.
-    // Into<String> may also work.
+    // Assume internal representation is a String and we'll simply replace it with
+    // text. Into<String> may also work.
     fn replace_text(&mut self, text: String);
     fn is_text_handling(&self) -> bool;
     fn handle_text_entry(&mut self, key_event: KeyEvent) -> bool {
         if !self.is_text_handling() {
             return false;
         }
-        // The only accepted modifier is shift - if pressing another set of modifiers, we won't handle it.
-        // Somewhere else should instead.
+        // The only accepted modifier is shift - if pressing another set of modifiers,
+        // we won't handle it. Somewhere else should instead.
         if !key_event.modifiers.is_empty() {
             if key_event.modifiers != KeyModifiers::SHIFT {
                 return false;
@@ -191,7 +196,8 @@ where
     }
     KeyHandleOutcome::NoMap
 }
-/// If a list of Keybinds contains a binding for the index KeyEvent, return that KeyEvent.
+/// If a list of Keybinds contains a binding for the index KeyEvent, return that
+/// KeyEvent.
 pub fn index_keybinds<'a, A: Action>(
     binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
     index: &KeyEvent,
@@ -201,7 +207,8 @@ pub fn index_keybinds<'a, A: Action>(
         .find(|kb| kb.contains_keyevent(index))
         .map(|kb| &kb.key_map)
 }
-/// Recursively indexes into a Keymap using a list of KeyEvents. Yields the presented Keymap,
+/// Recursively indexes into a Keymap using a list of KeyEvents. Yields the
+/// presented Keymap,
 //  or none if one of the indexes fails to return a value.
 pub fn index_keymap<'a, A: Action>(
     map: &'a Keymap<A>,

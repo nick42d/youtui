@@ -86,7 +86,8 @@ where
     let list_items: Vec<_> = list
         .get_items_display()
         .iter()
-        // We are allocating here, as list item only implements Display (not Into<Cow>). Consider changing this.
+        // We are allocating here, as list item only implements Display (not Into<Cow>). Consider
+        // changing this.
         .map(|item| ListItem::new(item.to_string()))
         // We are allocating here, as List::new won't take an iterator. May change in future.
         .collect();

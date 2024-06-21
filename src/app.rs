@@ -44,7 +44,8 @@ pub struct Youtui {
 }
 
 // Mutable state for scrollable widgets.
-// This needs to be stored seperately so that we don't have concurrent mutable access.
+// This needs to be stored seperately so that we don't have concurrent mutable
+// access.
 #[derive(Default)]
 pub struct YoutuiMutableState {
     pub filter_state: ListState,
@@ -90,14 +91,16 @@ impl Youtui {
         let tui_logger_layer = tui_logger::tracing_subscriber_layer();
         // Hold off implementing log file until dirs improved.
         // let log_file = std::fs::File::create(get_data_dir()?.join(LOG_FILE_NAME))?;
-        // let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
+        // let log_file_layer =
+        // tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
         // TODO: Confirm if this filter is correct.
         let context_layer =
             tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::DEBUG);
         tracing_subscriber::registry()
             .with(
-                tui_logger_layer, // Hold off from implementing log file until dirs support improved.
-                                  // .and_then(log_file_layer)
+                tui_logger_layer, /* Hold off from implementing log file until dirs support
+                                   * improved.
+                                   * .and_then(log_file_layer) */
             )
             .with(context_layer)
             .init();
@@ -137,10 +140,12 @@ impl Youtui {
                     self.handle_next_event().await;
                     // Process any callbacks in the queue.
                     self.process_callbacks().await;
-                    // Get the state update events from the task manager and apply them to the window state.
+                    // Get the state update events from the task manager and apply them to the
+                    // window state.
                     self.synchronize_state().await;
                     // Write to terminal, using UI state as the input
-                    // We draw after handling the event, as the event could be a keypress we want to instantly react to.
+                    // We draw after handling the event, as the event could be a keypress we want to
+                    // instantly react to.
                     self.terminal.draw(|f| {
                         ui::draw::draw_app(f, &self.window_state, &mut self.window_mutable_state);
                     })?;

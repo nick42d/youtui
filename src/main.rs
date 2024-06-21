@@ -35,7 +35,8 @@ struct Arguments {
 #[derive(Args, Debug, Clone)]
 // Probably shouldn't be public
 pub struct Cli {
-    /// Print the source output Json from YouTube Music's API instead of the processed value.
+    /// Print the source output Json from YouTube Music's API instead of the
+    /// processed value.
     #[arg(short, long, default_value_t = false)]
     show_source: bool,
     /// Process the passed Json file as if it were received from YouTube Music.
@@ -238,8 +239,8 @@ async fn load_oauth_file() -> Result<OAuthToken> {
         .map_err(|_| Error::new_auth_token_parse_error(config::AuthType::OAuth, path))
 }
 
-/// Create the Config and Data directories for the app if they do not already exist.
-/// Returns an error if unsuccesful.
+/// Create the Config and Data directories for the app if they do not already
+/// exist. Returns an error if unsuccesful.
 async fn initialise_directories() -> Result<()> {
     let config_dir = get_config_dir()?;
     let data_dir = get_data_dir()?;

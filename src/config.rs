@@ -7,9 +7,9 @@ const CONFIG_FILE_NAME: &str = "config.toml";
 
 #[derive(Serialize, Deserialize)]
 pub enum ApiKey {
-    // XXX: These could actually take the appropriate tokens from the API, if that part of the interface is opened.
-    // If that's the case we can do some additional parsing before we reach the app.
-    // Currently OAuthToken is public but not BrowserToken
+    // XXX: These could actually take the appropriate tokens from the API, if that part of the
+    // interface is opened. If that's the case we can do some additional parsing before we
+    // reach the app. Currently OAuthToken is public but not BrowserToken
     OAuthToken(OAuthToken),
     BrowserToken(String),
 }

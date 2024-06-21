@@ -287,8 +287,9 @@ impl Browser {
         }
     }
     // Ask the UI for search suggestions for the current query
-    // XXX: Currently has race conditions - if list is cleared response will arrive afterwards.
-    // Proposal: When recieving a message from the app validate against query string.
+    // XXX: Currently has race conditions - if list is cleared response will arrive
+    // afterwards. Proposal: When recieving a message from the app validate
+    // against query string.
     fn fetch_search_suggestions(&mut self) {
         // No need to fetch search suggestions if contents is empty.
         if self.artist_list.search.search_contents.is_empty() {
