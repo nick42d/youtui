@@ -286,7 +286,8 @@ impl<T: Query> ProcessedResult<T> {
         (query, source, json)
     }
     pub(crate) fn clone_json(self) -> String {
-        self.json.to_string()
+        serde_json::to_string_pretty(&self.json)
+            .expect("Serialization of serde_json::value should not fail")
     }
     pub(crate) fn get_json(&self) -> &serde_json::Value {
         &self.json
