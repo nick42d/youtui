@@ -42,7 +42,7 @@ pub struct Cli {
     #[arg(short, long)]
     input_json: Option<PathBuf>,
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Option<Command>,
 }
 #[derive(Subcommand, Debug, Clone)]
 enum AuthCmd {
@@ -53,7 +53,7 @@ enum AuthCmd {
     },
 }
 #[derive(Subcommand, Debug, Clone)]
-enum Commands {
+enum Command {
     GetSearchSuggestions {
         query: String,
     },

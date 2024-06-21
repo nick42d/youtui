@@ -51,7 +51,7 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    AlbumParams, ArtistParams, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
 };
@@ -130,13 +130,14 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
+    //TODO: Usage examples
     /// Return a raw result from YouTube music for query Q that requires further processing.
-    pub(crate) async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
     /// Return a result from YouTube music that has had errors removed and been processed into parsable JSON.
-    pub(crate) async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
+    pub async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
@@ -148,6 +149,11 @@ impl<A: AuthToken> YtMusic<A> {
     }
     pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
         query.call(self).await
+    }
+    /// Process a string of JSON as if it had been directly received from the api for a query.
+    /// Note that this is generic across AuthToken.
+    pub fn process_json<Q: Query>(&self, json: String, query: Q) -> Result<Q::Output> {
+        Q::Output::parse_from(RawResult::from_raw(json, query, &self.token).process()?)
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
