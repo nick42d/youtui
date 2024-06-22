@@ -350,20 +350,15 @@ fn parse_item_text(
 
 #[cfg(test)]
 mod tests {
-
-    use crate::{process::JsonCloner, query::SearchQuery};
-
+    use crate::query::SearchQuery;
     use super::*;
 
     #[tokio::test]
     async fn test_all_processed_impl() {
         let query = SearchQuery::new("Beatles");
-        let cloner = JsonCloner::from_string("{\"name\": \"John Doe\"}".to_string()).unwrap();
-        let json_crawler = JsonCrawler::from_json_cloner(cloner);
-        let json_crawler_clone = json_crawler.clone();
-        let raw = ProcessedResult::from_raw(json_crawler, query.clone());
-        assert_eq!(&query, raw.get_query());
-        assert_eq!(&json_crawler_clone, raw.get_crawler());
+        let source = "{\"name\": \"John Doe\"}".to_string();
+        let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
+        assert_eq!(&query, p.get_query());
     }
 }
 
@@ -395,11 +390,7 @@ mod lyrics {
     #[cfg(test)]
     mod tests {
         use crate::{
-            common::{browsing::Lyrics, LyricsID},
-            crawler::JsonCrawler,
-            parse::ProcessedResult,
-            process::JsonCloner,
-            query::lyrics::GetLyricsQuery,
+            auth::BrowserToken, common::{browsing::Lyrics, LyricsID}, query::lyrics::GetLyricsQuery, YtMusic
         };
 
         #[tokio::test]
@@ -409,13 +400,9 @@ mod lyrics {
             let file = tokio::fs::read_to_string(path)
                 .await
                 .expect("Expect file read to pass during tests");
-            let json_clone = JsonCloner::from_string(file).unwrap();
             // Blank query has no bearing on function
             let query = GetLyricsQuery::new(LyricsID("".into()));
-            let output =
-                ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-                    .parse()
-                    .unwrap();
+            let output = YtMusic::<BrowserToken>::process_json(file, query).unwrap();
             assert_eq!(
                 output,
                 Lyrics {

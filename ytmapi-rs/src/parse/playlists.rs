@@ -90,13 +90,8 @@ impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
 #[cfg(test)]
 mod tests {
     use std::path::Path;
-
     use crate::{
-        common::{browsing::Lyrics, LyricsID, PlaylistID, YoutubeID},
-        crawler::JsonCrawler,
-        parse::ProcessedResult,
-        process::JsonCloner,
-        query::{lyrics::GetLyricsQuery, GetPlaylistQuery},
+        auth::BrowserToken, common::{PlaylistID, YoutubeID}, query::GetPlaylistQuery, YtMusic
     };
     use pretty_assertions::assert_eq;
 
@@ -111,12 +106,9 @@ mod tests {
             .await
             .expect("Expect file read to pass during tests");
         let expected = expected.trim();
-        let json_clone = JsonCloner::from_string(source).unwrap();
         // Blank query has no bearing on function
         let query = GetPlaylistQuery::new(PlaylistID::from_raw(""));
-        let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-            .parse()
-            .unwrap();
+        let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
     }

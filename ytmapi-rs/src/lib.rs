@@ -152,8 +152,9 @@ impl<A: AuthToken> YtMusic<A> {
     }
     /// Process a string of JSON as if it had been directly received from the api for a query.
     /// Note that this is generic across AuthToken.
-    pub fn process_json<Q: Query>(&self, json: String, query: Q) -> Result<Q::Output> {
-        Q::Output::parse_from(RawResult::from_raw(json, query, &self.token).process()?)
+    /// NOTE: Potentially can be removed from impl
+    pub fn process_json<Q: Query>(json: String, query: Q) -> Result<Q::Output> {
+        Q::Output::parse_from(RawResult::<Q,A>::from_raw(json, query).process()?)
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(

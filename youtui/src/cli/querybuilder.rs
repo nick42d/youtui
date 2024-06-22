@@ -182,8 +182,7 @@ async fn get_string_output_of_query<Q: Query, A: AuthToken>(
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: false,
-        } => yt
-            .process_json(source, q)
+        } => YtMusic::<A>::process_json(source,q)
             .map(|r| format!("{:#?}", r))
             .map_err(|e| e.into()),
     }

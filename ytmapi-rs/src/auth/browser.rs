@@ -22,8 +22,8 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query<'a, Q: Query>(
-        &'a self,
+    async fn raw_query<Q: Query>(
+        &self,
         client: &Client,
         query: Q,
     ) -> Result<RawResult<Q, BrowserToken>> {
@@ -58,7 +58,7 @@ impl AuthToken for BrowserToken {
             .text()
             .await?;
 
-        let result = RawResult::from_raw(result, query, self);
+        let result = RawResult::from_raw(result, query);
         Ok(result)
     }
     fn deserialize_json<Q: Query>(

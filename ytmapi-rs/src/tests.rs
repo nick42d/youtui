@@ -3,7 +3,6 @@ use super::query::*;
 use super::*;
 use crate::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use crate::Error;
-
 use std::env;
 
 const COOKIE_PATH: &str = "cookie.txt";
@@ -346,7 +345,7 @@ async fn test_get_artist() {
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let _res = res.parse().unwrap();
+    let _ = ArtistParams::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
 }
 #[tokio::test]
@@ -368,7 +367,7 @@ async fn test_get_artist_albums() {
     // This won't compile:
     // let res = res.process().unwrap().parse().unwrap();
     let res = res.process().unwrap();
-    let res = res.parse().unwrap();
+    let res = ArtistParams::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -405,7 +404,7 @@ async fn test_get_artist_album_songs() {
     // This won't compile:
     // let res = res.process().unwrap().parse().unwrap();
     let res = res.process().unwrap();
-    let res = res.parse().unwrap();
+    let res = ArtistParams::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -421,7 +420,7 @@ async fn test_get_artist_album_songs() {
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res = res.parse().unwrap();
+    let res = Vec::<Album>::parse_from(res).unwrap();
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
@@ -429,6 +428,6 @@ async fn test_get_artist_album_songs() {
     println!("Get album took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
-    let _res = res.parse().unwrap();
+    let _ = AlbumParams::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

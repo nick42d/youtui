@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
@@ -7,19 +9,25 @@ use crate::Result;
 // Should trait be Result?
 /// The raw result of a query to the API.
 #[derive(PartialEq, Debug)]
-pub struct RawResult<'tok, Q, A>
+pub struct RawResult<Q, A>
 where
     Q: Query,
     A: AuthToken,
 {
     query: Q,
-    token: &'tok A,
+    // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
+    // generated it.
+    token: PhantomData<A>,
     json: String,
 }
 
-impl<'tok, Q: Query, A: AuthToken> RawResult<'tok, Q, A> {
-    pub fn from_raw(json: String, query: Q, token: &'tok A) -> Self {
-        Self { query, token, json }
+impl<Q: Query, A: AuthToken> RawResult<Q, A> {
+    pub fn from_raw(json: String, query: Q) -> Self {
+        Self {
+            query,
+            token: PhantomData,
+            json,
+        }
     }
     pub fn get_query(&self) -> &Q {
         &self.query
@@ -48,8 +56,8 @@ pub fn process_fixed_column_item<'a>(
 }
 
 // Consider if this should return a FlexColumnItem
-// In the python API this returns None if /text/runs doesn't exist, but we are not doing that here.
-// Checking should instead be done by receiver.
+// In the python API this returns None if /text/runs doesn't exist, but we are
+// not doing that here. Checking should instead be done by receiver.
 pub fn process_flex_column_item<'a>(
     item: &'a mut JsonCrawlerBorrowed,
     col_idx: usize,

@@ -165,7 +165,7 @@ impl AuthToken for OAuthToken {
             .await?
             .text()
             .await?;
-        let result = RawResult::from_raw(result, query, self);
+        let result = RawResult::from_raw(result, query);
         Ok(result)
     }
     fn deserialize_json<Q: Query>(
