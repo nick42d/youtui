@@ -12,7 +12,7 @@ use config::{ApiKey, Config};
 use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";

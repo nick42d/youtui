@@ -2,7 +2,7 @@ use crate::common::{AlbumType, Explicit};
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::query::*;
-use crate::{nav_consts::*, YtMusic};
+use crate::{nav_consts::*};
 use crate::{Error, Result};
 use const_format::concatcp;
 
