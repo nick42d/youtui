@@ -44,8 +44,8 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         //        artist = {'description': None, 'views': None}
         let mut description = String::default();
         let mut views = String::default();
-        //descriptionShelf = find_object_by_key(results, DESCRIPTION_SHELF[0], is_key=True)
-        // XXX Functional way to take description:
+        //descriptionShelf = find_object_by_key(results, DESCRIPTION_SHELF[0],
+        // is_key=True) XXX Functional way to take description:
         // let x: String = results
         //     .as_array_iter_mut()
         //     .map(|mut r| {
@@ -65,12 +65,13 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                 }
             }
         }
-        //        if 'musicShelfRenderer' in results[0]:  # API sometimes does not return songs
-        //            musicShelf = nav(results[0], MUSIC_SHELF)
+        //        if 'musicShelfRenderer' in results[0]:  # API sometimes does not
+        // return songs            musicShelf = nav(results[0], MUSIC_SHELF)
         //            if 'navigationEndpoint' in nav(musicShelf, TITLE):
-        //                artist['songs']['browseId'] = nav(musicShelf, TITLE + NAVIGATION_BROWSE_ID)
-        //            artist['songs']['results'] = parse_playlist_items(musicShelf['contents'])
-        //            XXX: CPanics here
+        //                artist['songs']['browseId'] = nav(musicShelf, TITLE +
+        // NAVIGATION_BROWSE_ID)            artist['songs']['results'] =
+        // parse_playlist_items(musicShelf['contents'])            XXX: CPanics
+        // here
         let mut top_releases = GetArtistTopReleases::default();
         if results.path_exists("/0/musicShelfRenderer") {
             if let Ok(mut music_shelf) = results.borrow_pointer(concatcp!("/0", MUSIC_SHELF)) {
@@ -88,8 +89,8 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         // TODO: Check if Carousel Title is in list of categories.
         // TODO: Actually pass these variables in the return
         // XXX: Looks to be two loops over results here.
-        // XXX: if there are multiple results for each category we only want to look at the
-        // first one.
+        // XXX: if there are multiple results for each category we only want to look at
+        // the first one.
         for mut r in results
             .as_array_iter_mut()
             .into_iter()
@@ -163,8 +164,9 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             .ok();
         // XXX: Unsure if this is optional. It errors currently, removed the ?.
         let subscribed = subscription_button.take_value_pointer("/subscribed").ok();
-        //                artist[category]['results'] = parse_content_list(data[0]['contents'],
-        //                                                                 categories_parser[i])
+        //                artist[category]['results'] =
+        // parse_content_list(data[0]['contents'],                              
+        // categories_parser[i])
         Ok(ArtistParams {
             views,
             description,
@@ -202,8 +204,9 @@ pub struct GetArtistVideos {
     pub browse_id: PlaylistID<'static>,
 }
 /// The Albums section of the Browse Artist page.
-/// The browse_id and params can be used to get the full list of artist's albums.
-/// If they aren't set, and results is not empty, assuming that all albums are displayed here already.
+/// The browse_id and params can be used to get the full list of artist's
+/// albums. If they aren't set, and results is not empty, assuming that all
+/// albums are displayed here already.
 #[derive(Debug, Clone)]
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
@@ -389,8 +392,8 @@ pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Ve
         } else {
             None
         };
-        // Thumbnails is supposedly optional here, so we'll return an empty Vec if failed to find.
-        // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
+        // Thumbnails is supposedly optional here, so we'll return an empty Vec if
+        // failed to find. https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
         let thumbnails = data
             .take_value_pointer::<Vec<Thumbnail>, &str>(THUMBNAILS)
             .into_iter()
@@ -479,10 +482,13 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
 }
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
     use crate::{
-        auth::BrowserToken, common::{BrowseParams, YoutubeID}, query::GetArtistAlbumsQuery, ChannelID, YtMusic
+        auth::BrowserToken,
+        common::{BrowseParams, YoutubeID},
+        query::GetArtistAlbumsQuery,
+        ChannelID, YtMusic,
     };
+    use std::path::Path;
 
     #[tokio::test]
     async fn test_get_albums_query() {
@@ -498,7 +504,7 @@ mod tests {
         let expected = expected.trim();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
     }

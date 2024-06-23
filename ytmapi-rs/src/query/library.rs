@@ -1,7 +1,8 @@
 use crate::common::library::{LibraryArtist, Playlist};
 
 // NOTE: Authentication is required to use the queries in this module.
-// Currently, all queries are implemented with authentication however in future this could be scaled back.
+// Currently, all queries are implemented with authentication however in future
+// this could be scaled back.
 use super::Query;
 use serde_json::json;
 use std::borrow::Cow;
@@ -53,10 +54,11 @@ impl Query for GetLibraryArtistsQuery {
         "browse"
     }
     fn params(&self) -> Option<Cow<str>> {
-        // determine order_params via `.contents.singleColumnBrowseResultsRenderer.tabs[0]
-        // .tabRenderer.content.sectionListRenderer.contents[1]
-        // .itemSectionRenderer.header.itemSectionTabbedHeaderRenderer.endItems[1]
-        // .dropdownRenderer.entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
+        // determine order_params via
+        // `.contents.singleColumnBrowseResultsRenderer.tabs[0] .tabRenderer.
+        // content.sectionListRenderer.contents[1] .itemSectionRenderer.header.
+        // itemSectionTabbedHeaderRenderer.endItems[1] .dropdownRenderer.
+        // entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
         // of `/youtubei/v1/browse` response
         match self.sort_order {
             LibraryArtistsSortOrder::NameAsc => Some("ggMGKgQIARAA".into()),

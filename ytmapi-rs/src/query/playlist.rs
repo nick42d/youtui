@@ -65,14 +65,16 @@ pub(crate) struct AddPlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
     video_ids: Vec<VideoID<'a>>,
     source_playlist: Option<PlaylistID<'a>>,
-    // NOTE: Duplicate handling mode ReturnError is mutually exclusive with source_playlist.is_some()
+    // NOTE: Duplicate handling mode ReturnError is mutually exclusive with
+    // source_playlist.is_some()
     duplicate_handling_mode: DuplicateHandlingMode,
 }
 
 // XXX: Private until completed
 pub(crate) struct RemovePlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
-    // TODO: Should be a Track returned by get_playlist - as it requires both a PlaylistID and SetPlaylistID
+    // TODO: Should be a Track returned by get_playlist - as it requires both a PlaylistID and
+    // SetPlaylistID
     video_items: Vec<()>,
 }
 

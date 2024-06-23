@@ -89,11 +89,14 @@ impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
     use crate::{
-        auth::BrowserToken, common::{PlaylistID, YoutubeID}, query::GetPlaylistQuery, YtMusic
+        auth::BrowserToken,
+        common::{PlaylistID, YoutubeID},
+        query::GetPlaylistQuery,
+        YtMusic,
     };
     use pretty_assertions::assert_eq;
+    use std::path::Path;
 
     #[tokio::test]
     async fn test_get_playlist_query() {
@@ -108,7 +111,7 @@ mod tests {
         let expected = expected.trim();
         // Blank query has no bearing on function
         let query = GetPlaylistQuery::new(PlaylistID::from_raw(""));
-        let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
     }

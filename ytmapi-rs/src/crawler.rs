@@ -18,13 +18,15 @@ struct PathList {
 }
 #[derive(Clone, PartialEq, Debug)]
 pub(crate) struct JsonCrawler {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
+    // want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
 pub(crate) struct JsonCrawlerBorrowed<'a> {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
+    // want it to be thread safe.
     source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
@@ -80,7 +82,8 @@ impl From<&PathList> for String {
 
 impl<'a> JsonCrawlerArrayIterMut<'a> {
     /// Total length of the iterator from when first set up.
-    /// Note - not adjusted after some elements have been consumed, will always show total length.
+    /// Note - not adjusted after some elements have been consumed, will always
+    /// show total length.
     pub fn len(&self) -> usize {
         self.len
     }
@@ -96,7 +99,8 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
         self.path.push(JsonPath::IndexNum(self.cur));
         self.cur += 1;
         Some(JsonCrawlerBorrowed {
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to clone every time here.
+            // Ideally there should be a Borrowed version of this struct - otherwise we need to
+            // clone every time here.
             source: self.source.clone(),
             crawler: self.array.next()?,
             // As above - needs to be cloned every time.

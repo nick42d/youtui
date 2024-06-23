@@ -12,17 +12,20 @@ use std::borrow::Cow;
 
 // TODO Seal
 // TODO: Add param bits
-// Implements Default to allow simple implementation of Into<SearchQuery<FilteredSearch<F>>>
+// Implements Default to allow simple implementation of
+// Into<SearchQuery<FilteredSearch<F>>>
 pub trait FilteredSearchType: Default {
     fn filtered_param_bits(&self) -> Cow<str>;
-    // By implementing a default method, we can specialize for cases were these params are incorrect.
+    // By implementing a default method, we can specialize for cases were these
+    // params are incorrect.
     fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
         match spelling_mode {
             SpellingMode::ExactMatch => "AWoMEA4QChADEAQQCRAF".into(),
             SpellingMode::WithSuggestions => "AUICCAFqDBAOEAoQAxAEEAkQBQ%3D%3D".into(),
         }
     }
-    // By implementing a default method, we can specialize for cases were these params are incorrect.
+    // By implementing a default method, we can specialize for cases were these
+    // params are incorrect.
     fn filtered_prefix_param(&self) -> Cow<str> {
         "EgWKAQ".into()
     }

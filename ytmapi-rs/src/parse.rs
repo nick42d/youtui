@@ -257,7 +257,8 @@ pub struct SearchResultFeaturedPlaylist {
     pub thumbnails: Vec<Thumbnail>,
 }
 
-/// A result from the api that has been checked for errors and processed into JSON.
+/// A result from the api that has been checked for errors and processed into
+/// JSON.
 pub struct ProcessedResult<Q>
 where
     Q: Query,
@@ -299,8 +300,8 @@ impl<T: Query> ProcessedResult<T> {
     }
 }
 
-// Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto fixedcolumnitem also.
-// Not sure if this should error.
+// Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto
+// fixedcolumnitem also. Not sure if this should error.
 // XXX: I think this should return none instead of error.
 fn parse_song_artists(
     data: &mut JsonCrawlerBorrowed,
@@ -350,8 +351,8 @@ fn parse_item_text(
 
 #[cfg(test)]
 mod tests {
-    use crate::query::SearchQuery;
     use super::*;
+    use crate::query::SearchQuery;
 
     #[tokio::test]
     async fn test_all_processed_impl() {
@@ -390,7 +391,10 @@ mod lyrics {
     #[cfg(test)]
     mod tests {
         use crate::{
-            auth::BrowserToken, common::{browsing::Lyrics, LyricsID}, query::lyrics::GetLyricsQuery, YtMusic
+            auth::BrowserToken,
+            common::{browsing::Lyrics, LyricsID},
+            query::lyrics::GetLyricsQuery,
+            YtMusic,
         };
 
         #[tokio::test]

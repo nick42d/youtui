@@ -1,6 +1,6 @@
 //! Re-usable core structures.
-// Intended to be for structures that are also suitable to be reused by other libraries.
-// As opposed to simply part of the interface.
+// Intended to be for structures that are also suitable to be reused by other
+// libraries. As opposed to simply part of the interface.
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
@@ -73,8 +73,8 @@ pub enum Explicit {
     NotExplicit,
 }
 
-// Note, library album will also have artists field. How do we handle - are these two different
-// types?
+// Note, library album will also have artists field. How do we handle - are
+// these two different types?
 // Or, is Album a trait?
 // XXX: Consider if this is the same as the Album struct that uses ResultCore.
 // XXX: I think this should become a trait.
@@ -321,8 +321,8 @@ pub mod youtuberesult {
     }
     #[derive(Debug, Clone)]
     pub struct ResultCore {
-        // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this is a weakness of
-        //this genericised approach.
+        // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
+        // is a weakness of this genericised approach.
         set_video_id: Option<String>,
         duration: Option<String>,
         feedback_tok_add: Option<String>,
@@ -345,8 +345,9 @@ pub mod youtuberesult {
         // XXX: Seems this can be a channelID or AlbumID...
         browse_id: Option<ChannelID<'static>>,
         playlist_id: Option<PlaylistID<'static>>,
-        playlist_subtitle: Option<String>, // Consider difference between None and Never for these
-                                           // Options. Most likely is a better way to do this.
+        playlist_subtitle: Option<String>, /* Consider difference between None and Never for
+                                            * these
+                                            * Options. Most likely is a better way to do this. */
     }
 
     impl ResultCore {

@@ -1,9 +1,12 @@
 use crate::{
-    auth::BrowserToken, parse:: SearchResults, query::{
+    auth::BrowserToken,
+    parse::SearchResults,
+    query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
         FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
         VideosFilter,
-    }, YtMusic
+    },
+    YtMusic,
 };
 use pretty_assertions::assert_eq;
 use std::path::Path;
@@ -16,7 +19,7 @@ async fn test_search_artists_empty() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert_eq!(output, Vec::new());
 }
 #[tokio::test]
@@ -28,7 +31,7 @@ async fn test_basic_search_has_simple_top_result() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -40,7 +43,7 @@ async fn test_basic_search_has_card_top_result() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -52,7 +55,7 @@ async fn basic_test_to_test_basic_search() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.songs.is_empty());
     assert!(!output.featured_playlists.is_empty());
     assert!(!output.videos.is_empty());
@@ -77,7 +80,7 @@ async fn test_basic_search() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -96,7 +99,7 @@ async fn test_basic_search_with_vodcasts_type_not_specified() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -115,7 +118,7 @@ async fn test_basic_search_with_vodcasts_type_specified() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -127,7 +130,7 @@ async fn test_basic_search_is_empty() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("ajhkjhdslkfjhsdfglkjdsf");
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert_eq!(output, SearchResults::default());
 }
 #[tokio::test]
@@ -143,7 +146,7 @@ async fn test_search_artists() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -160,7 +163,7 @@ async fn test_search_albums() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(AlbumsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -177,7 +180,7 @@ async fn test_search_songs() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(SongsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -194,7 +197,7 @@ async fn test_search_videos() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -212,7 +215,7 @@ async fn test_search_videos_2024() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -229,7 +232,7 @@ async fn test_search_featured_playlists() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(FeaturedPlaylistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -246,7 +249,7 @@ async fn test_search_community_playlists() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(CommunityPlaylistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -263,7 +266,7 @@ async fn test_search_episodes() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(EpisodesFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -280,7 +283,7 @@ async fn test_search_podcasts() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(PodcastsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -297,7 +300,7 @@ async fn test_search_profiles() {
     let expected = expected.trim();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ProfilesFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }

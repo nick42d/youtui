@@ -32,13 +32,16 @@
 //! ```
 //! ## Optional Features
 //! ### TLS
-//! NOTE: To use an alternative TLS, you will need to specify `default-features = false`.
-//! As reqwest preferentially uses default-tls when multiple TLS features are enabled.
-//! See reqwest docs for more information.
+//! NOTE: To use an alternative TLS, you will need to specify `default-features
+//! = false`. As reqwest preferentially uses default-tls when multiple TLS
+//! features are enabled. See reqwest docs for more information.
 //! https://docs.rs/reqwest/latest/reqwest/tls/index.html
-//! - **default-tls** *(enabled by default)*: Utilises the default TLS from reqwest - at the time of writing is native-tls.
-//! - **native-tls**: This feature forces use of the the native-tls crate, reliant on vendors tls.
-//! - **rustls-tls**: This feature forces use of the rustls crate, written in rust.
+//! - **default-tls** *(enabled by default)*: Utilises the default TLS from
+//!   reqwest - at the time of writing is native-tls.
+//! - **native-tls**: This feature forces use of the the native-tls crate,
+//!   reliant on vendors tls.
+//! - **rustls-tls**: This feature forces use of the rustls crate, written in
+//!   rust.
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
@@ -89,7 +92,8 @@ mod tests;
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
 /// A handle to the YouTube Music API, wrapping a reqwest::Client.
-/// Generic over AuthToken, as different AuthTokens may allow different queries to be executed.
+/// Generic over AuthToken, as different AuthTokens may allow different queries
+/// to be executed.
 pub struct YtMusic<A: AuthToken> {
     // TODO: add language
     // TODO: add location
@@ -103,13 +107,15 @@ impl YtMusic<BrowserToken> {
         let client = Client::new();
         YtMusic { client, token }
     }
-    /// Create a new API handle using a real browser authentication cookie saved to a file on disk.
+    /// Create a new API handle using a real browser authentication cookie saved
+    /// to a file on disk.
     pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new();
         let token = BrowserToken::from_cookie_file(path, &client).await?;
         Ok(Self { client, token })
     }
-    /// Create a new API handle using a real browser authentication cookie in a String.
+    /// Create a new API handle using a real browser authentication cookie in a
+    /// String.
     pub async fn from_cookie<S: AsRef<str>>(cookie: S) -> Result<Self> {
         let client = Client::new();
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
@@ -122,7 +128,8 @@ impl YtMusic<OAuthToken> {
         let client = Client::new();
         YtMusic { client, token }
     }
-    /// Refresh the internal oauth token, and return a clone of it (for user to store locally, e.g).
+    /// Refresh the internal oauth token, and return a clone of it (for user to
+    /// store locally, e.g).
     pub async fn refresh_token(&mut self) -> Result<OAuthToken> {
         let refreshed_token = self.token.refresh(&self.client).await?;
         self.token = refreshed_token.clone();
@@ -131,12 +138,14 @@ impl YtMusic<OAuthToken> {
 }
 impl<A: AuthToken> YtMusic<A> {
     //TODO: Usage examples
-    /// Return a raw result from YouTube music for query Q that requires further processing.
+    /// Return a raw result from YouTube music for query Q that requires further
+    /// processing.
     pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
-    /// Return a result from YouTube music that has had errors removed and been processed into parsable JSON.
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
     pub async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
@@ -150,11 +159,11 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
         query.call(self).await
     }
-    /// Process a string of JSON as if it had been directly received from the api for a query.
-    /// Note that this is generic across AuthToken.
+    /// Process a string of JSON as if it had been directly received from the
+    /// api for a query. Note that this is generic across AuthToken.
     /// NOTE: Potentially can be removed from impl
     pub fn process_json<Q: Query>(json: String, query: Q) -> Result<Q::Output> {
-        Q::Output::parse_from(RawResult::<Q,A>::from_raw(json, query).process()?)
+        Q::Output::parse_from(RawResult::<Q, A>::from_raw(json, query).process()?)
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
@@ -299,8 +308,8 @@ impl<A: AuthToken> YtMusic<A> {
     }
 }
 // TODO: Keep session alive after calling these methods.
-/// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for you to authenticate yourself at.
-/// (OAuthDeviceCode, URL)
+/// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
+/// you to authenticate yourself at. (OAuthDeviceCode, URL)
 pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
     let client = Client::new();
     let code = OAuthTokenGenerator::new(&client).await?;

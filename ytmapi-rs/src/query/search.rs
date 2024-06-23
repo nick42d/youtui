@@ -17,7 +17,8 @@ pub trait SearchType: Default {
     fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>>;
 }
 
-// Trait constraint - to simplify implementation of Query for BasicSearch, LibrarySearch and UploadSearch.
+// Trait constraint - to simplify implementation of Query for BasicSearch,
+// LibrarySearch and UploadSearch.
 pub trait UnfilteredSearchType: SearchType {}
 
 /// An API search query.
@@ -28,8 +29,8 @@ pub struct SearchQuery<'a, S: SearchType> {
     searchtype: S,
 }
 
-/// Whether or not to allow Google to attempt to auto correct spelling as part of the results.
-/// Has no affect on Uploads or Library.
+/// Whether or not to allow Google to attempt to auto correct spelling as part
+/// of the results. Has no affect on Uploads or Library.
 // XXX: May actually affect Library. To confirm.
 #[derive(PartialEq, Debug, Clone, Default)]
 pub enum SpellingMode {
@@ -63,8 +64,8 @@ impl SearchType for UploadSearch {
 }
 impl SearchType for LibrarySearch {
     fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<str>> {
-        // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for details.
-        // TODO: Investigate if spelling suggestions take affect here.
+        // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for
+        // details. TODO: Investigate if spelling suggestions take affect here.
         Some("agIYBA%3D%3D".into())
     }
 }

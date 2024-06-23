@@ -1,8 +1,8 @@
 use crate::common::{AlbumType, Explicit};
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::{nav_consts::*, YtMusic};
 use crate::query::*;
+use crate::{nav_consts::*, YtMusic};
 use crate::{Error, Result};
 use const_format::concatcp;
 
@@ -89,13 +89,15 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
     )?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = Some(header.take_value_pointer(STRAPLINE_TEXT)?);
-    let description = 
-        header
-            .borrow_pointer(DESCRIPTION_SHELF_RUNS)
-            .and_then(|d| d.into_array_iter_mut())
-            .ok()
-            .map(|r| r.map(|mut r| r.take_value_pointer::<String, &str>("/text")).collect::<Result<String>>()).transpose()?
-    ;
+    let description = header
+        .borrow_pointer(DESCRIPTION_SHELF_RUNS)
+        .and_then(|d| d.into_array_iter_mut())
+        .ok()
+        .map(|r| {
+            r.map(|mut r| r.take_value_pointer::<String, &str>("/text"))
+                .collect::<Result<String>>()
+        })
+        .transpose()?;
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
@@ -131,25 +133,32 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let mut header = json_crawler.borrow_pointer(HEADER_DETAIL)?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
     // I am not sure why the error here is OK but I'll take it!
-    let category = AlbumType::try_from_str(
-        header.take_value_pointer::<String, &str>(SUBTITLE)?
-    )?;
+    let category = AlbumType::try_from_str(header.take_value_pointer::<String, &str>(SUBTITLE)?)?;
     let description = header.take_value_pointer("/description/runs/0/text").ok();
     let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
     // If NAVIGATION_WATCH_PLAYLIST ID, then return that, else try
     // NAVIGATION_PLAYLIST_ID else None.
     // Seems a bit of a hacky way to do this.
     let mut top_level = header.borrow_pointer(concatcp!(MENU, "/topLevelButtons"))?;
-    let audio_playlist_id = top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_WATCH_PLAYLIST_ID))
-        .or_else(|_| top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_PLAYLIST_ID))).ok();
+    let audio_playlist_id = top_level
+        .take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_WATCH_PLAYLIST_ID))
+        .or_else(|_| {
+            top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_PLAYLIST_ID))
+        })
+        .ok();
     // TODO: parsing function
     let like_status = top_level
-        .take_value_pointer("/1/buttonRenderer/defaultServiceEndpoint/likeEndpoint/status").ok()
+        .take_value_pointer("/1/buttonRenderer/defaultServiceEndpoint/likeEndpoint/status")
+        .ok()
         .map(|likestatus| match likestatus {
             1 => Ok(AlbumLikeStatus::Like),
             2 => Ok(AlbumLikeStatus::Indifferent),
-            other => Err(crate::Error::other(format!("Received likestatus {}, but expected only \"1\" or \"2\"",other))),
-        }).transpose()?;
+            other => Err(crate::Error::other(format!(
+                "Received likestatus {}, but expected only \"1\" or \"2\"",
+                other
+            ))),
+        })
+        .transpose()?;
     // Based on code from ytmusicapi (python)
     let track_count = header
         .borrow_pointer("/secondSubtitle/runs")
@@ -246,11 +255,14 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        auth::BrowserToken,
+        common::{AlbumID, YoutubeID},
+        parse::album::GetAlbumQuery,
+        YtMusic,
+    };
     use pretty_assertions::assert_eq;
     use std::path::Path;
-    use crate::{
-        auth::BrowserToken, common::{AlbumID, YoutubeID}, parse::album::GetAlbumQuery, YtMusic
-    };
 
     #[tokio::test]
     async fn test_get_album_query() {
@@ -265,7 +277,7 @@ mod tests {
         let expected = expected.trim();
         // Blank query has no bearing on function
         let query = GetAlbumQuery::new(AlbumID::from_raw("MPREb_Ylw2kL9wqcw"));
-        let output = YtMusic::<BrowserToken>::process_json(source,query).unwrap();
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
     }

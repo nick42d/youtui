@@ -16,9 +16,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-// The original reason for the two different structs was that we did not save the refresh token.
-// But now we do, so consider simply making this only one struct.
-// Otherwise the only difference is not including Scope which is not super relevant.
+// The original reason for the two different structs was that we did not save
+// the refresh token. But now we do, so consider simply making this only one
+// struct. Otherwise the only difference is not including Scope which is not
+// super relevant.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
