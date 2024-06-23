@@ -1,0 +1,490 @@
+AlbumParams {
+    title: "72 Seasons",
+    category: Album,
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://lh3.googleusercontent.com/KnByTUXJkfrqlDoS4LXhyRFZALhxmHOfBtI9FLHtb1g5OB5msMdHXHcISvwtQGNtzwXKqjDmIw=w60-h60-p-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://lh3.googleusercontent.com/KnByTUXJkfrqlDoS4LXhyRFZALhxmHOfBtI9FLHtb1g5OB5msMdHXHcISvwtQGNtzwXKqjDmIw=w120-h120-p-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://lh3.googleusercontent.com/KnByTUXJkfrqlDoS4LXhyRFZALhxmHOfBtI9FLHtb1g5OB5msMdHXHcISvwtQGNtzwXKqjDmIw=w226-h226-p-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://lh3.googleusercontent.com/KnByTUXJkfrqlDoS4LXhyRFZALhxmHOfBtI9FLHtb1g5OB5msMdHXHcISvwtQGNtzwXKqjDmIw=w544-h544-p-l90-rj",
+        },
+    ],
+    description: Some(
+        "72 Seasons is the eleventh studio album by American heavy metal band Metallica, released on April 14, 2023, by their own record label Blackened Recordings. 72 Seasons was produced by Greg Fidelman, who produced the band's previous studio album, Hardwired... to Self-Destruct, and is the band's second studio album to be released through Blackened.\nThe album generally received positive reviews from critics, who mostly praised Hetfield's lyrics and vocal performance but criticized the album's length. In 2024, 72 Seasons received three nominations at the 66th Grammy Awards, winning Best Metal Performance for the title track \"72 Seasons\".\n72 Seasons includes Metallica's longest original song to date, \"Inamorata\", which runs for over 11 minutes. The medley cover song \"Mercyful Fate\" on Garage, Inc. runs one second longer.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/72_Seasons) under Creative Commons Attribution CC-BY-SA 3.0 (https://creativecommons.org/licenses/...)",
+    ),
+    artists: Some(
+        "Metallica",
+    ),
+    year: "2023",
+    track_count_text: Some(
+        "12 songs",
+    ),
+    duration: "1 hour, 17 minutes",
+    audio_playlist_id: Some(
+        PlaylistID(
+            "OLAK5uy_kLk0UGq8D3BWN6qOHgYQE_DogrfCZ2p4Y",
+        ),
+    ),
+    tracks: [
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "7:40",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLtNORNNSeoc4J8QsMsXwxO53tPO2hy8bC2JldX1MEPUdPF_sXJsbqe0pCmZ1LfkorQFyeRFikhPI3_W0BlA2QjBSTQbA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIiVzS0Q4NWQe6eL41jEVZSsCKaX0tW49ZD7TKyAyj9AtE-xRskFvyA4TowGETZBq1PwPqpY722ReHiKTm_V3o-2Z-0dw",
+                ),
+                title: "72 Seasons",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "0rVIEj7zgOo",
+            ),
+            track_no: 1,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "18M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "6:12",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIPKN9G6zq5pfbW02xwpX4qsglLFzXRc_rQcspB8jBoEEYSDDF9e-dAN7M0pUIOhjaIIg8vUXXW2b1acpruUD_cf6DsbA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJ9gj1JVfvX6Gt3YVmlFbOaWAwQwqjkiq9RNIPEzjZ-jPpR59k1hvZdz9tTQH6bBDVYB7uvlZsPXAo728PR_Y1ZvfCEtQ",
+                ),
+                title: "Shadows Follow",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "Ers4wEtekIk",
+            ),
+            track_no: 2,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "7.7M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "5:31",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJcozjYUbmT4jhR7hzdhdPVubsblO6WUCQxN1malCmNrGpdLUp5UwzScW5VlB2jFUmnyKYDUWUskNSv93j0iGC_iTiLzw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJrGshjzTYdxFHap-DvkAgEFWvwj95PfXQVXRFZUOaWrXjm92S-DzZYcUPCcD-NVWIaibxKBYWy6UkgCGiqkHH1_vZetg",
+                ),
+                title: "Screaming Suicide",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "8T8F02JesPU",
+            ),
+            track_no: 3,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "12M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "6:57",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKqC2-1KLOh7E2wgkVOefjlpSzRKpWyOg07RlXSMcMbnY0z4SGUNw7EUpvUddGr6pzvzMo9WwCcWbd6G24tgXksIQTxRw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKx3r6Z9tHksJc-bujMA6eFq0BWLuzIWHsJVF2M9oTfqFqJM--dqflPxW9Pcv4VrK02VV-Y0TlZtTyMWRJ4Xgs_w8O8Dw",
+                ),
+                title: "Sleepwalk My Life Away",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "QqWBKUQhwOU",
+            ),
+            track_no: 4,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "5.6M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "7:04",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKX6-419E66drPbHW_H5p7A2IEH0V9JAg1sX4QvgPtaXz_4gRqxqLMKx64PWOsYel0qnBkqm9bF0OM-PXqxkS5c35E6dQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKu8gmVGNgjrr1NdeJ6Z8joRd7dLf5OYuNBeQ7oRhK1AyPd1_BQPJchtYJtONunxmmEHY05bsqge2Ggsm1nU8VyahLNPA",
+                ),
+                title: "You Must Burn!",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "FaiBb2wjUWI",
+            ),
+            track_no: 5,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "5.2M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:22",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKGIO2zYHKub25LINU2ACbdJq2Ra8thVNvZJ9qt7czladGwQwgzb7ViyyIW2HqIG33ilcI_yEKD13GJO-dzH8oMhRHlNg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKEX5cx5N9ofeda5OZI0A-Vo_f0eKFNVAF2He-CvpcqZRHWAOUGO84X4xVeki9vWhZZtQHWL9DEZhSrMxUedY2Pxhe8Lw",
+                ),
+                title: "Lux Æterna",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "ZlnfVNrBTUc",
+            ),
+            track_no: 6,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "31M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "5:50",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKss3HcPExx14VoaCRQ1qY_BvM5CDtB-Km_XPZADlMjs1VM9Srm5PG6ZkchjN0x1eB9NvSWreRMtVQecBIgPrMiH5NXfQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKafWe24ycypB6OyjOZraKYpmfM_u4cfhVP3RHd_V2jFfD39m70dygfBE2uk04xpL5x43Tof9e65rXMX3A_SuDc1mkBIw",
+                ),
+                title: "Crown of Barbed Wire",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "p3rpZ1-Dctg",
+            ),
+            track_no: 7,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "3.8M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "6:46",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJBTEfbFRJN1uiWUsDJy5WN93dGuLcUGQSBAockfenFKNGmS0IJTO-EtqQlibWWRQ4fH0H0eK9R33IvVqF-ygUg3E5bYg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIcRf1Shk07oK5CW2Sc22NY1Ae-zNdPaRH64pVn3t19kTXEGoxe7ppXhNkLY77F0vSPfZat5-aRtySXwVG0pOBh8yWXBw",
+                ),
+                title: "Chasing Light",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "miTEAoEvhkQ",
+            ),
+            track_no: 8,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "3.6M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "6:37",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLdiRNP6ChW-hfK7QQHpRsFpWC-UCWNI2YhjHkei8afk5LQLGUOvkrjLtxB1lk0fMg-y8TAORpNHkAhfxN5pz61B_omvQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJzRC21PfqxLd55jJ1lbXYsnIIck9Ut4ghAJh2DDT0BvUWG_7tEl1RWlAljPcVnFTVeu03NIKKQtxL8GpH5SvO_DWskOw",
+                ),
+                title: "If Darkness Had a Son",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "GkUC44CWwjw",
+            ),
+            track_no: 9,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "16M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:34",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJbeNAbERtVbDQXXMOndEVQAJ5rUR0CmyEw5Kg6j7EJ0WEPe4ST0eSwOA9-_sVgodXWHdg5WufS2_YIz92xCQ8fjt3uZg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIKPrmG-05lsKJBQum8kDWi5vpsbrIvE8Z7DNXMJTQPYFSWZXag-MYqUNeC7s45K23AWrfLHenbSPk_xY5XNDOLeiP-PQ",
+                ),
+                title: "Too Far Gone?",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "JQ6pykI3HrY",
+            ),
+            track_no: 10,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "5.1M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "5:34",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKvtI7BxcVyXQ9Y8AQbxQ_lqQFiLBOO0UwiP_SXlzTCzvyM7fYcMp3oYsBZvNvRHGMU3H_rwDvXYMhJrC5SQ7ayXqpuMw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJrt-6b_MS91NrpKHgqtVm3OxMArrpZidT7KxkSYguW56gew2Eim0ATYNtLQWrygBmEhpENMbB85KYbT_biW5KdaL5_2w",
+                ),
+                title: "Room of Mirrors",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "m8DI-SQ_Thw",
+            ),
+            track_no: 11,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "4.9M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "11:11",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpI92iO01qVJS4Codx_AwONb4s8JQY18Wy-esy0CS1KKFtXI3TIsCm5K0xmDep0kDD3YIS4UkyXv9ek5-5ZlJdHuMJpoKw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJLqbg6zzcHGJONNjbvvzks2xTGbWqiD_nh_Ml40dYY3DRO3jT-cbj9HDTIzXnNF51R0iDK3Z_5RngV4Hc4GaxPkHsksg",
+                ),
+                title: "Inamorata",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "xc7y9U6WkP0",
+            ),
+            track_no: 12,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "6.7M plays",
+                    ),
+                    id: None,
+                },
+            ),
+        },
+    ],
+    other_versions: None,
+    like_status: None,
+}

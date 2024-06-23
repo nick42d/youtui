@@ -1,11 +1,8 @@
 use ytmapi_rs::{
     auth::AuthToken,
-    common::{BrowseParams, PlaylistID, YoutubeID},
+    common::{AlbumID, BrowseParams, PlaylistID, YoutubeID},
     query::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter,
-        FeaturedPlaylistsFilter, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery,
-        GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
-        ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
+        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter
     },
     ChannelID, YtMusic,
 };
@@ -150,6 +147,7 @@ pub async fn command_to_query<A: AuthToken>(
             )
             .await
         }
+        Command::GetAlbum { browse_id } => get_string_output_of_query(yt,GetAlbumQuery::new(AlbumID::from_raw(browse_id)) ,cli_query).await,
     }
 }
 

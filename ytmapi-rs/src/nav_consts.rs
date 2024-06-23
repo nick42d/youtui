@@ -5,6 +5,7 @@ pub const RUN_TEXT: &str = "/runs/0/text";
 pub const TAB_CONTENT: &str = "/tabs/0/tabRenderer/content";
 pub const _TAB_1_CONTENT: &str = "/tabs/1/tabRenderer/content";
 pub const SINGLE_COLUMN: &str = "/contents/singleColumnBrowseResultsRenderer";
+pub const TWO_COLUMN: &str = "/contents/twoColumnBrowseResultsRenderer";
 pub const SECTION_LIST: &str = "/sectionListRenderer/contents";
 pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
 pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
@@ -39,9 +40,12 @@ pub const _TASTE_PROFILE_ARTIST: &str = "/title/runs";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
+pub const DESCRIPTION_SHELF_RUNS: &str =
+    "/description/musicDescriptionShelfRenderer/description/runs";
 pub const _CAROUSEL: &str = "/musicCarouselShelfRenderer";
 pub const _IMMERSIVE_CAROUSEL: &str = "/musicImmersiveCarouselShelfRenderer";
 pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/mutations";
+pub const RESPONSIVE_HEADER: &str = "/musicResponsiveHeaderRenderer";
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);
 pub const _NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", _WATCH_VIDEO_ID);
 pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
@@ -64,6 +68,8 @@ pub const THUMBNAIL_RENDERER: &str =
     concatcp!("/thumbnailRenderer/musicThumbnailRenderer", THUMBNAIL);
 pub const THUMBNAIL_CROPPED: &str =
     concatcp!("/thumbnail/croppedSquareThumbnailRenderer", THUMBNAIL);
+pub const STRAPLINE_THUMBNAIL: &str =
+    concatcp!("/straplineThumbnail/musicThumbnailRenderer", THUMBNAIL);
 pub const BADGE_LABEL: &str = concatcp!("/badges", BADGE_PATH);
 pub const LIVE_BADGE_LABEL: &str = concatcp!("/badges", LIVE_BADGE_PATH);
 pub const SUBTITLE_BADGE_LABEL: &str = concatcp!("/subtitleBadges", BADGE_PATH);
@@ -78,3 +84,4 @@ pub const _CAROUSEL_CONTENTS: &str = concatcp!(_CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
+pub const STRAPLINE_TEXT: &str = concatcp!("/straplineTextOne", RUN_TEXT);

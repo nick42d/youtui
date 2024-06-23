@@ -424,8 +424,8 @@ async fn test_get_artist_album_songs() {
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
-    let res = api.raw_query(GetAlbumQuery::new(browse_id)).await.unwrap();
-    println!("Get album took {} ms", now.elapsed().as_millis());
+    let res = api.raw_query(GetAlbumQuery::new(browse_id.clone())).await.unwrap();
+    println!("Get album {} took {} ms",browse_id.get_raw(), now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
     let _ = AlbumParams::parse_from(res).unwrap();

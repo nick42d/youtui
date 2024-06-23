@@ -65,6 +65,9 @@ enum Command {
         channel_id: String,
         browse_params: String,
     },
+    GetAlbum {
+        browse_id: String,
+    },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
     Search {
