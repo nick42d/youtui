@@ -6,9 +6,7 @@ use querybuilder::command_to_query;
 use querybuilder::CliQuery;
 use querybuilder::QueryType;
 use std::path::PathBuf;
-use ytmapi_rs::{
-    generate_oauth_code_and_url, generate_oauth_token,
-};
+use ytmapi_rs::{generate_oauth_code_and_url, generate_oauth_token};
 
 mod querybuilder;
 

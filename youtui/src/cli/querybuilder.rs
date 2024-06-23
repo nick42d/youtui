@@ -2,7 +2,11 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{AlbumID, BrowseParams, PlaylistID, YoutubeID},
     query::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter
+        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter,
+        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery,
+        PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery, SongsFilter,
+        VideosFilter,
     },
     ChannelID, YtMusic,
 };
@@ -147,7 +151,14 @@ pub async fn command_to_query<A: AuthToken>(
             )
             .await
         }
-        Command::GetAlbum { browse_id } => get_string_output_of_query(yt,GetAlbumQuery::new(AlbumID::from_raw(browse_id)) ,cli_query).await,
+        Command::GetAlbum { browse_id } => {
+            get_string_output_of_query(
+                yt,
+                GetAlbumQuery::new(AlbumID::from_raw(browse_id)),
+                cli_query,
+            )
+            .await
+        }
     }
 }
 
@@ -180,7 +191,7 @@ async fn get_string_output_of_query<Q: Query, A: AuthToken>(
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: false,
-        } => YtMusic::<A>::process_json(source,q)
+        } => YtMusic::<A>::process_json(source, q)
             .map(|r| format!("{:#?}", r))
             .map_err(|e| e.into()),
     }

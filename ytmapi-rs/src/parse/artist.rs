@@ -165,7 +165,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         // XXX: Unsure if this is optional. It errors currently, removed the ?.
         let subscribed = subscription_button.take_value_pointer("/subscribed").ok();
         //                artist[category]['results'] =
-        // parse_content_list(data[0]['contents'],                              
+        // parse_content_list(data[0]['contents'],
         // categories_parser[i])
         Ok(ArtistParams {
             views,
