@@ -89,13 +89,13 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
     )?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = Some(header.take_value_pointer(STRAPLINE_TEXT)?);
-    let description = Some(
+    let description = 
         header
-            .borrow_pointer(DESCRIPTION_SHELF_RUNS)?
-            .as_array_iter_mut()?
-            .map(|mut r| r.take_value_pointer::<String, &str>("/text"))
-            .collect::<Result<String>>()?,
-    );
+            .borrow_pointer(DESCRIPTION_SHELF_RUNS)
+            .and_then(|d| d.into_array_iter_mut())
+            .ok()
+            .map(|r| r.map(|mut r| r.take_value_pointer::<String, &str>("/text")).collect::<Result<String>>()).transpose()?
+    ;
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
