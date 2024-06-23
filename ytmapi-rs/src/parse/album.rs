@@ -1,7 +1,7 @@
 use crate::common::{AlbumType, Explicit};
-use crate::common::{PlaylistID, Thumbnail}; //XXX: Move this to parse?
+use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::nav_consts::*;
+use crate::{nav_consts::*, YtMusic};
 use crate::query::*;
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -108,9 +108,8 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         )?,
     };
     let tracks = parse_playlist_items(music_shelf)?;
-
     Ok(AlbumParams {
-        // New Album page doesn't seem to contain a like_status
+        // TODO
         like_status: None,
         title,
         description,
@@ -119,66 +118,39 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         category,
         track_count_text,
         audio_playlist_id,
+        // TODO
         other_versions: None,
         year,
         tracks,
         artists,
     })
 }
+
 fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let mut json_crawler = JsonCrawler::from(p);
-    // TODO parse_song_runs - returns id, views and a few others.
-    // Other verisions = parse_content_list.
-    // Fill in Tracks album title and artist (not sure if needed).
     let mut header = json_crawler.borrow_pointer(HEADER_DETAIL)?;
-    // If this fails, try TryInto.
-    // Type annotation is required because I use title before its used as a struct
-    // field.
-    let title: String = header.take_value_pointer(TITLE_TEXT)?;
+    let title = header.take_value_pointer(TITLE_TEXT)?;
     // I am not sure why the error here is OK but I'll take it!
     let category = AlbumType::try_from_str(
-        header
-            .take_value_pointer::<String, &str>(SUBTITLE)?
-            .as_str(),
+        header.take_value_pointer::<String, &str>(SUBTITLE)?
     )?;
     let description = header.take_value_pointer("/description/runs/0/text").ok();
-    let thumbnails: Vec<Thumbnail> = header.take_value_pointer(THUMBNAIL_CROPPED)?;
+    let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
     // If NAVIGATION_WATCH_PLAYLIST ID, then return that, else try
     // NAVIGATION_PLAYLIST_ID else None.
     // Seems a bit of a hacky way to do this.
-    // XXX: This is an issue! Clone inserted to make compile.
-    // TODO: Remove allocation.
-    // If we clone in this way, we won't have the parent json or path.
     let mut top_level = header.borrow_pointer(concatcp!(MENU, "/topLevelButtons"))?;
-    let audio_playlist_id = if let Ok(value) =
-        top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_WATCH_PLAYLIST_ID))
-    {
-        Some(value)
-    } else {
-        top_level
-            .take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_PLAYLIST_ID))
-            .ok()
-    };
-    // TODO: Error instead of panic
-    // TODO: Improve this
+    let audio_playlist_id = top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_WATCH_PLAYLIST_ID))
+        .or_else(|_| top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_PLAYLIST_ID))).ok();
+    // TODO: parsing function
     let like_status = top_level
-        .take_value_pointer("/1/buttonRenderer/defaultServiceEndpoint/likeEndpoint/status")
+        .take_value_pointer("/1/buttonRenderer/defaultServiceEndpoint/likeEndpoint/status").ok()
         .map(|likestatus| match likestatus {
-            1 => AlbumLikeStatus::Like,
-            2 => AlbumLikeStatus::Indifferent,
-            _ => unreachable!("likestatus should only be 1 or 2"),
-        })
-        .ok();
-    // Original python code:
-    //    if len(header['secondSubtitle']['runs']) > 1:
-    //        album['trackCount'] =
-    // to_int(header['secondSubtitle']['runs'][0]['text'])        album['
-    // duration'] = header['secondSubtitle']['runs'][2]['text']    else:
-    //        album['duration'] = header['secondSubtitle']['runs'][0]['text']
-    //  Below avoid mutable variables but looks messy & appears to be inefficient.
-    //  Do I actually need this, when it can be calculated?
-    // Should be a better way to do this - potentially if-let.
-    // XXX: May be able to remove additional OKs for these.
+            1 => Ok(AlbumLikeStatus::Like),
+            2 => Ok(AlbumLikeStatus::Indifferent),
+            other => Err(crate::Error::other(format!("Received likestatus {}, but expected only \"1\" or \"2\"",other))),
+        }).transpose()?;
+    // Based on code from ytmusicapi (python)
     let track_count = header
         .borrow_pointer("/secondSubtitle/runs")
         .ok()
