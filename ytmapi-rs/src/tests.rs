@@ -133,18 +133,38 @@ async fn test_search_artists() {
     let _res = api.search_artists("Beatles").await.unwrap();
 }
 #[tokio::test]
-async fn test_delete_playlist_oauth() {
+async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
     // refresh it each time.
-    api.refresh_token().await;
-    todo!();
+    api.refresh_token().await.unwrap();
+    let id = api
+        .create_playlist(CreatePlaylistQuery::new(
+            "TEST PLAYLIST",
+            None,
+            PrivacyStatus::Unlisted,
+            Vec::new(),
+            None,
+        ))
+        .await
+        .unwrap();
+    api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
-async fn test_delete_playlist() {
+async fn test_delete_create_playlist() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
-    todo!();
+    let id = api
+        .create_playlist(CreatePlaylistQuery::new(
+            "TEST PLAYLIST",
+            None,
+            PrivacyStatus::Unlisted,
+            Vec::new(),
+            None,
+        ))
+        .await
+        .unwrap();
+    api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
 async fn test_get_playlist_oauth() {

@@ -1,11 +1,3 @@
-mod app;
-mod appevent;
-mod cli;
-mod config;
-mod core;
-mod drawutils;
-pub mod error;
-
 use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, Config};
@@ -13,7 +5,18 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::path::PathBuf;
-use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::{
+    auth::{BrowserToken, OAuthToken},
+    query::PrivacyStatus,
+};
+
+mod app;
+mod appevent;
+mod cli;
+mod config;
+mod core;
+mod drawutils;
+pub mod error;
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -105,6 +108,13 @@ enum Command {
     },
     SearchPodcasts {
         query: String,
+    },
+    CreatePlaylist {
+        title: String,
+        description: Option<String>,
+        // TODO: Privacy status, video ids, source playlist
+        source_playlist: Option<String>,
+        video_ids: Option<Vec<String>>,
     },
     DeletePlaylist {
         playlist_id: String,

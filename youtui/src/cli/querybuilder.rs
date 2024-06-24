@@ -2,13 +2,13 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{AlbumID, BrowseParams, PlaylistID, YoutubeID},
     query::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter,
-        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
-        GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        SearchQuery, SongsFilter, VideosFilter,
+        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, CreatePlaylistQuery,
+        DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
+        GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+        GetPlaylistQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
+        ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
     },
-    ChannelID, YtMusic,
+    ChannelID, VideoID, YtMusic,
 };
 
 use crate::Command;
@@ -163,6 +163,29 @@ pub async fn command_to_query<A: AuthToken>(
             get_string_output_of_query(
                 yt,
                 GetAlbumQuery::new(AlbumID::from_raw(browse_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::CreatePlaylist {
+            title,
+            description,
+            source_playlist,
+            video_ids,
+        } => {
+            get_string_output_of_query(
+                yt,
+                CreatePlaylistQuery::new(
+                    title.as_str(),
+                    description.as_deref(),
+                    Default::default(),
+                    video_ids
+                        .into_iter()
+                        .flatten()
+                        .map(|v| VideoID::from_raw(v))
+                        .collect(),
+                    source_playlist.map(|p| PlaylistID::from_raw(p)),
+                ),
                 cli_query,
             )
             .await

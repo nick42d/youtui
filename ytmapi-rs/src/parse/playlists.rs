@@ -13,20 +13,21 @@ use crate::{
     },
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
-        AddPlaylistItemsQuery, DeletePlaylistQuery, EditPlaylistQuery, GetPlaylistQuery,
-        RemovePlaylistItemsQuery,
+        AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+        GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
     },
     Error, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
     id: PlaylistID<'static>,
     // NOTE: Only present on personal (library) playlists??
     // NOTE: May not be present on old version of API also.
-    privacy: Option<PlaylistPrivacy>,
+    privacy: Option<PrivacyStatus>,
     title: String,
     // NOTE: May not be present at all on playlists - to confirm.
     description: Option<String>,
@@ -40,29 +41,23 @@ pub struct GetPlaylist {
     related: Vec<()>,
     tracks: Vec<SongResult>,
 }
-
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-pub enum PlaylistPrivacy {
-    Public,
-}
-
-impl TryFrom<&str> for PlaylistPrivacy {
-    type Error = crate::Error;
-    fn try_from(value: &str) -> Result<Self> {
-        match value {
-            "Public" => Ok(PlaylistPrivacy::Public),
-            other => Err(Error::other(format!(
-                "Error parsing PlaylistPrivacy from value {other}"
-            ))),
-        }
-    }
-}
+/// Indicates a successful result from an API action such as a 'delete playlist'
+pub struct ApiSuccess {}
 
 impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
     fn parse_from(
         p: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
     ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query>::Output> {
         todo!()
+    }
+}
+impl<'a> ParseFrom<CreatePlaylistQuery<'a>> for PlaylistID<'static> {
+    fn parse_from(
+        p: ProcessedResult<CreatePlaylistQuery<'a>>,
+    ) -> crate::Result<<CreatePlaylistQuery<'a> as crate::query::Query>::Output> {
+        let mut json_crawler: JsonCrawler = p.into();
+        json_crawler.take_value_pointer("/playlistId")
     }
 }
 impl<'a> ParseFrom<AddPlaylistItemsQuery<'a>> for () {
@@ -79,11 +74,11 @@ impl<'a> ParseFrom<EditPlaylistQuery<'a>> for () {
         todo!()
     }
 }
-impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
+impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
     fn parse_from(
         p: ProcessedResult<DeletePlaylistQuery<'a>>,
     ) -> crate::Result<<DeletePlaylistQuery<'a> as crate::query::Query>::Output> {
-        todo!()
+        Ok(ApiSuccess {})
     }
 }
 
@@ -168,7 +163,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
     let subtitle_len = subtitle.as_array_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
-        Some(PlaylistPrivacy::try_from(
+        Some(PrivacyStatus::try_from(
             subtitle
                 .take_value_pointer::<String, &str>("/text")?
                 .as_str(),

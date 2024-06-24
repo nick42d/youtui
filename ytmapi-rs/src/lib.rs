@@ -17,7 +17,7 @@
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
-//!     let (code, url) = ytmapi:generate_oauth_code_and_url().await?;
+//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
 //!     println!("Go to {url}, fhe login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
@@ -54,9 +54,10 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum,
-    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
-    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    AlbumParams, ApiSuccess, ArtistParams, GetPlaylist, ParseFrom, ProcessedResult,
+    SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
+    SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
+    SearchResultVideo, SearchResults,
 };
 pub use process::RawResult;
 use query::{
@@ -67,9 +68,9 @@ use query::{
     },
     lyrics::GetLyricsQuery,
     watch::GetWatchPlaylistQuery,
-    BasicSearch, DeletePlaylistQuery, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
-    Query, SearchQuery,
+    BasicSearch, CreatePlaylistQuery, DeletePlaylistQuery, GetAlbumQuery, GetArtistAlbumsQuery,
+    GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
+    GetSearchSuggestionsQuery, Query, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -310,9 +311,14 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,
         query: Q,
-    ) -> Result<String> {
-        // For now, don't process parse this. Don't know if it actually returns JSON.
-        Ok(self.raw_query(query.into()).await?.destructure_json())
+    ) -> Result<ApiSuccess> {
+        query.into().call(self).await
+    }
+    pub async fn create_playlist<'a, Q: Into<CreatePlaylistQuery<'a>>>(
+        &self,
+        query: Q,
+    ) -> Result<PlaylistID<'static>> {
+        query.into().call(self).await
     }
 }
 // TODO: Keep session alive after calling these methods.
