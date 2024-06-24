@@ -272,6 +272,8 @@ pub mod browsing {
     }
 }
 pub mod youtuberesult {
+    use serde::{Deserialize, Serialize};
+
     use crate::{ChannelID, Thumbnail};
 
     use super::PlaylistID;
@@ -319,7 +321,7 @@ pub mod youtuberesult {
             &self.get_core().playlist_subtitle
         }
     }
-    #[derive(Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
     pub struct ResultCore {
         // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
         // is a weakness of this genericised approach.

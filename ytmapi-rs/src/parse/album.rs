@@ -76,6 +76,7 @@ impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
     }
 }
 
+// NOTE: Similar code to get_playlist_2024
 fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let json_crawler = JsonCrawler::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;

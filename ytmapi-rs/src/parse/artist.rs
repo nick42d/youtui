@@ -18,6 +18,8 @@ use crate::ChannelID;
 use crate::Result;
 use crate::Thumbnail;
 use const_format::concatcp;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
@@ -239,7 +241,7 @@ impl YoutubeResult for AlbumResult {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Could this alternatively be Result<Song>?
 pub struct SongResult {
     core: ResultCore,
