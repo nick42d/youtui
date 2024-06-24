@@ -49,14 +49,14 @@ use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
     watch::WatchPlaylist,
-    SearchSuggestion,
+    PlaylistID, SearchSuggestion,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ArtistParams, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    AlbumParams, ArtistParams, GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum,
+    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
+    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
 };
 pub use process::RawResult;
 use query::{
@@ -68,8 +68,8 @@ use query::{
     lyrics::GetLyricsQuery,
     watch::GetWatchPlaylistQuery,
     BasicSearch, DeletePlaylistQuery, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery, Query,
-    SearchQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
+    Query, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -276,6 +276,14 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: S,
     ) -> Result<WatchPlaylist> {
+        let query = query.into();
+        query.call(self).await
+    }
+    // TODO: Implement for other cases of query.
+    pub async fn get_playlist<'a, S: Into<GetPlaylistQuery<'a>>>(
+        &self,
+        query: S,
+    ) -> Result<GetPlaylist> {
         let query = query.into();
         query.call(self).await
     }

@@ -4,9 +4,9 @@ use ytmapi_rs::{
     query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, DeletePlaylistQuery, EpisodesFilter,
         FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetSearchSuggestionsQuery,
-        PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, SearchQuery, SongsFilter,
-        VideosFilter,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
+        GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
+        SearchQuery, SongsFilter, VideosFilter,
     },
     ChannelID, YtMusic,
 };
@@ -36,6 +36,14 @@ pub async fn command_to_query<A: AuthToken>(
             get_string_output_of_query(
                 yt,
                 GetArtistQuery::new(ChannelID::from_raw(channel_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetPlaylist { playlist_id } => {
+            get_string_output_of_query(
+                yt,
+                GetPlaylistQuery::new(PlaylistID::from_raw(playlist_id)),
                 cli_query,
             )
             .await

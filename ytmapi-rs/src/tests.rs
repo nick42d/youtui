@@ -2,6 +2,7 @@ use super::common::ChannelID;
 use super::query::*;
 use super::*;
 use crate::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
+use crate::parse::GetPlaylist;
 use crate::Error;
 use std::env;
 
@@ -130,6 +131,42 @@ async fn test_search_artists() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
     let _res = api.search_artists("Beatles").await.unwrap();
+}
+#[tokio::test]
+async fn test_delete_playlist_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just
+    // refresh it each time.
+    api.refresh_token().await;
+    todo!();
+}
+#[tokio::test]
+async fn test_delete_playlist() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    todo!();
+}
+#[tokio::test]
+async fn test_get_playlist_oauth() {
+    let mut api = new_standard_oauth_api().await.unwrap();
+    // Don't stuff around trying the keep the local OAuth secret up to date, just
+    // refresh it each time.
+    api.refresh_token().await;
+    api.get_playlist(GetPlaylistQuery::new(PlaylistID::from_raw(
+        "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+    )))
+    .await
+    .unwrap();
+}
+#[tokio::test]
+async fn test_get_playlist() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    api.get_playlist(GetPlaylistQuery::new(PlaylistID::from_raw(
+        "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+    )))
+    .await
+    .unwrap();
 }
 #[tokio::test]
 async fn test_search_songs_oauth() {

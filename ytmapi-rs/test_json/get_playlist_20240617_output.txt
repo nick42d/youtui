@@ -1,1 +1,2114 @@
-
+GetPlaylist {
+    id: PlaylistID(
+        "PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+    ),
+    privacy: None,
+    title: "The Beatles - Beatles 100 (Official Playlist)",
+    description: "",
+    author: "The Beatles",
+    year: "2020",
+    duration: "4 hours, 53 minutes",
+    track_count_text: "100 tracks",
+    views: "24M views",
+    thumbnails: [
+        Thumbnail {
+            height: 192,
+            width: 192,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
+        },
+        Thumbnail {
+            height: 576,
+            width: 576,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
+        },
+        Thumbnail {
+            height: 1200,
+            width: 1200,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
+        },
+    ],
+    suggestions: [],
+    related: [],
+    tracks: [
+        GetPlaylistSong {
+            title: "Here Comes The Sun (Remastered 2009)",
+            video_id: VideoID(
+                "xUNqsfFUwhY",
+            ),
+            duration: "3:06",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Let It Be",
+            video_id: VideoID(
+                "HzvDofigTKQ",
+            ),
+            duration: "3:51",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Hey Jude [blank]",
+            video_id: VideoID(
+                "A_MjCqQoLLA",
+            ),
+            duration: "8:10",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/A_MjCqQoLLA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lBbkuyY7UKcfsFCUDm1_xkAeo5Lw",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Come Together",
+            video_id: VideoID(
+                "oVW6wJ7MYDM",
+            ),
+            duration: "4:19",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Yesterday (With Spoken Word Intro / Live From Studio 50, New ...",
+            video_id: VideoID(
+                "wXTJBr9tt8Q",
+            ),
+            duration: "2:33",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/wXTJBr9tt8Q/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k7jwKZgCyFFiXMzt-iTT7M8fv81w",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Want To Hold Your Hand - Performed Live On The Ed Sullivan ...",
+            video_id: VideoID(
+                "jenWdylTtzs",
+            ),
+            duration: "2:37",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/jenWdylTtzs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mC-_5PNhUWpi35XcVoJNHh2al4Xg",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Twist And Shout",
+            video_id: VideoID(
+                "V1umGjoQzy8",
+            ),
+            duration: "2:42",
+            artist: "Belatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/fo8rv7ZVCPMGBXD2RsXMrakr9hq7J_i4ennaA5hOxc6UN8dDOqkzNie_rm6a1jRQAoJtO_feFyZWIvii=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/fo8rv7ZVCPMGBXD2RsXMrakr9hq7J_i4ennaA5hOxc6UN8dDOqkzNie_rm6a1jRQAoJtO_feFyZWIvii=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Blackbird (Remastered 2009)",
+            video_id: VideoID(
+                "Man4Xw8Xypo",
+            ),
+            duration: "2:19",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Help! (Remastered 2009)",
+            video_id: VideoID(
+                "MKUex3fci5c",
+            ),
+            duration: "2:20",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "In My Life (Remastered 2009)",
+            video_id: VideoID(
+                "YBcdt6DsLQA",
+            ),
+            duration: "2:27",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "While My Guitar Gently Weeps",
+            video_id: VideoID(
+                "NU4yWui_DFQ",
+            ),
+            duration: "3:47",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Something (Remastered 2009)",
+            video_id: VideoID(
+                "VWO3nEuWo4k",
+            ),
+            duration: "3:03",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Ob-La-Di, Ob-La-Da (Remastered 2009)",
+            video_id: VideoID(
+                "_J9NpHKrKMw",
+            ),
+            duration: "3:09",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "A Hard Day's Night (Remastered 2009)",
+            video_id: VideoID(
+                "zx2TFk0vh1I",
+            ),
+            duration: "2:35",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Eleanor Rigby (Remastered 2009)",
+            video_id: VideoID(
+                "wbxTlxuECJA",
+            ),
+            duration: "2:07",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Lucy In The Sky With Diamonds (Remastered 2009)",
+            video_id: VideoID(
+                "naoknj1ebqI",
+            ),
+            duration: "3:29",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Revolution",
+            video_id: VideoID(
+                "BGLGzRXY5Bw",
+            ),
+            duration: "3:28",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/BGLGzRXY5Bw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lxIMhgArFpozWXqx2lMEpLlLKz_Q",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Saw Her Standing There (Remastered 2009)",
+            video_id: VideoID(
+                "oxwAB3SECtc",
+            ),
+            duration: "2:54",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Love Me Do (Remastered 2009)",
+            video_id: VideoID(
+                "0pGOFX1D_jg",
+            ),
+            duration: "2:22",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Sgt. Pepper's Lonely Hearts Club Band (Remix)",
+            video_id: VideoID(
+                "QlgNMZnLsIQ",
+            ),
+            duration: "2:03",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Yellow Submarine (Remastered 2009)",
+            video_id: VideoID(
+                "RhoprlMxteE",
+            ),
+            duration: "2:39",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Strawberry Fields Forever (Stereo Mix 2015)",
+            video_id: VideoID(
+                "wwrTkhD_zm8",
+            ),
+            duration: "4:10",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "All You Need Is Love (Remastered 2009)",
+            video_id: VideoID(
+                "_7xMfIp-irg",
+            ),
+            duration: "3:52",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Penny Lane",
+            video_id: VideoID(
+                "oRJ2a-z5SI4",
+            ),
+            duration: "3:03",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Day Tripper",
+            video_id: VideoID(
+                "2IbPn5j2YKk",
+            ),
+            duration: "2:49",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Back In The U.S.S.R. (Remastered 2009)",
+            video_id: VideoID(
+                "0ArlUSVDQIw",
+            ),
+            duration: "2:44",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "She Loves You (Remastered 2009)",
+            video_id: VideoID(
+                "nGbWU8S3vzs",
+            ),
+            duration: "2:22",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8IP3yQUxIfSPUpDlkprDlHWaDxuddqYIRHsd9IGUu0BqoKrJn2vMCk--zhTQuokvszbIfnor23hoqNY=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8IP3yQUxIfSPUpDlkprDlHWaDxuddqYIRHsd9IGUu0BqoKrJn2vMCk--zhTQuokvszbIfnor23hoqNY=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "With A Little Help From My Friends (Remix)",
+            video_id: VideoID(
+                "byUTLI1XjOg",
+            ),
+            duration: "2:46",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "A Day In The Life",
+            video_id: VideoID(
+                "aXNY4NddrLo",
+            ),
+            duration: "5:31",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Can't Buy Me Love (Remastered 2009)",
+            video_id: VideoID(
+                "TBSpmoA8V78",
+            ),
+            duration: "2:12",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Get Back",
+            video_id: VideoID(
+                "YEESfv-11ng",
+            ),
+            duration: "3:12",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Ticket To Ride (Remastered 2009)",
+            video_id: VideoID(
+                "acxfOgPWUls",
+            ),
+            duration: "3:10",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Norwegian Wood (This Bird Has Flown) (Remastered 2009)",
+            video_id: VideoID(
+                "Y_V6y1ZCg_8",
+            ),
+            duration: "2:05",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Hello, Goodbye (Remastered 2009)",
+            video_id: VideoID(
+                "ywZqBGHDTlA",
+            ),
+            duration: "3:29",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Don’t Let Me Down (First Rooftop Performance)",
+            video_id: VideoID(
+                "CXlCLDP2Vr0",
+            ),
+            duration: "3:30",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Eight Days A Week (Remastered 2009)",
+            video_id: VideoID(
+                "0soSE-RMH3s",
+            ),
+            duration: "2:44",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Across The Universe (Remastered 2009)",
+            video_id: VideoID(
+                "90M60PzmxEE",
+            ),
+            duration: "3:49",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "And I Love Her (Remastered 2009)",
+            video_id: VideoID(
+                "5tc0gLSSU1M",
+            ),
+            duration: "2:30",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Michelle (Remastered 2009)",
+            video_id: VideoID(
+                "WoBLi5eE-wY",
+            ),
+            duration: "2:43",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "All My Loving (Remastered 2009)",
+            video_id: VideoID(
+                "TSpiwK5fig0",
+            ),
+            duration: "2:08",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "We Can Work It Out (Remastered 2009)",
+            video_id: VideoID(
+                "xedn8vp6W20",
+            ),
+            duration: "2:17",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Oh! Darling (Remastered 2009)",
+            video_id: VideoID(
+                "9BznFjbcBVs",
+            ),
+            duration: "3:28",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Dear Prudence (Remastered 2009)",
+            video_id: VideoID(
+                "wQA59IkCF5I",
+            ),
+            duration: "3:56",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Am The Walrus (Remastered 2009)",
+            video_id: VideoID(
+                "t1Jm5epJr10",
+            ),
+            duration: "4:36",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Drive My Car (Remastered 2009)",
+            video_id: VideoID(
+                "kfSQkZuIx84",
+            ),
+            duration: "2:29",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Helter Skelter (Remastered 2009)",
+            video_id: VideoID(
+                "vWW2SzoAXMo",
+            ),
+            duration: "4:30",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "You've Got To Hide Your Love Away (Remastered 2009)",
+            video_id: VideoID(
+                "V8nLraecPRY",
+            ),
+            duration: "2:10",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "When I'm Sixty Four (Remastered 2009)",
+            video_id: VideoID(
+                "HCTunqv1Xt4",
+            ),
+            duration: "2:38",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Feel Fine (Remastered 2009)",
+            video_id: VideoID(
+                "8Goxw7VgxfA",
+            ),
+            duration: "2:21",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Golden Slumbers (Remastered 2009)",
+            video_id: VideoID(
+                "AcQjM7gV6mI",
+            ),
+            duration: "1:32",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "She's Leaving Home (Remastered 2009)",
+            video_id: VideoID(
+                "VaBPY78D88g",
+            ),
+            duration: "3:36",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "The Long And Winding Road",
+            video_id: VideoID(
+                "NR0u_qjq2fM",
+            ),
+            duration: "3:40",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Lady Madonna (Remastered 2009)",
+            video_id: VideoID(
+                "C56lDvKV8tk",
+            ),
+            duration: "2:19",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Will (Remastered 2009)",
+            video_id: VideoID(
+                "p-abNGP1BK4",
+            ),
+            duration: "1:46",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Till There Was You (Remastered 2009)",
+            video_id: VideoID(
+                "SHAqAO7w8M8",
+            ),
+            duration: "2:14",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Nowhere Man (Remastered 2009)",
+            video_id: VideoID(
+                "8scSwaKbE64",
+            ),
+            duration: "2:44",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Girl (Remastered 2009)",
+            video_id: VideoID(
+                "-8l3ntDR_lI",
+            ),
+            duration: "2:32",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "If I Fell (Remastered 2009)",
+            video_id: VideoID(
+                "F_80s6S_7Vw",
+            ),
+            duration: "2:20",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Octopus's Garden (Remastered 2009)",
+            video_id: VideoID(
+                "De1LCQvbqV4",
+            ),
+            duration: "2:51",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I've Just Seen A Face (Remastered 2009)",
+            video_id: VideoID(
+                "m8LbJfC0SYM",
+            ),
+            duration: "2:06",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Paperback Writer (2022 Stereo Mix)",
+            video_id: VideoID(
+                "gBcdOFehNCg",
+            ),
+            duration: "2:19",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/WbzeDYz9fRAzx_6-Ix97oujwsPzpC5z3dtSd0uftkwu1sMpoGykm7T6zx2UT3iCQw-uVxJ-OaFHtQGT9=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/WbzeDYz9fRAzx_6-Ix97oujwsPzpC5z3dtSd0uftkwu1sMpoGykm7T6zx2UT3iCQw-uVxJ-OaFHtQGT9=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Happiness Is A Warm Gun (Remastered 2009)",
+            video_id: VideoID(
+                "vdvnOH060Qg",
+            ),
+            duration: "2:45",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "For No One (Remastered 2009)",
+            video_id: VideoID(
+                "ELlLIwhvknk",
+            ),
+            duration: "2:00",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Should Have Known Better (Remastered 2009)",
+            video_id: VideoID(
+                "5en2JMLA8Z0",
+            ),
+            duration: "2:44",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I Want You (She's So Heavy) (Remastered 2009)",
+            video_id: VideoID(
+                "tAe2Q_LhY8g",
+            ),
+            duration: "7:48",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Getting Better (Remastered 2009)",
+            video_id: VideoID(
+                "EGlo9LzmOME",
+            ),
+            duration: "2:49",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Please Please Me (Remastered 2009)",
+            video_id: VideoID(
+                "czw8eqepir8",
+            ),
+            duration: "2:01",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Rocky Raccoon (Remastered 2009)",
+            video_id: VideoID(
+                "sDcDCZGcZj8",
+            ),
+            duration: "3:34",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I'm Only Sleeping (Remastered 2009)",
+            video_id: VideoID(
+                "BT5j9OQ7Sh0",
+            ),
+            duration: "3:01",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I'm Looking Through You (Remastered 2009)",
+            video_id: VideoID(
+                "gH6i9JAdJrQ",
+            ),
+            duration: "2:27",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Got To Get You Into My Life (Remastered 2009)",
+            video_id: VideoID(
+                "r95-7zfgtLw",
+            ),
+            duration: "2:30",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Do You Want To Know A Secret (Remastered 2009)",
+            video_id: VideoID(
+                "uRQ7ecvU56k",
+            ),
+            duration: "1:58",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Because (Remastered 2009)",
+            video_id: VideoID(
+                "hL0tnrl2L_U",
+            ),
+            duration: "2:46",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Taxman (Remastered 2009)",
+            video_id: VideoID(
+                "l0zaebtU-CA",
+            ),
+            duration: "2:39",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Glass Onion (Remastered 2009)",
+            video_id: VideoID(
+                "2tSIZLuCKUI",
+            ),
+            duration: "2:18",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "From Me To You (Mono / Remastered)",
+            video_id: VideoID(
+                "-XTB3bCYMK0",
+            ),
+            duration: "1:57",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Julia (Remastered 2009)",
+            video_id: VideoID(
+                "TZip_br_v3w",
+            ),
+            duration: "2:57",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I'm So Tired (Remastered 2009)",
+            video_id: VideoID(
+                "7cqHtGb9WYM",
+            ),
+            duration: "2:04",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Here, There And Everywhere (Remastered 2009)",
+            video_id: VideoID(
+                "xdcSFVXd3MU",
+            ),
+            duration: "2:25",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Within You Without You (Remastered 2009)",
+            video_id: VideoID(
+                "HsffxGyY4ck",
+            ),
+            duration: "5:05",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Fixing A Hole (Remastered 2009)",
+            video_id: VideoID(
+                "UPBd8eHQqIw",
+            ),
+            duration: "2:37",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "I'll Follow The Sun (Remastered 2009)",
+            video_id: VideoID(
+                "28d_A_NuJ7A",
+            ),
+            duration: "1:49",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "You're Going To Lose That Girl (Remastered 2009)",
+            video_id: VideoID(
+                "vqpEZuv29qE",
+            ),
+            duration: "2:19",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Anna (Go To Him) (Remastered 2009)",
+            video_id: VideoID(
+                "b3zNKWyLfus",
+            ),
+            duration: "2:58",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Maxwell's Silver Hammer (Remastered 2009)",
+            video_id: VideoID(
+                "mJag19WoAe0",
+            ),
+            duration: "3:28",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Carry That Weight (Remastered 2009)",
+            video_id: VideoID(
+                "6B224XDJw6g",
+            ),
+            duration: "1:37",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Roll Over Beethoven (Remastered 2009)",
+            video_id: VideoID(
+                "Hz5jXwOXgKQ",
+            ),
+            duration: "2:46",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "You Never Give Me Your Money (Remastered 2009)",
+            video_id: VideoID(
+                "BpndGZ71yww",
+            ),
+            duration: "4:03",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "The Fool On The Hill",
+            video_id: VideoID(
+                "sGDuGybCRSE",
+            ),
+            duration: "3:30",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Good Day Sunshine (Remastered 2009)",
+            video_id: VideoID(
+                "6e01nNA02vw",
+            ),
+            duration: "2:10",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Martha My Dear (Remastered 2009)",
+            video_id: VideoID(
+                "RXawa90YU2s",
+            ),
+            duration: "2:29",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "You Won't See Me (Remastered 2009)",
+            video_id: VideoID(
+                "OsjTO0yZQjk",
+            ),
+            duration: "3:20",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "You Really Got A Hold On Me (Remastered 2009)",
+            video_id: VideoID(
+                "9rokS8Ao4nQ",
+            ),
+            duration: "3:02",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "And Your Bird Can Sing (Remastered 2009)",
+            video_id: VideoID(
+                "Uq0aeEYLkIE",
+            ),
+            duration: "2:01",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "The End (Remastered 2009)",
+            video_id: VideoID(
+                "12R4FzIhdoQ",
+            ),
+            duration: "2:22",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Baby It's You (Remastered 2009)",
+            video_id: VideoID(
+                "AWUTlM6hz0g",
+            ),
+            duration: "2:41",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "The Ballad Of John And Yoko (Remastered 2009)",
+            video_id: VideoID(
+                "vzd_DfGGx0I",
+            ),
+            duration: "3:02",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Baby, You're A Rich Man (Remastered 2009)",
+            video_id: VideoID(
+                "i5m-sgtwFck",
+            ),
+            duration: "3:02",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "No Reply (Remastered 2009)",
+            video_id: VideoID(
+                "YgFo9STa70E",
+            ),
+            duration: "2:17",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+        GetPlaylistSong {
+            title: "Things We Said Today (Remastered 2009)",
+            video_id: VideoID(
+                "NItAlTsPuQg",
+            ),
+            duration: "2:36",
+            artist: "The Beatles",
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                },
+            ],
+            album: None,
+        },
+    ],
+}

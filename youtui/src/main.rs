@@ -68,6 +68,9 @@ enum Command {
     GetAlbum {
         browse_id: String,
     },
+    GetPlaylist {
+        playlist_id: String,
+    },
     GetLibraryPlaylists,
     GetLibraryArtists, //TODO: Allow sorting
     Search {

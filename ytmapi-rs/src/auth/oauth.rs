@@ -173,7 +173,23 @@ impl AuthToken for OAuthToken {
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let (json, query) = raw.destructure();
-        ProcessedResult::from_raw(json, query)
+        let processed = ProcessedResult::from_raw(json, query)?;
+        // Guard against error codes in json response.
+        // TODO: Add a test for this
+        if let Some(error) = processed.get_json().pointer("/error") {
+            let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
+                return Err(Error::other(
+                    "Error message received from server, but doesn't have an error code",
+                ));
+            };
+            match code {
+                // TODO: Add some errors for specific cases for this token - example below from
+                // BrowserToken 401 => return
+                // Err(Error::browser_authentication_failed()),
+                other => return Err(Error::other_code(other)),
+            }
+        }
+        Ok(processed)
     }
 }
 
