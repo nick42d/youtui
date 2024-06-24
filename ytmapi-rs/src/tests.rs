@@ -167,6 +167,26 @@ async fn test_delete_create_playlist() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
+async fn test_delete_create_playlist_complex() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    let id = api
+        .create_playlist(CreatePlaylistQuery::new(
+            "TEST PLAYLIST",
+            Some("TEST DESCRIPTION"),
+            PrivacyStatus::Unlisted,
+            vec![
+                VideoID::from_raw("kfSQkZuIx84"),
+                VideoID::from_raw("EjHzPrBCgf0"),
+                VideoID::from_raw("Av-gUkwzvzk"),
+            ],
+            Some(PlaylistID::from_raw("VLPLCZQcydUIP07X8WURoQP8YEwKwVM7K2xl")),
+        ))
+        .await
+        .unwrap();
+    api.delete_playlist(id).await.unwrap();
+}
+#[tokio::test]
 async fn test_get_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
