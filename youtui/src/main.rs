@@ -117,6 +117,10 @@ enum Command {
     DeletePlaylist {
         playlist_id: String,
     },
+    RemovePlaylistItems {
+        playlist_id: String,
+        video_ids: Vec<String>,
+    },
 }
 
 pub struct RuntimeInfo {

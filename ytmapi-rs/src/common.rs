@@ -235,16 +235,14 @@ pub mod browsing {
     }
 }
 pub mod youtuberesult {
-    use serde::{Deserialize, Serialize};
-
+    use super::{PlaylistID, SetVideoID};
     use crate::{ChannelID, Thumbnail};
-
-    use super::PlaylistID;
+    use serde::{Deserialize, Serialize};
 
     pub trait YoutubeResult {
         fn get_core(&self) -> &ResultCore;
         // Note, mandatory for Song but not some others.
-        fn get_set_video_id(&self) -> &Option<String> {
+        fn get_set_video_id(&self) -> &Option<SetVideoID> {
             &self.get_core().set_video_id
         }
         fn get_duration(&self) -> &Option<String> {
@@ -288,7 +286,7 @@ pub mod youtuberesult {
     pub struct ResultCore {
         // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
         // is a weakness of this genericised approach.
-        set_video_id: Option<String>,
+        set_video_id: Option<SetVideoID<'static>>,
         duration: Option<String>,
         feedback_tok_add: Option<String>,
         feedback_tok_rem: Option<String>,
@@ -317,7 +315,7 @@ pub mod youtuberesult {
 
     impl ResultCore {
         pub fn new(
-            set_video_id: Option<String>,
+            set_video_id: Option<SetVideoID<'static>>,
             duration: Option<String>,
             feedback_tok_add: Option<String>,
             feedback_tok_rem: Option<String>,

@@ -70,7 +70,7 @@ use query::{
     watch::GetWatchPlaylistQuery,
     BasicSearch, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, SearchQuery,
+    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -318,6 +318,12 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: Q,
     ) -> Result<PlaylistID<'static>> {
+        query.into().call(self).await
+    }
+    pub async fn remove_playlist_items<'a, Q: Into<RemovePlaylistItemsQuery<'a>>>(
+        &self,
+        query: Q,
+    ) -> Result<ApiSuccess> {
         query.into().call(self).await
     }
 }

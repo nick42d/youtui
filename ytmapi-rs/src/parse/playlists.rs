@@ -41,11 +41,11 @@ pub struct GetPlaylist {
 /// Indicates a successful result from an API action such as a 'delete playlist'
 pub struct ApiSuccess {}
 
-impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
+impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
     fn parse_from(
         p: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
     ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query>::Output> {
-        todo!()
+        Ok(ApiSuccess {})
     }
 }
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {

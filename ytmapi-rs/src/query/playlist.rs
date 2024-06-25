@@ -84,12 +84,9 @@ pub(crate) struct AddPlaylistItemsQuery<'a> {
     duplicate_handling_mode: DuplicateHandlingMode,
 }
 
-// XXX: Private until completed
-pub(crate) struct RemovePlaylistItemsQuery<'a> {
+pub struct RemovePlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
-    // TODO: Should be a Track returned by get_playlist - as it requires both a VideoID and
-    // SetVideoID
-    video_items: Vec<(VideoID<'a>, SetVideoID<'a>)>,
+    video_items: Vec<SetVideoID<'a>>,
 }
 
 impl<'a> GetPlaylistQuery<'a> {
@@ -105,7 +102,7 @@ impl<'a> DeletePlaylistQuery<'a> {
 impl<'a> RemovePlaylistItemsQuery<'a> {
     pub fn new(
         id: PlaylistID<'a>,
-        video_items: Vec<(VideoID<'a>, SetVideoID<'a>)>,
+        video_items: Vec<SetVideoID<'a>>,
     ) -> RemovePlaylistItemsQuery<'a> {
         RemovePlaylistItemsQuery { id, video_items }
     }
@@ -178,28 +175,32 @@ impl<'a> Query for EditPlaylistQuery<'a> {
 }
 
 impl<'a> Query for RemovePlaylistItemsQuery<'a> {
-    // TODO
-    type Output = ();
+    type Output = ApiSuccess;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        todo!();
-        // let serde_json::Value::Object(map) = json!({
-        //     "enablePersistentPlaylistPanel": true,
-        //     "isAudioOnly": true,
-        //     "tunerSettingValue": "AUTOMIX_SETTING_NORMAL",
-        //     "videoId" : self.id.get_raw(),
-        //     "playlistId" : format!("RDAMVM{}",self.id.get_raw()),
-        // }) else {
-        //     unreachable!()
-        // };
-        // map
+        let serde_json::Value::Object(mut map) = json!({
+            "playlistId": self.id,
+        }) else {
+            unreachable!()
+        };
+        let actions: Vec<serde_json::Value> = self
+            .video_items
+            .iter()
+            .map(|v| {
+                json!(
+                {
+                    "setVideoId" : v,
+                    "action" : "ACTION_REMOVE_VIDEO",
+                })
+            })
+            .collect();
+        map.insert("actions".into(), json!(actions));
+        map
     }
     fn path(&self) -> &str {
-        todo!();
-        // "next"
+        "browse/edit_playlist"
     }
     fn params(&self) -> Option<Cow<str>> {
-        todo!();
-        // None
+        None
     }
 }
 

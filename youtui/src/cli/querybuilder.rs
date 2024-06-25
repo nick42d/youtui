@@ -1,12 +1,12 @@
 use ytmapi_rs::{
     auth::AuthToken,
-    common::{AlbumID, BrowseParams, PlaylistID, YoutubeID},
+    common::{AlbumID, BrowseParams, PlaylistID, SetVideoID, YoutubeID},
     query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, CreatePlaylistQuery,
         DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
         GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
         GetPlaylistQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
-        ProfilesFilter, Query, SearchQuery, SongsFilter, VideosFilter,
+        ProfilesFilter, Query, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID, YtMusic,
 };
@@ -174,6 +174,23 @@ pub async fn command_to_query<A: AuthToken>(
                     title.as_str(),
                     description.as_deref(),
                     Default::default(),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::RemovePlaylistItems {
+            playlist_id,
+            video_ids: set_video_ids,
+        } => {
+            get_string_output_of_query(
+                yt,
+                RemovePlaylistItemsQuery::new(
+                    PlaylistID::from_raw(playlist_id),
+                    set_video_ids
+                        .iter()
+                        .map(|v| SetVideoID::from_raw(v))
+                        .collect(),
                 ),
                 cli_query,
             )
