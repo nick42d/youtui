@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-use crate::Error;
+use crate::{impl_youtube_id, Error};
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
@@ -119,57 +119,20 @@ pub struct PodcastID<'a>(Cow<'a, str>);
 pub struct VideoID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LyricsID<'a>(pub Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct SetVideoID<'a>(Cow<'a, str>);
 
-impl<'a> YoutubeID<'a> for AlbumID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for ProfileID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for PodcastID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for VideoID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
+impl_youtube_id!(SetVideoID<'a>);
+impl_youtube_id!(AlbumID<'a>);
+impl_youtube_id!(ProfileID<'a>);
+impl_youtube_id!(PodcastID<'a>);
+impl_youtube_id!(VideoID<'a>);
+impl_youtube_id!(PlaylistID<'a>);
+impl_youtube_id!(ChannelID<'a>);
+
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
-impl<'a> YoutubeID<'a> for PlaylistID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
-impl<'a> YoutubeID<'a> for ChannelID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
+
 impl<'a> From<&'a AlbumID<'a>> for AlbumID<'a> {
     fn from(value: &'a AlbumID<'a>) -> Self {
         let core = &value.0;

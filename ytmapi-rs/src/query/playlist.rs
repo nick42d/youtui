@@ -1,11 +1,11 @@
 use super::Query;
 use crate::{
-    common::{PlaylistID, YoutubeID},
+    common::{PlaylistID, SetVideoID, YoutubeID},
     parse::{ApiSuccess, GetPlaylist},
     Error, Result, VideoID,
 };
 pub use create::*;
-use serde::{de::value::StringDeserializer, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -42,10 +42,6 @@ impl ToString for PrivacyStatus {
         .to_string()
     }
 }
-
-//TODO: Likely Common
-#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct SetVideoID<'a>(Cow<'a, str>);
 
 pub enum AddOrder {
     AddToTop,
@@ -91,9 +87,9 @@ pub(crate) struct AddPlaylistItemsQuery<'a> {
 // XXX: Private until completed
 pub(crate) struct RemovePlaylistItemsQuery<'a> {
     id: PlaylistID<'a>,
-    // TODO: Should be a Track returned by get_playlist - as it requires both a PlaylistID and
-    // SetPlaylistID
-    video_items: Vec<()>,
+    // TODO: Should be a Track returned by get_playlist - as it requires both a VideoID and
+    // SetVideoID
+    video_items: Vec<(VideoID<'a>, SetVideoID<'a>)>,
 }
 
 impl<'a> GetPlaylistQuery<'a> {
@@ -101,10 +97,17 @@ impl<'a> GetPlaylistQuery<'a> {
         GetPlaylistQuery { id }
     }
 }
-
 impl<'a> DeletePlaylistQuery<'a> {
     pub fn new(id: PlaylistID<'a>) -> DeletePlaylistQuery<'a> {
         DeletePlaylistQuery { id }
+    }
+}
+impl<'a> RemovePlaylistItemsQuery<'a> {
+    pub fn new(
+        id: PlaylistID<'a>,
+        video_items: Vec<(VideoID<'a>, SetVideoID<'a>)>,
+    ) -> RemovePlaylistItemsQuery<'a> {
+        RemovePlaylistItemsQuery { id, video_items }
     }
 }
 

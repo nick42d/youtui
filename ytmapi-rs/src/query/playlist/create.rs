@@ -1,9 +1,5 @@
 use super::PrivacyStatus;
-use crate::{
-    common::{PlaylistID, YoutubeID},
-    query::Query,
-    VideoID,
-};
+use crate::{common::PlaylistID, query::Query, VideoID};
 use serde_json::json;
 use std::borrow::Cow;
 

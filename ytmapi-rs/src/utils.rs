@@ -40,3 +40,19 @@ pub fn hash_sapisid(sapisid: &str) -> String {
     }
     format!("{elapsed}_{hex}")
 }
+
+#[macro_export]
+/// Macro to generate the boilerplate code that allows implementation of
+/// YoutubeID for a simple struct.
+macro_rules! impl_youtube_id {
+    ($t:ty) => {
+        impl<'a> YoutubeID<'a> for $t {
+            fn get_raw(&self) -> &str {
+                &self.0
+            }
+            fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
+                Self(raw_str.into())
+            }
+        }
+    };
+}

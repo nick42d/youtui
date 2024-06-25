@@ -1,26 +1,22 @@
 use super::{
     parse_playlist_items, MusicShelfContents, ParseFrom, ProcessedResult, SongResult,
-    DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, PLAY_BUTTON, SINGLE_COLUMN, STRAPLINE_TEXT,
-    STRAPLINE_THUMBNAIL, SUBTITLE, SUBTITLE2, SUBTITLE3, THUMBNAIL, THUMBNAILS, THUMBNAIL_CROPPED,
-    THUMBNAIL_RENDERER, TITLE_TEXT, TWO_COLUMN,
+    DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2,
+    SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
     common::PlaylistID,
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::JsonCrawler,
     nav_consts::{
-        MRLIR, RESPONSIVE_HEADER, RUN_TEXT, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM,
-        SINGLE_COLUMN_TAB, TAB_CONTENT, TEXT_RUN_TEXT, WATCH_VIDEO_ID,
+        RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
-    process::{process_fixed_column_item, process_flex_column_item},
     query::{
         AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
         EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
     },
-    Error, Result, Thumbnail, VideoID,
+    Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
