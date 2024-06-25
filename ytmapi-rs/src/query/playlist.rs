@@ -4,9 +4,12 @@ use crate::{
     parse::{ApiSuccess, GetPlaylist},
     Error, Result, VideoID,
 };
+pub use create::*;
 use serde::{de::value::StringDeserializer, Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
+
+pub mod create;
 
 //TODO: Likely Common
 #[derive(Default, PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -58,14 +61,6 @@ pub struct GetPlaylistQuery<'a> {
     id: PlaylistID<'a>,
 }
 
-pub struct CreatePlaylistQuery<'a> {
-    title: Cow<'a, str>,
-    description: Option<Cow<'a, str>>,
-    privacy_status: PrivacyStatus,
-    video_ids: Vec<VideoID<'a>>,
-    source_playlist: Option<PlaylistID<'a>>,
-}
-
 // Is this really a query? It's more of an action/command.
 // TODO: Confirm if all options can be passed - or mutually exclusive.
 // XXX: Private until completed
@@ -101,24 +96,6 @@ pub(crate) struct RemovePlaylistItemsQuery<'a> {
     video_items: Vec<()>,
 }
 
-impl<'a> CreatePlaylistQuery<'a> {
-    pub fn new(
-        title: &'a str,
-        description: Option<&'a str>,
-        privacy_status: PrivacyStatus,
-        video_ids: Vec<VideoID<'a>>,
-        source_playlist: Option<PlaylistID<'a>>,
-    ) -> CreatePlaylistQuery<'a> {
-        CreatePlaylistQuery {
-            title: title.into(),
-            description: description.map(|d| d.into()),
-            privacy_status,
-            video_ids,
-            source_playlist,
-        }
-    }
-}
-
 impl<'a> GetPlaylistQuery<'a> {
     pub fn new(id: PlaylistID<'a>) -> GetPlaylistQuery<'a> {
         GetPlaylistQuery { id }
@@ -144,43 +121,6 @@ impl<'a> Query for GetPlaylistQuery<'a> {
     }
     fn path(&self) -> &str {
         "browse"
-    }
-    fn params(&self) -> Option<Cow<str>> {
-        None
-    }
-}
-
-impl<'a> Query for CreatePlaylistQuery<'a> {
-    // TODO
-    type Output = PlaylistID<'static>;
-    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        // TODO: Confirm if processing required to remove 'VL' portion of playlistId
-        let serde_json::Value::Object(mut map) = json!({
-            "title" : self.title,
-            "privacyStatus" : self.privacy_status.to_string(),
-            "videoIds" : self.video_ids,
-        }) else {
-            unreachable!()
-        };
-        if let Some(description) = &self.description {
-            // TODO: Process description to ensure it doesn't contain html. Google doesn't
-            // allow html.
-            // https://github.com/sigma67/ytmusicapi/blob/main/ytmusicapi/mixins/playlists.py#L311
-            map.insert("description".to_string(), description.as_ref().into());
-        }
-        if let Some(source_playlist) = &self.source_playlist {
-            // TODO: Process description to ensure it doesn't contain html. Google doesn't
-            // allow html.
-            // https://github.com/sigma67/ytmusicapi/blob/main/ytmusicapi/mixins/playlists.py#L311
-            map.insert(
-                "sourcePlaylistId".to_string(),
-                source_playlist.get_raw().into(),
-            );
-        }
-        map
-    }
-    fn path(&self) -> &str {
-        "playlist/create"
     }
     fn params(&self) -> Option<Cow<str>> {
         None

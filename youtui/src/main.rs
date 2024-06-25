@@ -109,12 +109,10 @@ enum Command {
     SearchPodcasts {
         query: String,
     },
+    // TODO: Privacy status, video ids, source playlist
     CreatePlaylist {
         title: String,
         description: Option<String>,
-        // TODO: Privacy status, video ids, source playlist
-        source_playlist: Option<String>,
-        video_ids: Option<Vec<String>>,
     },
     DeletePlaylist {
         playlist_id: String,

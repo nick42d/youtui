@@ -68,9 +68,9 @@ use query::{
     },
     lyrics::GetLyricsQuery,
     watch::GetWatchPlaylistQuery,
-    BasicSearch, CreatePlaylistQuery, DeletePlaylistQuery, GetAlbumQuery, GetArtistAlbumsQuery,
-    GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
-    GetSearchSuggestionsQuery, Query, SearchQuery,
+    BasicSearch, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery, GetAlbumQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -314,7 +314,7 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<ApiSuccess> {
         query.into().call(self).await
     }
-    pub async fn create_playlist<'a, Q: Into<CreatePlaylistQuery<'a>>>(
+    pub async fn create_playlist<'a, Q: Into<CreatePlaylistQuery<'a, C>>, C: CreatePlaylistType>(
         &self,
         query: Q,
     ) -> Result<PlaylistID<'static>> {

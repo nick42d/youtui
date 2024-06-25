@@ -167,24 +167,13 @@ pub async fn command_to_query<A: AuthToken>(
             )
             .await
         }
-        Command::CreatePlaylist {
-            title,
-            description,
-            source_playlist,
-            video_ids,
-        } => {
+        Command::CreatePlaylist { title, description } => {
             get_string_output_of_query(
                 yt,
                 CreatePlaylistQuery::new(
                     title.as_str(),
                     description.as_deref(),
                     Default::default(),
-                    video_ids
-                        .into_iter()
-                        .flatten()
-                        .map(|v| VideoID::from_raw(v))
-                        .collect(),
-                    source_playlist.map(|p| PlaylistID::from_raw(p)),
                 ),
                 cli_query,
             )

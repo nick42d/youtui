@@ -26,7 +26,7 @@ pub trait UnfilteredSearchType: SearchType {}
 pub struct SearchQuery<'a, S: SearchType> {
     query: Cow<'a, str>,
     spelling_mode: SpellingMode,
-    searchtype: S,
+    search_type: S,
 }
 
 /// Whether or not to allow Google to attempt to auto correct spelling as part
@@ -94,7 +94,7 @@ impl<'a, Q: Into<Cow<'a, str>>, S: SearchType> From<Q> for SearchQuery<'a, S> {
         SearchQuery {
             query: value.into(),
             spelling_mode: SpellingMode::default(),
-            searchtype: S::default(),
+            search_type: S::default(),
         }
     }
 }
@@ -105,7 +105,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: q.into(),
             spelling_mode: SpellingMode::default(),
-            searchtype: BasicSearch {},
+            search_type: BasicSearch {},
         }
     }
 }
@@ -132,7 +132,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: FilteredSearch { filter },
+            search_type: FilteredSearch { filter },
         }
     }
     /// Search only uploads.
@@ -140,7 +140,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: UploadSearch,
+            search_type: UploadSearch,
         }
     }
     /// Search only library.
@@ -148,7 +148,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: LibrarySearch,
+            search_type: LibrarySearch,
         }
     }
 }
@@ -162,7 +162,7 @@ impl<'a, F: FilteredSearchType> SearchQuery<'a, FilteredSearch<F>> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: FilteredSearch { filter },
+            search_type: FilteredSearch { filter },
         }
     }
     /// Remove filter from the query.
@@ -170,7 +170,7 @@ impl<'a, F: FilteredSearchType> SearchQuery<'a, FilteredSearch<F>> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -181,7 +181,7 @@ impl<'a> SearchQuery<'a, UploadSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -191,7 +191,7 @@ impl<'a> SearchQuery<'a, LibrarySearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -236,5 +236,5 @@ fn search_query_header<'a, S: SearchType>(
     serde_json::Map::from_iter([("query".to_string(), value)])
 }
 fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<str>> {
-    query.searchtype.specialised_params(&query.spelling_mode)
+    query.search_type.specialised_params(&query.spelling_mode)
 }

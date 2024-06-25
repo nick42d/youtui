@@ -2,7 +2,6 @@ use super::common::ChannelID;
 use super::query::*;
 use super::*;
 use crate::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
-use crate::parse::GetPlaylist;
 use crate::Error;
 use std::env;
 
@@ -143,8 +142,6 @@ async fn test_delete_create_playlist_oauth() {
             "TEST PLAYLIST",
             None,
             PrivacyStatus::Unlisted,
-            Vec::new(),
-            None,
         ))
         .await
         .unwrap();
@@ -159,8 +156,6 @@ async fn test_delete_create_playlist() {
             "TEST PLAYLIST",
             None,
             PrivacyStatus::Unlisted,
-            Vec::new(),
-            None,
         ))
         .await
         .unwrap();
@@ -171,17 +166,18 @@ async fn test_delete_create_playlist_complex() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
     let id = api
-        .create_playlist(CreatePlaylistQuery::new(
-            "TEST PLAYLIST",
-            Some("TEST DESCRIPTION"),
-            PrivacyStatus::Unlisted,
-            vec![
+        .create_playlist(
+            CreatePlaylistQuery::new(
+                "TEST PLAYLIST",
+                Some("TEST DESCRIPTION"),
+                PrivacyStatus::Unlisted,
+            )
+            .with_video_ids(vec![
                 VideoID::from_raw("kfSQkZuIx84"),
                 VideoID::from_raw("EjHzPrBCgf0"),
                 VideoID::from_raw("Av-gUkwzvzk"),
-            ],
-            Some(PlaylistID::from_raw("VLPLCZQcydUIP07X8WURoQP8YEwKwVM7K2xl")),
-        ))
+            ]),
+        )
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();

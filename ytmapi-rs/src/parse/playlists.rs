@@ -13,8 +13,8 @@ use crate::{
     },
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
-        AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-        GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
+        AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
+        EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
     },
     Error, Result, Thumbnail, VideoID,
 };
@@ -52,10 +52,10 @@ impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
         todo!()
     }
 }
-impl<'a> ParseFrom<CreatePlaylistQuery<'a>> for PlaylistID<'static> {
+impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
     fn parse_from(
-        p: ProcessedResult<CreatePlaylistQuery<'a>>,
-    ) -> crate::Result<<CreatePlaylistQuery<'a> as crate::query::Query>::Output> {
+        p: ProcessedResult<CreatePlaylistQuery<'a, C>>,
+    ) -> crate::Result<<CreatePlaylistQuery<'a, C> as crate::query::Query>::Output> {
         let mut json_crawler: JsonCrawler = p.into();
         json_crawler.take_value_pointer("/playlistId")
     }
