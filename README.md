@@ -43,7 +43,7 @@ Chrome example (Select manually and paste):
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
-- [ ] Logging to a file (target for 0.0.5)
+- [ ] Logging to a file (target for 0.0.6)
 - [x] Release to AUR (target for 0.0.4)
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Dbus support for media keys
@@ -97,12 +97,12 @@ Chrome example (Select manually and paste):
 |RatePlaylist|[ ]|
 |SubscribeArtists|[ ]|
 |UnsubscribeArtists|[ ]|
-|GetPlaylist|[ ]|
-|CreatePlaylist|[ ]|
-|EditPlaylist|[ ]|
-|DeletePlaylist|[ ]|
-|AddPlaylistItems|[ ]|
-|RemovePlaylistItems|[ ]|
+|GetPlaylist|[ ]*|
+|CreatePlaylist|[x]|
+|EditPlaylist|[x]|
+|DeletePlaylist|[x]|
+|AddPlaylistItems|[x]|
+|RemovePlaylistItems|[x]|
 |GetLibraryUploadSongs|[ ]|
 |GetLibraryUploadArtists|[ ]|
 |GetLibraryUploadAlbums|[ ]|
@@ -118,7 +118,10 @@ Chrome example (Select manually and paste):
 - only returns playlist and lyrics ids
 - does not implement continuations - only first x results returned.
 
-\* get library playlist & artists are partially implemented only
+\* get library playlists & artists are partially implemented only
+- does not implement continuations - only first x results returned.
+
+\* get playlist is partially implemented only
 - does not implement continuations - only first x results returned.
 
 # Additional information

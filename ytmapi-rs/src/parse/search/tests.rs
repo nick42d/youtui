@@ -1,12 +1,12 @@
 use crate::{
-    crawler::JsonCrawler,
-    parse::{Parse, ProcessedResult, SearchResults},
-    process::JsonCloner,
+    auth::BrowserToken,
+    parse::SearchResults,
     query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
         FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
         VideosFilter,
     },
+    YtMusic,
 };
 use pretty_assertions::assert_eq;
 use std::path::Path;
@@ -17,12 +17,9 @@ async fn test_search_artists_empty() {
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert_eq!(output, Vec::new());
 }
 #[tokio::test]
@@ -32,12 +29,9 @@ async fn test_basic_search_has_simple_top_result() {
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -47,12 +41,9 @@ async fn test_basic_search_has_card_top_result() {
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -62,12 +53,9 @@ async fn basic_test_to_test_basic_search() {
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert!(!output.songs.is_empty());
     assert!(!output.featured_playlists.is_empty());
     assert!(!output.videos.is_empty());
@@ -90,12 +78,9 @@ async fn test_basic_search() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -112,12 +97,9 @@ async fn test_basic_search_with_vodcasts_type_not_specified() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -134,12 +116,9 @@ async fn test_basic_search_with_vodcasts_type_specified() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("Black Flag");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -149,12 +128,9 @@ async fn test_basic_search_is_empty() {
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("ajhkjhdslkfjhsdfglkjdsf");
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     assert_eq!(output, SearchResults::default());
 }
 #[tokio::test]
@@ -168,12 +144,9 @@ async fn test_search_artists() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -188,12 +161,9 @@ async fn test_search_albums() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(AlbumsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -208,12 +178,9 @@ async fn test_search_songs() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(SongsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -228,12 +195,9 @@ async fn test_search_videos() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -249,12 +213,9 @@ async fn test_search_videos_2024() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -269,12 +230,9 @@ async fn test_search_featured_playlists() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(FeaturedPlaylistsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -289,12 +247,9 @@ async fn test_search_community_playlists() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(CommunityPlaylistsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -309,12 +264,9 @@ async fn test_search_episodes() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(EpisodesFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -329,12 +281,9 @@ async fn test_search_podcasts() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(PodcastsFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }
@@ -349,12 +298,9 @@ async fn test_search_profiles() {
         .await
         .expect("Expect file read to pass during tests");
     let expected = expected.trim();
-    let json_clone = JsonCloner::from_string(source).unwrap();
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ProfilesFilter);
-    let output = ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query)
-        .parse()
-        .unwrap();
+    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
     let output = format!("{:#?}", output);
     assert_eq!(output, expected);
 }

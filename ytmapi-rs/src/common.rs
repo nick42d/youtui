@@ -1,10 +1,10 @@
 //! Re-usable core structures.
-// Intended to be for structures that are also suitable to be reused by other libraries.
-// As opposed to simply part of the interface.
+// Intended to be for structures that are also suitable to be reused by other
+// libraries. As opposed to simply part of the interface.
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-use crate::Error;
+use crate::{impl_youtube_id, Error};
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
@@ -73,8 +73,8 @@ pub enum Explicit {
     NotExplicit,
 }
 
-// Note, library album will also have artists field. How do we handle - are these two different
-// types?
+// Note, library album will also have artists field. How do we handle - are
+// these two different types?
 // Or, is Album a trait?
 // XXX: Consider if this is the same as the Album struct that uses ResultCore.
 // XXX: I think this should become a trait.
@@ -90,10 +90,13 @@ pub struct Album {
     pub year: Option<String>,
 }
 
+// TODO: Add parsing for YoutubeID's - e.g PlaylistID begining with VL should
+// fail.
 pub trait YoutubeID<'a> {
     fn get_raw(&self) -> &str;
     fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self;
 }
+// Need to confirm behaviour when converting from other IDs.
 pub trait BrowseID<'a>: YoutubeID<'a> {}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -118,58 +121,22 @@ pub struct PodcastID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
-pub struct LyricsID<'a>(pub Cow<'a, str>);
+pub struct LyricsID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct SetVideoID<'a>(Cow<'a, str>);
 
-impl<'a> YoutubeID<'a> for AlbumID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for ProfileID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for PodcastID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
-impl<'a> YoutubeID<'a> for VideoID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
+impl_youtube_id!(SetVideoID<'a>);
+impl_youtube_id!(AlbumID<'a>);
+impl_youtube_id!(ProfileID<'a>);
+impl_youtube_id!(PodcastID<'a>);
+impl_youtube_id!(VideoID<'a>);
+impl_youtube_id!(PlaylistID<'a>);
+impl_youtube_id!(ChannelID<'a>);
+impl_youtube_id!(LyricsID<'a>);
+
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
-impl<'a> YoutubeID<'a> for PlaylistID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
-impl<'a> YoutubeID<'a> for ChannelID<'a> {
-    fn get_raw(&self) -> &str {
-        &self.0
-    }
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
-        Self(raw_str.into())
-    }
-}
+
 impl<'a> From<&'a AlbumID<'a>> for AlbumID<'a> {
     fn from(value: &'a AlbumID<'a>) -> Self {
         let core = &value.0;
@@ -272,14 +239,14 @@ pub mod browsing {
     }
 }
 pub mod youtuberesult {
+    use super::{PlaylistID, SetVideoID};
     use crate::{ChannelID, Thumbnail};
-
-    use super::PlaylistID;
+    use serde::{Deserialize, Serialize};
 
     pub trait YoutubeResult {
         fn get_core(&self) -> &ResultCore;
         // Note, mandatory for Song but not some others.
-        fn get_set_video_id(&self) -> &Option<String> {
+        fn get_set_video_id(&self) -> &Option<SetVideoID> {
             &self.get_core().set_video_id
         }
         fn get_duration(&self) -> &Option<String> {
@@ -319,11 +286,11 @@ pub mod youtuberesult {
             &self.get_core().playlist_subtitle
         }
     }
-    #[derive(Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
     pub struct ResultCore {
-        // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this is a weakness of
-        //this genericised approach.
-        set_video_id: Option<String>,
+        // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
+        // is a weakness of this genericised approach.
+        set_video_id: Option<SetVideoID<'static>>,
         duration: Option<String>,
         feedback_tok_add: Option<String>,
         feedback_tok_rem: Option<String>,
@@ -345,13 +312,14 @@ pub mod youtuberesult {
         // XXX: Seems this can be a channelID or AlbumID...
         browse_id: Option<ChannelID<'static>>,
         playlist_id: Option<PlaylistID<'static>>,
-        playlist_subtitle: Option<String>, // Consider difference between None and Never for these
-                                           // Options. Most likely is a better way to do this.
+        playlist_subtitle: Option<String>, /* Consider difference between None and Never for
+                                            * these
+                                            * Options. Most likely is a better way to do this. */
     }
 
     impl ResultCore {
         pub fn new(
-            set_video_id: Option<String>,
+            set_video_id: Option<SetVideoID<'static>>,
             duration: Option<String>,
             feedback_tok_add: Option<String>,
             feedback_tok_rem: Option<String>,

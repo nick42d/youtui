@@ -1,4 +1,5 @@
 use super::MusicShelfContents;
+use super::ParseFrom;
 use super::ParsedSongAlbum;
 use super::ProcessedResult;
 use crate::common::youtuberesult::ResultCore;
@@ -8,6 +9,7 @@ use crate::common::BrowseParams;
 use crate::common::PlaylistID;
 use crate::common::VideoID;
 use crate::common::YoutubeID;
+use crate::crawler::JsonCrawler;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::nav_consts::*;
 use crate::process::process_fixed_column_item;
@@ -16,6 +18,8 @@ use crate::ChannelID;
 use crate::Result;
 use crate::Thumbnail;
 use const_format::concatcp;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
@@ -31,19 +35,19 @@ pub struct ArtistParams {
     pub top_releases: GetArtistTopReleases,
 }
 
-impl<'a> ProcessedResult<GetArtistQuery<'a>> {
-    pub fn parse(self) -> Result<ArtistParams> {
+impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
+    fn parse_from(
+        p: ProcessedResult<GetArtistQuery<'a>>,
+    ) -> crate::Result<<GetArtistQuery<'a> as Query>::Output> {
         // TODO: Make this optional.
-        let ProcessedResult {
-            mut json_crawler, ..
-        } = self;
+        let mut json_crawler: JsonCrawler = p.into();
         let mut results =
             json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         //        artist = {'description': None, 'views': None}
         let mut description = String::default();
         let mut views = String::default();
-        //descriptionShelf = find_object_by_key(results, DESCRIPTION_SHELF[0], is_key=True)
-        // XXX Functional way to take description:
+        //descriptionShelf = find_object_by_key(results, DESCRIPTION_SHELF[0],
+        // is_key=True) XXX Functional way to take description:
         // let x: String = results
         //     .as_array_iter_mut()
         //     .map(|mut r| {
@@ -63,12 +67,13 @@ impl<'a> ProcessedResult<GetArtistQuery<'a>> {
                 }
             }
         }
-        //        if 'musicShelfRenderer' in results[0]:  # API sometimes does not return songs
-        //            musicShelf = nav(results[0], MUSIC_SHELF)
+        //        if 'musicShelfRenderer' in results[0]:  # API sometimes does not
+        // return songs            musicShelf = nav(results[0], MUSIC_SHELF)
         //            if 'navigationEndpoint' in nav(musicShelf, TITLE):
-        //                artist['songs']['browseId'] = nav(musicShelf, TITLE + NAVIGATION_BROWSE_ID)
-        //            artist['songs']['results'] = parse_playlist_items(musicShelf['contents'])
-        //            XXX: CPanics here
+        //                artist['songs']['browseId'] = nav(musicShelf, TITLE +
+        // NAVIGATION_BROWSE_ID)            artist['songs']['results'] =
+        // parse_playlist_items(musicShelf['contents'])            XXX: CPanics
+        // here
         let mut top_releases = GetArtistTopReleases::default();
         if results.path_exists("/0/musicShelfRenderer") {
             if let Ok(mut music_shelf) = results.borrow_pointer(concatcp!("/0", MUSIC_SHELF)) {
@@ -86,8 +91,8 @@ impl<'a> ProcessedResult<GetArtistQuery<'a>> {
         // TODO: Check if Carousel Title is in list of categories.
         // TODO: Actually pass these variables in the return
         // XXX: Looks to be two loops over results here.
-        // XXX: if there are multiple results for each category we only want to look at the
-        // first one.
+        // XXX: if there are multiple results for each category we only want to look at
+        // the first one.
         for mut r in results
             .as_array_iter_mut()
             .into_iter()
@@ -161,8 +166,9 @@ impl<'a> ProcessedResult<GetArtistQuery<'a>> {
             .ok();
         // XXX: Unsure if this is optional. It errors currently, removed the ?.
         let subscribed = subscription_button.take_value_pointer("/subscribed").ok();
-        //                artist[category]['results'] = parse_content_list(data[0]['contents'],
-        //                                                                 categories_parser[i])
+        //                artist[category]['results'] =
+        // parse_content_list(data[0]['contents'],
+        // categories_parser[i])
         Ok(ArtistParams {
             views,
             description,
@@ -200,8 +206,9 @@ pub struct GetArtistVideos {
     pub browse_id: PlaylistID<'static>,
 }
 /// The Albums section of the Browse Artist page.
-/// The browse_id and params can be used to get the full list of artist's albums.
-/// If they aren't set, and results is not empty, assuming that all albums are displayed here already.
+/// The browse_id and params can be used to get the full list of artist's
+/// albums. If they aren't set, and results is not empty, assuming that all
+/// albums are displayed here already.
 #[derive(Debug, Clone)]
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
@@ -234,7 +241,7 @@ impl YoutubeResult for AlbumResult {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Could this alternatively be Result<Song>?
 pub struct SongResult {
     core: ResultCore,
@@ -387,8 +394,8 @@ pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Ve
         } else {
             None
         };
-        // Thumbnails is supposedly optional here, so we'll return an empty Vec if failed to find.
-        // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
+        // Thumbnails is supposedly optional here, so we'll return an empty Vec if
+        // failed to find. https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
         let thumbnails = data
             .take_value_pointer::<Vec<Thumbnail>, &str>(THUMBNAILS)
             .into_iter()
@@ -440,11 +447,13 @@ pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Ve
     }
     Ok(results)
 }
-
-impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
-    pub fn parse(self) -> Result<Vec<crate::Album>> {
+impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+    fn parse_from(
+        p: ProcessedResult<GetArtistAlbumsQuery<'a>>,
+    ) -> crate::Result<<GetArtistAlbumsQuery<'a> as Query>::Output> {
+        let json_crawler: JsonCrawler = p.into();
         let mut albums = Vec::new();
-        let mut json_crawler = self.json_crawler.navigate_pointer(concatcp!(
+        let mut json_crawler = json_crawler.navigate_pointer(concatcp!(
             SINGLE_COLUMN_TAB,
             SECTION_LIST_ITEM,
             GRID_ITEMS
@@ -475,28 +484,30 @@ impl<'a> ProcessedResult<GetArtistAlbumsQuery<'a>> {
 }
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
     use crate::{
+        auth::BrowserToken,
         common::{BrowseParams, YoutubeID},
-        crawler::JsonCrawler,
-        parse::ProcessedResult,
-        process::JsonCloner,
         query::GetArtistAlbumsQuery,
-        ChannelID,
+        ChannelID, YtMusic,
     };
+    use std::path::Path;
 
     #[tokio::test]
     async fn test_get_albums_query() {
         // Radiohead's albums.
-        let path = Path::new("./test_json/browse_artist_albums.json");
-        let file = tokio::fs::read_to_string(path)
+        let source_path = Path::new("./test_json/browse_artist_albums.json");
+        let expected_path = Path::new("./test_json/browse_artist_albums_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
             .await
             .expect("Expect file read to pass during tests");
-        let json_clone = JsonCloner::from_string(file).unwrap();
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
         // Blank query has no bearing on function
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let _output =
-            ProcessedResult::from_raw(JsonCrawler::from_json_cloner(json_clone), query).parse();
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
     }
 }

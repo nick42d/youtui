@@ -1,5 +1,10 @@
-use crate::{error::ParseTarget, process::JsonCloner, Error, Result};
-use serde::de::DeserializeOwned;
+use crate::{
+    error::{self, ParseTarget},
+    parse::ProcessedResult,
+    query::Query,
+    Error, Result,
+};
+use serde::{de::DeserializeOwned, Deserialize};
 use std::{slice::IterMut, sync::Arc};
 
 #[derive(Clone, PartialEq, Debug)]
@@ -13,13 +18,15 @@ struct PathList {
 }
 #[derive(Clone, PartialEq, Debug)]
 pub(crate) struct JsonCrawler {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
+    // want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
 pub(crate) struct JsonCrawlerBorrowed<'a> {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
+    // want it to be thread safe.
     source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
@@ -31,6 +38,17 @@ pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     cur: usize,
     len: usize,
 }
+impl<Q: Query> From<ProcessedResult<Q>> for JsonCrawler {
+    fn from(value: ProcessedResult<Q>) -> Self {
+        let (_, source, crawler) = value.destructure();
+        Self {
+            source: Arc::new(source),
+            crawler,
+            path: Default::default(),
+        }
+    }
+}
+
 impl From<&JsonPath> for String {
     fn from(value: &JsonPath) -> Self {
         match value {
@@ -64,7 +82,8 @@ impl From<&PathList> for String {
 
 impl<'a> JsonCrawlerArrayIterMut<'a> {
     /// Total length of the iterator from when first set up.
-    /// Note - not adjusted after some elements have been consumed, will always show total length.
+    /// Note - not adjusted after some elements have been consumed, will always
+    /// show total length.
     pub fn len(&self) -> usize {
         self.len
     }
@@ -80,7 +99,8 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
         self.path.push(JsonPath::IndexNum(self.cur));
         self.cur += 1;
         Some(JsonCrawlerBorrowed {
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to clone every time here.
+            // Ideally there should be a Borrowed version of this struct - otherwise we need to
+            // clone every time here.
             source: self.source.clone(),
             crawler: self.array.next()?,
             // As above - needs to be cloned every time.
@@ -275,13 +295,13 @@ impl JsonCrawler {
             path,
         })
     }
-    pub fn from_json_cloner(json_cloner: JsonCloner) -> Self {
-        let (source, crawler) = json_cloner.destructure();
-        Self {
-            source: Arc::new(source),
-            crawler,
+    pub fn from_string(string: String) -> Result<Self> {
+        Ok(Self {
+            crawler: serde_json::from_str(string.as_ref())
+                .map_err(|_| error::Error::response("Error serializing"))?,
+            source: Arc::new(string),
             path: PathList::default(),
-        }
+        })
     }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())

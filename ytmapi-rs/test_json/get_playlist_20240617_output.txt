@@ -1,0 +1,4982 @@
+GetPlaylist {
+    id: PlaylistID(
+        "PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+    ),
+    privacy: None,
+    title: "The Beatles - Beatles 100 (Official Playlist)",
+    description: None,
+    author: "The Beatles",
+    year: "2020",
+    duration: "4 hours, 53 minutes",
+    track_count_text: "100 tracks",
+    views: "24M views",
+    thumbnails: [
+        Thumbnail {
+            height: 192,
+            width: 192,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
+        },
+        Thumbnail {
+            height: 576,
+            width: 576,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
+        },
+        Thumbnail {
+            height: 1200,
+            width: 1200,
+            url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
+        },
+    ],
+    suggestions: [],
+    related: [],
+    tracks: [
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:06",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLNiumq5xDBgjkDSZZyCueh__JX4POenJBVzci5sOatPL8q7zs8D9LIYfLPEJ7k3N4OLy4vMfFr7os-GRla9I8RgMFf0A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJpKmgLWemXCSIlIUIcrBZumoOPWw0Y0NKniqn8ZBFe2Knndo6LnKBMrFjKM1iZYZBYgzKTzATqdMZh-V8nq36Svggu5w",
+                ),
+                title: "Here Comes The Sun (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "xUNqsfFUwhY",
+            ),
+            track_no: 1,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:51",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIy-gtxCX1XAx__pFt0APQ_fgGGtuUqY7D7Sz4Oupazo6dxxP-VJEfvnon4eigVa_aYBVPfW99DA2Y9Ns0AEVgbJUeDyQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLqhDJMIguP_8vxw5e-pV69_x5IVqe8KOy8jBEDoncBCCfAxOcvhaJPRi2NHLiKAukdmZgIlX7uoWcsOvqLA2zgNGUNAw",
+                ),
+                title: "Let It Be",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "HzvDofigTKQ",
+            ),
+            track_no: 2,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "8:10",
+                ),
+                feedback_tok_add: None,
+                feedback_tok_rem: None,
+                title: "Hey Jude [blank]",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/A_MjCqQoLLA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lBbkuyY7UKcfsFCUDm1_xkAeo5Lw",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "A_MjCqQoLLA",
+            ),
+            track_no: 3,
+            album: Some(
+                ParsedSongAlbum {
+                    name: None,
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:19",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKJSFJfF3YwB4WEeu8fUfFdCaBB0eHsd1F2n0WWRkhigomNnibz1ffrbhggR2l4Iuf_QSsPO04Ns4NUxix6GNna7sOb7w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJJY0gLjkHtoi6UHn764mISzc8Alougi_pDfcF0A4hMeufYcWK9UfZr9rzXmLxvj4qDu2J5YXE3YGm3rnl5RgYDRXkCTQ",
+                ),
+                title: "Come Together",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "oVW6wJ7MYDM",
+            ),
+            track_no: 4,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:33",
+                ),
+                feedback_tok_add: None,
+                feedback_tok_rem: None,
+                title: "Yesterday (With Spoken Word Intro / Live From Studio 50, New ...",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/wXTJBr9tt8Q/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k7jwKZgCyFFiXMzt-iTT7M8fv81w",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "wXTJBr9tt8Q",
+            ),
+            track_no: 5,
+            album: Some(
+                ParsedSongAlbum {
+                    name: None,
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:37",
+                ),
+                feedback_tok_add: None,
+                feedback_tok_rem: None,
+                title: "I Want To Hold Your Hand - Performed Live On The Ed Sullivan ...",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/jenWdylTtzs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mC-_5PNhUWpi35XcVoJNHh2al4Xg",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "jenWdylTtzs",
+            ),
+            track_no: 6,
+            album: Some(
+                ParsedSongAlbum {
+                    name: None,
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:42",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJaltuiVShVa_UHJk5BjUGhRPA2Wmk8N8imfpme7LWXEBR5ntlZM3pGqao0D0pjjmGE5aekdVIllcUzdpcyneNcWoknHA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIkonfKzJLfS2Pci-hlz4dQy0C8dOmSd23xwXwgh_-td7xoD-m2z7RB2gUdR7qOYKhRYlrOQG9PFSoMwcXolV0mWQPjzA",
+                ),
+                title: "Twist And Shout",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/fo8rv7ZVCPMGBXD2RsXMrakr9hq7J_i4ennaA5hOxc6UN8dDOqkzNie_rm6a1jRQAoJtO_feFyZWIvii=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/fo8rv7ZVCPMGBXD2RsXMrakr9hq7J_i4ennaA5hOxc6UN8dDOqkzNie_rm6a1jRQAoJtO_feFyZWIvii=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "V1umGjoQzy8",
+            ),
+            track_no: 7,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Bruce Springsteen's Jukebox: Songs That Inspired The Man",
+                    ),
+                    id: Some(
+                        "MPREb_QcUzt9URA9B",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:19",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpICAdaqtHnL0UkoppUzORSKIEP38RirVYiH1pdULE8fT-ZdMppQ5K203XHAtXRue8D5ZINVWOl58nv7uSsUiP6pVuaCJA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJuHeY2Phj9G9_Y9jOL4EpRiVHfJw27D-hQV-Pp86s8LfmgKb_XPrvLzmhVChtrBMc86YbPSahmm5jYqvXue8vxVuO8pw",
+                ),
+                title: "Blackbird (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "Man4Xw8Xypo",
+            ),
+            track_no: 8,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:20",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL0VbrPMRTEfpybezjbj6DWwWII9a1kJ3cYN5pbMPXi5GgJ4ScWxC2Ykb6Vxs8gSKRneZBihmqddGLjqK8uoToDt0U95w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKMZtyH8ODkDwiFDsMScoix2Z7CnRggAqCqtKoqQIwCpYd_nDOr8MQ230pJJBYwmfFupUm2-6WuhTk03Hfu8s8HdZGntA",
+                ),
+                title: "Help! (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "MKUex3fci5c",
+            ),
+            track_no: 9,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Help!",
+                    ),
+                    id: Some(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:27",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ0WV75JT1ySOeGnxnKjxAkhkzguQnVKEQeDzN9pzBs6Jfx_XGaJ0Z8ndxrTf8dk_o-XzvEib7J8kShIgluab2VfXM_gw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKnnhIEMu8K62CeczEKhAru_nNrEHsR_0Wv20f3Toxvky6T9LQSnt4aOmXyLnk4V6lV-HNlFSuNyEInQQybmLTqLEHNYA",
+                ),
+                title: "In My Life (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "YBcdt6DsLQA",
+            ),
+            track_no: 10,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:47",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJVB8FlSBAH_rQ18n9jXXG6RdNEDc5fUOcSBxA8NOL8fbDDq_8CUmVUOFr27DOXsEoEns9MOom-bX-7wFBpQN-wgl63Ag",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLN0wg_WimxfxWGy5II9TdjUsUH44P82zejYM-J582f52mhWUl843oh-c2OFwLUwMGy3V2jQxhI9Uv6-wKFcdUMWE0sWw",
+                ),
+                title: "While My Guitar Gently Weeps",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "NU4yWui_DFQ",
+            ),
+            track_no: 11,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Love",
+                    ),
+                    id: Some(
+                        "MPREb_QXijY09EdMj",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:03",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLKiZ-MeUozwnjkPB5mVAMpx7jsjVg_YtX7Ml6asHsjRhyBqQHxbrRMEoSaoJqtbN3vs5hfwCUl8f93e4GnohqYQP6Pqw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJPEErRgGYTyR3RMN46w76teyxIhFcTQK6HYbjDbsc5N_8Da-TNKdcLvcI_CS1J_DsNimc2h5fCxEM_dGEO3CRdjTP6Kg",
+                ),
+                title: "Something (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "VWO3nEuWo4k",
+            ),
+            track_no: 12,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:09",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKDzBt7ylmWZn13_yv_ja4Ut6zsY9lkSYSjQF9gm9KlUYwFIlK5XU46GvsEhEu-UHLAlOVH8RhekKJu5P6mbhTSE6h9lQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJBecZsmuBLq_0ntWpE2RGUkV0VLgU0kV03wWybI39-RDZOuto328kq4qmmyUWuFsMzeKHk2aB5bCOQ86DZS_Y6X7BlaA",
+                ),
+                title: "Ob-La-Di, Ob-La-Da (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "_J9NpHKrKMw",
+            ),
+            track_no: 13,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:35",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLxOJTEFwyRZA2AkAigRBfuPaHUa7Dvnc6xIq0SP4EHjB1CemO69rEPMq2TnCu7u2bA4TpHUMzuY9ybzqxLAF4eEr6Jmw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJUypNT_huG467dpjlLfuavWAy-Mr5rRSVXuEvVNztXqgpRHo3Wkm8ykdBMLL5dWbP1fCGtdT-R8gVbA7GOB_sfFQWdBA",
+                ),
+                title: "A Hard Day's Night (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "zx2TFk0vh1I",
+            ),
+            track_no: 14,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:07",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIb0F40qJud39ZAkwq44rliEtz3gdjnPe85cGAW-yilyYBeHOwov52qPR7bLrJjvVQU9RxBl9LbRHD0ZGoFvMhJtBG8KQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIt_yijslLk5RI9ukfFoJN2AruynvA0GFTlYRUdMspjLSay4GVyAQODxBE2tgeI2qqaf5jefkV4xguTr8YB7h7bJ7JO9g",
+                ),
+                title: "Eleanor Rigby (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "wbxTlxuECJA",
+            ),
+            track_no: 15,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:29",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLGIYp2e7HrojakmKZy_9gAzwFoxiJZyimM4f-uoEsN210CwUIJGUdH7dhDvWYwL1_0a6PyWg09sz1J3klC5-Z36IGIXw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKCHR-pteLeT64cIrVMCKR8Npz7fll-zzV67DPEj3KktPit-J-hIRyvdaja3akXXPjW2rGkzrr2uc0pFN04R8YNjtPnKg",
+                ),
+                title: "Lucy In The Sky With Diamonds (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "naoknj1ebqI",
+            ),
+            track_no: 16,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:28",
+                ),
+                feedback_tok_add: None,
+                feedback_tok_rem: None,
+                title: "Revolution",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/BGLGzRXY5Bw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lxIMhgArFpozWXqx2lMEpLlLKz_Q",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "BGLGzRXY5Bw",
+            ),
+            track_no: 17,
+            album: Some(
+                ParsedSongAlbum {
+                    name: None,
+                    id: None,
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:54",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIaLlEUAAYsPPoXEsBFM2j5Wd1YClFlit-SSmQ9NISsuLzJLqc1KVRcUwi7nVr_xXwocQ3JF6qBpN9iTLVpebC2iwi0Kg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpL9AhJNz5XW38fbvk6Ns9daq3DPTd89y2YYjnrelLkjB0jFY-CxfNC-3CKmfll2C0b6JLPN1nVgYYIbMFzf2WtLAavl5Q",
+                ),
+                title: "I Saw Her Standing There (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "oxwAB3SECtc",
+            ),
+            track_no: 18,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:22",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJU9sDjjENpfaKTpUCg7ZvL8mLIAS9e9n3k-c6D7NMoYksSjGkFPDWhQrpCF756Y_xqW0SIbNkr2lCCGredzZILvnvORg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJ39-Tud-7fv7LX5-jTmhGkDPONcXM6K2Fn_JDvXC0k7GeAhHQbU1AQzGNJYSEJvnYUiisBoD1VzfrqGoGJHGwyGa7i4A",
+                ),
+                title: "Love Me Do (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "0pGOFX1D_jg",
+            ),
+            track_no: 19,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:03",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJU7WwWrUOWE6QriTi-4o7ffMrtYrBazu5eBKhhUUMRj3N888Psr6HS_YEKwLnI2DGbrF0aZB-0LD2RtzXrPt4ASmC6rg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJjeTSSWA5qW2MQZhzqRHHabrrtMSxMbcZNvzaOPsvoUujdemtwYYPfoBGVx_s18V5K0JNhCUcaPnPWMPSCQypf_ymC-A",
+                ),
+                title: "Sgt. Pepper's Lonely Hearts Club Band (Remix)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "QlgNMZnLsIQ",
+            ),
+            track_no: 20,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band (Deluxe Edition)",
+                    ),
+                    id: Some(
+                        "MPREb_doCRM5YXYgb",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:39",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLg7J2QsZyxMZHWbvusHUExGDvT2zAxRo2WpmuowRyk13Z7UlImqVvPqL2H2mv4gy9OXZLn2mxu01a2J4pHYVJPhh1EBQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJYreQ0GRz-Le3oy-RZyZ3bL-sfKJMf6ZnBAceuO6x9QnOk4cX-iyl_h0VK22ExgGvBEwT2OLjKhQyT1io9WZwV8zBXYw",
+                ),
+                title: "Yellow Submarine (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "RhoprlMxteE",
+            ),
+            track_no: 21,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:10",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIV15JIx9nnwenM28WEXTqkkljRZfu3E0hmVrB4yY3t_g3ot1ndwnMWJM-xqadKHFbJlI-XxbBO6sTj3QZMUk11tNlagg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJjG8wgmuP_uJMaZ_BCy9kZDDrikvLFMmg_lfCKY6MtjOoKJ9xInjjQmv66yUVe9ifgq37U3Q7pvAFePmi-b76Z9Di1aw",
+                ),
+                title: "Strawberry Fields Forever (Stereo Mix 2015)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "wwrTkhD_zm8",
+            ),
+            track_no: 22,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band (Super Deluxe Edition)",
+                    ),
+                    id: Some(
+                        "MPREb_t8PwSmfjuhs",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:52",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLpX2Zg8S7S9fscS7rBhTNQy-XDeMAVIN4Lrs3IylGivpFhslrKKxWrmGwOV8D7Tw-8p2NEo0qjZpe5tY3GT6ZQWNNi9w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKj0NBeLSh315BmK_g4utj5OctUAHQhlYIv4KFrMjnx4zul79tHuZj2HSKsHcOJEU7QKOS9BwrrygJiodcjheMuwMbuMw",
+                ),
+                title: "All You Need Is Love (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "_7xMfIp-irg",
+            ),
+            track_no: 23,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Yellow Submarine",
+                    ),
+                    id: Some(
+                        "MPREb_nn3MWHNM0jS",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:03",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLeAIWykI7LERjOC4dIkGZsGXewuU0ZlIPs6PbRiMkgAM0pBxN9MH4ybqb685Dqud5hL92FF3MPd1_vlFFDpFsh3fE8Pg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIemldWSTcE1_Ky5o2BOYypwnUIPTAa-e2LN95fNqlvAijvS352R8RyFEiXzc9Ev0o_o3kqLXl6eX5oDDG1lb7Z8CFB9A",
+                ),
+                title: "Penny Lane",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "oRJ2a-z5SI4",
+            ),
+            track_no: 24,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band (Super Deluxe Edition)",
+                    ),
+                    id: Some(
+                        "MPREb_t8PwSmfjuhs",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:49",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJOy6hC2W1s6dlZODETCPl5mLk2B3q1a9yj8nB5rdRMzXCOhc8ilx-k4TPl-iWyQt4R4cd0IzcOVilUs5hv_3GY_egDUQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJhb8e0zRPAwREAH02TM8fvvWRWPxKn49M9jGbrLgJpFDQt-ppDlokPqEDb9CxxSxpcl5Xkmsu2eg2iQWQG2kuVLN8hFg",
+                ),
+                title: "Day Tripper",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "2IbPn5j2YKk",
+            ),
+            track_no: 25,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:44",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLvsuutKIrJU5JctPkhJdu81VwxD-GAwbBf_5OKa8bGuTQe6AHwETMVje_3B1dSOejmBZlcoZexOqYks6ohsef9tOWSeQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKiE0-i7H-JbDMeAKZVUGAsyQi5nrMlcGbaMfMSZHffcMpcCmRViaI_dr6cnyK3to0UBTnNAPp7dArzW8fV7-1JLLF5mg",
+                ),
+                title: "Back In The U.S.S.R. (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "0ArlUSVDQIw",
+            ),
+            track_no: 26,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:22",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJbgXcDH_tBPm6sUqmCGPtGS_Z-rwmIzkBckRvuSBa65zZ7p7kjOq4o4gDL76j7JUniLTEVMRrG95CWbvv88zm02TqlDw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIioocxmRi48r3PC5eebNyJzbQbU6K7NyUNtrsU6FqeFLuakg4tGFKaukAFkkegB-vbKylJUBmnPggkdFXGdW9EFpYe3w",
+                ),
+                title: "She Loves You (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8IP3yQUxIfSPUpDlkprDlHWaDxuddqYIRHsd9IGUu0BqoKrJn2vMCk--zhTQuokvszbIfnor23hoqNY=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8IP3yQUxIfSPUpDlkprDlHWaDxuddqYIRHsd9IGUu0BqoKrJn2vMCk--zhTQuokvszbIfnor23hoqNY=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "nGbWU8S3vzs",
+            ),
+            track_no: 27,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Past Masters, Vols. 1 & 2 (Remastered)",
+                    ),
+                    id: Some(
+                        "MPREb_BcKRiCMN4nj",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:46",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL0D4LAwzluAODSO6c_IvzA5twBJcPJAOuUkUDLPcjLTK-nnW39g1jbPq5L215dtbyKMgz4xnrCB1e-dPgkO5WbMpzVLg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKr6ztpR5wKza14LXFiv_HUgm2bGk7qI2L8vLAXRGpCGIRnXdWQXTwV929VKkGgbt-90sMXaQ_DeMoJ5mHlKg78m2JCuA",
+                ),
+                title: "With A Little Help From My Friends (Remix)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "byUTLI1XjOg",
+            ),
+            track_no: 28,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band (Deluxe Edition)",
+                    ),
+                    id: Some(
+                        "MPREb_doCRM5YXYgb",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "5:31",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpK1MOmUT_lwttQOZipnxnyz_WuDiFHR-sQ0uLCCzgxDgtxFkrqB7aNdZRPxVrKZdteBxzKI55woqu6tTscCiRZ0KDnGqg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKNLXFoRDDKq5EeSgnceRVm4mUntY5XR4KUXVZiQcsDd_giaV_rOLU_MZzZUz_GSGilSDetITSMRIq-Tu7rkmun28IsMA",
+                ),
+                title: "A Day In The Life",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r7FUIs4CwI2tr7vFGnvIo8-EgGLBC7LOh5V3OJOIKEneTOAIhgEbUwHeAPizEa2roidqNYaAK-Su48fP1A=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "aXNY4NddrLo",
+            ),
+            track_no: 29,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band (Super Deluxe Edition)",
+                    ),
+                    id: Some(
+                        "MPREb_t8PwSmfjuhs",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:12",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpINT2zbyt9ZVBAFV_3EVa5UiAVAg--ve-bh7ms5PJUzuskQWqPjjTrnwiHNb71uahiflWQcu4NjiO8jHqc625fNzLgyew",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpK_FLS96yloortKl1iJI7sGV1x2mo_9HNXt_Vk-6CZEKUQ7gea3NRh6dtKSm_xsNLw19nwIRi1ZgMl-A0tkFP7-FyBxTQ",
+                ),
+                title: "Can't Buy Me Love (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "TBSpmoA8V78",
+            ),
+            track_no: 30,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:12",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLIB_EkTP0IsIJSGH89JvNuWq4Ift5CMo46MCAz_zaek0dMSiEYLsEHJf8IAYaHhmxtSvBVMwBBoYmoFppjsbLLXphQtg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLKXKzmLxmsckFZHiBK-dIKhujazmH1z-3mj0BDHV5I_LVc17ade-nvpTlzClUgr351TAHIJa41U_md990xnY-DEJaTxg",
+                ),
+                title: "Get Back",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "YEESfv-11ng",
+            ),
+            track_no: 31,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:10",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLis2j8PN8fyeVEj2GEfDrMMK8rdm6GWFFzbz9OfQc7meRxC7LQGrk_LDoU8Py_uo1zEC2KRksAq2eCRIHlyH94YIoNVg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIuTmG1KVxLOUGsWxx8lEv05z_vsFxS9Qyf2TNeAZFwmWPfjh2lj-I69HiowqXbeoovi6BSE_kWlshk3So3-s0qEkAeOg",
+                ),
+                title: "Ticket To Ride (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "acxfOgPWUls",
+            ),
+            track_no: 32,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Help!",
+                    ),
+                    id: Some(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:05",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJzEv1YxnEkyYbMW-ldb8x4aIIwtMs-pnQKTCXfL83_uDBeMrgByHmJohgcWmqlEEvO52sy1cHy-WhMPMKHa9l0TBnf6Q",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKUFTr3f9-P01WVP7lL4VyU_P9pHinG4zMtuTNtC_zCqCi27F0nY8jRWeKpf-C1xCLZKbm5xBcfHMDqxex988AN1v1tfA",
+                ),
+                title: "Norwegian Wood (This Bird Has Flown) (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "Y_V6y1ZCg_8",
+            ),
+            track_no: 33,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:29",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIFkUaXFsJ14veGk56z5e_hXRNb5s0gudMr0WtNMjGpryjR1CTD9B6e_J5MseggXeRXqZRWo2L0bXYMf5yu5YchdcSwNw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLSG9RYoCMqW2zaBgdoKfM96zCf0ssvnjXbRZDF6PCWu1GPPnro9QUO_SzH1A-Np7NQGAT6UyPVaqRLkteJA_HoA6Jqdw",
+                ),
+                title: "Hello, Goodbye (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "ywZqBGHDTlA",
+            ),
+            track_no: 34,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Magical Mystery Tour",
+                    ),
+                    id: Some(
+                        "MPREb_2wJ4mzPvKwD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:30",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIXzlc8c6NfCxnmeO16ouPdzvYsc7UqLdbp7pTopSRdJ_9IO8w0pDp1Pts0hjNaP_UBmS2BrDs8dtvchQVjUklBv6oRjg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKnQZfy8Y9B975eUWMzFH0L_vj8AWIKfuqIsVN_y21Ah2AzbGfXyb-FJyN2xXqGeXDU3sZVc0sCZk8WEUQ9-TED52RMww",
+                ),
+                title: "Don’t Let Me Down (First Rooftop Performance)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "CXlCLDP2Vr0",
+            ),
+            track_no: 35,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Let It Be (Super Deluxe)",
+                    ),
+                    id: Some(
+                        "MPREb_zBKX8qwlKte",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:44",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIwaRrMBm8FfkGHihDTO2-bUoR7Y6T4fYiPIc2AiOccJdbKktTKyXzqLYedSJ_E8NlnL8RgvVy0xQSMKB1RnUt9HH37Xw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJWszEH0WlVXvcbf2WfS0u8NBtQRW8-RfM4Iuprd-__Bwnb9fCQFXmmJZHFMTOJhH9_CanYmDuK4M-QveWBZSDr-T2y_w",
+                ),
+                title: "Eight Days A Week (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "0soSE-RMH3s",
+            ),
+            track_no: 36,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Beatles For Sale",
+                    ),
+                    id: Some(
+                        "MPREb_GOFIhgRPUsi",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:49",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIbP1nUcCfmBMXr4hvqY2uoYZd_GbZh9KlCcSRgidu_piuvebBELlA8FuJzvFowJgFm3tIm1JzpQaLUKawTGO_EZ3pAfA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJfqy4yHTxnmdfvNiy886ScBetLhYF84kn9GS-eyO7gAmVbD9x4rJ1O_6-B3p_rtEOJIEZnmhJC-gubonZSIf8Q8hC0Aw",
+                ),
+                title: "Across The Universe (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/octdAIhLRBSYd5JKOeTsF5zNhQ4C0L3JtOnjUYPvHLtJaxXr68NVW8gUfsE05aarfaDmZe_ibrVMxo-y4g=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "90M60PzmxEE",
+            ),
+            track_no: 37,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Let It Be",
+                    ),
+                    id: Some(
+                        "MPREb_Z7UaZFpBuZe",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:30",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ7Fsb6F_j3YO5_alMWHK3Lpls4PSj7OqSyjoxAAgFTAAFI798w9fxLanB0z0XiX3gnbR3pTm9gA2X9ao-5jn-QojAgnQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJDzll-1pBiYkToUn-y5x_G-deLXLqwEbU0pFz_3vcj8Y4cu6NOVheTlCYeWKD12EGwUcAWC4FsR55rOvT6dlDx9nZs_A",
+                ),
+                title: "And I Love Her (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "5tc0gLSSU1M",
+            ),
+            track_no: 38,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:43",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLq-vFyy-k5WN_mixXdsWRtbYcP_9gFFCK9PfbY5hwv9AMszWPS8JxnUK2Q-xeSCKnzZIbEDxZlE5pkPJH_OsCenluJxw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLiBFyMo7R6sASFkNRRNA2Xl0iMIxKA2xoB2VzzeZLSNdwzfAp8fxEi8QM18vdpHrcohS09KBCMpUwk58enGxSotaqIag",
+                ),
+                title: "Michelle (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "WoBLi5eE-wY",
+            ),
+            track_no: 39,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:08",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpI-ziYxV_ob6EsruElu9DktYSjDv37T_NKFdi5V8YVuqnapk1sQ5m7HdfDH86X1H9Sw4VtEAHQ8rYgz0kV3T0Ks6DRNGg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKhBszD87bFarluolhF7QWBC1cmRFq3wHbYo4CaW9CbrqBeobbPxXLHzh4g2ZTqAk6dBsZxqX7wWibf8GzyJ5zMj5acfQ",
+                ),
+                title: "All My Loving (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "TSpiwK5fig0",
+            ),
+            track_no: 40,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "With The Beatles (Remastered 2009)",
+                    ),
+                    id: Some(
+                        "MPREb_cfiGXKbRGXM",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:17",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLlsCObHdDJg4zcvhIrK-lkKDCEtquXhQ30OcJZb_E05JEtpH40ltE3Y_-uTlB5HF0mR0jwoJc7557v27Hu5SmWmH78zQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpITbNXJRKazcr5_FTXwxa6QyeMbojKH3skI9VGO6Wivu4JeLoEOyYVkMc2f28piEKtCNxjelX3muRupa8RvtkJe8j1LeA",
+                ),
+                title: "We Can Work It Out (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "xedn8vp6W20",
+            ),
+            track_no: 41,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles 1962 - 1966",
+                    ),
+                    id: Some(
+                        "MPREb_tymxbN4xRgQ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:28",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKhU9jmJwMZnaI29l6ZOSQrMnt5S9W1msF3IirYTSL9f107OSRVnHHVWWpAIo7bvWO9d3ArzistgXZaga7tp4VuHM7-ZQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKHoLxgphd9iLmPnfiDkWI3A09BQAKq4C_oFeI8lumOfDxGUJdP5eTJu9vohwVm2kG8n1pudN_DgRikmxgu15mKIpCG-A",
+                ),
+                title: "Oh! Darling (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "9BznFjbcBVs",
+            ),
+            track_no: 42,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:56",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLNzJmFQO4az2MJUURQQoy_FPCopKoaV-4OFqRHxVBupTSWCnLxrXvg21uchOFFLKpe1p3r53sLOUwAdWQRbvCugoHpXw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIR_M9GquLXU4CKqhi3fDnXBshTLrt8sgX5HND6PBYZlX12STEpncAnA8UEMw5zsX85d0LlZNljLB4qZVzrKnbJaVVkXw",
+                ),
+                title: "Dear Prudence (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "wQA59IkCF5I",
+            ),
+            track_no: 43,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:36",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJPkAufmPZZ3ePVkJrspgFMfL_6dTwXP62ZjCd4xGRsvSqM76sz5nvlGHVcbFkAYqMRmtuwPPIJB5Q-tYSnzzlIhRLZIw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIIQ7o7gLwUfHqd40XfAy9msydb1fQ5jcEzK95LPwwP7RtLlwb5v-elHUXuYhd0q1rHnNlhOiU7OIFrEdSa3EoE-qSD2Q",
+                ),
+                title: "I Am The Walrus (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "t1Jm5epJr10",
+            ),
+            track_no: 44,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Magical Mystery Tour",
+                    ),
+                    id: Some(
+                        "MPREb_2wJ4mzPvKwD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:29",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKVqqSsroXQdH1oGxZY6y28DuicHvwSmY4HsIfgcxrCJFXXxE2p1EV059qJP0YtGs3CpMux570oVP3RTL_wK_nN7e1NHQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLdNKrQiE5MWpUplcvBZxb9Ok5-I04_hbNmzDrqZpRixn7HDBZ4nggNc4XR_tHlzAt8f2RZr46f3OCVy1lad-eVC1GCpA",
+                ),
+                title: "Drive My Car (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "kfSQkZuIx84",
+            ),
+            track_no: 45,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:30",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLGHR2FoF-pT30y6luj3BFgzmYPpxp4yzO39UoA2HZSV6niIRpcYAdC7yS5Ktt6zPBG5EBccnZnxM8OJcBUoOmMHc24Gw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJJjrk-PKg5AHx0zx9kyn19SEA284y-CCqJAxun7tHXqGks8-tym7FKlHKsA5Hff2XDAcjj3pM2TWgUEUh9qmwUKkcBKQ",
+                ),
+                title: "Helter Skelter (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "vWW2SzoAXMo",
+            ),
+            track_no: 46,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:10",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLGbPdxzo5itPNqmeK5zT3JP-kKarTdGqfNOPzNbKGtS5E4dGA3krqx90Kh1SOxHbObX_nroh9nKtzeXfW8z8A9C2qlrA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpITXiKAjQa3_f5m7fMB3oj6zV7tQZ3dbFx91qDLdrqOcmM8R1I7Y6qkcMn3Nr87hKzPU0Bk14oZ4RPrN4E3EnEXC72CFg",
+                ),
+                title: "You've Got To Hide Your Love Away (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "V8nLraecPRY",
+            ),
+            track_no: 47,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Help!",
+                    ),
+                    id: Some(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:38",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJqW8Yjo8ADsZoUtPmVuboqmhR5g1b7gqbcyiS_Px22sjmqyYvQFxqdngDf3LXaFASyIfZ1joP2hIwl6OI51uznnS9sUA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJgLUhBOeMmoT6xZU0dxqLxPOuuRQsSXfGRGnzqgoZhIbY5s7qZEjzbnQ6Ovp9Vc_tzEp_YRiDrSLImmxLW_AQiFsftlA",
+                ),
+                title: "When I'm Sixty Four (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "HCTunqv1Xt4",
+            ),
+            track_no: 48,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:21",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLMOyFvUCoQ2sTCK3eD4rGr-Z0zy97PpPy1n0GLvxIXp9Znj6z5yLA2WJzilc2kfsLYISVU8HmdvX39kb86mbtae-8p7w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKIvcjdKTa7BcXWa4jaDDIJ-OKy29g69N7xcz5X1Rdph6B8bGJf0j5V2ME0OIvJPhkxKcmkaW7MLA2-_HsttF5RnO4msQ",
+                ),
+                title: "I Feel Fine (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/5XPHXKkSftFuEa_46Adoq4Iz7rc2DnlJuai-gk-iH_nVw54knyP-4wratRCL0jCYEq8adQVaYR2X0Dz8vA=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "8Goxw7VgxfA",
+            ),
+            track_no: 49,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles 1962 - 1966",
+                    ),
+                    id: Some(
+                        "MPREb_tymxbN4xRgQ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:32",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJmf7cHUz1c2fNNXfJO3rWFeL4k5jYvXkKZ1JSZL4BkEhjdtCMiup_sQ-Kb0YAIgTi8iTUvT11c_KFDG2iFE6R26TaflQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIohFY9FREwXvKJEeSO9XfeB-XcHkcEMZDIbi_9MnM85lTInieHkps3Mm7roDN_3zPCGC0YgqzwmxbBpg41fdSnjqyDQQ",
+                ),
+                title: "Golden Slumbers (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "AcQjM7gV6mI",
+            ),
+            track_no: 50,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:36",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ7CIrm1mz6MJyFCUJ7sOZr0aaQGyp1Tg5tsQ5-TDhaBl8GUiyUiSq5R5UDAwgtHQzDnEGA6IIOGBWglvR6vvd-gCDUtg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpI33tkJzTGeIRTPAzoIrLmfZDiV3var7beUsOHtzR7VnaxgGJGlsLllL7g8OH7d2yjdFnzjVMjPBBCNNob5dMrQeS3HTA",
+                ),
+                title: "She's Leaving Home (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "VaBPY78D88g",
+            ),
+            track_no: 51,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:40",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL50pW_OczON6BP9d_y4dn718MEhUPEqC0m5bYzCtNYf6Um_aw8LhFrzhh_UinMSexV2bMBdzDcuO-Clc7SfVF-UPJjLQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKA-my7g07eWUIf5hXC96wZRX4IJPk6iGO2tHpNW33NWKEk1tTuJ6mvG8sKrAiNPAFwema0VjorSRfa_81l9jQj3VrE6A",
+                ),
+                title: "The Long And Winding Road",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "NR0u_qjq2fM",
+            ),
+            track_no: 52,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:19",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL7XHEIRzyd87zJ5Dm2oLyWJ_5frVHSouInXQTOKHSnuZD9WDtk4iNVetmdl8j7F5wQSYvQIF5uYewHacePzK2PpLz81g",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJVrSc0pN3SiCqwtDWxACdsPK2pSeB7hSUdSMyRTscGVnxYufBhdDIDazU9A6EE9rMW0-BWQi5HFWgBOzt7kWfH6Iqksw",
+                ),
+                title: "Lady Madonna (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "C56lDvKV8tk",
+            ),
+            track_no: 53,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles 1967 - 1970",
+                    ),
+                    id: Some(
+                        "MPREb_LAgCGKzQToD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:46",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIqYq9m1FxpKjXoGtwZbxqQ3DkB-V55Y6-oAQ4O4ECfpigvCFmo85GihLD1mYM0APjPzlKqIVKZhYN9QiMxlvPvRvWMNg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKVNJaLadeqFJLbdedqDe4zfBUs9CcX6K5Rox0mOBE3vuFBEJ0kBhSaY9HGDB0iqQe15MYNEjnb1lOIdo_LGjeb8bDyaQ",
+                ),
+                title: "I Will (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "p-abNGP1BK4",
+            ),
+            track_no: 54,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:14",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKV9C4FN7YblrGGzbWFG4y2ZmBaithQeheuouLl3d3FopCkcG9O16yc9DvLic9nJlSqb_LbnCTYZ162QpOYwmeoMObPyQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIkRpQeHS5QqFR65ZYX-I7vwWR9iUiIwl4WyHasuKvA8sR0XghfdbXk9n_6OIyuQ3puJE3ztxkIlrOml79zR5EsCgYgnA",
+                ),
+                title: "Till There Was You (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "SHAqAO7w8M8",
+            ),
+            track_no: 55,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "With The Beatles (Remastered 2009)",
+                    ),
+                    id: Some(
+                        "MPREb_cfiGXKbRGXM",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:44",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJQE5iyQ3-xohgV9NmeaRw-YTd5DgeElIJVDuP1K7Ndrc6howCGkp8By_tq3H_SV4MZhSUChb_dsbMFoapj7IPsqYeE6g",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKfb3H7vNdEvE3IC7ZqG9wNsC3fWXf_-sQQDPDiM-J74Jg3bnzjFTdvvJjDJy_jQFH87bONbf0Z_IWkSGcBCDrl3pujzQ",
+                ),
+                title: "Nowhere Man (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "8scSwaKbE64",
+            ),
+            track_no: 56,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:32",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ4ptofGDw-cd7WM6xOdP_ZMqPYFhqyj6cKXpPV98h7K2tvnmE3K9fWbt4Tv1e45I88vlvv0S3E2XiVcNUN4JeDqR1eGA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIXrwHK3joSfCyKl7NYazXfnEomE-WpLqvEem3NaMcn3AQBYKT4R8Q3OpQtS666cy5OCbWqN3_ZFNmrO5osBfJ9A8WyrA",
+                ),
+                title: "Girl (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "-8l3ntDR_lI",
+            ),
+            track_no: 57,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:20",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLZ7pLuCpuVC5DiJq1jHxLRbOGAgTMxCrJ7HMJMFZtFcafDNZRtKebH_fJpSL9kUe7gux9BNWALga5zOBJpFrljxr0O2A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJfOvZhkmuedWfhKABEPPbzqTbVxwhgpqpyVrhgKZwfBnZ-mIdxDfMij1QGMDZSmJggGxXoPuftoE21iNvJHD0ChYnCJw",
+                ),
+                title: "If I Fell (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "F_80s6S_7Vw",
+            ),
+            track_no: 58,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:51",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJTBr2KYq3e7pWWPXuEIO4fsV8MZiGmWb0aSnE4QXtHdusFaWKPc09v6yHasHyXuLqUVldxSTJd92DzNodzw3OJm9zF_A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKMkD1QdaVoGXdSm17QV-zvzuTJknQmJdNjpBHt7fVDap0tFvwVQFAFlB1L_xOVTut5rm1wsPVAdSX9eUqJ5qHKVdaKzQ",
+                ),
+                title: "Octopus's Garden (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "De1LCQvbqV4",
+            ),
+            track_no: 59,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:06",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJdK6mnQtsuEqkdzAj1t5fzGENUpaiA_Y8DnFCIl2_3afAugIGMfo6LcnYdll2Zy1l_gmptTCScYBRCuQiu4zNua4rNsA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKYCryj8stGPiflhh_ev8XYrU6ZUzEj-wMu5Uyr2SZWy_fsAgymHRUseIz--OglDPm_G8AhMoXh7AlqgT5LN7Bo4YoL3Q",
+                ),
+                title: "I've Just Seen A Face (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "m8LbJfC0SYM",
+            ),
+            track_no: 60,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Help!",
+                    ),
+                    id: Some(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:19",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIlN3d18PeLQDQHy-iCyKhhsFHhop0KPFn4tepbxp5dc1asyW4UDhkvSVNH0MVg2MqpcVgFnrM9WQzCjytZGkAx0MQokg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKh3s9kpxbOmhUT9o-iZRlPLVrnuPUd3iMBFO5_fXIE1eKnwh8KVB7T0FhuI6xsKoIpIqkKeZOTA1LBiRMq0MrtZTv3WQ",
+                ),
+                title: "Paperback Writer (2022 Stereo Mix)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/WbzeDYz9fRAzx_6-Ix97oujwsPzpC5z3dtSd0uftkwu1sMpoGykm7T6zx2UT3iCQw-uVxJ-OaFHtQGT9=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/WbzeDYz9fRAzx_6-Ix97oujwsPzpC5z3dtSd0uftkwu1sMpoGykm7T6zx2UT3iCQw-uVxJ-OaFHtQGT9=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "gBcdOFehNCg",
+            ),
+            track_no: 61,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver (Deluxe)",
+                    ),
+                    id: Some(
+                        "MPREb_1qBJliVHLOD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:45",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIrnO23fQn_6gqGuC0HfXA4ofUoPoaT2BQjArxgUTyhHyLd5STb5eAj8y-btoduDJiqHUhjmsKNVWvGcecFV6xcBYdquA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpL9yirOLs0L_wg6pq_E3yy3gM78rJTgh-ehrCAf79YE7Gvn08I_CMiW3pdMqiz3CDq-cKfGNLP9T4kyfDx-yrFJzoEAbw",
+                ),
+                title: "Happiness Is A Warm Gun (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "vdvnOH060Qg",
+            ),
+            track_no: 62,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:00",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL0X0fF9NsBUqKS0hkDaDkxly-CC5OWH7XdQzNUuoUe3qAhCfcbWaJ2IFo96IAWLt7068yN4mqb8UEKevhKiWKI3xZwew",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKPaCnvONnWL5sknamamDUp2PTmGMAKJCWJeFHfTBZ72nmVtFEcm9bxlwtILoiRhmGzBuOvlAzwVNhzvs0vjjjNWKh2Tg",
+                ),
+                title: "For No One (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "ELlLIwhvknk",
+            ),
+            track_no: 63,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:44",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpK5ouBsC7WEYdOl10-L0lC5MWFkgrJJNPgTsCoKn3COt89d7VnZqLFjkuRrfFjf1HhiMc4OuoouvHqvEcuuPekrPVOJMQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJLb8tI589ATgeDjDNAEFdN-JwhGQQ2nGekNqOyq4EGUPXtxfS-WLNnjIg_lhT4N2bG_FFZ6N_yCQ2TxU_0h2aPeVyIyw",
+                ),
+                title: "I Should Have Known Better (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "5en2JMLA8Z0",
+            ),
+            track_no: 64,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "7:48",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJllRT9-Piwg1cerHFC0N39eHeJqsyXRtrmMVGmdcEuZa-tz6Enjw-lUJ8XEA3kTyF3e9D0O8b9cH2e9fHy1p_cpMhEOw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLxPQ5JM_fdVKOC81HIvyhL26TOCi4fTTf1FhXKtXtggrunkrFGRdu2EU17nvYBRSYr0sZb0KxTsMFv5kTjGXMR6dvHCw",
+                ),
+                title: "I Want You (She's So Heavy) (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "tAe2Q_LhY8g",
+            ),
+            track_no: 65,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:49",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIhT9k_Gz4weUvieG2NrFOd20L-mOxf4pVxhVUqBqDBiN7TGMsBOfpcup5xT0xhGCSp5NNYnZnBIq2nK9lLw61PTLJXaA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLbkbFrIl3JiarlE9jQaNYx4cRkAsefGRl_vSQtYmRK-j851t8P1c_Nfm9NMDzFo89URK5dikTKNfgKytQ-RJ9644Ad2w",
+                ),
+                title: "Getting Better (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "EGlo9LzmOME",
+            ),
+            track_no: 66,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:01",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJw2q3qtDU5hQVdtGHgZP5096jtECxIwXRtUwKTqyVCpgrArbQvqqPCslaJQiA6-y4HlUUA-vN1cJEgB1H2LQj7-1JjgQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKl1mTLZwBuAAx9Pyxd9xVpDRPe3xnQROGIBjcT_knIye01HY7vnCcZFYF1egrooPxuDRGCIJulxYY_fGHU9YEGw6gTxQ",
+                ),
+                title: "Please Please Me (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "czw8eqepir8",
+            ),
+            track_no: 67,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:34",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpK61OZqhD_-aC0BSAQ_nLhz3fJUpbjXli33rTiKUURK4J9edwxXygHJNt2noZ9wPsC5hur3VpoqDIVFjiQMDgPdz60z9Q",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLW5SEZg_KPUkibrF88hvcSkI6Box3GHzWEfEYC6gB5MM70OMP_jsRIR81iT4KFsrPeIcUMk9w-oJtgAGcGJdTQ-FDJJQ",
+                ),
+                title: "Rocky Raccoon (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "sDcDCZGcZj8",
+            ),
+            track_no: 68,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:01",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIHhc33qUB9GtMQrzuMN2ow9-vAug9ibCXQ1_tt6GDIkmzmIf-Y5XQR94Z-rNcmtyDBQTDsfyujApAkePoqwKPR2ZPLmg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIcgC07hBo8rDUFeOirDgktmHRW4N0ZUgkficcVuR5YPPG0N-lEymhu64uzoz95Dp9rfp7eNkDffWOU3_MiSbbFrkmp7g",
+                ),
+                title: "I'm Only Sleeping (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "BT5j9OQ7Sh0",
+            ),
+            track_no: 69,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:27",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJOdI4qXG2zM7g0zw6EgW8ysNYYz4hCUCQbLVeWvYNjtVXlBfPaltenx5VFXV8LXwyb4ZovGS1_hOWiwOTzOBb-m0zU4Q",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLqpltnmfUUiZ_X17cyd2omFCG1qAG1_ShXPbCcwEinQ2TpLr-1ppY-GErym8ZnwtEnMG4sqWfvCeJDk8JXFsNb62qpyQ",
+                ),
+                title: "I'm Looking Through You (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "gH6i9JAdJrQ",
+            ),
+            track_no: 70,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:30",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIShFxxROPpgs7Op6J8PtM95ljWjCPriCnWmiJiW-1gz-py85n8wqamesl43pBg4o8nc1AiKefjOrmugElfeY-9M8KS8Q",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJsVJuKUkwSN71AbP04fKQ7J99oAkEvdRIq7yL77x_uj0K9JB_Zj_w25xPlsxsAK10byf-NRIpCur0af7nU4fyNuE7F5g",
+                ),
+                title: "Got To Get You Into My Life (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "r95-7zfgtLw",
+            ),
+            track_no: 71,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:58",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLmpY72lLULXK0BQgEsLY0SiXL0B-VSTdonU21fvFy6B4n3Hd-CJATAU8uxnJsg2nZduNp6B_VSki_p_P1UV4nF-KaBTA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIIbsfOccQRRLvW0uMbdw_WBDehBL6N5yHURtOZ358cplPBEWSfiRHd3q1DfZKZrbKIPs80GC5jyGkRXGNSZ02tQ0QYEg",
+                ),
+                title: "Do You Want To Know A Secret (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "uRQ7ecvU56k",
+            ),
+            track_no: 72,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:46",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIAIZP_PrdV8B27ocms8YXRG9tcUIofLppwaBGalQVmPaNf_PlTr3f6n4YvAmoFxka63sn3LD96yjq8to012rHaPUYNcg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpL3mOdldx52tbr5kbGtK1jLAX_-5vQTbfqLYE9ruMZnIWeMn-IjHCZg6nN6oZzaAKEc735GW35_yHDJag9EWsrKHGAIcQ",
+                ),
+                title: "Because (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "hL0tnrl2L_U",
+            ),
+            track_no: 73,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:39",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLXzvjvUHQ7pwOslwSzlUQJ6OyAItsd-Y9ZyvQhN49cW80dEU6AIaUQ31T46PC6miU1t40ydbylrP5OBxVhBy76QVwBuQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJARSblzBxg_v8riKD3k9Xb2gqNRGlqnbGFkgM8XSWsEmIyCauCsbRrMXf0aDkZP8QXfaH2whJxmaaPTRXGMMF71J4ZNQ",
+                ),
+                title: "Taxman (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "l0zaebtU-CA",
+            ),
+            track_no: 74,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:18",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLns7gRvj55bs0CJ9WaAZ1fQjV24EcsI-A-QBBQOm64V9BoilR75s_UeVANGfVhEiijTpUk7v3AWvfylqyYQkIAJfEmfA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLZaCgVqp9gzOrIDapu4DHue9hv93FFac1SAMZfl-oxVRHE4XX6cv4yTWS3o5xbzHX9QaMExugJUDJUHoL4ExOxu_RopQ",
+                ),
+                title: "Glass Onion (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "2tSIZLuCKUI",
+            ),
+            track_no: 75,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:57",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLT1FWX_y4UFI1YeYgDJeunc7vG2ERhj1nmVInWf5qWXbcbvDBpZABqSX64hZenWB9t0wcrn4liqEm-0vyamvYynV47jw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKgBSsAukkiPUXEO6GlqmrZJbm8Y9l2juclRAZk3iqpQldOaaQ6oh1HW6osCuQfgC3zsc7KBxHoKkWFP3hUcAHTY7kGww",
+                ),
+                title: "From Me To You (Mono / Remastered)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/O0BM0qveWB40423x8L9AdJxuMcBhFg0x_UtCbFQ_pRwbF412bmnlKj420gEPx1wwwAVpyXHpHp35cAU=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "-XTB3bCYMK0",
+            ),
+            track_no: 76,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "1",
+                    ),
+                    id: Some(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:57",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKG1K4mFm6qzjJYUjh6jyONbEXZvpWkHf4s_RL7fT5ghXJZMYqX7-1gMo_wyPO9tcRBkqzJSnUfN5W4RpgOZuO0Z0446Q",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpL11XGKjG5epmqHI0ogSWjt_aGdI04voCo64FqRc1KaW-77qbSFlZSzPS0CTHzf1q4-YBRYZYML56g-97KpfckIINrIPQ",
+                ),
+                title: "Julia (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "TZip_br_v3w",
+            ),
+            track_no: 77,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:04",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ9R8cSwl28S1BkESdKL6JUZ5ii2CZOKJlxFuJGso6cejOUfHxEYX6ju9Q-NvkTe7tNJuLWz8W2cAcI25yR8bSEbKEnLw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLmqpEm7iGCcSPgZSi-A2ryjlXlpGGFA6XNOX6nBLXY0j_7hW_7Lhl4yZ5J8VXbaVXRQ5CZ0vrQMyuHVcpYRef05OZj1A",
+                ),
+                title: "I'm So Tired (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "7cqHtGb9WYM",
+            ),
+            track_no: 78,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:25",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLzBofcPquDDkfPi7QRhY0N3_o0QpmrdQGAsmpjKnf3SGc9ql4YjVpKqpkh9bDlSXGrAKWn0GkLcnLIUYyLaNtTcyZu1w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJ88mxVPLGX768WIsuqZJFps9nvEKzGyRkNaQgjt8smXLb9CW7XRnPIm0rlIolHstBCcokCaRh03v-qkcxZYYSQumjYUw",
+                ),
+                title: "Here, There And Everywhere (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "xdcSFVXd3MU",
+            ),
+            track_no: 79,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "5:05",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKH-6AbYfn-cBaG2LI_KhdW9qRTcOdrnzuAMdhIHAaeky-Lo-XGXwoSJJCzhnRns4cRj0-nPeoLk8evWtt-dDCQ-C3nQg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJcx3kcSqz6NZeS9jR9L8Egw2fOGmUBdcGXND1B6x-w_WTvobo1iyEQVq1HvLJMcpw-RlYIcBxPTJDRF56tPHsUdEHbAA",
+                ),
+                title: "Within You Without You (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "HsffxGyY4ck",
+            ),
+            track_no: 80,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:37",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJBbE5t5ZvNATQisMbXmAEMXwtDzgz8nhFMLi8a1RgKVqLbLyvtXBBpRPDtaeuj7Fc9CTsc_1Sr7x1sKrxa15fx4r8yyA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLj0gYVsGUjtQ8roia0qJ_7vBhz-DO5IeurgiOKm6TLsRI04kYSePrBmeXbn2TC4NBQHyZr6QUkLUuosasNMc8rHdZ7iw",
+                ),
+                title: "Fixing A Hole (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/BfHLoMyzk389QwfEx3Ewr-J4g0nCbbrVzBt43qHtdfnX75veUIropjgAShejer3PzEG3yjSEZsLr-Q9a=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "UPBd8eHQqIw",
+            ),
+            track_no: 81,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Sgt. Pepper's Lonely Hearts Club Band",
+                    ),
+                    id: Some(
+                        "MPREb_MlGHASFrLIn",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:49",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJwLQLPdE27JGZKvml7OEVNmPgi5gP070HDu3WqLoQjb3XvYQeL7pe9tn97hkS7ZDimuplSnnYvGDzLIw4JRtBFO_mkmQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLmPiOgqjruVUJfD0BYG1OXehQsz-iMXfFZZngqkK1Nkbn_YYVGmrUOd0tIvCaDoa30x4UYwsc0Q8cl96XElY3iFIToDg",
+                ),
+                title: "I'll Follow The Sun (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "28d_A_NuJ7A",
+            ),
+            track_no: 82,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Beatles For Sale",
+                    ),
+                    id: Some(
+                        "MPREb_GOFIhgRPUsi",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:19",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKTQkq4ayxUF34GDyDk1GtrTTLMgYYAYMq_AUt9olBeTBttwxbe_LZPz3BSpguHGfTjriYBdv0gT-OfBfUf1X6_dx0QTA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJOWb1c5jvmUrR9JE15tVxXA38UfwpxlWcJUKDTbdODJh92FdPSayoTP1i521weJwO-x3CIOsv3_5KNvn2wKx0iqn94lg",
+                ),
+                title: "You're Going To Lose That Girl (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/cHaRyci2upQidmt3iHYeAzbkFJ_c1vXEJbpVh-RZpAnbyMNOtOAeZdNMoJnUrRMZnjipmxfxvuvBeFzhWw=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "vqpEZuv29qE",
+            ),
+            track_no: 83,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Help!",
+                    ),
+                    id: Some(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:58",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJb-KisHeCeNS1aD1sW3KH_C_rjW5iP4U7DEDRcf59m7QY0ssfRMo2K1RVA15x1sr5ZRjtViekF3yqI1QTU7U4bhdWycw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKMpEKFFxw3sc5QgUCFZ2U8_xGT_ZbhLgmPoc9ClA4lS51v3TeZjtwAzcl1VNiUvqTKWJO0iQ-KOUL2lCBEN7YEHhJnVg",
+                ),
+                title: "Anna (Go To Him) (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "b3zNKWyLfus",
+            ),
+            track_no: 84,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:28",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLQAqXsjjGiWWIdeRl_UjhKKBlt34V2ol_TI5RzSvss057MXL_b0NoIfYmU04oaVYYmcQ0wEM8AVEoSORvz2dqA8Esp9A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpID1nJEJTA19IbuxlFVokWibkK0dQ0JkAwM-lfmvyYINJ9cGOIXTRBeF18KGGQ8bhQB1NKxCRHqMVpB3XPk4Xt8i-DNhg",
+                ),
+                title: "Maxwell's Silver Hammer (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "mJag19WoAe0",
+            ),
+            track_no: 85,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "1:37",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLK4ogEfKCvXi9XHIV4CB1x3oSr67-rCS2qzeopdpW8B5b_5Noktvy0rWrgp8_o2_FExts5p0b8FREcjuwvl8O48Q_OFQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIFIPuegGpvYP9qb-U3Sw1K4gHUocIH6ui5sDamnaQ_nQurcyTHT53IjguxgZKEwviCmkSEz_lOvX_ljKFRAfYde49XTA",
+                ),
+                title: "Carry That Weight (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "6B224XDJw6g",
+            ),
+            track_no: 86,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:46",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJqt2j7XfjUbahURm3-uUmrVhH3wcghg4r9DyZ-73EmwdfUgXXtE1M--Izrabm4-HnyWhQqkppZe834NLBcrAIVK1Ah5A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpJFTMz2owhuggQIalDRdIpzOvpWgYYrXf8MKyT1mQ8B0ctoIxvof4QaHPmVBHJ0_o0uc0NTMx592ZCPG_OgVVpG21g8GA",
+                ),
+                title: "Roll Over Beethoven (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "Hz5jXwOXgKQ",
+            ),
+            track_no: 87,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "With The Beatles (Remastered 2009)",
+                    ),
+                    id: Some(
+                        "MPREb_cfiGXKbRGXM",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "4:03",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKOibwXchaYOITtMb1D3_spBEjiX--zP1P03mBLOGzeinwMBQI8V_OUyBNJzGlqkz7Xq1L-N31s4I0JSCzNDkBFvK5fPg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLjgiiIC27OJLnmmdUMInP-JSe0h7ATdl22zgtdqnH7vZcctQBT02JGbRpvUShp7uxY05mg710DHYvVejCbaPsfeXIYsw",
+                ),
+                title: "You Never Give Me Your Money (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "BpndGZ71yww",
+            ),
+            track_no: 88,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:30",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJ5v8clEq4FotyS8PzY3KSYCTItUTXavn-nwRnugsdo3ja5PG2zy1ZajPfm_BOorryKzPnGFTPe_jOJJz-Cam-cEINW-A",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIsQCGVF-pF7sr5YtxF2PgWSdZQkDSyLpbgXqaHl9BGDJL4RzOuC2YGTi77JcKbzYyafzbdFn57D0CPWqcQiSV8aVJ80A",
+                ),
+                title: "The Fool On The Hill",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/RvX-sRBt7B1CPW2z0vIw7kGhq8xXf7FTFZIbOQscCYadjjErfZ4H0eM62m53ExzQTe1oMDma420HejwlVA=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "sGDuGybCRSE",
+            ),
+            track_no: 89,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Love",
+                    ),
+                    id: Some(
+                        "MPREb_QXijY09EdMj",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:10",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpJO4ixgvtCPZE1ma2oZWdXbxHeiDQGcyQ4GVbAQ9Jf-ZuDwXyYM--gaEqPadAr3uTEJaFvGMsTP8Z_gM9A2tDUxdewf3g",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLmGrXEsp1M0sL9CIye6KyEoNS3yZyGYSLIEROoGPBWdsXh7erJgEAK7r4KHCe3eRY5DdgP7RAeNiQFNqGr-wZj2l5lOg",
+                ),
+                title: "Good Day Sunshine (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "6e01nNA02vw",
+            ),
+            track_no: 90,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:29",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpILWLAIlVRSrffuR9R62KD8i2k9ObmovHQz6a5SU3mvsdA6lBPxsOeSNgGuRLL3n0Fo-5wP7m26FWeYl3-WYI7KlXcScQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKV5PVV6BUC7Jq3yEu792R5gsIFKsz3yCqrb43oEqSO4kqz2Flyo7nOliU1g5idY0cZ4qr_5WUz4o1GIsn6w1zlqTIRRw",
+                ),
+                title: "Martha My Dear (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/8MFj-k2DNUXPKOw8BawKI291ty1Wh8V4M3J6fiq4itWkjw34ncAem60h80eMzsD2XjczahdZEF69CQ8=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "RXawa90YU2s",
+            ),
+            track_no: 91,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles",
+                    ),
+                    id: Some(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:20",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpK6UT41yEPefH5p9qI5JKJTnLzI8Sur0avb0TN3vt3kyJdLYGm4a743FBetXY9lnhEByFPUTwM7odaxXwyp-7uyqQe3Xg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLLJgAuvvLmSY7MmUnkhpbFIZwB_QFBJqQiQjjiosWCDAB_YqlRl0EcMLknoUVaDURUL0SP7Eoz2buz20Ho8N0JKlkxeQ",
+                ),
+                title: "You Won't See Me (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "OsjTO0yZQjk",
+            ),
+            track_no: 92,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Rubber Soul",
+                    ),
+                    id: Some(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:02",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpIgWhpTGP9e_QtHv4_CcD2uvFcH0eMxRq70d5dSyWVa9zXojtSx4797TZHIKDR3Y5jlEUg-lzt1mlX3XFJQFnzsEYwy2w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKtN8YzFfdQsKESLzF5AAsmS9hgrhybYAaQNvVsB5VhhSYLAArFMO9zFBbsw7Xxnwgof8Zt-J-bSqaNOsjn5YpGyrnv-g",
+                ),
+                title: "You Really Got A Hold On Me (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/3FEtHPcqAjIF06HRNx6nyTVXcKp68EqjE18Wuy8IYNXMHpF_DaP9ASuSnG2wRcm1GnrMmVVLWrSjVL38=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "9rokS8Ao4nQ",
+            ),
+            track_no: 93,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "With The Beatles (Remastered 2009)",
+                    ),
+                    id: Some(
+                        "MPREb_cfiGXKbRGXM",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:01",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLTVuXAXn0TmgWcQvTFUTprWHxETeZgCKn31w_nvGWdrWcgGroxHaf8YLxqNbeqjs1tRCDSD-2Nn3Yfpnzf10o4mmxdoA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIb2NXkGKXueviOOdJY4gUjAO0sDQq6nWU1PDSfohDtpGwFWV3Xbp3eIYgYGdMMa6aGzRfGPzNrWqUFFX_NJ1kdnT5CKQ",
+                ),
+                title: "And Your Bird Can Sing (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "Uq0aeEYLkIE",
+            ),
+            track_no: 94,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Revolver",
+                    ),
+                    id: Some(
+                        "MPREb_eHEOTy3DS94",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:22",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLLN1yYCsK_D-812DtMC5QgxQdLfP1DnZU2-1tZ4yx5uvHemrl8EQwn53-vb-7ghUISYisGgRCC7rMAf4gQzr6T6CDwpQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIMwwSlcHV0uhc8HyQwPKfn9KHNLlecrOYw_mIOeVW2pLaa5zEv3sPAv6gSgY-d0aqWmiDvthewOtyG2CZfodFjjeufrw",
+                ),
+                title: "The End (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/bmG1q9eu3ub2CtYcgArvzpiehqUpZGuLsOa_B0Bxkwxdfsk9r7nRzAQy1P5dTjqerODLxq3LycWGWW5m=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "12R4FzIhdoQ",
+            ),
+            track_no: 95,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Abbey Road",
+                    ),
+                    id: Some(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:41",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpKDxg5aE0doGsa6dHfe6lL_ZeQY6kFqHffzm2MFl9Ii4L4wIFHzZssg-9MDFg8hkA_DDj5jNf2e2U8rc2q1ehzguJcCKw",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpIJsgxUVCO7l8ytEctHxTEE8WLGTFOT95h0Z7pxLNEyEQcBZ1Lq2Oh_RSmlq_LH5POZAjrkiPIZDy87VBPptaW2f3IVyw",
+                ),
+                title: "Baby It's You (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/N5RD4QtjBE8N8F-MjvETLJMFyGVJ8y8mNKXOWurFECyv9wJfMCHq5gm6riNXCkpvhUJ9NfDqb6h6vUUGcg=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "AWUTlM6hz0g",
+            ),
+            track_no: 96,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Please Please Me",
+                    ),
+                    id: Some(
+                        "MPREb_EB1GQowDeAh",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:02",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpI9Gk2EaykrxEc2s1p98eBk-Jo-aaR16e1p9pfGH74Yvu3Y9tSA25aRqzzzP_-QNwoZ6LGJ4L94BP5i-3vTBXp_zVDsRA",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLpN-JFT6BPpwjMRUkXzdXoR9O8-sQlN99qdMkvENZxELM2g6NGC7Du2IHC2U8jEWj6449BIPtXMNHOUVMgDkytDjh1pw",
+                ),
+                title: "The Ballad Of John And Yoko (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/74ZlD_ClwO8pdKlooxk3BWjGe1NNGU2euQepXyaWilfxceXZj2Uxn4Uk4fOk2btprCSx1lFKH-QlvrbW=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "vzd_DfGGx0I",
+            ),
+            track_no: 97,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "The Beatles 1967 - 1970",
+                    ),
+                    id: Some(
+                        "MPREb_LAgCGKzQToD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "3:02",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLU5jCEWwCh_Et2glQkNF798wrAE3ctVCAS5hVvkPyjx-AXf1-yhC5iXt6bVD5fbFUMsuebvkwxPKYJhfsa3Q9Ru4MOeg",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKufO7QpbLZfhpBnm_imfJf2KmEWzAliV15J_dWCVwtn5l2t6rBRiWEk1gLk9q9U8hGQm9F-5HOwgCVHBtxGR1aG6wJiw",
+                ),
+                title: "Baby, You're A Rich Man (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "i5m-sgtwFck",
+            ),
+            track_no: 98,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Magical Mystery Tour",
+                    ),
+                    id: Some(
+                        "MPREb_2wJ4mzPvKwD",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:17",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpLgvkBVszYWMhBxvpOwB3PNw7DRbrOqc2gUFKpBMdfngRNsnAP7OPRuwg9tIEs6bFAES4aaCncHvnA-UCTYnMmAkBADfQ",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpKVNGyracf23ZBu7-VpH0Kbj6B2Ksh-MpGpJ_7SeqsabTfmJM_tNfUvUIboZkKB-hIAheCEiqlRBGq9uzS-aXUdPjWzPw",
+                ),
+                title: "No Reply (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/A0-PdNUOqA6Cqx0GVb55JcnBpzA76Y-eYkp_BdRXP65Ts-Oqgf7TYRjg3bHcIH5YNnDl-QX1GE7nnoLu=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "YgFo9STa70E",
+            ),
+            track_no: 99,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "Beatles For Sale",
+                    ),
+                    id: Some(
+                        "MPREb_GOFIhgRPUsi",
+                    ),
+                },
+            ),
+        },
+        SongResult {
+            core: ResultCore {
+                set_video_id: None,
+                duration: Some(
+                    "2:36",
+                ),
+                feedback_tok_add: Some(
+                    "AB9zfpL01I0WEYu3M3qAw-2n6o3atJYExAIxt4xowU9nrI5dKyL-eo_RwxKz_YCB8XOfs6foArZEj9ejXjAnGlymdQRsclSE5w",
+                ),
+                feedback_tok_rem: Some(
+                    "AB9zfpLKRDjFZsPaKcQZ37i_kQ3WGVNGM855hVOuGsAmt-H-0JMQ03ZBfAJxFXnXTvFmNIZbCIRTv5UWKqR6Js97HGNYpPPC4Q",
+                ),
+                title: "Things We Said Today (Remastered 2009)",
+                like_status: Some(
+                    "INDIFFERENT",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w60-h60-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://lh3.googleusercontent.com/EO81br_-ABNZsAoWN24yJnsNfxHoo0KGB_XEXkW-PFFT74JlNDPZlO48yONoQiQ2bbXxtn184eez2zk=w120-h120-l90-rj",
+                    },
+                ],
+                is_available: true,
+                is_explicit: false,
+                video_type: None,
+                browse_id: None,
+                playlist_id: None,
+                playlist_subtitle: None,
+            },
+            video_id: VideoID(
+                "NItAlTsPuQg",
+            ),
+            track_no: 100,
+            album: Some(
+                ParsedSongAlbum {
+                    name: Some(
+                        "A Hard Day's Night",
+                    ),
+                    id: Some(
+                        "MPREb_lMwnCCnXwKZ",
+                    ),
+                },
+            ),
+        },
+    ],
+}

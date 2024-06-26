@@ -1,17 +1,14 @@
 use super::*;
+use crate::{common::SearchSuggestion, parse::SearchResults};
+pub use filteredsearch::*;
 use std::borrow::Cow;
+
+pub mod filteredsearch;
 
 const SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS: &str = "BagwQDhAKEAMQBBAJEAU%3D";
 const SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS: &str = "BQgIIAWoMEA4QChADEAQQCRAF";
 const SPECIALIZED_PLAYLIST_PREFIX_PARAMS: &str = "EgeKAQQoA";
-
-/// An API search query.
-#[derive(PartialEq, Debug, Clone)]
-pub struct SearchQuery<'a, S: SearchType> {
-    query: Cow<'a, str>,
-    spelling_mode: SpellingMode,
-    searchtype: S,
-}
+const SEARCH_QUERY_PATH: &str = "search";
 
 // TODO Seal
 // TODO: Add relevant parameters.
@@ -19,26 +16,21 @@ pub struct SearchQuery<'a, S: SearchType> {
 pub trait SearchType: Default {
     fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>>;
 }
-// TODO Seal
-// TODO: Add param bits
-// Implements Default to allow simple implementation of Into<SearchQuery<FilteredSearch<F>>>
-pub trait FilteredSearchType: Default {
-    fn filtered_param_bits(&self) -> Cow<str>;
-    // By implementing a default method, we can specialize for cases were these params are incorrect.
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
-        match spelling_mode {
-            SpellingMode::ExactMatch => "AWoMEA4QChADEAQQCRAF".into(),
-            SpellingMode::WithSuggestions => "AUICCAFqDBAOEAoQAxAEEAkQBQ%3D%3D".into(),
-        }
-    }
-    // By implementing a default method, we can specialize for cases were these params are incorrect.
-    fn filtered_prefix_param(&self) -> Cow<str> {
-        "EgWKAQ".into()
-    }
+
+// Trait constraint - to simplify implementation of Query for BasicSearch,
+// LibrarySearch and UploadSearch.
+pub trait UnfilteredSearchType: SearchType {}
+
+/// An API search query.
+#[derive(PartialEq, Debug, Clone)]
+pub struct SearchQuery<'a, S: SearchType> {
+    query: Cow<'a, str>,
+    spelling_mode: SpellingMode,
+    search_type: S,
 }
 
-/// Whether or not to allow Google to attempt to auto correct spelling as part of the results.
-/// Has no affect on Uploads or Library.
+/// Whether or not to allow Google to attempt to auto correct spelling as part
+/// of the results. Has no affect on Uploads or Library.
 // XXX: May actually affect Library. To confirm.
 #[derive(PartialEq, Debug, Clone, Default)]
 pub enum SpellingMode {
@@ -55,131 +47,13 @@ pub struct BasicSearch;
 pub struct LibrarySearch;
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct UploadSearch;
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct FilteredSearch<F: FilteredSearchType> {
-    filter: F,
-}
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct SongsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct VideosFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct AlbumsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct ArtistsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct PlaylistsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct CommunityPlaylistsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct FeaturedPlaylistsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct EpisodesFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct PodcastsFilter;
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct ProfilesFilter;
 
-impl FilteredSearchType for SongsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "II".into()
-    }
-}
-impl FilteredSearchType for VideosFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "IQ".into()
-    }
-}
-impl FilteredSearchType for AlbumsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "IY".into()
-    }
-}
-impl FilteredSearchType for ArtistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "Ig".into()
-    }
-}
-impl FilteredSearchType for PlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        // When filtering for Library params should be "Io"...
-        "".into()
-    }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
-        match spelling_mode {
-            SpellingMode::ExactMatch => "MABCAggBagoQBBADEAkQBRAK",
-            SpellingMode::WithSuggestions => "MABqChAEEAMQCRAFEAo%3D",
-        }
-        .into()
-    }
-    fn filtered_prefix_param(&self) -> Cow<str> {
-        "Eg-KAQwIABAAGAAgACgB".into()
-    }
-}
-impl FilteredSearchType for CommunityPlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "EA".into()
-    }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
-        match spelling_mode {
-            SpellingMode::ExactMatch => SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
-            SpellingMode::WithSuggestions => SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
-        }
-        .into()
-    }
-    fn filtered_prefix_param(&self) -> Cow<str> {
-        SPECIALIZED_PLAYLIST_PREFIX_PARAMS.into()
-    }
-}
-impl FilteredSearchType for FeaturedPlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "Dg".into()
-    }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
-        match spelling_mode {
-            SpellingMode::ExactMatch => SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
-            SpellingMode::WithSuggestions => SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
-        }
-        .into()
-    }
-    fn filtered_prefix_param(&self) -> Cow<str> {
-        SPECIALIZED_PLAYLIST_PREFIX_PARAMS.into()
-    }
-}
-impl FilteredSearchType for EpisodesFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "JI".into()
-    }
-}
-impl FilteredSearchType for PodcastsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "JQ".into()
-    }
-}
-impl FilteredSearchType for ProfilesFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
-        "JY".into()
-    }
-}
 impl SearchType for BasicSearch {
     fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>> {
         match spelling_mode {
             SpellingMode::ExactMatch => return Some("EhGKAQ4IARABGAEgASgAOAFAAUICCAE%3D".into()),
             SpellingMode::WithSuggestions => return None,
         }
-    }
-}
-impl<F: FilteredSearchType> SearchType for FilteredSearch<F> {
-    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>> {
-        Some(
-            format!(
-                "{}{}{}",
-                self.filter.filtered_prefix_param(),
-                self.filter.filtered_param_bits(),
-                self.filter.filtered_spelling_param(spelling_mode),
-            )
-            .into(),
-        )
     }
 }
 impl SearchType for UploadSearch {
@@ -190,21 +64,26 @@ impl SearchType for UploadSearch {
 }
 impl SearchType for LibrarySearch {
     fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<str>> {
-        // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for details.
-        // TODO: Investigate if spelling suggestions take affect here.
+        // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for
+        // details. TODO: Investigate if spelling suggestions take affect here.
         Some("agIYBA%3D%3D".into())
     }
 }
-impl<'a, S: SearchType> Query for SearchQuery<'a, S> {
+
+impl UnfilteredSearchType for BasicSearch {}
+impl UnfilteredSearchType for UploadSearch {}
+impl UnfilteredSearchType for LibrarySearch {}
+
+impl<'a, S: UnfilteredSearchType> Query for SearchQuery<'a, S> {
+    type Output = SearchResults;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        let value = self.query.as_ref().into();
-        serde_json::Map::from_iter([("query".to_string(), value)])
+        search_query_header(&self)
     }
     fn path(&self) -> &str {
-        "search"
+        SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        self.searchtype.specialised_params(&self.spelling_mode)
+        search_query_params(&self)
     }
 }
 
@@ -215,7 +94,7 @@ impl<'a, Q: Into<Cow<'a, str>>, S: SearchType> From<Q> for SearchQuery<'a, S> {
         SearchQuery {
             query: value.into(),
             spelling_mode: SpellingMode::default(),
-            searchtype: S::default(),
+            search_type: S::default(),
         }
     }
 }
@@ -226,7 +105,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: q.into(),
             spelling_mode: SpellingMode::default(),
-            searchtype: BasicSearch {},
+            search_type: BasicSearch {},
         }
     }
 }
@@ -253,7 +132,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: FilteredSearch { filter },
+            search_type: FilteredSearch { filter },
         }
     }
     /// Search only uploads.
@@ -261,7 +140,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: UploadSearch,
+            search_type: UploadSearch,
         }
     }
     /// Search only library.
@@ -269,7 +148,7 @@ impl<'a> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: LibrarySearch,
+            search_type: LibrarySearch,
         }
     }
 }
@@ -283,7 +162,7 @@ impl<'a, F: FilteredSearchType> SearchQuery<'a, FilteredSearch<F>> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: FilteredSearch { filter },
+            search_type: FilteredSearch { filter },
         }
     }
     /// Remove filter from the query.
@@ -291,7 +170,7 @@ impl<'a, F: FilteredSearchType> SearchQuery<'a, FilteredSearch<F>> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -302,7 +181,7 @@ impl<'a> SearchQuery<'a, UploadSearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -312,7 +191,7 @@ impl<'a> SearchQuery<'a, LibrarySearch> {
         SearchQuery {
             query: self.query,
             spelling_mode: self.spelling_mode,
-            searchtype: BasicSearch,
+            search_type: BasicSearch,
         }
     }
 }
@@ -337,6 +216,7 @@ impl<'a, S: Into<Cow<'a, str>>> From<S> for GetSearchSuggestionsQuery<'a> {
 }
 
 impl<'a> Query for GetSearchSuggestionsQuery<'a> {
+    type Output = Vec<SearchSuggestion>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let value = self.query.as_ref().into();
         serde_json::Map::from_iter([("input".into(), value)])
@@ -347,4 +227,14 @@ impl<'a> Query for GetSearchSuggestionsQuery<'a> {
     fn params(&self) -> Option<Cow<str>> {
         None
     }
+}
+
+fn search_query_header<'a, S: SearchType>(
+    query: &SearchQuery<'a, S>,
+) -> serde_json::Map<String, serde_json::Value> {
+    let value = query.query.as_ref().into();
+    serde_json::Map::from_iter([("query".to_string(), value)])
+}
+fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<str>> {
+    query.search_type.specialised_params(&query.spelling_mode)
 }

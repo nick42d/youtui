@@ -1,9 +1,7 @@
 use super::private::Sealed;
 use super::AuthToken;
-use crate::crawler::JsonCrawler;
-use crate::error::{self, Error, Result};
+use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::JsonCloner;
 use crate::{
     process::RawResult,
     query::Query,
@@ -18,9 +16,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-// The original reason for the two different structs was that we did not save the refresh token.
-// But now we do, so consider simply making this only one struct.
-// Otherwise the only difference is not including Scope which is not super relevant.
+// The original reason for the two different structs was that we did not save
+// the refresh token. But now we do, so consider simply making this only one
+// struct. Otherwise the only difference is not including Scope which is not
+// super relevant.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OAuthToken {
     token_type: String,
@@ -38,6 +37,8 @@ struct GoogleOAuthToken {
     pub access_token: String,
     pub expires_in: usize,
     pub refresh_token: String,
+    // Unused currently - for future use
+    #[allow(dead_code)]
     pub scope: String,
     pub token_type: String,
 }
@@ -45,6 +46,8 @@ struct GoogleOAuthToken {
 struct GoogleOAuthRefreshToken {
     pub access_token: String,
     pub expires_in: usize,
+    // Unused currently - for future use
+    #[allow(dead_code)]
     pub scope: String,
     pub token_type: String,
 }
@@ -163,19 +166,30 @@ impl AuthToken for OAuthToken {
             .await?
             .text()
             .await?;
-        let result = RawResult::from_raw(result, query, self);
+        let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    fn serialize_json<Q: Query>(
+    fn deserialize_json<Q: Query>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let (json, query) = raw.destructure();
-        let json_cloner = JsonCloner::from_string(json)
-            .map_err(|_| error::Error::response("Error deserializing"))?;
-        Ok(ProcessedResult::from_raw(
-            JsonCrawler::from_json_cloner(json_cloner),
-            query,
-        ))
+        let processed = ProcessedResult::from_raw(json, query)?;
+        // Guard against error codes in json response.
+        // TODO: Add a test for this
+        if let Some(error) = processed.get_json().pointer("/error") {
+            let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
+                return Err(Error::other(
+                    "Error message received from server, but doesn't have an error code",
+                ));
+            };
+            match code {
+                // TODO: Add some errors for specific cases for this token - example below from
+                // BrowserToken 401 => return
+                // Err(Error::browser_authentication_failed()),
+                other => return Err(Error::other_code(other)),
+            }
+        }
+        Ok(processed)
     }
 }
 

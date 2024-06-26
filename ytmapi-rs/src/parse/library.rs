@@ -1,4 +1,4 @@
-use super::{parse_item_text, ProcessedResult};
+use super::{parse_item_text, ParseFrom, ProcessedResult};
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::PlaylistID;
 use crate::crawler::JsonCrawler;
@@ -10,19 +10,23 @@ use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
 use crate::{Result, Thumbnail};
 use const_format::concatcp;
 
-impl<'a> ProcessedResult<GetLibraryArtistsQuery> {
-    // TODO: Continuations
-    pub fn parse(self) -> Result<Vec<LibraryArtist>> {
-        let ProcessedResult { json_crawler, .. } = self;
+impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+    fn parse_from(
+        p: ProcessedResult<GetLibraryArtistsQuery>,
+    ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
         parse_library_artists(json_crawler)
     }
 }
 
-impl<'a> ProcessedResult<GetLibraryPlaylistsQuery> {
-    // TODO: Continuations
-    // TODO: Implement count and author fields
-    pub fn parse(self) -> Result<Vec<Playlist>> {
-        let ProcessedResult { json_crawler, .. } = self;
+impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+    fn parse_from(
+        p: ProcessedResult<GetLibraryPlaylistsQuery>,
+    ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        // TODO: Implement count and author fields
+        let json_crawler = p.into();
         parse_library_playlist_query(json_crawler)
     }
 }
@@ -146,11 +150,10 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
 #[cfg(test)]
 mod tests {
     use crate::{
+        auth::BrowserToken,
         common::library::{LibraryArtist, Playlist},
-        crawler::JsonCrawler,
-        parse::ProcessedResult,
-        process::JsonCloner,
         query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
+        YtMusic,
     };
     use serde_json::json;
 
@@ -158,10 +161,8 @@ mod tests {
     #[test]
     fn test_library_playlists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
-        let cloner = JsonCloner::from_string(testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json_cloner(cloner);
-        let processed = ProcessedResult::from_raw(json_crawler, GetLibraryPlaylistsQuery {});
-        let result = processed.parse().unwrap();
+        let result =
+            YtMusic::<BrowserToken>::process_json(testfile, GetLibraryPlaylistsQuery {}).unwrap();
         let expected = json!([
           {
             "playlist_id": "VLLM",
@@ -246,10 +247,9 @@ mod tests {
     #[test]
     fn test_library_artists_dummy_json() {
         let testfile = std::fs::read_to_string("test_json/get_library_artists.json").unwrap();
-        let cloner = JsonCloner::from_string(testfile).unwrap();
-        let json_crawler = JsonCrawler::from_json_cloner(cloner);
-        let processed = ProcessedResult::from_raw(json_crawler, GetLibraryArtistsQuery::default());
-        let result = processed.parse().unwrap();
+        let result =
+            YtMusic::<BrowserToken>::process_json(testfile, GetLibraryArtistsQuery::default())
+                .unwrap();
         let expected = json!(
             [
                 {

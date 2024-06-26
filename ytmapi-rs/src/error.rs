@@ -7,12 +7,14 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 /// This type represents all errors this API could produce.
 pub struct Error {
-    // This is boxed to avoid passing around very large errors - in the case of an Api error we want to provide the source file to the caller.
+    // This is boxed to avoid passing around very large errors - in the case of an Api error we
+    // want to provide the source file to the caller.
     inner: Box<ErrorKind>,
 }
 
 /// The kind of the error.
-/// This list may grow over time, and it's not recommended to exhaustively match on it.
+/// This list may grow over time, and it's not recommended to exhaustively match
+/// on it.
 #[non_exhaustive]
 pub enum ErrorKind {
     /// General web error.
@@ -43,7 +45,8 @@ pub enum ErrorKind {
         // Hence reference counted, Arc particularly to ensure Error is thread safe.
         json: Arc<String>,
     },
-    /// Received a response from InnerTube that was not in the expected (JSON) format.
+    /// Received a response from InnerTube that was not in the expected (JSON)
+    /// format.
     InvalidResponse {
         response: String,
     },
@@ -56,7 +59,8 @@ pub enum ErrorKind {
     },
     /// InnerTube rejected the User Agent we are using.
     InvalidUserAgent(String),
-    /// Failed to authenticate using Browse Auth credentials (may have expired, or been incorrectly provided).
+    /// Failed to authenticate using Browse Auth credentials (may have expired,
+    /// or been incorrectly provided).
     BrowserAuthenticationFailed,
     /// OAuthToken has expired.
     OAuthTokenExpired,
@@ -93,7 +97,8 @@ impl Error {
             false
         }
     }
-    /// If an error is a Navigation or Parsing error, return the source Json and key at the location of the error.
+    /// If an error is a Navigation or Parsing error, return the source Json and
+    /// key at the location of the error.
     pub fn get_json_and_key(&self) -> Option<(String, &String)> {
         match self.inner.as_ref() {
             ErrorKind::Navigation { json, key } => Some((json.to_string(), &key)),
@@ -207,8 +212,8 @@ impl Display for ErrorKind {
         }
     }
 }
-// As this is displayed when unwrapping, we don't want to end up including the entire format of this struct
-// (potentially including entire source json file).
+// As this is displayed when unwrapping, we don't want to end up including the
+// entire format of this struct (potentially including entire source json file).
 impl Debug for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // TODO: Improve implementation
