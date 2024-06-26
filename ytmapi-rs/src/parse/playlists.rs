@@ -4,7 +4,7 @@ use super::{
     SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
-    common::PlaylistID,
+    common::{PlaylistID, SetVideoID},
     crawler::JsonCrawler,
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
@@ -12,8 +12,9 @@ use crate::{
     query::{
         AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
         EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
+        SpecialisedQuery,
     },
-    Result, Thumbnail,
+    Error, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -39,7 +40,14 @@ pub struct GetPlaylist {
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Indicates a successful result from an API action such as a 'delete playlist'
+// May be common
 pub struct ApiSuccess {}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+/// Provides a SetVideoID and VideoID for each video added to the playlist.
+pub struct AddPlaylistItem {
+    pub video_id: VideoID<'static>,
+    pub set_video_id: SetVideoID<'static>,
+}
 
 impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
     fn parse_from(
@@ -56,18 +64,50 @@ impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for Playli
         json_crawler.take_value_pointer("/playlistId")
     }
 }
-impl<'a> ParseFrom<AddPlaylistItemsQuery<'a>> for () {
+impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
     fn parse_from(
-        p: ProcessedResult<AddPlaylistItemsQuery<'a>>,
-    ) -> crate::Result<<AddPlaylistItemsQuery<'a> as crate::query::Query>::Output> {
-        todo!()
+        p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>,
+    ) -> crate::Result<<AddPlaylistItemsQuery<'a, T> as crate::query::Query>::Output> {
+        let mut json_crawler: JsonCrawler = p.into();
+        let status: String = json_crawler.borrow_pointer("/status")?.take_value()?;
+        match status.as_str() {
+            "STATUS_SUCCEEDED" => (),
+            "STATUS_FAILED" => {
+                return Err(Error::other(format!("STATUS_FAILED received from API")))
+            }
+            other => {
+                return Err(Error::other(format!(
+                    "Unknown status {other} received from API"
+                )))
+            }
+        };
+        json_crawler
+            .navigate_pointer("/playlistEditResults")?
+            .as_array_iter_mut()?
+            .map(|r| {
+                let mut r = r.navigate_pointer("/playlistEditVideoAddedResultData")?;
+                Ok(AddPlaylistItem {
+                    video_id: r.take_value_pointer("/videoId")?,
+                    set_video_id: r.take_value_pointer("/setVideoId")?,
+                })
+            })
+            .collect()
     }
 }
-impl<'a> ParseFrom<EditPlaylistQuery<'a>> for () {
+impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiSuccess {
     fn parse_from(
         p: ProcessedResult<EditPlaylistQuery<'a>>,
     ) -> crate::Result<<EditPlaylistQuery<'a> as crate::query::Query>::Output> {
-        todo!()
+        let json_crawler: JsonCrawler = p.into();
+        let status: String = json_crawler.navigate_pointer("/status")?.take_value()?;
+        match status.as_str() {
+            "STATUS_SUCCEEDED" => return Ok(ApiSuccess {}),
+            other => {
+                return Err(Error::other(format!(
+                    "Unknown status {other} received from API"
+                )))
+            }
+        }
     }
 }
 impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
@@ -202,8 +242,8 @@ mod tests {
     use crate::{
         auth::BrowserToken,
         common::{PlaylistID, YoutubeID},
-        query::GetPlaylistQuery,
-        YtMusic,
+        query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery},
+        Error, YtMusic,
     };
     use pretty_assertions::assert_eq;
     use std::path::Path;
@@ -221,6 +261,58 @@ mod tests {
         let expected = expected.trim();
         // Blank query has no bearing on function
         let query = GetPlaylistQuery::new(PlaylistID::from_raw(""));
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
+    }
+    #[tokio::test]
+    async fn test_add_playlist_items_query_failure() {
+        let source_path = Path::new("./test_json/add_playlist_items_failure_20240626.json");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        // Blank query has no bearing on function
+        let query = AddPlaylistItemsQuery::new_from_playlist(
+            PlaylistID::from_raw(""),
+            PlaylistID::from_raw(""),
+        );
+        let output = YtMusic::<BrowserToken>::process_json(source, query);
+        let err: crate::Result<()> = Err(Error::other(format!("STATUS_FAILED received from API")));
+        assert_eq!(format!("{:?}", err), format!("{:?}", output));
+    }
+    #[tokio::test]
+    async fn test_add_playlist_items_query() {
+        let source_path = Path::new("./test_json/add_playlist_items_20240626.json");
+        let expected_path = Path::new("./test_json/add_playlist_items_20240626_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        // Blank query has no bearing on function
+        let query = AddPlaylistItemsQuery::new_from_playlist(
+            PlaylistID::from_raw(""),
+            PlaylistID::from_raw(""),
+        );
+        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
+    }
+    #[tokio::test]
+    async fn test_edit_playlist_title_query() {
+        let source_path = Path::new("./test_json/edit_playlist_title_20240626.json");
+        let expected_path = Path::new("./test_json/edit_playlist_title_20240626_output.txt");
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        // Blank query has no bearing on function
+        let query = EditPlaylistQuery::new_title(PlaylistID::from_raw(""), "");
         let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);

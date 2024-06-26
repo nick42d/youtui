@@ -54,10 +54,10 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AlbumParams, ApiSuccess, ArtistParams, GetPlaylist, ParseFrom, ProcessedResult,
-    SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
-    SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
-    SearchResultVideo, SearchResults,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetPlaylist, ParseFrom,
+    ProcessedResult, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults,
 };
 pub use process::RawResult;
 use query::{
@@ -68,9 +68,11 @@ use query::{
     },
     lyrics::GetLyricsQuery,
     watch::GetWatchPlaylistQuery,
-    BasicSearch, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery, GetAlbumQuery,
+    AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
+    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
+    SpecialisedQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -321,6 +323,21 @@ impl<A: AuthToken> YtMusic<A> {
         query.into().call(self).await
     }
     pub async fn remove_playlist_items<'a, Q: Into<RemovePlaylistItemsQuery<'a>>>(
+        &self,
+        query: Q,
+    ) -> Result<ApiSuccess> {
+        query.into().call(self).await
+    }
+    pub async fn add_playlist_video_items<
+        'a,
+        Q: Into<AddPlaylistItemsQuery<'a, AddVideosToPlaylist<'a>>>,
+    >(
+        &self,
+        query: Q,
+    ) -> Result<Vec<AddPlaylistItem>> {
+        query.into().call(self).await
+    }
+    pub async fn edit_playlist<'a, Q: Into<EditPlaylistQuery<'a>>>(
         &self,
         query: Q,
     ) -> Result<ApiSuccess> {

@@ -1,0 +1,10 @@
+[
+    AddPlaylistItem {
+        video_id: VideoID(
+            "AWCVHllzG9Y",
+        ),
+        set_video_id: SetVideoID(
+            "F3D73C336952E57D",
+        ),
+    },
+]

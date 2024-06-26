@@ -90,10 +90,13 @@ pub struct Album {
     pub year: Option<String>,
 }
 
+// TODO: Add parsing for YoutubeID's - e.g PlaylistID begining with VL should
+// fail.
 pub trait YoutubeID<'a> {
     fn get_raw(&self) -> &str;
     fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self;
 }
+// Need to confirm behaviour when converting from other IDs.
 pub trait BrowseID<'a>: YoutubeID<'a> {}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -118,7 +121,7 @@ pub struct PodcastID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
-pub struct LyricsID<'a>(pub Cow<'a, str>);
+pub struct LyricsID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SetVideoID<'a>(Cow<'a, str>);
 
@@ -129,6 +132,7 @@ impl_youtube_id!(PodcastID<'a>);
 impl_youtube_id!(VideoID<'a>);
 impl_youtube_id!(PlaylistID<'a>);
 impl_youtube_id!(ChannelID<'a>);
+impl_youtube_id!(LyricsID<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}

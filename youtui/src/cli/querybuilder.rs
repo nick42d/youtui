@@ -2,11 +2,12 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{AlbumID, BrowseParams, PlaylistID, SetVideoID, YoutubeID},
     query::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, CreatePlaylistQuery,
-        DeletePlaylistQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
-        GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-        GetPlaylistQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
-        ProfilesFilter, Query, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
+        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
+        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
+        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
+        GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
+        RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID, YtMusic,
 };
@@ -191,6 +192,46 @@ pub async fn command_to_query<A: AuthToken>(
                         .iter()
                         .map(|v| SetVideoID::from_raw(v))
                         .collect(),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::AddVideosToPlaylist {
+            playlist_id,
+            video_ids,
+        } => {
+            get_string_output_of_query(
+                yt,
+                AddPlaylistItemsQuery::new_from_videos(
+                    PlaylistID::from_raw(playlist_id),
+                    video_ids.iter().map(|v| VideoID::from_raw(v)).collect(),
+                    Default::default(),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::EditPlaylistTitle {
+            playlist_id,
+            new_title,
+        } => {
+            get_string_output_of_query(
+                yt,
+                EditPlaylistQuery::new_title(PlaylistID::from_raw(playlist_id), new_title),
+                cli_query,
+            )
+            .await
+        }
+        Command::AddPlaylistToPlaylist {
+            playlist_id,
+            from_playlist_id,
+        } => {
+            get_string_output_of_query(
+                yt,
+                AddPlaylistItemsQuery::new_from_playlist(
+                    PlaylistID::from_raw(playlist_id),
+                    PlaylistID::from_raw(from_playlist_id),
                 ),
                 cli_query,
             )

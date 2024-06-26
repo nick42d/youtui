@@ -112,9 +112,8 @@ pub mod continuations {
 }
 
 pub mod lyrics {
-
     use super::Query;
-    use crate::common::{browsing::Lyrics, LyricsID};
+    use crate::common::{browsing::Lyrics, LyricsID, YoutubeID};
     use serde_json::json;
     use std::borrow::Cow;
 
@@ -125,7 +124,7 @@ pub mod lyrics {
         type Output = Lyrics;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
-                "browseId": self.id.0.as_ref(),
+                "browseId": self.id.get_raw(),
             }) else {
                 unreachable!()
             };

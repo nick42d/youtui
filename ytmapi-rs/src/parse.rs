@@ -392,7 +392,7 @@ mod lyrics {
     mod tests {
         use crate::{
             auth::BrowserToken,
-            common::{browsing::Lyrics, LyricsID},
+            common::{browsing::Lyrics, LyricsID, YoutubeID},
             query::lyrics::GetLyricsQuery,
             YtMusic,
         };
@@ -405,7 +405,7 @@ mod lyrics {
                 .await
                 .expect("Expect file read to pass during tests");
             // Blank query has no bearing on function
-            let query = GetLyricsQuery::new(LyricsID("".into()));
+            let query = GetLyricsQuery::new(LyricsID::from_raw(""));
             let output = YtMusic::<BrowserToken>::process_json(file, query).unwrap();
             assert_eq!(
                 output,

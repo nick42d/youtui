@@ -164,6 +164,7 @@ async fn test_delete_create_playlist() {
 #[tokio::test]
 async fn test_delete_create_playlist_complex() {
     // TODO: Add siginficantly more queries.
+    // TODO: Oauth.
     let api = new_standard_api().await.unwrap();
     let id = api
         .create_playlist(
@@ -178,6 +179,53 @@ async fn test_delete_create_playlist_complex() {
                 VideoID::from_raw("Av-gUkwzvzk"),
             ]),
         )
+        .await
+        .unwrap();
+    api.delete_playlist(id).await.unwrap();
+}
+#[tokio::test]
+async fn test_add_remove_playlist_items() {
+    // TODO: Oauth.
+    let api = new_standard_api().await.unwrap();
+    let id = api
+        .create_playlist(CreatePlaylistQuery::new(
+            "TEST PLAYLIST",
+            None,
+            PrivacyStatus::Unlisted,
+        ))
+        .await
+        .unwrap();
+    let set_video_ids = api
+        .add_playlist_video_items(AddPlaylistItemsQuery::new_from_videos(
+            id.clone(),
+            vec![VideoID::from_raw("kfSQkZuIx84")],
+            Default::default(),
+        ))
+        .await
+        .unwrap()
+        .into_iter()
+        .map(|item| item.set_video_id)
+        .collect();
+    api.remove_playlist_items(RemovePlaylistItemsQuery::new(id.clone(), set_video_ids))
+        .await
+        .unwrap();
+    api.delete_playlist(id).await.unwrap();
+}
+#[tokio::test]
+async fn test_edit_playlist() {
+    // TODO: Add siginficantly more queries.
+    // TODO: Oauth.
+    let api = new_standard_api().await.unwrap();
+    let id = api
+        .create_playlist(CreatePlaylistQuery::new(
+            "TEST PLAYLIST",
+            None,
+            PrivacyStatus::Unlisted,
+        ))
+        .await
+        .unwrap();
+    EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT")
+        .call(&api)
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();
@@ -366,7 +414,7 @@ async fn test_watch_playlist() {
     let example = WatchPlaylist {
         _tracks: Vec::new(),
         playlist_id: Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54")),
-        lyrics_id: LyricsID("MPLYt_C8aRK1qmsDJ-1".into()),
+        lyrics_id: LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"),
     };
     assert_eq!(res, example)
 }

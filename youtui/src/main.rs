@@ -5,10 +5,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::path::PathBuf;
-use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    query::PrivacyStatus,
-};
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 mod app;
 mod appevent;
@@ -120,6 +117,18 @@ enum Command {
     RemovePlaylistItems {
         playlist_id: String,
         video_ids: Vec<String>,
+    },
+    AddVideosToPlaylist {
+        playlist_id: String,
+        video_ids: Vec<String>,
+    },
+    AddPlaylistToPlaylist {
+        playlist_id: String,
+        from_playlist_id: String,
+    },
+    EditPlaylistTitle {
+        playlist_id: String,
+        new_title: String,
     },
 }
 

@@ -4,7 +4,7 @@ use crate::{
     query::Query,
     Error, Result,
 };
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Deserialize};
 use std::{slice::IterMut, sync::Arc};
 
 #[derive(Clone, PartialEq, Debug)]
