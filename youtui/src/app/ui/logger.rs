@@ -124,40 +124,40 @@ impl Logger {
         .await;
     }
     fn handle_toggle_hide_filtered(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::SpaceKey);
+        self.logger_state.transition(TuiWidgetEvent::SpaceKey);
     }
     fn handle_down(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::DownKey);
+        self.logger_state.transition(TuiWidgetEvent::DownKey);
     }
     fn handle_up(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::UpKey);
+        self.logger_state.transition(TuiWidgetEvent::UpKey);
     }
     fn handle_pgdown(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::NextPageKey);
+        self.logger_state.transition(TuiWidgetEvent::NextPageKey);
     }
     fn handle_pgup(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::PrevPageKey);
+        self.logger_state.transition(TuiWidgetEvent::PrevPageKey);
     }
     fn handle_reduce_shown(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::LeftKey);
+        self.logger_state.transition(TuiWidgetEvent::LeftKey);
     }
     fn handle_increase_shown(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::RightKey);
+        self.logger_state.transition(TuiWidgetEvent::RightKey);
     }
     fn handle_exit_page_mode(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::EscapeKey);
+        self.logger_state.transition(TuiWidgetEvent::EscapeKey);
     }
     fn handle_increase_captured(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::PlusKey);
+        self.logger_state.transition(TuiWidgetEvent::PlusKey);
     }
     fn handle_reduce_captured(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::MinusKey);
+        self.logger_state.transition(TuiWidgetEvent::MinusKey);
     }
     fn handle_toggle_target_focus(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::FocusKey);
+        self.logger_state.transition(TuiWidgetEvent::FocusKey);
     }
     fn handle_toggle_target_selector(&mut self) {
-        self.logger_state.transition(&TuiWidgetEvent::HideKey);
+        self.logger_state.transition(TuiWidgetEvent::HideKey);
     }
 }
 
