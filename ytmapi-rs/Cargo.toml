@@ -8,6 +8,9 @@ description = "An asynchronous (tokio) pure Rust API for Youtube Music using Goo
 homepage = "https://github.com/nick42d/youtui"
 repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
+exclude = [
+    "test_json/*",
+]
 
 [dependencies]
 tokio = {version = "1.38.0", features = ["full"]}
@@ -25,9 +28,6 @@ async-stream = "0.3.5"
 const_format = "0.2.32"
 chrono = "0.4.38"
 
-[dev-dependencies]
-pretty_assertions = "1.4.0"
-
 [features]
 # Provide alternative TLS options, but use reqwest's default by default.
 # NOTE: To use an alternative TLS, you will need to specify default-features = false
@@ -39,3 +39,9 @@ default = ["default-tls"]
 default-tls = ["reqwest/default-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+
+# Dev only section
+
+[dev-dependencies]
+pretty_assertions = "1.4.0"
+
