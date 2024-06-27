@@ -12,15 +12,18 @@ use ratatui::{
     prelude::{Margin, Rect},
     style::{Modifier, Style},
     symbols::{block, line},
+    text::{Line, Text},
     widgets::{
         block::{Position, Title},
-        Block, Borders, List, ListItem, ListState, Paragraph, Row, Scrollbar, ScrollbarOrientation,
-        ScrollbarState, Table, TableState,
+        Block, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Scrollbar,
+        ScrollbarOrientation, ScrollbarState, Table, TableState,
     },
     Frame,
 };
 
-pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec<Option<char>> {
+pub fn get_table_sort_character_array(
+    sort_commands: &[TableSortCommand],
+) -> Vec<Option<&'static str>> {
     let Some(max_col) = sort_commands
         .iter()
         .max_by_key(|c| c.column)
@@ -33,8 +36,8 @@ pub fn get_table_sort_character_array(sort_commands: &[TableSortCommand]) -> Vec
     sort_commands.iter().fold(temp_vec, |mut acc, e| {
         // We created the Vec to accomodate max col above so this is safe.
         acc[e.column] = match e.direction {
-            super::SortDirection::Asc => Some(''),
-            super::SortDirection::Desc => Some(''),
+            super::SortDirection::Asc => Some(""),
+            super::SortDirection::Desc => Some(""),
         };
         acc
     })
@@ -175,17 +178,24 @@ pub fn draw_sortable_table<T>(
         1,
     ); // Minus block
     let heading_names = table.get_headings();
-    let mut sort_headings = get_table_sort_character_array(table.get_sort_commands()).into_iter();
+    let sort_headings = get_table_sort_character_array(table.get_sort_commands())
+        .into_iter()
+        .chain(std::iter::repeat(None));
     let sortable_headings = table.get_sortable_columns();
-    let combined_headings = heading_names.enumerate().map(|(i, h)| {
-        let mut hstr = h.to_string();
-        let sort_char = sort_headings.next().unwrap_or_default().unwrap_or_default();
-        if sort_char == '\x00' && sortable_headings.contains(&i) {
-            hstr.push('');
-        }
-        hstr.push(sort_char);
-        hstr
-    });
+    // TODO: Improve how we do this - may not need to use the enumerate/contains
+    let combined_headings =
+        heading_names
+            .zip(sort_headings)
+            .enumerate()
+            .map(|(idx, (heading, sort_char))| {
+                if let Some(sort_char) = sort_char {
+                    Cell::from(Line::from_iter([heading, sort_char]))
+                } else if sortable_headings.contains(&idx) {
+                    Cell::from(Line::from_iter([heading, ""]))
+                } else {
+                    Cell::from(heading)
+                }
+            });
     let filter_str: String = itertools::intersperse(
         table
             .get_filter_commands()
