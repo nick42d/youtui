@@ -2,7 +2,7 @@ use super::Query;
 use crate::{
     common::{PlaylistID, SetVideoID, YoutubeID},
     parse::{ApiSuccess, GetPlaylist},
-    Error, Result, VideoID,
+    Error, Result,
 };
 pub use additems::*;
 pub use create::*;

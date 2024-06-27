@@ -72,7 +72,6 @@ use query::{
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
-    SpecialisedQuery,
 };
 use reqwest::Client;
 use std::path::Path;
