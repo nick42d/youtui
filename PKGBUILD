@@ -1,7 +1,7 @@
 # Maintainer: Nick Dowsett <nickdowsett42@gmail.com>
 
 pkgname=youtui
-pkgver=0.0.4
+pkgver=0.0.5
 pkgrel=1
 pkgdesc="A simple TUI YouTube Music player written in Rust aiming to implement an Artist->Albums workflow for searching for music, and using discoverability principles for navigation. Writtten in Rust."
 url="https://github.com/nick42d/youtui"
