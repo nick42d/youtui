@@ -6,9 +6,42 @@ use crate::nav_consts::{
     GRID, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
     SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
 };
-use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
+use crate::query::{
+    GetLibraryAlbumsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+    GetLibrarySubscriptionsQuery,
+};
 use crate::{Result, Thumbnail};
 use const_format::concatcp;
+
+impl ParseFrom<GetLibrarySubscriptionsQuery> for () {
+    fn parse_from(
+        p: ProcessedResult<GetLibrarySubscriptionsQuery>,
+    ) -> crate::Result<<GetLibrarySubscriptionsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_subscriptions(json_crawler)
+    }
+}
+
+impl ParseFrom<GetLibraryAlbumsQuery> for () {
+    fn parse_from(
+        p: ProcessedResult<GetLibraryAlbumsQuery>,
+    ) -> crate::Result<<GetLibraryAlbumsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_albums(json_crawler)
+    }
+}
+
+impl ParseFrom<GetLibrarySongsQuery> for () {
+    fn parse_from(
+        p: ProcessedResult<GetLibrarySongsQuery>,
+    ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_songs(json_crawler)
+    }
+}
 
 impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     fn parse_from(
@@ -29,6 +62,18 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
         let json_crawler = p.into();
         parse_library_playlist_query(json_crawler)
     }
+}
+
+fn parse_library_albums(json_crawler: JsonCrawler) -> std::prelude::v1::Result<(), crate::Error> {
+    todo!()
+}
+fn parse_library_songs(json_crawler: JsonCrawler) -> std::prelude::v1::Result<(), crate::Error> {
+    todo!()
+}
+fn parse_library_subscriptions(
+    json_crawler: JsonCrawler,
+) -> std::prelude::v1::Result<(), crate::Error> {
+    todo!()
 }
 
 fn parse_library_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
@@ -271,5 +316,32 @@ mod tests {
         );
         let expected: Vec<LibraryArtist> = serde_json::from_value(expected).unwrap();
         assert_eq!(result, expected);
+    }
+    #[tokio::test]
+    async fn test_get_library_albums() {
+        parse_test!(
+            "",
+            "",
+            crate::query::GetLibraryAlbumsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_songs() {
+        parse_test!(
+            "",
+            "",
+            crate::query::GetLibrarySongsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_subscriptions() {
+        parse_test!(
+            "",
+            "",
+            crate::query::GetLibrarySubscriptionsQuery::default(),
+            BrowserToken
+        );
     }
 }

@@ -41,7 +41,6 @@ pub fn hash_sapisid(sapisid: &str) -> String {
     format!("{elapsed}_{hex}")
 }
 
-#[macro_export]
 /// Macro to generate the boilerplate code that allows implementation of
 /// YoutubeID for a simple struct.
 macro_rules! impl_youtube_id {
@@ -54,5 +53,25 @@ macro_rules! impl_youtube_id {
                 Self(raw_str.into())
             }
         }
+    };
+}
+
+/// Macro to generate a parsing test based on the following values:
+/// Input file, output file, query, token
+#[cfg(test)]
+macro_rules! parse_test {
+    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+        let source_path = std::path::Path::new($in);
+        let expected_path = std::path::Path::new($out);
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let output = YtMusic::<$token>::process_json(source, $query).unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
     };
 }

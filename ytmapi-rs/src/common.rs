@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-use crate::{impl_youtube_id, Error};
+use crate::Error;
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.

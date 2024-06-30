@@ -70,14 +70,16 @@ use query::{
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryAlbumsQuery, GetLibraryArtistsQuery,
+    GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetLibrarySubscriptionsQuery, GetPlaylistQuery,
+    GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
 
 // TODO: Confirm if auth should be pub
 pub mod auth;
+#[macro_use]
 mod utils;
 mod locales {}
 mod nav_consts;
@@ -308,6 +310,30 @@ impl<A: AuthToken> YtMusic<A> {
         query: GetLibraryArtistsQuery,
     ) -> Result<Vec<LibraryArtist>> {
         query.call(self).await
+    }
+    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) {
+        query.call(self).await
+    }
+    pub async fn get_library_albums(&self, query: GetLibraryAlbumsQuery) {
+        query.call(self).await
+    }
+    pub async fn get_library_subscriptions(&self, query: GetLibrarySubscriptionsQuery) {
+        query.call(self).await
+    }
+    pub async fn get_history() {
+        todo!()
+    }
+    pub async fn add_history_item() {
+        todo!()
+    }
+    pub async fn remove_history_item() {
+        todo!()
+    }
+    pub async fn rate_song() {
+        todo!()
+    }
+    pub async fn rate_playlist() {
+        todo!()
     }
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,
