@@ -115,7 +115,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
-                .map(|params| BrowseParams::from_raw(params))
+                .map(BrowseParams::from_raw)
                 .ok();
             // TODO: finish other categories
             match category {
@@ -128,7 +128,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                         results.push(parse_album_from_mtrir(i.navigate_pointer(MTRIR)?)?);
                     }
                     let albums = GetArtistAlbums {
-                        browse_id: browse_id.map(|id| AlbumID::from_raw(id)),
+                        browse_id: browse_id.map(AlbumID::from_raw),
                         params,
                         results,
                     };
@@ -461,7 +461,6 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
         for mut r in json_crawler
             .borrow_mut()
             .into_array_iter_mut()?
-            .into_iter()
             .flat_map(|i| i.navigate_pointer(MTRIR))
         {
             let browse_id = r.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;

@@ -86,26 +86,18 @@ impl Error {
     }
     // Only used for tests currently.
     pub(crate) fn is_oauth_expired(&self) -> bool {
-        if let ErrorKind::OAuthTokenExpired = *self.inner {
-            true
-        } else {
-            false
-        }
+        matches!(*self.inner, ErrorKind::OAuthTokenExpired)
     }
     // Only used for tests currently.
     pub(crate) fn is_browser_authentication_failed(&self) -> bool {
-        if let ErrorKind::BrowserAuthenticationFailed = *self.inner {
-            true
-        } else {
-            false
-        }
+        matches!(*self.inner, ErrorKind::BrowserAuthenticationFailed)
     }
     /// If an error is a Navigation or Parsing error, return the source Json and
     /// key at the location of the error.
     pub fn get_json_and_key(&self) -> Option<(String, &String)> {
         match self.inner.as_ref() {
-            ErrorKind::Navigation { json, key } => Some((json.to_string(), &key)),
-            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), &key)),
+            ErrorKind::Navigation { json, key } => Some((json.to_string(), key)),
+            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
             ErrorKind::Web(_)
             | ErrorKind::Io(_)
             | ErrorKind::InvalidResponse { .. }

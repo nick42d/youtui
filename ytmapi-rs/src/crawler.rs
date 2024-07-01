@@ -131,7 +131,7 @@ impl Iterator for JsonCrawlerArrayIntoIter {
     }
 }
 // Default implementation is correct, due to implementation of size_hint.
-impl<'a> ExactSizeIterator for JsonCrawlerArrayIntoIter {}
+impl ExactSizeIterator for JsonCrawlerArrayIntoIter {}
 
 impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn into_array_iter_mut(self) -> Result<JsonCrawlerArrayIterMut<'a>> {
@@ -243,11 +243,11 @@ impl JsonCrawler {
                 cur: 0,
             });
         }
-        return Err(Error::parsing(
+        Err(Error::parsing(
             &self.path,
             self.source.clone(),
             ParseTarget::Array,
-        ));
+        ))
     }
     pub fn as_array_iter_mut(&mut self) -> Result<JsonCrawlerArrayIterMut<'_>> {
         let json_array = self

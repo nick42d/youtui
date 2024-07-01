@@ -4,7 +4,7 @@ use super::{
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
-use crate::crawler::{JsonCrawler};
+use crate::crawler::JsonCrawler;
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
     SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
@@ -86,7 +86,7 @@ fn parse_library_albums(
     ))?;
     items
         .into_array_into_iter()?
-        .map(|r| parse_item_list_albums(r))
+        .map(parse_item_list_albums)
         .collect()
 }
 fn parse_library_songs(
@@ -113,7 +113,7 @@ fn parse_library_artist_subscriptions(
     ))?;
     contents
         .into_array_into_iter()?
-        .map(|r| parse_content_list_artist_subscriptions(r))
+        .map(parse_content_list_artist_subscriptions)
         .collect()
 }
 

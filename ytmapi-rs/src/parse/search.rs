@@ -309,7 +309,7 @@ fn parse_album_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultAlbum> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let artist = parse_item_text(&mut mrlir, 0, 0)?;
-    let album_type = parse_item_text(&mut mrlir, 1, 0).and_then(|a| AlbumType::try_from_str(a))?;
+    let album_type = parse_item_text(&mut mrlir, 1, 0).and_then(AlbumType::try_from_str)?;
     let title = parse_item_text(&mut mrlir, 1, 2)?;
     let year = parse_item_text(&mut mrlir, 1, 4)?;
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
@@ -374,14 +374,14 @@ fn parse_video_search_result_from_music_shelf_contents(
             let length = parse_item_text(&mut mrlir, 1, 6)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-            return Ok(SearchResultVideo::Video {
+            Ok(SearchResultVideo::Video {
                 title,
                 channel_name,
                 views,
                 length,
                 thumbnails,
                 video_id,
-            });
+            })
         }
         "Episode" => {
             //TODO: Handle live episode
@@ -391,13 +391,13 @@ fn parse_video_search_result_from_music_shelf_contents(
             let channel_name = parse_item_text(&mut mrlir, 1, 4)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-            return Ok(SearchResultVideo::VideoEpisode {
+            Ok(SearchResultVideo::VideoEpisode {
                 title,
                 channel_name,
                 date,
                 thumbnails,
                 video_id,
-            });
+            })
         }
         _ => {
             // Assume that if a watch endpoint exists, it's a video.
@@ -407,26 +407,26 @@ fn parse_video_search_result_from_music_shelf_contents(
             let length = parse_item_text(&mut mrlir, 1, 4)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-            return Ok(SearchResultVideo::Video {
+            Ok(SearchResultVideo::Video {
                 title,
                 channel_name: first_field,
                 views,
                 length,
                 thumbnails,
                 video_id,
-            });
+            })
             } else {
             let channel_name = parse_item_text(&mut mrlir, 1, 2)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-            return Ok(SearchResultVideo::VideoEpisode {
+            Ok(SearchResultVideo::VideoEpisode {
                 title,
                 channel_name,
             //TODO: Handle live episode
                 date: EpisodeDate::Recorded { date: first_field },
                 thumbnails,
                 video_id,
-            });
+            })
             }
         }
     }
@@ -893,9 +893,9 @@ impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
             {
                 for mut r in search_suggestion.into_array_iter_mut()? {
                     if let Ok(true) = r.take_value_pointer("/bold") {
-                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
+                        runs.push(r.take_value_pointer("/text").map(TextRun::Bold)?)
                     } else {
-                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
+                        runs.push(r.take_value_pointer("/text").map(TextRun::Normal)?)
                     }
                 }
                 results.push(SearchSuggestion::new(SuggestionType::Prediction, runs))
@@ -905,9 +905,9 @@ impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
                     .into_array_iter_mut()?
                 {
                     if let Ok(true) = r.take_value_pointer("/bold") {
-                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Bold(s))?)
+                        runs.push(r.take_value_pointer("/text").map(TextRun::Bold)?)
                     } else {
-                        runs.push(r.take_value_pointer("/text").map(|s| TextRun::Normal(s))?)
+                        runs.push(r.take_value_pointer("/text").map(TextRun::Normal)?)
                     }
                 }
                 results.push(SearchSuggestion::new(SuggestionType::History, runs))

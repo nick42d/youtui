@@ -112,7 +112,7 @@ impl BrowserToken {
             .split_once("INNERTUBE_CLIENT_VERSION\":\"")
             .ok_or(Error::header())?
             .1
-            .split_once("\"")
+            .split_once('\"')
             .ok_or(Error::header())?
             .0
             .to_string();
@@ -120,7 +120,7 @@ impl BrowserToken {
             .split_once("SAPISID=")
             .ok_or(Error::header())?
             .1
-            .split_once(";")
+            .split_once(';')
             .ok_or(Error::header())?
             .0
             .to_string();

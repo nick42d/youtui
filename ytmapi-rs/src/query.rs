@@ -85,7 +85,7 @@ pub mod continuations {
     }
     impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
         fn parse_from(
-            p: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
+            _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
         ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query>::Output>
         {
             todo!()

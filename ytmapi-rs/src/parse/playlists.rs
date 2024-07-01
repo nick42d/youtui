@@ -51,7 +51,7 @@ pub struct AddPlaylistItem {
 
 impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
     fn parse_from(
-        p: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
+        _: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
     ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query>::Output> {
         Ok(ApiSuccess {})
     }
@@ -72,9 +72,7 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
         let status: String = json_crawler.borrow_pointer("/status")?.take_value()?;
         match status.as_str() {
             "STATUS_SUCCEEDED" => (),
-            "STATUS_FAILED" => {
-                return Err(Error::other(format!("STATUS_FAILED received from API")))
-            }
+            "STATUS_FAILED" => return Err(Error::other("STATUS_FAILED received from API")),
             other => {
                 return Err(Error::other(format!(
                     "Unknown status {other} received from API"
@@ -101,18 +99,16 @@ impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiSuccess {
         let json_crawler: JsonCrawler = p.into();
         let status: String = json_crawler.navigate_pointer("/status")?.take_value()?;
         match status.as_str() {
-            "STATUS_SUCCEEDED" => return Ok(ApiSuccess {}),
-            other => {
-                return Err(Error::other(format!(
-                    "Unknown status {other} received from API"
-                )))
-            }
+            "STATUS_SUCCEEDED" => Ok(ApiSuccess {}),
+            other => Err(Error::other(format!(
+                "Unknown status {other} received from API"
+            ))),
         }
     }
 }
 impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
     fn parse_from(
-        p: ProcessedResult<DeletePlaylistQuery<'a>>,
+        _: ProcessedResult<DeletePlaylistQuery<'a>>,
     ) -> crate::Result<<DeletePlaylistQuery<'a> as crate::query::Query>::Output> {
         Ok(ApiSuccess {})
     }
@@ -277,7 +273,7 @@ mod tests {
             PlaylistID::from_raw(""),
         );
         let output = YtMusic::<BrowserToken>::process_json(source, query);
-        let err: crate::Result<()> = Err(Error::other(format!("STATUS_FAILED received from API")));
+        let err: crate::Result<()> = Err(Error::other("STATUS_FAILED received from API"));
         assert_eq!(format!("{:?}", err), format!("{:?}", output));
     }
     #[tokio::test]
