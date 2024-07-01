@@ -1,0 +1,1178 @@
+[
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: None,
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Shuffle all",
+            like_status: None,
+            thumbnails: [],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "",
+        ),
+        track_no: 1,
+        album: None,
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "3:19",
+            ),
+            feedback_tok_add: Some(
+                "AB9zfpJweMFK78ZGc4BVhcuxCGJtNl71EWLk8ZA7fWlN7V_jx2YL9oIqabHbfm2csGUByk0CMZpQcs0v0Ty46j_pgZdwlQsjrA",
+            ),
+            feedback_tok_rem: Some(
+                "AB9zfpKKiYM8ID11llmuHbgtddkSkXfhixNrFwD25CginkqpNM9KBvl1E3fszJOXruitt256O5_17FvUx9chLjB5WVAdLUDrLw",
+            ),
+            title: "The Winter of Our Passing",
+            like_status: Some(
+                "LIKE",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: true,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "0Toq8VrbLTQ",
+        ),
+        track_no: 2,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "City Burials",
+                ),
+                id: Some(
+                    "MPREb_6SxVm1I0tl9",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "1:19",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Pyramid Strings",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "-7avE0GKZrA",
+        ),
+        track_no: 3,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "5:33",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "How to Disappear into Strings",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "1ACmCuuIaMQ",
+        ),
+        track_no: 4,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "0:47",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Untitled v2",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "1WzCN1syZfc",
+        ),
+        track_no: 5,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:36",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Morning Bell",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "1pTnps5RQeE",
+        ),
+        track_no: 6,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "0:53",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Untitled",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "2Hjrxn8qeig",
+        ),
+        track_no: 7,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "2:26",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Fog (Again Again Version)",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "9vPi8mWg-_8",
+        ),
+        track_no: 8,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "3:15",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Morning Bell/Amnesiac",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "DWoL_N4zXUI",
+        ),
+        track_no: 9,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:21",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "If You Say the Word",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "GcIyKK8m4qo",
+        ),
+        track_no: 10,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "3:21",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Motion Picture Soundtrack",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "Gy9sQ_7bMk8",
+        ),
+        track_no: 11,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "5:57",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "How to Disappear Completely",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "HY_UbJ3rEfY",
+        ),
+        track_no: 12,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:01",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Packt Like Sardines In a Crushd Tin Box",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "JFMq6lCJdHA",
+        ),
+        track_no: 13,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "5:10",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Idioteque",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "LyVB_52G4pg",
+        ),
+        track_no: 14,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:52",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Dollars and Cents",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "NGL_j8T1YVE",
+        ),
+        track_no: 15,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:54",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "I Might Be Wrong",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "OYe7gqwrkro",
+        ),
+        track_no: 16,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:08",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Pulk/Pull Revolving Doors",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "Ps6txeTlzkg",
+        ),
+        track_no: 17,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "5:05",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Like Spinning Plates ('Why Us?' Version)",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "QhHMJkeF8zo",
+        ),
+        track_no: 18,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "3:58",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Like Spinning Plates",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "SKUdDojvq4E",
+        ),
+        track_no: 19,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:45",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Kid A",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "TOfU3wVpwZQ",
+        ),
+        track_no: 20,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "1:49",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Untitled v1",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "ZTvniQgAQ0o",
+        ),
+        track_no: 21,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "2:02",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Hunting Bears",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "ZtdW3HTUQqo",
+        ),
+        track_no: 22,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "2:47",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Pulk/Pull (True Love Waits Version)",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "cDQ7raytW0M",
+        ),
+        track_no: 23,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "4:12",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Everything In Its Right Place",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "d9zk2j3JPK4",
+        ),
+        track_no: 24,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "1:33",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Alt. Fast Track",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "dJV-1zkaTq8",
+        ),
+        track_no: 25,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+    SongResult {
+        core: ResultCore {
+            set_video_id: None,
+            duration: Some(
+                "3:43",
+            ),
+            feedback_tok_add: None,
+            feedback_tok_rem: None,
+            title: "Treefingers",
+            like_status: Some(
+                "INDIFFERENT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            is_available: true,
+            is_explicit: false,
+            video_type: None,
+            browse_id: None,
+            playlist_id: None,
+            playlist_subtitle: None,
+        },
+        video_id: VideoID(
+            "gA0J1V1_pXM",
+        ),
+        track_no: 26,
+        album: Some(
+            ParsedSongAlbum {
+                name: Some(
+                    "KID A MNESIA",
+                ),
+                id: Some(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+        ),
+    },
+]

@@ -67,7 +67,10 @@ pub enum ErrorKind {
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
     /// Recieved an error code in the Json reply from InnerTube.
-    OtherErrorCodeInResponse(u64),
+    OtherErrorCodeInResponse {
+        code: u64,
+        message: String,
+    },
 }
 /// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
@@ -83,33 +86,25 @@ impl Error {
     }
     // Only used for tests currently.
     pub(crate) fn is_oauth_expired(&self) -> bool {
-        if let ErrorKind::OAuthTokenExpired = *self.inner {
-            true
-        } else {
-            false
-        }
+        matches!(*self.inner, ErrorKind::OAuthTokenExpired)
     }
     // Only used for tests currently.
     pub(crate) fn is_browser_authentication_failed(&self) -> bool {
-        if let ErrorKind::BrowserAuthenticationFailed = *self.inner {
-            true
-        } else {
-            false
-        }
+        matches!(*self.inner, ErrorKind::BrowserAuthenticationFailed)
     }
     /// If an error is a Navigation or Parsing error, return the source Json and
     /// key at the location of the error.
     pub fn get_json_and_key(&self) -> Option<(String, &String)> {
         match self.inner.as_ref() {
-            ErrorKind::Navigation { json, key } => Some((json.to_string(), &key)),
-            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), &key)),
+            ErrorKind::Navigation { json, key } => Some((json.to_string(), key)),
+            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
             ErrorKind::Web(_)
             | ErrorKind::Io(_)
             | ErrorKind::InvalidResponse { .. }
             | ErrorKind::Header
             | ErrorKind::Other(_)
             | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
-            | ErrorKind::OtherErrorCodeInResponse(_)
+            | ErrorKind::OtherErrorCodeInResponse { .. }
             | ErrorKind::OAuthTokenExpired
             | ErrorKind::BrowserAuthenticationFailed
             | ErrorKind::InvalidUserAgent(_) => None,
@@ -172,9 +167,9 @@ impl Error {
             inner: Box::new(ErrorKind::Other(msg.into())),
         }
     }
-    pub(crate) fn other_code(code: u64) -> Self {
+    pub(crate) fn other_code(code: u64, message: String) -> Self {
         Self {
-            inner: Box::new(ErrorKind::OtherErrorCodeInResponse(code)),
+            inner: Box::new(ErrorKind::OtherErrorCodeInResponse { code, message }),
         }
     }
 }
@@ -190,8 +185,11 @@ impl Display for ErrorKind {
                 write!(f, "Response is invalid json - unable to deserialize.")
             }
             ErrorKind::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
-            ErrorKind::OtherErrorCodeInResponse(code) => {
-                write!(f, "Http error code {code} recieved in response.")
+            ErrorKind::OtherErrorCodeInResponse { code, message } => {
+                write!(
+                    f,
+                    "Http error code {code} recieved in response. Message: <{message}>."
+                )
             }
             ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")

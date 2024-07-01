@@ -155,120 +155,120 @@ impl FilteredSearchType for ProfilesFilter {
 impl<'a> Query for SearchQuery<'a, FilteredSearch<SongsFilter>> {
     type Output = Vec<SearchResultSong>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
     type Output = Vec<SearchResultPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> {
     type Output = Vec<SearchResultPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
     type Output = Vec<SearchResultAlbum>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
     type Output = Vec<SearchResultArtist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> {
     type Output = Vec<SearchResultFeaturedPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
     type Output = Vec<SearchResultEpisode>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
     type Output = Vec<SearchResultPodcast>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<VideosFilter>> {
     type Output = Vec<SearchResultVideo>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 impl<'a> Query for SearchQuery<'a, FilteredSearch<ProfilesFilter>> {
     type Output = Vec<SearchResultProfile>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }

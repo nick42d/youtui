@@ -1,13 +1,47 @@
-use crate::common::library::{LibraryArtist, Playlist};
+use super::Query;
+use crate::{
+    common::library::{LibraryArtist, Playlist},
+    parse::{GetLibraryArtistSubscription, SearchResultAlbum, SongResult},
+};
+use serde_json::json;
+use std::borrow::Cow;
 
 // NOTE: Authentication is required to use the queries in this module.
 // Currently, all queries are implemented with authentication however in future
 // this could be scaled back.
-use super::Query;
-use serde_json::json;
-use std::borrow::Cow;
+
+#[derive(Default)]
+pub enum GetLibrarySortOrder {
+    NameAsc,
+    NameDesc,
+    MostSongs,
+    RecentlySaved,
+    #[default]
+    Default,
+}
 
 pub struct GetLibraryPlaylistsQuery;
+#[derive(Default)]
+// TODO: Method to add sort order
+pub struct GetLibrarySongsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+#[derive(Default)]
+// TODO: Method to add sort order
+pub struct GetLibraryAlbumsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+#[derive(Default)]
+// TODO: Method to add sort order
+pub struct GetLibraryArtistSubscriptionsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+#[derive(Default)]
+// TODO: Method to add sort order
+pub struct GetLibraryArtistsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+
 impl Query for GetLibraryPlaylistsQuery {
     type Output = Vec<Playlist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
@@ -25,21 +59,6 @@ impl Query for GetLibraryPlaylistsQuery {
         None
     }
 }
-#[derive(Default)]
-pub enum LibraryArtistsSortOrder {
-    NameAsc,
-    NameDesc,
-    MostSongs,
-    RecentlySaved,
-    #[default]
-    Default,
-}
-
-#[derive(Default)]
-// TODO: Method to add filter
-pub struct GetLibraryArtistsQuery {
-    sort_order: LibraryArtistsSortOrder,
-}
 impl Query for GetLibraryArtistsQuery {
     type Output = Vec<LibraryArtist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
@@ -54,18 +73,68 @@ impl Query for GetLibraryArtistsQuery {
         "browse"
     }
     fn params(&self) -> Option<Cow<str>> {
-        // determine order_params via
-        // `.contents.singleColumnBrowseResultsRenderer.tabs[0] .tabRenderer.
-        // content.sectionListRenderer.contents[1] .itemSectionRenderer.header.
-        // itemSectionTabbedHeaderRenderer.endItems[1] .dropdownRenderer.
-        // entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
-        // of `/youtubei/v1/browse` response
-        match self.sort_order {
-            LibraryArtistsSortOrder::NameAsc => Some("ggMGKgQIARAA".into()),
-            LibraryArtistsSortOrder::NameDesc => Some("ggMGKgQIABAB".into()),
-            LibraryArtistsSortOrder::MostSongs => todo!(),
-            LibraryArtistsSortOrder::RecentlySaved => Some("ggMGKgQIABAB".into()),
-            LibraryArtistsSortOrder::Default => None,
-        }
+        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    }
+}
+
+impl Query for GetLibrarySongsQuery {
+    type Output = Vec<SongResult>
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_videos"))])
+    }
+    fn params(&self) -> Option<Cow<str>> {
+        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+impl Query for GetLibraryAlbumsQuery {
+    type Output = Vec<SearchResultAlbum>
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_albums"))])
+    }
+    fn params(&self) -> Option<Cow<str>> {
+        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+impl Query for GetLibraryArtistSubscriptionsQuery {
+    type Output = Vec<GetLibraryArtistSubscription>
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([(
+            "browseId".to_string(),
+            json!("FEmusic_library_corpus_artists"),
+        )])
+    }
+    fn params(&self) -> Option<Cow<str>> {
+        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+
+fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static str> {
+    // determine order_params via
+    // `.contents.singleColumnBrowseResultsRenderer.tabs[0] .tabRenderer.
+    // content.sectionListRenderer.contents[1] .itemSectionRenderer.header.
+    // itemSectionTabbedHeaderRenderer.endItems[1] .dropdownRenderer.
+    // entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
+    // of `/youtubei/v1/browse` response
+    match o {
+        GetLibrarySortOrder::NameAsc => Some("ggMGKgQIARAA"),
+        GetLibrarySortOrder::NameDesc => Some("ggMGKgQIABAB"),
+        GetLibrarySortOrder::MostSongs => todo!(),
+        GetLibrarySortOrder::RecentlySaved => Some("ggMGKgQIABAB"),
+        GetLibrarySortOrder::Default => None,
     }
 }

@@ -7,7 +7,7 @@ license = "MIT"
 description = "A simple TUI YouTube Music player"
 homepage = "https://github.com/nick42d/youtui"
 repository = "https://github.com/nick42d/youtui"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
 # Required for async trait support

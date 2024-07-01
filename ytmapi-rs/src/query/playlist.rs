@@ -9,7 +9,7 @@ pub use create::*;
 pub use edit::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 
 pub mod additems;
 pub mod create;
@@ -41,14 +41,14 @@ impl TryFrom<&str> for PrivacyStatus {
         }
     }
 }
-impl ToString for PrivacyStatus {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for PrivacyStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let str = match self {
             PrivacyStatus::Public => "PUBLIC",
             PrivacyStatus::Private => "PRIVATE",
             PrivacyStatus::Unlisted => "UNLISTED",
-        }
-        .to_string()
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -123,9 +123,9 @@ impl<'a> Query for DeletePlaylistQuery<'a> {
         None
     }
 }
-impl<'a> Into<DeletePlaylistQuery<'a>> for PlaylistID<'a> {
-    fn into(self) -> DeletePlaylistQuery<'a> {
-        DeletePlaylistQuery { id: self }
+impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
+    fn from(value: PlaylistID<'a>) -> Self {
+        DeletePlaylistQuery { id: value }
     }
 }
 

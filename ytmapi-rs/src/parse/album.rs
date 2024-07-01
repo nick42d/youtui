@@ -46,7 +46,7 @@ pub struct AlbumParams {
 pub(crate) struct MusicShelfContents<'a> {
     pub json: JsonCrawlerBorrowed<'a>,
 }
-impl<'a, 'b> MusicShelfContents<'a> {
+impl<'a> MusicShelfContents<'a> {
     pub fn from_crawler(crawler: JsonCrawlerBorrowed<'a>) -> Self {
         Self { json: crawler }
     }
@@ -167,7 +167,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
         .and_then(|s| s.into_array_iter_mut().ok())
         .and_then(|mut a| {
             if a.len() > 1 {
-                a.nth(0)
+                a.next()
                     .and_then(|mut v| v.take_value_pointer("/text").ok())
             } else {
                 None
@@ -182,7 +182,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
                 a.nth(2)
                     .and_then(|mut v| v.take_value_pointer("/text").ok())
             } else {
-                a.nth(0)
+                a.next()
                     .and_then(|mut v| v.take_value_pointer("/text").ok())
             }
         })
