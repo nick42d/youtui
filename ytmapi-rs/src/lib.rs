@@ -35,7 +35,7 @@
 //! NOTE: To use an alternative TLS, you will need to specify `default-features
 //! = false`. As reqwest preferentially uses default-tls when multiple TLS
 //! features are enabled. See reqwest docs for more information.
-//! https://docs.rs/reqwest/latest/reqwest/tls/index.html
+//! <https://docs.rs/reqwest/latest/reqwest/tls/index.html>
 //! - **default-tls** *(enabled by default)*: Utilises the default TLS from
 //!   reqwest - at the time of writing is native-tls.
 //! - **native-tls**: This feature forces use of the the native-tls crate,
