@@ -79,14 +79,14 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
 fn parse_library_albums(
     json_crawler: JsonCrawler,
 ) -> std::prelude::v1::Result<Vec<SearchResultAlbum>, crate::Error> {
-    let mut items = json_crawler.navigate_pointer(concatcp!(
+    let items = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
         GRID_ITEMS
     ))?;
     items
-        .as_array_iter_mut()?
-        .map(|mut r| parse_item_list_albums(&mut r))
+        .into_array_into_iter()?
+        .map(|r| parse_item_list_albums(r))
         .collect()
 }
 fn parse_library_songs(json_crawler: JsonCrawler) -> std::prelude::v1::Result<(), crate::Error> {
@@ -102,8 +102,8 @@ fn parse_library_artist_subscriptions(
         "/contents"
     ))?;
     contents
-        .as_array_iter_mut()?
-        .map(|mut r| parse_content_list_artist_subscriptions(&mut r))
+        .into_array_into_iter()?
+        .map(|mut r| parse_content_list_artist_subscriptions(r))
         .collect()
 }
 
@@ -162,7 +162,7 @@ fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option
     }
 }
 
-fn parse_item_list_albums(json_crawler: &mut JsonCrawlerBorrowed) -> Result<SearchResultAlbum> {
+fn parse_item_list_albums(mut json_crawler: JsonCrawler) -> Result<SearchResultAlbum> {
     let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
     let browse_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
@@ -187,7 +187,7 @@ fn parse_item_list_albums(json_crawler: &mut JsonCrawlerBorrowed) -> Result<Sear
 }
 
 fn parse_content_list_artist_subscriptions(
-    json_crawler: &mut JsonCrawlerBorrowed,
+    mut json_crawler: JsonCrawler,
 ) -> Result<GetLibraryArtistSubscription> {
     let mut data = json_crawler.borrow_pointer(MRLIR)?;
     let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
