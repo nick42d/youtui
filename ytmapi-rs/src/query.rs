@@ -4,6 +4,7 @@ use crate::parse::ParseFrom;
 use crate::{Result, YtMusic};
 pub use album::*;
 pub use artist::*;
+pub use history::*;
 pub use library::*;
 pub use playlist::*;
 pub use search::*;
@@ -11,6 +12,7 @@ use std::borrow::Cow;
 use std::future::Future;
 
 mod artist;
+mod history;
 mod library;
 mod playlist;
 mod search;

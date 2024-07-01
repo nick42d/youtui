@@ -133,6 +133,11 @@ enum Command {
         playlist_id: String,
         new_title: String,
     },
+    GetHistory,
+    AddHistoryItem,
+    RemoveHistoryItems {
+        feedback_tokens: Vec<String>,
+    },
 }
 
 pub struct RuntimeInfo {

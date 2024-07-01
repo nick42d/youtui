@@ -2,13 +2,13 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{AlbumID, BrowseParams, PlaylistID, SetVideoID, YoutubeID},
     query::{
-        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
-        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
-        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
-        GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
+        AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
+        CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+        EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
+        GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
+        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID, YtMusic,
 };
@@ -247,6 +247,13 @@ pub async fn command_to_query<A: AuthToken>(
         Command::GetLibraryArtistSubscriptions => {
             get_string_output_of_query(yt, GetLibraryArtistSubscriptionsQuery::default(), cli_query)
                 .await
+        }
+        Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery {}, cli_query).await,
+        Command::AddHistoryItem => {
+            get_string_output_of_query(yt, AddHistoryItemQuery {}, cli_query).await
+        }
+        Command::RemoveHistoryItems { feedback_tokens } => {
+            get_string_output_of_query(yt, RemoveHistoryItemsQuery {}, cli_query).await
         }
     }
 }
