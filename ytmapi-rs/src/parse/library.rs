@@ -1,6 +1,7 @@
 use super::{
-    parse_item_text, ParseFrom, ProcessedResult, SearchResultAlbum, BADGE_LABEL, SUBTITLE,
-    SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS, TWO_COLUMN,
+    parse_item_text, parse_playlist_items, ParseFrom, ProcessedResult, SearchResultAlbum,
+    SongResult, BADGE_LABEL, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    TWO_COLUMN,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
@@ -45,7 +46,7 @@ impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
     }
 }
 
-impl ParseFrom<GetLibrarySongsQuery> for () {
+impl ParseFrom<GetLibrarySongsQuery> for Vec<SongResult> {
     fn parse_from(
         p: ProcessedResult<GetLibrarySongsQuery>,
     ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query>::Output> {
@@ -89,13 +90,23 @@ fn parse_library_albums(
         .map(|r| parse_item_list_albums(r))
         .collect()
 }
-fn parse_library_songs(json_crawler: JsonCrawler) -> std::prelude::v1::Result<(), crate::Error> {
-    todo!()
+fn parse_library_songs(
+    json_crawler: JsonCrawler,
+) -> std::prelude::v1::Result<Vec<SongResult>, crate::Error> {
+    let mut contents = json_crawler.navigate_pointer(concatcp!(
+        SINGLE_COLUMN_TAB,
+        SECTION_LIST_ITEM,
+        MUSIC_SHELF,
+        "/contents"
+    ))?;
+    parse_playlist_items(super::MusicShelfContents {
+        json: contents.borrow_mut(),
+    })
 }
 fn parse_library_artist_subscriptions(
     json_crawler: JsonCrawler,
 ) -> std::prelude::v1::Result<Vec<GetLibraryArtistSubscription>, crate::Error> {
-    let mut contents = json_crawler.navigate_pointer(concatcp!(
+    let contents = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
         MUSIC_SHELF,
@@ -103,7 +114,7 @@ fn parse_library_artist_subscriptions(
     ))?;
     contents
         .into_array_into_iter()?
-        .map(|mut r| parse_content_list_artist_subscriptions(r))
+        .map(|r| parse_content_list_artist_subscriptions(r))
         .collect()
 }
 

@@ -67,7 +67,10 @@ pub enum ErrorKind {
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
     /// Recieved an error code in the Json reply from InnerTube.
-    OtherErrorCodeInResponse(u64),
+    OtherErrorCodeInResponse {
+        code: u64,
+        message: String,
+    },
 }
 /// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
@@ -109,7 +112,7 @@ impl Error {
             | ErrorKind::Header
             | ErrorKind::Other(_)
             | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
-            | ErrorKind::OtherErrorCodeInResponse(_)
+            | ErrorKind::OtherErrorCodeInResponse { .. }
             | ErrorKind::OAuthTokenExpired
             | ErrorKind::BrowserAuthenticationFailed
             | ErrorKind::InvalidUserAgent(_) => None,
@@ -172,9 +175,9 @@ impl Error {
             inner: Box::new(ErrorKind::Other(msg.into())),
         }
     }
-    pub(crate) fn other_code(code: u64) -> Self {
+    pub(crate) fn other_code(code: u64, message: String) -> Self {
         Self {
-            inner: Box::new(ErrorKind::OtherErrorCodeInResponse(code)),
+            inner: Box::new(ErrorKind::OtherErrorCodeInResponse { code, message }),
         }
     }
 }
@@ -190,8 +193,11 @@ impl Display for ErrorKind {
                 write!(f, "Response is invalid json - unable to deserialize.")
             }
             ErrorKind::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
-            ErrorKind::OtherErrorCodeInResponse(code) => {
-                write!(f, "Http error code {code} recieved in response.")
+            ErrorKind::OtherErrorCodeInResponse { code, message } => {
+                write!(
+                    f,
+                    "Http error code {code} recieved in response. Message: <{message}>."
+                )
             }
             ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")

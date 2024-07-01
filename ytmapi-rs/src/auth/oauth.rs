@@ -182,11 +182,16 @@ impl AuthToken for OAuthToken {
                     "Error message received from server, but doesn't have an error code",
                 ));
             };
+            let message = error
+                .pointer("/message")
+                .and_then(|s| s.as_str())
+                .map(|s| s.to_string())
+                .unwrap_or_default();
             match code {
                 // TODO: Add some errors for specific cases for this token - example below from
                 // BrowserToken 401 => return
                 // Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other)),
+                other => return Err(Error::other_code(other, message)),
             }
         }
         Ok(processed)

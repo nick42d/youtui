@@ -74,12 +74,17 @@ impl AuthToken for BrowserToken {
                     "Error message received from server, but doesn't have an error code",
                 ));
             };
+            let message = error
+                .pointer("/message")
+                .and_then(|s| s.as_str())
+                .map(|s| s.to_string())
+                .unwrap_or_default();
             match code {
                 // Assuming Error:NotAuthenticated means browser token has expired.
                 // May be incorrect - browser token may be invalid?
                 // TODO: Investigate.
                 401 => return Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other)),
+                other => return Err(Error::other_code(other, message)),
             }
         }
         Ok(processed)

@@ -57,7 +57,7 @@ use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
     GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, SongResult,
 };
 pub use process::RawResult;
 use query::{
@@ -312,7 +312,7 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<LibraryArtist>> {
         query.call(self).await
     }
-    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) -> Result<()> {
+    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) -> Result<Vec<SongResult>> {
         query.call(self).await
     }
     pub async fn get_library_albums(
