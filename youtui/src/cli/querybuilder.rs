@@ -5,7 +5,8 @@ use ytmapi_rs::{
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
         CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
         FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetPlaylistQuery,
+        GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
+        GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
@@ -236,6 +237,16 @@ pub async fn command_to_query<A: AuthToken>(
                 cli_query,
             )
             .await
+        }
+        Command::GetLibrarySongs => {
+            get_string_output_of_query(yt, GetLibrarySongsQuery::default(), cli_query).await
+        }
+        Command::GetLibraryAlbums => {
+            get_string_output_of_query(yt, GetLibraryAlbumsQuery::default(), cli_query).await
+        }
+        Command::GetLibraryArtistSubscriptions => {
+            get_string_output_of_query(yt, GetLibraryArtistSubscriptionsQuery::default(), cli_query)
+                .await
         }
     }
 }

@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-use crate::{impl_youtube_id, Error};
+use crate::Error;
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
@@ -50,7 +50,7 @@ impl SearchSuggestion {
     pub fn get_text(&self) -> String {
         self.runs
             .iter()
-            .fold(String::new(), |acc, r| acc + &r.get_text())
+            .fold(String::new(), |acc, r| acc + r.get_text())
     }
     pub(crate) fn new(suggestion_type: SuggestionType, runs: Vec<TextRun>) -> Self {
         Self {

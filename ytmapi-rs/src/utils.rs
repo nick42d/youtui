@@ -41,7 +41,6 @@ pub fn hash_sapisid(sapisid: &str) -> String {
     format!("{elapsed}_{hex}")
 }
 
-#[macro_export]
 /// Macro to generate the boilerplate code that allows implementation of
 /// YoutubeID for a simple struct.
 macro_rules! impl_youtube_id {
@@ -53,6 +52,46 @@ macro_rules! impl_youtube_id {
             fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self {
                 Self(raw_str.into())
             }
+        }
+    };
+}
+
+/// Macro to generate a parsing test based on the following values:
+/// May not really need a macro for this, could use a function.
+/// Input file, output file, query, token
+#[cfg(test)]
+macro_rules! parse_test {
+    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+        let source_path = std::path::Path::new($in);
+        let expected_path = std::path::Path::new($out);
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let output = YtMusic::<$token>::process_json(source, $query).unwrap();
+        let output = format!("{:#?}", output);
+        assert_eq!(output, expected);
+    };
+}
+
+/// Macro to generate both oauth and browser tests for provided query.
+/// May not really need a macro for this, could use a function.
+// TODO: generalise
+#[cfg(test)]
+macro_rules! generate_query_test {
+    ($fname:ident,$query:expr) => {
+        #[tokio::test]
+        async fn $fname() {
+            let mut api = new_standard_oauth_api().await.unwrap();
+            // Don't stuff around trying the keep the local OAuth secret up to date, just
+            // refresh it each time.
+            api.refresh_token().await.unwrap();
+            let _ = api.query($query).await.unwrap();
+            let api = new_standard_api().await.unwrap();
+            let _ = api.query($query).await.unwrap();
         }
     };
 }

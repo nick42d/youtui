@@ -1,14 +1,59 @@
-use super::{parse_item_text, ParseFrom, ProcessedResult};
+use super::{
+    parse_item_text, parse_playlist_items, ParseFrom, ProcessedResult, SearchResultAlbum,
+    SongResult, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+};
 use crate::common::library::{LibraryArtist, Playlist};
-use crate::common::PlaylistID;
+use crate::common::{AlbumType, Explicit, PlaylistID};
 use crate::crawler::JsonCrawler;
 use crate::nav_consts::{
-    GRID, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
+    GRID, GRID_ITEMS, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
     SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
 };
-use crate::query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery};
+use crate::query::{
+    GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
+    GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+};
 use crate::{Result, Thumbnail};
 use const_format::concatcp;
+
+#[derive(Debug)]
+// Very similar to LibraryArtist struct
+pub struct GetLibraryArtistSubscription {
+    name: String,
+    subscribers: String,
+    channel_id: String,
+    thumbnails: Vec<Thumbnail>,
+}
+
+impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
+    fn parse_from(
+        p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>,
+    ) -> crate::Result<<GetLibraryArtistSubscriptionsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_artist_subscriptions(json_crawler)
+    }
+}
+
+impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
+    fn parse_from(
+        p: ProcessedResult<GetLibraryAlbumsQuery>,
+    ) -> crate::Result<<GetLibraryAlbumsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_albums(json_crawler)
+    }
+}
+
+impl ParseFrom<GetLibrarySongsQuery> for Vec<SongResult> {
+    fn parse_from(
+        p: ProcessedResult<GetLibrarySongsQuery>,
+    ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query>::Output> {
+        // TODO: Continuations
+        let json_crawler = p.into();
+        parse_library_songs(json_crawler)
+    }
+}
 
 impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     fn parse_from(
@@ -29,6 +74,47 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
         let json_crawler = p.into();
         parse_library_playlist_query(json_crawler)
     }
+}
+
+fn parse_library_albums(
+    json_crawler: JsonCrawler,
+) -> std::prelude::v1::Result<Vec<SearchResultAlbum>, crate::Error> {
+    let items = json_crawler.navigate_pointer(concatcp!(
+        SINGLE_COLUMN_TAB,
+        SECTION_LIST_ITEM,
+        GRID_ITEMS
+    ))?;
+    items
+        .into_array_into_iter()?
+        .map(parse_item_list_albums)
+        .collect()
+}
+fn parse_library_songs(
+    json_crawler: JsonCrawler,
+) -> std::prelude::v1::Result<Vec<SongResult>, crate::Error> {
+    let mut contents = json_crawler.navigate_pointer(concatcp!(
+        SINGLE_COLUMN_TAB,
+        SECTION_LIST_ITEM,
+        MUSIC_SHELF,
+        "/contents"
+    ))?;
+    parse_playlist_items(super::MusicShelfContents {
+        json: contents.borrow_mut(),
+    })
+}
+fn parse_library_artist_subscriptions(
+    json_crawler: JsonCrawler,
+) -> std::prelude::v1::Result<Vec<GetLibraryArtistSubscription>, crate::Error> {
+    let contents = json_crawler.navigate_pointer(concatcp!(
+        SINGLE_COLUMN_TAB,
+        SECTION_LIST_ITEM,
+        MUSIC_SHELF,
+        "/contents"
+    ))?;
+    contents
+        .into_array_into_iter()?
+        .map(parse_content_list_artist_subscriptions)
+        .collect()
 }
 
 fn parse_library_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
@@ -85,6 +171,47 @@ fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option
         None
     }
 }
+
+fn parse_item_list_albums(mut json_crawler: JsonCrawler) -> Result<SearchResultAlbum> {
+    let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
+    let browse_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
+    let title = data.take_value_pointer(TITLE_TEXT)?;
+    let artist = data.take_value_pointer(SUBTITLE2)?;
+    let year = data.take_value_pointer(SUBTITLE3)?;
+    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String, &str>(SUBTITLE)?)?;
+    let explicit = if data.path_exists(SUBTITLE_BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    Ok(SearchResultAlbum {
+        title,
+        artist,
+        year,
+        explicit,
+        browse_id,
+        album_type,
+        thumbnails,
+    })
+}
+
+fn parse_content_list_artist_subscriptions(
+    mut json_crawler: JsonCrawler,
+) -> Result<GetLibraryArtistSubscription> {
+    let mut data = json_crawler.borrow_pointer(MRLIR)?;
+    let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let name = parse_item_text(&mut data, 0, 0)?;
+    let subscribers = parse_item_text(&mut data, 1, 0)?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    Ok(GetLibraryArtistSubscription {
+        name,
+        subscribers,
+        channel_id,
+        thumbnails,
+    })
+}
+
 fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
     let mut results = Vec::new();
     for result in json_crawler
@@ -271,5 +398,32 @@ mod tests {
         );
         let expected: Vec<LibraryArtist> = serde_json::from_value(expected).unwrap();
         assert_eq!(result, expected);
+    }
+    #[tokio::test]
+    async fn test_get_library_albums() {
+        parse_test!(
+            "./test_json/get_library_albums_20240701.json",
+            "./test_json/get_library_albums_20240701_output.txt",
+            crate::query::GetLibraryAlbumsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_songs() {
+        parse_test!(
+            "./test_json/get_library_songs_20240701.json",
+            "./test_json/get_library_songs_20240701_output.txt",
+            crate::query::GetLibrarySongsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_artist_subscriptions() {
+        parse_test!(
+            "./test_json/get_library_artist_subscriptions_20240701.json",
+            "./test_json/get_library_artist_subscriptions_20240701_output.txt",
+            crate::query::GetLibraryArtistSubscriptionsQuery::default(),
+            BrowserToken
+        );
     }
 }

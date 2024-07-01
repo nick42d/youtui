@@ -182,12 +182,13 @@ impl AuthToken for OAuthToken {
                     "Error message received from server, but doesn't have an error code",
                 ));
             };
-            match code {
-                // TODO: Add some errors for specific cases for this token - example below from
-                // BrowserToken 401 => return
-                // Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other)),
-            }
+            let message = error
+                .pointer("/message")
+                .and_then(|s| s.as_str())
+                .map(|s| s.to_string())
+                .unwrap_or_default();
+            // TODO: Error matching
+            return Err(Error::other_code(code, message));
         }
         Ok(processed)
     }
@@ -256,6 +257,6 @@ impl OAuthTokenGenerator {
             .await?
             .text()
             .await?;
-        Ok(serde_json::from_str(&result).map_err(|_| Error::response(&result))?)
+        serde_json::from_str(&result).map_err(|_| Error::response(&result))
     }
 }

@@ -51,8 +51,8 @@ pub struct UploadSearch;
 impl SearchType for BasicSearch {
     fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>> {
         match spelling_mode {
-            SpellingMode::ExactMatch => return Some("EhGKAQ4IARABGAEgASgAOAFAAUICCAE%3D".into()),
-            SpellingMode::WithSuggestions => return None,
+            SpellingMode::ExactMatch => Some("EhGKAQ4IARABGAEgASgAOAFAAUICCAE%3D".into()),
+            SpellingMode::WithSuggestions => None,
         }
     }
 }
@@ -77,13 +77,13 @@ impl UnfilteredSearchType for LibrarySearch {}
 impl<'a, S: UnfilteredSearchType> Query for SearchQuery<'a, S> {
     type Output = SearchResults;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        search_query_header(&self)
+        search_query_header(self)
     }
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
     fn params(&self) -> Option<Cow<str>> {
-        search_query_params(&self)
+        search_query_params(self)
     }
 }
 
@@ -229,8 +229,8 @@ impl<'a> Query for GetSearchSuggestionsQuery<'a> {
     }
 }
 
-fn search_query_header<'a, S: SearchType>(
-    query: &SearchQuery<'a, S>,
+fn search_query_header<S: SearchType>(
+    query: &SearchQuery<S>,
 ) -> serde_json::Map<String, serde_json::Value> {
     let value = query.query.as_ref().into();
     serde_json::Map::from_iter([("query".to_string(), value)])

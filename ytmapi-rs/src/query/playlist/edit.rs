@@ -53,7 +53,7 @@ impl<'a> EditPlaylistQuery<'a> {
         Self {
             id,
             new_title: None,
-            new_privacy_status: Some(new_privacy_status.into()),
+            new_privacy_status: Some(new_privacy_status),
             new_description: None,
             swap_videos_order: None,
             change_add_order: None,
@@ -79,7 +79,7 @@ impl<'a> EditPlaylistQuery<'a> {
         Self {
             id,
             new_title: None,
-            change_add_order: Some(change_add_order.into()),
+            change_add_order: Some(change_add_order),
             new_privacy_status: None,
             swap_videos_order: None,
             new_description: None,

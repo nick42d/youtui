@@ -63,66 +63,56 @@ Chrome example (Select manually and paste):
 - [x] OAuth authentication
 - [ ] i18n
 
-|Endpoint | Implemented |
+|Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- |
-|GetArtist | [x] |
-|GetAlbum | [x] |
-|GetArtistAlbums | [x] |
-|Search | [ ]\* |
-|GetSearchSuggestions|[x]|
-|GetHome|[ ]|
-|GetAlbumBrowseId|[ ]|
-|GetUser|[ ]|
-|GetUserPlaylists|[ ]|
-|GetSong|[ ]|
-|GetSongRelated|[ ]|
-|GetLyrics|[x]|
-|GetTasteProfile|[ ]|
-|SetTasteProfile|[ ]|
-|GetMoodCategories|[ ]|
-|GetMoodPlaylists|[ ]|
-|GetCharts|[ ]|
-|GetWatchPlaylist|[ ]\*|
-|GetLibraryPlaylists|[ ]\*|
-|GetLibrarySongs|[ ]|
-|GetLibraryAlbums|[ ]|
-|GetLibraryArtists|[ ]\*|
-|GetLibrarySubscriptions|[ ]|
-|GetLikedSongs|[ ]|
-|GetHistory|[ ]|
-|AddHistoryItem|[ ]|
-|RemoveHistoryItem|[ ]|
-|RateSong|[ ]|
-|EditSongLibraryStatus|[ ]|
-|RatePlaylist|[ ]|
-|SubscribeArtists|[ ]|
-|UnsubscribeArtists|[ ]|
-|GetPlaylist|[ ]*|
-|CreatePlaylist|[x]|
-|EditPlaylist|[x]|
-|DeletePlaylist|[x]|
-|AddPlaylistItems|[x]|
-|RemovePlaylistItems|[x]|
-|GetLibraryUploadSongs|[ ]|
-|GetLibraryUploadArtists|[ ]|
-|GetLibraryUploadAlbums|[ ]|
-|GetLibraryUploadArtist|[ ]|
-|GetLibraryUploadAlbum|[ ]|
-|UploadAlbum|[ ]|
-|DeleteUploadEntity|[ ]|
-
-\* search is partially implemented only 
-- does not implement continuations - only first x results returned.
+|GetArtist | [x] ||
+|GetAlbum | [x] ||
+|GetArtistAlbums | [x] ||
+|Search | [x] |[ ]|
+|GetSearchSuggestions|[x]||
+|GetHome|[ ]||
+|GetAlbumBrowseId|[ ]||
+|GetUser|[ ]||
+|GetUserPlaylists|[ ]||
+|GetSong|[ ]||
+|GetSongRelated|[ ]||
+|GetLyrics|[x]||
+|GetTasteProfile|[ ]||
+|SetTasteProfile|[ ]||
+|GetMoodCategories|[ ]||
+|GetMoodPlaylists|[ ]||
+|GetCharts|[ ]||
+|GetWatchPlaylist|[ ]\*|[ ]|
+|GetLibraryPlaylists|[x]|[ ]|
+|GetLibrarySongs|[x]|[ ]|
+|GetLibraryAlbums|[x]|[ ]|
+|GetLibraryArtists|[x]|[ ]|
+|GetLibrarySubscriptions|[x]|[ ]|
+|GetLikedSongs|[ ]||
+|GetHistory|[ ]||
+|AddHistoryItem|[ ]||
+|RemoveHistoryItem|[ ]||
+|RateSong|[ ]||
+|EditSongLibraryStatus|[ ]||
+|RatePlaylist|[ ]||
+|SubscribeArtists|[ ]||
+|UnsubscribeArtists|[ ]||
+|GetPlaylist|[x]|[ ]|
+|CreatePlaylist|[x]||
+|EditPlaylist|[x]||
+|DeletePlaylist|[x]||
+|AddPlaylistItems|[x]||
+|RemovePlaylistItems|[x]||
+|GetLibraryUploadSongs|[ ]||
+|GetLibraryUploadArtists|[ ]||
+|GetLibraryUploadAlbums|[ ]||
+|GetLibraryUploadArtist|[ ]||
+|GetLibraryUploadAlbum|[ ]||
+|UploadAlbum|[ ]||
+|DeleteUploadEntity|[ ]||
 
 \* get watch playlist is partially implemented only
 - only returns playlist and lyrics ids
-- does not implement continuations - only first x results returned.
-
-\* get library playlists & artists are partially implemented only
-- does not implement continuations - only first x results returned.
-
-\* get playlist is partially implemented only
-- does not implement continuations - only first x results returned.
 
 # Additional information
 See the wiki for additional information

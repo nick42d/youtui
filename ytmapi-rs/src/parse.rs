@@ -12,6 +12,7 @@ use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
+pub use library::*;
 pub use playlists::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -23,6 +24,8 @@ mod library;
 mod playlists;
 mod search;
 
+// By requiring ParseFrom to also implement Debug, this simplifies our Query ->
+// String API.
 pub trait ParseFrom<T>: Debug
 where
     T: Query,
