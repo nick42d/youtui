@@ -64,7 +64,7 @@ Chrome example (Select manually and paste):
 - [ ] i18n
 
 |Endpoint | Implemented: Query | Implemented: Continuations |
-|--- | --- |
+|--- | --- | --- |
 |GetArtist | [x] ||
 |GetAlbum | [x] ||
 |GetArtistAlbums | [x] ||
