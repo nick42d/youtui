@@ -72,7 +72,10 @@ enum Command {
         playlist_id: String,
     },
     GetLibraryPlaylists,
-    GetLibraryArtists, //TODO: Allow sorting
+    GetLibraryArtists,             //TODO: Allow sorting
+    GetLibrarySongs,               //TODO: Allow sorting
+    GetLibraryAlbums,              //TODO: Allow sorting
+    GetLibraryArtistSubscriptions, //TODO: Allow sorting
     Search {
         query: String,
     },

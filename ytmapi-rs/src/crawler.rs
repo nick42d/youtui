@@ -4,7 +4,7 @@ use crate::{
     query::Query,
     Error, Result,
 };
-use serde::{de::DeserializeOwned};
+use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc};
 
 #[derive(Clone, PartialEq, Debug)]
@@ -209,6 +209,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
 
 impl JsonCrawler {
     // TODO: Implement into_array_iter_mut.
+    // See std::Vec::into_iter() as an example of this.
     pub fn as_array_iter_mut(&mut self) -> Result<JsonCrawlerArrayIterMut<'_>> {
         let json_array = self
             .crawler

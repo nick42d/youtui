@@ -54,10 +54,10 @@ use common::{
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetPlaylist, ParseFrom,
-    ProcessedResult, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
-    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
-    SearchResultSong, SearchResultVideo, SearchResults,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
+    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
 };
 pub use process::RawResult;
 use query::{
@@ -70,9 +70,10 @@ use query::{
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryAlbumsQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetLibrarySubscriptionsQuery, GetPlaylistQuery,
-    GetSearchSuggestionsQuery, Query, RemovePlaylistItemsQuery, SearchQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryAlbumsQuery,
+    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+    GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
+    RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -311,13 +312,19 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<LibraryArtist>> {
         query.call(self).await
     }
-    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) {
+    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) -> Result<()> {
         query.call(self).await
     }
-    pub async fn get_library_albums(&self, query: GetLibraryAlbumsQuery) {
+    pub async fn get_library_albums(
+        &self,
+        query: GetLibraryAlbumsQuery,
+    ) -> Result<Vec<SearchResultAlbum>> {
         query.call(self).await
     }
-    pub async fn get_library_subscriptions(&self, query: GetLibrarySubscriptionsQuery) {
+    pub async fn get_library_artist_subscriptions(
+        &self,
+        query: GetLibraryArtistSubscriptionsQuery,
+    ) -> Result<Vec<GetLibraryArtistSubscription>> {
         query.call(self).await
     }
     pub async fn get_history() {

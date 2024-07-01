@@ -1,5 +1,8 @@
 use super::Query;
-use crate::common::library::{LibraryArtist, Playlist};
+use crate::{
+    common::library::{LibraryArtist, Playlist},
+    parse::{GetLibraryArtistSubscription, SearchResultAlbum},
+};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -30,7 +33,7 @@ pub struct GetLibraryAlbumsQuery {
 }
 #[derive(Default)]
 // TODO: Method to add sort order
-pub struct GetLibrarySubscriptionsQuery {
+pub struct GetLibraryArtistSubscriptionsQuery {
     sort_order: GetLibrarySortOrder,
 }
 #[derive(Default)]
@@ -89,7 +92,7 @@ impl Query for GetLibrarySongsQuery {
     }
 }
 impl Query for GetLibraryAlbumsQuery {
-    type Output = ()
+    type Output = Vec<SearchResultAlbum>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
@@ -102,8 +105,8 @@ impl Query for GetLibraryAlbumsQuery {
         "browse"
     }
 }
-impl Query for GetLibrarySubscriptionsQuery {
-    type Output = ()
+impl Query for GetLibraryArtistSubscriptionsQuery {
+    type Output = Vec<GetLibraryArtistSubscription>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

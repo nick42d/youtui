@@ -104,6 +104,14 @@ async fn test_new() {
     new_standard_api().await.unwrap();
     new_standard_oauth_api().await.unwrap();
 }
+
+generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
+generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
+generate_query_test!(
+    test_get_library_artist_subscriptions,
+    GetLibraryArtistSubscriptionsQuery::default()
+);
+
 #[tokio::test]
 async fn test_basic_search() {
     let api = new_standard_api().await.unwrap();

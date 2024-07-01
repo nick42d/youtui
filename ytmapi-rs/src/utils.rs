@@ -57,6 +57,7 @@ macro_rules! impl_youtube_id {
 }
 
 /// Macro to generate a parsing test based on the following values:
+/// May not really need a macro for this, could use a function.
 /// Input file, output file, query, token
 #[cfg(test)]
 macro_rules! parse_test {
@@ -73,5 +74,24 @@ macro_rules! parse_test {
         let output = YtMusic::<$token>::process_json(source, $query).unwrap();
         let output = format!("{:#?}", output);
         assert_eq!(output, expected);
+    };
+}
+
+/// Macro to generate both oauth and browser tests for provided query.
+/// May not really need a macro for this, could use a function.
+// TODO: generalise
+#[cfg(test)]
+macro_rules! generate_query_test {
+    ($fname:ident,$query:expr) => {
+        #[tokio::test]
+        async fn $fname() {
+            let mut api = new_standard_oauth_api().await.unwrap();
+            // Don't stuff around trying the keep the local OAuth secret up to date, just
+            // refresh it each time.
+            api.refresh_token().await.unwrap();
+            let _ = api.query($query).await.unwrap();
+            let api = new_standard_api().await.unwrap();
+            let _ = api.query($query).await.unwrap();
+        }
     };
 }
