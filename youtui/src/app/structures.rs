@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
 use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
-use ytmapi_rs::parse::SongResult;
+use ytmapi_rs::parse::{AlbumSong, SongResult};
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
@@ -26,7 +26,7 @@ pub struct Percentage(pub u8);
 
 #[derive(Clone, Debug)]
 pub struct ListSong {
-    pub raw: SongResult,
+    pub raw: AlbumSong,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
     year: Rc<String>,
@@ -105,7 +105,7 @@ impl ListSong {
         &self.album
     }
     pub fn get_track_no(&self) -> usize {
-        self.raw.get_track_no()
+        self.raw.track_no
     }
     pub fn get_fields_iter(&self) -> TableItem {
         Box::new(
@@ -125,23 +125,13 @@ impl ListSong {
                     .unwrap_or_default()
                     .into(),
                 self.get_album().into(),
-                self.get_title().into(),
+                (&self.raw.title).into(),
                 // TODO: Remove allocation
-                self.get_duration()
-                    .as_ref()
-                    .map(|d| d.as_str())
-                    .unwrap_or("")
-                    .into(),
+                (&self.raw.duration).into(),
                 self.get_year().into(),
             ]
             .into_iter(),
         )
-    }
-}
-
-impl YoutubeResult for ListSong {
-    fn get_core(&self) -> &ResultCore {
-        self.raw.get_core()
     }
 }
 
@@ -184,7 +174,7 @@ impl AlbumSongsList {
     // Naive implementation
     pub fn append_raw_songs(
         &mut self,
-        raw_list: Vec<SongResult>,
+        raw_list: Vec<AlbumSong>,
         album: String,
         year: String,
         artist: String,
@@ -201,7 +191,7 @@ impl AlbumSongsList {
     }
     pub fn add_raw_song(
         &mut self,
-        song: SongResult,
+        song: AlbumSong,
         album: Rc<String>,
         year: Rc<String>,
         artist: Rc<String>,

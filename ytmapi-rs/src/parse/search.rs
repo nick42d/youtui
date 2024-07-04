@@ -29,7 +29,7 @@ const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // TODO: Type safety
 // TODO: Tests
-fn parse_basic_search_result_from_xx(
+fn parse_basic_search_result_from_section_list_contents(
     mut section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
     // Imperative solution, may be able to make more functional.
@@ -757,7 +757,7 @@ impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResult
         if section_list_contents_is_empty(&section_list_contents) {
             return Ok(Self::default());
         }
-        parse_basic_search_result_from_xx(section_list_contents)
+        parse_basic_search_result_from_section_list_contents(section_list_contents)
     }
 }
 

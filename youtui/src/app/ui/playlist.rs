@@ -402,7 +402,7 @@ impl Playlist {
         };
         send_or_error(
             &self.ui_tx,
-            AppCallback::DownloadSong(song.raw.get_video_id().clone(), id),
+            AppCallback::DownloadSong(song.raw.video_id.clone(), id),
         )
         .await;
         song.download_status = DownloadStatus::Queued;

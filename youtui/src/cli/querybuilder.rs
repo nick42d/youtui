@@ -1,6 +1,9 @@
 use ytmapi_rs::{
     auth::AuthToken,
-    common::{AlbumID, BrowseParams, PlaylistID, SetVideoID, YoutubeID},
+    common::{
+        AlbumID, BaseUrl, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID,
+        YoutubeID,
+    },
     query::{
         AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
         CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
@@ -189,10 +192,7 @@ pub async fn command_to_query<A: AuthToken>(
                 yt,
                 RemovePlaylistItemsQuery::new(
                     PlaylistID::from_raw(playlist_id),
-                    set_video_ids
-                        .iter()
-                        .map(|v| SetVideoID::from_raw(v))
-                        .collect(),
+                    set_video_ids.iter().map(SetVideoID::from_raw).collect(),
                 ),
                 cli_query,
             )
@@ -206,7 +206,7 @@ pub async fn command_to_query<A: AuthToken>(
                 yt,
                 AddPlaylistItemsQuery::new_from_videos(
                     PlaylistID::from_raw(playlist_id),
-                    video_ids.iter().map(|v| VideoID::from_raw(v)).collect(),
+                    video_ids.iter().map(VideoID::from_raw).collect(),
                     Default::default(),
                 ),
                 cli_query,
@@ -249,11 +249,18 @@ pub async fn command_to_query<A: AuthToken>(
                 .await
         }
         Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery {}, cli_query).await,
-        Command::AddHistoryItem => {
-            get_string_output_of_query(yt, AddHistoryItemQuery {}, cli_query).await
-        }
         Command::RemoveHistoryItems { feedback_tokens } => {
-            get_string_output_of_query(yt, RemoveHistoryItemsQuery {}, cli_query).await
+            get_string_output_of_query(
+                yt,
+                RemoveHistoryItemsQuery::new(
+                    feedback_tokens
+                        .iter()
+                        .map(FeedbackTokenRemoveFromHistory::from_raw)
+                        .collect(),
+                ),
+                cli_query,
+            )
+            .await
         }
     }
 }

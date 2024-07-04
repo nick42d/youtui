@@ -11,6 +11,7 @@ use ytmapi_rs::common::youtuberesult::YoutubeResult;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::YoutubeID;
+use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::parse::SongResult;
 use ytmapi_rs::ChannelID;
@@ -30,7 +31,7 @@ pub enum Response {
     NoSongsFound(TaskID),
     SongsFound(TaskID),
     AppendSongList {
-        song_list: Vec<SongResult>,
+        song_list: Vec<AlbumSong>,
         album: String,
         year: String,
         artist: String,
@@ -270,30 +271,15 @@ impl Api {
                     params: artist_albums_params,
                     results: artist_albums_results,
                 } = albums;
-                let browse_id_list = if artist_albums_browse_id.is_none()
+                let browse_id_list: Vec<AlbumID> = if artist_albums_browse_id.is_none()
                     && artist_albums_params.is_none()
                     && !artist_albums_results.is_empty()
                 {
                     // Assume we already got all the albums from the search.
-                    let browse_id_list: Option<Vec<_>> = artist_albums_results
-                        .iter()
-                        .map(|r| {
-                            r.get_channel_id()
-                                .as_ref()
-                                .map(|c_id| AlbumID::from_raw(c_id.get_raw()))
-                        })
-                        .collect();
-                    if let Some(browse_id_list) = browse_id_list {
-                        browse_id_list
-                    } else {
-                        tracing::info!(
-                            "Telling caller no songs found (some albums missing browse id)"
-                        );
-                        let _ = tx
-                            .send(super::Response::Api(Response::NoSongsFound(id)))
-                            .await;
-                        return;
-                    }
+                    artist_albums_results
+                        .into_iter()
+                        .map(|r| r.album_id)
+                        .collect()
                 } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
                     tracing::info!("Telling caller no songs found (no params or browse_id)");
                     let _ = tx

@@ -6,7 +6,7 @@ use crate::{
     nav_consts::*,
     process::{self, process_flex_column_item},
     query::Query,
-    ChannelID,
+    BrowseID, ChannelID,
 };
 use crate::{Error, Result};
 pub use album::*;
@@ -129,7 +129,7 @@ impl TryFrom<&str> for TopResultType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
     pub name: String,
-    pub id: Option<String>,
+    pub id: Option<ChannelID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongAlbum {
@@ -312,27 +312,20 @@ fn parse_song_artists(
     data: &mut JsonCrawlerBorrowed,
     col_idx: usize,
 ) -> Result<Vec<ParsedSongArtist>> {
-    let mut artists = Vec::new();
-    let Ok(flex_items) = process::process_flex_column_item(data, col_idx) else {
-        return Ok(artists);
-    };
-    let Ok(flex_items_runs) = flex_items.navigate_pointer("/text/runs") else {
-        return Ok(artists);
-    };
-    // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/parsers/songs.py
-    // parse_song_artists_runs
-    for mut i in flex_items_runs
-        .into_array_iter_mut()
-        .into_iter()
-        .flatten()
+    let flex_item_runs =
+        process::process_flex_column_item(data, col_idx)?.navigate_pointer("/text/runs")?;
+    flex_item_runs
+        .into_array_iter_mut()?
         .step_by(2)
-    {
-        artists.push(ParsedSongArtist {
-            name: i.take_value_pointer("/text")?,
-            id: i.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
-        });
-    }
-    Ok(artists)
+        .map(|mut item| parse_song_artist(&mut item))
+        .collect()
+}
+
+fn parse_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedSongArtist> {
+    Ok(ParsedSongArtist {
+        name: data.take_value_pointer("/text")?,
+        id: data.take_value_pointer(NAVIGATION_BROWSE_ID)?,
+    })
 }
 
 fn parse_song_album(data: &mut JsonCrawlerBorrowed, col_idx: usize) -> Result<ParsedSongAlbum> {

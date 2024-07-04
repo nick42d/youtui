@@ -105,6 +105,7 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 
+generate_query_test!(test_get_history, GetHistoryQuery {});
 generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
 generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
 generate_query_test!(

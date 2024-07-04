@@ -70,7 +70,7 @@ use query::{
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryAlbumsQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
     RemovePlaylistItemsQuery, SearchQuery,
@@ -327,8 +327,8 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<GetLibraryArtistSubscription>> {
         query.call(self).await
     }
-    pub async fn get_history() {
-        todo!()
+    pub async fn get_history(&self) -> Result<Vec<SongResult>> {
+        self.query(GetHistoryQuery {}).await
     }
     pub async fn add_history_item() {
         todo!()

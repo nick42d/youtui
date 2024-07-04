@@ -21,7 +21,7 @@ use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
     common::SearchSuggestion,
-    parse::{SearchResultArtist, SongResult},
+    parse::{AlbumSong, SearchResultArtist, SongResult},
 };
 
 const PAGE_KEY_LINES: isize = 10;
@@ -459,7 +459,7 @@ impl Browser {
     }
     pub fn handle_append_song_list(
         &mut self,
-        song_list: Vec<SongResult>,
+        song_list: Vec<AlbumSong>,
         album: String,
         year: String,
         artist: String,

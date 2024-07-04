@@ -107,7 +107,11 @@ pub enum AlbumType {
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct FeedbackToken<'a>(Cow<'a, str>);
+pub struct FeedbackTokenRemoveFromHistory<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct FeedbackTokenAddToLibrary<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct FeedbackTokenRemoveFromLibrary<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -126,6 +130,8 @@ pub struct VideoID<'a>(Cow<'a, str>);
 pub struct LyricsID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SetVideoID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct BaseUrl<'a>(Cow<'a, str>);
 
 impl_youtube_id!(SetVideoID<'a>);
 impl_youtube_id!(AlbumID<'a>);
@@ -135,7 +141,10 @@ impl_youtube_id!(VideoID<'a>);
 impl_youtube_id!(PlaylistID<'a>);
 impl_youtube_id!(ChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
-impl_youtube_id!(FeedbackToken<'a>);
+impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
+impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
+impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
+impl_youtube_id!(BaseUrl<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
@@ -290,6 +299,7 @@ pub mod youtuberesult {
         }
     }
     #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+    #[deprecated = "ResultCore will be deprecated in future for individual public structs"]
     pub struct ResultCore {
         // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
         // is a weakness of this genericised approach.

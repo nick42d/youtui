@@ -1,26 +1,58 @@
-use crate::common::{AlbumType, Explicit};
+use super::{
+    parse_playlist_items, parse_song_artist, parse_song_artists, ParseFrom, ParsedSongArtist,
+    ProcessedResult, SearchResultArtist, SongResult,
+};
+use crate::common::{
+    AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
+};
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::nav_consts::*;
+use crate::process::{process_fixed_column_item, process_flex_column_item};
 use crate::query::*;
+use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
+use serde::{Deserialize, Serialize};
+use sha1::digest::generic_array::sequence::Concat;
 
-use super::{parse_playlist_items, ParseFrom, ProcessedResult, SongResult};
+#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
+pub enum LibraryStatus {
+    #[serde(alias = "LIBRARY_SAVED")]
+    InLibrary,
+    #[serde(alias = "LIBRARY_ADD")]
+    NotInLibrary,
+}
 
+/// In some contexts, dislike will also be classified as indifferent.
 #[derive(Debug)]
-pub enum AlbumLikeStatus {
-    Like,
+pub enum InLikedSongs {
+    Liked,
     Indifferent,
 }
 
-#[derive(Debug)]
-pub struct AlbumParamsOtherVersion {
+/// Indifferent means that the song has not been liked or disliked.
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
+pub enum SongLikeStatus {
+    #[serde(alias = "LIKE")]
+    Liked,
+    #[serde(alias = "DISLIKE")]
+    Disliked,
+    #[serde(alias = "INDIFFERENT")]
+    Indifferent,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct AlbumSong {
+    pub video_id: VideoID<'static>,
+    pub track_no: usize,
+    pub duration: String,
+    pub plays: String,
+    pub library_status: LibraryStatus,
+    pub feedback_tok_add: FeedbackTokenAddToLibrary<'static>,
+    pub feedback_tok_rem: FeedbackTokenRemoveFromLibrary<'static>,
     pub title: String,
-    pub year: String,
-    pub browse_id: String,
-    pub thumbnails: Vec<Thumbnail>,
-    pub is_explicit: Explicit,
+    pub like_status: SongLikeStatus,
+    pub explicit: Explicit,
 }
 
 // Is this similar to another struct?
@@ -31,16 +63,14 @@ pub struct AlbumParams {
     pub category: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
     pub description: Option<String>,
-    pub artists: Option<String>, // Should be super::ParsedSongArtist<'a>, // Basic Artists
+    pub artists: Vec<ParsedSongArtist>,
     pub year: String,
     pub track_count_text: Option<String>,
     pub duration: String,
     pub audio_playlist_id: Option<PlaylistID<'static>>,
     // TODO: better interface
-    pub tracks: Vec<SongResult>,
-    //consider moving this struct up to super.
-    pub other_versions: Option<Vec<AlbumParamsOtherVersion>>,
-    pub like_status: Option<AlbumLikeStatus>,
+    pub tracks: Vec<AlbumSong>,
+    pub library_status: LibraryStatus,
 }
 
 pub(crate) struct MusicShelfContents<'a> {
@@ -66,14 +96,66 @@ impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
     fn parse_from(
         p: ProcessedResult<GetAlbumQuery<'a>>,
     ) -> crate::Result<<GetAlbumQuery<'a> as Query>::Output> {
-        // Google API changing. Old version indicated by existance of HEADER_DETAIL key,
-        // otherwise new version.
-        if p.get_json().pointer(HEADER_DETAIL).is_some() {
-            parse_album_query(p)
-        } else {
-            parse_album_query_2024(p)
-        }
+        parse_album_query_2024(p)
     }
+}
+
+fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
+    let mut data = json.borrow_pointer(MRLIR)?;
+    let title = super::parse_item_text(&mut data, 0, 0)?;
+    let mut library_menu = data
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_map(|item| item.navigate_pointer("/toggleMenuServiceItemRenderer").ok())
+        .ok_or_else(|| {
+            Error::other("expected playlist item to contain a /toggleMenuServiceItemRenderer")
+        })?;
+    let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
+    let (feedback_tok_add, feedback_tok_rem) = match library_status {
+        LibraryStatus::InLibrary => (
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+        ),
+        LibraryStatus::NotInLibrary => (
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+        ),
+    };
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let plays = process_flex_column_item(&mut data, 2)
+        .and_then(|mut i| i.take_value_pointer(TEXT_RUN_TEXT))?;
+    let track_no = str::parse(
+        data.take_value_pointer::<String, &str>(concatcp!("/index", RUN_TEXT))?
+            .as_str(),
+    )
+    // TODO: Better error
+    .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    Ok(AlbumSong {
+        video_id,
+        track_no,
+        duration,
+        plays,
+        library_status,
+        feedback_tok_add,
+        feedback_tok_rem,
+        title,
+        like_status,
+        explicit,
+    })
 }
 
 // NOTE: Similar code to get_playlist_2024
@@ -89,7 +171,12 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
             .as_str(),
     )?;
     let year = header.take_value_pointer(SUBTITLE2)?;
-    let artists = Some(header.take_value_pointer(STRAPLINE_TEXT)?);
+    let artists = header
+        .borrow_pointer("/straplineTextOne/runs")?
+        .into_array_iter_mut()?
+        .step_by(2)
+        .map(|mut item| parse_song_artist(&mut item))
+        .collect::<Result<Vec<ParsedSongArtist>>>()?;
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
         .and_then(|d| d.into_array_iter_mut())
@@ -105,15 +192,17 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
     let audio_playlist_id = header.take_value_pointer(
         "/buttons/1/musicPlayButtonRenderer/playNavigationEndpoint/watchEndpoint/playlistId",
     )?;
-    let music_shelf = MusicShelfContents {
-        json: columns.borrow_pointer(
+    let library_status =
+        header.take_value_pointer("/buttons/0/toggleButtonRenderer/defaultIcon/iconType")?;
+    let tracks = columns
+        .borrow_pointer(
             "/secondaryContents/sectionListRenderer/contents/0/musicShelfRenderer/contents",
-        )?,
-    };
-    let tracks = parse_playlist_items(music_shelf)?;
+        )?
+        .into_array_iter_mut()?
+        .map(|mut track| parse_album_track_2024(&mut track))
+        .collect::<Result<Vec<AlbumSong>>>()?;
     Ok(AlbumParams {
-        // TODO
-        like_status: None,
+        library_status,
         title,
         description,
         thumbnails,
@@ -121,136 +210,9 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         category,
         track_count_text,
         audio_playlist_id,
-        // TODO
-        other_versions: None,
         year,
         tracks,
         artists,
-    })
-}
-
-fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
-    let mut json_crawler = JsonCrawler::from(p);
-    let mut header = json_crawler.borrow_pointer(HEADER_DETAIL)?;
-    let title = header.take_value_pointer(TITLE_TEXT)?;
-    // I am not sure why the error here is OK but I'll take it!
-    let category = AlbumType::try_from_str(header.take_value_pointer::<String, &str>(SUBTITLE)?)?;
-    let description = header.take_value_pointer("/description/runs/0/text").ok();
-    let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
-    // If NAVIGATION_WATCH_PLAYLIST ID, then return that, else try
-    // NAVIGATION_PLAYLIST_ID else None.
-    // Seems a bit of a hacky way to do this.
-    let mut top_level = header.borrow_pointer(concatcp!(MENU, "/topLevelButtons"))?;
-    let audio_playlist_id = top_level
-        .take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_WATCH_PLAYLIST_ID))
-        .or_else(|_| {
-            top_level.take_value_pointer(concatcp!("/0/buttonRenderer", NAVIGATION_PLAYLIST_ID))
-        })
-        .ok();
-    // TODO: parsing function
-    let like_status = top_level
-        .take_value_pointer("/1/buttonRenderer/defaultServiceEndpoint/likeEndpoint/status")
-        .ok()
-        .map(|likestatus| match likestatus {
-            1 => Ok(AlbumLikeStatus::Like),
-            2 => Ok(AlbumLikeStatus::Indifferent),
-            other => Err(crate::Error::other(format!(
-                "Received likestatus {}, but expected only \"1\" or \"2\"",
-                other
-            ))),
-        })
-        .transpose()?;
-    // Based on code from ytmusicapi (python)
-    let track_count = header
-        .borrow_pointer("/secondSubtitle/runs")
-        .ok()
-        .and_then(|s| s.into_array_iter_mut().ok())
-        .and_then(|mut a| {
-            if a.len() > 1 {
-                a.next()
-                    .and_then(|mut v| v.take_value_pointer("/text").ok())
-            } else {
-                None
-            }
-        });
-    let duration = header
-        .borrow_pointer("/secondSubtitle/runs")
-        .ok()
-        .and_then(|s| s.into_array_iter_mut().ok())
-        .and_then(|mut a| {
-            if a.len() > 1 {
-                a.nth(2)
-                    .and_then(|mut v| v.take_value_pointer("/text").ok())
-            } else {
-                a.next()
-                    .and_then(|mut v| v.take_value_pointer("/text").ok())
-            }
-        })
-        .ok_or_else(|| Error::other("Basic error on duration"))?;
-    let mut year = String::new();
-    // Pretty hacky way to handle this, as the runs are quite free text.
-    // TODO: Add a regex crate.
-    // NOTE: See the search parser for a better way to implement.
-    for mut a in header
-        .navigate_pointer("/subtitle/runs")
-        .and_then(|s| s.into_array_iter_mut())
-        .into_iter()
-        .flatten()
-        .skip(2)
-        .step_by(2)
-    {
-        let value: Result<String> = a.take_value_pointer("/text");
-        if let Ok(4) = value.as_ref().map(|v| v.len()) {
-            year = value.unwrap();
-        }
-    }
-    let _results_other_versions = json_crawler.borrow_pointer(concatcp!(
-        SINGLE_COLUMN_TAB,
-        SECTION_LIST,
-        "/0",
-        MUSIC_SHELF
-    )); //this can be none.
-    let music_shelf = take_music_shelf_contents(&mut json_crawler)?;
-    let tracks = parse_playlist_items(music_shelf)?;
-    //let mut tracks = super::artist::parse_playlist_items(results_tracks.take())?;
-    // Tracks themselves don't know who the album artist is. But it can be handy for
-    // other parts of the application to know the artist.
-    // This may not be the ideal approach due to the allocation requirement but
-    // nevertheless we are using it for now.
-    // TODO: Consider alternative approach in the app design.
-    //for track in tracks.iter_mut() {
-    //    track.album = Some(super::ParsedSongAlbum {
-    //        id: audio_playlist_id.clone(),
-    //        name: Some(title.clone()),
-    //    });
-    //}
-
-    //        album = parse_album_header(response)
-    //        results = nav(response, SINGLE_COLUMN_TAB + SECTION_LIST_ITEM +
-    // MUSIC_SHELF)        album['tracks'] =
-    // parse_playlist_items(results['contents'])        results = nav(response,
-    // SINGLE_COLUMN_TAB + SECTION_LIST + [1] + CAROUSEL, True)
-    //        if results is not None:
-    //            album['other_versions'] = parse_content_list(results['contents'],
-    // parse_album)        album['duration_seconds'] = sum_total_duration(album)
-    //        for i, track in enumerate(album['tracks']):
-    //            album['tracks'][i]['album'] = album['title']
-    //            album['tracks'][i]['artists'] = album['artists']
-    //
-    //        return album
-    Ok(AlbumParams {
-        like_status,
-        title,
-        description,
-        thumbnails,
-        duration,
-        category,
-        track_count_text: track_count,
-        audio_playlist_id,
-        other_versions: None,
-        year,
-        tracks,
-        artists: None,
     })
 }
 

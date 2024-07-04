@@ -35,13 +35,15 @@ pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
     path: PathList,
-    cur: usize,
+    cur_front: usize,
+    cur_back: usize,
 }
 pub(crate) struct JsonCrawlerArrayIntoIter {
     source: Arc<String>,
     array: IntoIter<serde_json::Value>,
     path: PathList,
-    cur: usize,
+    cur_front: usize,
+    cur_back: usize,
 }
 impl<Q: Query> From<ProcessedResult<Q>> for JsonCrawler {
     fn from(value: ProcessedResult<Q>) -> Self {
@@ -68,6 +70,10 @@ impl JsonPath {
     }
 }
 impl PathList {
+    fn with(mut self, path: JsonPath) -> Self {
+        self.list.push(path);
+        self
+    }
     fn push(&mut self, path: JsonPath) {
         self.list.push(path)
     }
@@ -89,41 +95,56 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
     type Item = JsonCrawlerBorrowed<'a>;
     fn next(&mut self) -> Option<Self::Item> {
         let crawler = self.array.next()?;
-        self.path.pop();
-        self.path.push(JsonPath::IndexNum(self.cur));
-        self.cur += 1;
-        Some(JsonCrawlerBorrowed {
+        let out = Some(JsonCrawlerBorrowed {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
             // Ideally there should be a Borrowed version of this struct - otherwise we need to
             // clone every time here.
-            path: self.path.clone(),
-        })
+            path: self.path.clone().with(JsonPath::IndexNum(self.cur_front)),
+        });
+        self.cur_front += 1;
+        out
     }
     // Required to be exact to implement ExactSizeIterator.
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.array.len(), Some(self.array.len()))
     }
 }
+
 // Default implementation is correct, due to implementation of size_hint.
 impl<'a> ExactSizeIterator for JsonCrawlerArrayIterMut<'a> {}
 
-impl Iterator for JsonCrawlerArrayIntoIter {
-    type Item = JsonCrawler;
-    fn next(&mut self) -> Option<Self::Item> {
-        let crawler = self.array.next()?;
-        self.path.pop();
-        self.path.push(JsonPath::IndexNum(self.cur));
-        self.cur += 1;
-        Some(JsonCrawler {
+impl<'a> DoubleEndedIterator for JsonCrawlerArrayIterMut<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let crawler = self.array.next_back()?;
+        let out = Some(JsonCrawlerBorrowed {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
             // Ideally there should be a Borrowed version of this struct - otherwise we need to
             // clone every time here.
-            path: self.path.clone(),
-        })
+            path: self.path.clone().with(JsonPath::IndexNum(self.cur_back)),
+        });
+        self.cur_back -= 1;
+        out
+    }
+}
+
+impl Iterator for JsonCrawlerArrayIntoIter {
+    type Item = JsonCrawler;
+    fn next(&mut self) -> Option<Self::Item> {
+        let crawler = self.array.next()?;
+        let out = Some(JsonCrawler {
+            // Low cost as this is an Arc
+            source: self.source.clone(),
+            crawler,
+            // Ideally there should be a Borrowed version of this struct - otherwise we need to
+            // clone every time here.
+            path: self.path.clone().with(JsonPath::IndexNum(self.cur_front)),
+        });
+        self.cur_front += 1;
+        out
     }
     // Required to be exact to implement ExactSizeIterator.
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -133,6 +154,22 @@ impl Iterator for JsonCrawlerArrayIntoIter {
 // Default implementation is correct, due to implementation of size_hint.
 impl ExactSizeIterator for JsonCrawlerArrayIntoIter {}
 
+impl DoubleEndedIterator for JsonCrawlerArrayIntoIter {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let crawler = self.array.next_back()?;
+        let out = Some(JsonCrawler {
+            // Low cost as this is an Arc
+            source: self.source.clone(),
+            crawler,
+            // Ideally there should be a Borrowed version of this struct - otherwise we need to
+            // clone every time here.
+            path: self.path.clone().with(JsonPath::IndexNum(self.cur_back)),
+        });
+        self.cur_back = self.cur_back.saturating_sub(1);
+        out
+    }
+}
+
 impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn into_array_iter_mut(self) -> Result<JsonCrawlerArrayIterMut<'a>> {
         let json_array = self
@@ -140,12 +177,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
         let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::IndexNum(0));
+        let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source,
             array: json_array.iter_mut(),
             path: path_clone,
-            cur: 0,
+            cur_front: 0,
+            cur_back,
         })
     }
     pub fn as_array_iter_mut(&mut self) -> Result<JsonCrawlerArrayIterMut<'_>> {
@@ -154,12 +192,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
         let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::IndexNum(0));
+        let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source.clone(),
             array: json_array.iter_mut(),
             path: path_clone,
-            cur: 0,
+            cur_front: 0,
+            cur_back,
         })
     }
     pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
@@ -217,7 +256,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
                 .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?,
         )
         // XXX: ParseTarget String is incorrect
-        .map_err(|_| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
+        .map_err(|e| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
     }
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
@@ -235,12 +274,13 @@ impl JsonCrawler {
             mut path,
         } = self
         {
-            path.push(JsonPath::IndexNum(0));
+            let cur_back = array.len().saturating_sub(1);
             return Ok(JsonCrawlerArrayIntoIter {
                 source,
                 array: array.into_iter(),
                 path,
-                cur: 0,
+                cur_front: 0,
+                cur_back,
             });
         }
         Err(Error::parsing(
@@ -255,12 +295,13 @@ impl JsonCrawler {
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
         let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::IndexNum(0));
+        let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source.clone(),
             array: json_array.iter_mut(),
             path: path_clone,
-            cur: 0,
+            cur_front: 0,
+            cur_back,
         })
     }
     pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
