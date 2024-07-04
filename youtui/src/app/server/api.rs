@@ -243,6 +243,11 @@ impl Api {
                     Ok(a) => a,
                     Err(e) => {
                         let Some((json, key)) = e.get_json_and_key() else {
+                            error!("API error received <{e}>");
+                            info!("Telling caller no songs found (error)");
+                            let _ = tx
+                                .send(super::Response::Api(Response::NoSongsFound(id)))
+                                .await;
                             return;
                         };
                         // TODO: Bring loggable json errors into their own function.
