@@ -1,6 +1,5 @@
 use super::{
-    parse_playlist_items, parse_song_artist, parse_song_artists, ParseFrom, ParsedSongArtist,
-    PlaylistSong, ProcessedResult, SearchResultArtist,
+    parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
 };
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,

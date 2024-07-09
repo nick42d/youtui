@@ -179,7 +179,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             .crawler
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
-        let mut path_clone = self.path.clone();
+        let path_clone = self.path.clone();
         let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source,
@@ -194,7 +194,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             .crawler
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
-        let mut path_clone = self.path.clone();
+        let path_clone = self.path.clone();
         let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source.clone(),
@@ -274,7 +274,7 @@ impl JsonCrawler {
         if let JsonCrawler {
             source,
             crawler: serde_json::Value::Array(array),
-            mut path,
+            path,
         } = self
         {
             let cur_back = array.len().saturating_sub(1);
@@ -297,7 +297,7 @@ impl JsonCrawler {
             .crawler
             .as_array_mut()
             .ok_or_else(|| Error::parsing(&self.path, self.source.clone(), ParseTarget::Array))?;
-        let mut path_clone = self.path.clone();
+        let path_clone = self.path.clone();
         let cur_back = json_array.len().saturating_sub(1);
         Ok(JsonCrawlerArrayIterMut {
             source: self.source.clone(),

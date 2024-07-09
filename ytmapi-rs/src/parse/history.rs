@@ -1,14 +1,13 @@
 use const_format::concatcp;
 
 use super::{
-    parse_playlist_item, parse_playlist_items, parse_table_list_items, ApiSuccess, ParseFrom,
-    PlaylistItem, PlaylistSong, ProcessedResult, TableListItem, MUSIC_SHELF,
+    parse_table_list_items, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF,
 };
 use crate::{
     crawler::JsonCrawler,
-    nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB, TAB_CONTENT},
-    query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
-    Error, Result,
+    nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
+    query::{GetHistoryQuery, RemoveHistoryItemsQuery},
+    Error,
 };
 
 impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {

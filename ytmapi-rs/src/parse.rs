@@ -5,14 +5,12 @@ use crate::{
     error,
     nav_consts::*,
     process::{self, process_flex_column_item},
-    query::Query,
-    BrowseID, ChannelID,
+    query::Query, ChannelID,
 };
 use crate::{Error, Result};
 pub use album::*;
 pub use artist::*;
 use const_format::concatcp;
-pub use history::*;
 pub use library::*;
 pub use playlists::*;
 use serde::{Deserialize, Serialize};

@@ -55,7 +55,7 @@ pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, ParseFrom, PlaylistItem, PlaylistSong, ProcessedResult, SearchResultAlbum,
+    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum,
     SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
     TableListItem, TableListSong,

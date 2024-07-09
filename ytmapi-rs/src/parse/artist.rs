@@ -1,6 +1,6 @@
 use super::{
     parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
-    LibraryStatus, LikeStatus, MusicShelfContents, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
+    LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
     ProcessedResult, SearchResultVideo,
 };
 use crate::{

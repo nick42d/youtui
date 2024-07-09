@@ -1,11 +1,11 @@
 use ytmapi_rs::{
     auth::AuthToken,
     common::{
-        AlbumID, BaseUrl, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID,
+        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID,
         YoutubeID,
     },
     query::{
-        AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
+        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
         CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
         EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
         GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,

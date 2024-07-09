@@ -21,7 +21,7 @@ use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
     common::SearchSuggestion,
-    parse::{AlbumSong, PlaylistSong, SearchResultArtist},
+    parse::{AlbumSong, SearchResultArtist},
 };
 
 const PAGE_KEY_LINES: isize = 10;

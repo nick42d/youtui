@@ -1,9 +1,8 @@
 use super::Query;
 use crate::{
-    common::{BaseUrl, FeedbackTokenRemoveFromHistory, YoutubeID},
-    parse::{ApiSuccess, PlaylistItem, PlaylistSong, TableListItem},
+    common::{BaseUrl, FeedbackTokenRemoveFromHistory},
+    parse::{ApiSuccess, TableListItem},
 };
-use rand::Rng;
 use serde_json::json;
 
 pub struct GetHistoryQuery {}

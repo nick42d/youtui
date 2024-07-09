@@ -2,7 +2,7 @@ use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
-use ytmapi_rs::parse::{AlbumSong, PlaylistSong};
+use ytmapi_rs::parse::{AlbumSong};
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;

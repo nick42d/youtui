@@ -2,7 +2,7 @@ use super::Query;
 use crate::{
     common::library::{LibraryArtist, Playlist},
     parse::{
-        GetLibraryArtistSubscription, PlaylistItem, PlaylistSong, SearchResultAlbum, TableListItem,
+        GetLibraryArtistSubscription, SearchResultAlbum,
         TableListSong,
     },
 };

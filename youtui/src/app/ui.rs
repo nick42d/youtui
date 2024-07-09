@@ -15,7 +15,7 @@ use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::parse::{AlbumSong, PlaylistSong, SearchResultArtist};
+use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 
 mod browser;
 pub mod draw;

@@ -1,5 +1,5 @@
 use super::{
-    parse_playlist_items, MusicShelfContents, ParseFrom, PlaylistItem, PlaylistSong,
+    parse_playlist_items, ParseFrom, PlaylistItem,
     ProcessedResult, DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL,
     SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
