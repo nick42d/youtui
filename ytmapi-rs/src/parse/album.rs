@@ -1,6 +1,4 @@
-use super::{
-    parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
-};
+use super::{parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
@@ -78,25 +76,6 @@ pub struct AlbumParams {
     // TODO: better interface
     pub tracks: Vec<AlbumSong>,
     pub library_status: LibraryStatus,
-}
-
-pub(crate) struct MusicShelfContents<'a> {
-    pub json: JsonCrawlerBorrowed<'a>,
-}
-impl<'a> MusicShelfContents<'a> {
-    pub fn from_crawler(crawler: JsonCrawlerBorrowed<'a>) -> Self {
-        Self { json: crawler }
-    }
-}
-
-fn take_music_shelf_contents(nav: &mut JsonCrawler) -> Result<MusicShelfContents> {
-    let json = nav.borrow_pointer(concatcp!(
-        SINGLE_COLUMN_TAB,
-        SECTION_LIST_ITEM,
-        MUSIC_SHELF,
-        "/contents"
-    ))?;
-    Ok(MusicShelfContents { json })
 }
 
 impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {

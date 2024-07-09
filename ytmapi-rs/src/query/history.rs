@@ -1,14 +1,11 @@
 use super::Query;
 use crate::{
-    common::{BaseUrl, FeedbackTokenRemoveFromHistory},
+    common::FeedbackTokenRemoveFromHistory,
     parse::{ApiSuccess, TableListItem},
 };
 use serde_json::json;
 
 pub struct GetHistoryQuery {}
-pub struct AddHistoryItemQuery<'a> {
-    song_url: BaseUrl<'a>,
-}
 pub struct RemoveHistoryItemsQuery<'a> {
     feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
 }

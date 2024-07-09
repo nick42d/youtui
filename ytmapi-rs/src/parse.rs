@@ -5,7 +5,8 @@ use crate::{
     error,
     nav_consts::*,
     process::{self, process_flex_column_item},
-    query::Query, ChannelID,
+    query::Query,
+    ChannelID,
 };
 use crate::{Error, Result};
 pub use album::*;
@@ -425,17 +426,16 @@ mod watch {
         common::watch::WatchPlaylist,
         crawler::{JsonCrawler, JsonCrawlerBorrowed},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
-        query::watch::GetWatchPlaylistQuery,
-        Result, VideoID,
+        query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID},
+        Result,
     };
 
     use super::{ParseFrom, ProcessedResult};
 
-    impl<'a> ParseFrom<GetWatchPlaylistQuery<VideoID<'a>>> for WatchPlaylist {
+    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(
-            p: ProcessedResult<GetWatchPlaylistQuery<VideoID<'a>>>,
-        ) -> crate::Result<<GetWatchPlaylistQuery<VideoID<'a>> as crate::query::Query>::Output>
-        {
+            p: ProcessedResult<GetWatchPlaylistQuery<T>>,
+        ) -> crate::Result<<GetWatchPlaylistQuery<T> as crate::query::Query>::Output> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;

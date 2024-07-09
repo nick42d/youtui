@@ -76,8 +76,7 @@ pub enum ErrorKind {
 #[derive(Debug, Clone)]
 pub enum ParseTarget {
     Array,
-    String,
-    Enum,
+    Other(String),
 }
 impl Error {
     /// Extract the inner kind from the error for pattern matching.
@@ -85,10 +84,12 @@ impl Error {
         *self.inner
     }
     // Only used for tests currently.
+    #[cfg(test)]
     pub(crate) fn is_oauth_expired(&self) -> bool {
         matches!(*self.inner, ErrorKind::OAuthTokenExpired)
     }
     // Only used for tests currently.
+    #[cfg(test)]
     pub(crate) fn is_browser_authentication_failed(&self) -> bool {
         matches!(*self.inner, ErrorKind::BrowserAuthenticationFailed)
     }

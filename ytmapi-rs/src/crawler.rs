@@ -247,7 +247,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())
             // XXX: ParseTarget String is incorrect
-            .map_err(|_| Error::parsing(&self.path, self.source.clone(), ParseTarget::String))
+            .map_err(|_| {
+                Error::parsing(
+                    &self.path,
+                    self.source.clone(),
+                    ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                )
+            })
     }
     pub fn take_value_pointer<T: DeserializeOwned, S: AsRef<str>>(&mut self, path: S) -> Result<T> {
         let mut path_clone = self.path.clone();
@@ -258,8 +264,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
                 .map(|v| v.take())
                 .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?,
         )
-        // XXX: ParseTarget String is incorrect
-        .map_err(|e| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
+        .map_err(|_| {
+            Error::parsing(
+                &path_clone,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+            )
+        })
     }
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
@@ -388,7 +399,13 @@ impl JsonCrawler {
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take())
             // XXX: ParseTarget String is incorrect
-            .map_err(|_| Error::parsing(&self.path, self.source.clone(), ParseTarget::String))
+            .map_err(|_| {
+                Error::parsing(
+                    &self.path,
+                    self.source.clone(),
+                    ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                )
+            })
     }
     pub fn take_value_pointer<T: DeserializeOwned>(&mut self, path: &str) -> Result<T> {
         let mut path_clone = self.path.clone();
@@ -400,7 +417,13 @@ impl JsonCrawler {
                 .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?,
         )
         // XXX: ParseTarget String is incorrect
-        .map_err(|_| Error::parsing(&path_clone, self.source.clone(), ParseTarget::String))
+        .map_err(|_| {
+            Error::parsing(
+                &path_clone,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+            )
+        })
     }
     pub fn get_source(&self) -> &str {
         &self.source

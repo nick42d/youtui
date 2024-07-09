@@ -1,9 +1,8 @@
 use super::{
-    parse_item_text, parse_library_management_items_from_menu, EpisodeDate,
-    EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum,
-    TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
-    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT,
-    THUMBNAILS,
+    parse_item_text, parse_library_management_items_from_menu, EpisodeDate, EpisodeDuration,
+    ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode, TableListItem, TableListSong,
+    TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
+    SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
@@ -24,10 +23,10 @@ use const_format::concatcp;
 #[derive(Debug)]
 // Very similar to LibraryArtist struct
 pub struct GetLibraryArtistSubscription {
-    name: String,
-    subscribers: String,
-    channel_id: String,
-    thumbnails: Vec<Thumbnail>,
+    pub name: String,
+    pub subscribers: String,
+    pub channel_id: String,
+    pub thumbnails: Vec<Thumbnail>,
 }
 
 impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {

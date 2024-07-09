@@ -130,8 +130,6 @@ pub struct VideoID<'a>(Cow<'a, str>);
 pub struct LyricsID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SetVideoID<'a>(Cow<'a, str>);
-#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct BaseUrl<'a>(Cow<'a, str>);
 
 impl_youtube_id!(SetVideoID<'a>);
 impl_youtube_id!(AlbumID<'a>);
@@ -144,7 +142,6 @@ impl_youtube_id!(LyricsID<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
 impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
-impl_youtube_id!(BaseUrl<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}

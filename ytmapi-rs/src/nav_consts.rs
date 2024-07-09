@@ -11,8 +11,8 @@ pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
 pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
 pub const GRID: &str = "/gridRenderer";
 pub const MENU: &str = "/menu/menuRenderer";
-pub const MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
-pub const TOGGLE_MENU: &str = "/toggleMenuServiceItemRenderer";
+pub const _MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
+pub const _TOGGLE_MENU: &str = "/toggleMenuServiceItemRenderer";
 pub const PLAY_BUTTON: &str =
     "/overlay/musicItemThumbnailOverlayRenderer/content/musicPlayButtonRenderer";
 pub const NAVIGATION_BROWSE: &str = "/navigationEndpoint/browseEndpoint";
@@ -35,7 +35,7 @@ pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibil
 pub const _CATEGORY_PARAMS: &str =
     "/musicNavigationButtonRenderer/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
-pub const MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
+pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
 pub const _TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
 pub const _TASTE_PROFILE_ARTIST: &str = "/title/runs";
