@@ -1,4 +1,4 @@
-*cookie.txt
+*cookie.txt*
 *.data
 *expired-headers.json
 *expired-oauth.json
