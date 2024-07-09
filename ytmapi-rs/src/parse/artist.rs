@@ -1,11 +1,10 @@
 use super::{
     parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
     LibraryStatus, LikeStatus, MusicShelfContents, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
-    ProcessedResult,
+    ProcessedResult, SearchResultVideo,
 };
 use crate::{
     common::{
-        youtuberesult::{ResultCore, YoutubeResult},
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
     },
@@ -249,7 +248,7 @@ pub struct ArtistSong {
 }
 #[derive(Debug, Clone)]
 pub struct GetArtistVideos {
-    pub results: Vec<VideoResult>,
+    pub results: Vec<SearchResultVideo>,
     pub browse_id: PlaylistID<'static>,
 }
 /// The Albums section of the Browse Artist page.
@@ -278,18 +277,6 @@ pub struct AlbumResult {
     pub library_status: LibraryStatus,
     pub thumbnails: Vec<Thumbnail>,
     pub explicit: Explicit,
-}
-// pub struct AlbumResult {
-//     core: ResultCore,
-// }
-#[derive(Debug, Clone)]
-pub struct VideoResult {
-    core: ResultCore,
-}
-impl YoutubeResult for VideoResult {
-    fn get_core(&self) -> &ResultCore {
-        &self.core
-    }
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]

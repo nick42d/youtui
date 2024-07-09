@@ -2,7 +2,6 @@ use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
-use ytmapi_rs::common::youtuberesult::{ResultCore, YoutubeResult};
 use ytmapi_rs::parse::{AlbumSong, PlaylistSong};
 
 pub trait SongListComponent {

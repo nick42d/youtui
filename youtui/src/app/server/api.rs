@@ -7,13 +7,11 @@ use crate::Result;
 use tokio::sync::mpsc;
 use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
-use ytmapi_rs::common::youtuberesult::YoutubeResult;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
-use ytmapi_rs::parse::PlaylistSong;
 use ytmapi_rs::ChannelID;
 
 pub enum Request {

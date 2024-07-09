@@ -10,7 +10,6 @@ use ratatui::{
     text::{Line, Span},
     widgets::{block::Title, Block, Borders, Gauge, Paragraph},
 };
-use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
