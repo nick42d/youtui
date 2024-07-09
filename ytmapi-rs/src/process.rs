@@ -4,7 +4,7 @@ use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
-use crate::Result;
+use crate::{Error, Result};
 
 // Should trait be Result?
 /// The raw result of a query to the API.
@@ -64,4 +64,17 @@ pub fn process_flex_column_item<'a>(
 ) -> Result<JsonCrawlerBorrowed<'a>> {
     let pointer = format!("/flexColumns/{col_idx}/musicResponsiveListItemFlexColumnRenderer");
     item.borrow_pointer(pointer)
+}
+
+pub fn get_library_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
+    let cur_path = menu.get_path();
+    menu.into_array_iter_mut()?
+        .find_map(|item| {
+            item.navigate_pointer("/toggleMenuServiceItemRenderer")
+                .ok()
+        })
+        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
+        .ok_or_else(|| {
+            Error::other(format!("expected playlist item to contain a /toggledMenuServiceItemRenderer underneath path {cur_path}"))
+        })
 }

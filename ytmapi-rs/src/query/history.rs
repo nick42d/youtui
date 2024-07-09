@@ -1,7 +1,7 @@
 use super::Query;
 use crate::{
     common::{BaseUrl, FeedbackTokenRemoveFromHistory, YoutubeID},
-    parse::{ApiSuccess, SongResult},
+    parse::{ApiSuccess, PlaylistItem, PlaylistSong, TableListItem},
 };
 use rand::Rng;
 use serde_json::json;
@@ -23,7 +23,7 @@ impl<'a> RemoveHistoryItemsQuery<'a> {
 // NOTE: Requires auth
 // TODO: Return played and feedback_token component.
 impl Query for GetHistoryQuery {
-    type Output = Vec<SongResult>
+    type Output = Vec<TableListItem>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

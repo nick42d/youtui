@@ -13,7 +13,7 @@ use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
-use ytmapi_rs::parse::SongResult;
+use ytmapi_rs::parse::PlaylistSong;
 use ytmapi_rs::ChannelID;
 
 pub enum Request {

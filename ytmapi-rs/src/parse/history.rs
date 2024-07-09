@@ -1,7 +1,8 @@
 use const_format::concatcp;
 
 use super::{
-    parse_playlist_items, ApiSuccess, ParseFrom, ProcessedResult, SongResult, MUSIC_SHELF,
+    parse_playlist_item, parse_playlist_items, parse_table_list_items, ApiSuccess, ParseFrom,
+    PlaylistItem, PlaylistSong, ProcessedResult, TableListItem, MUSIC_SHELF,
 };
 use crate::{
     crawler::JsonCrawler,
@@ -10,7 +11,7 @@ use crate::{
     Error, Result,
 };
 
-impl ParseFrom<GetHistoryQuery> for Vec<SongResult> {
+impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
     fn parse_from(
         p: super::ProcessedResult<GetHistoryQuery>,
     ) -> crate::Result<<GetHistoryQuery as crate::query::Query>::Output> {
@@ -20,12 +21,11 @@ impl ParseFrom<GetHistoryQuery> for Vec<SongResult> {
         // If parse_playlist_items returns Vec<Result<SongResult>> or
         // parse_playlist_item function created, we could call potentiall call
         // flatten().collect() directly
-        let nested_res: crate::Result<Vec<Vec<SongResult>>> = contents
+        // May require itertools::flatten_ok() for this.
+        let nested_res: crate::Result<Vec<Vec<TableListItem>>> = contents
             .into_array_into_iter()?
-            .map(|mut c| {
-                parse_playlist_items(super::MusicShelfContents {
-                    json: c.borrow_pointer(concatcp!(MUSIC_SHELF, "/contents"))?,
-                })
+            .map(|c| {
+                parse_table_list_items(c.navigate_pointer(concatcp!(MUSIC_SHELF, "/contents"))?)
             })
             .collect();
         Ok(nested_res?.into_iter().flatten().collect())

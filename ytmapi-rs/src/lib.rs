@@ -55,9 +55,10 @@ pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, SongResult,
+    GetPlaylist, ParseFrom, PlaylistItem, PlaylistSong, ProcessedResult, SearchResultAlbum,
+    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
+    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    TableListItem, TableListSong,
 };
 pub use process::RawResult;
 use query::{
@@ -312,7 +313,10 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<LibraryArtist>> {
         query.call(self).await
     }
-    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) -> Result<Vec<SongResult>> {
+    pub async fn get_library_songs(
+        &self,
+        query: GetLibrarySongsQuery,
+    ) -> Result<Vec<TableListSong>> {
         query.call(self).await
     }
     pub async fn get_library_albums(
@@ -327,7 +331,7 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<GetLibraryArtistSubscription>> {
         query.call(self).await
     }
-    pub async fn get_history(&self) -> Result<Vec<SongResult>> {
+    pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
         self.query(GetHistoryQuery {}).await
     }
     pub async fn add_history_item() {

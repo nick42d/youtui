@@ -1,19 +1,27 @@
 use super::{
     parse_playlist_items, parse_song_artist, parse_song_artists, ParseFrom, ParsedSongArtist,
-    ProcessedResult, SearchResultArtist, SongResult,
+    PlaylistSong, ProcessedResult, SearchResultArtist,
 };
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::process::{process_fixed_column_item, process_flex_column_item};
+use crate::process::{
+    get_library_menu_from_menu, process_fixed_column_item, process_flex_column_item,
+};
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use sha1::digest::generic_array::sequence::Concat;
+
+#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
+pub struct LibraryManager {
+    pub status: LibraryStatus,
+    pub add_to_library_token: FeedbackTokenAddToLibrary<'static>,
+    pub remove_from_library_token: FeedbackTokenRemoveFromLibrary<'static>,
+}
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub enum LibraryStatus {
@@ -32,7 +40,7 @@ pub enum InLikedSongs {
 
 /// Indifferent means that the song has not been liked or disliked.
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
-pub enum SongLikeStatus {
+pub enum LikeStatus {
     #[serde(alias = "LIKE")]
     Liked,
     #[serde(alias = "DISLIKE")]
@@ -51,7 +59,7 @@ pub struct AlbumSong {
     pub feedback_tok_add: FeedbackTokenAddToLibrary<'static>,
     pub feedback_tok_rem: FeedbackTokenRemoveFromLibrary<'static>,
     pub title: String,
-    pub like_status: SongLikeStatus,
+    pub like_status: LikeStatus,
     pub explicit: Explicit,
 }
 
@@ -103,13 +111,7 @@ impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
 fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
     let mut data = json.borrow_pointer(MRLIR)?;
     let title = super::parse_item_text(&mut data, 0, 0)?;
-    let mut library_menu = data
-        .borrow_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
-        .find_map(|item| item.navigate_pointer("/toggleMenuServiceItemRenderer").ok())
-        .ok_or_else(|| {
-            Error::other("expected playlist item to contain a /toggleMenuServiceItemRenderer")
-        })?;
+    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add, feedback_tok_rem) = match library_status {
         LibraryStatus::InLibrary => (

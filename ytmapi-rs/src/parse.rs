@@ -1,6 +1,6 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
+    common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
     nav_consts::*,
@@ -39,6 +39,12 @@ where
 pub enum EpisodeDate {
     Live,
     Recorded { date: String },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum EpisodeDuration {
+    Live,
+    Recorded { duration: String },
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -133,8 +139,8 @@ pub struct ParsedSongArtist {
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongAlbum {
-    pub name: Option<String>,
-    pub id: Option<String>,
+    pub name: String,
+    pub id: AlbumID<'static>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Dynamically defined top result.
@@ -324,16 +330,15 @@ fn parse_song_artists(
 fn parse_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedSongArtist> {
     Ok(ParsedSongArtist {
         name: data.take_value_pointer("/text")?,
-        id: data.take_value_pointer(NAVIGATION_BROWSE_ID)?,
+        id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
     })
 }
 
 fn parse_song_album(data: &mut JsonCrawlerBorrowed, col_idx: usize) -> Result<ParsedSongAlbum> {
     Ok(ParsedSongAlbum {
-        name: parse_item_text(data, col_idx, 0).ok(),
+        name: parse_item_text(data, col_idx, 0)?,
         id: process_flex_column_item(data, col_idx)?
-            .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))
-            .ok(),
+            .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))?,
     })
 }
 

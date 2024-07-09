@@ -74,7 +74,7 @@ macro_rules! parse_test {
         let expected = expected.trim();
         let output = crate::YtMusic::<$token>::process_json(source, $query).unwrap();
         let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        pretty_assertions::assert_eq!(expected, output);
     };
 }
 
@@ -93,29 +93,6 @@ macro_rules! generate_query_test {
             let _ = api.query($query).await.unwrap();
             let api = new_standard_api().await.unwrap();
             let _ = api.query($query).await.unwrap();
-        }
-    };
-}
-
-/// Macro to generate a struct containing fields common to all playlists.
-/// Note, by all fields will be declared pub.
-/// Struct privacy can be declared prior to invoking the macro.
-/// # Example
-/// ```
-/// pub struct Video generate_playlist_struct {
-///     duration: usize,
-/// }
-/// ```
-macro_rules! generate_playlist_struct {
-    ($vis:vis struct $name:ident {$($field_name:ident : $field_type:ty),*}) => {
-        $vis struct $name
-        {
-            $(pub $field_name: $field_type,)*
-            pub title: String,
-            pub feedback_tok_add: crate::common::FeedbackTokenAddToLibrary<'static>,
-            pub feedback_tok_rem: crate::common::FeedbackTokenRemoveFromLibrary<'static>,
-            pub thumbnails: Vec<super::Thumbnail>,
-            pub explicit: crate::common::Explicit,
         }
     };
 }

@@ -171,6 +171,9 @@ impl DoubleEndedIterator for JsonCrawlerArrayIntoIter {
 }
 
 impl<'a> JsonCrawlerBorrowed<'a> {
+    pub fn get_path(&self) -> String {
+        (&self.path).into()
+    }
     pub fn into_array_iter_mut(self) -> Result<JsonCrawlerArrayIterMut<'a>> {
         let json_array = self
             .crawler

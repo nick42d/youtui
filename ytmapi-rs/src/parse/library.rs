@@ -1,19 +1,24 @@
 use super::{
-    parse_item_text, parse_playlist_items, ParseFrom, ProcessedResult, SearchResultAlbum,
-    SongResult, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    parse_item_text, parse_library_management_items_from_menu, parse_playlist_items, EpisodeDate,
+    EpisodeDuration, ParseFrom, PlaylistItem, PlaylistSong, ProcessedResult, SearchResultAlbum,
+    TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
+    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT,
+    THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
-use crate::crawler::JsonCrawler;
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
-    GRID, GRID_ITEMS, ITEM_SECTION, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, SECTION_LIST,
-    SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT,
+    GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+    NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM,
+    SINGLE_COLUMN_TAB, TEXT_RUN, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
+use crate::process::{process_fixed_column_item, process_flex_column_item};
 use crate::query::{
     GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
     GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-use crate::{Result, Thumbnail};
+use crate::{Error, Result, Thumbnail};
 use const_format::concatcp;
 
 #[derive(Debug)]
@@ -45,7 +50,7 @@ impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
     }
 }
 
-impl ParseFrom<GetLibrarySongsQuery> for Vec<SongResult> {
+impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
     fn parse_from(
         p: ProcessedResult<GetLibrarySongsQuery>,
     ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query>::Output> {
@@ -86,21 +91,35 @@ fn parse_library_albums(
     ))?;
     items
         .into_array_into_iter()?
-        .map(parse_item_list_albums)
+        .map(parse_item_list_album)
         .collect()
 }
 fn parse_library_songs(
     json_crawler: JsonCrawler,
-) -> std::prelude::v1::Result<Vec<SongResult>, crate::Error> {
-    let mut contents = json_crawler.navigate_pointer(concatcp!(
+) -> std::prelude::v1::Result<Vec<TableListSong>, crate::Error> {
+    let contents = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
         MUSIC_SHELF,
         "/contents"
     ))?;
-    parse_playlist_items(super::MusicShelfContents {
-        json: contents.borrow_mut(),
-    })
+    contents
+        .into_array_into_iter()?
+        .map(|mut item| {
+            let Ok(mut data) = item.borrow_pointer(MRLIR) else {
+                return Ok(None);
+            };
+            let title = super::parse_item_text(&mut data, 0, 0)?;
+            if title == "Shuffle all" {
+                return Ok(None);
+            }
+            Ok(Some(parse_table_list_song(
+                title,
+                item.borrow_pointer(MRLIR)?,
+            )?))
+        })
+        .filter_map(|result_option| result_option.transpose())
+        .collect()
 }
 fn parse_library_artist_subscriptions(
     json_crawler: JsonCrawler,
@@ -113,7 +132,7 @@ fn parse_library_artist_subscriptions(
     ))?;
     contents
         .into_array_into_iter()?
-        .map(parse_content_list_artist_subscriptions)
+        .map(parse_content_list_artist_subscription)
         .collect()
 }
 
@@ -172,7 +191,7 @@ fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option
     }
 }
 
-fn parse_item_list_albums(mut json_crawler: JsonCrawler) -> Result<SearchResultAlbum> {
+fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAlbum> {
     let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
     let browse_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
@@ -196,7 +215,7 @@ fn parse_item_list_albums(mut json_crawler: JsonCrawler) -> Result<SearchResultA
     })
 }
 
-fn parse_content_list_artist_subscriptions(
+fn parse_content_list_artist_subscription(
     mut json_crawler: JsonCrawler,
 ) -> Result<GetLibraryArtistSubscription> {
     let mut data = json_crawler.borrow_pointer(MRLIR)?;
@@ -229,6 +248,174 @@ fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryAr
         })
     }
     Ok(results)
+}
+pub(crate) fn parse_table_list_items(contents: JsonCrawler) -> Result<Vec<TableListItem>> {
+    contents
+        .into_array_into_iter()?
+        .filter_map(|item| parse_table_list_item(item).transpose())
+        .collect()
+}
+fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<TableListItem>> {
+    let Ok(mut data) = json.borrow_pointer(MRLIR) else {
+        return Ok(None);
+    };
+    let title = super::parse_item_text(&mut data, 0, 0)?;
+    if title == "Shuffle all" {
+        return Ok(None);
+    }
+    let video_type_path = concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        NAVIGATION_VIDEO_TYPE
+    );
+    let video_type: String = data.take_value_pointer(video_type_path)?;
+    let item = match video_type.as_ref() {
+        "MUSIC_VIDEO_TYPE_PODCAST_EPISODE" => Some(TableListItem::Episode(
+            parse_table_list_episode(title, data)?,
+        )),
+        // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
+        "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => {
+            Some(TableListItem::Video(parse_table_list_video(title, data)?))
+        }
+        // Could be 'Audio Track Video'?
+        "MUSIC_VIDEO_TYPE_ATV" => Some(TableListItem::Song(parse_table_list_song(title, data)?)),
+        other => {
+            return Err(Error::other(format!(
+                "Unsupported video type <{other}> at location {}{video_type_path}",
+                data.get_path()
+            )))
+        }
+    };
+    Ok(item)
+}
+
+fn parse_table_list_episode(
+    title: String,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<TableListEpisode> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let is_live = data.path_exists(LIVE_BADGE_LABEL);
+    let (duration, date) = match is_live {
+        true => (EpisodeDuration::Live, EpisodeDate::Live),
+        false => {
+            let date = parse_item_text(&mut data, 2, 0)?;
+            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+                i.take_value_pointer("/text/simpleText")
+                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+            })?;
+            (
+                EpisodeDuration::Recorded { duration },
+                EpisodeDate::Recorded { date },
+            )
+        }
+    };
+    let podcast_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let podcast_id = process_flex_column_item(&mut data, 1)?
+        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+    Ok(TableListEpisode {
+        video_id,
+        duration,
+        title,
+        like_status,
+        thumbnails,
+        date,
+        podcast_name,
+        podcast_id,
+        is_available,
+    })
+}
+
+fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Result<TableListVideo> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let channel_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let channel_id = process_flex_column_item(&mut data, 1)?
+        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+    let playlist_id = data.take_value_pointer(concatcp!(
+        MENU_ITEMS,
+        "/0/menuNavigationItemRenderer",
+        NAVIGATION_PLAYLIST_ID
+    ))?;
+    Ok(TableListVideo {
+        video_id,
+        duration,
+        title,
+        like_status,
+        thumbnails,
+        playlist_id,
+        is_available,
+        channel_name,
+        channel_id,
+    })
+}
+fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result<TableListSong> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let library_management = data
+        .borrow_pointer(MENU_ITEMS)
+        .and_then(parse_library_management_items_from_menu)?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let artists = super::parse_song_artists(&mut data, 1)?;
+    let album = super::parse_song_album(&mut data, 2)?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let playlist_id = data.take_value_pointer(concatcp!(
+        MENU_ITEMS,
+        "/0/menuNavigationItemRenderer",
+        NAVIGATION_PLAYLIST_ID
+    ))?;
+    Ok(TableListSong {
+        video_id,
+        duration,
+        library_management,
+        title,
+        artists,
+        like_status,
+        thumbnails,
+        explicit,
+        album,
+        playlist_id,
+        is_available,
+    })
 }
 
 fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {

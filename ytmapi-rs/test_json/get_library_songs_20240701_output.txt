@@ -1,1178 +1,1062 @@
 [
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: None,
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Shuffle all",
-            like_status: None,
-            thumbnails: [],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
-        video_id: VideoID(
-            "",
-        ),
-        track_no: 1,
-        album: None,
-    },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "3:19",
-            ),
-            feedback_tok_add: Some(
-                "AB9zfpJweMFK78ZGc4BVhcuxCGJtNl71EWLk8ZA7fWlN7V_jx2YL9oIqabHbfm2csGUByk0CMZpQcs0v0Ty46j_pgZdwlQsjrA",
-            ),
-            feedback_tok_rem: Some(
-                "AB9zfpKKiYM8ID11llmuHbgtddkSkXfhixNrFwD25CginkqpNM9KBvl1E3fszJOXruitt256O5_17FvUx9chLjB5WVAdLUDrLw",
-            ),
-            title: "The Winter of Our Passing",
-            like_status: Some(
-                "LIKE",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: true,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "0Toq8VrbLTQ",
         ),
-        track_no: 2,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "City Burials",
+        album: ParsedSongAlbum {
+            name: "City Burials",
+            id: AlbumID(
+                "MPREb_6SxVm1I0tl9",
+            ),
+        },
+        duration: "3:19",
+        library_management: Some(
+            LibraryManager {
+                status: InLibrary,
+                add_to_library_token: FeedbackTokenAddToLibrary(
+                    "AB9zfpKKiYM8ID11llmuHbgtddkSkXfhixNrFwD25CginkqpNM9KBvl1E3fszJOXruitt256O5_17FvUx9chLjB5WVAdLUDrLw",
                 ),
-                id: Some(
-                    "MPREb_6SxVm1I0tl9",
+                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                    "AB9zfpJweMFK78ZGc4BVhcuxCGJtNl71EWLk8ZA7fWlN7V_jx2YL9oIqabHbfm2csGUByk0CMZpQcs0v0Ty46j_pgZdwlQsjrA",
                 ),
             },
         ),
+        title: "The Winter of Our Passing",
+        artists: [
+            ParsedSongArtist {
+                name: "Katatonia",
+                id: Some(
+                    ChannelID(
+                        "UCO1Ue7PBwGgYjTVgA_yrtHQ",
+                    ),
+                ),
+            },
+        ],
+        like_status: Liked,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w120-h120-l90-rj",
+            },
+        ],
+        explicit: IsExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM0Toq8VrbLTQ",
+        ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "1:19",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Pyramid Strings",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "-7avE0GKZrA",
         ),
-        track_no: 3,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "1:19",
+        library_management: None,
+        title: "Pyramid Strings",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM-7avE0GKZrA",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "5:33",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "How to Disappear into Strings",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "1ACmCuuIaMQ",
         ),
-        track_no: 4,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "5:33",
+        library_management: None,
+        title: "How to Disappear into Strings",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM1ACmCuuIaMQ",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "0:47",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Untitled v2",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "1WzCN1syZfc",
         ),
-        track_no: 5,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "0:47",
+        library_management: None,
+        title: "Untitled v2",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM1WzCN1syZfc",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:36",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Morning Bell",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "1pTnps5RQeE",
         ),
-        track_no: 6,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:36",
+        library_management: None,
+        title: "Morning Bell",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM1pTnps5RQeE",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "0:53",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Untitled",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "2Hjrxn8qeig",
         ),
-        track_no: 7,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "0:53",
+        library_management: None,
+        title: "Untitled",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM2Hjrxn8qeig",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "2:26",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Fog (Again Again Version)",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "9vPi8mWg-_8",
         ),
-        track_no: 8,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "2:26",
+        library_management: None,
+        title: "Fog (Again Again Version)",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVM9vPi8mWg-_8",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "3:15",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Morning Bell/Amnesiac",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "DWoL_N4zXUI",
         ),
-        track_no: 9,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "3:15",
+        library_management: None,
+        title: "Morning Bell/Amnesiac",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMDWoL_N4zXUI",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:21",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "If You Say the Word",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "GcIyKK8m4qo",
         ),
-        track_no: 10,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:21",
+        library_management: None,
+        title: "If You Say the Word",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMGcIyKK8m4qo",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "3:21",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Motion Picture Soundtrack",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "Gy9sQ_7bMk8",
         ),
-        track_no: 11,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "3:21",
+        library_management: None,
+        title: "Motion Picture Soundtrack",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMGy9sQ_7bMk8",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "5:57",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "How to Disappear Completely",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "HY_UbJ3rEfY",
         ),
-        track_no: 12,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "5:57",
+        library_management: None,
+        title: "How to Disappear Completely",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMHY_UbJ3rEfY",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:01",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Packt Like Sardines In a Crushd Tin Box",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "JFMq6lCJdHA",
         ),
-        track_no: 13,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:01",
+        library_management: None,
+        title: "Packt Like Sardines In a Crushd Tin Box",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMJFMq6lCJdHA",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "5:10",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Idioteque",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "LyVB_52G4pg",
         ),
-        track_no: 14,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "5:10",
+        library_management: None,
+        title: "Idioteque",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMLyVB_52G4pg",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:52",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Dollars and Cents",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "NGL_j8T1YVE",
         ),
-        track_no: 15,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:52",
+        library_management: None,
+        title: "Dollars and Cents",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMNGL_j8T1YVE",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:54",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "I Might Be Wrong",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "OYe7gqwrkro",
         ),
-        track_no: 16,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:54",
+        library_management: None,
+        title: "I Might Be Wrong",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMOYe7gqwrkro",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:08",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Pulk/Pull Revolving Doors",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "Ps6txeTlzkg",
         ),
-        track_no: 17,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:08",
+        library_management: None,
+        title: "Pulk/Pull Revolving Doors",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMPs6txeTlzkg",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "5:05",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Like Spinning Plates ('Why Us?' Version)",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "QhHMJkeF8zo",
         ),
-        track_no: 18,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "5:05",
+        library_management: None,
+        title: "Like Spinning Plates ('Why Us?' Version)",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMQhHMJkeF8zo",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "3:58",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Like Spinning Plates",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "SKUdDojvq4E",
         ),
-        track_no: 19,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "3:58",
+        library_management: None,
+        title: "Like Spinning Plates",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMSKUdDojvq4E",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:45",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Kid A",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "TOfU3wVpwZQ",
         ),
-        track_no: 20,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:45",
+        library_management: None,
+        title: "Kid A",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMTOfU3wVpwZQ",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "1:49",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Untitled v1",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "ZTvniQgAQ0o",
         ),
-        track_no: 21,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "1:49",
+        library_management: None,
+        title: "Untitled v1",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMZTvniQgAQ0o",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "2:02",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Hunting Bears",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "ZtdW3HTUQqo",
         ),
-        track_no: 22,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "2:02",
+        library_management: None,
+        title: "Hunting Bears",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMZtdW3HTUQqo",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "2:47",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Pulk/Pull (True Love Waits Version)",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "cDQ7raytW0M",
         ),
-        track_no: 23,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "2:47",
+        library_management: None,
+        title: "Pulk/Pull (True Love Waits Version)",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMcDQ7raytW0M",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "4:12",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Everything In Its Right Place",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "d9zk2j3JPK4",
         ),
-        track_no: 24,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "4:12",
+        library_management: None,
+        title: "Everything In Its Right Place",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMd9zk2j3JPK4",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "1:33",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Alt. Fast Track",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "dJV-1zkaTq8",
         ),
-        track_no: 25,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "1:33",
+        library_management: None,
+        title: "Alt. Fast Track",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMdJV-1zkaTq8",
         ),
     },
-    SongResult {
-        core: ResultCore {
-            set_video_id: None,
-            duration: Some(
-                "3:43",
-            ),
-            feedback_tok_add: None,
-            feedback_tok_rem: None,
-            title: "Treefingers",
-            like_status: Some(
-                "INDIFFERENT",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
-                },
-            ],
-            is_available: true,
-            is_explicit: false,
-            video_type: None,
-            browse_id: None,
-            playlist_id: None,
-            playlist_subtitle: None,
-        },
+    TableListSong {
         video_id: VideoID(
             "gA0J1V1_pXM",
         ),
-        track_no: 26,
-        album: Some(
-            ParsedSongAlbum {
-                name: Some(
-                    "KID A MNESIA",
-                ),
+        album: ParsedSongAlbum {
+            name: "KID A MNESIA",
+            id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+        },
+        duration: "3:43",
+        library_management: None,
+        title: "Treefingers",
+        artists: [
+            ParsedSongArtist {
+                name: "Radiohead",
                 id: Some(
-                    "MPREb_E7NpKw54NIT",
+                    ChannelID(
+                        "UCr_iyUANcn9OX_yy9piYoLw",
+                    ),
                 ),
             },
+        ],
+        like_status: Indifferent,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+            },
+        ],
+        explicit: NotExplicit,
+        is_available: true,
+        playlist_id: PlaylistID(
+            "RDAMVMgA0J1V1_pXM",
         ),
     },
 ]

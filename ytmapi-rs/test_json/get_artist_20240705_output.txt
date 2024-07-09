@@ -1,0 +1,423 @@
+ArtistParams {
+    description: "John Winston Ono Lennon was an English singer, songwriter and musician. He gained worldwide fame as the founder, co-lead vocalist and rhythm guitarist of the Beatles. His work included music, writing, drawings and film. His songwriting partnership with Paul McCartney remains the most successful in history as the primary songwriters in the Beatles.\nBorn in Liverpool, Lennon became involved in the skiffle craze as a teenager. In 1956, he formed the Quarrymen, which evolved into the Beatles in 1960. Sometimes called \"the smart Beatle\", Lennon initially was the group's de facto leader, a role he gradually seemed to cede to McCartney. Through his songwriting in the Beatles, he embraced myriad musical influences, initially writing and co-writing rock and pop-oriented hit songs in the band's early years, then later incorporating experimental elements into his compositions in the latter half of the Beatles' career as his songs became known for their increasing innovation.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/John_Lennon) under Creative Commons Attribution CC-BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)",
+    views: "1,385,779,041 views",
+    name: "John Lennon",
+    channel_id: "UCYU4eunPInnHTNWfGvOgkbg",
+    shuffle_id: None,
+    radio_id: None,
+    subscribers: Some(
+        "2.18M",
+    ),
+    subscribed: None,
+    thumbnails: None,
+    top_releases: GetArtistTopReleases {
+        songs: Some(
+            GetArtistSongs {
+                results: [
+                    ArtistSong {
+                        video_id: VideoID(
+                            "rAn-AWXtHv0",
+                        ),
+                        plays: "881M plays",
+                        album: ParsedSongAlbum {
+                            name: "Imagine",
+                            id: AlbumID(
+                                "MPREb_gDaohH1B2Wz",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "John Lennon",
+                                id: Some(
+                                    ChannelID(
+                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_status: NotInLibrary,
+                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
+                            "AB9zfpI5plha7IqgCxSrzTDLrAGdbPaXXWJhAI4IXW08L1jpgXCPOicnoId04x-0arLDfrT0y7JMjf09vlCngve2BiqMCiTsjA",
+                        ),
+                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
+                            "AB9zfpKWy2WlltmhRhqDZKCZCKLKMNenM7ID1KqXUHc8in_xGU5zaGZyNY4EMY7hmcbiqEG-GIBgATbPsFYiIO2gzRctxppVRg",
+                        ),
+                        title: "Imagine",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "zF6e-NmwmnA",
+                        ),
+                        plays: "190M plays",
+                        album: ParsedSongAlbum {
+                            name: "Double Fantasy",
+                            id: AlbumID(
+                                "MPREb_g6LN0lxbFmR",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "John Lennon",
+                                id: Some(
+                                    ChannelID(
+                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_status: NotInLibrary,
+                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
+                            "AB9zfpIdq1iQEapLKr2F7t8kTPr6zbWS8ZP9me2-LxS3qz4MZI7vJItD6Q2owS870rshvJFYuKIoROqOM5TgAbCqQFEPogRG9g",
+                        ),
+                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
+                            "AB9zfpJwsVYmu2cGEDbi1eiReE4QQFLP3u2EHg1PyizW5PcgJYyeEy3qN_lknv5HBONprt_fn1blhUJRIdqWQZbCitSOvcxsaA",
+                        ),
+                        title: "Woman",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "kAAtvu3gW90",
+                        ),
+                        plays: "181M plays",
+                        album: ParsedSongAlbum {
+                            name: "GIMME SOME TRUTH. (Deluxe)",
+                            id: AlbumID(
+                                "MPREb_65XlJUiJd0A",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "John Lennon",
+                                id: Some(
+                                    ChannelID(
+                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_status: NotInLibrary,
+                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
+                            "AB9zfpIyAPF_zOHIju2NvcpLP6cdN0w0by5gCbPYLeYuszPPmzSCxiPaIEc-0YDK4wboCKMP8vle7ECF6OTaJWs2cBS4iGRNLQ",
+                        ),
+                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
+                            "AB9zfpIsQj8e25yWMSxYLnwpZCKE3JclsnFPOBQtWdn7LUkh_GlyyqYfDy0EI2wcaQtnKIsIcztqLaX2M5bdvQUQzJGxVkz7gQ",
+                        ),
+                        title: "Stand By Me (Ultimate Mix)",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "HB5KwxPwQj8",
+                        ),
+                        plays: "43M plays",
+                        album: ParsedSongAlbum {
+                            name: "Double Fantasy",
+                            id: AlbumID(
+                                "MPREb_g6LN0lxbFmR",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "John Lennon",
+                                id: Some(
+                                    ChannelID(
+                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_status: NotInLibrary,
+                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
+                            "AB9zfpKJqZeLIY-Gqwz7s5XDhEf5W2vaBlDx7RafSIpx5ryfla9cb6-QCAAO8XAuwUoayKXqHGUBxKkd4vcRWIGB80DjLnjPjQ",
+                        ),
+                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
+                            "AB9zfpLTz7RIN9YKRsg8DMKGLCIPuwNJFxZO4g26uXE9tCoTlvXWGhf-PxxzeCEfApz74PHBak9XDT31-bmpRzXFjI4fqRLnwg",
+                        ),
+                        title: "Beautiful Boy (Darling Boy)",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "jWG9KAgD6UA",
+                        ),
+                        plays: "47M plays",
+                        album: ParsedSongAlbum {
+                            name: "Double Fantasy",
+                            id: AlbumID(
+                                "MPREb_g6LN0lxbFmR",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "John Lennon",
+                                id: Some(
+                                    ChannelID(
+                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_status: NotInLibrary,
+                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
+                            "AB9zfpIf1A84ImsANlDFQhvIF0hgx2np8E_ttOV8_nxEZp0bXS_5Ezl5CTEtfZxdAWaElDyEQSJxyjubbfL201oIvsDLu9Xwdg",
+                        ),
+                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
+                            "AB9zfpLDiYcL-WQEW4_B1As3qZJIOCsaPD4iMklGmeRJDf4eT0cubSgPGKDzzIxXd1QwA_vaNvi2CiSU_xp4LzLZzDxNKRwSnA",
+                        ),
+                        title: "(Just Like) Starting Over",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                ],
+                browse_id: PlaylistID(
+                    "VLOLAK5uy_lrV3gJKXhN-Ww8eznXsGwiWXh1KHGGPaw",
+                ),
+            },
+        ),
+        albums: Some(
+            GetArtistAlbums {
+                results: [
+                    AlbumResult {
+                        title: "Imagine (The Raw Studio Mixes)",
+                        album_type: Album,
+                        year: "2023",
+                        album_id: AlbumID(
+                            "MPREb_fARbcbseRtg",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/cfw242Jl0Jg6vtUK8pobPlOzKV6rUWaAu1DIdFupw35re86P5LQeu49US1WlGXjT2GjfwEuejeFrmY0=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/cfw242Jl0Jg6vtUK8pobPlOzKV6rUWaAu1DIdFupw35re86P5LQeu49US1WlGXjT2GjfwEuejeFrmY0=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Imagine (The Elements Mixes)",
+                        album_type: Album,
+                        year: "2023",
+                        album_id: AlbumID(
+                            "MPREb_iBvan7d5j0E",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/kpM2h-jmhtvy4oxeygH-tlcBggILWWHVfVIqbL7-BT377mKr4hNGAFIbuFYgEDZ0pK4qN61w_GXklpHHWA=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/kpM2h-jmhtvy4oxeygH-tlcBggILWWHVfVIqbL7-BT377mKr4hNGAFIbuFYgEDZ0pK4qN61w_GXklpHHWA=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "GIMME SOME TRUTH. (Deluxe)",
+                        album_type: Album,
+                        year: "2020",
+                        album_id: AlbumID(
+                            "MPREb_65XlJUiJd0A",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/PM0GAJWGVc70TZcqX0vMZ-Ufhq3mKSGRbU_5gfXCjcBHFOd1X1GLSgj-HXgYtKvCQzu22IdrGunRufQ=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/PM0GAJWGVc70TZcqX0vMZ-Ufhq3mKSGRbU_5gfXCjcBHFOd1X1GLSgj-HXgYtKvCQzu22IdrGunRufQ=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: IsExplicit,
+                    },
+                    AlbumResult {
+                        title: "Milk And Honey",
+                        album_type: Album,
+                        year: "1984",
+                        album_id: AlbumID(
+                            "MPREb_wLbmLuS0Yir",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/eZ4QJxMdB7BKfkMQiQR7fp5XTLsX9zLjd5Ds_nmVG27cpzLTXmwK0QHdHRUGg14_T4hjkFe3nWJpOBw=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/eZ4QJxMdB7BKfkMQiQR7fp5XTLsX9zLjd5Ds_nmVG27cpzLTXmwK0QHdHRUGg14_T4hjkFe3nWJpOBw=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Double Fantasy",
+                        album_type: Album,
+                        year: "1980",
+                        album_id: AlbumID(
+                            "MPREb_g6LN0lxbFmR",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/NOlE2MFK6QlPbJhMdg8CxdPWST149wYCqkgV1-QZQn2FDLsDuvlszoepiWUOYhYivkssKRfmsLEWFw=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/NOlE2MFK6QlPbJhMdg8CxdPWST149wYCqkgV1-QZQn2FDLsDuvlszoepiWUOYhYivkssKRfmsLEWFw=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Rock 'N' Roll",
+                        album_type: Album,
+                        year: "1975",
+                        album_id: AlbumID(
+                            "MPREb_A34bMrtRWST",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/zNmRpRSyE-guT-MDXRsmhPT8PBHBYG9G01GilGda93S_umcUx9rADKXM27IhPqXD5hgAPYUPsXDIBZ5l=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/zNmRpRSyE-guT-MDXRsmhPT8PBHBYG9G01GilGda93S_umcUx9rADKXM27IhPqXD5hgAPYUPsXDIBZ5l=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Walls And Bridges",
+                        album_type: Album,
+                        year: "1974",
+                        album_id: AlbumID(
+                            "MPREb_nXdsD7cWc5P",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/hl9pPbXjYF3hreh82FBswRoLtRVRi4vOXP5ZWE90hy8pH2F-vKZ3duEoa5kbh3YxbGNBgYgMself6AH30w=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/hl9pPbXjYF3hreh82FBswRoLtRVRi4vOXP5ZWE90hy8pH2F-vKZ3duEoa5kbh3YxbGNBgYgMself6AH30w=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Mind Games",
+                        album_type: Album,
+                        year: "1973",
+                        album_id: AlbumID(
+                            "MPREb_R6RvYhkTs70",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/nB2KlaW2fDKMOJVWRRAHisOAbwI45CCL-9mVc0OCkZv3txP_uCzt4chMGT4vjWPElfUW9wcUmQnseU1p=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/nB2KlaW2fDKMOJVWRRAHisOAbwI45CCL-9mVc0OCkZv3txP_uCzt4chMGT4vjWPElfUW9wcUmQnseU1p=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Sometime In New York City",
+                        album_type: Album,
+                        year: "1972",
+                        album_id: AlbumID(
+                            "MPREb_9NgGUhkV6rh",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/CBK8C1yyMNGHBxlSfIFgobgiTH28EQn3p6e_oXFJpKPxCTwZ70YUDlw0M0_kdEzf4hiVsFfnWBkZ3yzG=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/CBK8C1yyMNGHBxlSfIFgobgiTH28EQn3p6e_oXFJpKPxCTwZ70YUDlw0M0_kdEzf4hiVsFfnWBkZ3yzG=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Imagine (The Evolution Documentary)",
+                        album_type: Album,
+                        year: "1971",
+                        album_id: AlbumID(
+                            "MPREb_TFv1w2QzWWh",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/lmXmfUR5iMg4r0sLzf-Bo8gPrvQ0rLGIX3e0_S8zaE2RfwUSnTETF3bkbOLbOp1OjjLoTQAOc3Y__3zs=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/lmXmfUR5iMg4r0sLzf-Bo8gPrvQ0rLGIX3e0_S8zaE2RfwUSnTETF3bkbOLbOp1OjjLoTQAOc3Y__3zs=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                ],
+                browse_id: Some(
+                    ChannelID(
+                        "MPADUCcSL2nYSJp_IgdzH0xBBdcg",
+                    ),
+                ),
+                params: Some(
+                    BrowseParams(
+                        "ggMIegYIARoCAQI%3D",
+                    ),
+                ),
+            },
+        ),
+        singles: None,
+        videos: None,
+        related: None,
+    },
+}

@@ -22,7 +22,7 @@ pub const WATCH_VIDEO_ID: &str = "/watchEndpoint/videoId";
 pub const NAVIGATION_WATCH_PLAYLIST_ID: &str =
     "/navigationEndpoint/watchPlaylistEndpoint/playlistId";
 pub const NAVIGATION_VIDEO_TYPE: &str =
-    "/watchEndpoint/watchEndpointMusicSupportedConfigs/watchEndpointMusicConfig,musicVideoType";
+    "/watchEndpoint/watchEndpointMusicSupportedConfigs/watchEndpointMusicConfig/musicVideoType";
 pub const TITLE: &str = "/title/runs/0";
 pub const TEXT_RUNS: &str = "/text/runs";
 pub const SUBTITLE_RUNS: &str = "/subtitle/runs";

@@ -1,7 +1,7 @@
 use super::{
-    parse_playlist_items, MusicShelfContents, ParseFrom, ProcessedResult, SongResult,
-    DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2,
-    SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
+    parse_playlist_items, MusicShelfContents, ParseFrom, PlaylistItem, PlaylistSong,
+    ProcessedResult, DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL,
+    SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
     common::{PlaylistID, SetVideoID},
@@ -34,9 +34,11 @@ pub struct GetPlaylist {
     track_count_text: String,
     views: String,
     thumbnails: Vec<Thumbnail>,
+    /// Not yet implemented
     suggestions: Vec<()>,
+    /// Not yet implemented
     related: Vec<()>,
-    tracks: Vec<SongResult>,
+    tracks: Vec<PlaylistItem>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Indicates a successful result from an API action such as a 'delete playlist'
@@ -150,9 +152,7 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         "/musicPlaylistShelfRenderer"
     ))?;
     let id = results.take_value_pointer("/playlistId")?;
-    let music_shelf = MusicShelfContents {
-        json: results.navigate_pointer("/contents")?,
-    };
+    let music_shelf = results.navigate_pointer("/contents")?;
     let tracks = parse_playlist_items(music_shelf)?;
     Ok(GetPlaylist {
         id,
@@ -210,11 +210,9 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let id = header.take_value_pointer(
         "/buttons/1/musicPlayButtonRenderer/playNavigationEndpoint/watchEndpoint/playlistId",
     )?;
-    let music_shelf = MusicShelfContents {
-        json: columns.borrow_pointer(
-            "/secondaryContents/sectionListRenderer/contents/0/musicPlaylistShelfRenderer/contents",
-        )?,
-    };
+    let music_shelf = columns.borrow_pointer(
+        "/secondaryContents/sectionListRenderer/contents/0/musicPlaylistShelfRenderer/contents",
+    )?;
     let tracks = parse_playlist_items(music_shelf)?;
     Ok(GetPlaylist {
         id,
@@ -246,20 +244,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_playlist_query() {
-        let source_path = Path::new("./test_json/get_playlist_20240617.json");
-        let expected_path = Path::new("./test_json/get_playlist_20240617_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = GetPlaylistQuery::new(PlaylistID::from_raw(""));
-        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        parse_test!(
+            "./test_json/get_playlist_20240617.json",
+            "./test_json/get_playlist_20240617_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
     }
     #[tokio::test]
     async fn test_add_playlist_items_query_failure() {
@@ -316,19 +306,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_playlist_query_2024() {
-        let source_path = Path::new("./test_json/get_playlist_20240624.json");
-        let expected_path = Path::new("./test_json/get_playlist_20240624_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = GetPlaylistQuery::new(PlaylistID::from_raw(""));
-        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        parse_test!(
+            "./test_json/get_playlist_20240624.json",
+            "./test_json/get_playlist_20240624_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
     }
 }
