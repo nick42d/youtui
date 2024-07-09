@@ -1,8 +1,6 @@
 use const_format::concatcp;
 
-use super::{
-    parse_table_list_items, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF,
-};
+use super::{parse_table_list_items, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF};
 use crate::{
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
@@ -45,6 +43,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<crate::Result<ApiSuccess
                         if p {
                             return Ok(ApiSuccess {});
                         }
+                        // Better handled in another way...
                         Err(Error::other("Recieved isProcessed false"))
                     })
             })

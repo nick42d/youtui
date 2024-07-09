@@ -49,16 +49,16 @@ use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
     watch::WatchPlaylist,
-    PlaylistID, SearchSuggestion,
+    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum,
-    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
-    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
-    TableListItem, TableListSong,
+    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
+    TableListSong,
 };
 pub use process::RawResult;
 use query::{
@@ -74,7 +74,7 @@ use query::{
     GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
-    RemovePlaylistItemsQuery, SearchQuery,
+    RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -334,11 +334,12 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
         self.query(GetHistoryQuery {}).await
     }
-    pub async fn add_history_item() {
-        todo!()
-    }
-    pub async fn remove_history_item() {
-        todo!()
+    pub async fn remove_history_items<'a>(
+        &self,
+        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
+    ) -> Result<Vec<Result<ApiSuccess>>> {
+        let query = RemoveHistoryItemsQuery::new(feedback_tokens);
+        self.query(query).await
     }
     pub async fn rate_song() {
         todo!()
