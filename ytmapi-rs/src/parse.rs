@@ -14,6 +14,7 @@ pub use artist::*;
 use const_format::concatcp;
 pub use library::*;
 pub use playlists::*;
+pub use rate::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -23,6 +24,7 @@ mod continuations;
 mod history;
 mod library;
 mod playlists;
+mod rate;
 mod search;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->

@@ -41,7 +41,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<crate::Result<ApiSuccess
                     .take_value_pointer::<bool>("/isProcessed")
                     .map(|p| {
                         if p {
-                            return Ok(ApiSuccess {});
+                            return Ok(ApiSuccess);
                         }
                         // Better handled in another way...
                         Err(Error::other("Recieved isProcessed false"))
@@ -61,7 +61,7 @@ mod tests {
         parse_test!(
             "./test_json/get_history_20240701.json",
             "./test_json/get_history_20240701_output.txt",
-            crate::query::GetHistoryQuery {},
+            crate::query::GetHistoryQuery,
             BrowserToken
         );
     }

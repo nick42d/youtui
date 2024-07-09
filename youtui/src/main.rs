@@ -137,6 +137,14 @@ enum Command {
     RemoveHistoryItems {
         feedback_tokens: Vec<String>,
     },
+    RateSong {
+        video_id: String,
+        like_status: String,
+    },
+    RatePlaylist {
+        playlist_id: String,
+        like_status: String,
+    },
 }
 
 pub struct RuntimeInfo {

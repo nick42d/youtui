@@ -251,3 +251,83 @@ pub mod watch {
         }
     }
 }
+
+pub mod rate {
+    use serde_json::json;
+
+    use crate::{
+        common::{PlaylistID, YoutubeID},
+        parse::{ApiSuccess, LikeStatus},
+        VideoID,
+    };
+
+    use super::Query;
+
+    pub struct RateSongQuery<'a> {
+        video_id: VideoID<'a>,
+        rating: LikeStatus,
+    }
+    impl<'a> RateSongQuery<'a> {
+        pub fn new(video_id: VideoID<'a>, rating: LikeStatus) -> Self {
+            Self { video_id, rating }
+        }
+    }
+    pub struct RatePlaylistQuery<'a> {
+        playlist_id: PlaylistID<'a>,
+        rating: LikeStatus,
+    }
+    impl<'a> RatePlaylistQuery<'a> {
+        pub fn new(playlist_id: PlaylistID<'a>, rating: LikeStatus) -> Self {
+            Self {
+                playlist_id,
+                rating,
+            }
+        }
+    }
+
+    // AUTH REQUIRED
+    impl<'a> Query for RateSongQuery<'a> {
+        type Output = ApiSuccess
+        where
+            Self: Sized;
+        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+            serde_json::Map::from_iter([(
+                "target".to_string(),
+                json!({"videoId" : self.video_id.get_raw()} ),
+            )])
+        }
+        fn params(&self) -> Option<std::borrow::Cow<str>> {
+            None
+        }
+        fn path(&self) -> &str {
+            like_endpoint(&self.rating)
+        }
+    }
+
+    // AUTH REQUIRED
+    impl<'a> Query for RatePlaylistQuery<'a> {
+        type Output = ApiSuccess
+        where
+            Self: Sized;
+        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+            serde_json::Map::from_iter([(
+                "target".to_string(),
+                json!({"playlistId" : self.playlist_id.get_raw()} ),
+            )])
+        }
+        fn params(&self) -> Option<std::borrow::Cow<str>> {
+            None
+        }
+        fn path(&self) -> &str {
+            like_endpoint(&self.rating)
+        }
+    }
+
+    fn like_endpoint(rating: &LikeStatus) -> &'static str {
+        match *rating {
+            LikeStatus::Liked => "like/like",
+            LikeStatus::Disliked => "like/dislike",
+            LikeStatus::Indifferent => "like/removelike",
+        }
+    }
+}

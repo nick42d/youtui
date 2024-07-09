@@ -1,0 +1,53 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "IhMIvNyPpYybhwMV-MA4Bh0I0gS2",
+      "addToToastAction": {
+        "item": {
+          "notificationActionRenderer": {
+            "responseText": {
+              "runs": [
+                {
+                  "text": "Saved to liked music"
+                }
+              ]
+            },
+            "actionButton": {
+              "buttonRenderer": {
+                "style": "STYLE_DEFAULT",
+                "isDisabled": false,
+                "text": {
+                  "runs": [
+                    {
+                      "text": "Liked Music"
+                    }
+                  ]
+                },
+                "navigationEndpoint": {
+                  "clickTrackingParams": "CAEQ8FsiEwi83I-ljJuHAxX4wDgGHQjSBLY=",
+                  "browseEndpoint": {
+                    "browseId": "VLLM"
+                  }
+                },
+                "trackingParams": "CAEQ8FsiEwi83I-ljJuHAxX4wDgGHQjSBLY="
+              }
+            },
+            "trackingParams": "CAAQuWoiEwi83I-ljJuHAxX4wDgGHQjSBLY="
+          }
+        }
+      }
+    },
+    {
+      "clickTrackingParams": "IhMIvNyPpYybhwMV-MA4Bh0I0gS2",
+      "runAttestationCommand": {
+        "ids": [
+          {
+            "encryptedVideoId": "kfSQkZuIx84"
+          }
+        ],
+        "engagementType": "ENGAGEMENT_TYPE_VIDEO_LIKE"
+      }
+    }
+  ]
+}
+

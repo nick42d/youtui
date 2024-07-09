@@ -55,7 +55,7 @@ pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    GetPlaylist, LikeStatus, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
     TableListSong,
@@ -68,6 +68,7 @@ use query::{
         SongsFilter, VideosFilter,
     },
     lyrics::GetLyricsQuery,
+    rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
@@ -332,7 +333,7 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
-        self.query(GetHistoryQuery {}).await
+        self.query(GetHistoryQuery).await
     }
     pub async fn remove_history_items<'a>(
         &self,
@@ -341,11 +342,17 @@ impl<A: AuthToken> YtMusic<A> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
         self.query(query).await
     }
-    pub async fn rate_song() {
-        todo!()
+    pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {
+        let query = RateSongQuery::new(video_id, rating);
+        self.query(query).await
     }
-    pub async fn rate_playlist() {
-        todo!()
+    pub async fn rate_playlist(
+        &self,
+        playlist_id: PlaylistID<'_>,
+        rating: LikeStatus,
+    ) -> Result<ApiSuccess> {
+        let query = RatePlaylistQuery::new(playlist_id, rating);
+        self.query(query).await
     }
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,

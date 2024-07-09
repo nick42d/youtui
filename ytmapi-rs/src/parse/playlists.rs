@@ -1,7 +1,7 @@
 use super::{
-    parse_playlist_items, ParseFrom, PlaylistItem,
-    ProcessedResult, DESCRIPTION_SHELF_RUNS, HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL,
-    SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
+    parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
+    HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
+    TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
     common::{PlaylistID, SetVideoID},
@@ -43,7 +43,7 @@ pub struct GetPlaylist {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Indicates a successful result from an API action such as a 'delete playlist'
 // May be common
-pub struct ApiSuccess {}
+pub struct ApiSuccess;
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Provides a SetVideoID and VideoID for each video added to the playlist.
 pub struct AddPlaylistItem {
@@ -55,7 +55,7 @@ impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
     fn parse_from(
         _: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
     ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query>::Output> {
-        Ok(ApiSuccess {})
+        Ok(ApiSuccess)
     }
 }
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
@@ -101,7 +101,7 @@ impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiSuccess {
         let json_crawler: JsonCrawler = p.into();
         let status: String = json_crawler.navigate_pointer("/status")?.take_value()?;
         match status.as_str() {
-            "STATUS_SUCCEEDED" => Ok(ApiSuccess {}),
+            "STATUS_SUCCEEDED" => Ok(ApiSuccess),
             other => Err(Error::other(format!(
                 "Unknown status {other} received from API"
             ))),
@@ -112,7 +112,7 @@ impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
     fn parse_from(
         _: ProcessedResult<DeletePlaylistQuery<'a>>,
     ) -> crate::Result<<DeletePlaylistQuery<'a> as crate::query::Query>::Output> {
-        Ok(ApiSuccess {})
+        Ok(ApiSuccess)
     }
 }
 

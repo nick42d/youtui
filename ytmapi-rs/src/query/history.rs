@@ -5,7 +5,7 @@ use crate::{
 };
 use serde_json::json;
 
-pub struct GetHistoryQuery {}
+pub struct GetHistoryQuery;
 pub struct RemoveHistoryItemsQuery<'a> {
     feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
 }

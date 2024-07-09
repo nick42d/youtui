@@ -1,14 +1,15 @@
 use ytmapi_rs::{
     auth::AuthToken,
     common::{
-        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID,
-        YoutubeID,
+        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID, YoutubeID,
     },
+    parse::LikeStatus,
     query::{
-        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
-        CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-        EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
-        GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        rate::{RatePlaylistQuery, RateSongQuery},
+        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
+        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
+        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
+        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
         GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
@@ -248,7 +249,7 @@ pub async fn command_to_query<A: AuthToken>(
             get_string_output_of_query(yt, GetLibraryArtistSubscriptionsQuery::default(), cli_query)
                 .await
         }
-        Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery {}, cli_query).await,
+        Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery, cli_query).await,
         Command::RemoveHistoryItems { feedback_tokens } => {
             get_string_output_of_query(
                 yt,
@@ -257,6 +258,44 @@ pub async fn command_to_query<A: AuthToken>(
                         .iter()
                         .map(FeedbackTokenRemoveFromHistory::from_raw)
                         .collect(),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::RateSong {
+            video_id,
+            like_status,
+        } => {
+            get_string_output_of_query(
+                yt,
+                RateSongQuery::new(
+                    VideoID::from_raw(video_id),
+                    match like_status.as_str() {
+                        "Like" => LikeStatus::Liked,
+                        "Dislike" => LikeStatus::Disliked,
+                        "Indifferent" => LikeStatus::Indifferent,
+                        other => panic!("Unhandled like status <{other}>"),
+                    },
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::RatePlaylist {
+            playlist_id,
+            like_status,
+        } => {
+            get_string_output_of_query(
+                yt,
+                RatePlaylistQuery::new(
+                    PlaylistID::from_raw(playlist_id),
+                    match like_status.as_str() {
+                        "Like" => LikeStatus::Liked,
+                        "Dislike" => LikeStatus::Disliked,
+                        "Indifferent" => LikeStatus::Indifferent,
+                        other => panic!("Unhandled like status <{other}>"),
+                    },
                 ),
                 cli_query,
             )
