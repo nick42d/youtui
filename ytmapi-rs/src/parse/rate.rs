@@ -2,6 +2,7 @@ use super::{ApiSuccess, ParseFrom, ProcessedResult};
 use crate::{
     crawler::JsonCrawler,
     query::rate::{RatePlaylistQuery, RateSongQuery},
+    Error,
 };
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for ApiSuccess {
@@ -23,8 +24,13 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for ApiSuccess {
         // which is caught by AuthToken. Youtube does no checking on
         // Indifferent, even an invalid PlaylistID will return success.
         let json_crawler = JsonCrawler::from(p);
-        todo!("Check if the correct paths exist in json_crawler");
-        Ok(ApiSuccess)
+        // TODO: Error type
+        json_crawler
+            .navigate_pointer("/actions")?
+            .into_array_into_iter()?
+            .find_map(|a| a.navigate_pointer("/addToToastAction").ok())
+            .map(|_| ApiSuccess)
+            .ok_or_else(|| Error::other("Expected /actions to contain a /addToToastAction"))
     }
 }
 #[cfg(test)]

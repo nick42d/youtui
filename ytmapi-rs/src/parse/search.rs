@@ -69,7 +69,7 @@ fn parse_basic_search_result_from_section_list_contents(
         match SearchResultType::try_from(
             // TODO: Better navigation
             category
-                .take_value_pointer::<String, &str>(TITLE_TEXT)?
+                .take_value_pointer::<String, _>(TITLE_TEXT)?
                 .as_str(),
         )? {
             SearchResultType::TopResults => {
