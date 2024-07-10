@@ -43,7 +43,7 @@ Chrome example (Select manually and paste):
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
-- [ ] Logging to a file (target for 0.0.6)
+- [ ] Logging to a file
 - [x] Release to AUR (target for 0.0.4)
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [ ] Dbus support for media keys
@@ -89,12 +89,12 @@ Chrome example (Select manually and paste):
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|
 |GetLikedSongs|[ ]||
-|GetHistory|[ ]||
+|GetHistory|[x]||
 |AddHistoryItem|[ ]||
-|RemoveHistoryItem|[ ]||
-|RateSong|[ ]||
+|RemoveHistoryItem|[x]||
+|RateSong|[x]||
 |EditSongLibraryStatus|[ ]||
-|RatePlaylist|[ ]||
+|RatePlaylist|[x]||
 |SubscribeArtists|[ ]||
 |UnsubscribeArtists|[ ]||
 |GetPlaylist|[x]|[ ]|

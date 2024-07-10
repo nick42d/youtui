@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5](https://github.com/nick42d/youtui/compare/ytmapi-rs-v0.0.4...ytmapi-rs-v0.0.5) - 2024-07-10
+
+### Added
+- [**breaking**] Implement History queries and refactor 'playlist' result types ([#59](https://github.com/nick42d/youtui/pull/59)) - Resolves [#58](https://github.com/nick42d/youtui/pull/58)
+- feat(api)! Implement library queries - resolves [#56](https://github.com/nick42d/youtui/pull/56) ([#57](https://github.com/nick42d/youtui/pull/57))
+
+### Other
+- Fix reqest URL on ytmapi docs
+- [**breaking**] API refactoring: LibraryArtistsSortOrder renamed GetLibrarySortOrder, AlbumParams other versions removed, AlbumParams like_status removed, replaced with new field library_status, AlbumLikeStatus renamed to InLikedSongs, ParseTarget for errors modified - only types now Array or Other(String), module YoutubeResult and usage of ResultCore and YoutubeResult trait removed, add error message to ErrorKind::OtherCodeInResponse, impl_youtube_id no longer public/
+
 ## [0.0.4](https://github.com/nick42d/youtui/compare/ytmapi-rs-v0.0.3...ytmapi-rs-v0.0.4) - 2024-06-27
 
 ### Added
