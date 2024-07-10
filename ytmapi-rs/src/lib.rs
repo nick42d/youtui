@@ -49,7 +49,7 @@ use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
     watch::WatchPlaylist,
-    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
+    FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
@@ -71,8 +71,8 @@ use query::{
     rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
-    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
+    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
+    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
     RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
@@ -340,6 +340,13 @@ impl<A: AuthToken> YtMusic<A> {
         feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
+        self.query(query).await
+    }
+    pub async fn edit_song_library_status<'a>(
+        &self,
+        feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    ) -> Result<Vec<Result<ApiSuccess>>> {
+        let query = EditSongLibraryStatusQuery::new(feedback_tokens);
         self.query(query).await
     }
     pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {

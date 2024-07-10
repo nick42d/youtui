@@ -1,15 +1,16 @@
 use ytmapi_rs::{
     auth::AuthToken,
     common::{
-        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID, YoutubeID,
+        AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
+        PlaylistID, SetVideoID, YoutubeID,
     },
     parse::LikeStatus,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
-        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
-        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
+        EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
+        GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
         GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
@@ -296,6 +297,19 @@ pub async fn command_to_query<A: AuthToken>(
                         "Indifferent" => LikeStatus::Indifferent,
                         other => panic!("Unhandled like status <{other}>"),
                     },
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::EditLibraryStatus { feedback_tokens } => {
+            get_string_output_of_query(
+                yt,
+                EditSongLibraryStatusQuery::new(
+                    feedback_tokens
+                        .iter()
+                        .map(|s| FeedbackTokenAddToLibrary::from_raw(s))
+                        .collect(),
                 ),
                 cli_query,
             )

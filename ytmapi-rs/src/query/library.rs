@@ -1,10 +1,10 @@
 use super::Query;
 use crate::{
-    common::library::{LibraryArtist, Playlist},
-    parse::{
-        GetLibraryArtistSubscription, SearchResultAlbum,
-        TableListSong,
+    common::{
+        library::{LibraryArtist, Playlist},
+        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
     },
+    parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -43,6 +43,36 @@ pub struct GetLibraryArtistSubscriptionsQuery {
 // TODO: Method to add sort order
 pub struct GetLibraryArtistsQuery {
     sort_order: GetLibrarySortOrder,
+}
+pub struct EditSongLibraryStatusQuery<'a> {
+    feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+}
+
+impl GetLibrarySongsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryAlbumsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryArtistSubscriptionsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryArtistsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl<'a> EditSongLibraryStatusQuery<'a> {
+    pub fn new(feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>) -> Self {
+        todo!("Implement both add and remove library feedback tokens");
+        Self { feedback_tokens }
+    }
 }
 
 impl Query for GetLibraryPlaylistsQuery {
@@ -123,6 +153,23 @@ impl Query for GetLibraryArtistSubscriptionsQuery {
     }
     fn path(&self) -> &str {
         "browse"
+    }
+}
+// NOTE: Does not work on brand accounts
+// NOTE: Auth required
+impl<'a> Query for EditSongLibraryStatusQuery<'a> {
+    type Output = Vec<crate::Result<ApiSuccess>>
+    where
+        Self: Sized;
+
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(self.feedback_tokens))])
+    }
+    fn params(&self) -> Option<std::borrow::Cow<str>> {
+        None
+    }
+    fn path(&self) -> &str {
+        "feedback"
     }
 }
 
