@@ -10,7 +10,6 @@ use ratatui::{
     text::{Line, Span},
     widgets::{block::Title, Block, Borders, Gauge, Paragraph},
 };
-use ytmapi_rs::common::youtuberesult::YoutubeResult;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
@@ -42,7 +41,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             duration = w
                 .playlist
                 .get_song_from_id(*id)
-                .and_then(|s| s.raw.get_duration().as_deref())
+                .map(|s| &s.raw.duration)
                 .map(parse_simple_time_to_secs)
                 .unwrap_or(0);
             progress = w.playlist.cur_played_secs.unwrap_or(0.0);
@@ -57,7 +56,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            .map(|s| s.raw.get_title().to_owned())
+            .map(|s| s.raw.title.to_owned())
             .unwrap_or("No title".to_string()),
         PlayState::NotPlaying => "Not playing".to_string(),
         PlayState::Stopped => "Not playing".to_string(),

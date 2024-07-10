@@ -1,0 +1,29 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "IhMIg5TttYubhwMVqudzAR3jQATV",
+      "addToToastAction": {
+        "item": {
+          "notificationTextRenderer": {
+            "successResponseText": {
+              "runs": [
+                {
+                  "text": "Removed from library"
+                }
+              ]
+            },
+            "trackingParams": "CAAQyscDIhMIg5TttYubhwMVqudzAR3jQATV"
+          }
+        }
+      }
+    },
+    {
+      "clickTrackingParams": "IhMIg5TttYubhwMVqudzAR3jQATV",
+      "removeFromGuideSectionAction": {
+        "handlerData": "GUIDE_ACTION_REMOVE_FROM_PLAYLISTS",
+        "guideEntryId": "PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"
+      }
+    }
+  ]
+}
+

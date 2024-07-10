@@ -1,25 +1,21 @@
-use super::MusicShelfContents;
-use super::ParseFrom;
-use super::ParsedSongAlbum;
-use super::ProcessedResult;
-use crate::common::youtuberesult::ResultCore;
-use crate::common::youtuberesult::YoutubeResult;
-use crate::common::AlbumID;
-use crate::common::BrowseParams;
-use crate::common::PlaylistID;
-use crate::common::VideoID;
-use crate::common::YoutubeID;
-use crate::crawler::JsonCrawler;
-use crate::crawler::JsonCrawlerBorrowed;
-use crate::nav_consts::*;
-use crate::process::process_fixed_column_item;
-use crate::query::*;
-use crate::ChannelID;
-use crate::Result;
-use crate::Thumbnail;
+use super::{
+    parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
+    LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult,
+    SearchResultVideo,
+};
+use crate::{
+    common::{
+        AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
+        FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
+    },
+    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    nav_consts::*,
+    process::{get_library_menu_from_menu, process_fixed_column_item, process_flex_column_item},
+    query::*,
+    ChannelID, Error, Result, Thumbnail,
+};
 use const_format::concatcp;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
@@ -35,7 +31,59 @@ pub struct ArtistParams {
     pub top_releases: GetArtistTopReleases,
 }
 
+fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
+    let mut data = json.borrow_pointer(MRLIR)?;
+    let title = process_flex_column_item(&mut data, 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let plays = process_flex_column_item(&mut data, 2)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let artists = parse_song_artists(&mut data, 1)?;
+    let album = parse_song_album(&mut data, 3)?;
+    let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
+    let (feedback_tok_add_to_library, feedback_tok_rem_from_library) = match library_status {
+        LibraryStatus::InLibrary => (
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+        ),
+        LibraryStatus::NotInLibrary => (
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+        ),
+    };
+    Ok(ArtistSong {
+        video_id,
+        plays,
+        album,
+        artists,
+        library_status,
+        feedback_tok_add_to_library,
+        feedback_tok_rem_from_library,
+        title,
+        like_status,
+        explicit,
+    })
+}
+fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> {
+    // Unsure if this should be optional or not.
+    let browse_id = json.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
+    let results = json
+        .borrow_pointer("/contents")?
+        .into_array_iter_mut()?
+        .map(|mut item| parse_artist_song(&mut item))
+        .collect::<Result<Vec<ArtistSong>>>()?;
+    Ok(GetArtistSongs { results, browse_id })
+}
+
 impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
+    // While this function gets improved, we'll allow this link for the creation of
+    // GetArtistTopReleases.
+    #[allow(clippy::field_reassign_with_default)]
     fn parse_from(
         p: ProcessedResult<GetArtistQuery<'a>>,
     ) -> crate::Result<<GetArtistQuery<'a> as Query>::Output> {
@@ -67,27 +115,12 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                 }
             }
         }
-        //        if 'musicShelfRenderer' in results[0]:  # API sometimes does not
-        // return songs            musicShelf = nav(results[0], MUSIC_SHELF)
-        //            if 'navigationEndpoint' in nav(musicShelf, TITLE):
-        //                artist['songs']['browseId'] = nav(musicShelf, TITLE +
-        // NAVIGATION_BROWSE_ID)            artist['songs']['results'] =
-        // parse_playlist_items(musicShelf['contents'])            XXX: CPanics
-        // here
         let mut top_releases = GetArtistTopReleases::default();
-        if results.path_exists("/0/musicShelfRenderer") {
-            if let Ok(mut music_shelf) = results.borrow_pointer(concatcp!("/0", MUSIC_SHELF)) {
-                // Unsure if this should be optional or not.
-                let browse_id = music_shelf
-                    .take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))
-                    .map(|b_id: String| PlaylistID::from_raw(b_id))?;
-                let music_shelf_contents =
-                    MusicShelfContents::from_crawler(music_shelf.navigate_pointer("/contents")?);
-                let results = parse_playlist_items(music_shelf_contents)?;
-                let songs = GetArtistSongs { results, browse_id };
-                top_releases.songs = Some(songs);
-            }
-        }
+        top_releases.songs = results
+            .borrow_pointer(concatcp!("/0", MUSIC_SHELF))
+            .ok()
+            .map(|mut j| parse_artist_songs(&mut j))
+            .transpose()?;
         // TODO: Check if Carousel Title is in list of categories.
         // TODO: Actually pass these variables in the return
         // XXX: Looks to be two loops over results here.
@@ -105,13 +138,13 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             );
             // Likely optional, need to confirm.
             // XXX: Errors here
-            let browse_id: Option<String> = r
+            let browse_id: Option<ChannelID> = r
                 .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
                 .ok();
             // XXX should only be mandatory for albums, singles, playlists
             // as a result leaving as optional for now.
             let params = r
-                .take_value_pointer::<String, &str>(concatcp!(
+                .take_value_pointer::<String, _>(concatcp!(
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
@@ -128,7 +161,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                         results.push(parse_album_from_mtrir(i.navigate_pointer(MTRIR)?)?);
                     }
                     let albums = GetArtistAlbums {
-                        browse_id: browse_id.map(AlbumID::from_raw),
+                        browse_id,
                         params,
                         results,
                     };
@@ -197,23 +230,36 @@ pub struct GetArtistRelated {
 }
 #[derive(Debug, Clone)]
 pub struct GetArtistSongs {
-    pub results: Vec<SongResult>,
+    pub results: Vec<ArtistSong>,
     pub browse_id: PlaylistID<'static>,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct ArtistSong {
+    pub video_id: VideoID<'static>,
+    pub plays: String,
+    pub album: ParsedSongAlbum,
+    pub artists: Vec<ParsedSongArtist>,
+    pub library_status: LibraryStatus,
+    pub feedback_tok_add_to_library: FeedbackTokenAddToLibrary<'static>,
+    pub feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary<'static>,
+    pub title: String,
+    pub like_status: LikeStatus,
+    pub explicit: Explicit,
 }
 #[derive(Debug, Clone)]
 pub struct GetArtistVideos {
-    pub results: Vec<VideoResult>,
+    pub results: Vec<SearchResultVideo>,
     pub browse_id: PlaylistID<'static>,
 }
 /// The Albums section of the Browse Artist page.
 /// The browse_id and params can be used to get the full list of artist's
-/// albums. If they aren't set, and results is not empty, assuming that all
-/// albums are displayed here already.
+/// albums. If they aren't set, and results is not empty, you can assume that
+/// all albums are displayed here already.
 #[derive(Debug, Clone)]
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
     // XXX: Unsure if AlbumID is correct here.
-    pub browse_id: Option<AlbumID<'static>>,
+    pub browse_id: Option<ChannelID<'static>>,
     pub params: Option<BrowseParams<'static>>,
 }
 #[derive(Debug, Clone)]
@@ -224,47 +270,119 @@ pub struct RelatedResult {
 }
 #[derive(Debug, Clone)]
 pub struct AlbumResult {
-    core: ResultCore,
-}
-#[derive(Debug, Clone)]
-pub struct VideoResult {
-    core: ResultCore,
-}
-impl YoutubeResult for VideoResult {
-    fn get_core(&self) -> &ResultCore {
-        &self.core
-    }
-}
-impl YoutubeResult for AlbumResult {
-    fn get_core(&self) -> &ResultCore {
-        &self.core
-    }
+    pub title: String,
+    pub album_type: AlbumType,
+    pub year: String,
+    pub album_id: AlbumID<'static>,
+    pub library_status: LibraryStatus,
+    pub thumbnails: Vec<Thumbnail>,
+    pub explicit: Explicit,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Could this alternatively be Result<Song>?
-pub struct SongResult {
-    core: ResultCore,
-    video_id: VideoID<'static>,
-    track_no: usize,
-    album: Option<ParsedSongAlbum>,
+// May need to be enum to track 'Not Available' case.
+pub struct PlaylistSong {
+    pub video_id: VideoID<'static>,
+    pub track_no: usize,
+    pub album: ParsedSongAlbum,
+    pub duration: String,
+    /// Some songs may not have library management features. There could be
+    /// various resons for this.
+    pub library_management: Option<LibraryManager>,
+    pub title: String,
+    pub artists: Vec<super::ParsedSongArtist>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub explicit: Explicit,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
 }
-impl YoutubeResult for SongResult {
-    fn get_core(&self) -> &ResultCore {
-        &self.core
-    }
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct PlaylistVideo {
+    pub video_id: VideoID<'static>,
+    pub track_no: usize,
+    pub duration: String,
+    pub title: String,
+    // Could be 'ParsedVideoChannel'
+    pub channel_name: String,
+    pub channel_id: ChannelID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
 }
-impl SongResult {
-    pub fn get_video_id(&self) -> &VideoID<'static> {
-        &self.video_id
-    }
-    pub fn get_album(&self) -> &Option<ParsedSongAlbum> {
-        &self.album
-    }
-    pub fn get_track_no(&self) -> usize {
-        self.track_no
-    }
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Could this alternatively be Result<Song>?
+// May need to be enum to track 'Not Available' case.
+pub struct TableListSong {
+    pub video_id: VideoID<'static>,
+    pub album: ParsedSongAlbum,
+    pub duration: String,
+    /// Some songs may not have library management features. There could be
+    /// various resons for this.
+    pub library_management: Option<LibraryManager>,
+    pub title: String,
+    pub artists: Vec<super::ParsedSongArtist>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub explicit: Explicit,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
 }
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct TableListVideo {
+    pub video_id: VideoID<'static>,
+    pub duration: String,
+    pub title: String,
+    // Could be 'ParsedVideoChannel'
+    pub channel_name: String,
+    pub channel_id: ChannelID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct TableListEpisode {
+    pub video_id: VideoID<'static>,
+    // May be live or non-live...
+    pub date: EpisodeDate,
+    pub duration: EpisodeDuration,
+    pub title: String,
+    pub podcast_name: String,
+    pub podcast_id: PlaylistID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub enum PlaylistItem {
+    Song(PlaylistSong),
+    Video(PlaylistVideo),
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub enum TableListItem {
+    Song(TableListSong),
+    Video(TableListVideo),
+    Episode(TableListEpisode),
+}
+
 // Should be at higher level in mod structure.
 #[derive(Debug)]
 enum ArtistTopReleaseCategory {
@@ -293,159 +411,190 @@ impl ArtistTopReleaseCategory {
 }
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
-    let _year: Option<String> = navigator.take_value_pointer(SUBTITLE2).ok();
-    let browse_id: String = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
+    let album_type = navigator.take_value_pointer(SUBTITLE)?;
+    let year = navigator.take_value_pointer(SUBTITLE2)?;
+    let album_id = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
-    let is_explicit = navigator.path_exists(concatcp!(TITLE, SUBTITLE_BADGE_LABEL));
-    let core = ResultCore::new(
-        None,
-        None,
-        None,
-        None,
+    let explicit = if navigator.path_exists(concatcp!(SUBTITLE_BADGE_LABEL)) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let mut library_menu = get_library_menu_from_menu(navigator.borrow_pointer(MENU_ITEMS)?)?;
+    let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
+    Ok(AlbumResult {
         title,
-        None,
+        album_type,
+        year,
+        album_id,
+        library_status,
         thumbnails,
-        false,
-        is_explicit,
-        None,
-        Some(ChannelID::from_raw(browse_id)),
-        None,
-        None,
-    );
-    Ok(AlbumResult { core })
+        explicit,
+    })
 }
 
+pub(crate) fn parse_library_management_items_from_menu(
+    menu: JsonCrawlerBorrowed,
+) -> Result<Option<LibraryManager>> {
+    let Ok(mut library_menu) = get_library_menu_from_menu(menu) else {
+        return Ok(None);
+    };
+    let status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
+    let (add_to_library_token, remove_from_library_token) = match status {
+        LibraryStatus::InLibrary => (
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+        ),
+        LibraryStatus::NotInLibrary => (
+            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
+            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
+        ),
+    };
+    Ok(Some(LibraryManager {
+        status,
+        add_to_library_token,
+        remove_from_library_token,
+    }))
+}
+
+pub(crate) fn parse_playlist_song(
+    title: String,
+    track_no: usize,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<PlaylistSong> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let library_management = data
+        .borrow_pointer(MENU_ITEMS)
+        .and_then(parse_library_management_items_from_menu)?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let artists = super::parse_song_artists(&mut data, 1)?;
+    let album = super::parse_song_album(&mut data, 2)?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let playlist_id = data.take_value_pointer(concatcp!(
+        MENU_ITEMS,
+        "/0/menuNavigationItemRenderer",
+        NAVIGATION_PLAYLIST_ID
+    ))?;
+    Ok(PlaylistSong {
+        video_id,
+        track_no,
+        duration,
+        library_management,
+        title,
+        artists,
+        like_status,
+        thumbnails,
+        explicit,
+        album,
+        playlist_id,
+        is_available,
+    })
+}
+pub(crate) fn parse_playlist_video(
+    title: String,
+    track_no: usize,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<PlaylistVideo> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let channel_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let channel_id = process_flex_column_item(&mut data, 1)?
+        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+
+    let playlist_id = data.take_value_pointer(concatcp!(
+        MENU_ITEMS,
+        "/0/menuNavigationItemRenderer",
+        NAVIGATION_PLAYLIST_ID
+    ))?;
+    Ok(PlaylistVideo {
+        video_id,
+        track_no,
+        duration,
+        title,
+        like_status,
+        thumbnails,
+        playlist_id,
+        is_available,
+        channel_name,
+        channel_id,
+    })
+}
+
+pub(crate) fn parse_playlist_item(
+    track_no: usize,
+    json: &mut JsonCrawlerBorrowed,
+) -> Result<Option<PlaylistItem>> {
+    let Ok(mut data) = json.borrow_pointer(MRLIR) else {
+        return Ok(None);
+    };
+    let title = super::parse_item_text(&mut data, 0, 0)?;
+    if title == "Song deleted" {
+        return Ok(None);
+    }
+    let video_type_path = concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        NAVIGATION_VIDEO_TYPE
+    );
+    let video_type: String = data.take_value_pointer(video_type_path)?;
+    let item = match video_type.as_ref() {
+        // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
+        "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => Some(PlaylistItem::Video(
+            parse_playlist_video(title, track_no, data)?,
+        )),
+        // Could be 'Audio Track Video'?
+        "MUSIC_VIDEO_TYPE_ATV" => Some(PlaylistItem::Song(parse_playlist_song(
+            title, track_no, data,
+        )?)),
+        other => {
+            return Err(Error::other(format!(
+                "Unsupported video type <{other}> at location {}{video_type_path}",
+                data.get_path()
+            )))
+        }
+    };
+    Ok(item)
+}
 //TODO: Menu entries
 //TODO: Consider rename
-pub(crate) fn parse_playlist_items(music_shelf: MusicShelfContents) -> Result<Vec<SongResult>> {
-    let MusicShelfContents { json } = music_shelf;
-    let mut results = Vec::new();
-    // this should be set in each loop not here...
-    for (i, result_json) in json.into_array_iter_mut().into_iter().flatten().enumerate() {
-        let Ok(mut data) = result_json.navigate_pointer(MRLIR) else {
-            continue;
-        };
-        let mut set_video_id = None;
-        let mut video_id = String::default();
-        let mut feedback_tok_add = None;
-        let mut feedback_tok_remove = None;
-        let mut like_status = None;
-
-        // If the item has a menu, video_id will be here.
-        if data.path_exists("/menu") {
-            for mut item in data
-                .borrow_pointer(MENU_ITEMS)?
-                .into_array_iter_mut()
-                .into_iter()
-                .flatten()
-            {
-                if let Ok(mut menu_service) =
-                    item.borrow_pointer(concatcp!(MENU_SERVICE, "/playlistEditEndpoint"))
-                {
-                    set_video_id = menu_service.take_value_pointer("/actions/0/setVideoId")?;
-                    video_id = menu_service.take_value_pointer("/actions/0/removedVideoId")?;
-                }
-                if let Ok(mut toggle_menu) = item.navigate_pointer(TOGGLE_MENU) {
-                    let library_add_token = toggle_menu
-                        .take_value_pointer(concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN))
-                        .ok();
-                    let library_remove_token = toggle_menu
-                        .take_value_pointer(concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN))
-                        .ok();
-                    let service_type =
-                        toggle_menu.take_value_pointer::<String, &str>("/defaultIcon/iconType");
-                    // Swap if already in library
-                    if let Ok("LIBRARY_REMOVE") = service_type.as_deref() {
-                        feedback_tok_add = library_remove_token;
-                        feedback_tok_remove = library_add_token;
-                    } else {
-                        feedback_tok_add = library_add_token;
-                        feedback_tok_remove = library_remove_token;
-                    }
-                }
-            }
-        }
-        //   if item is not playable, the video_id was retrieved above
-        if let Ok(mut p) = data.borrow_pointer(concatcp!(PLAY_BUTTON, "/playNavigationEndpoint")) {
-            video_id = p.take_value_pointer("/watchEndpoint/videoId")?;
-            if data.path_exists("/menu") {
-                // Optional
-                like_status = data.take_value_pointer(MENU_LIKE_STATUS).ok();
-            }
-        }
-        let title = super::parse_item_text(&mut data, 0, 0)?;
-        if title == "Song deleted" {
-            continue;
-        }
-
-        // Artists may not exist, using an empty vector to represent this.
-        // It depends on the query type so consider reflecting this in the code.
-        // XXX: Consider which parts of this query are mandatory as currently erroring.
-        // Using OK as a crutch to avoid error.
-        let _artists = super::parse_song_artists(&mut data, 1)?;
-        // Album may not exist, using an Option to reflect this.
-        // It depends on the query type so consider reflecting this in the code.
-        let album = super::parse_song_album(&mut data, 2).ok();
-        let duration = if data.path_exists("/fixedColumns") {
-            process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-                i.take_value_pointer("/text/simpleText")
-                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-            })?
-        } else {
-            None
-        };
-        // Thumbnails is supposedly optional here, so we'll return an empty Vec if
-        // failed to find. https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/mixins/browsing.py#L231
-        let thumbnails = data
-            .take_value_pointer::<Vec<Thumbnail>, &str>(THUMBNAILS)
-            .into_iter()
-            .flatten()
-            .collect();
-
-        // XXX: test this
-        let is_available = data
-            .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
-            .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
-            .unwrap_or(true);
-
-        let is_explicit = data.path_exists(BADGE_LABEL);
-        let video_type = data
-            .take_value_pointer(concatcp!(
-                MENU_ITEMS,
-                "/0/menuNavigationItemRenderer/navigationEndpoint",
-                NAVIGATION_VIDEO_TYPE
-            ))
-            .ok();
-
-        let result = SongResult {
-            core: ResultCore::new(
-                set_video_id,
-                duration,
-                feedback_tok_add,
-                feedback_tok_remove,
-                title,
-                like_status,
-                thumbnails,
-                is_available,
-                is_explicit,
-                video_type,
-                None,
-                None,
-                None,
-            ),
-            album,
-            video_id: VideoID::from_raw(video_id),
-            // Need to add parsing for this.
-            track_no: i + 1,
-        };
-        // TODO: Menu_entries
-        //    if menu_entries:
-        //        for menu_entry in menu_entries:
-        //            song[menu_entry[-1]] = nav(data, MENU_ITEMS + menu_entry)
-        //
-        results.push(result);
-    }
-    Ok(results)
+pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<PlaylistItem>> {
+    json.into_array_iter_mut()
+        .into_iter()
+        .flatten()
+        .enumerate()
+        .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
+        .collect()
 }
 impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
     fn parse_from(
@@ -507,6 +656,16 @@ mod tests {
         let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
         let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
         let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        pretty_assertions::assert_eq!(output, expected);
+    }
+
+    #[tokio::test]
+    async fn test_get_artist() {
+        parse_test!(
+            "./test_json/get_artist_20240705.json",
+            "./test_json/get_artist_20240705_output.txt",
+            crate::query::GetArtistQuery::new(ChannelID::from_raw("")),
+            BrowserToken
+        );
     }
 }

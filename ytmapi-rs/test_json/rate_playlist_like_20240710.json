@@ -1,0 +1,127 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "IhMIjJnHr4ubhwMVRq7YBR1eEQAO",
+      "addToToastAction": {
+        "item": {
+          "notificationActionRenderer": {
+            "responseText": {
+              "runs": [
+                {
+                  "text": "Saved to library"
+                }
+              ]
+            },
+            "actionButton": {
+              "buttonRenderer": {
+                "style": "STYLE_DEFAULT",
+                "isDisabled": false,
+                "text": {
+                  "runs": [
+                    {
+                      "text": "View"
+                    }
+                  ]
+                },
+                "navigationEndpoint": {
+                  "clickTrackingParams": "CAMQ8FsiEwiMmcevi5uHAxVGrtgFHV4RAA4=",
+                  "browseEndpoint": {
+                    "browseId": "FEmusic_library_landing"
+                  }
+                },
+                "trackingParams": "CAMQ8FsiEwiMmcevi5uHAxVGrtgFHV4RAA4="
+              }
+            },
+            "trackingParams": "CAIQuWoiEwiMmcevi5uHAxVGrtgFHV4RAA4="
+          }
+        }
+      }
+    },
+    {
+      "clickTrackingParams": "IhMIjJnHr4ubhwMVRq7YBR1eEQAO",
+      "addToGuideSectionAction": {
+        "handlerData": "GUIDE_ACTION_ADD_TO_PLAYLISTS",
+        "items": [
+          {
+            "guideEntryRenderer": {
+              "navigationEndpoint": {
+                "clickTrackingParams": "CAAQpoULGAIiEwiMmcevi5uHAxVGrtgFHV4RAA4=",
+                "browseEndpoint": {
+                  "browseId": "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+                  "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": {
+                      "pageType": "MUSIC_PAGE_TYPE_PLAYLIST"
+                    }
+                  }
+                }
+              },
+              "trackingParams": "CAAQpoULGAIiEwiMmcevi5uHAxVGrtgFHV4RAA4=",
+              "formattedTitle": {
+                "runs": [
+                  {
+                    "text": "The Beatles - Beatles 100 (Official Playlist)"
+                  }
+                ]
+              },
+              "formattedSubtitle": {
+                "runs": [
+                  {
+                    "text": "The Beatles"
+                  }
+                ]
+              },
+              "accessibility": {
+                "accessibilityData": {
+                  "label": "The Beatles - Beatles 100 (Official Playlist)"
+                }
+              },
+              "entryData": {
+                "guideEntryData": {
+                  "guideEntryId": "PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"
+                }
+              },
+              "mouseOverButton": {
+                "musicPlayButtonRenderer": {
+                  "playNavigationEndpoint": {
+                    "clickTrackingParams": "CAEQyN4CIhMIjJnHr4ubhwMVRq7YBR1eEQAO",
+                    "watchPlaylistEndpoint": {
+                      "playlistId": "PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+                      "params": "wAEB8gECKAE%3D"
+                    }
+                  },
+                  "trackingParams": "CAEQyN4CIhMIjJnHr4ubhwMVRq7YBR1eEQAO",
+                  "playIcon": {
+                    "iconType": "PLAY_ARROW"
+                  },
+                  "pauseIcon": {
+                    "iconType": "PAUSE"
+                  },
+                  "iconColor": 4294967295,
+                  "backgroundColor": 0,
+                  "activeBackgroundColor": 0,
+                  "loadingIndicatorColor": 4294901760,
+                  "playingIcon": {
+                    "iconType": "VOLUME_UP"
+                  },
+                  "iconLoadingColor": 0,
+                  "activeScaleFactor": 1,
+                  "accessibilityPlayData": {
+                    "accessibilityData": {
+                      "label": "Play"
+                    }
+                  },
+                  "accessibilityPauseData": {
+                    "accessibilityData": {
+                      "label": "Pause"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+

@@ -59,6 +59,7 @@ macro_rules! impl_youtube_id {
 /// Macro to generate a parsing test based on the following values:
 /// May not really need a macro for this, could use a function.
 /// Input file, output file, query, token
+/// Note, this is async due to use of tokio::fs
 #[cfg(test)]
 macro_rules! parse_test {
     ($in:expr,$out:expr,$query:expr,$token:ty) => {
@@ -71,9 +72,9 @@ macro_rules! parse_test {
             .await
             .expect("Expect file read to pass during tests");
         let expected = expected.trim();
-        let output = YtMusic::<$token>::process_json(source, $query).unwrap();
+        let output = crate::YtMusic::<$token>::process_json(source, $query).unwrap();
         let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        pretty_assertions::assert_eq!(expected, output);
     };
 }
 

@@ -1,7 +1,10 @@
 use super::Query;
 use crate::{
     common::library::{LibraryArtist, Playlist},
-    parse::{GetLibraryArtistSubscription, SearchResultAlbum, SongResult},
+    parse::{
+        GetLibraryArtistSubscription, SearchResultAlbum,
+        TableListSong,
+    },
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -78,7 +81,7 @@ impl Query for GetLibraryArtistsQuery {
 }
 
 impl Query for GetLibrarySongsQuery {
-    type Output = Vec<SongResult>
+    type Output = Vec<TableListSong>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

@@ -107,6 +107,12 @@ pub enum AlbumType {
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct FeedbackTokenRemoveFromHistory<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct FeedbackTokenAddToLibrary<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct FeedbackTokenRemoveFromLibrary<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
@@ -133,6 +139,9 @@ impl_youtube_id!(VideoID<'a>);
 impl_youtube_id!(PlaylistID<'a>);
 impl_youtube_id!(ChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
+impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
+impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
+impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
@@ -235,119 +244,6 @@ pub mod browsing {
         }
         pub fn new(lyrics: String, source: String) -> Self {
             Self { lyrics, source }
-        }
-    }
-}
-pub mod youtuberesult {
-    use super::{PlaylistID, SetVideoID};
-    use crate::{ChannelID, Thumbnail};
-    use serde::{Deserialize, Serialize};
-
-    pub trait YoutubeResult {
-        fn get_core(&self) -> &ResultCore;
-        // Note, mandatory for Song but not some others.
-        fn get_set_video_id(&self) -> &Option<SetVideoID> {
-            &self.get_core().set_video_id
-        }
-        fn get_duration(&self) -> &Option<String> {
-            &self.get_core().duration
-        }
-        fn get_feedback_tok_add(&self) -> &Option<String> {
-            &self.get_core().feedback_tok_add
-        }
-        fn get_feedback_tok_rem(&self) -> &Option<String> {
-            &self.get_core().feedback_tok_rem
-        }
-        fn get_title(&self) -> &String {
-            &self.get_core().title
-        }
-        fn get_like_status(&self) -> &Option<String> {
-            &self.get_core().like_status
-        }
-        fn get_thumbnails(&self) -> &Vec<Thumbnail> {
-            &self.get_core().thumbnails
-        }
-        fn get_is_available(&self) -> &bool {
-            &self.get_core().is_available
-        }
-        fn get_is_explicit(&self) -> &bool {
-            &self.get_core().is_explicit
-        }
-        fn get_video_type(&self) -> &Option<String> {
-            &self.get_core().video_type
-        }
-        fn get_channel_id(&self) -> &Option<ChannelID> {
-            &self.get_core().browse_id
-        }
-        fn get_playlist_id(&self) -> &Option<PlaylistID> {
-            &self.get_core().playlist_id
-        }
-        fn get_playlist_subtitle(&self) -> &Option<String> {
-            &self.get_core().playlist_subtitle
-        }
-    }
-    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-    pub struct ResultCore {
-        // video_id: VideoID<'static>, //Note this is mandatory for Song but not some others, this
-        // is a weakness of this genericised approach.
-        set_video_id: Option<SetVideoID<'static>>,
-        duration: Option<String>,
-        feedback_tok_add: Option<String>,
-        feedback_tok_rem: Option<String>,
-        title: String,
-        // albums don't contain track_no
-        // track_no: usize,
-        // songs don't contain artists.
-        // artists: Vec<super::ParsedSongArtist>,
-        // albums don't contain albums.
-        // album: Option<ParsedSongAlbum>,
-        like_status: Option<String>,
-        thumbnails: Vec<super::Thumbnail>,
-        is_available: bool,
-        is_explicit: bool,
-        video_type: Option<String>,
-        // year: Option<String>,
-        // Songs don't contain a year.
-        // Should this be optional?
-        // XXX: Seems this can be a channelID or AlbumID...
-        browse_id: Option<ChannelID<'static>>,
-        playlist_id: Option<PlaylistID<'static>>,
-        playlist_subtitle: Option<String>, /* Consider difference between None and Never for
-                                            * these
-                                            * Options. Most likely is a better way to do this. */
-    }
-
-    impl ResultCore {
-        pub fn new(
-            set_video_id: Option<SetVideoID<'static>>,
-            duration: Option<String>,
-            feedback_tok_add: Option<String>,
-            feedback_tok_rem: Option<String>,
-            title: String,
-            like_status: Option<String>,
-            thumbnails: Vec<super::Thumbnail>,
-            is_available: bool,
-            is_explicit: bool,
-            video_type: Option<String>,
-            browse_id: Option<ChannelID<'static>>,
-            playlist_id: Option<PlaylistID<'static>>,
-            playlist_subtitle: Option<String>,
-        ) -> Self {
-            Self {
-                set_video_id,
-                duration,
-                feedback_tok_add,
-                feedback_tok_rem,
-                title,
-                like_status,
-                thumbnails,
-                is_available,
-                is_explicit,
-                video_type,
-                browse_id,
-                playlist_id,
-                playlist_subtitle,
-            }
         }
     }
 }

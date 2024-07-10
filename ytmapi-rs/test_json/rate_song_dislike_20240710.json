@@ -1,0 +1,33 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "IhMI5f2UrIybhwMVj7PYBR3fNQ0Q",
+      "addToToastAction": {
+        "item": {
+          "notificationTextRenderer": {
+            "successResponseText": {
+              "runs": [
+                {
+                  "text": "Got it, we'll tune your recommendations"
+                }
+              ]
+            },
+            "trackingParams": "CAAQyscDIhMI5f2UrIybhwMVj7PYBR3fNQ0Q"
+          }
+        }
+      }
+    },
+    {
+      "clickTrackingParams": "IhMI5f2UrIybhwMVj7PYBR3fNQ0Q",
+      "runAttestationCommand": {
+        "ids": [
+          {
+            "encryptedVideoId": "kfSQkZuIx84"
+          }
+        ],
+        "engagementType": "ENGAGEMENT_TYPE_VIDEO_DISLIKE"
+      }
+    }
+  ]
+}
+

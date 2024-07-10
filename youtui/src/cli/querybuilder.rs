@@ -1,14 +1,18 @@
 use ytmapi_rs::{
     auth::AuthToken,
-    common::{AlbumID, BrowseParams, PlaylistID, SetVideoID, YoutubeID},
+    common::{
+        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID, YoutubeID,
+    },
+    parse::LikeStatus,
     query::{
+        rate::{RatePlaylistQuery, RateSongQuery},
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
         CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
         FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
-        GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
+        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
+        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID, YtMusic,
 };
@@ -189,10 +193,7 @@ pub async fn command_to_query<A: AuthToken>(
                 yt,
                 RemovePlaylistItemsQuery::new(
                     PlaylistID::from_raw(playlist_id),
-                    set_video_ids
-                        .iter()
-                        .map(|v| SetVideoID::from_raw(v))
-                        .collect(),
+                    set_video_ids.iter().map(SetVideoID::from_raw).collect(),
                 ),
                 cli_query,
             )
@@ -206,7 +207,7 @@ pub async fn command_to_query<A: AuthToken>(
                 yt,
                 AddPlaylistItemsQuery::new_from_videos(
                     PlaylistID::from_raw(playlist_id),
-                    video_ids.iter().map(|v| VideoID::from_raw(v)).collect(),
+                    video_ids.iter().map(VideoID::from_raw).collect(),
                     Default::default(),
                 ),
                 cli_query,
@@ -247,6 +248,58 @@ pub async fn command_to_query<A: AuthToken>(
         Command::GetLibraryArtistSubscriptions => {
             get_string_output_of_query(yt, GetLibraryArtistSubscriptionsQuery::default(), cli_query)
                 .await
+        }
+        Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery, cli_query).await,
+        Command::RemoveHistoryItems { feedback_tokens } => {
+            get_string_output_of_query(
+                yt,
+                RemoveHistoryItemsQuery::new(
+                    feedback_tokens
+                        .iter()
+                        .map(FeedbackTokenRemoveFromHistory::from_raw)
+                        .collect(),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::RateSong {
+            video_id,
+            like_status,
+        } => {
+            get_string_output_of_query(
+                yt,
+                RateSongQuery::new(
+                    VideoID::from_raw(video_id),
+                    match like_status.as_str() {
+                        "Like" => LikeStatus::Liked,
+                        "Dislike" => LikeStatus::Disliked,
+                        "Indifferent" => LikeStatus::Indifferent,
+                        other => panic!("Unhandled like status <{other}>"),
+                    },
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::RatePlaylist {
+            playlist_id,
+            like_status,
+        } => {
+            get_string_output_of_query(
+                yt,
+                RatePlaylistQuery::new(
+                    PlaylistID::from_raw(playlist_id),
+                    match like_status.as_str() {
+                        "Like" => LikeStatus::Liked,
+                        "Dislike" => LikeStatus::Disliked,
+                        "Indifferent" => LikeStatus::Indifferent,
+                        other => panic!("Unhandled like status <{other}>"),
+                    },
+                ),
+                cli_query,
+            )
+            .await
         }
     }
 }

@@ -1,6 +1,6 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    common::{AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
+    common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
     nav_consts::*,
@@ -20,8 +20,10 @@ use std::fmt::Debug;
 mod album;
 mod artist;
 mod continuations;
+mod history;
 mod library;
 mod playlists;
+mod rate;
 mod search;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->
@@ -37,6 +39,12 @@ where
 pub enum EpisodeDate {
     Live,
     Recorded { date: String },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum EpisodeDuration {
+    Live,
+    Recorded { duration: String },
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -127,12 +135,12 @@ impl TryFrom<&str> for TopResultType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
     pub name: String,
-    pub id: Option<String>,
+    pub id: Option<ChannelID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongAlbum {
-    pub name: Option<String>,
-    pub id: Option<String>,
+    pub name: String,
+    pub id: AlbumID<'static>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Dynamically defined top result.
@@ -310,35 +318,27 @@ fn parse_song_artists(
     data: &mut JsonCrawlerBorrowed,
     col_idx: usize,
 ) -> Result<Vec<ParsedSongArtist>> {
-    let mut artists = Vec::new();
-    let Ok(flex_items) = process::process_flex_column_item(data, col_idx) else {
-        return Ok(artists);
-    };
-    let Ok(flex_items_runs) = flex_items.navigate_pointer("/text/runs") else {
-        return Ok(artists);
-    };
-    // https://github.com/sigma67/ytmusicapi/blob/master/ytmusicapi/parsers/songs.py
-    // parse_song_artists_runs
-    for mut i in flex_items_runs
-        .into_array_iter_mut()
-        .into_iter()
-        .flatten()
+    let flex_item_runs =
+        process::process_flex_column_item(data, col_idx)?.navigate_pointer("/text/runs")?;
+    flex_item_runs
+        .into_array_iter_mut()?
         .step_by(2)
-    {
-        artists.push(ParsedSongArtist {
-            name: i.take_value_pointer("/text")?,
-            id: i.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
-        });
-    }
-    Ok(artists)
+        .map(|mut item| parse_song_artist(&mut item))
+        .collect()
+}
+
+fn parse_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedSongArtist> {
+    Ok(ParsedSongArtist {
+        name: data.take_value_pointer("/text")?,
+        id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
+    })
 }
 
 fn parse_song_album(data: &mut JsonCrawlerBorrowed, col_idx: usize) -> Result<ParsedSongAlbum> {
     Ok(ParsedSongAlbum {
-        name: parse_item_text(data, col_idx, 0).ok(),
+        name: parse_item_text(data, col_idx, 0)?,
         id: process_flex_column_item(data, col_idx)?
-            .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))
-            .ok(),
+            .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))?,
     })
 }
 
@@ -427,17 +427,16 @@ mod watch {
         common::watch::WatchPlaylist,
         crawler::{JsonCrawler, JsonCrawlerBorrowed},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
-        query::watch::GetWatchPlaylistQuery,
-        Result, VideoID,
+        query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID},
+        Result,
     };
 
     use super::{ParseFrom, ProcessedResult};
 
-    impl<'a> ParseFrom<GetWatchPlaylistQuery<VideoID<'a>>> for WatchPlaylist {
+    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(
-            p: ProcessedResult<GetWatchPlaylistQuery<VideoID<'a>>>,
-        ) -> crate::Result<<GetWatchPlaylistQuery<VideoID<'a>> as crate::query::Query>::Output>
-        {
+            p: ProcessedResult<GetWatchPlaylistQuery<T>>,
+        ) -> crate::Result<<GetWatchPlaylistQuery<T> as crate::query::Query>::Output> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;

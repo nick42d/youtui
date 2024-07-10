@@ -66,7 +66,7 @@ Chrome example (Select manually and paste):
 |Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- | --- |
 |GetArtist | [x] ||
-|GetAlbum | [x] ||
+|GetAlbum | [ ]* ||
 |GetArtistAlbums | [x] ||
 |Search | [x] |[ ]|
 |GetSearchSuggestions|[x]||
@@ -113,6 +113,9 @@ Chrome example (Select manually and paste):
 
 \* get watch playlist is partially implemented only
 - only returns playlist and lyrics ids
+
+\* get artist is partially implemented only
+- only returns albums and songs
 
 # Additional information
 See the wiki for additional information

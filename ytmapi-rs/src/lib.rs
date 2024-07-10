@@ -49,15 +49,16 @@ use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
     watch::WatchPlaylist,
-    PlaylistID, SearchSuggestion,
+    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 use parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    GetPlaylist, LikeStatus, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, SongResult,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
+    TableListSong,
 };
 pub use process::RawResult;
 use query::{
@@ -67,13 +68,14 @@ use query::{
         SongsFilter, VideosFilter,
     },
     lyrics::GetLyricsQuery,
+    rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
     AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetLibraryAlbumsQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
-    RemovePlaylistItemsQuery, SearchQuery,
+    RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -312,7 +314,10 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<LibraryArtist>> {
         query.call(self).await
     }
-    pub async fn get_library_songs(&self, query: GetLibrarySongsQuery) -> Result<Vec<SongResult>> {
+    pub async fn get_library_songs(
+        &self,
+        query: GetLibrarySongsQuery,
+    ) -> Result<Vec<TableListSong>> {
         query.call(self).await
     }
     pub async fn get_library_albums(
@@ -327,20 +332,27 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<GetLibraryArtistSubscription>> {
         query.call(self).await
     }
-    pub async fn get_history() {
-        todo!()
+    pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
+        self.query(GetHistoryQuery).await
     }
-    pub async fn add_history_item() {
-        todo!()
+    pub async fn remove_history_items<'a>(
+        &self,
+        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
+    ) -> Result<Vec<Result<ApiSuccess>>> {
+        let query = RemoveHistoryItemsQuery::new(feedback_tokens);
+        self.query(query).await
     }
-    pub async fn remove_history_item() {
-        todo!()
+    pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {
+        let query = RateSongQuery::new(video_id, rating);
+        self.query(query).await
     }
-    pub async fn rate_song() {
-        todo!()
-    }
-    pub async fn rate_playlist() {
-        todo!()
+    pub async fn rate_playlist(
+        &self,
+        playlist_id: PlaylistID<'_>,
+        rating: LikeStatus,
+    ) -> Result<ApiSuccess> {
+        let query = RatePlaylistQuery::new(playlist_id, rating);
+        self.query(query).await
     }
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,

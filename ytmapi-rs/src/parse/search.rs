@@ -29,7 +29,7 @@ const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // TODO: Type safety
 // TODO: Tests
-fn parse_basic_search_result_from_xx(
+fn parse_basic_search_result_from_section_list_contents(
     mut section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
     // Imperative solution, may be able to make more functional.
@@ -69,7 +69,7 @@ fn parse_basic_search_result_from_xx(
         match SearchResultType::try_from(
             // TODO: Better navigation
             category
-                .take_value_pointer::<String, &str>(TITLE_TEXT)?
+                .take_value_pointer::<String, _>(TITLE_TEXT)?
                 .as_str(),
         )? {
             SearchResultType::TopResults => {
@@ -166,7 +166,7 @@ fn parse_top_results_from_music_card_shelf_contents(
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
     let result_type = TopResultType::try_from(
         music_shelf_contents
-            .take_value_pointer::<String, &str>(SUBTITLE)?
+            .take_value_pointer::<String, _>(SUBTITLE)?
             .as_str(),
     )?;
     // Possibly artists only.
@@ -757,7 +757,7 @@ impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResult
         if section_list_contents_is_empty(&section_list_contents) {
             return Ok(Self::default());
         }
-        parse_basic_search_result_from_xx(section_list_contents)
+        parse_basic_search_result_from_section_list_contents(section_list_contents)
     }
 }
 

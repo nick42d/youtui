@@ -4,6 +4,7 @@ use crate::parse::ParseFrom;
 use crate::{Result, YtMusic};
 pub use album::*;
 pub use artist::*;
+pub use history::*;
 pub use library::*;
 pub use playlist::*;
 pub use search::*;
@@ -11,6 +12,7 @@ use std::borrow::Cow;
 use std::future::Future;
 
 mod artist;
+mod history;
 mod library;
 mod playlist;
 mod search;
@@ -153,25 +155,59 @@ pub mod watch {
     use serde_json::json;
     use std::borrow::Cow;
 
+    pub trait GetWatchPlaylistQueryID {
+        fn get_video_id(&self) -> Option<Cow<str>>;
+        fn get_playlist_id(&self) -> Cow<str>;
+    }
+
+    pub struct GetWatchPlaylistQuery<T: GetWatchPlaylistQueryID> {
+        id: T,
+    }
     pub struct VideoAndPlaylistID<'a> {
         video_id: VideoID<'a>,
         playlist_id: PlaylistID<'a>,
     }
 
-    pub struct GetWatchPlaylistQuery<T> {
-        id: T,
+    impl<'a> GetWatchPlaylistQueryID for VideoAndPlaylistID<'a> {
+        fn get_video_id(&self) -> Option<Cow<str>> {
+            Some(self.video_id.get_raw().into())
+        }
+
+        fn get_playlist_id(&self) -> Cow<str> {
+            self.playlist_id.get_raw().into()
+        }
     }
-    impl<'a> Query for GetWatchPlaylistQuery<VideoID<'a>> {
+    impl<'a> GetWatchPlaylistQueryID for VideoID<'a> {
+        fn get_video_id(&self) -> Option<Cow<str>> {
+            Some(self.get_raw().into())
+        }
+
+        fn get_playlist_id(&self) -> Cow<str> {
+            format!("RDAMVM{}", self.get_raw()).into()
+        }
+    }
+    impl<'a> GetWatchPlaylistQueryID for PlaylistID<'a> {
+        fn get_video_id(&self) -> Option<Cow<str>> {
+            None
+        }
+        fn get_playlist_id(&self) -> Cow<str> {
+            self.get_raw().into()
+        }
+    }
+
+    impl<T: GetWatchPlaylistQueryID> Query for GetWatchPlaylistQuery<T> {
         type Output = WatchPlaylist;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-            let serde_json::Value::Object(map) = json!({
+            let serde_json::Value::Object(mut map) = json!({
                 "enablePersistentPlaylistPanel": true,
                 "isAudioOnly": true,
                 "tunerSettingValue": "AUTOMIX_SETTING_NORMAL",
-                "videoId" : self.id.get_raw(),
-                "playlistId" : format!("RDAMVM{}",self.id.get_raw()),
+                "playlistId" : self.id.get_playlist_id(),
             }) else {
                 unreachable!()
+            };
+            if let Some(video_id) = self.id.get_video_id() {
+                map.insert("videoId".to_string(), json!(video_id));
             };
             map
         }
@@ -212,6 +248,86 @@ pub mod watch {
                     playlist_id: self.id,
                 },
             }
+        }
+    }
+}
+
+pub mod rate {
+    use serde_json::json;
+
+    use crate::{
+        common::{PlaylistID, YoutubeID},
+        parse::{ApiSuccess, LikeStatus},
+        VideoID,
+    };
+
+    use super::Query;
+
+    pub struct RateSongQuery<'a> {
+        video_id: VideoID<'a>,
+        rating: LikeStatus,
+    }
+    impl<'a> RateSongQuery<'a> {
+        pub fn new(video_id: VideoID<'a>, rating: LikeStatus) -> Self {
+            Self { video_id, rating }
+        }
+    }
+    pub struct RatePlaylistQuery<'a> {
+        playlist_id: PlaylistID<'a>,
+        rating: LikeStatus,
+    }
+    impl<'a> RatePlaylistQuery<'a> {
+        pub fn new(playlist_id: PlaylistID<'a>, rating: LikeStatus) -> Self {
+            Self {
+                playlist_id,
+                rating,
+            }
+        }
+    }
+
+    // AUTH REQUIRED
+    impl<'a> Query for RateSongQuery<'a> {
+        type Output = ApiSuccess
+        where
+            Self: Sized;
+        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+            serde_json::Map::from_iter([(
+                "target".to_string(),
+                json!({"videoId" : self.video_id.get_raw()} ),
+            )])
+        }
+        fn params(&self) -> Option<std::borrow::Cow<str>> {
+            None
+        }
+        fn path(&self) -> &str {
+            like_endpoint(&self.rating)
+        }
+    }
+
+    // AUTH REQUIRED
+    impl<'a> Query for RatePlaylistQuery<'a> {
+        type Output = ApiSuccess
+        where
+            Self: Sized;
+        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+            serde_json::Map::from_iter([(
+                "target".to_string(),
+                json!({"playlistId" : self.playlist_id.get_raw()} ),
+            )])
+        }
+        fn params(&self) -> Option<std::borrow::Cow<str>> {
+            None
+        }
+        fn path(&self) -> &str {
+            like_endpoint(&self.rating)
+        }
+    }
+
+    fn like_endpoint(rating: &LikeStatus) -> &'static str {
+        match *rating {
+            LikeStatus::Liked => "like/like",
+            LikeStatus::Disliked => "like/dislike",
+            LikeStatus::Indifferent => "like/removelike",
         }
     }
 }

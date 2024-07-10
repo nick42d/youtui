@@ -1,0 +1,22 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "IhMIn__ZnoubhwMVFrPYBR1V0gh0",
+      "addToToastAction": {
+        "item": {
+          "notificationTextRenderer": {
+            "successResponseText": {
+              "runs": [
+                {
+                  "text": "Got it, we'll tune your recommendations"
+                }
+              ]
+            },
+            "trackingParams": "CAAQyscDIhMIn__ZnoubhwMVFrPYBR1V0gh0"
+          }
+        }
+      }
+    }
+  ]
+}
+

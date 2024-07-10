@@ -52,6 +52,13 @@ async fn test_refresh_expired_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     api.refresh_token().await.unwrap();
 }
+
+#[tokio::test]
+async fn test_get_oauth_code() {
+    let client = Client::new();
+    let _code = OAuthTokenGenerator::new(&client).await.unwrap();
+}
+
 #[tokio::test]
 async fn test_expired_oauth() {
     // XXX: Assuming this error only occurs for expired headers.
@@ -105,40 +112,55 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 
+generate_query_test!(test_get_history, GetHistoryQuery {});
 generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
 generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
 generate_query_test!(
     test_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
+generate_query_test!(test_basic_search, SearchQuery::new("Beatles"));
+generate_query_test!(
+    test_search_artists,
+    SearchQuery::new("Beatles").with_filter(ArtistsFilter)
+);
+generate_query_test!(
+    test_search_songs,
+    SearchQuery::new("Beatles").with_filter(SongsFilter)
+);
+generate_query_test!(
+    test_search_albums,
+    SearchQuery::new("Beatles").with_filter(AlbumsFilter)
+);
+generate_query_test!(
+    test_search_videos,
+    SearchQuery::new("Beatles").with_filter(VideosFilter)
+);
+generate_query_test!(
+    test_search_episodes,
+    SearchQuery::new("Beatles").with_filter(EpisodesFilter)
+);
+generate_query_test!(
+    test_search_podcasts,
+    SearchQuery::new("Beatles").with_filter(PodcastsFilter)
+);
+generate_query_test!(
+    test_search_profiles,
+    SearchQuery::new("Beatles").with_filter(ProfilesFilter)
+);
+generate_query_test!(
+    test_search_featured_playlists,
+    SearchQuery::new("Beatles").with_filter(FeaturedPlaylistsFilter)
+);
+generate_query_test!(
+    test_search_community_playlists,
+    SearchQuery::new("Beatles").with_filter(CommunityPlaylistsFilter)
+);
+generate_query_test!(
+    test_search_playlists,
+    SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
+);
 
-#[tokio::test]
-async fn test_basic_search() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_basic_search_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_artists_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_artists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_artists() {
-    // TODO: Add siginficantly more queries.
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_artists("Beatles").await.unwrap();
-}
 #[tokio::test]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
@@ -168,6 +190,57 @@ async fn test_delete_create_playlist() {
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();
+}
+#[tokio::test]
+async fn test_rate_songs() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    // TODO: Confirm what songs these are.
+    api.rate_song(VideoID::from_raw("kfSQkZuIx84"), LikeStatus::Liked)
+        .await
+        .unwrap();
+    api.rate_song(VideoID::from_raw("EjHzPrBCgf0"), LikeStatus::Disliked)
+        .await
+        .unwrap();
+    api.rate_song(VideoID::from_raw("kfSQkZuIx84"), LikeStatus::Indifferent)
+        .await
+        .unwrap();
+    api.rate_song(VideoID::from_raw("EjHzPrBCgf0"), LikeStatus::Indifferent)
+        .await
+        .unwrap();
+}
+#[tokio::test]
+async fn test_rate_playlists() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    api.rate_playlist(
+        // Beatles Jukebox (Featured Playlist)
+        PlaylistID::from_raw("RDCLAK5uy_lHIiCEeknPkpJOowyykpfBu-ECJB9Q32I"),
+        LikeStatus::Liked,
+    )
+    .await
+    .unwrap();
+    api.rate_playlist(
+        // The Beatles - Beatles 100 (Community Playlist)
+        PlaylistID::from_raw("PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"),
+        LikeStatus::Disliked,
+    )
+    .await
+    .unwrap();
+    api.rate_playlist(
+        // Beatles Jukebox (Featured Playlist)
+        PlaylistID::from_raw("RDCLAK5uy_lHIiCEeknPkpJOowyykpfBu-ECJB9Q32I"),
+        LikeStatus::Indifferent,
+    )
+    .await
+    .unwrap();
+    api.rate_playlist(
+        // The Beatles - Beatles 100 (Community Playlist)
+        PlaylistID::from_raw("PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"),
+        LikeStatus::Indifferent,
+    )
+    .await
+    .unwrap();
 }
 #[tokio::test]
 async fn test_delete_create_playlist_complex() {
@@ -267,115 +340,6 @@ async fn test_search_songs_oauth() {
     // refresh it each time.
     api.refresh_token().await.unwrap();
     let _res = api.search_songs("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_songs() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_songs("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_albums_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_albums("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_albums() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_albums("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_videos_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_videos("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_videos() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_videos("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_episodes_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_episodes("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_episodes() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_episodes("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_podcasts_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_podcasts("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_podcasts() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_podcasts("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_profiles_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_profiles("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_profiles() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_profiles("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_featured_playlists_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_featured_playlists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_featured_playlists() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_featured_playlists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_community_playlists_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_community_playlists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_community_playlists() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_community_playlists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_playlists_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_playlists("Beatles").await.unwrap();
-}
-#[tokio::test]
-async fn test_search_playlists() {
-    let api = new_standard_api().await.unwrap();
-    let _res = api.search_playlists("Beatles").await.unwrap();
 }
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
@@ -523,12 +487,6 @@ async fn test_get_artist_albums() {
     api.get_artist_albums(q).await.unwrap();
     let now = std::time::Instant::now();
     println!("Get albums took {} ms", now.elapsed().as_millis());
-}
-
-#[tokio::test]
-async fn test_get_oauth_code() {
-    let client = Client::new();
-    let _code = OAuthTokenGenerator::new(&client).await.unwrap();
 }
 
 #[tokio::test]
