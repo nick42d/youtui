@@ -1,15 +1,16 @@
 use ytmapi_rs::{
     auth::AuthToken,
     common::{
-        AlbumID, BrowseParams, FeedbackTokenRemoveFromHistory, PlaylistID, SetVideoID, YoutubeID,
+        AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
+        PlaylistID, SetVideoID, YoutubeID,
     },
     parse::LikeStatus,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
-        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EpisodesFilter,
-        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
+        EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
+        GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
         GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
@@ -296,6 +297,23 @@ pub async fn command_to_query<A: AuthToken>(
                         "Indifferent" => LikeStatus::Indifferent,
                         other => panic!("Unhandled like status <{other}>"),
                     },
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::EditSongLibraryStatus { feedback_tokens } => {
+            get_string_output_of_query(
+                yt,
+                // Internal knowledge: Even though the string tokens we are provided could be
+                // either Add or Remove tokens, it's OK to just provide
+                // FeedBackTokenAddToLibrary's, as the tokens themselves determine if they will add
+                // or remove.
+                EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
+                    feedback_tokens
+                        .iter()
+                        .map(FeedbackTokenAddToLibrary::from_raw)
+                        .collect(),
                 ),
                 cli_query,
             )
