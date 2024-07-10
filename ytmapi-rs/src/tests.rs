@@ -59,6 +59,7 @@ async fn test_get_oauth_code() {
     let _code = OAuthTokenGenerator::new(&client).await.unwrap();
 }
 
+// NOTE: Internal only - due to use of error.is_oauth_expired()
 #[tokio::test]
 async fn test_expired_oauth() {
     // XXX: Assuming this error only occurs for expired headers.
