@@ -93,7 +93,7 @@ Chrome example (Select manually and paste):
 |AddHistoryItem|[ ]||
 |RemoveHistoryItem|[x]||
 |RateSong|[x]||
-|EditSongLibraryStatus|[ ]||
+|EditSongLibraryStatus|[x]||
 |RatePlaylist|[x]||
 |SubscribeArtists|[ ]||
 |UnsubscribeArtists|[ ]||
