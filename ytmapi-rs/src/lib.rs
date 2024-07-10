@@ -344,9 +344,8 @@ impl<A: AuthToken> YtMusic<A> {
     }
     pub async fn edit_song_library_status<'a>(
         &self,
-        feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+        query: EditSongLibraryStatusQuery<'a>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
-        let query = EditSongLibraryStatusQuery::new(feedback_tokens);
         self.query(query).await
     }
     pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {

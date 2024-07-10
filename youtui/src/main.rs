@@ -145,7 +145,7 @@ enum Command {
         playlist_id: String,
         like_status: String,
     },
-    EditLibraryStatus {
+    EditSongLibraryStatus {
         feedback_tokens: Vec<String>,
     },
 }

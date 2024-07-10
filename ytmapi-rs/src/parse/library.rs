@@ -642,7 +642,10 @@ mod tests {
         parse_test!(
             "./test_json/remove_history_items_20240704.json",
             "./test_json/remove_history_items_20240704_output.txt",
-            crate::query::EditSongLibraryStatusQuery::new(Vec::new()),
+            crate::query::EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
+                Vec::new()
+            )
+            .with_remove_from_library_feedback_tokens(vec![]),
             BrowserToken
         );
     }

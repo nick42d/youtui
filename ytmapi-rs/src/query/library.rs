@@ -2,7 +2,8 @@ use super::Query;
 use crate::{
     common::{
         library::{LibraryArtist, Playlist},
-        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
+        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, FeedbackTokenRemoveFromLibrary,
+        YoutubeID,
     },
     parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
@@ -45,7 +46,8 @@ pub struct GetLibraryArtistsQuery {
     sort_order: GetLibrarySortOrder,
 }
 pub struct EditSongLibraryStatusQuery<'a> {
-    feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
 }
 
 impl GetLibrarySongsQuery {
@@ -69,9 +71,35 @@ impl GetLibraryArtistsQuery {
     }
 }
 impl<'a> EditSongLibraryStatusQuery<'a> {
-    pub fn new(feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>) -> Self {
-        todo!("Implement both add and remove library feedback tokens");
-        Self { feedback_tokens }
+    pub fn new_from_add_to_library_feedback_tokens(
+        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    ) -> Self {
+        Self {
+            add_to_library_feedback_tokens,
+            remove_from_library_feedback_tokens: vec![],
+        }
+    }
+    pub fn new_from_remove_from_library_feedback_tokens(
+        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+    ) -> Self {
+        Self {
+            add_to_library_feedback_tokens: vec![],
+            remove_from_library_feedback_tokens,
+        }
+    }
+    pub fn with_add_to_library_feedback_tokens(
+        mut self,
+        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    ) -> Self {
+        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens;
+        self
+    }
+    pub fn with_remove_from_library_feedback_tokens(
+        mut self,
+        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+    ) -> Self {
+        self.remove_from_library_feedback_tokens = remove_from_library_feedback_tokens;
+        self
     }
 }
 
@@ -163,7 +191,17 @@ impl<'a> Query for EditSongLibraryStatusQuery<'a> {
         Self: Sized;
 
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(self.feedback_tokens))])
+        let add_feedback_tokens_raw = self
+            .add_to_library_feedback_tokens
+            .iter()
+            .map(|t| t.get_raw());
+        let feedback_tokens = self
+            .remove_from_library_feedback_tokens
+            .iter()
+            .map(|t| t.get_raw())
+            .chain(add_feedback_tokens_raw)
+            .collect::<Vec<_>>();
+        serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(feedback_tokens))])
     }
     fn params(&self) -> Option<std::borrow::Cow<str>> {
         None

@@ -302,13 +302,17 @@ pub async fn command_to_query<A: AuthToken>(
             )
             .await
         }
-        Command::EditLibraryStatus { feedback_tokens } => {
+        Command::EditSongLibraryStatus { feedback_tokens } => {
             get_string_output_of_query(
                 yt,
-                EditSongLibraryStatusQuery::new(
+                // Internal knowledge: Even though the string tokens we are provided could be
+                // either Add or Remove tokens, it's OK to just provide
+                // FeedBackTokenAddToLibrary's, as the tokens themselves determine if they will add
+                // or remove.
+                EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
                     feedback_tokens
                         .iter()
-                        .map(|s| FeedbackTokenAddToLibrary::from_raw(s))
+                        .map(FeedbackTokenAddToLibrary::from_raw)
                         .collect(),
                 ),
                 cli_query,
