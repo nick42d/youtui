@@ -6,14 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.6](https://github.com/nick42d/youtui/compare/youtui-v0.0.5...youtui-v0.0.6) - 2024-07-10
-
-### Added
-- [**breaking**] Implement History queries and refactor 'playlist' result types ([#59](https://github.com/nick42d/youtui/pull/59)) - Resolves [#58](https://github.com/nick42d/youtui/pull/58)
-- feat(api)! Implement library queries - resolves [#56](https://github.com/nick42d/youtui/pull/56) ([#57](https://github.com/nick42d/youtui/pull/57))
-
 ### Other
-- Fix table on README
+- Update to latest library version
 
 ## [0.0.5](https://github.com/nick42d/youtui/compare/youtui-v0.0.4...youtui-v0.0.5) - 2024-06-27
 
@@ -25,3 +19,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Other
 - Update dependencies ([#51](https://github.com/nick42d/youtui/pull/51)) - resolves [#43](https://github.com/nick42d/youtui/pull/43)
+
+## [0.0.4]
+### Added
+- Removed nightly requirement.
+- Updated to latest version of API and bumped some other dependencies.
+- Added pkgbuild for AUR.
+### Fixed
+- Resolved #16.
+## [0.0.3]
+### Added
+- Added filtering for browser.
+- Keybinds for modal dialogs like search and filter now shown on top bar.
+- Reduced number of help commands shown (e.g for list methods like Up / Down).
+- Help commands now scrollable if they don't fit on the screen.
+- Now able to exit app with Ctrl-C
+### Fixed
+- Resolved #6 and #5. Thanks @SeseMueller for the reports!
+## [0.0.2]
+### Added
+- Added instructions to README to install with nightly rust. 
+## [0.0.1]
+### Other
+- Initial release to github / crates.io.
