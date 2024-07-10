@@ -14,7 +14,6 @@ pub use artist::*;
 use const_format::concatcp;
 pub use library::*;
 pub use playlists::*;
-pub use rate::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 

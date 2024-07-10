@@ -197,7 +197,7 @@ fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAl
     let title = data.take_value_pointer(TITLE_TEXT)?;
     let artist = data.take_value_pointer(SUBTITLE2)?;
     let year = data.take_value_pointer(SUBTITLE3)?;
-    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String, &str>(SUBTITLE)?)?;
+    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String, _>(SUBTITLE)?)?;
     let explicit = if data.path_exists(SUBTITLE_BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -318,7 +318,7 @@ fn parse_table_list_episode(
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
     Ok(TableListEpisode {
@@ -350,7 +350,7 @@ fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Resul
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
     let playlist_id = data.take_value_pointer(concatcp!(
@@ -388,7 +388,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
@@ -443,7 +443,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
             // Extract description from runs.
             // Collect the iterator of Result<String> into a single Result<String>
             description = Some(
-                runs.map(|mut c| c.take_value_pointer::<String, &str>("/text"))
+                runs.map(|mut c| c.take_value_pointer::<String, _>("/text"))
                     .collect::<Result<String>>()?,
             );
         }

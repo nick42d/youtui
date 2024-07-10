@@ -1,4 +1,4 @@
-use super::{ApiSuccess, ParseFrom, ProcessedResult};
+use super::{ApiSuccess, ParseFrom};
 use crate::{
     crawler::JsonCrawler,
     query::rate::{RatePlaylistQuery, RateSongQuery},
@@ -7,7 +7,7 @@ use crate::{
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for ApiSuccess {
     fn parse_from(
-        p: super::ProcessedResult<RateSongQuery<'a>>,
+        _: super::ProcessedResult<RateSongQuery<'a>>,
     ) -> crate::Result<<RateSongQuery<'a> as crate::query::Query>::Output> {
         // Passing an invalid video ID with Like or Dislike will throw a 400 error which
         // is caught by AuthToken. Youtube does no checking on Indifferent, even

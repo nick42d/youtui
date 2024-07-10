@@ -166,7 +166,7 @@ fn parse_top_results_from_music_card_shelf_contents(
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
     let result_type = TopResultType::try_from(
         music_shelf_contents
-            .take_value_pointer::<String, &str>(SUBTITLE)?
+            .take_value_pointer::<String, _>(SUBTITLE)?
             .as_str(),
     )?;
     // Possibly artists only.

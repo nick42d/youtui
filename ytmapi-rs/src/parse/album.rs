@@ -114,7 +114,7 @@ fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
     let plays = process_flex_column_item(&mut data, 2)
         .and_then(|mut i| i.take_value_pointer(TEXT_RUN_TEXT))?;
     let track_no = str::parse(
-        data.take_value_pointer::<String, &str>(concatcp!("/index", RUN_TEXT))?
+        data.take_value_pointer::<String, _>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
     )
     // TODO: Better error
@@ -145,11 +145,8 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
     let mut header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
-    let category = AlbumType::try_from_str(
-        header
-            .take_value_pointer::<String, &str>(SUBTITLE)?
-            .as_str(),
-    )?;
+    let category =
+        AlbumType::try_from_str(header.take_value_pointer::<String, _>(SUBTITLE)?.as_str())?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?
@@ -162,7 +159,7 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         .and_then(|d| d.into_array_iter_mut())
         .ok()
         .map(|r| {
-            r.map(|mut r| r.take_value_pointer::<String, &str>("/text"))
+            r.map(|mut r| r.take_value_pointer::<String, _>("/text"))
                 .collect::<Result<String>>()
         })
         .transpose()?;

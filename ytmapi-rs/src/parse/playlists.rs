@@ -188,7 +188,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         .and_then(|d| d.into_array_iter_mut())
         .ok()
         .map(|r| {
-            r.map(|mut r| r.take_value_pointer::<String, &str>("/text"))
+            r.map(|mut r| r.take_value_pointer::<String, _>("/text"))
                 .collect::<Result<String>>()
         })
         .transpose()?;
@@ -196,9 +196,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let subtitle_len = subtitle.as_array_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
         Some(PrivacyStatus::try_from(
-            subtitle
-                .take_value_pointer::<String, &str>("/text")?
-                .as_str(),
+            subtitle.take_value_pointer::<String, _>("/text")?.as_str(),
         )?)
     } else {
         None

@@ -1,7 +1,7 @@
 use super::{
     parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
-    LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
-    ProcessedResult, SearchResultVideo,
+    LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult,
+    SearchResultVideo,
 };
 use crate::{
     common::{
@@ -144,7 +144,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             // XXX should only be mandatory for albums, singles, playlists
             // as a result leaving as optional for now.
             let params = r
-                .take_value_pointer::<String, &str>(concatcp!(
+                .take_value_pointer::<String, _>(concatcp!(
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
@@ -479,7 +479,7 @@ pub(crate) fn parse_playlist_song(
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
@@ -528,7 +528,7 @@ pub(crate) fn parse_playlist_video(
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, &str>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
