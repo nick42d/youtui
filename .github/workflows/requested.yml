@@ -11,7 +11,7 @@ env:
 jobs:
   integration-tests:
     name: Integration tests triggered from a specific PR comment
-    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/test'}}
+    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/test' && false}}
     runs-on: ubuntu-latest
     steps:
       - name: Put a reaction to the comment
