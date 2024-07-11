@@ -1,5 +1,5 @@
 # Inspired by https://grem1.in/post/gha-comment-trigger/
-name: Integration tests - on comment
+name: Integration tests on comment
 on:
   issue_comment:
   types:
