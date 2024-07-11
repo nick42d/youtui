@@ -148,6 +148,15 @@ enum Command {
     EditSongLibraryStatus {
         feedback_tokens: Vec<String>,
     },
+    GetLibraryUploadSongs,
+    GetLibraryUploadArtists,
+    GetLibraryUploadArtist {
+        upload_artist_id: String,
+    },
+    GetLibraryUploadAlbums,
+    GetLibraryUploadAlbum {
+        upload_album_id: String,
+    },
 }
 
 pub struct RuntimeInfo {

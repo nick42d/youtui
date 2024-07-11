@@ -393,6 +393,32 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<ApiSuccess> {
         query.into().call(self).await
     }
+    pub async fn get_library_upload_songs(&self) -> Result<GetLibraryUploadSongsQuery::Output> {
+        let query = GetLibraryUploadSongsQuery;
+        query.into().call(self).await
+    }
+    pub async fn get_library_upload_artists(&self) -> Result<GetLibraryUploadArtistsQuery::Output> {
+        let query = GetLibraryUploadArtistsQuery;
+        query.into().call(self).await
+    }
+    pub async fn get_library_upload_albums(&self) -> Result<GetLibraryUploadAlbumsQuery::Output> {
+        let query = GetLibraryUploadAlbumsQuery;
+        query.into().call(self).await
+    }
+    pub async fn get_library_upload_album<'a>(
+        &self,
+        upload_album_id: UploadAlbumID<'a>,
+    ) -> Result<GetLibraryUploadAlbumQuery::Output> {
+        let query = GetLibraryUploadAlbumQuery::new(upload_album_id);
+        query.into().call(self).await
+    }
+    pub async fn get_library_upload_artist<'a>(
+        &self,
+        upload_artist_id: UploadArtistID<'a>,
+    ) -> Result<GetLibraryUploadArtistQuery::Output> {
+        let query = GetLibraryUploadArtistQuery::new(upload_artist_id);
+        query.into().call(self).await
+    }
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
