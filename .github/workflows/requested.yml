@@ -10,7 +10,8 @@ env:
 
 jobs:
   build:
-    if: contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/integration_test')
+    name: integration test
+    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/integration_test' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
