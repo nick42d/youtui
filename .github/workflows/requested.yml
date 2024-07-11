@@ -11,7 +11,7 @@ env:
 jobs:
   integration-tests:
     name: Integration tests triggered from a specific PR comment
-    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/test'}}
+    if: ${{ github.event.issue.pull_request && github.event.comment.body == '/test' && (github.event.comment.author_association == 'OWNER' || github.event.comment.author_association == 'MEMBER')}}
     runs-on: ubuntu-latest
     steps:
       - name: Put a reaction to the comment
@@ -77,7 +77,7 @@ jobs:
           gh api graphql --silent --raw-field query="mutation RemoveReaction {removeReaction(input:{subjectId:\"$NODE_ID\",content:EYES}){reaction{content}subject{id}}}"
           (
             echo "**${{ github.workflow }}**"
-            echo "The long task is done!"
+            echo "Integration tests run succesfully."
             echo
             echo "You can find the workflow here:"
             echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -91,7 +91,6 @@ jobs:
   notify-job:
     needs: [integration-tests]
     runs-on: ubuntu-latest
-    permissions: write-all
     if: ${{ always() && contains(needs.*.result, 'failure') }}	<-- check that status of the previous job
     steps:
       - name: Notify on Failure
