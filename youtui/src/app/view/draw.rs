@@ -12,7 +12,7 @@ use ratatui::{
     prelude::{Margin, Rect},
     style::{Modifier, Style},
     symbols::{block, line},
-    text::{Line},
+    text::Line,
     widgets::{
         block::{Position, Title},
         Block, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Scrollbar,
