@@ -90,6 +90,7 @@ jobs:
 
   notify-job:
     needs: [build]
+    runs-on: ubuntu-latest
     if: ${{ always() && contains(needs.*.result, 'failure') }}	<-- check that status of the previous job
     steps:
       - name: Notify on Failure
