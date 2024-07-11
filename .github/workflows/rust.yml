@@ -38,4 +38,4 @@ jobs:
           youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
           youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
       run: | 
-        cargo test --verbose
+        cargo test --verbose --bins --lib
