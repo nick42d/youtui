@@ -2,8 +2,8 @@
 name: Integration tests on comment
 on:
   issue_comment:
-  types:
-    - created
+    types:
+      - created
 
 env:
   CARGO_TERM_COLOR: always
