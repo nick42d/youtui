@@ -83,16 +83,6 @@ impl Error {
     pub fn into_kind(self) -> ErrorKind {
         *self.inner
     }
-    // Only used for tests currently.
-    #[cfg(test)]
-    pub(crate) fn is_oauth_expired(&self) -> bool {
-        matches!(*self.inner, ErrorKind::OAuthTokenExpired)
-    }
-    // Only used for tests currently.
-    #[cfg(test)]
-    pub(crate) fn is_browser_authentication_failed(&self) -> bool {
-        matches!(*self.inner, ErrorKind::BrowserAuthenticationFailed)
-    }
     /// If an error is a Navigation or Parsing error, return the source Json and
     /// key at the location of the error.
     pub fn get_json_and_key(&self) -> Option<(String, &String)> {
