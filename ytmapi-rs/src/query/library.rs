@@ -1,10 +1,11 @@
 use super::Query;
 use crate::{
-    common::library::{LibraryArtist, Playlist},
-    parse::{
-        GetLibraryArtistSubscription, SearchResultAlbum,
-        TableListSong,
+    common::{
+        library::{LibraryArtist, Playlist},
+        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, FeedbackTokenRemoveFromLibrary,
+        YoutubeID,
     },
+    parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -43,6 +44,63 @@ pub struct GetLibraryArtistSubscriptionsQuery {
 // TODO: Method to add sort order
 pub struct GetLibraryArtistsQuery {
     sort_order: GetLibrarySortOrder,
+}
+pub struct EditSongLibraryStatusQuery<'a> {
+    add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+}
+
+impl GetLibrarySongsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryAlbumsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryArtistSubscriptionsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryArtistsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl<'a> EditSongLibraryStatusQuery<'a> {
+    pub fn new_from_add_to_library_feedback_tokens(
+        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    ) -> Self {
+        Self {
+            add_to_library_feedback_tokens,
+            remove_from_library_feedback_tokens: vec![],
+        }
+    }
+    pub fn new_from_remove_from_library_feedback_tokens(
+        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+    ) -> Self {
+        Self {
+            add_to_library_feedback_tokens: vec![],
+            remove_from_library_feedback_tokens,
+        }
+    }
+    pub fn with_add_to_library_feedback_tokens(
+        mut self,
+        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+    ) -> Self {
+        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens;
+        self
+    }
+    pub fn with_remove_from_library_feedback_tokens(
+        mut self,
+        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+    ) -> Self {
+        self.remove_from_library_feedback_tokens = remove_from_library_feedback_tokens;
+        self
+    }
 }
 
 impl Query for GetLibraryPlaylistsQuery {
@@ -123,6 +181,33 @@ impl Query for GetLibraryArtistSubscriptionsQuery {
     }
     fn path(&self) -> &str {
         "browse"
+    }
+}
+// NOTE: Does not work on brand accounts
+// NOTE: Auth required
+impl<'a> Query for EditSongLibraryStatusQuery<'a> {
+    type Output = Vec<crate::Result<ApiSuccess>>
+    where
+        Self: Sized;
+
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        let add_feedback_tokens_raw = self
+            .add_to_library_feedback_tokens
+            .iter()
+            .map(|t| t.get_raw());
+        let feedback_tokens = self
+            .remove_from_library_feedback_tokens
+            .iter()
+            .map(|t| t.get_raw())
+            .chain(add_feedback_tokens_raw)
+            .collect::<Vec<_>>();
+        serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(feedback_tokens))])
+    }
+    fn params(&self) -> Option<std::borrow::Cow<str>> {
+        None
+    }
+    fn path(&self) -> &str {
+        "feedback"
     }
 }
 

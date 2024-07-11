@@ -3,7 +3,9 @@
 use reqwest::Client;
 use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
-use ytmapi_rs::common::{ChannelID, SearchSuggestion};
+use ytmapi_rs::common::{
+    ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, SearchSuggestion,
+};
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
@@ -165,6 +167,41 @@ async fn test_delete_create_playlist() {
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();
+}
+#[tokio::test]
+async fn test_add_remove_songs_from_library() {
+    // TODO: Add siginficantly more queries.
+    let api = new_standard_api().await.unwrap();
+    // TODO: Confirm what songs these are.
+    // Here Comes The Sun (Remastered 2009)
+    let song1_add = FeedbackTokenAddToLibrary::from_raw("AB9zfpLNiumq5xDBgjkDSZZyCueh__JX4POenJBVzci5sOatPL8q7zs8D9LIYfLPEJ7k3N4OLy4vMfFr7os-GRla9I8RgMFf0A");
+    let song1_rem = FeedbackTokenRemoveFromLibrary::from_raw("AB9zfpJpKmgLWemXCSIlIUIcrBZumoOPWw0Y0NKniqn8ZBFe2Knndo6LnKBMrFjKM1iZYZBYgzKTzATqdMZh-V8nq36Svggu5w");
+    // Let it be
+    let song2_add = FeedbackTokenAddToLibrary::from_raw("AB9zfpIy-gtxCX1XAx__pFt0APQ_fgGGtuUqY7D7Sz4Oupazo6dxxP-VJEfvnon4eigVa_aYBVPfW99DA2Y9Ns0AEVgbJUeDyQ");
+    let song2_rem = FeedbackTokenRemoveFromLibrary::from_raw("AB9zfpLqhDJMIguP_8vxw5e-pV69_x5IVqe8KOy8jBEDoncBCCfAxOcvhaJPRi2NHLiKAukdmZgIlX7uoWcsOvqLA2zgNGUNAw");
+    let q1 = EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(vec![song1_add]);
+    let q2 = EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(vec![song2_add])
+        .with_remove_from_library_feedback_tokens(vec![song1_rem]);
+    let q3 =
+        EditSongLibraryStatusQuery::new_from_remove_from_library_feedback_tokens(vec![song2_rem]);
+    api.query(q1)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect::<Result<Vec<_>>>()
+        .unwrap();
+    api.query(q2)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect::<Result<Vec<_>>>()
+        .unwrap();
+    api.query(q3)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect::<Result<Vec<_>>>()
+        .unwrap();
 }
 #[tokio::test]
 async fn test_rate_songs() {

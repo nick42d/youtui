@@ -145,6 +145,9 @@ enum Command {
         playlist_id: String,
         like_status: String,
     },
+    EditSongLibraryStatus {
+        feedback_tokens: Vec<String>,
+    },
 }
 
 pub struct RuntimeInfo {

@@ -1,8 +1,8 @@
 use super::{
-    parse_item_text, parse_library_management_items_from_menu, EpisodeDate, EpisodeDuration,
-    ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode, TableListItem, TableListSong,
-    TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
-    SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT, THUMBNAILS,
+    parse_item_text, parse_library_management_items_from_menu, ApiSuccess, EpisodeDate,
+    EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode,
+    TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS,
+    SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
@@ -14,8 +14,8 @@ use crate::nav_consts::{
 };
 use crate::process::{process_fixed_column_item, process_flex_column_item};
 use crate::query::{
-    GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
-    GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+    EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
 use crate::{Error, Result, Thumbnail};
 use const_format::concatcp;
@@ -66,6 +66,30 @@ impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artists(json_crawler)
+    }
+}
+
+impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSuccess>> {
+    fn parse_from(
+        p: super::ProcessedResult<EditSongLibraryStatusQuery>,
+    ) -> crate::Result<<EditSongLibraryStatusQuery as crate::query::Query>::Output> {
+        let json_crawler = JsonCrawler::from(p);
+        json_crawler
+            .navigate_pointer("/feedbackResponses")?
+            .into_array_into_iter()?
+            .map(|mut response| {
+                response
+                    .take_value_pointer::<bool>("/isProcessed")
+                    .map(|p| {
+                        if p {
+                            return Ok(ApiSuccess);
+                        }
+                        // Better handled in another way...
+                        Err(Error::other("Recieved isProcessed false"))
+                    })
+            })
+            .rev()
+            .collect()
     }
 }
 
@@ -609,6 +633,19 @@ mod tests {
             "./test_json/get_library_artist_subscriptions_20240701.json",
             "./test_json/get_library_artist_subscriptions_20240701_output.txt",
             crate::query::GetLibraryArtistSubscriptionsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_edit_song_library_status() {
+        // Note - same files as remove_histry_items
+        parse_test!(
+            "./test_json/remove_history_items_20240704.json",
+            "./test_json/remove_history_items_20240704_output.txt",
+            crate::query::EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
+                Vec::new()
+            )
+            .with_remove_from_library_feedback_tokens(vec![]),
             BrowserToken
         );
     }
