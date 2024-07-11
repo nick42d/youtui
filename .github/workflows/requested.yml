@@ -89,7 +89,7 @@ jobs:
           NODE_ID: ${{ github.event.comment.node_id }}
 
   notify-job:
-    needs: [build]
+    needs: [integration-tests]
     runs-on: ubuntu-latest
     if: ${{ always() && contains(needs.*.result, 'failure') }}	<-- check that status of the previous job
     steps:
