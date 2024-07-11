@@ -1,22 +1,20 @@
 name: Rust
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  schedule:
+    issue_comment:
+      types: [created, edited]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    if: contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/integration_test')
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
         toolchain: [stable]
-
 
     steps:
     - uses: actions/checkout@v3
@@ -28,11 +26,13 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y --no-install-recommends libasound2-dev pkg-config
-      if: contains(matrix.os, 'ubuntu')
       
     - name: Build
       run: cargo build --verbose
 
-    - name: Run tests
+    - name: Run integration tests
+      env:
+          youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
+          youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
       run: | 
-        cargo test --verbose --bins --lib
+        cargo test --verbose --test live_integration_tests
