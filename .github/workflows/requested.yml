@@ -1,9 +1,8 @@
 name: Rust
 
 on:
-  schedule:
-    issue_comment:
-      types: [created, edited]
+  issue_comment:
+    types: [created, edited]
 
 env:
   CARGO_TERM_COLOR: always
