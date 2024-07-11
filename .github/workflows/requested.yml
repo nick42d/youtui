@@ -22,7 +22,6 @@ jobs:
  
       - name: Check if PR is open
         run: |
-          echo ${{ github.event.comment.author_association }}
           STATE=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json state --jq .state)
           if [ "$STATE" != "OPEN" ]; then
             echo "Cannot build for closed PRs"
