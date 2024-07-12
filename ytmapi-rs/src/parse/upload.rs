@@ -40,3 +40,55 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for () {
         todo!()
     }
 }
+#[cfg(test)]
+mod tests {
+    use crate::{
+        auth::BrowserToken,
+        common::{UploadAlbumID, UploadArtistID, YoutubeID},
+    };
+    #[tokio::test]
+    async fn test_get_library_upload_songs() {
+        parse_test!(
+            "./test_json/get_library_upload_songs_20240712.json",
+            "./test_json/get_library_upload_songs_20240712_output.txt",
+            crate::query::GetLibraryUploadSongsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_upload_albums() {
+        parse_test!(
+            "./test_json/get_library_upload_albums_20240712.json",
+            "./test_json/get_library_upload_albums_20240712_output.txt",
+            crate::query::GetLibraryUploadAlbumsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_upload_artists() {
+        parse_test!(
+            "./test_json/get_library_upload_artists_20240712.json",
+            "./test_json/get_library_upload_artists_20240712_output.txt",
+            crate::query::GetLibraryUploadArtistsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_upload_artist() {
+        parse_test!(
+            "./test_json/get_library_upload_artists_20240712.json",
+            "./test_json/get_library_upload_artists_20240712_output.txt",
+            crate::query::GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_upload_album() {
+        parse_test!(
+            "./test_json/get_library_upload_album_20240712.json",
+            "./test_json/get_library_upload_album_20240712_output.txt",
+            crate::query::GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw("")),
+            BrowserToken
+        );
+    }
+}
