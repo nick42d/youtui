@@ -5,6 +5,7 @@ use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
     ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, SearchSuggestion,
+    UploadAlbumID, UploadArtistID,
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
@@ -12,7 +13,6 @@ use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
 use ytmapi_rs::query::lyrics::GetLyricsQuery;
 use ytmapi_rs::query::watch::GetWatchPlaylistQuery;
 use ytmapi_rs::query::*;
-use ytmapi_rs::Error;
 use ytmapi_rs::{auth::*, *};
 
 use crate::utils::{new_standard_api, new_standard_oauth_api, write_json, INVALID_COOKIE};
@@ -90,6 +90,28 @@ async fn test_new() {
 }
 
 generate_query_test!(test_get_history, GetHistoryQuery {});
+generate_query_test!(
+    test_get_library_upload_songs,
+    GetLibraryUploadSongsQuery::default()
+);
+generate_query_test!(
+    test_get_library_upload_albums,
+    GetLibraryUploadAlbumsQuery::default()
+);
+generate_query_test!(
+    test_get_library_upload_artists,
+    GetLibraryUploadArtistsQuery::default()
+);
+//TODO: Real ID
+generate_query_test!(
+    test_get_library_upload_album,
+    GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw(""))
+);
+//TODO: Real ID
+generate_query_test!(
+    test_get_library_upload_artist,
+    GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw(""))
+);
 generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
 generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
 generate_query_test!(
