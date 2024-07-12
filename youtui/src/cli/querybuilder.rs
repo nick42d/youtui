@@ -2,7 +2,7 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{
         AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
-        PlaylistID, SetVideoID, YoutubeID,
+        PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, YoutubeID,
     },
     parse::LikeStatus,
     query::{
@@ -11,7 +11,9 @@ use ytmapi_rs::{
         CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
         EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
         GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
-        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetPlaylistQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
+        GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetPlaylistQuery,
         GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
     },
@@ -315,6 +317,31 @@ pub async fn command_to_query<A: AuthToken>(
                         .map(FeedbackTokenAddToLibrary::from_raw)
                         .collect(),
                 ),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetLibraryUploadSongs => {
+            get_string_output_of_query(yt, GetLibraryUploadSongsQuery::default(), cli_query).await
+        }
+        Command::GetLibraryUploadArtists => {
+            get_string_output_of_query(yt, GetLibraryUploadArtistsQuery::default(), cli_query).await
+        }
+        Command::GetLibraryUploadAlbums => {
+            get_string_output_of_query(yt, GetLibraryUploadAlbumsQuery::default(), cli_query).await
+        }
+        Command::GetLibraryUploadArtist { upload_artist_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw(upload_artist_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetLibraryUploadAlbum { upload_album_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw(upload_album_id)),
                 cli_query,
             )
             .await

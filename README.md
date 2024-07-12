@@ -103,11 +103,11 @@ Chrome example (Select manually and paste):
 |DeletePlaylist|[x]||
 |AddPlaylistItems|[x]||
 |RemovePlaylistItems|[x]||
-|GetLibraryUploadSongs|[ ]||
-|GetLibraryUploadArtists|[ ]||
-|GetLibraryUploadAlbums|[ ]||
-|GetLibraryUploadArtist|[ ]||
-|GetLibraryUploadAlbum|[ ]||
+|GetLibraryUploadSongs|[x]|[ ]|
+|GetLibraryUploadArtists|[x]|[ ]|
+|GetLibraryUploadAlbums|[x]|[ ]|
+|GetLibraryUploadArtist|[x]|[ ]|
+|GetLibraryUploadAlbum|[x]||
 |UploadAlbum|[ ]||
 |DeleteUploadEntity|[ ]||
 

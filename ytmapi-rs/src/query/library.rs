@@ -211,7 +211,7 @@ impl<'a> Query for EditSongLibraryStatusQuery<'a> {
     }
 }
 
-fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static str> {
+pub(crate) fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static str> {
     // determine order_params via
     // `.contents.singleColumnBrowseResultsRenderer.tabs[0] .tabRenderer.
     // content.sectionListRenderer.contents[1] .itemSectionRenderer.header.

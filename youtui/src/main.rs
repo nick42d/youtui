@@ -148,12 +148,15 @@ enum Command {
     EditSongLibraryStatus {
         feedback_tokens: Vec<String>,
     },
+    // TODO: Sorting
     GetLibraryUploadSongs,
+    // TODO: Sorting
     GetLibraryUploadArtists,
+    // TODO: Sorting
+    GetLibraryUploadAlbums,
     GetLibraryUploadArtist {
         upload_artist_id: String,
     },
-    GetLibraryUploadAlbums,
     GetLibraryUploadAlbum {
         upload_album_id: String,
     },
