@@ -3,7 +3,7 @@ use crate::{
     common::{EntityID, UploadAlbumID, UploadArtistID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        DELETION_ENTITY_ID, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+        MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
         PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS,
     },
     parse::parse_item_text,

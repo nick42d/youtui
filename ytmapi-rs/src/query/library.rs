@@ -2,7 +2,7 @@ use super::Query;
 use crate::{
     common::{
         library::{LibraryArtist, Playlist},
-        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, FeedbackTokenRemoveFromLibrary,
+        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
         YoutubeID,
     },
     parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},

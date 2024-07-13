@@ -48,8 +48,7 @@ use auth::{
 use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
+    watch::WatchPlaylist, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
     UploadAlbumID, UploadArtistID,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
