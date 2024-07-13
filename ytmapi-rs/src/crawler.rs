@@ -281,6 +281,9 @@ impl<'a> JsonCrawlerBorrowed<'a> {
 }
 
 impl JsonCrawler {
+    pub fn get_path(&self) -> String {
+        (&self.path).into()
+    }
     pub fn into_array_into_iter(self) -> Result<JsonCrawlerArrayIntoIter> {
         if let JsonCrawler {
             source,

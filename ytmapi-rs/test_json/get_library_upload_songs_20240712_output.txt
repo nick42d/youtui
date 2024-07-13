@@ -1,0 +1,899 @@
+[
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQweyzmP7_____AQ",
+        ),
+        video_id: VideoID(
+            "7gSxluH1wuc",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "5:46",
+        like_status: Indifferent,
+        title: "The Numbers",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/7gSxluH1wuc/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3nv1BYiYSWFwStsc1rnHkVBVeyvLg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/7gSxluH1wuc/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3lhu09zXS_T6HcDQ3UQYENAEpvScQ",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQhbvT5QI",
+        ),
+        video_id: VideoID(
+            "BdTYjvVlGf8",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:46",
+        like_status: Indifferent,
+        title: "Rogues",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/BdTYjvVlGf8/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lBWtlI9F6Ui06riyBmmyE7wIT87g",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/BdTYjvVlGf8/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3m-_fhslkAfhrQGewPXYRy2dz8Cwg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ2qay9AI",
+        ),
+        video_id: VideoID(
+            "T6yIXDvR3ec",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "6:25",
+        like_status: Indifferent,
+        title: "Daydreaming",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/T6yIXDvR3ec/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3klBtvObQVGLQ8ArNlXKqXfrBykMQ",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/T6yIXDvR3ec/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3m2jm8iO4SyAGG8nKxi9EIL05C3_w",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ5amI7Pr_____AQ",
+        ),
+        video_id: VideoID(
+            "5yH4bD07Rxc",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:19",
+        like_status: Indifferent,
+        title: "Obscura",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/5yH4bD07Rxc/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lm7QcqVkK9vLZt4kXuRT6r_2Rsrw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/5yH4bD07Rxc/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3maz7wMET9nS7B0ehpkr0He6IgzMA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ5LCXk_n_____AQ",
+        ),
+        video_id: VideoID(
+            "N4UgxImPfRs",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "6:08",
+        like_status: Indifferent,
+        title: "Ful Stop",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/N4UgxImPfRs/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3kymYKfg__Xmdi4a_RBcPzrPHqq9g",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/N4UgxImPfRs/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3kmAM2AP6A9teLHJUMJCeaf1E37Fw",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQycy1hwI",
+        ),
+        video_id: VideoID(
+            "gVceI17xWh4",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "5:07",
+        like_status: Indifferent,
+        title: "Present Tense",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/gVceI17xWh4/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3levyvWrNlmVG0vMt5JYSUnu5uyxg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/gVceI17xWh4/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3mCk6hDcBOpb_fy72qYLjt8k89qwA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQrbODwP______AQ",
+        ),
+        video_id: VideoID(
+            "Xs5XVhmlO18",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "3:41",
+        like_status: Indifferent,
+        title: "Burn The Witch",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/Xs5XVhmlO18/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lafwB2pB_n5l2rLY8jQwXDDxtAKg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/Xs5XVhmlO18/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3m27mxitQsaxDX0SNSoXXtyFxRVgg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ1-2a7fz_____AQ",
+        ),
+        video_id: VideoID(
+            "2A09JB1H9aA",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "3:45",
+        like_status: Indifferent,
+        title: "Desert Island Disk",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/2A09JB1H9aA/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3kRtgwA8dPR40xNmqPHIlUGuWn0mg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/2A09JB1H9aA/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3kRH8wMAv4OB6aPjpUQr2EDIi5Hsg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ5bn9-gU",
+        ),
+        video_id: VideoID(
+            "vkYettN29Cw",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "4:44",
+        like_status: Indifferent,
+        title: "True Love Waits",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/vkYettN29Cw/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3k-XwVsVeuYbpzhzMqx83V3jmjU1w",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/vkYettN29Cw/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3ml0xsNNq9AkmciMBthle-VDp1CHg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ5pDv3vn_____AQ",
+        ),
+        video_id: VideoID(
+            "Wm70rIXrJUg",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:59",
+        like_status: Indifferent,
+        title: "Sweet Waste",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/Wm70rIXrJUg/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3moo1UoO9UnwpjXxsEeJOITF9GOuA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/Wm70rIXrJUg/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3nyPaZHOlkKIW_0nTHexyucae3EPg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQsrqInQU",
+        ),
+        video_id: VideoID(
+            "l8A9RnpvOaM",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "5:04",
+        like_status: Indifferent,
+        title: "Tinker Tailor Soldier Sailor Rich Man Poor Man Beggar Man Thief",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/l8A9RnpvOaM/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3khASKEbjWElwyUGVljXWnK5dj0_w",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/l8A9RnpvOaM/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3lDtAhsITt0Xb9JNdxtcQTWV_9M3g",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQv73Zqf3_____AQ",
+        ),
+        video_id: VideoID(
+            "BT6vKtULBNk",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "4:41",
+        like_status: Indifferent,
+        title: "Decks Dark",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/BT6vKtULBNk/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lsQ1RJimvP1pEsBx3Hhr8r38RBAA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/BT6vKtULBNk/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3msPlXA5SuZQ69TWae30DYd3cSm4A",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ29-A5AQ",
+        ),
+        video_id: VideoID(
+            "72f-xl-4Pbo",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "4:27",
+        like_status: Indifferent,
+        title: "Identikit",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/72f-xl-4Pbo/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lSId8rTBVS5myQSt3HlSSar4qCQg",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/72f-xl-4Pbo/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3ndt_l2ZTgtlvlRz-03dvRjvxkdWA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQq8ne0_z_____AQ",
+        ),
+        video_id: VideoID(
+            "Y2hAmotGYZY",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:37",
+        like_status: Indifferent,
+        title: "Idee Fixe",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/Y2hAmotGYZY/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3lq87ao0YSw_jcyzFQ6CpOKeXxk_w",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/Y2hAmotGYZY/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3n4cpi8Svo4cAEBYiH7p31-5IiPXQ",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQwJbOxvz_____AQ",
+        ),
+        video_id: VideoID(
+            "wxttIsYh6es",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "4:31",
+        like_status: Indifferent,
+        title: "Everything Is As It Should Be",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/wxttIsYh6es/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3nnhSK6cg_eeDryL67cIeuJ0ibnDQ",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/wxttIsYh6es/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3lclRh4yrdBODG3RDgkIdMnF8Mftg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQxuy37gc",
+        ),
+        video_id: VideoID(
+            "0OThQ9CzfrI",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "4:11",
+        like_status: Indifferent,
+        title: "Shadowboxing",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/0OThQ9CzfrI/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3k49lXAUo1cneC6u33ocwtnMrX53A",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/0OThQ9CzfrI/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3nMIupGPVmZNDgSRjNyxCVLb2SxJA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQopTm4wI",
+        ),
+        video_id: VideoID(
+            "fYeU9kIOYFg",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "A Moon Shaped Pool",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+            ),
+        },
+        duration: "2:53",
+        like_status: Indifferent,
+        title: "Glass Eyes",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Radiohead",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/fYeU9kIOYFg/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3kN2SAU-31PjSGZUQNqCqOqMJrjBw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/fYeU9kIOYFg/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3kfv-veD9Gva8SUt4zrBhrs6PsHhg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQzqKlpvn_____AQ",
+        ),
+        video_id: VideoID(
+            "-lfugQMN7q8",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:14",
+        like_status: Indifferent,
+        title: "Artificial Limb",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/-lfugQMN7q8/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3mvCkALLtWinDvHeQmLiU8-p79b9w",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/-lfugQMN7q8/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3kr8Ft59lWXsaZTFA3AGQosBI_rKg",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ5Nizkfj_____AQ",
+        ),
+        video_id: VideoID(
+            "-DZeUgqTpv0",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "4:00",
+        like_status: Indifferent,
+        title: "Twilight Driving",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3m6r96hzvxLpSw3nXHihtT1MqXPDA",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3lnwLtmrYj0_nS6KpnuSQhN6HqpPA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ76WYjfv_____AQ",
+        ),
+        video_id: VideoID(
+            "eq173gd81OU",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "4:02",
+        like_status: Indifferent,
+        title: "Unbalancing Act",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/eq173gd81OU/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3nMfNhUs0tet-YrvykXqEHni9IAnQ",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/eq173gd81OU/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3kh3tymfPqbD4mg4VHBgikronCLpA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ3sqBugQ",
+        ),
+        video_id: VideoID(
+            "8HUBvV5iuy4",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:59",
+        like_status: Indifferent,
+        title: "Depth Perception",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/8HUBvV5iuy4/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3mq-n62by7UtjzYqZOImhAMSFFK6Q",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/8HUBvV5iuy4/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3mHnJHyVV_CsEVzPTXQ6OJ6tWnEuA",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ8rzUrfv_____AQ",
+        ),
+        video_id: VideoID(
+            "Ttz8y0_BrLk",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "3:09",
+        like_status: Indifferent,
+        title: "Also Gesellschaft",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/Ttz8y0_BrLk/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3k63uJxTi-V6Upjj0Ucmx4DOChjWw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/Ttz8y0_BrLk/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3mXP7eYVmBCN2dW2hOvTvFyxmHW7Q",
+            },
+        ],
+    },
+    LibraryUploadSong {
+        entity_id: EntityID(
+            "t_po_COmmveTQqc6_pQEQ9rvhoAM",
+        ),
+        video_id: VideoID(
+            "HGSsCZ0ccKk",
+        ),
+        album: ParsedLibraryUploadSongAlbum {
+            name: "Oh Inhuman Spectacle",
+            id: UploadAlbumID(
+                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+            ),
+        },
+        duration: "2:16",
+        like_status: Indifferent,
+        title: "To Swim",
+        artists: [
+            ParsedLibraryUploadSongArtist {
+                name: "Methyl Ethel",
+                id: Some(
+                    UploadArtistID(
+                        "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
+                    ),
+                ),
+            },
+        ],
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://i9.ytimg.com/vi_locker/HGSsCZ0ccKk/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3mILxDG8S_Y_HDFrXMLy-uXIvAGfw",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://i9.ytimg.com/vi_locker/HGSsCZ0ccKk/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3mDqafdU5wTSEMHR6Yx1IkLZger2w",
+            },
+        ],
+    },
+]

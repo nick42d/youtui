@@ -3,6 +3,7 @@ use const_format::concatcp;
 pub const CONTENT: &str = "/contents/0";
 pub const RUN_TEXT: &str = "/runs/0/text";
 pub const TAB_CONTENT: &str = "/tabs/0/tabRenderer/content";
+pub const TAB_RENDERER: &str = "/tabRenderer/content";
 pub const _TAB_1_CONTENT: &str = "/tabs/1/tabRenderer/content";
 pub const SINGLE_COLUMN: &str = "/contents/singleColumnBrowseResultsRenderer";
 pub const TWO_COLUMN: &str = "/contents/twoColumnBrowseResultsRenderer";
@@ -89,3 +90,4 @@ pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeade
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
 pub const STRAPLINE_TEXT: &str = concatcp!("/straplineTextOne", RUN_TEXT);
+pub const DELETION_ENTITY_ID: &str = "/menuNavigationItemRenderer/navigationEndpoint/confirmDialogEndpoint/content/confirmDialogRenderer/confirmButton/buttonRenderer/command/musicDeletePrivatelyOwnedEntityCommand/entityId";
