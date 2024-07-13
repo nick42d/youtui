@@ -230,6 +230,13 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: path_clone,
         })
     }
+    pub fn borrow_mut(&mut self) -> JsonCrawlerBorrowed<'_> {
+        JsonCrawlerBorrowed {
+            source: self.source.clone(),
+            crawler: self.crawler,
+            path: self.path.to_owned(),
+        }
+    }
     // Seems to be a duplicate of the above. Not required?
     pub fn navigate_pointer<S: AsRef<str>>(self, path: S) -> Result<JsonCrawlerBorrowed<'a>> {
         let mut path_clone = self.path.clone();

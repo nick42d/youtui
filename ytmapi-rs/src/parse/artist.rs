@@ -1,7 +1,7 @@
 use super::{
     parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
     LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult,
-    SearchResultVideo,
+    SearchResultVideo, TableListUploadSong,
 };
 use crate::{
     common::{
@@ -381,6 +381,7 @@ pub enum TableListItem {
     Song(TableListSong),
     Video(TableListVideo),
     Episode(TableListEpisode),
+    UploadSong(TableListUploadSong),
 }
 
 // Should be at higher level in mod structure.

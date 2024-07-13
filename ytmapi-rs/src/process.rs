@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
+use crate::nav_consts::DELETION_ENTITY_ID;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::{Error, Result};
@@ -69,12 +70,17 @@ pub fn process_flex_column_item<'a>(
 pub fn get_library_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
     let cur_path = menu.get_path();
     menu.into_array_iter_mut()?
-        .find_map(|item| {
-            item.navigate_pointer("/toggleMenuServiceItemRenderer")
-                .ok()
-        })
+        .find_map(|item| item.navigate_pointer("/toggleMenuServiceItemRenderer").ok())
+        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
+        .ok_or_else(|| Error::other(format!("expected playlist item to contain a /toggledMenuServiceItemRenderer underneath path {cur_path}")))
+}
+
+pub fn get_delete_history_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
+    let cur_path = menu.get_path();
+    menu.into_array_iter_mut()?
+        .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
         // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
         .ok_or_else(|| {
-            Error::other(format!("expected playlist item to contain a /toggledMenuServiceItemRenderer underneath path {cur_path}"))
+            Error::other(format!("Expected playlist item to contain at least one <{DELETION_ENTITY_ID}> underneath path {cur_path}"))
         })
 }

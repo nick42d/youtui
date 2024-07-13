@@ -1,12 +1,12 @@
 [
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQweyzmP7_____AQ",
         ),
         video_id: VideoID(
             "7gSxluH1wuc",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -16,7 +16,7 @@
         like_status: Indifferent,
         title: "The Numbers",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -38,14 +38,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQhbvT5QI",
         ),
         video_id: VideoID(
             "BdTYjvVlGf8",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -55,7 +55,7 @@
         like_status: Indifferent,
         title: "Rogues",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -77,14 +77,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ2qay9AI",
         ),
         video_id: VideoID(
             "T6yIXDvR3ec",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -94,7 +94,7 @@
         like_status: Indifferent,
         title: "Daydreaming",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -116,14 +116,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ5amI7Pr_____AQ",
         ),
         video_id: VideoID(
             "5yH4bD07Rxc",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -133,7 +133,7 @@
         like_status: Indifferent,
         title: "Obscura",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -155,14 +155,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ5LCXk_n_____AQ",
         ),
         video_id: VideoID(
             "N4UgxImPfRs",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -172,7 +172,7 @@
         like_status: Indifferent,
         title: "Ful Stop",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -194,14 +194,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQycy1hwI",
         ),
         video_id: VideoID(
             "gVceI17xWh4",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -211,7 +211,7 @@
         like_status: Indifferent,
         title: "Present Tense",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -233,14 +233,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQrbODwP______AQ",
         ),
         video_id: VideoID(
             "Xs5XVhmlO18",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -250,7 +250,7 @@
         like_status: Indifferent,
         title: "Burn The Witch",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -272,14 +272,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ1-2a7fz_____AQ",
         ),
         video_id: VideoID(
             "2A09JB1H9aA",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -289,7 +289,7 @@
         like_status: Indifferent,
         title: "Desert Island Disk",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -311,14 +311,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ5bn9-gU",
         ),
         video_id: VideoID(
             "vkYettN29Cw",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -328,7 +328,7 @@
         like_status: Indifferent,
         title: "True Love Waits",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -350,14 +350,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ5pDv3vn_____AQ",
         ),
         video_id: VideoID(
             "Wm70rIXrJUg",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -367,7 +367,7 @@
         like_status: Indifferent,
         title: "Sweet Waste",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -389,14 +389,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQsrqInQU",
         ),
         video_id: VideoID(
             "l8A9RnpvOaM",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -406,7 +406,7 @@
         like_status: Indifferent,
         title: "Tinker Tailor Soldier Sailor Rich Man Poor Man Beggar Man Thief",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -428,14 +428,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQv73Zqf3_____AQ",
         ),
         video_id: VideoID(
             "BT6vKtULBNk",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -445,7 +445,7 @@
         like_status: Indifferent,
         title: "Decks Dark",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -467,14 +467,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ29-A5AQ",
         ),
         video_id: VideoID(
             "72f-xl-4Pbo",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -484,7 +484,7 @@
         like_status: Indifferent,
         title: "Identikit",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -506,14 +506,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQq8ne0_z_____AQ",
         ),
         video_id: VideoID(
             "Y2hAmotGYZY",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -523,7 +523,7 @@
         like_status: Indifferent,
         title: "Idee Fixe",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -545,14 +545,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQwJbOxvz_____AQ",
         ),
         video_id: VideoID(
             "wxttIsYh6es",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -562,7 +562,7 @@
         like_status: Indifferent,
         title: "Everything Is As It Should Be",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -584,14 +584,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQxuy37gc",
         ),
         video_id: VideoID(
             "0OThQ9CzfrI",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -601,7 +601,7 @@
         like_status: Indifferent,
         title: "Shadowboxing",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -623,14 +623,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQopTm4wI",
         ),
         video_id: VideoID(
             "fYeU9kIOYFg",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "A Moon Shaped Pool",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -640,7 +640,7 @@
         like_status: Indifferent,
         title: "Glass Eyes",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -662,14 +662,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQzqKlpvn_____AQ",
         ),
         video_id: VideoID(
             "-lfugQMN7q8",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -679,7 +679,7 @@
         like_status: Indifferent,
         title: "Artificial Limb",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -701,14 +701,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ5Nizkfj_____AQ",
         ),
         video_id: VideoID(
             "-DZeUgqTpv0",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -718,7 +718,7 @@
         like_status: Indifferent,
         title: "Twilight Driving",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -740,14 +740,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ76WYjfv_____AQ",
         ),
         video_id: VideoID(
             "eq173gd81OU",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -757,7 +757,7 @@
         like_status: Indifferent,
         title: "Unbalancing Act",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -779,14 +779,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ3sqBugQ",
         ),
         video_id: VideoID(
             "8HUBvV5iuy4",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -796,7 +796,7 @@
         like_status: Indifferent,
         title: "Depth Perception",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -818,14 +818,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ8rzUrfv_____AQ",
         ),
         video_id: VideoID(
             "Ttz8y0_BrLk",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -835,7 +835,7 @@
         like_status: Indifferent,
         title: "Also Gesellschaft",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -857,14 +857,14 @@
             },
         ],
     },
-    LibraryUploadSong {
+    TableListUploadSong {
         entity_id: EntityID(
             "t_po_COmmveTQqc6_pQEQ9rvhoAM",
         ),
         video_id: VideoID(
             "HGSsCZ0ccKk",
         ),
-        album: ParsedLibraryUploadSongAlbum {
+        album: ParsedUploadSongAlbum {
             name: "Oh Inhuman Spectacle",
             id: UploadAlbumID(
                 "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
@@ -874,7 +874,7 @@
         like_status: Indifferent,
         title: "To Swim",
         artists: [
-            ParsedLibraryUploadSongArtist {
+            ParsedUploadSongArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(

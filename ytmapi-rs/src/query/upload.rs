@@ -1,7 +1,7 @@
 use super::{get_sort_order_params, GetLibrarySortOrder, Query};
 use crate::{
     common::{UploadAlbumID, UploadArtistID},
-    parse::LibraryUploadSong,
+    parse::TableListUploadSong,
 };
 use serde_json::json;
 
@@ -80,7 +80,7 @@ impl<'a> Query for GetLibraryUploadArtistQuery<'a> {
 }
 // Auth required
 impl Query for GetLibraryUploadSongsQuery {
-    type Output = Vec<LibraryUploadSong>
+    type Output = Vec<TableListUploadSong>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
