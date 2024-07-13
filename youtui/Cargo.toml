@@ -28,8 +28,8 @@ tui-logger = { version = "0.11.1", default-features = false, features = [
   "tracing-support",
 ] }
 tracing-subscriber = "0.3.18"
-rusty_ytdl = { version = "0.7.2" }
-rodio = { version = "0.18.1", features = ["symphonia-all"] }
+rusty_ytdl = { version = "0.7.3" }
+rodio = { version = "0.19.0", features = ["symphonia-all"] }
 directories = "5.0.1"
 gag = "1.0.0"
 toml = "0.8.14"
