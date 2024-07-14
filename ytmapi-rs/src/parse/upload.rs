@@ -3,10 +3,10 @@ use crate::{
     common::{EntityID, UploadAlbumID, UploadArtistID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        GRID_ITEMS, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-        PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3,
-        SUBTITLE_BADGE_LABEL, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_RENDERER,
-        TITLE_TEXT,
+        GRID_ITEMS, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF,
+        NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN,
+        SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TAB_RENDERER, TEXT_RUN_TEXT,
+        THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT,
     },
     parse::parse_item_text,
     process::{process_fixed_column_item, process_flex_column_item},
@@ -52,6 +52,14 @@ pub struct UploadAlbum {
     pub year: Option<String>,
     pub entity_id: EntityID<'static>,
     pub album_id: UploadAlbumID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct UploadArtist {
+    pub artist_name: String,
+    pub songs: String,
+    pub artist_id: UploadArtistID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 
@@ -116,11 +124,34 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
             .collect()
     }
 }
-impl ParseFrom<GetLibraryUploadArtistsQuery> for () {
+impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from(
         p: super::ProcessedResult<GetLibraryUploadArtistsQuery>,
     ) -> Result<<GetLibraryUploadArtistsQuery as crate::query::Query>::Output> {
-        todo!()
+        fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
+            let mut data = json_crawler.borrow_pointer(MRLIR)?;
+            let artist_name = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
+            let songs = parse_item_text(&mut data.borrow_mut(), 1, 0)?;
+            let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+            let artist_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            Ok(UploadArtist {
+                thumbnails,
+                artist_name,
+                songs,
+                artist_id,
+            })
+        }
+        let crawler: JsonCrawler = p.into();
+        let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+            TAB_RENDERER,
+            SECTION_LIST_ITEM,
+            MUSIC_SHELF,
+            "/contents"
+        ))?;
+        items
+            .into_array_into_iter()?
+            .map(parse_item_list_upload_artist)
+            .collect()
     }
 }
 impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for () {
@@ -130,11 +161,31 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for () {
         todo!()
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for () {
+impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
     fn parse_from(
         p: super::ProcessedResult<GetLibraryUploadArtistQuery>,
     ) -> Result<<GetLibraryUploadArtistQuery as crate::query::Query>::Output> {
-        todo!()
+        let crawler: JsonCrawler = p.into();
+        let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+            TAB_RENDERER,
+            SECTION_LIST_ITEM,
+            MUSIC_SHELF,
+            "/contents"
+        ))?;
+        contents
+            .into_array_into_iter()?
+            .map(|mut item| {
+                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
+                    return Ok(None);
+                };
+                let title = parse_item_text(&mut data, 0, 0)?;
+                if title == "Shuffle all" {
+                    return Ok(None);
+                };
+                Ok(Some(parse_table_list_upload_song(title, data)?))
+            })
+            .filter_map(Result::transpose)
+            .collect()
     }
 }
 fn parse_upload_song_artists(
@@ -251,8 +302,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_upload_artist() {
         parse_test!(
-            "./test_json/get_library_upload_artists_20240712.json",
-            "./test_json/get_library_upload_artists_20240712_output.txt",
+            "./test_json/get_library_upload_artist_20240712.json",
+            "./test_json/get_library_upload_artist_20240712_output.txt",
             crate::query::GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw("")),
             BrowserToken
         );

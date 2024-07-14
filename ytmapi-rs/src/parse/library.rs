@@ -340,7 +340,7 @@ fn parse_table_list_episode(
             )
         }
     };
-    let podcast_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let podcast_name = parse_item_text(&mut data, 1, 0)?;
     let podcast_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
@@ -368,7 +368,7 @@ fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Resul
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let channel_name = parse_item_text(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {

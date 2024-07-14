@@ -1,4 +1,4 @@
-use super::{parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
+use super::{parse_item_text, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
@@ -111,8 +111,7 @@ fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
         i.take_value_pointer("/text/simpleText")
             .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
     })?;
-    let plays = process_flex_column_item(&mut data, 2)
-        .and_then(|mut i| i.take_value_pointer(TEXT_RUN_TEXT))?;
+    let plays = parse_item_text(&mut data, 2, 0)?;
     let track_no = str::parse(
         data.take_value_pointer::<String, _>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
