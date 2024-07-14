@@ -1,26 +1,26 @@
-use super::{LikeStatus, ParseFrom};
+use super::{LikeStatus, ParseFrom, DELETION_ENTITY_ID};
 use crate::{
     common::{EntityID, UploadAlbumID, UploadArtistID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-        PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS,
+        GRID_ITEMS, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+        PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3,
+        SUBTITLE_BADGE_LABEL, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_RENDERER,
+        TITLE_TEXT,
     },
     parse::parse_item_text,
-    process::{
-        get_delete_history_menu_from_menu, process_fixed_column_item, process_flex_column_item,
-    },
+    process::{process_fixed_column_item, process_flex_column_item},
     query::{
         GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
         GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     },
-    Error, Result, VideoID,
+    Error, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ParsedUploadSongArtist {
+pub struct ParsedUploadArtist {
     pub name: String,
     pub id: Option<UploadArtistID<'static>>,
 }
@@ -40,8 +40,19 @@ pub struct TableListUploadSong {
     pub duration: String,
     pub like_status: LikeStatus,
     pub title: String,
-    pub artists: Vec<ParsedUploadSongArtist>,
-    pub thumbnails: Vec<super::Thumbnail>,
+    pub artists: Vec<ParsedUploadArtist>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct UploadAlbum {
+    pub title: String,
+    pub artist: String,
+    // Year appears to be optional.
+    pub year: Option<String>,
+    pub entity_id: EntityID<'static>,
+    pub album_id: UploadAlbumID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 
 impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
@@ -49,23 +60,12 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
         p: super::ProcessedResult<GetLibraryUploadSongsQuery>,
     ) -> Result<<GetLibraryUploadSongsQuery as crate::query::Query>::Output> {
         let crawler: JsonCrawler = p.into();
-        let tabs_path = concatcp!(SINGLE_COLUMN, "/tabs");
-        let contents = crawler
-            .navigate_pointer(tabs_path)?
-            .into_array_into_iter()?
-            // Assume Uploads as always the last element.
-            .last()
-            .ok_or_else(|| {
-                Error::other(format!(
-                    "Expected array at <{tabs_path}> to contain elements",
-                ))
-            })?
-            .navigate_pointer(concatcp!(
-                TAB_RENDERER,
-                SECTION_LIST_ITEM,
-                MUSIC_SHELF,
-                "/contents"
-            ))?;
+        let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+            TAB_RENDERER,
+            SECTION_LIST_ITEM,
+            MUSIC_SHELF,
+            "/contents"
+        ))?;
         contents
             .into_array_into_iter()?
             .map(|mut item| {
@@ -82,11 +82,38 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
             .collect()
     }
 }
-impl ParseFrom<GetLibraryUploadAlbumsQuery> for () {
+impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
     fn parse_from(
         p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>,
     ) -> Result<<GetLibraryUploadAlbumsQuery as crate::query::Query>::Output> {
-        todo!()
+        fn parse_item_list_upload_album(mut json_crawler: JsonCrawler) -> Result<UploadAlbum> {
+            let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
+            let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
+            let title = data.take_value_pointer(TITLE_TEXT)?;
+            let artist = data.take_value_pointer(SUBTITLE2)?;
+            let year = data.take_value_pointer(SUBTITLE3).ok();
+            let menu = data.borrow_pointer(MENU_ITEMS)?;
+            let entity_id = get_delete_history_menu_from_menu(menu)?.take_value()?;
+            Ok(UploadAlbum {
+                title,
+                year,
+                thumbnails,
+                artist,
+                entity_id,
+                album_id,
+            })
+        }
+        let crawler: JsonCrawler = p.into();
+        let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+            TAB_RENDERER,
+            SECTION_LIST_ITEM,
+            GRID_ITEMS
+        ))?;
+        items
+            .into_array_into_iter()?
+            .map(parse_item_list_upload_album)
+            .collect()
     }
 }
 impl ParseFrom<GetLibraryUploadArtistsQuery> for () {
@@ -113,7 +140,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for () {
 fn parse_upload_song_artists(
     mut data: JsonCrawlerBorrowed,
     col_idx: usize,
-) -> Result<Vec<ParsedUploadSongArtist>> {
+) -> Result<Vec<ParsedUploadArtist>> {
     process_flex_column_item(&mut data, col_idx)?
         .navigate_pointer("/text/runs")?
         .into_array_iter_mut()?
@@ -121,8 +148,8 @@ fn parse_upload_song_artists(
         .map(|mut item| parse_upload_song_artist(&mut item))
         .collect()
 }
-fn parse_upload_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedUploadSongArtist> {
-    Ok(ParsedUploadSongArtist {
+fn parse_upload_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedUploadArtist> {
+    Ok(ParsedUploadArtist {
         name: data.take_value_pointer("/text")?,
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
     })
@@ -163,6 +190,29 @@ pub(crate) fn parse_table_list_upload_song(
         artists,
         thumbnails,
     })
+}
+
+fn get_delete_history_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
+    let cur_path = menu.get_path();
+    menu.into_array_iter_mut()?
+        .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
+        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
+        .ok_or_else(|| {
+            Error::other(format!("Expected playlist item to contain at least one <{DELETION_ENTITY_ID}> underneath path {cur_path}"))
+        })
+}
+
+fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
+    let tabs_path = concatcp!(SINGLE_COLUMN, "/tabs");
+    json.navigate_pointer(tabs_path)?
+        .into_array_into_iter()?
+        // Assume Uploads as always the last element.
+        .last()
+        .ok_or_else(|| {
+            Error::other(format!(
+                "Expected array at <{tabs_path}> to contain elements",
+            ))
+        })
 }
 
 #[cfg(test)]

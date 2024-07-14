@@ -1,0 +1,50 @@
+[
+    UploadAlbum {
+        title: "A Moon Shaped Pool",
+        artist: "Radiohead",
+        year: None,
+        entity_id: EntityID(
+            "b_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+        ),
+        album_id: UploadAlbumID(
+            "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i9.ytimg.com/vi_locker/2A09JB1H9aA/locker.png?sqp=-oaymwEICOIBEOIBIAA&rs=AMzJL3maEmaeCWpktFIK5i2ia89xruT_rA",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i9.ytimg.com/vi_locker/2A09JB1H9aA/locker.png?sqp=-oaymwEICKAEEKAEIAA&rs=AMzJL3my09khulAcpAMhE4JpHXA2yLbu5w",
+            },
+        ],
+    },
+    UploadAlbum {
+        title: "Oh Inhuman Spectacle",
+        artist: "Methyl Ethel",
+        year: Some(
+            "2015",
+        ),
+        entity_id: EntityID(
+            "b_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+        ),
+        album_id: UploadAlbumID(
+            "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEICOIBEOIBIAA&rs=AMzJL3lGSLB0Mw9muU0tGLSRi36yZ00M8g",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEICKAEEKAEIAA&rs=AMzJL3lyXV4DqvJFMUL8Lcs9qnLGpbBahQ",
+            },
+        ],
+    },
+]

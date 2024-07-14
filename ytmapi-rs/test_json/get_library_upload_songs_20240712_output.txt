@@ -16,7 +16,7 @@
         like_status: Indifferent,
         title: "The Numbers",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -55,7 +55,7 @@
         like_status: Indifferent,
         title: "Rogues",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -94,7 +94,7 @@
         like_status: Indifferent,
         title: "Daydreaming",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -133,7 +133,7 @@
         like_status: Indifferent,
         title: "Obscura",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -172,7 +172,7 @@
         like_status: Indifferent,
         title: "Ful Stop",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -211,7 +211,7 @@
         like_status: Indifferent,
         title: "Present Tense",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -250,7 +250,7 @@
         like_status: Indifferent,
         title: "Burn The Witch",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -289,7 +289,7 @@
         like_status: Indifferent,
         title: "Desert Island Disk",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -328,7 +328,7 @@
         like_status: Indifferent,
         title: "True Love Waits",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -367,7 +367,7 @@
         like_status: Indifferent,
         title: "Sweet Waste",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -406,7 +406,7 @@
         like_status: Indifferent,
         title: "Tinker Tailor Soldier Sailor Rich Man Poor Man Beggar Man Thief",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -445,7 +445,7 @@
         like_status: Indifferent,
         title: "Decks Dark",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -484,7 +484,7 @@
         like_status: Indifferent,
         title: "Identikit",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -523,7 +523,7 @@
         like_status: Indifferent,
         title: "Idee Fixe",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -562,7 +562,7 @@
         like_status: Indifferent,
         title: "Everything Is As It Should Be",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -601,7 +601,7 @@
         like_status: Indifferent,
         title: "Shadowboxing",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -640,7 +640,7 @@
         like_status: Indifferent,
         title: "Glass Eyes",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Radiohead",
                 id: Some(
                     UploadArtistID(
@@ -679,7 +679,7 @@
         like_status: Indifferent,
         title: "Artificial Limb",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -718,7 +718,7 @@
         like_status: Indifferent,
         title: "Twilight Driving",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -757,7 +757,7 @@
         like_status: Indifferent,
         title: "Unbalancing Act",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -796,7 +796,7 @@
         like_status: Indifferent,
         title: "Depth Perception",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -835,7 +835,7 @@
         like_status: Indifferent,
         title: "Also Gesellschaft",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(
@@ -874,7 +874,7 @@
         like_status: Indifferent,
         title: "To Swim",
         artists: [
-            ParsedUploadSongArtist {
+            ParsedUploadArtist {
                 name: "Methyl Ethel",
                 id: Some(
                     UploadArtistID(

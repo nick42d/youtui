@@ -74,13 +74,3 @@ pub fn get_library_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawl
         // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
         .ok_or_else(|| Error::other(format!("expected playlist item to contain a /toggledMenuServiceItemRenderer underneath path {cur_path}")))
 }
-
-pub fn get_delete_history_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
-    let cur_path = menu.get_path();
-    menu.into_array_iter_mut()?
-        .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
-        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
-        .ok_or_else(|| {
-            Error::other(format!("Expected playlist item to contain at least one <{DELETION_ENTITY_ID}> underneath path {cur_path}"))
-        })
-}

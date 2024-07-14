@@ -395,7 +395,7 @@
             like_status: Indifferent,
             title: "The Numbers",
             artists: [
-                ParsedUploadSongArtist {
+                ParsedUploadArtist {
                     name: "Radiohead",
                     id: Some(
                         UploadArtistID(
