@@ -17,9 +17,11 @@ pub struct GetLibraryUploadArtistsQuery {
 pub struct GetLibraryUploadAlbumsQuery {
     sort_order: GetLibrarySortOrder,
 }
+#[derive(Clone)]
 pub struct GetLibraryUploadArtistQuery<'a> {
     upload_artist_id: UploadArtistID<'a>,
 }
+#[derive(Clone)]
 pub struct GetLibraryUploadAlbumQuery<'a> {
     upload_album_id: UploadAlbumID<'a>,
 }
