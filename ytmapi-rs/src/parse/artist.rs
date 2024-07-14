@@ -1,7 +1,7 @@
 use super::{
-    parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration, LibraryManager,
-    LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult,
-    SearchResultVideo,
+    parse_item_text, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
+    LibraryManager, LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
+    ProcessedResult, SearchResultVideo, TableListUploadSong,
 };
 use crate::{
     common::{
@@ -33,8 +33,8 @@ pub struct ArtistParams {
 
 fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
     let mut data = json.borrow_pointer(MRLIR)?;
-    let title = process_flex_column_item(&mut data, 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
-    let plays = process_flex_column_item(&mut data, 2)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let title = parse_item_text(&mut data, 0, 0)?;
+    let plays = parse_item_text(&mut data, 2, 0)?;
     let artists = parse_song_artists(&mut data, 1)?;
     let album = parse_song_album(&mut data, 3)?;
     let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
@@ -381,6 +381,7 @@ pub enum TableListItem {
     Song(TableListSong),
     Video(TableListVideo),
     Episode(TableListEpisode),
+    UploadSong(TableListUploadSong),
 }
 
 // Should be at higher level in mod structure.
@@ -519,7 +520,7 @@ pub(crate) fn parse_playlist_video(
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let channel_name = parse_item_text(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {

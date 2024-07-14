@@ -10,12 +10,14 @@ pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
 use std::future::Future;
+pub use upload::*;
 
 mod artist;
 mod history;
 mod library;
 mod playlist;
 mod search;
+mod upload;
 
 // TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.

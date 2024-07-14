@@ -212,7 +212,7 @@ fn parse_top_result_from_music_shelf_contents(
 ) -> Result<TopResult> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let result_name = parse_item_text(&mut mrlir, 0, 0)?;
-    let result_type_string = parse_item_text(&mut mrlir, 1, 0)?;
+    let result_type_string: String = parse_item_text(&mut mrlir, 1, 0)?;
     let result_type = TopResultType::try_from(result_type_string.as_str());
     // Imperative solution, may be able to make more functional.
     let mut subscribers = None;

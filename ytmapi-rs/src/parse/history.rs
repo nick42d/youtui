@@ -66,6 +66,15 @@ mod tests {
         );
     }
     #[tokio::test]
+    async fn test_get_history_with_upload_song() {
+        parse_test!(
+            "./test_json/get_history_20240713.json",
+            "./test_json/get_history_20240713_output.txt",
+            crate::query::GetHistoryQuery,
+            BrowserToken
+        );
+    }
+    #[tokio::test]
     async fn test_remove_history_items() {
         parse_test!(
             "./test_json/remove_history_items_20240704.json",

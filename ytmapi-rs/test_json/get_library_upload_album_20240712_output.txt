@@ -1,0 +1,250 @@
+GetLibraryUploadAlbum {
+    title: "Oh Inhuman Spectacle",
+    artist_name: "Methyl Ethel",
+    album_type: Album,
+    song_count: "12 songs",
+    duration: "43 minutes",
+    entity_id: EntityID(
+        "b_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+    ),
+    songs: [
+        GetLibraryUploadAlbumSong {
+            title: "Idee Fixe",
+            track_no: 1,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQq8ne0_z_____AQ",
+            ),
+            video_id: VideoID(
+                "Y2hAmotGYZY",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:37",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Shadowboxing",
+            track_no: 2,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQxuy37gc",
+            ),
+            video_id: VideoID(
+                "0OThQ9CzfrI",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "4:11",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Rogues",
+            track_no: 3,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQhbvT5QI",
+            ),
+            video_id: VideoID(
+                "BdTYjvVlGf8",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:46",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "To Swim",
+            track_no: 4,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ9rvhoAM",
+            ),
+            video_id: VideoID(
+                "HGSsCZ0ccKk",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "2:16",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Twilight Driving",
+            track_no: 5,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ5Nizkfj_____AQ",
+            ),
+            video_id: VideoID(
+                "-DZeUgqTpv0",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "4:00",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Depth Perception",
+            track_no: 6,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ3sqBugQ",
+            ),
+            video_id: VideoID(
+                "8HUBvV5iuy4",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:59",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Unbalancing Act",
+            track_no: 7,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ76WYjfv_____AQ",
+            ),
+            video_id: VideoID(
+                "eq173gd81OU",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "4:02",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Also Gesellschaft",
+            track_no: 8,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ8rzUrfv_____AQ",
+            ),
+            video_id: VideoID(
+                "Ttz8y0_BrLk",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:09",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Obscura",
+            track_no: 9,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ5amI7Pr_____AQ",
+            ),
+            video_id: VideoID(
+                "5yH4bD07Rxc",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:19",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Artificial Limb",
+            track_no: 10,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQzqKlpvn_____AQ",
+            ),
+            video_id: VideoID(
+                "-lfugQMN7q8",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:14",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Sweet Waste",
+            track_no: 11,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQ5pDv3vn_____AQ",
+            ),
+            video_id: VideoID(
+                "Wm70rIXrJUg",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "3:59",
+            like_status: Indifferent,
+        },
+        GetLibraryUploadAlbumSong {
+            title: "Everything Is As It Should Be",
+            track_no: 12,
+            entity_id: EntityID(
+                "t_po_COmmveTQqc6_pQEQwJbOxvz_____AQ",
+            ),
+            video_id: VideoID(
+                "wxttIsYh6es",
+            ),
+            album: ParsedUploadSongAlbum {
+                name: "Oh Inhuman Spectacle",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
+                ),
+            },
+            duration: "4:31",
+            like_status: Indifferent,
+        },
+    ],
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEGCDwQPCAA&rs=AMzJL3m6r96hzvxLpSw3nXHihtT1MqXPDA",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEGCHgQeCAA&rs=AMzJL3lnwLtmrYj0_nS6KpnuSQhN6HqpPA",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEICOIBEOIBIAA&rs=AMzJL3lGSLB0Mw9muU0tGLSRi36yZ00M8g",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://i9.ytimg.com/vi_locker/-DZeUgqTpv0/locker.png?sqp=-oaymwEICKAEEKAEIAA&rs=AMzJL3lyXV4DqvJFMUL8Lcs9qnLGpbBahQ",
+        },
+    ],
+}

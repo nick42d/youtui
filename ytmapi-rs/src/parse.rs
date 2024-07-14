@@ -16,6 +16,7 @@ pub use library::*;
 pub use playlists::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+pub use upload::*;
 
 mod album;
 mod artist;
@@ -25,6 +26,7 @@ mod library;
 mod playlists;
 mod rate;
 mod search;
+mod upload;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->
 // String API.

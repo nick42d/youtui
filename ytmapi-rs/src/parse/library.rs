@@ -1,8 +1,9 @@
 use super::{
-    parse_item_text, parse_library_management_items_from_menu, ApiSuccess, EpisodeDate,
-    EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode,
-    TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS,
-    SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TEXT_RUN_TEXT, THUMBNAILS,
+    parse_item_text, parse_library_management_items_from_menu, parse_table_list_upload_song,
+    ApiSuccess, EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum,
+    TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
+    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL,
+    THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
@@ -136,12 +137,9 @@ fn parse_library_songs(
             if title == "Shuffle all" {
                 return Ok(None);
             }
-            Ok(Some(parse_table_list_song(
-                title,
-                item.borrow_pointer(MRLIR)?,
-            )?))
+            Ok(Some(parse_table_list_song(title, data)?))
         })
-        .filter_map(|result_option| result_option.transpose())
+        .filter_map(Result::transpose)
         .collect()
 }
 fn parse_library_artist_subscriptions(
@@ -293,6 +291,11 @@ fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<TableListItem>>
     );
     let video_type: String = data.take_value_pointer(video_type_path)?;
     let item = match video_type.as_ref() {
+        // NOTE - Possible for History, but most likely not possible for Library.
+        "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK" => Some(TableListItem::UploadSong(
+            parse_table_list_upload_song(title, data)?,
+        )),
+        // NOTE - Possible for Library, but most likely not possible for History.
         "MUSIC_VIDEO_TYPE_PODCAST_EPISODE" => Some(TableListItem::Episode(
             parse_table_list_episode(title, data)?,
         )),
@@ -337,7 +340,7 @@ fn parse_table_list_episode(
             )
         }
     };
-    let podcast_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let podcast_name = parse_item_text(&mut data, 1, 0)?;
     let podcast_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
@@ -365,7 +368,7 @@ fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Resul
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = process_flex_column_item(&mut data, 1)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let channel_name = parse_item_text(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {

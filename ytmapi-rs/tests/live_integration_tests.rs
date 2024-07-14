@@ -12,7 +12,6 @@ use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
 use ytmapi_rs::query::lyrics::GetLyricsQuery;
 use ytmapi_rs::query::watch::GetWatchPlaylistQuery;
 use ytmapi_rs::query::*;
-use ytmapi_rs::Error;
 use ytmapi_rs::{auth::*, *};
 
 use crate::utils::{new_standard_api, new_standard_oauth_api, write_json, INVALID_COOKIE};
@@ -89,7 +88,19 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 
-generate_query_test!(test_get_history, GetHistoryQuery {});
+generate_query_test!(test_get_history, GetHistoryQuery);
+generate_query_test!(
+    test_get_library_upload_songs,
+    GetLibraryUploadSongsQuery::default()
+);
+generate_query_test!(
+    test_get_library_upload_albums,
+    GetLibraryUploadAlbumsQuery::default()
+);
+generate_query_test!(
+    test_get_library_upload_artists,
+    GetLibraryUploadArtistsQuery::default()
+);
 generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
 generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
 generate_query_test!(
@@ -137,7 +148,52 @@ generate_query_test!(
     test_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
-
+#[tokio::test]
+async fn test_get_library_upload_artist() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_artist = browser_api
+        .query(GetLibraryUploadArtistsQuery::default())
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .expect("To run this test, you will need to upload songs from at least one artist");
+    let query = GetLibraryUploadArtistQuery::new(first_artist.artist_id);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to date, just
+        // refresh it each time.
+        api.refresh_token().await.unwrap();
+        let _ = api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
+#[tokio::test]
+async fn test_get_library_upload_album() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_album = browser_api
+        .query(GetLibraryUploadAlbumsQuery::default())
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .expect("To run this test, you will need to upload songs from at least one album");
+    let query = GetLibraryUploadAlbumQuery::new(first_album.album_id);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to date, just
+        // refresh it each time.
+        api.refresh_token().await.unwrap();
+        let _ = api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
 #[tokio::test]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();

@@ -48,8 +48,8 @@ use auth::{
 use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
+    watch::WatchPlaylist, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
+    UploadAlbumID, UploadArtistID,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
@@ -74,8 +74,10 @@ use query::{
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
     GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetLibrarySongsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, Query,
-    RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
+    GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
+    RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
 use std::path::Path;
@@ -392,6 +394,38 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<ApiSuccess> {
         query.into().call(self).await
+    }
+    pub async fn get_library_upload_songs(
+        &self,
+    ) -> Result<<GetLibraryUploadSongsQuery as Query>::Output> {
+        let query = GetLibraryUploadSongsQuery::default();
+        query.call(self).await
+    }
+    pub async fn get_library_upload_artists(
+        &self,
+    ) -> Result<<GetLibraryUploadArtistsQuery as Query>::Output> {
+        let query = GetLibraryUploadArtistsQuery::default();
+        query.call(self).await
+    }
+    pub async fn get_library_upload_albums(
+        &self,
+    ) -> Result<<GetLibraryUploadAlbumsQuery as Query>::Output> {
+        let query = GetLibraryUploadAlbumsQuery::default();
+        query.call(self).await
+    }
+    pub async fn get_library_upload_album(
+        &self,
+        upload_album_id: UploadAlbumID<'_>,
+    ) -> Result<<GetLibraryUploadAlbumQuery as Query>::Output> {
+        let query = GetLibraryUploadAlbumQuery::new(upload_album_id);
+        query.call(self).await
+    }
+    pub async fn get_library_upload_artist(
+        &self,
+        upload_artist_id: UploadArtistID<'_>,
+    ) -> Result<<GetLibraryUploadArtistQuery as Query>::Output> {
+        let query = GetLibraryUploadArtistQuery::new(upload_artist_id);
+        query.call(self).await
     }
 }
 // TODO: Keep session alive after calling these methods.
