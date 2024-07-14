@@ -1,7 +1,7 @@
 [
     UploadArtist {
         artist_name: "Radiohead",
-        songs: "11 songs",
+        song_count: "11 songs",
         artist_id: UploadArtistID(
             "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESCXJhZGlvaGVhZA",
         ),
@@ -20,7 +20,7 @@
     },
     UploadArtist {
         artist_name: "Methyl Ethel",
-        songs: "12 songs",
+        song_count: "12 songs",
         artist_id: UploadArtistID(
             "FEmusic_library_privately_owned_artist_detaila_po_COmmveTQqc6_pQESDG1ldGh5bCBldGhlbA",
         ),

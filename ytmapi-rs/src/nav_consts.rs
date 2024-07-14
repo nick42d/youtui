@@ -48,6 +48,7 @@ pub const DESCRIPTION_SHELF_RUNS: &str =
 pub const _CAROUSEL: &str = "/musicCarouselShelfRenderer";
 pub const _IMMERSIVE_CAROUSEL: &str = "/musicImmersiveCarouselShelfRenderer";
 pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/mutations";
+pub const INDEX_TEXT: &str = "/index/runs/0/text";
 pub const RESPONSIVE_HEADER: &str = "/musicResponsiveHeaderRenderer";
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);

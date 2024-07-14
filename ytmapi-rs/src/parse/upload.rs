@@ -1,18 +1,22 @@
-use super::{LikeStatus, ParseFrom, DELETION_ENTITY_ID};
+use super::{
+    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, MENU, SECOND_SUBTITLE_RUNS, SUBTITLE,
+    SUBTITLE_RUNS, TAB_CONTENT,
+};
 use crate::{
-    common::{EntityID, UploadAlbumID, UploadArtistID},
+    common::{AlbumType, EntityID, UploadAlbumID, UploadArtistID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        GRID_ITEMS, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF,
-        NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN,
-        SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, TAB_RENDERER, TEXT_RUN_TEXT,
-        THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT,
+        GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF,
+        NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON,
+        SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3,
+        SUBTITLE_BADGE_LABEL, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
+        THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
     },
-    parse::parse_item_text,
+    parse::{parse_item_text, parse_song_album},
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
-        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
-        GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+        watch::GetWatchPlaylistQueryID, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+        GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     },
     Error, Result, Thumbnail, VideoID,
 };
@@ -58,9 +62,34 @@ pub struct UploadAlbum {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct UploadArtist {
     pub artist_name: String,
-    pub songs: String,
+    pub song_count: String,
     pub artist_id: UploadArtistID<'static>,
     pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct GetLibraryUploadAlbum {
+    pub title: String,
+    pub artist_name: String,
+    pub album_type: AlbumType,
+    pub song_count: String,
+    pub duration: String,
+    pub entity_id: EntityID<'static>,
+    pub songs: Vec<GetLibraryUploadAlbumSong>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// May need to be enum to track 'Not Available' case.
+// TODO: Move to common
+pub struct GetLibraryUploadAlbumSong {
+    pub title: String,
+    pub track_no: i64,
+    pub entity_id: EntityID<'static>,
+    pub video_id: VideoID<'static>,
+    pub album: ParsedUploadSongAlbum,
+    pub duration: String,
+    pub like_status: LikeStatus,
 }
 
 impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
@@ -102,7 +131,7 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
             let artist = data.take_value_pointer(SUBTITLE2)?;
             let year = data.take_value_pointer(SUBTITLE3).ok();
             let menu = data.borrow_pointer(MENU_ITEMS)?;
-            let entity_id = get_delete_history_menu_from_menu(menu)?.take_value()?;
+            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
             Ok(UploadAlbum {
                 title,
                 year,
@@ -137,7 +166,7 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
             Ok(UploadArtist {
                 thumbnails,
                 artist_name,
-                songs,
+                song_count: songs,
                 artist_id,
             })
         }
@@ -154,11 +183,68 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for () {
+impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
     fn parse_from(
         p: super::ProcessedResult<GetLibraryUploadAlbumQuery>,
     ) -> Result<<GetLibraryUploadAlbumQuery as crate::query::Query>::Output> {
-        todo!()
+        fn parse_playlist_upload_song(
+            mut json_crawler: JsonCrawler,
+        ) -> Result<GetLibraryUploadAlbumSong> {
+            let mut data = json_crawler.borrow_pointer(MRLIR)?;
+            let title = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
+            let album = parse_upload_song_album(data.borrow_mut(), 2)?;
+            let duration = process_fixed_column_item(&mut data.borrow_mut(), 0)?
+                .take_value_pointer(TEXT_RUN_TEXT)?;
+            let track_no = str::parse(data.take_value_pointer::<String, _>(INDEX_TEXT)?.as_str())
+                .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+            let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+            let video_id = data.take_value_pointer(concatcp!(
+                PLAY_BUTTON,
+                "/playNavigationEndpoint",
+                WATCH_VIDEO_ID
+            ))?;
+            let menu = data.navigate_pointer(MENU_ITEMS)?;
+            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+            Ok(GetLibraryUploadAlbumSong {
+                title,
+                track_no,
+                entity_id,
+                video_id,
+                album,
+                duration,
+                like_status,
+            })
+        }
+        let mut crawler: JsonCrawler = p.into();
+        let mut header = crawler.borrow_pointer(HEADER_DETAIL)?;
+        let title = header.take_value_pointer(TITLE_TEXT)?;
+        let album_type = header.take_value_pointer(SUBTITLE)?;
+        let artist_name = header.take_value_pointer(SUBTITLE2)?;
+        let song_count = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/0/text"))?;
+        let duration = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/2/text"))?;
+        let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
+        let menu = header.navigate_pointer(MENU_ITEMS)?;
+        let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+        let songs = crawler
+            .navigate_pointer(concatcp!(
+                SINGLE_COLUMN_TAB,
+                SECTION_LIST_ITEM,
+                MUSIC_SHELF,
+                "/contents"
+            ))?
+            .into_array_into_iter()?
+            .map(parse_playlist_upload_song)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(GetLibraryUploadAlbum {
+            title,
+            artist_name,
+            album_type,
+            song_count,
+            duration,
+            entity_id,
+            songs,
+            thumbnails,
+        })
     }
 }
 impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
@@ -230,7 +316,7 @@ pub(crate) fn parse_table_list_upload_song(
     let artists = parse_upload_song_artists(crawler.borrow_mut(), 1)?;
     let album = parse_upload_song_album(crawler.borrow_mut(), 2)?;
     let menu = crawler.borrow_pointer(MENU_ITEMS)?;
-    let entity_id = get_delete_history_menu_from_menu(menu)?.take_value()?;
+    let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
     Ok(TableListUploadSong {
         entity_id,
         video_id,
@@ -243,7 +329,7 @@ pub(crate) fn parse_table_list_upload_song(
     })
 }
 
-fn get_delete_history_menu_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
+fn get_delete_history_entity_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
     let cur_path = menu.get_path();
     menu.into_array_iter_mut()?
         .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
