@@ -2,7 +2,6 @@ use std::marker::PhantomData;
 
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
-use crate::nav_consts::DELETION_ENTITY_ID;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::{Error, Result};

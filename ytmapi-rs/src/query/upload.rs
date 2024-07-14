@@ -5,15 +5,15 @@ use crate::{
 };
 use serde_json::json;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
     sort_order: GetLibrarySortOrder,
 }
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct GetLibraryUploadArtistsQuery {
     sort_order: GetLibrarySortOrder,
 }
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct GetLibraryUploadAlbumsQuery {
     sort_order: GetLibrarySortOrder,
 }

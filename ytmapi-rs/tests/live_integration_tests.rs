@@ -5,7 +5,6 @@ use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
     ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, SearchSuggestion,
-    UploadAlbumID, UploadArtistID,
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;

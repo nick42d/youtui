@@ -2,8 +2,7 @@ use super::Query;
 use crate::{
     common::{
         library::{LibraryArtist, Playlist},
-        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-        YoutubeID,
+        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
     },
     parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
@@ -14,7 +13,7 @@ use std::borrow::Cow;
 // Currently, all queries are implemented with authentication however in future
 // this could be scaled back.
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub enum GetLibrarySortOrder {
     NameAsc,
     NameDesc,

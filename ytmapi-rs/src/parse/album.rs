@@ -5,7 +5,7 @@ use crate::common::{
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::process::{
-    get_library_menu_from_menu, process_fixed_column_item, process_flex_column_item,
+    get_library_menu_from_menu, process_fixed_column_item,
 };
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
