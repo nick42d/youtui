@@ -3,7 +3,7 @@
         title: "A Moon Shaped Pool",
         artist: "Radiohead",
         year: None,
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "b_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
         ),
         album_id: UploadAlbumID(
@@ -28,7 +28,7 @@
         year: Some(
             "2015",
         ),
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "b_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
         ),
         album_id: UploadAlbumID(

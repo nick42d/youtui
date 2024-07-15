@@ -379,7 +379,7 @@
     ),
     UploadSong(
         TableListUploadSong {
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQweyzmP7_____AQ",
             ),
             video_id: VideoID(

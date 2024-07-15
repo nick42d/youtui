@@ -48,8 +48,8 @@ use auth::{
 use common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist, FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion,
-    UploadAlbumID, UploadArtistID,
+    watch::WatchPlaylist,
+    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
@@ -81,6 +81,8 @@ use query::{
 };
 use reqwest::Client;
 use std::path::Path;
+
+use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 
 // TODO: Confirm if auth should be pub
 pub mod auth;
@@ -425,6 +427,13 @@ impl<A: AuthToken> YtMusic<A> {
         upload_artist_id: UploadArtistID<'_>,
     ) -> Result<<GetLibraryUploadArtistQuery as Query>::Output> {
         let query = GetLibraryUploadArtistQuery::new(upload_artist_id);
+        query.call(self).await
+    }
+    pub async fn delete_upload_entity(
+        &self,
+        upload_entity_id: UploadEntityID<'_>,
+    ) -> Result<<DeleteUploadEntityQuery as Query>::Output> {
+        let query = DeleteUploadEntityQuery::new(upload_entity_id);
         query.call(self).await
     }
 }

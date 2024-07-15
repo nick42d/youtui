@@ -2,20 +2,21 @@ use ytmapi_rs::{
     auth::AuthToken,
     common::{
         AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
-        PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, YoutubeID,
+        PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
     },
     parse::LikeStatus,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
-        CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
-        EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery,
-        GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
-        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
-        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
-        GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetPlaylistQuery,
-        GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SongsFilter, VideosFilter,
+        CreatePlaylistQuery, DeletePlaylistQuery, DeleteUploadEntityQuery, EditPlaylistQuery,
+        EditSongLibraryStatusQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
+        GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
+        GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+        GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+        GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+        GetPlaylistQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
+        ProfilesFilter, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
+        SongsFilter, VideosFilter,
     },
     ChannelID, VideoID, YtMusic,
 };
@@ -342,6 +343,14 @@ pub async fn command_to_query<A: AuthToken>(
             get_string_output_of_query(
                 yt,
                 GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw(upload_album_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::DeleteUploadEntity { upload_entity_id } => {
+            get_string_output_of_query(
+                yt,
+                DeleteUploadEntityQuery::new(UploadEntityID::from_raw(upload_entity_id)),
                 cli_query,
             )
             .await

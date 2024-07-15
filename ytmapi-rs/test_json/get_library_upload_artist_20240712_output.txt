@@ -1,6 +1,6 @@
 [
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQrbODwP______AQ",
         ),
         video_id: VideoID(
@@ -39,7 +39,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQ2qay9AI",
         ),
         video_id: VideoID(
@@ -78,7 +78,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQv73Zqf3_____AQ",
         ),
         video_id: VideoID(
@@ -117,7 +117,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQ1-2a7fz_____AQ",
         ),
         video_id: VideoID(
@@ -156,7 +156,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQ5LCXk_n_____AQ",
         ),
         video_id: VideoID(
@@ -195,7 +195,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQopTm4wI",
         ),
         video_id: VideoID(
@@ -234,7 +234,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQ29-A5AQ",
         ),
         video_id: VideoID(
@@ -273,7 +273,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQweyzmP7_____AQ",
         ),
         video_id: VideoID(
@@ -312,7 +312,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQycy1hwI",
         ),
         video_id: VideoID(
@@ -351,7 +351,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQsrqInQU",
         ),
         video_id: VideoID(
@@ -390,7 +390,7 @@
         ],
     },
     TableListUploadSong {
-        entity_id: EntityID(
+        entity_id: UploadEntityID(
             "t_po_COmmveTQqc6_pQEQ5bn9-gU",
         ),
         video_id: VideoID(

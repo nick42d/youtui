@@ -1,7 +1,7 @@
 use super::{get_sort_order_params, GetLibrarySortOrder, Query};
 use crate::{
-    common::{UploadAlbumID, UploadArtistID},
-    parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
+    common::{UploadAlbumID, UploadArtistID, UploadEntityID},
+    parse::{ApiSuccess, GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
 };
 use serde_json::json;
 
@@ -24,6 +24,11 @@ pub struct GetLibraryUploadArtistQuery<'a> {
 #[derive(Clone)]
 pub struct GetLibraryUploadAlbumQuery<'a> {
     upload_album_id: UploadAlbumID<'a>,
+}
+#[derive(Clone)]
+/// Deletes a previously uploaded song or album.
+pub struct DeleteUploadEntityQuery<'a> {
+    upload_entity_id: UploadEntityID<'a>,
 }
 impl GetLibraryUploadSongsQuery {
     pub fn new(sort_order: GetLibrarySortOrder) -> Self {
@@ -48,6 +53,11 @@ impl<'a> GetLibraryUploadArtistQuery<'a> {
 impl<'a> GetLibraryUploadAlbumQuery<'a> {
     pub fn new(upload_album_id: UploadAlbumID<'a>) -> Self {
         Self { upload_album_id }
+    }
+}
+impl<'a> DeleteUploadEntityQuery<'a> {
+    pub fn new(upload_entity_id: UploadEntityID<'a>) -> Self {
+        Self { upload_entity_id }
     }
 }
 // Auth required
@@ -132,5 +142,20 @@ impl Query for GetLibraryUploadArtistsQuery {
     }
     fn path(&self) -> &str {
         "browse"
+    }
+}
+// Auth required
+impl<'a> Query for DeleteUploadEntityQuery<'a> {
+    type Output = ApiSuccess
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([("entityId".to_string(), json!(self.upload_entity_id))])
+    }
+    fn params(&self) -> Option<std::borrow::Cow<str>> {
+        None
+    }
+    fn path(&self) -> &str {
+        "music/delete_privately_owned_entity"
     }
 }
