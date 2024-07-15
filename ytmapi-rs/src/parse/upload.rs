@@ -277,7 +277,16 @@ impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
     fn parse_from(
         p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>,
     ) -> crate::Result<<DeleteUploadEntityQuery<'a> as crate::query::Query>::Output> {
-        todo!()
+        let crawler: JsonCrawler = p.into();
+        // Passing an invalid entity ID with will throw a 400 error which
+        // is caught by AuthToken.
+        // NOTE: Passing the same entity id for deletion multiple times
+        crawler
+            .navigate_pointer("/actions")?
+            .into_array_into_iter()?
+            .find_map(|a| a.navigate_pointer("/addToToastAction").ok())
+            .map(|_| ApiSuccess)
+            .ok_or_else(|| Error::other("Expected /actions to contain a /addToToastAction"))
     }
 }
 fn parse_upload_song_artists(
@@ -413,7 +422,7 @@ mod tests {
     async fn test_delete_upload_entity() {
         parse_test!(
             "./test_json/delete_upload_entity_20240715.json",
-            "./test_json/delete_upload_entity_20240715_output.txt",
+            "./test_json/api_success_output.txt",
             crate::query::DeleteUploadEntityQuery::new(UploadEntityID::from_raw("")),
             BrowserToken
         );

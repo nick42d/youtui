@@ -1,0 +1,20 @@
+{
+  "actions": [
+    {
+      "addToToastAction": {
+        "item": {
+          "notificationActionRenderer": {
+            "responseText": {
+              "runs": [
+                {
+                  "text": "Song deleted"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
