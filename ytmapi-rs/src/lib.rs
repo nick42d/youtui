@@ -132,6 +132,34 @@ impl YtMusic<BrowserToken> {
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
+    //TODO: Usage examples
+    /// Return a raw result from YouTube music for query Q that requires further
+    /// processing.
+    pub async fn raw_query<Q: Query<BrowserToken>>(
+        &self,
+        query: Q,
+    ) -> Result<RawResult<Q, BrowserToken>> {
+        // TODO: Check for a response the reflects an expired Headers token
+        self.token.raw_query(&self.client, query).await
+    }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
+    pub async fn processed_query<Q: Query<BrowserToken>>(
+        &self,
+        query: Q,
+    ) -> Result<ProcessedResult<Q>> {
+        // TODO: Check for a response the reflects an expired Headers token
+        self.token.raw_query(&self.client, query).await?.process()
+    }
+    /// Return the raw JSON returned by YouTube music for Query Q.
+    pub async fn json_query<Q: Query<BrowserToken>>(&self, query: Q) -> Result<String> {
+        // TODO: Remove allocation
+        let json = self.raw_query(query).await?.process()?.clone_json();
+        Ok(json)
+    }
+    pub async fn query<Q: Query<BrowserToken>>(&self, query: Q) -> Result<Q::Output> {
+        query.call(self).await
+    }
 }
 impl YtMusic<OAuthToken> {
     /// Create a new API handle using an OAuthToken.
@@ -146,34 +174,40 @@ impl YtMusic<OAuthToken> {
         self.token = refreshed_token.clone();
         Ok(refreshed_token)
     }
-}
-impl<A: AuthToken> YtMusic<A> {
     //TODO: Usage examples
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
-    pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    pub async fn raw_query<Q: Query<OAuthToken>>(
+        &self,
+        query: Q,
+    ) -> Result<RawResult<Q, OAuthToken>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
-    pub async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
+    pub async fn processed_query<Q: Query<OAuthToken>>(
+        &self,
+        query: Q,
+    ) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
     /// Return the raw JSON returned by YouTube music for Query Q.
-    pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
+    pub async fn json_query<Q: Query<OAuthToken>>(&self, query: Q) -> Result<String> {
         // TODO: Remove allocation
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
-    pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
+    pub async fn query<Q: Query<OAuthToken>>(&self, query: Q) -> Result<Q::Output> {
         query.call(self).await
     }
+}
+impl<A: AuthToken> YtMusic<A> {
     /// Process a string of JSON as if it had been directly received from the
     /// api for a query. Note that this is generic across AuthToken.
     /// NOTE: Potentially can be removed from impl
-    pub fn process_json<Q: Query>(json: String, query: Q) -> Result<Q::Output> {
+    pub fn process_json<Q: Query<A>>(json: String, query: Q) -> Result<Q::Output> {
         Q::Output::parse_from(RawResult::<Q, A>::from_raw(json, query).process()?)
     }
     /// API Search Query that returns results for each category if available.
