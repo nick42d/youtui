@@ -160,6 +160,9 @@ enum Command {
     GetLibraryUploadAlbum {
         upload_album_id: String,
     },
+    DeleteUploadEntity {
+        upload_entity_id: String,
+    },
 }
 
 pub struct RuntimeInfo {

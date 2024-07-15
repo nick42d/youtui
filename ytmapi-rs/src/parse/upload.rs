@@ -1,18 +1,20 @@
 use super::{
-    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
+    ApiSuccess, LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS,
+    SUBTITLE,
 };
 use crate::{
-    common::{AlbumType, EntityID, UploadAlbumID, UploadArtistID},
+    common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID, PLAY_BUTTON,
-        SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
+        GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
+        NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB,
+        SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
         THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
     },
-    parse::{parse_item_text},
+    parse::parse_item_text,
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
-        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+        DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     },
     Error, Result, Thumbnail, VideoID,
@@ -35,7 +37,7 @@ pub struct ParsedUploadSongAlbum {
 // May need to be enum to track 'Not Available' case.
 // TODO: Move to common
 pub struct TableListUploadSong {
-    pub entity_id: EntityID<'static>,
+    pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
     pub album: ParsedUploadSongAlbum,
     pub duration: String,
@@ -51,7 +53,7 @@ pub struct UploadAlbum {
     pub artist: String,
     // Year appears to be optional.
     pub year: Option<String>,
-    pub entity_id: EntityID<'static>,
+    pub entity_id: UploadEntityID<'static>,
     pub album_id: UploadAlbumID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -71,7 +73,7 @@ pub struct GetLibraryUploadAlbum {
     pub album_type: AlbumType,
     pub song_count: String,
     pub duration: String,
-    pub entity_id: EntityID<'static>,
+    pub entity_id: UploadEntityID<'static>,
     pub songs: Vec<GetLibraryUploadAlbumSong>,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -82,7 +84,7 @@ pub struct GetLibraryUploadAlbum {
 pub struct GetLibraryUploadAlbumSong {
     pub title: String,
     pub track_no: i64,
-    pub entity_id: EntityID<'static>,
+    pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
     pub album: ParsedUploadSongAlbum,
     pub duration: String,
@@ -271,6 +273,13 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
             .collect()
     }
 }
+impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
+    fn parse_from(
+        p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>,
+    ) -> crate::Result<<DeleteUploadEntityQuery<'a> as crate::query::Query>::Output> {
+        todo!()
+    }
+}
 fn parse_upload_song_artists(
     mut data: JsonCrawlerBorrowed,
     col_idx: usize,
@@ -353,7 +362,7 @@ fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
 mod tests {
     use crate::{
         auth::BrowserToken,
-        common::{UploadAlbumID, UploadArtistID, YoutubeID},
+        common::{UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID},
     };
     #[tokio::test]
     async fn test_get_library_upload_songs() {
@@ -397,6 +406,15 @@ mod tests {
             "./test_json/get_library_upload_album_20240712.json",
             "./test_json/get_library_upload_album_20240712_output.txt",
             crate::query::GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_delete_upload_entity() {
+        parse_test!(
+            "./test_json/delete_upload_entity_20240715.json",
+            "./test_json/delete_upload_entity_20240715_output.txt",
+            crate::query::DeleteUploadEntityQuery::new(UploadEntityID::from_raw("")),
             BrowserToken
         );
     }

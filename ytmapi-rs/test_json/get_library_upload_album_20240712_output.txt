@@ -4,14 +4,14 @@ GetLibraryUploadAlbum {
     album_type: Album,
     song_count: "12 songs",
     duration: "43 minutes",
-    entity_id: EntityID(
+    entity_id: UploadEntityID(
         "b_po_COmmveTQqc6_pQESFG9oIGluaHVtYW4gc3BlY3RhY2xlGgxtZXRoeWwgZXRoZWwiA2dwbQ",
     ),
     songs: [
         GetLibraryUploadAlbumSong {
             title: "Idee Fixe",
             track_no: 1,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQq8ne0_z_____AQ",
             ),
             video_id: VideoID(
@@ -29,7 +29,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Shadowboxing",
             track_no: 2,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQxuy37gc",
             ),
             video_id: VideoID(
@@ -47,7 +47,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Rogues",
             track_no: 3,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQhbvT5QI",
             ),
             video_id: VideoID(
@@ -65,7 +65,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "To Swim",
             track_no: 4,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ9rvhoAM",
             ),
             video_id: VideoID(
@@ -83,7 +83,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Twilight Driving",
             track_no: 5,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ5Nizkfj_____AQ",
             ),
             video_id: VideoID(
@@ -101,7 +101,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Depth Perception",
             track_no: 6,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ3sqBugQ",
             ),
             video_id: VideoID(
@@ -119,7 +119,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Unbalancing Act",
             track_no: 7,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ76WYjfv_____AQ",
             ),
             video_id: VideoID(
@@ -137,7 +137,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Also Gesellschaft",
             track_no: 8,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ8rzUrfv_____AQ",
             ),
             video_id: VideoID(
@@ -155,7 +155,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Obscura",
             track_no: 9,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ5amI7Pr_____AQ",
             ),
             video_id: VideoID(
@@ -173,7 +173,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Artificial Limb",
             track_no: 10,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQzqKlpvn_____AQ",
             ),
             video_id: VideoID(
@@ -191,7 +191,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Sweet Waste",
             track_no: 11,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQ5pDv3vn_____AQ",
             ),
             video_id: VideoID(
@@ -209,7 +209,7 @@ GetLibraryUploadAlbum {
         GetLibraryUploadAlbumSong {
             title: "Everything Is As It Should Be",
             track_no: 12,
-            entity_id: EntityID(
+            entity_id: UploadEntityID(
                 "t_po_COmmveTQqc6_pQEQwJbOxvz_____AQ",
             ),
             video_id: VideoID(
