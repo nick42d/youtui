@@ -21,7 +21,7 @@ mod upload;
 
 // TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.
-pub trait Query {
+pub trait Query<A: AuthToken> {
     // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
     // this into a trait object.
     type Output: ParseFrom<Self>
@@ -30,7 +30,7 @@ pub trait Query {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
-    fn call<A: AuthToken>(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
+    fn call(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
     where
         Self: Sized,
     {
@@ -41,6 +41,7 @@ pub trait Query {
 pub mod album {
     use super::Query;
     use crate::{
+        auth::AuthToken,
         common::{AlbumID, YoutubeID},
         parse::AlbumParams,
     };
@@ -50,7 +51,7 @@ pub mod album {
     pub struct GetAlbumQuery<'a> {
         browse_id: AlbumID<'a>,
     }
-    impl<'a> Query for GetAlbumQuery<'a> {
+    impl<'a, A: AuthToken> Query<A> for GetAlbumQuery<'a> {
         type Output = AlbumParams;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
