@@ -109,7 +109,7 @@ Chrome example (Select manually and paste):
 |GetLibraryUploadArtist|[x]|[ ]|
 |GetLibraryUploadAlbum|[x]||
 |UploadAlbum|[ ]||
-|DeleteUploadEntity|[ ]||
+|DeleteUploadEntity|[x]||
 
 \* get watch playlist is partially implemented only
 - only returns playlist and lyrics ids
