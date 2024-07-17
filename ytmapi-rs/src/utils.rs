@@ -72,7 +72,7 @@ macro_rules! parse_test {
             .await
             .expect("Expect file read to pass during tests");
         let expected = expected.trim();
-        let output = crate::YtMusic::<$token>::process_json(source, $query).unwrap();
+        let output = crate::process_json::<_, $token>(source, $query).unwrap();
         let output = format!("{:#?}", output);
         pretty_assertions::assert_eq!(expected, output);
     };

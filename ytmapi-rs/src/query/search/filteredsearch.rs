@@ -1,7 +1,7 @@
 use super::{
-    search_query_header, search_query_params, Query, SearchQuery, SearchType, SpellingMode,
-    SEARCH_QUERY_PATH, SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS, SPECIALIZED_PLAYLIST_PREFIX_PARAMS,
-    SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
+    search_query_header, search_query_params, AuthToken, Query, SearchQuery, SearchType,
+    SpellingMode, SEARCH_QUERY_PATH, SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
+    SPECIALIZED_PLAYLIST_PREFIX_PARAMS, SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
 };
 use crate::parse::{
     SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
@@ -152,7 +152,7 @@ impl FilteredSearchType for ProfilesFilter {
     }
 }
 // Implementations of Query
-impl<'a> Query for SearchQuery<'a, FilteredSearch<SongsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<SongsFilter>> {
     type Output = Vec<SearchResultSong>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -164,7 +164,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<SongsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
     type Output = Vec<SearchResultPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -176,7 +176,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> {
     type Output = Vec<SearchResultPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -188,7 +188,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
     type Output = Vec<SearchResultAlbum>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -200,7 +200,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
     type Output = Vec<SearchResultArtist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -212,7 +212,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> {
     type Output = Vec<SearchResultFeaturedPlaylist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -224,7 +224,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
     type Output = Vec<SearchResultEpisode>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -236,7 +236,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
     type Output = Vec<SearchResultPodcast>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -248,7 +248,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<VideosFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<VideosFilter>> {
     type Output = Vec<SearchResultVideo>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -260,7 +260,7 @@ impl<'a> Query for SearchQuery<'a, FilteredSearch<VideosFilter>> {
         search_query_params(self)
     }
 }
-impl<'a> Query for SearchQuery<'a, FilteredSearch<ProfilesFilter>> {
+impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<ProfilesFilter>> {
     type Output = Vec<SearchResultProfile>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)

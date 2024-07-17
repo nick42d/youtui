@@ -1,12 +1,11 @@
 use super::{parse_item_text, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
+use crate::auth::AuthToken;
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::process::{
-    get_library_menu_from_menu, process_fixed_column_item,
-};
+use crate::process::{get_library_menu_from_menu, process_fixed_column_item};
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
@@ -78,10 +77,10 @@ pub struct AlbumParams {
     pub library_status: LibraryStatus,
 }
 
-impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+impl<'a, A: AuthToken> ParseFrom<GetAlbumQuery<'a>, A> for AlbumParams {
     fn parse_from(
         p: ProcessedResult<GetAlbumQuery<'a>>,
-    ) -> crate::Result<<GetAlbumQuery<'a> as Query>::Output> {
+    ) -> crate::Result<<GetAlbumQuery<'a> as Query<A>>::Output> {
         parse_album_query_2024(p)
     }
 }
@@ -113,7 +112,7 @@ fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
     })?;
     let plays = parse_item_text(&mut data, 2, 0)?;
     let track_no = str::parse(
-        data.take_value_pointer::<String, _>(concatcp!("/index", RUN_TEXT))?
+        data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
     )
     // TODO: Better error
@@ -145,7 +144,7 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
     let category =
-        AlbumType::try_from_str(header.take_value_pointer::<String, _>(SUBTITLE)?.as_str())?;
+        AlbumType::try_from_str(header.take_value_pointer::<String>(SUBTITLE)?.as_str())?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?
@@ -158,7 +157,7 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
         .and_then(|d| d.into_array_iter_mut())
         .ok()
         .map(|r| {
-            r.map(|mut r| r.take_value_pointer::<String, _>("/text"))
+            r.map(|mut r| r.take_value_pointer::<String>("/text"))
                 .collect::<Result<String>>()
         })
         .transpose()?;
@@ -198,26 +197,15 @@ mod tests {
         auth::BrowserToken,
         common::{AlbumID, YoutubeID},
         parse::album::GetAlbumQuery,
-        YtMusic,
     };
-    use pretty_assertions::assert_eq;
-    use std::path::Path;
 
     #[tokio::test]
     async fn test_get_album_query() {
-        let source_path = Path::new("./test_json/get_album_20240622.json");
-        let expected_path = Path::new("./test_json/get_album_20240622_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = GetAlbumQuery::new(AlbumID::from_raw("MPREb_Ylw2kL9wqcw"));
-        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        parse_test!(
+            "./test_json/get_album_20240622.json",
+            "./test_json/get_album_20240622_output.txt",
+            GetAlbumQuery::new(AlbumID::from_raw("MPREb_Ylw2kL9wqcw")),
+            BrowserToken
+        );
     }
 }

@@ -1,5 +1,6 @@
 use super::Query;
 use crate::{
+    auth::AuthToken,
     common::{PlaylistID, SetVideoID, YoutubeID},
     parse::{ApiSuccess, GetPlaylist},
     Error, Result,
@@ -86,7 +87,7 @@ impl<'a> RemovePlaylistItemsQuery<'a> {
     }
 }
 
-impl<'a> Query for GetPlaylistQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetPlaylistQuery<'a> {
     type Output = GetPlaylist;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
@@ -105,7 +106,7 @@ impl<'a> Query for GetPlaylistQuery<'a> {
     }
 }
 
-impl<'a> Query for DeletePlaylistQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for DeletePlaylistQuery<'a> {
     type Output = ApiSuccess;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
@@ -129,7 +130,7 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
     }
 }
 
-impl<'a> Query for RemovePlaylistItemsQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'a> {
     type Output = ApiSuccess;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({

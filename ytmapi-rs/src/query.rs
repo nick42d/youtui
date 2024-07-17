@@ -24,7 +24,7 @@ mod upload;
 pub trait Query<A: AuthToken> {
     // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
     // this into a trait object.
-    type Output: ParseFrom<Self>
+    type Output: ParseFrom<Self, A>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
@@ -79,25 +79,31 @@ pub mod album {
 
 // For future use.
 pub mod continuations {
-    use crate::parse::{ParseFrom, ProcessedResult};
+    use crate::{
+        auth::AuthToken,
+        parse::{ParseFrom, ProcessedResult},
+    };
 
     use super::{BasicSearch, Query, SearchQuery};
     use std::borrow::Cow;
 
-    pub struct GetContinuationsQuery<Q: Query> {
-        c_params: String,
+    pub struct GetContinuationsQuery<Q> {
+        continuation_params: String,
         query: Q,
     }
-    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
+    impl<'a, A: AuthToken> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>, A> for () {
         fn parse_from(
             _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
-        ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query>::Output>
+        ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query<A>>::Output>
         {
             todo!()
         }
     }
     // TODO: Output type
-    impl<'a> Query for GetContinuationsQuery<SearchQuery<'a, BasicSearch>> {
+    impl<'a, A: AuthToken> Query<A> for GetContinuationsQuery<SearchQuery<'a, BasicSearch>>
+    where
+        SearchQuery<'a, BasicSearch>: Query<A>,
+    {
         type Output = ();
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             self.query.header()
@@ -106,26 +112,32 @@ pub mod continuations {
             self.query.path()
         }
         fn params(&self) -> Option<Cow<str>> {
-            Some(Cow::Borrowed(&self.c_params))
+            Some(Cow::Borrowed(&self.continuation_params))
         }
     }
-    impl<Q: Query> GetContinuationsQuery<Q> {
+    impl<Q> GetContinuationsQuery<Q> {
         pub fn new(c_params: String, query: Q) -> GetContinuationsQuery<Q> {
-            GetContinuationsQuery { c_params, query }
+            GetContinuationsQuery {
+                continuation_params: c_params,
+                query,
+            }
         }
     }
 }
 
 pub mod lyrics {
     use super::Query;
-    use crate::common::{browsing::Lyrics, LyricsID, YoutubeID};
+    use crate::{
+        auth::AuthToken,
+        common::{browsing::Lyrics, LyricsID, YoutubeID},
+    };
     use serde_json::json;
     use std::borrow::Cow;
 
     pub struct GetLyricsQuery<'a> {
         id: LyricsID<'a>,
     }
-    impl<'a> Query for GetLyricsQuery<'a> {
+    impl<'a, A: AuthToken> Query<A> for GetLyricsQuery<'a> {
         type Output = Lyrics;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
@@ -152,6 +164,7 @@ pub mod lyrics {
 pub mod watch {
     use super::Query;
     use crate::{
+        auth::AuthToken,
         common::{watch::WatchPlaylist, PlaylistID, YoutubeID},
         VideoID,
     };
@@ -198,7 +211,7 @@ pub mod watch {
         }
     }
 
-    impl<T: GetWatchPlaylistQueryID> Query for GetWatchPlaylistQuery<T> {
+    impl<T: GetWatchPlaylistQueryID, A: AuthToken> Query<A> for GetWatchPlaylistQuery<T> {
         type Output = WatchPlaylist;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(mut map) = json!({
@@ -259,6 +272,7 @@ pub mod rate {
     use serde_json::json;
 
     use crate::{
+        auth::AuthToken,
         common::{PlaylistID, YoutubeID},
         parse::{ApiSuccess, LikeStatus},
         VideoID,
@@ -289,7 +303,7 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a> Query for RateSongQuery<'a> {
+    impl<'a, A: AuthToken> Query<A> for RateSongQuery<'a> {
         type Output = ApiSuccess
         where
             Self: Sized;
@@ -308,7 +322,7 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a> Query for RatePlaylistQuery<'a> {
+    impl<'a, A: AuthToken> Query<A> for RatePlaylistQuery<'a> {
         type Output = ApiSuccess
         where
             Self: Sized;

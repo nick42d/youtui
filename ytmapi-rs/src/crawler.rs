@@ -1,7 +1,6 @@
 use crate::{
     error::{self, ParseTarget},
     parse::ProcessedResult,
-    query::Query,
     Error, Result,
 };
 use serde::de::DeserializeOwned;
@@ -45,7 +44,7 @@ pub(crate) struct JsonCrawlerArrayIntoIter {
     cur_front: usize,
     cur_back: usize,
 }
-impl<Q: Query> From<ProcessedResult<Q>> for JsonCrawler {
+impl<Q> From<ProcessedResult<Q>> for JsonCrawler {
     fn from(value: ProcessedResult<Q>) -> Self {
         let (_, source, crawler) = value.destructure();
         Self {
@@ -262,7 +261,7 @@ impl<'a> JsonCrawlerBorrowed<'a> {
                 )
             })
     }
-    pub fn take_value_pointer<T: DeserializeOwned, S: AsRef<str>>(&mut self, path: S) -> Result<T> {
+    pub fn take_value_pointer<T: DeserializeOwned>(&mut self, path: impl AsRef<str>) -> Result<T> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::pointer(path.as_ref()));
         serde_json::from_value(
@@ -417,12 +416,12 @@ impl JsonCrawler {
                 )
             })
     }
-    pub fn take_value_pointer<T: DeserializeOwned>(&mut self, path: &str) -> Result<T> {
+    pub fn take_value_pointer<T: DeserializeOwned>(&mut self, path: impl AsRef<str>) -> Result<T> {
         let mut path_clone = self.path.clone();
-        path_clone.push(JsonPath::pointer(path));
+        path_clone.push(JsonPath::pointer(path.as_ref()));
         serde_json::from_value(
             self.crawler
-                .pointer_mut(path)
+                .pointer_mut(path.as_ref())
                 .map(|v| v.take())
                 .ok_or_else(|| Error::navigation(&path_clone, self.source.clone()))?,
         )
