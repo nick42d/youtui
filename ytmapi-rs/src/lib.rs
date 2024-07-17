@@ -313,6 +313,14 @@ pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates a Browser Token when given a browser cookie.
+/// # Usage
+/// ```no_run
+/// # async {
+/// let cookie = "FAKE COOKIE";
+/// let token = ytmapi_rs::generate_browser_token(cookie).await;
+/// assert!(matches!(token.unwrap_err().into_kind(),ytmapi_rs::error::ErrorKind::Header));
+/// # };
+/// ```
 pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserToken> {
     let client = Client::new();
     BrowserToken::from_str(cookie.as_ref(), &client).await
@@ -320,11 +328,11 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserT
 /// Process a string of JSON as if it had been directly received from the
 /// api for a query. Note that this is generic across AuthToken, and you may
 /// need to provide the AuthToken type using 'turbofish'.
-/// Usage
-/// ```no_run
+/// # Usage
+/// ```
 /// let json = r#"{ "test" : true }"#.to_string();
 /// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
-/// let result = ytmapi_rs::process_json(json, query);
+/// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
 /// assert!(result.is_err());
 /// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
