@@ -30,23 +30,25 @@ chrono = "0.4.38"
 rand = "0.8.5"
 
 [features]
+default = ["default-tls", "simplified-queries"]
 # Provide alternative TLS options, but use reqwest's default by default.
-# NOTE: To use an alternative TLS, you will need to specify default-features = false
+# NOTE: To use an alternative TLS with the standard builders,
+# you will need to specify default-features = false.
 # As reqwest preferentially uses default-tls when multiple TLS features are enabled.
 # See reqwest docs for more information.
 # https://docs.rs/reqwest/latest/reqwest/tls/index.html
 # TODO: Implement builder functions that allow us to ensure we use a specific TLS.
-default = ["default-tls"]
 default-tls = ["reqwest/default-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+# Enable the use of simplified queries such as YtMusic::search("xx")
+simplified-queries = []
 
 # Dev only section
-
 [dev-dependencies]
 pretty_assertions = "1.4.0"
 
-# docs.rs-specific configuration
+# docs.rs-specific configuration required to enable nightly documentation features
 [package.metadata.docs.rs]
 # document all features
 all-features = true
