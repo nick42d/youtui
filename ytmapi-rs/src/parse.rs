@@ -1,5 +1,6 @@
 //! Results from parsing Innertube queries.
 use crate::{
+    auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
@@ -30,11 +31,12 @@ mod upload;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->
 // String API.
-pub trait ParseFrom<T>: Debug
+pub trait ParseFrom<Q, A>: Debug
 where
-    T: Query,
+    Q: Query<A>,
+    A: AuthToken,
 {
-    fn parse_from(p: ProcessedResult<T>) -> crate::Result<T::Output>;
+    fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Q::Output>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -272,17 +274,14 @@ pub struct SearchResultFeaturedPlaylist {
 
 /// A result from the api that has been checked for errors and processed into
 /// JSON.
-pub struct ProcessedResult<Q>
-where
-    Q: Query,
-{
+pub struct ProcessedResult<Q> {
     query: Q,
     source: String,
     json: serde_json::Value,
 }
 
-impl<T: Query> ProcessedResult<T> {
-    pub(crate) fn from_raw(source: String, query: T) -> Result<Self> {
+impl<Q> ProcessedResult<Q> {
+    pub(crate) fn from_raw(source: String, query: Q) -> Result<Self> {
         let json = serde_json::from_str(source.as_ref())
             .map_err(|_| error::Error::response("Error deserializing"))?;
         Ok(Self {
@@ -291,7 +290,7 @@ impl<T: Query> ProcessedResult<T> {
             json,
         })
     }
-    pub(crate) fn destructure(self) -> (T, String, serde_json::Value) {
+    pub(crate) fn destructure(self) -> (Q, String, serde_json::Value) {
         let ProcessedResult {
             query,
             source,
@@ -308,7 +307,7 @@ impl<T: Query> ProcessedResult<T> {
     }
     // Only required when running tests
     #[cfg(test)]
-    pub(crate) fn get_query(&self) -> &T {
+    pub(crate) fn get_query(&self) -> &Q {
         &self.query
     }
 }
@@ -370,16 +369,17 @@ mod tests {
 
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
+    use crate::auth::AuthToken;
     use crate::common::browsing::Lyrics;
     use crate::crawler::JsonCrawler;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
 
-    impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
+    impl<'a, A: AuthToken> ParseFrom<GetLyricsQuery<'a>, A> for Lyrics {
         fn parse_from(
             p: ProcessedResult<GetLyricsQuery<'a>>,
-        ) -> crate::Result<<GetLyricsQuery<'a> as crate::query::Query>::Output> {
+        ) -> crate::Result<<GetLyricsQuery<'a> as crate::query::Query<A>>::Output> {
             let json_crawler: JsonCrawler = p.into();
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
                 "/contents",
@@ -398,6 +398,7 @@ mod lyrics {
         use crate::{
             auth::BrowserToken,
             common::{browsing::Lyrics, LyricsID, YoutubeID},
+            process_json,
             query::lyrics::GetLyricsQuery,
             YtMusic,
         };
@@ -411,7 +412,7 @@ mod lyrics {
                 .expect("Expect file read to pass during tests");
             // Blank query has no bearing on function
             let query = GetLyricsQuery::new(LyricsID::from_raw(""));
-            let output = YtMusic::<BrowserToken>::process_json(file, query).unwrap();
+            let output = process_json::<_, BrowserToken>(file, query).unwrap();
             assert_eq!(
                 output,
                 Lyrics {
@@ -426,6 +427,7 @@ mod watch {
     use const_format::concatcp;
 
     use crate::{
+        auth::AuthToken,
         common::watch::WatchPlaylist,
         crawler::{JsonCrawler, JsonCrawlerBorrowed},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
@@ -435,10 +437,12 @@ mod watch {
 
     use super::{ParseFrom, ProcessedResult};
 
-    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
+    impl<A: AuthToken, T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>, A>
+        for WatchPlaylist
+    {
         fn parse_from(
             p: ProcessedResult<GetWatchPlaylistQuery<T>>,
-        ) -> crate::Result<<GetWatchPlaylistQuery<T> as crate::query::Query>::Output> {
+        ) -> crate::Result<<GetWatchPlaylistQuery<T> as crate::query::Query<A>>::Output> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;
@@ -460,6 +464,7 @@ mod watch {
     }
 
     // Should be a Process function not Parse.
+    // XXX: Only used here!
     fn get_tab_browse_id<'a>(
         watch_next_renderer: &'a mut JsonCrawlerBorrowed,
         tab_id: usize,

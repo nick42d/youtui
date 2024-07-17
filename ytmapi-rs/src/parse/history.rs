@@ -2,16 +2,17 @@ use const_format::concatcp;
 
 use super::{parse_table_list_items, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF};
 use crate::{
+    auth::AuthToken,
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
     query::{GetHistoryQuery, RemoveHistoryItemsQuery},
     Error,
 };
 
-impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
+impl<A: AuthToken> ParseFrom<GetHistoryQuery, A> for Vec<TableListItem> {
     fn parse_from(
         p: super::ProcessedResult<GetHistoryQuery>,
-    ) -> crate::Result<<GetHistoryQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetHistoryQuery as crate::query::Query<A>>::Output> {
         let json_crawler = JsonCrawler::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         // TODO: Reduce allocations.
@@ -28,10 +29,12 @@ impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
         Ok(nested_res?.into_iter().flatten().collect())
     }
 }
-impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<crate::Result<ApiSuccess>> {
+impl<'a, A: AuthToken> ParseFrom<RemoveHistoryItemsQuery<'a>, A>
+    for Vec<crate::Result<ApiSuccess>>
+{
     fn parse_from(
         p: super::ProcessedResult<RemoveHistoryItemsQuery>,
-    ) -> crate::Result<<RemoveHistoryItemsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<RemoveHistoryItemsQuery as crate::query::Query<A>>::Output> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?

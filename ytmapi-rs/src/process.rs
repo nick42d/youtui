@@ -11,7 +11,7 @@ use crate::{Error, Result};
 #[derive(PartialEq, Debug)]
 pub struct RawResult<Q, A>
 where
-    Q: Query,
+    Q: Query<A>,
     A: AuthToken,
 {
     query: Q,
@@ -21,7 +21,7 @@ where
     json: String,
 }
 
-impl<Q: Query, A: AuthToken> RawResult<Q, A> {
+impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
     pub fn from_raw(json: String, query: Q) -> Self {
         Self {
             query,

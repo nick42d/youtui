@@ -2,9 +2,9 @@ use super::{
     parse_item_text, parse_library_management_items_from_menu, parse_table_list_upload_song,
     ApiSuccess, EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum,
     TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
-    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL,
-    THUMBNAILS,
+    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
+use crate::auth::AuthToken;
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{AlbumType, Explicit, PlaylistID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
@@ -30,50 +30,54 @@ pub struct GetLibraryArtistSubscription {
     pub thumbnails: Vec<Thumbnail>,
 }
 
-impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
+impl<A: AuthToken> ParseFrom<GetLibraryArtistSubscriptionsQuery, A>
+    for Vec<GetLibraryArtistSubscription>
+{
     fn parse_from(
         p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>,
-    ) -> crate::Result<<GetLibraryArtistSubscriptionsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetLibraryArtistSubscriptionsQuery as crate::query::Query<A>>::Output> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artist_subscriptions(json_crawler)
     }
 }
 
-impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
+impl<A: AuthToken> ParseFrom<GetLibraryAlbumsQuery, A> for Vec<SearchResultAlbum> {
     fn parse_from(
         p: ProcessedResult<GetLibraryAlbumsQuery>,
-    ) -> crate::Result<<GetLibraryAlbumsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetLibraryAlbumsQuery as crate::query::Query<A>>::Output> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_albums(json_crawler)
     }
 }
 
-impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
+impl<A: AuthToken> ParseFrom<GetLibrarySongsQuery, A> for Vec<TableListSong> {
     fn parse_from(
         p: ProcessedResult<GetLibrarySongsQuery>,
-    ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query<A>>::Output> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_songs(json_crawler)
     }
 }
 
-impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+impl<A: AuthToken> ParseFrom<GetLibraryArtistsQuery, A> for Vec<LibraryArtist> {
     fn parse_from(
         p: ProcessedResult<GetLibraryArtistsQuery>,
-    ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query<A>>::Output> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artists(json_crawler)
     }
 }
 
-impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSuccess>> {
+impl<'a, A: AuthToken> ParseFrom<EditSongLibraryStatusQuery<'a>, A>
+    for Vec<crate::Result<ApiSuccess>>
+{
     fn parse_from(
         p: super::ProcessedResult<EditSongLibraryStatusQuery>,
-    ) -> crate::Result<<EditSongLibraryStatusQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<EditSongLibraryStatusQuery as crate::query::Query<A>>::Output> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
@@ -94,10 +98,10 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSucc
     }
 }
 
-impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+impl<A: AuthToken> ParseFrom<GetLibraryPlaylistsQuery, A> for Vec<Playlist> {
     fn parse_from(
         p: ProcessedResult<GetLibraryPlaylistsQuery>,
-    ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query>::Output> {
+    ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query<A>>::Output> {
         // TODO: Continuations
         // TODO: Implement count and author fields
         let json_crawler = p.into();
@@ -219,7 +223,7 @@ fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAl
     let title = data.take_value_pointer(TITLE_TEXT)?;
     let artist = data.take_value_pointer(SUBTITLE2)?;
     let year = data.take_value_pointer(SUBTITLE3)?;
-    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String, _>(SUBTITLE)?)?;
+    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String>(SUBTITLE)?)?;
     let explicit = if data.path_exists(SUBTITLE_BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -345,7 +349,7 @@ fn parse_table_list_episode(
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
     Ok(TableListEpisode {
@@ -377,7 +381,7 @@ fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Resul
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
     let playlist_id = data.take_value_pointer(concatcp!(
@@ -415,7 +419,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
@@ -470,7 +474,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
             // Extract description from runs.
             // Collect the iterator of Result<String> into a single Result<String>
             description = Some(
-                runs.map(|mut c| c.take_value_pointer::<String, _>("/text"))
+                runs.map(|mut c| c.take_value_pointer::<String>("/text"))
                     .collect::<Result<String>>()?,
             );
         }
@@ -492,125 +496,30 @@ mod tests {
     use crate::{
         auth::BrowserToken,
         common::library::{LibraryArtist, Playlist},
+        process_json,
         query::{GetLibraryArtistsQuery, GetLibraryPlaylistsQuery},
         YtMusic,
     };
     use serde_json::json;
 
     // Consider if the parse function itself should be removed from impl.
-    #[test]
-    fn test_library_playlists_dummy_json() {
-        let testfile = std::fs::read_to_string("test_json/get_library_playlists.json").unwrap();
-        let result =
-            YtMusic::<BrowserToken>::process_json(testfile, GetLibraryPlaylistsQuery {}).unwrap();
-        let expected = json!([
-          {
-            "playlist_id": "VLLM",
-            "title": "Liked Music",
-            "thumbnails": [
-              {
-                "height": 192,
-                "width": 192,
-                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@192.png"
-              },
-              {
-                "height": 576,
-                "width": 576,
-                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@576.png"
-              }
-            ],
-            "count": null,
-            "description": "Auto playlist",
-            "author": null
-          },
-          {
-            "playlist_id": "VLPLCZQcydUIP07hMOwAXIag92l76d3z3Thv",
-            "title": "Listen later",
-            "thumbnails": [
-              {
-                "height": 192,
-                "width": 192,
-                "url": "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s192"
-              },
-              {
-                "height": 576,
-                "width": 576,
-                "url": "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s576"
-              }
-            ],
-            "count": null,
-            "description": "Nick Dowsett • 20 tracks",
-            "author": null
-          },
-          {
-            "playlist_id": "VLRDCLAK5uy_lRzD6ZcGWU_ef3r4y7ifNYLiGmCCX_jIk",
-            "title": "Deadly Hotlist",
-            "thumbnails": [
-              {
-                "height": 226,
-                "width": 226,
-                "url": "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w226-h226-l90-rj"
-              },
-              {
-                "height": 544,
-                "width": 544,
-                "url": "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w544-h544-l90-rj"
-              }
-            ],
-            "count": null,
-            "description": "YouTube Music • 50 songs",
-            "author": null
-          },
-          {
-            "playlist_id": "VLSE",
-            "title": "Episodes for Later",
-            "thumbnails": [
-              {
-                "height": 192,
-                "width": 192,
-                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@192.png"
-              },
-              {
-                "height": 576,
-                "width": 576,
-                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@576.png"
-              }
-            ],
-            "count": null,
-            "description": "Episodes you save for later",
-            "author": null
-          }
-        ]);
-        let expected: Vec<Playlist> = serde_json::from_value(expected).unwrap();
-        assert_eq!(result, expected);
-    }
-    #[test]
-    fn test_library_artists_dummy_json() {
-        let testfile = std::fs::read_to_string("test_json/get_library_artists.json").unwrap();
-        let result =
-            YtMusic::<BrowserToken>::process_json(testfile, GetLibraryArtistsQuery::default())
-                .unwrap();
-        let expected = json!(
-            [
-                {
-                  "channel_id" : "MPLAUCprAFmT0C6O4X0ToEXpeFTQ",
-                  "artist": "Kendrick Lamar",
-                  "byline": "16 songs"
-                },
-                {
-                  "channel_id" : "MPLAUC_yH_GaGHZk9ewo5ghQA75w",
-                  "artist": "Dream Theater",
-                  "byline": "1 song"
-                },
-                {
-                  "channel_id" : "MPLAUCHUlZT-VoVWIID4xcJZ5s6g",
-                  "artist": "Nils Frahm",
-                  "byline": "1 song"
-                },
-            ]
+    #[tokio::test]
+    async fn test_library_playlists_dummy_json() {
+        parse_test!(
+            "./test_json/get_library_playlists.json",
+            "./test_json/get_library_playlists_output.txt",
+            crate::query::GetLibraryPlaylistsQuery,
+            BrowserToken
         );
-        let expected: Vec<LibraryArtist> = serde_json::from_value(expected).unwrap();
-        assert_eq!(result, expected);
+    }
+    #[tokio::test]
+    async fn test_library_artists_dummy_json() {
+        parse_test!(
+            "./test_json/get_library_artists.json",
+            "./test_json/get_library_artists_output.txt",
+            crate::query::GetLibraryArtistsQuery::default(),
+            BrowserToken
+        );
     }
     #[tokio::test]
     async fn test_get_library_albums() {

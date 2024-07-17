@@ -20,9 +20,13 @@ mod private {
 #[allow(async_fn_in_trait)]
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
-    async fn raw_query<Q: Query>(&self, client: &Client, query: Q) -> Result<RawResult<Q, Self>>;
+    async fn raw_query<Q: Query<Self>>(
+        &self,
+        client: &Client,
+        query: Q,
+    ) -> Result<RawResult<Q, Self>>;
     /// Process the result, by deserializing into JSON.
     /// Current implementations do error checking against expected responses for
     /// the token here too.
-    fn deserialize_json<Q: Query>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+    fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }

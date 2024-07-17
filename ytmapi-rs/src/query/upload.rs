@@ -1,5 +1,6 @@
 use super::{get_sort_order_params, GetLibrarySortOrder, Query};
 use crate::{
+    auth::AuthToken,
     common::{UploadAlbumID, UploadArtistID, UploadEntityID},
     parse::{ApiSuccess, GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
 };
@@ -61,7 +62,7 @@ impl<'a> DeleteUploadEntityQuery<'a> {
     }
 }
 // Auth required
-impl<'a> Query for GetLibraryUploadAlbumQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetLibraryUploadAlbumQuery<'a> {
     type Output = GetLibraryUploadAlbum
     where
         Self: Sized;
@@ -76,7 +77,7 @@ impl<'a> Query for GetLibraryUploadAlbumQuery<'a> {
     }
 }
 // Auth required
-impl<'a> Query for GetLibraryUploadArtistQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetLibraryUploadArtistQuery<'a> {
     type Output = Vec<TableListUploadSong>
     where
         Self: Sized;
@@ -91,7 +92,7 @@ impl<'a> Query for GetLibraryUploadArtistQuery<'a> {
     }
 }
 // Auth required
-impl Query for GetLibraryUploadSongsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryUploadSongsQuery {
     type Output = Vec<TableListUploadSong>
     where
         Self: Sized;
@@ -109,7 +110,7 @@ impl Query for GetLibraryUploadSongsQuery {
     }
 }
 // Auth required
-impl Query for GetLibraryUploadAlbumsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryUploadAlbumsQuery {
     type Output = Vec<UploadAlbum>
     where
         Self: Sized;
@@ -127,7 +128,7 @@ impl Query for GetLibraryUploadAlbumsQuery {
     }
 }
 // Auth required
-impl Query for GetLibraryUploadArtistsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryUploadArtistsQuery {
     type Output = Vec<UploadArtist>
     where
         Self: Sized;
@@ -145,7 +146,7 @@ impl Query for GetLibraryUploadArtistsQuery {
     }
 }
 // Auth required
-impl<'a> Query for DeleteUploadEntityQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for DeleteUploadEntityQuery<'a> {
     type Output = ApiSuccess
     where
         Self: Sized;

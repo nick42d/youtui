@@ -1,5 +1,6 @@
 use super::Query;
 use crate::{
+    auth::AuthToken,
     common::FeedbackTokenRemoveFromHistory,
     parse::{ApiSuccess, TableListItem},
 };
@@ -18,7 +19,7 @@ impl<'a> RemoveHistoryItemsQuery<'a> {
 
 // NOTE: Requires auth
 // TODO: Return played and feedback_token component.
-impl Query for GetHistoryQuery {
+impl<A: AuthToken> Query<A> for GetHistoryQuery {
     type Output = Vec<TableListItem>
     where
         Self: Sized;
@@ -34,7 +35,7 @@ impl Query for GetHistoryQuery {
 }
 
 // NOTE: Does not work on brand accounts
-impl<'a> Query for RemoveHistoryItemsQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
     type Output = Vec<crate::Result<ApiSuccess>>
     where
         Self: Sized;

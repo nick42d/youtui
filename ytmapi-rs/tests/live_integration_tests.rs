@@ -509,21 +509,13 @@ async fn test_search_suggestions() {
 }
 #[tokio::test]
 async fn test_get_artist() {
-    let now = std::time::Instant::now();
     let api = new_standard_api().await.unwrap();
-    println!("API took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = api
-        .raw_query(GetArtistQuery::new(ChannelID::from_raw(
+    let _ = api
+        .query(GetArtistQuery::new(ChannelID::from_raw(
             "UC2XdaAVUannpujzv32jcouQ",
         )))
         .await
         .unwrap();
-    println!("Get artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let _ = ArtistParams::parse_from(res).unwrap();
-    println!("Parse artist took {} ms", now.elapsed().as_millis());
 }
 #[tokio::test]
 async fn test_get_artist_albums() {
@@ -540,11 +532,8 @@ async fn test_get_artist_albums() {
         .unwrap();
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    // TODO: fix temporary value dropped while borrowed error.
-    // This won't compile:
-    // let res = res.process().unwrap().parse().unwrap();
     let res = res.process().unwrap();
-    let res = ArtistParams::parse_from(res).unwrap();
+    let res = <ArtistParams as ParseFrom<GetArtistQuery, BrowserToken>>::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -575,7 +564,7 @@ async fn test_get_artist_album_songs() {
     // This won't compile:
     // let res = res.process().unwrap().parse().unwrap();
     let res = res.process().unwrap();
-    let res = ArtistParams::parse_from(res).unwrap();
+    let res = <ArtistParams as ParseFrom<GetArtistQuery, BrowserToken>>::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -591,7 +580,8 @@ async fn test_get_artist_album_songs() {
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res = Vec::<Album>::parse_from(res).unwrap();
+    let res =
+        <Vec<Album> as ParseFrom<GetArtistAlbumsQuery, BrowserToken>>::parse_from(res).unwrap();
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
@@ -606,6 +596,6 @@ async fn test_get_artist_album_songs() {
     );
     let now = std::time::Instant::now();
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
-    let _ = AlbumParams::parse_from(res).unwrap();
+    let _ = <AlbumParams as ParseFrom<GetAlbumQuery, BrowserToken>>::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

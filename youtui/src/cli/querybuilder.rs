@@ -5,6 +5,7 @@ use ytmapi_rs::{
         PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
     },
     parse::LikeStatus,
+    process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
         AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
@@ -358,7 +359,7 @@ pub async fn command_to_query<A: AuthToken>(
     }
 }
 
-async fn get_string_output_of_query<Q: Query, A: AuthToken>(
+async fn get_string_output_of_query<Q: Query<A>, A: AuthToken>(
     yt: &YtMusic<A>,
     q: Q,
     cli_query: CliQuery,
@@ -387,7 +388,7 @@ async fn get_string_output_of_query<Q: Query, A: AuthToken>(
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: false,
-        } => YtMusic::<A>::process_json(source, q)
+        } => process_json::<Q, A>(source, q)
             .map(|r| format!("{:#?}", r))
             .map_err(|e| e.into()),
     }

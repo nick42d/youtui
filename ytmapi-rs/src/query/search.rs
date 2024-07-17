@@ -74,7 +74,7 @@ impl UnfilteredSearchType for BasicSearch {}
 impl UnfilteredSearchType for UploadSearch {}
 impl UnfilteredSearchType for LibrarySearch {}
 
-impl<'a, S: UnfilteredSearchType> Query for SearchQuery<'a, S> {
+impl<'a, S: UnfilteredSearchType, A: AuthToken> Query<A> for SearchQuery<'a, S> {
     type Output = SearchResults;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
@@ -215,7 +215,7 @@ impl<'a, S: Into<Cow<'a, str>>> From<S> for GetSearchSuggestionsQuery<'a> {
     }
 }
 
-impl<'a> Query for GetSearchSuggestionsQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetSearchSuggestionsQuery<'a> {
     type Output = Vec<SearchSuggestion>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let value = self.query.as_ref().into();

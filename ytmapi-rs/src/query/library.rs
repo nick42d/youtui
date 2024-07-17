@@ -1,5 +1,6 @@
 use super::Query;
 use crate::{
+    auth::AuthToken,
     common::{
         library::{LibraryArtist, Playlist},
         FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
@@ -102,7 +103,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
     }
 }
 
-impl Query for GetLibraryPlaylistsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
     type Output = Vec<Playlist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
@@ -119,7 +120,7 @@ impl Query for GetLibraryPlaylistsQuery {
         None
     }
 }
-impl Query for GetLibraryArtistsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
     type Output = Vec<LibraryArtist>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
@@ -137,7 +138,7 @@ impl Query for GetLibraryArtistsQuery {
     }
 }
 
-impl Query for GetLibrarySongsQuery {
+impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
     type Output = Vec<TableListSong>
     where
         Self: Sized;
@@ -151,7 +152,7 @@ impl Query for GetLibrarySongsQuery {
         "browse"
     }
 }
-impl Query for GetLibraryAlbumsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
     type Output = Vec<SearchResultAlbum>
     where
         Self: Sized;
@@ -165,7 +166,7 @@ impl Query for GetLibraryAlbumsQuery {
         "browse"
     }
 }
-impl Query for GetLibraryArtistSubscriptionsQuery {
+impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
     type Output = Vec<GetLibraryArtistSubscription>
     where
         Self: Sized;
@@ -184,7 +185,7 @@ impl Query for GetLibraryArtistSubscriptionsQuery {
 }
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
-impl<'a> Query for EditSongLibraryStatusQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'a> {
     type Output = Vec<crate::Result<ApiSuccess>>
     where
         Self: Sized;

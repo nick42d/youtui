@@ -1,6 +1,7 @@
 use crate::{
     auth::BrowserToken,
     parse::SearchResults,
+    process_json,
     query::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
         FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
@@ -19,7 +20,7 @@ async fn test_search_artists_empty() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+    let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert_eq!(output, Vec::new());
 }
 #[tokio::test]
@@ -31,7 +32,7 @@ async fn test_basic_search_has_simple_top_result() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+    let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -43,7 +44,7 @@ async fn test_basic_search_has_card_top_result() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+    let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert!(!output.top_results.is_empty());
 }
 #[tokio::test]
@@ -55,7 +56,7 @@ async fn basic_test_to_test_basic_search() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+    let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert!(!output.songs.is_empty());
     assert!(!output.featured_playlists.is_empty());
     assert!(!output.videos.is_empty());
@@ -69,58 +70,30 @@ async fn basic_test_to_test_basic_search() {
 
 #[tokio::test]
 async fn test_basic_search() {
-    let source_path = Path::new("./test_json/search_highlighted_top_result_20240107.json");
-    let expected_path = Path::new("./test_json/search_highlighted_top_result_20240107_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_highlighted_top_result_20240107.json",
+        "./test_json/search_highlighted_top_result_20240107_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_basic_search_with_vodcasts_type_not_specified() {
-    let source_path =
-        Path::new("./test_json/search_basic_with_vodcasts_type_not_specified_20240612.json");
-    let expected_path =
-        Path::new("./test_json/search_basic_with_vodcasts_type_not_specified_20240612_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_basic_with_vodcasts_type_not_specified_20240612.json",
+        "./test_json/search_basic_with_vodcasts_type_not_specified_20240612_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_basic_search_with_vodcasts_type_specified() {
-    let source_path =
-        Path::new("./test_json/search_basic_with_vodcasts_type_specified_20240612.json");
-    let expected_path =
-        Path::new("./test_json/search_basic_with_vodcasts_type_specified_20240612_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("Black Flag");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_basic_with_vodcasts_type_specified_20240612.json",
+        "./test_json/search_basic_with_vodcasts_type_specified_20240612_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_basic_search_is_empty() {
@@ -130,177 +103,97 @@ async fn test_basic_search_is_empty() {
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
     let query = SearchQuery::new("ajhkjhdslkfjhsdfglkjdsf");
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
+    let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert_eq!(output, SearchResults::default());
 }
 #[tokio::test]
 async fn test_search_artists() {
-    let source_path = Path::new("./test_json/search_artists_20231226.json");
-    let expected_path = Path::new("./test_json/search_artists_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(ArtistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_artists_20231226.json",
+        "./test_json/search_artists_20231226_output.txt",
+        SearchQuery::new("").with_filter(ArtistsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_albums() {
-    let source_path = Path::new("./test_json/search_albums_20231226.json");
-    let expected_path = Path::new("./test_json/search_albums_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(AlbumsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_albums_20231226.json",
+        "./test_json/search_albums_20231226_output.txt",
+        SearchQuery::new("").with_filter(AlbumsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_songs() {
-    let source_path = Path::new("./test_json/search_songs_20231226.json");
-    let expected_path = Path::new("./test_json/search_songs_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(SongsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_songs_20231226.json",
+        "./test_json/search_songs_20231226_output.txt",
+        SearchQuery::new("").with_filter(SongsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_videos() {
-    let source_path = Path::new("./test_json/search_videos_20231226.json");
-    let expected_path = Path::new("./test_json/search_videos_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_videos_20231226.json",
+        "./test_json/search_videos_20231226_output.txt",
+        SearchQuery::new("").with_filter(VideosFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_videos_2024() {
     // Vodcasts were added for this version
-    let source_path = Path::new("./test_json/search_videos_20240612.json");
-    let expected_path = Path::new("./test_json/search_videos_20240612_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(VideosFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_videos_20240612.json",
+        "./test_json/search_videos_20240612_output.txt",
+        SearchQuery::new("").with_filter(VideosFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_featured_playlists() {
-    let source_path = Path::new("./test_json/search_featured_playlists_20231226.json");
-    let expected_path = Path::new("./test_json/search_featured_playlists_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(FeaturedPlaylistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_featured_playlists_20231226.json",
+        "./test_json/search_featured_playlists_20231226_output.txt",
+        SearchQuery::new("").with_filter(FeaturedPlaylistsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_community_playlists() {
-    let source_path = Path::new("./test_json/search_community_playlists_20231226.json");
-    let expected_path = Path::new("./test_json/search_community_playlists_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(CommunityPlaylistsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_community_playlists_20231226.json",
+        "./test_json/search_community_playlists_20231226_output.txt",
+        SearchQuery::new("").with_filter(CommunityPlaylistsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_episodes() {
-    let source_path = Path::new("./test_json/search_episodes_20231226.json");
-    let expected_path = Path::new("./test_json/search_episodes_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(EpisodesFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_episodes_20231226.json",
+        "./test_json/search_episodes_20231226_output.txt",
+        SearchQuery::new("").with_filter(EpisodesFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_podcasts() {
-    let source_path = Path::new("./test_json/search_podcasts_20231226.json");
-    let expected_path = Path::new("./test_json/search_podcasts_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(PodcastsFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_podcasts_20231226.json",
+        "./test_json/search_podcasts_20231226_output.txt",
+        SearchQuery::new("").with_filter(PodcastsFilter),
+        BrowserToken
+    );
 }
 #[tokio::test]
 async fn test_search_profiles() {
-    let source_path = Path::new("./test_json/search_profiles_20231226.json");
-    let expected_path = Path::new("./test_json/search_profiles_20231226_output.txt");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = tokio::fs::read_to_string(expected_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    let expected = expected.trim();
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(ProfilesFilter);
-    let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-    let output = format!("{:#?}", output);
-    assert_eq!(output, expected);
+    parse_test!(
+        "./test_json/search_profiles_20231226.json",
+        "./test_json/search_profiles_20231226_output.txt",
+        SearchQuery::new("").with_filter(ProfilesFilter),
+        BrowserToken
+    );
 }

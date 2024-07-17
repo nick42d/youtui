@@ -4,6 +4,7 @@ use super::{
     ProcessedResult, SearchResultVideo, TableListUploadSong,
 };
 use crate::{
+    auth::AuthToken,
     common::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
@@ -80,13 +81,13 @@ fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> 
     Ok(GetArtistSongs { results, browse_id })
 }
 
-impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
-    // While this function gets improved, we'll allow this link for the creation of
+impl<'a, A: AuthToken> ParseFrom<GetArtistQuery<'a>, A> for ArtistParams {
+    // While this function gets improved, we'll allow this lint for the creation of
     // GetArtistTopReleases.
     #[allow(clippy::field_reassign_with_default)]
     fn parse_from(
         p: ProcessedResult<GetArtistQuery<'a>>,
-    ) -> crate::Result<<GetArtistQuery<'a> as Query>::Output> {
+    ) -> crate::Result<<GetArtistQuery<'a> as Query<A>>::Output> {
         // TODO: Make this optional.
         let mut json_crawler: JsonCrawler = p.into();
         let mut results =
@@ -144,7 +145,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             // XXX should only be mandatory for albums, singles, playlists
             // as a result leaving as optional for now.
             let params = r
-                .take_value_pointer::<String, _>(concatcp!(
+                .take_value_pointer::<String>(concatcp!(
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
@@ -480,7 +481,7 @@ pub(crate) fn parse_playlist_song(
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
@@ -529,7 +530,7 @@ pub(crate) fn parse_playlist_video(
     })?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
-        .take_value_pointer::<String, _>("/musicItemRendererDisplayPolicy")
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
 
@@ -597,10 +598,10 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
         .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
         .collect()
 }
-impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+impl<'a, A: AuthToken> ParseFrom<GetArtistAlbumsQuery<'a>, A> for Vec<crate::Album> {
     fn parse_from(
         p: ProcessedResult<GetArtistAlbumsQuery<'a>>,
-    ) -> crate::Result<<GetArtistAlbumsQuery<'a> as Query>::Output> {
+    ) -> crate::Result<<GetArtistAlbumsQuery<'a> as Query<A>>::Output> {
         let json_crawler: JsonCrawler = p.into();
         let mut albums = Vec::new();
         let mut json_crawler = json_crawler.navigate_pointer(concatcp!(
@@ -642,22 +643,14 @@ mod tests {
     use std::path::Path;
 
     #[tokio::test]
-    async fn test_get_albums_query() {
-        // Radiohead's albums.
-        let source_path = Path::new("./test_json/browse_artist_albums.json");
-        let expected_path = Path::new("./test_json/browse_artist_albums_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw(""));
-        let output = YtMusic::<BrowserToken>::process_json(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        pretty_assertions::assert_eq!(output, expected);
+    async fn test_get_artist_albums_query() {
+        parse_test!(
+            // Radiohead's albums.
+            "./test_json/browse_artist_albums.json",
+            "./test_json/browse_artist_albums_output.txt",
+            GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw("")),
+            BrowserToken
+        );
     }
 
     #[tokio::test]

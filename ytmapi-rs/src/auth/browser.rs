@@ -22,7 +22,7 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query<Q: Query>(
+    async fn raw_query<Q: Query<Self>>(
         &self,
         client: &Client,
         query: Q,
@@ -61,7 +61,7 @@ impl AuthToken for BrowserToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    fn deserialize_json<Q: Query>(
+    fn deserialize_json<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let (json, query) = raw.destructure();

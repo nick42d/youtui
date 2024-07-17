@@ -151,30 +151,24 @@ impl<A: AuthToken> YtMusic<A> {
     //TODO: Usage examples
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
-    pub async fn raw_query<Q: Query>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    pub async fn raw_query<Q: Query<A>>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
-    pub async fn processed_query<Q: Query>(&self, query: Q) -> Result<ProcessedResult<Q>> {
+    pub async fn processed_query<Q: Query<A>>(&self, query: Q) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
     /// Return the raw JSON returned by YouTube music for Query Q.
-    pub async fn json_query<Q: Query>(&self, query: Q) -> Result<String> {
+    pub async fn json_query<Q: Query<A>>(&self, query: Q) -> Result<String> {
         // TODO: Remove allocation
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
-    pub async fn query<Q: Query>(&self, query: Q) -> Result<Q::Output> {
+    pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
         query.call(self).await
-    }
-    /// Process a string of JSON as if it had been directly received from the
-    /// api for a query. Note that this is generic across AuthToken.
-    /// NOTE: Potentially can be removed from impl
-    pub fn process_json<Q: Query>(json: String, query: Q) -> Result<Q::Output> {
-        Q::Output::parse_from(RawResult::<Q, A>::from_raw(json, query).process()?)
     }
     /// API Search Query that returns results for each category if available.
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
@@ -337,24 +331,25 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
-        self.query(GetHistoryQuery).await
+        let query = GetHistoryQuery;
+        query.call(self).await
     }
     pub async fn remove_history_items<'a>(
         &self,
         feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
-        self.query(query).await
+        query.call(self).await
     }
     pub async fn edit_song_library_status<'a>(
         &self,
         query: EditSongLibraryStatusQuery<'a>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
-        self.query(query).await
+        query.call(self).await
     }
     pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {
         let query = RateSongQuery::new(video_id, rating);
-        self.query(query).await
+        query.call(self).await
     }
     pub async fn rate_playlist(
         &self,
@@ -362,7 +357,7 @@ impl<A: AuthToken> YtMusic<A> {
         rating: LikeStatus,
     ) -> Result<ApiSuccess> {
         let query = RatePlaylistQuery::new(playlist_id, rating);
-        self.query(query).await
+        query.call(self).await
     }
     pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
         &self,
@@ -399,40 +394,40 @@ impl<A: AuthToken> YtMusic<A> {
     }
     pub async fn get_library_upload_songs(
         &self,
-    ) -> Result<<GetLibraryUploadSongsQuery as Query>::Output> {
+    ) -> Result<<GetLibraryUploadSongsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadSongsQuery::default();
         query.call(self).await
     }
     pub async fn get_library_upload_artists(
         &self,
-    ) -> Result<<GetLibraryUploadArtistsQuery as Query>::Output> {
+    ) -> Result<<GetLibraryUploadArtistsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadArtistsQuery::default();
         query.call(self).await
     }
     pub async fn get_library_upload_albums(
         &self,
-    ) -> Result<<GetLibraryUploadAlbumsQuery as Query>::Output> {
+    ) -> Result<<GetLibraryUploadAlbumsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadAlbumsQuery::default();
         query.call(self).await
     }
     pub async fn get_library_upload_album(
         &self,
         upload_album_id: UploadAlbumID<'_>,
-    ) -> Result<<GetLibraryUploadAlbumQuery as Query>::Output> {
+    ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
         let query = GetLibraryUploadAlbumQuery::new(upload_album_id);
         query.call(self).await
     }
     pub async fn get_library_upload_artist(
         &self,
         upload_artist_id: UploadArtistID<'_>,
-    ) -> Result<<GetLibraryUploadArtistQuery as Query>::Output> {
+    ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
         let query = GetLibraryUploadArtistQuery::new(upload_artist_id);
         query.call(self).await
     }
     pub async fn delete_upload_entity(
         &self,
         upload_entity_id: UploadEntityID<'_>,
-    ) -> Result<<DeleteUploadEntityQuery as Query>::Output> {
+    ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
         let query = DeleteUploadEntityQuery::new(upload_entity_id);
         query.call(self).await
     }
@@ -457,4 +452,10 @@ pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
 pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserToken> {
     let client = Client::new();
     BrowserToken::from_str(cookie.as_ref(), &client).await
+}
+/// Process a string of JSON as if it had been directly received from the
+/// api for a query. Note that this is generic across AuthToken, and you may
+/// need to provide the AuthToken type using 'turbofish'.
+pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
+    Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
 }

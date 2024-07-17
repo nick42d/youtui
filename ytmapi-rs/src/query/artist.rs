@@ -2,6 +2,7 @@ use serde_json::json;
 
 use super::Query;
 use crate::{
+    auth::AuthToken,
     common::{BrowseParams, ChannelID, YoutubeID},
     parse::ArtistParams,
     Album,
@@ -28,7 +29,7 @@ impl<'a> GetArtistAlbumsQuery<'a> {
     }
 }
 
-impl<'a> Query for GetArtistQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetArtistQuery<'a> {
     type Output = ArtistParams;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
@@ -50,7 +51,7 @@ impl<'a> Query for GetArtistQuery<'a> {
     }
 }
 // TODO: Check if the MPLA strip is correct for both of these.
-impl<'a> Query for GetArtistAlbumsQuery<'a> {
+impl<'a, A: AuthToken> Query<A> for GetArtistAlbumsQuery<'a> {
     type Output = Vec<Album>;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: should do in new
