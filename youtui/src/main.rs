@@ -236,7 +236,7 @@ async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic<BrowserToken>> {
         config::AuthType::Browser => {
             let mut cookies_loc = PathBuf::from(confdir);
             cookies_loc.push(COOKIE_FILENAME);
-            ytmapi_rs::YtMusic::from_cookie_file(cookies_loc).await?
+            ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?
         }
     };
     Ok(api)

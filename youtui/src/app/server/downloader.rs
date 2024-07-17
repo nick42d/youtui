@@ -6,7 +6,7 @@ use crate::{
     },
     core::send_or_error,
 };
-use rusty_ytdl::{DownloadOptions, Video, VideoOptions};
+use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use tokio::sync::mpsc;
 use tracing::{error, info};
 use ytmapi_rs::{common::YoutubeID, VideoID};
@@ -39,7 +39,15 @@ impl Downloader {
                 download_options: DownloadOptions {
                     dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
                 },
-                ..Default::default()
+                request_options: RequestOptions {
+                    client: Some(
+                        rusty_ytdl::reqwest::Client::builder()
+                            .use_rustls_tls()
+                            .build()
+                            .expect("Expect client build to succeed"),
+                    ),
+                    ..Default::default()
+                },
             },
             response_tx,
         }
