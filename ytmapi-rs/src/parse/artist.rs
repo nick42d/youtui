@@ -638,9 +638,9 @@ mod tests {
         auth::BrowserToken,
         common::{BrowseParams, YoutubeID},
         query::GetArtistAlbumsQuery,
-        ChannelID, YtMusic,
+        ChannelID,
     };
-    use std::path::Path;
+    
 
     #[tokio::test]
     async fn test_get_artist_albums_query() {

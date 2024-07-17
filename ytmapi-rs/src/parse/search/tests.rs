@@ -7,7 +7,6 @@ use crate::{
         FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
         VideosFilter,
     },
-    YtMusic,
 };
 use pretty_assertions::assert_eq;
 use std::path::Path;

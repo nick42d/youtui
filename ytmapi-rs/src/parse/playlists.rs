@@ -241,7 +241,7 @@ mod tests {
         common::{PlaylistID, YoutubeID},
         process_json,
         query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery},
-        Error, YtMusic,
+        Error,
     };
     use pretty_assertions::assert_eq;
     use std::path::Path;

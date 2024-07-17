@@ -88,7 +88,7 @@ use query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
-use std::{path::Path, sync::Arc};
+use std::{path::Path};
 
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 
