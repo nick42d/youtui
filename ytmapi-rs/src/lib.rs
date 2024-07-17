@@ -50,44 +50,14 @@
     feature = "default-tls"
 )))]
 compile_error!("One of the TLS features must be enabled for this crate");
-use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use common::{
-    browsing::Lyrics,
-    library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
-};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
-use parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, LikeStatus, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
-    TableListSong,
-};
+use parse::{ParseFrom, ProcessedResult};
 pub use process::RawResult;
-use query::{
-    filteredsearch::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
-        FeaturedPlaylistsFilter, FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
-        SongsFilter, VideosFilter,
-    },
-    lyrics::GetLyricsQuery,
-    rate::{RatePlaylistQuery, RateSongQuery},
-    watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
-    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
-    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
-    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery,
-};
+use query::Query;
 use reqwest::Client;
 use std::path::Path;
 
@@ -350,6 +320,13 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserT
 /// Process a string of JSON as if it had been directly received from the
 /// api for a query. Note that this is generic across AuthToken, and you may
 /// need to provide the AuthToken type using 'turbofish'.
+/// Usage
+/// ```no_run
+/// let json = r#"{ "test" : true }"#.to_string();
+/// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
+/// let result = ytmapi_rs::process_json(json, query);
+/// assert!(result.is_err());
+/// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
     Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
 }
