@@ -42,6 +42,14 @@
 //!   reliant on vendors tls.
 //! - **rustls-tls**: This feature forces use of the rustls crate, written in
 //!   rust.
+// For feature specific documentation.
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#[cfg(not(any(
+    feature = "rustls-tls",
+    feature = "native-tls",
+    feature = "default-tls"
+)))]
+compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
@@ -80,7 +88,7 @@ use query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use reqwest::Client;
-use std::path::Path;
+use std::{path::Path};
 
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 
@@ -114,29 +122,175 @@ pub struct YtMusic<A: AuthToken> {
 
 impl YtMusic<BrowserToken> {
     /// Create a new API handle using a BrowserToken.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "default-tls")]
     pub fn from_browser_token(token: BrowserToken) -> YtMusic<BrowserToken> {
-        let client = Client::new();
+        let client = Client::builder()
+            .build()
+            .expect("Expected Client build to succeed");
+        YtMusic { client, token }
+    }
+    /// Create a new API handle using a BrowserToken. Forces the use of
+    /// `rustls-tls`
+    /// # Optional
+    /// This requires the optional `rustls-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
+    pub fn from_browser_token_rustls_tls(token: BrowserToken) -> YtMusic<BrowserToken> {
+        let client = Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("Expected Client build to succeed");
+        YtMusic { client, token }
+    }
+    /// Create a new API handle using a BrowserToken. Forces the use of
+    /// `native-tls`
+    /// # Optional
+    /// This requires the optional `native-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "native-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
+    pub fn from_browser_token_native_tls(token: BrowserToken) -> YtMusic<BrowserToken> {
+        let client = Client::builder()
+            .use_native_tls()
+            .build()
+            .expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Create a new API handle using a real browser authentication cookie saved
     /// to a file on disk.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let client = Client::new();
+        let client = Client::builder()
+            .build()
+            .expect("Expected Client build to succeed");
+        let token = BrowserToken::from_cookie_file(path, &client).await?;
+        Ok(Self { client, token })
+    }
+    /// Create a new API handle using a real browser authentication cookie saved
+    /// to a file on disk. Forces the use of `rustls-tls`
+    /// # Optional
+    /// This requires the optional `rustls-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
+    pub async fn from_cookie_file_rustls_tls<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let client = Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("Expected Client build to succeed");
+        let token = BrowserToken::from_cookie_file(path, &client).await?;
+        Ok(Self { client, token })
+    }
+    /// Create a new API handle using a real browser authentication cookie saved
+    /// to a file on disk. Forces the use of `native-tls`
+    /// Utilises the default TLS option for the enabled features.
+    /// # Optional
+    /// This requires the optional `native-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "native-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
+    pub async fn from_cookie_file_native_tls<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let client = Client::builder()
+            .use_native_tls()
+            .build()
+            .expect("Expected Client build to succeed");
         let token = BrowserToken::from_cookie_file(path, &client).await?;
         Ok(Self { client, token })
     }
     /// Create a new API handle using a real browser authentication cookie in a
     /// String.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub async fn from_cookie<S: AsRef<str>>(cookie: S) -> Result<Self> {
-        let client = Client::new();
+        let client = Client::builder()
+            .build()
+            .expect("Expected Client build to succeed");
+        let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
+        Ok(Self { client, token })
+    }
+    /// Create a new API handle using a real browser authentication cookie in a
+    /// String. Forces the use of `rustls-tls`
+    /// # Optional
+    /// This requires the optional `rustls-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
+    pub async fn from_cookie_rustls_tls<S: AsRef<str>>(cookie: S) -> Result<Self> {
+        let client = Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("Expected Client build to succeed");
+        let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
+        Ok(Self { client, token })
+    }
+    /// Create a new API handle using a real browser authentication cookie in a
+    /// String. Forces the use of `native-tls`
+    /// # Optional
+    /// This requires the optional `native-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "native-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
+    pub async fn from_cookie_native_tls<S: AsRef<str>>(cookie: S) -> Result<Self> {
+        let client = Client::builder()
+            .use_native_tls()
+            .build()
+            .expect("Expected Client build to succeed");
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
 }
 impl YtMusic<OAuthToken> {
     /// Create a new API handle using an OAuthToken.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::new();
+        let client = Client::builder()
+            .build()
+            .expect("Expected Client build to succeed");
+        YtMusic { client, token }
+    }
+    /// Create a new API handle using an OAuthToken.
+    /// Forces the use of `rustls-tls`.
+    /// # Optional
+    /// This requires the optional `rustls-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
+    pub fn from_oauth_token_rustls_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
+        let client = Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("Expected Client build to succeed");
+        YtMusic { client, token }
+    }
+    /// Create a new API handle using an OAuthToken.
+    /// Forces the use of `native-tls`.
+    /// # Optional
+    /// This requires the optional `native-tls` feature.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[cfg(feature = "native-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
+    pub fn from_oauth_token_native_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
+        let client = Client::builder()
+            .use_native_tls()
+            .build()
+            .expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Refresh the internal oauth token, and return a clone of it (for user to

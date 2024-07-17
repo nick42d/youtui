@@ -400,7 +400,6 @@ mod lyrics {
             common::{browsing::Lyrics, LyricsID, YoutubeID},
             process_json,
             query::lyrics::GetLyricsQuery,
-            YtMusic,
         };
 
         #[tokio::test]

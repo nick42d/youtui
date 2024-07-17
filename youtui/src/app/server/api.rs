@@ -50,7 +50,7 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api = match api_key {
-                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie(c).await?,
+                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie_rustls_tls(c).await?,
                 ApiKey::OAuthToken(_) =>
                 // TODO: Add OAuth
                 {
