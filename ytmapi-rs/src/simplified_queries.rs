@@ -1,5 +1,5 @@
-//! This module contains more convenient ways to call the API, in many cases
-//! without the need of building Query structs.
+//! This module contains the implementation for more convenient ways to call the
+//! API, in many cases without the need of building Query structs.
 //! # Optional
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
@@ -40,6 +40,12 @@ use crate::{Album, Result, VideoID, YtMusic};
 
 impl<A: AuthToken> YtMusic<A> {
     /// API Search Query that returns results for each category if available.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search("Beatles").await
+    /// # }
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
         query: Q,
@@ -48,6 +54,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Artists only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search_artists("Beatles").await
+    /// # }
     pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
         &self,
         query: Q,
@@ -56,6 +67,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Albums only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search_albums("Beatles").await
+    /// # }
     pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
         &self,
         query: Q,
@@ -64,6 +80,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Songs only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search_songs("Beatles").await
+    /// # }
     pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
         &self,
         query: Q,
@@ -72,6 +93,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Playlists only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search_playlists("Beatles").await
+    /// # }
     pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
         &self,
         query: Q,
@@ -80,6 +106,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Community Playlists only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// yt.search_community_playlists("Beatles").await
+    /// # }
     pub async fn search_community_playlists<
         'a,
         Q: Into<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
