@@ -234,7 +234,7 @@ fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAl
         artist,
         year,
         explicit,
-        browse_id,
+        album_id: browse_id,
         album_type,
         thumbnails,
     })
@@ -493,10 +493,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-    };
-    
+    use crate::auth::BrowserToken;
 
     // Consider if the parse function itself should be removed from impl.
     #[tokio::test]

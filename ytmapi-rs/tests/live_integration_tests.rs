@@ -538,10 +538,8 @@ async fn test_get_artist_albums() {
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
-    // For some reason the params is wrong. needs investigation.
-    let channel_id = &albums.browse_id.unwrap();
-    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
-    api.get_artist_albums(q).await.unwrap();
+    let channel_id = albums.browse_id.unwrap();
+    api.get_artist_albums(channel_id, params).await.unwrap();
     let now = std::time::Instant::now();
     println!("Get albums took {} ms", now.elapsed().as_millis());
 }

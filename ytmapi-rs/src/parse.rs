@@ -231,7 +231,7 @@ pub struct SearchResultAlbum {
     pub artist: String,
     pub year: String,
     pub explicit: Explicit,
-    pub browse_id: ChannelID<'static>,
+    pub album_id: AlbumID<'static>,
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }

@@ -321,7 +321,7 @@ fn parse_album_search_result_from_music_shelf_contents(
     Ok(SearchResultAlbum {
         artist,
         thumbnails,
-        browse_id,
+        album_id: browse_id,
         title,
         year,
         album_type,

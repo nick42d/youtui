@@ -16,7 +16,7 @@ pub struct GetArtistQuery<'a> {
 #[derive(Debug)]
 pub struct GetArtistAlbumsQuery<'a> {
     channel_id: ChannelID<'a>,
-    pub params: BrowseParams<'a>,
+    params: BrowseParams<'a>,
 }
 impl<'a> GetArtistQuery<'a> {
     pub fn new(channel_id: ChannelID<'a>) -> GetArtistQuery<'a> {

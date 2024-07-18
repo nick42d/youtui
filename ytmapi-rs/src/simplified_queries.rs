@@ -10,11 +10,13 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
+use crate::common::{AlbumID, BrowseParams};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
-    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
-    SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetArtistAlbums,
+    GetLibraryArtistSubscription, GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
+    TableListSong,
 };
 pub use crate::process::RawResult;
 use crate::query::{
@@ -36,16 +38,16 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
-use crate::{Album, Result, VideoID, YtMusic};
+use crate::{Album, ChannelID, Result, VideoID, YtMusic};
 
 impl<A: AuthToken> YtMusic<A> {
     /// API Search Query that returns results for each category if available.
     /// # Usage
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search("Beatles").await
-    /// # }
+    /// # };
     pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
         &self,
         query: Q,
@@ -56,9 +58,9 @@ impl<A: AuthToken> YtMusic<A> {
     /// API Search Query for Artists only.
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search_artists("Beatles").await
-    /// # }
+    /// # };
     pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
         &self,
         query: Q,
@@ -69,9 +71,9 @@ impl<A: AuthToken> YtMusic<A> {
     /// API Search Query for Albums only.
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search_albums("Beatles").await
-    /// # }
+    /// # };
     pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
         &self,
         query: Q,
@@ -82,9 +84,9 @@ impl<A: AuthToken> YtMusic<A> {
     /// API Search Query for Songs only.
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search_songs("Beatles").await
-    /// # }
+    /// # };
     pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
         &self,
         query: Q,
@@ -95,9 +97,9 @@ impl<A: AuthToken> YtMusic<A> {
     /// API Search Query for Playlists only.
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search_playlists("Beatles").await
-    /// # }
+    /// # };
     pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
         &self,
         query: Q,
@@ -108,9 +110,9 @@ impl<A: AuthToken> YtMusic<A> {
     /// API Search Query for Community Playlists only.
     /// ```no_run
     /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.search_community_playlists("Beatles").await
-    /// # }
+    /// # };
     pub async fn search_community_playlists<
         'a,
         Q: Into<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
@@ -122,6 +124,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Featured Playlists only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.search_featured_playlists("Beatles").await
+    /// # };
     pub async fn search_featured_playlists<
         'a,
         Q: Into<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
@@ -133,6 +140,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Episodes only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.search_episodes("Beatles").await
+    /// # };
     pub async fn search_episodes<'a, Q: Into<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>>(
         &self,
         query: Q,
@@ -141,6 +153,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Podcasts only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.search_podcasts("Beatles").await
+    /// # };
     pub async fn search_podcasts<'a, Q: Into<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>>(
         &self,
         query: Q,
@@ -149,6 +166,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Videos only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.search_videos("Beatles").await
+    /// # };
     pub async fn search_videos<'a, Q: Into<SearchQuery<'a, FilteredSearch<VideosFilter>>>>(
         &self,
         query: Q,
@@ -157,6 +179,11 @@ impl<A: AuthToken> YtMusic<A> {
         query.call(self).await
     }
     /// API Search Query for Profiles only.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.search_profiles("Beatles").await
+    /// # };
     pub async fn search_profiles<'a, Q: Into<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>>(
         &self,
         query: Q,
@@ -164,13 +191,47 @@ impl<A: AuthToken> YtMusic<A> {
         let query = query.into();
         query.call(self).await
     }
-    pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
+    /// Gets information about an artist and their top releases.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_artists("Beatles").await.unwrap();
+    /// yt.get_artist((&results[0].browse_id).into()).await
+    /// # };
+    pub async fn get_artist(&self, channel_id: ChannelID<'_>) -> Result<ArtistParams> {
+        let query = GetArtistQuery::new(channel_id);
         query.call(self).await
     }
-    pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
+    /// Gets a full list albums for an artist.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_artists("Beatles").await.unwrap();
+    /// let artist_top_albums = yt.get_artist((&results[0].browse_id).into()).await.unwrap().top_releases.albums.unwrap();
+    /// yt.get_artist_albums(
+    ///     artist_top_albums.browse_id.unwrap(),
+    ///     artist_top_albums.params.unwrap(),
+    /// ).await
+    /// # };
+    pub async fn get_artist_albums(
+        &self,
+        channel_id: ChannelID<'_>,
+        browse_params: BrowseParams<'_>,
+    ) -> Result<Vec<Album>> {
+        let query = GetArtistAlbumsQuery::new(channel_id, browse_params);
         query.call(self).await
     }
-    pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
+    /// Gets information about an album and its tracks.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_albums("Dark Side Of The Moon").await.unwrap();
+    /// yt.get_album(&results[0].album_id).await
+    /// # };
+    // NOTE: Approach to use Into<AlbumID> means we can take AlbumID or &AlbumID.
+    // Should implement this for more queries.
+    pub async fn get_album<'a, T: Into<AlbumID<'a>>>(&self, album_id: T) -> Result<AlbumParams> {
+        let query = GetAlbumQuery::new(album_id);
         query.call(self).await
     }
     pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
