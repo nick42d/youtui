@@ -273,25 +273,82 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
-    //TODO: Usage examples
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let raw_result = yt.raw_query(query).await?;
+    /// let result =
+    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(raw_result.process()?)?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn raw_query<Q: Query<A>>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let processed_result = yt.processed_query(query).await?;
+    /// let result =
+    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(processed_result)?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn processed_query<Q: Query<A>>(&self, query: Q) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
     /// Return the raw JSON returned by YouTube music for Query Q.
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let json_string = yt.json_query(query).await?;
+    /// assert!(serde_json::from_str::<serde_json::Value>(&json_string).is_ok());
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn json_query<Q: Query<A>>(&self, query: Q) -> Result<String> {
         // TODO: Remove allocation
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let result = yt.query(query).await?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
         query.call(self).await
     }
@@ -299,6 +356,13 @@ impl<A: AuthToken> YtMusic<A> {
 // TODO: Keep session alive after calling these methods.
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
 /// you to authenticate yourself at. (OAuthDeviceCode, URL)
+/// # Usage
+/// ```no_run
+/// #  async {
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// # Ok::<(), ytmapi_rs::Error>(())
+/// # };
+/// ```
 pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
     let client = Client::new();
     let code = OAuthTokenGenerator::new(&client).await?;
@@ -307,6 +371,18 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates an OAuth Token when given an OAuthDeviceCode.
+/// # Usage
+/// ```no_run
+/// #  async {
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// println!("Go to {url}, fhe login flow, and press enter when done");
+/// let mut buf = String::new();
+/// let _ = std::io::stdin().read_line(&mut buf);
+/// let token = ytmapi_rs::generate_oauth_token(code).await;
+/// assert!(token.is_ok());
+/// # Ok::<(), ytmapi_rs::Error>(())
+/// # };
+/// ```
 pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
     let client = Client::new();
     OAuthToken::from_code(&client, code).await

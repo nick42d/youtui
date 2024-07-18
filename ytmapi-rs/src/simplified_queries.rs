@@ -3,9 +3,7 @@
 //! # Optional
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
-use crate::auth::{
-    AuthToken,
-};
+use crate::auth::AuthToken;
 use crate::common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
@@ -14,10 +12,9 @@ use crate::common::{
 };
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
-    TableListSong,
+    GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
 };
 pub use crate::process::RawResult;
 use crate::query::{
