@@ -84,6 +84,10 @@ mod tests;
 /// A handle to the YouTube Music API, wrapping a reqwest::Client.
 /// Generic over AuthToken, as different AuthTokens may allow different queries
 /// to be executed.
+/// # Documentation note
+/// Examples given for methods on this struct will use fake or mock
+/// constructors. When using in a realy environment, you will need to construct
+/// using a real token or cookie.
 pub struct YtMusic<A: AuthToken> {
     // TODO: add language
     // TODO: add location

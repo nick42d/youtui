@@ -235,36 +235,68 @@ impl<A: AuthToken> YtMusic<A> {
         let query = GetAlbumQuery::new(album_id);
         query.call(self).await
     }
+    /// Gets the information that's available when playing a song or playlist;
+    /// upcoming tracks and lyrics.
+    /// # Partially implemented
+    /// Tracks are not implemented - empty vector always returned.
+    /// See [`GetWatchPlaylistQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run
+    /// a GetWatchPlaylistQuery.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetWatchPlaylistQuery]: crate::query::watch::GetWatchPlaylistQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
+    /// yt.get_watch_playlist_from_video_id(&results[0].video_id).await
+    /// # };
+    // NOTE: Could be generic across PlaylistID or VideoID using
+    // Into<GetWatchPlaylistQuery>
+    pub async fn get_watch_playlist_from_video_id<'a, S: Into<VideoID<'a>>>(
+        &self,
+        video_id: S,
+    ) -> Result<WatchPlaylist> {
+        let query = GetWatchPlaylistQuery::new_from_video_id(video_id.into());
+        query.call(self).await
+    }
     /// Gets song lyrics and the source.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
-    /// let watch_playlist_query =
-    ///     ytmapi_rs::query::watch::GetWatchPlaylistQuery::new_from_video_id(&results[0].video_id);
-    /// let watch_playlist = yt.query(watch_playlist_query).await.unwrap();
+    /// let watch_playlist = yt.get_watch_playlist_from_video_id(&results[0].video_id).await.unwrap();
     /// yt.get_lyrics(watch_playlist.lyrics_id).await
     /// # };
     pub async fn get_lyrics<'a, T: Into<LyricsID<'a>>>(&self, lyrics_id: T) -> Result<Lyrics> {
         let query = GetLyricsQuery::new(lyrics_id.into());
         query.call(self).await
     }
-    // TODO: Implement for other cases of query.
-    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
+    /// Gets information about a playlist and its tracks.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_playlists("Heavy metal").await.unwrap();
+    /// let playlist_id = match &results[0] {
+    ///     ytmapi_rs::parse::SearchResultPlaylist::Featured(p) => &p.playlist_id,
+    ///     ytmapi_rs::parse::SearchResultPlaylist::Community(p) => &p.playlist_id,
+    /// };
+    /// yt.get_playlist(playlist_id).await
+    /// # };
+    pub async fn get_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
-        query: S,
-    ) -> Result<WatchPlaylist> {
-        let query = query.into();
-        query.call(self).await
-    }
-    // TODO: Implement for other cases of query.
-    pub async fn get_playlist<'a, S: Into<GetPlaylistQuery<'a>>>(
-        &self,
-        query: S,
+        playlist_id: T,
     ) -> Result<GetPlaylist> {
-        let query = query.into();
+        let query = GetPlaylistQuery::new(playlist_id.into());
         query.call(self).await
     }
+    /// Gets seaarch suggestions
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_search_suggestions("The Beat").await;
+    /// # };
     pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
         &self,
         query: S,
