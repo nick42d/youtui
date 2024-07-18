@@ -18,7 +18,7 @@ use crate::parse::{
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
     TableListSong,
 };
-pub use crate::process::RawResult;
+use crate::process::RawResult;
 use crate::query::{
     filteredsearch::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,

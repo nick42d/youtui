@@ -36,3 +36,4 @@ jobs:
     - name: Run tests
       run: | 
         cargo test --verbose --bins --lib
+        cargo test --verbose --doc

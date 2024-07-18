@@ -237,15 +237,4 @@ pub mod browsing {
         pub lyrics: String,
         pub source: String,
     }
-    impl Lyrics {
-        pub fn get_lyrics(&self) -> &str {
-            self.lyrics.as_str()
-        }
-        pub fn get_source(&self) -> &str {
-            self.source.as_str()
-        }
-        pub fn new(lyrics: String, source: String) -> Self {
-            Self { lyrics, source }
-        }
-    }
 }

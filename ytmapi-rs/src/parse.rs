@@ -386,10 +386,10 @@ mod lyrics {
                 SECTION_LIST_ITEM,
                 DESCRIPTION_SHELF
             ))?;
-            Ok(Lyrics::new(
-                description_shelf.take_value_pointer(DESCRIPTION)?,
-                description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
-            ))
+            Ok(Lyrics {
+                lyrics: description_shelf.take_value_pointer(DESCRIPTION)?,
+                source: description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
+            })
         }
     }
 

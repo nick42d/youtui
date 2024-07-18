@@ -18,7 +18,7 @@
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
 //!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
-//!     println!("Go to {url}, fhe login flow, and press enter when done");
+//!     println!("Go to {url}, finish the login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
 //!     let token = ytmapi_rs::generate_oauth_token(code).await?;
@@ -375,7 +375,7 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
 /// ```no_run
 /// #  async {
 /// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
-/// println!("Go to {url}, fhe login flow, and press enter when done");
+/// println!("Go to {url}, finish the login flow, and press enter when done");
 /// let mut buf = String::new();
 /// let _ = std::io::stdin().read_line(&mut buf);
 /// let token = ytmapi_rs::generate_oauth_token(code).await;
