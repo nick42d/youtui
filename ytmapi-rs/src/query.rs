@@ -235,8 +235,10 @@ pub mod watch {
         }
     }
     impl<'a> GetWatchPlaylistQuery<VideoID<'a>> {
-        pub fn new_from_video_id(id: VideoID<'a>) -> GetWatchPlaylistQuery<VideoID<'a>> {
-            GetWatchPlaylistQuery { id }
+        pub fn new_from_video_id<T: Into<VideoID<'a>>>(
+            id: T,
+        ) -> GetWatchPlaylistQuery<VideoID<'a>> {
+            GetWatchPlaylistQuery { id: id.into() }
         }
         pub fn with_playlist_id(
             self,

@@ -10,7 +10,7 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, BrowseParams};
+use crate::common::{AlbumID, BrowseParams, LyricsID};
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetArtistAlbums,
     GetLibraryArtistSubscription, GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
@@ -196,10 +196,13 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_artists("Beatles").await.unwrap();
-    /// yt.get_artist((&results[0].browse_id).into()).await
+    /// yt.get_artist(&results[0].browse_id).await
     /// # };
-    pub async fn get_artist(&self, channel_id: ChannelID<'_>) -> Result<ArtistParams> {
-        let query = GetArtistQuery::new(channel_id);
+    pub async fn get_artist<'a, T: Into<ChannelID<'a>>>(
+        &self,
+        channel_id: T,
+    ) -> Result<ArtistParams> {
+        let query = GetArtistQuery::new(channel_id.into());
         query.call(self).await
     }
     /// Gets a full list albums for an artist.
@@ -207,18 +210,18 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_artists("Beatles").await.unwrap();
-    /// let artist_top_albums = yt.get_artist((&results[0].browse_id).into()).await.unwrap().top_releases.albums.unwrap();
+    /// let artist_top_albums = yt.get_artist(&results[0].browse_id).await.unwrap().top_releases.albums.unwrap();
     /// yt.get_artist_albums(
     ///     artist_top_albums.browse_id.unwrap(),
     ///     artist_top_albums.params.unwrap(),
     /// ).await
     /// # };
-    pub async fn get_artist_albums(
+    pub async fn get_artist_albums<'a, T: Into<ChannelID<'a>>, U: Into<BrowseParams<'a>>>(
         &self,
-        channel_id: ChannelID<'_>,
-        browse_params: BrowseParams<'_>,
+        channel_id: T,
+        browse_params: U,
     ) -> Result<Vec<Album>> {
-        let query = GetArtistAlbumsQuery::new(channel_id, browse_params);
+        let query = GetArtistAlbumsQuery::new(channel_id.into(), browse_params.into());
         query.call(self).await
     }
     /// Gets information about an album and its tracks.
@@ -228,13 +231,22 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.search_albums("Dark Side Of The Moon").await.unwrap();
     /// yt.get_album(&results[0].album_id).await
     /// # };
-    // NOTE: Approach to use Into<AlbumID> means we can take AlbumID or &AlbumID.
-    // Should implement this for more queries.
     pub async fn get_album<'a, T: Into<AlbumID<'a>>>(&self, album_id: T) -> Result<AlbumParams> {
         let query = GetAlbumQuery::new(album_id);
         query.call(self).await
     }
-    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
+    /// Gets song lyrics and the source.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
+    /// let watch_playlist_query =
+    ///     ytmapi_rs::query::watch::GetWatchPlaylistQuery::new_from_video_id(&results[0].video_id);
+    /// let watch_playlist = yt.query(watch_playlist_query).await.unwrap();
+    /// yt.get_lyrics(watch_playlist.lyrics_id).await
+    /// # };
+    pub async fn get_lyrics<'a, T: Into<LyricsID<'a>>>(&self, lyrics_id: T) -> Result<Lyrics> {
+        let query = GetLyricsQuery::new(lyrics_id.into());
         query.call(self).await
     }
     // TODO: Implement for other cases of query.
