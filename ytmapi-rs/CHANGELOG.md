@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7](https://github.com/nick42d/youtui/compare/ytmapi-rs-v0.0.6...ytmapi-rs-v0.0.7) - 2024-07-19
+
+### Added
+- feat! Move convenience functions behind feature gate and add documentation. Resolves [#76](https://github.com/nick42d/youtui/pull/76) ([#81](https://github.com/nick42d/youtui/pull/81))
+- Implment mechanism to force use of tls selection, and utilise new mechanism in youtui - resolves [#30](https://github.com/nick42d/youtui/pull/30) ([#80](https://github.com/nick42d/youtui/pull/80))
+- [**breaking**] Allow specialisation of queries depending on the Token ([#79](https://github.com/nick42d/youtui/pull/79))
+- Implement DeleteUploadEntity ([#73](https://github.com/nick42d/youtui/pull/73))
+- [**breaking**] Implement get library upload queries - resolves [#66](https://github.com/nick42d/youtui/pull/66) ([#70](https://github.com/nick42d/youtui/pull/70))
+
 ## [0.0.6](https://github.com/nick42d/youtui/compare/ytmapi-rs-v0.0.5...ytmapi-rs-v0.0.6) - 2024-07-13
 
 ### Added
