@@ -75,6 +75,7 @@ pub mod parse;
 mod process;
 pub mod query;
 #[cfg(feature = "simplified-queries")]
+#[cfg_attr(docsrs, doc(cfg(feature = "simplified-queries")))]
 pub mod simplified_queries;
 #[cfg(test)]
 mod tests;
@@ -86,7 +87,7 @@ mod tests;
 /// to be executed.
 /// # Documentation note
 /// Examples given for methods on this struct will use fake or mock
-/// constructors. When using in a realy environment, you will need to construct
+/// constructors. When using in a real environment, you will need to construct
 /// using a real token or cookie.
 pub struct YtMusic<A: AuthToken> {
     // TODO: add language
