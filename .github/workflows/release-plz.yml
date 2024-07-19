@@ -20,6 +20,10 @@ jobs:
           fetch-depth: 0
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+      - name: Install linux deps
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends libasound2-dev pkg-config
       - name: Run release-plz
         uses: MarcoIeni/release-plz-action@v0.5
         env:
