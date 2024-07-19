@@ -277,12 +277,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.search_playlists("Heavy metal").await.unwrap();
-    /// let playlist_id = match &results[0] {
-    ///     ytmapi_rs::parse::SearchResultPlaylist::Featured(p) => &p.playlist_id,
-    ///     ytmapi_rs::parse::SearchResultPlaylist::Community(p) => &p.playlist_id,
-    /// };
-    /// yt.get_playlist(playlist_id).await
+    /// let results = yt.search_featured_playlists("Heavy metal").await.unwrap();
+    /// yt.get_playlist(&results[0].playlist_id).await
     /// # };
     pub async fn get_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
@@ -291,7 +287,7 @@ impl<A: AuthToken> YtMusic<A> {
         let query = GetPlaylistQuery::new(playlist_id.into());
         query.call(self).await
     }
-    /// Gets seaarch suggestions
+    /// Gets search suggestions
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
@@ -304,41 +300,106 @@ impl<A: AuthToken> YtMusic<A> {
         let query = query.into();
         query.call(self).await
     }
+    /// Gets a list of all playlists in your Library.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_library_playlists().await;
+    /// # };
     pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
-        // TODO: investigate why returning empty array
         let query = GetLibraryPlaylistsQuery;
         query.call(self).await
     }
-    pub async fn get_library_artists(
-        // TODO: investigate why returning empty array
-        // TODO: Better constructor for query
-        &self,
-        query: GetLibraryArtistsQuery,
-    ) -> Result<Vec<LibraryArtist>> {
+    /// Gets a list of all artists in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryArtistsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryArtistsQuery]: crate::query::GetLibraryArtistsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_artists().await;
+    /// # };
+    pub async fn get_library_artists(&self) -> Result<Vec<LibraryArtist>> {
+        let query = GetLibraryArtistsQuery::default();
         query.call(self).await
     }
-    pub async fn get_library_songs(
-        &self,
-        query: GetLibrarySongsQuery,
-    ) -> Result<Vec<TableListSong>> {
+    /// Gets a list of all songs in your Library.
+    /// # Additional functionality
+    /// See [`GetLibrarySongsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibrarySongsQuery]: crate::query::GetLibrarySongsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_songs().await;
+    /// # };
+    pub async fn get_library_songs(&self) -> Result<Vec<TableListSong>> {
+        let query = GetLibrarySongsQuery::default();
         query.call(self).await
     }
-    pub async fn get_library_albums(
-        &self,
-        query: GetLibraryAlbumsQuery,
-    ) -> Result<Vec<SearchResultAlbum>> {
+    /// Gets a list of all albums in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryAlbumsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryAlbumsQuery]: crate::query::GetLibraryAlbumsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_albums().await;
+    /// # };
+    pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
+        let query = GetLibraryAlbumsQuery::default();
         query.call(self).await
     }
+    /// Gets a list of all artist subscriptions in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryArtistSubscriptionsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryArtistSubscriptionsQuery]: crate::query::GetLibraryArtistSubscriptionsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_artist_subscriptions().await;
+    /// # };
     pub async fn get_library_artist_subscriptions(
         &self,
-        query: GetLibraryArtistSubscriptionsQuery,
     ) -> Result<Vec<GetLibraryArtistSubscription>> {
+        let query = GetLibraryArtistSubscriptionsQuery::default();
         query.call(self).await
     }
+    /// Gets your recently played history.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_history().await;
+    /// # };
     pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
         let query = GetHistoryQuery;
         query.call(self).await
     }
+    /// Removes a list of items from your recently played history.
+    /// # Note
+    /// The feedback tokens required to call this query are currently not
+    /// generated by `get_history()`.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let history = yt.get_history().await.unwrap();
+    /// todo!("FeedbackTokenRemoveFromHistory are not able to be accessed from history currently")
+    /// # };
     pub async fn remove_history_items<'a>(
         &self,
         feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
@@ -346,35 +407,85 @@ impl<A: AuthToken> YtMusic<A> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
         query.call(self).await
     }
+    // TODO: Docs / alternative constructors.
     pub async fn edit_song_library_status<'a>(
         &self,
         query: EditSongLibraryStatusQuery<'a>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
         query.call(self).await
     }
-    pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {
-        let query = RateSongQuery::new(video_id, rating);
-        query.call(self).await
-    }
-    pub async fn rate_playlist(
+    /// Sets the like status for a song.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
+    /// yt.rate_song(&results[0].video_id, ytmapi_rs::parse::LikeStatus::Liked).await
+    /// # };
+    pub async fn rate_song<'a, T: Into<VideoID<'a>>>(
         &self,
-        playlist_id: PlaylistID<'_>,
+        video_id: T,
         rating: LikeStatus,
     ) -> Result<ApiSuccess> {
-        let query = RatePlaylistQuery::new(playlist_id, rating);
+        let query = RateSongQuery::new(video_id.into(), rating);
         query.call(self).await
     }
-    pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
+    /// Sets the like status for a playlist.
+    /// A 'Liked' playlist will be added to your library, an 'Indifferent' will
+    /// be removed, and a 'Disliked' will reduce the chance of it appearing in
+    /// your recommendations.
+    ///  ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_featured_playlists("Heavy metal")
+    ///     .await
+    ///     .unwrap();
+    /// yt.rate_playlist(
+    ///     &results[0].playlist_id,
+    ///     ytmapi_rs::parse::LikeStatus::Liked,
+    /// ).await
+    /// # };
+    pub async fn rate_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
-        query: Q,
+        playlist_id: T,
+        rating: LikeStatus,
     ) -> Result<ApiSuccess> {
-        query.into().call(self).await
+        let query = RatePlaylistQuery::new(playlist_id.into(), rating);
+        query.call(self).await
     }
-    pub async fn create_playlist<'a, Q: Into<CreatePlaylistQuery<'a, C>>, C: CreatePlaylistType>(
+    /// Deletes a playlist you own.
+    ///  ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_playlists().await.unwrap();
+    /// yt.delete_playlist(&results[0].playlist_id).await
+    /// # };
+    pub async fn delete_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
-        query: Q,
+        playlist_id: T,
+    ) -> Result<ApiSuccess> {
+        let query = DeletePlaylistQuery::new(playlist_id.into());
+        query.call(self).await
+    }
+    /// Creates a new playlist.
+    ///  ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let playlists = yt.search_featured_playlists("Heavy metal")
+    ///     .await
+    ///     .unwrap();
+    /// let query = ytmapi_rs::query::CreatePlaylistQuery::new(
+    ///     "My heavy metal playlist",
+    ///     None,
+    ///     ytmapi_rs::query::PrivacyStatus::Public,
+    /// )
+    ///     .with_source(&playlists[0].playlist_id);
+    /// yt.create_playlist(query).await
+    /// # };
+    pub async fn create_playlist<'a, T: CreatePlaylistType>(
+        &self,
+        query: CreatePlaylistQuery<'a, T>,
     ) -> Result<PlaylistID<'static>> {
-        query.into().call(self).await
+        query.call(self).await
     }
     pub async fn remove_playlist_items<'a, Q: Into<RemovePlaylistItemsQuery<'a>>>(
         &self,

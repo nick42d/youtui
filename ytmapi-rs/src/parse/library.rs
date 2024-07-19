@@ -26,6 +26,7 @@ use const_format::concatcp;
 pub struct GetLibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
+    #[deprecated = "Should be a real ID"]
     pub channel_id: String,
     pub thumbnails: Vec<Thumbnail>,
 }

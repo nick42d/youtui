@@ -60,10 +60,10 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
 }
 
 impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
-    pub fn with_source(
+    pub fn with_source<T: Into<PlaylistID<'a>>>(
         self,
-        source_playlist: PlaylistID<'a>,
-    ) -> CreatePlaylistQuery<'a, CreatePlaylistFromPlaylist> {
+        source_playlist: T,
+    ) -> CreatePlaylistQuery<'a, CreatePlaylistFromPlaylist<'a>> {
         let CreatePlaylistQuery {
             title,
             description,
@@ -74,7 +74,9 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
             title,
             description,
             privacy_status,
-            query_type: CreatePlaylistFromPlaylist { source_playlist },
+            query_type: CreatePlaylistFromPlaylist {
+                source_playlist: source_playlist.into(),
+            },
         }
     }
 }
