@@ -35,9 +35,8 @@ Chrome example (Select manually and paste):
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
 # Limitations
-- Github version number and tags are only relevant for the binary component of the application. For the latest release version of ytmapi-rs, please refer to crates.io.
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
-- The Rodio library used for playback does not currently support seeking or checking progress although there are PRs in progress for both. Progress updates are currently emulated with a ticker and may be slightly out, and seeking is not yet implemented.
+- Song progress updates are currently emulated with a ticker and may be slightly out.
 # Roadmap
 ## Application
 - [x] Windows support (target for 0.0.1)
