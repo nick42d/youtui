@@ -18,7 +18,7 @@ use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-use crate::{Error, Result, Thumbnail};
+use crate::{ChannelID, Error, Result, Thumbnail};
 use const_format::concatcp;
 
 #[derive(Debug)]
@@ -26,8 +26,7 @@ use const_format::concatcp;
 pub struct GetLibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
-    #[deprecated = "Should be a real ID"]
-    pub channel_id: String,
+    pub channel_id: ChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 
