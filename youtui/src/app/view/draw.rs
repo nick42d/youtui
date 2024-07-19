@@ -146,7 +146,7 @@ where
             .content_length(scrollable_lines);
         f.render_stateful_widget(
             scrollbar,
-            chunk.inner(&Margin {
+            chunk.inner(Margin {
                 vertical: 1,
                 horizontal: 0,
             }),
@@ -243,7 +243,7 @@ pub fn draw_sortable_table<T>(
             .content_length(scrollable_lines);
         f.render_stateful_widget(
             scrollbar,
-            chunk.inner(&Margin {
+            chunk.inner(Margin {
                 vertical: 1,
                 horizontal: 0,
             }),

@@ -218,7 +218,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
         .content_length(scrollable_lines);
     f.render_stateful_widget(
         scrollbar,
-        chunk.inner(&Margin {
+        chunk.inner(Margin {
             vertical: 1,
             horizontal: 0,
         }),
