@@ -5,7 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.0.7](https://github.com/nick42d/youtui/compare/youtui/v0.0.6...youtui/v0.0.7) - 2024-07-19
 
+### Added
+- feat! Move convenience functions behind feature gate and add documentation. Resolves [#76](https://github.com/nick42d/youtui/pull/76) ([#81](https://github.com/nick42d/youtui/pull/81))- Implment mechanism to force use of tls selection, and utilise new mechanism in youtui - resolves [#30](https://github.com/nick42d/youtui/pull/30) ([#80](https://github.com/nick42d/youtui/pull/80))- [**breaking**] Allow specialisation of queries depending on the Token ([#79](https://github.com/nick42d/youtui/pull/79))
+Modifies Query and ParseFrom traits to introduce AuthToken type parameter. process_json function moved outside impl as well.- Implement DeleteUploadEntity ([#73](https://github.com/nick42d/youtui/pull/73))- [**breaking**] Implement get library upload queries - resolves [#66](https://github.com/nick42d/youtui/pull/66) ([#70](https://github.com/nick42d/youtui/pull/70))
+New variant UploadSong added to TableListItem - this can occur when parsing History where you have recently played an uploaded song.
+### Fixed
+- youtui: Correctly use rustls over openssl ([#78](https://github.com/nick42d/youtui/pull/78))
+### Other
+- Update README.md- release ([#71](https://github.com/nick42d/youtui/pull/71))
 ### Added
 - feat! Move convenience functions behind feature gate and add documentation. Resolves [#76](https://github.com/nick42d/youtui/pull/76) ([#81](https://github.com/nick42d/youtui/pull/81))
 - Implment mechanism to force use of tls selection, and utilise new mechanism in youtui - resolves [#30](https://github.com/nick42d/youtui/pull/30) ([#80](https://github.com/nick42d/youtui/pull/80))
