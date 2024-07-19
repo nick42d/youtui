@@ -260,3 +260,11 @@ impl OAuthTokenGenerator {
         serde_json::from_str(&result).map_err(|_| Error::response(&result))
     }
 }
+// Don't use default Debug implementation for BrowserToken - contents are
+// private
+// TODO: Display some fields, such as time.
+impl std::fmt::Debug for OAuthToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Private BrowserToken")
+    }
+}

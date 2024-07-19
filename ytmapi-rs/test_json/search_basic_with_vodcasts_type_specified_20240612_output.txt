@@ -202,7 +202,7 @@ SearchResults {
             artist: "The Beatles",
             year: "1968",
             explicit: NotExplicit,
-            browse_id: ChannelID(
+            album_id: AlbumID(
                 "MPREb_S5TiUIYvI78",
             ),
             album_type: Album,
@@ -234,7 +234,7 @@ SearchResults {
             artist: "Abbey Road (Super Deluxe Edition)",
             year: "1969",
             explicit: NotExplicit,
-            browse_id: ChannelID(
+            album_id: AlbumID(
                 "MPREb_tQfaWH32ovE",
             ),
             album_type: Album,
@@ -266,7 +266,7 @@ SearchResults {
             artist: "The Beatles 1967 - 1970",
             year: "1973",
             explicit: NotExplicit,
-            browse_id: ChannelID(
+            album_id: AlbumID(
                 "MPREb_LAgCGKzQToD",
             ),
             album_type: Album,

@@ -18,7 +18,7 @@
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
 //!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
-//!     println!("Go to {url}, fhe login flow, and press enter when done");
+//!     println!("Go to {url}, finish the login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
 //!     let token = ytmapi_rs::generate_oauth_token(code).await?;
@@ -53,44 +53,13 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use common::{
-    browsing::Lyrics,
-    library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
-};
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
-use parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, LikeStatus, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
-    TableListSong,
-};
+use parse::{ParseFrom, ProcessedResult};
 pub use process::RawResult;
-use query::{
-    filteredsearch::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
-        FeaturedPlaylistsFilter, FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
-        SongsFilter, VideosFilter,
-    },
-    lyrics::GetLyricsQuery,
-    rate::{RatePlaylistQuery, RateSongQuery},
-    watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
-    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
-    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
-    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery,
-};
+use query::Query;
 use reqwest::Client;
-use std::{path::Path};
-
-use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
+use std::path::Path;
 
 // TODO: Confirm if auth should be pub
 pub mod auth;
@@ -105,6 +74,9 @@ pub mod error;
 pub mod parse;
 mod process;
 pub mod query;
+#[cfg(feature = "simplified-queries")]
+#[cfg_attr(docsrs, doc(cfg(feature = "simplified-queries")))]
+pub mod simplified_queries;
 #[cfg(test)]
 mod tests;
 
@@ -113,6 +85,10 @@ mod tests;
 /// A handle to the YouTube Music API, wrapping a reqwest::Client.
 /// Generic over AuthToken, as different AuthTokens may allow different queries
 /// to be executed.
+/// # Documentation note
+/// Examples given for methods on this struct will use fake or mock
+/// constructors. When using in a real environment, you will need to construct
+/// using a real token or cookie.
 pub struct YtMusic<A: AuthToken> {
     // TODO: add language
     // TODO: add location
@@ -302,293 +278,96 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
-    //TODO: Usage examples
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let raw_result = yt.raw_query(query).await?;
+    /// let result =
+    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(raw_result.process()?)?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn raw_query<Q: Query<A>>(&self, query: Q) -> Result<RawResult<Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let processed_result = yt.processed_query(query).await?;
+    /// let result =
+    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(processed_result)?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn processed_query<Q: Query<A>>(&self, query: Q) -> Result<ProcessedResult<Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
     /// Return the raw JSON returned by YouTube music for Query Q.
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let json_string = yt.json_query(query).await?;
+    /// assert!(serde_json::from_str::<serde_json::Value>(&json_string).is_ok());
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn json_query<Q: Query<A>>(&self, query: Q) -> Result<String> {
         // TODO: Remove allocation
         let json = self.raw_query(query).await?.process()?.clone_json();
         Ok(json)
     }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let result = yt.query(query).await?;
+    /// assert_eq!(result[0].artist, "The Beatles");
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
     pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
-        query.call(self).await
-    }
-    /// API Search Query that returns results for each category if available.
-    pub async fn search<'a, Q: Into<SearchQuery<'a, BasicSearch>>>(
-        &self,
-        query: Q,
-    ) -> Result<SearchResults> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Artists only.
-    pub async fn search_artists<'a, Q: Into<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultArtist>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Albums only.
-    pub async fn search_albums<'a, Q: Into<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultAlbum>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Songs only.
-    pub async fn search_songs<'a, Q: Into<SearchQuery<'a, FilteredSearch<SongsFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultSong>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Playlists only.
-    pub async fn search_playlists<'a, Q: Into<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultPlaylist>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Community Playlists only.
-    pub async fn search_community_playlists<
-        'a,
-        Q: Into<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
-    >(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultPlaylist>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Featured Playlists only.
-    pub async fn search_featured_playlists<
-        'a,
-        Q: Into<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
-    >(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultFeaturedPlaylist>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Episodes only.
-    pub async fn search_episodes<'a, Q: Into<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultEpisode>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Podcasts only.
-    pub async fn search_podcasts<'a, Q: Into<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultPodcast>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Videos only.
-    pub async fn search_videos<'a, Q: Into<SearchQuery<'a, FilteredSearch<VideosFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultVideo>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    /// API Search Query for Profiles only.
-    pub async fn search_profiles<'a, Q: Into<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>>(
-        &self,
-        query: Q,
-    ) -> Result<Vec<SearchResultProfile>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    pub async fn get_artist(&self, query: GetArtistQuery<'_>) -> Result<ArtistParams> {
-        query.call(self).await
-    }
-    pub async fn get_artist_albums(&self, query: GetArtistAlbumsQuery<'_>) -> Result<Vec<Album>> {
-        query.call(self).await
-    }
-    pub async fn get_album(&self, query: GetAlbumQuery<'_>) -> Result<AlbumParams> {
-        query.call(self).await
-    }
-    pub async fn get_lyrics(&self, query: GetLyricsQuery<'_>) -> Result<Lyrics> {
-        query.call(self).await
-    }
-    // TODO: Implement for other cases of query.
-    pub async fn get_watch_playlist<'a, S: Into<GetWatchPlaylistQuery<VideoID<'a>>>>(
-        &self,
-        query: S,
-    ) -> Result<WatchPlaylist> {
-        let query = query.into();
-        query.call(self).await
-    }
-    // TODO: Implement for other cases of query.
-    pub async fn get_playlist<'a, S: Into<GetPlaylistQuery<'a>>>(
-        &self,
-        query: S,
-    ) -> Result<GetPlaylist> {
-        let query = query.into();
-        query.call(self).await
-    }
-    pub async fn get_search_suggestions<'a, S: Into<GetSearchSuggestionsQuery<'a>>>(
-        &self,
-        query: S,
-    ) -> Result<Vec<SearchSuggestion>> {
-        let query = query.into();
-        query.call(self).await
-    }
-    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
-        // TODO: investigate why returning empty array
-        let query = GetLibraryPlaylistsQuery;
-        query.call(self).await
-    }
-    pub async fn get_library_artists(
-        // TODO: investigate why returning empty array
-        // TODO: Better constructor for query
-        &self,
-        query: GetLibraryArtistsQuery,
-    ) -> Result<Vec<LibraryArtist>> {
-        query.call(self).await
-    }
-    pub async fn get_library_songs(
-        &self,
-        query: GetLibrarySongsQuery,
-    ) -> Result<Vec<TableListSong>> {
-        query.call(self).await
-    }
-    pub async fn get_library_albums(
-        &self,
-        query: GetLibraryAlbumsQuery,
-    ) -> Result<Vec<SearchResultAlbum>> {
-        query.call(self).await
-    }
-    pub async fn get_library_artist_subscriptions(
-        &self,
-        query: GetLibraryArtistSubscriptionsQuery,
-    ) -> Result<Vec<GetLibraryArtistSubscription>> {
-        query.call(self).await
-    }
-    pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
-        let query = GetHistoryQuery;
-        query.call(self).await
-    }
-    pub async fn remove_history_items<'a>(
-        &self,
-        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
-    ) -> Result<Vec<Result<ApiSuccess>>> {
-        let query = RemoveHistoryItemsQuery::new(feedback_tokens);
-        query.call(self).await
-    }
-    pub async fn edit_song_library_status<'a>(
-        &self,
-        query: EditSongLibraryStatusQuery<'a>,
-    ) -> Result<Vec<Result<ApiSuccess>>> {
-        query.call(self).await
-    }
-    pub async fn rate_song(&self, video_id: VideoID<'_>, rating: LikeStatus) -> Result<ApiSuccess> {
-        let query = RateSongQuery::new(video_id, rating);
-        query.call(self).await
-    }
-    pub async fn rate_playlist(
-        &self,
-        playlist_id: PlaylistID<'_>,
-        rating: LikeStatus,
-    ) -> Result<ApiSuccess> {
-        let query = RatePlaylistQuery::new(playlist_id, rating);
-        query.call(self).await
-    }
-    pub async fn delete_playlist<'a, Q: Into<DeletePlaylistQuery<'a>>>(
-        &self,
-        query: Q,
-    ) -> Result<ApiSuccess> {
-        query.into().call(self).await
-    }
-    pub async fn create_playlist<'a, Q: Into<CreatePlaylistQuery<'a, C>>, C: CreatePlaylistType>(
-        &self,
-        query: Q,
-    ) -> Result<PlaylistID<'static>> {
-        query.into().call(self).await
-    }
-    pub async fn remove_playlist_items<'a, Q: Into<RemovePlaylistItemsQuery<'a>>>(
-        &self,
-        query: Q,
-    ) -> Result<ApiSuccess> {
-        query.into().call(self).await
-    }
-    pub async fn add_playlist_video_items<
-        'a,
-        Q: Into<AddPlaylistItemsQuery<'a, AddVideosToPlaylist<'a>>>,
-    >(
-        &self,
-        query: Q,
-    ) -> Result<Vec<AddPlaylistItem>> {
-        query.into().call(self).await
-    }
-    pub async fn edit_playlist<'a, Q: Into<EditPlaylistQuery<'a>>>(
-        &self,
-        query: Q,
-    ) -> Result<ApiSuccess> {
-        query.into().call(self).await
-    }
-    pub async fn get_library_upload_songs(
-        &self,
-    ) -> Result<<GetLibraryUploadSongsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadSongsQuery::default();
-        query.call(self).await
-    }
-    pub async fn get_library_upload_artists(
-        &self,
-    ) -> Result<<GetLibraryUploadArtistsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadArtistsQuery::default();
-        query.call(self).await
-    }
-    pub async fn get_library_upload_albums(
-        &self,
-    ) -> Result<<GetLibraryUploadAlbumsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadAlbumsQuery::default();
-        query.call(self).await
-    }
-    pub async fn get_library_upload_album(
-        &self,
-        upload_album_id: UploadAlbumID<'_>,
-    ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadAlbumQuery::new(upload_album_id);
-        query.call(self).await
-    }
-    pub async fn get_library_upload_artist(
-        &self,
-        upload_artist_id: UploadArtistID<'_>,
-    ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadArtistQuery::new(upload_artist_id);
-        query.call(self).await
-    }
-    pub async fn delete_upload_entity(
-        &self,
-        upload_entity_id: UploadEntityID<'_>,
-    ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
-        let query = DeleteUploadEntityQuery::new(upload_entity_id);
         query.call(self).await
     }
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
 /// you to authenticate yourself at. (OAuthDeviceCode, URL)
+/// # Usage
+/// ```no_run
+/// #  async {
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// # Ok::<(), ytmapi_rs::Error>(())
+/// # };
+/// ```
 pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> {
     let client = Client::new();
     let code = OAuthTokenGenerator::new(&client).await?;
@@ -597,12 +376,32 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates an OAuth Token when given an OAuthDeviceCode.
+/// # Usage
+/// ```no_run
+/// #  async {
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// println!("Go to {url}, finish the login flow, and press enter when done");
+/// let mut buf = String::new();
+/// let _ = std::io::stdin().read_line(&mut buf);
+/// let token = ytmapi_rs::generate_oauth_token(code).await;
+/// assert!(token.is_ok());
+/// # Ok::<(), ytmapi_rs::Error>(())
+/// # };
+/// ```
 pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
     let client = Client::new();
     OAuthToken::from_code(&client, code).await
 }
 // TODO: Keep session alive after calling these methods.
 /// Generates a Browser Token when given a browser cookie.
+/// # Usage
+/// ```no_run
+/// # async {
+/// let cookie = "FAKE COOKIE";
+/// let token = ytmapi_rs::generate_browser_token(cookie).await;
+/// assert!(matches!(token.unwrap_err().into_kind(),ytmapi_rs::error::ErrorKind::Header));
+/// # };
+/// ```
 pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserToken> {
     let client = Client::new();
     BrowserToken::from_str(cookie.as_ref(), &client).await
@@ -610,6 +409,13 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserT
 /// Process a string of JSON as if it had been directly received from the
 /// api for a query. Note that this is generic across AuthToken, and you may
 /// need to provide the AuthToken type using 'turbofish'.
+/// # Usage
+/// ```
+/// let json = r#"{ "test" : true }"#.to_string();
+/// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
+/// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
+/// assert!(result.is_err());
+/// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
     Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
 }

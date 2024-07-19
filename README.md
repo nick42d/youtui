@@ -66,7 +66,7 @@ Chrome example (Select manually and paste):
 |Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- | --- |
 |GetArtist | [x] ||
-|GetAlbum | [ ]* ||
+|GetAlbum | [x]* ||
 |GetArtistAlbums | [x] ||
 |Search | [x] |[ ]|
 |GetSearchSuggestions|[x]||
@@ -82,14 +82,14 @@ Chrome example (Select manually and paste):
 |GetMoodCategories|[ ]||
 |GetMoodPlaylists|[ ]||
 |GetCharts|[ ]||
-|GetWatchPlaylist|[ ]\*|[ ]|
+|GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
 |GetLibrarySongs|[x]|[ ]|
 |GetLibraryAlbums|[x]|[ ]|
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|
 |GetLikedSongs|[ ]||
-|GetHistory|[x]||
+|GetHistory|[x]*||
 |AddHistoryItem|[ ]||
 |RemoveHistoryItem|[x]||
 |RateSong|[x]||
@@ -116,6 +116,9 @@ Chrome example (Select manually and paste):
 
 \* get artist is partially implemented only
 - only returns albums and songs
+
+\* get history is partially implemented only
+- does not return a date, and remove from history feedback items are not generated.
 
 # Additional information
 See the wiki for additional information

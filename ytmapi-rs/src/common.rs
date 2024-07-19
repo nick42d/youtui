@@ -155,13 +155,6 @@ impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
 
-impl<'a> From<&'a AlbumID<'a>> for AlbumID<'a> {
-    fn from(value: &'a AlbumID<'a>) -> Self {
-        let core = &value.0;
-        AlbumID(core.as_ref().into())
-    }
-}
-
 impl<'a> BrowseParams<'a> {
     pub fn from_raw<S>(raw_str: S) -> BrowseParams<'a>
     where
@@ -243,16 +236,5 @@ pub mod browsing {
     pub struct Lyrics {
         pub lyrics: String,
         pub source: String,
-    }
-    impl Lyrics {
-        pub fn get_lyrics(&self) -> &str {
-            self.lyrics.as_str()
-        }
-        pub fn get_source(&self) -> &str {
-            self.source.as_str()
-        }
-        pub fn new(lyrics: String, source: String) -> Self {
-            Self { lyrics, source }
-        }
     }
 }

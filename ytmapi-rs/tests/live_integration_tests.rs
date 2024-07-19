@@ -90,6 +90,10 @@ async fn test_new() {
 
 generate_query_test!(test_get_history, GetHistoryQuery);
 generate_query_test!(
+    test_get_playlist,
+    GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+);
+generate_query_test!(
     test_get_library_upload_songs,
     GetLibraryUploadSongsQuery::default()
 );
@@ -345,19 +349,13 @@ async fn test_add_remove_playlist_items() {
         .await
         .unwrap();
     let set_video_ids = api
-        .add_playlist_video_items(AddPlaylistItemsQuery::new_from_videos(
-            id.clone(),
-            vec![VideoID::from_raw("kfSQkZuIx84")],
-            Default::default(),
-        ))
+        .add_video_items_to_playlist(&id, vec![VideoID::from_raw("kfSQkZuIx84")])
         .await
         .unwrap()
         .into_iter()
         .map(|item| item.set_video_id)
         .collect();
-    api.remove_playlist_items(RemovePlaylistItemsQuery::new(id.clone(), set_video_ids))
-        .await
-        .unwrap();
+    api.remove_playlist_items(&id, set_video_ids).await.unwrap();
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
@@ -380,36 +378,6 @@ async fn test_edit_playlist() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
-async fn test_get_playlist_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    api.get_playlist(GetPlaylistQuery::new(PlaylistID::from_raw(
-        "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
-    )))
-    .await
-    .unwrap();
-}
-#[tokio::test]
-async fn test_get_playlist() {
-    // TODO: Add siginficantly more queries.
-    let api = new_standard_api().await.unwrap();
-    api.get_playlist(GetPlaylistQuery::new(PlaylistID::from_raw(
-        "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
-    )))
-    .await
-    .unwrap();
-}
-#[tokio::test]
-async fn test_search_songs_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let _res = api.search_songs("Beatles").await.unwrap();
-}
-#[tokio::test]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -430,15 +398,13 @@ async fn test_get_library_artists_oauth() {
     // Don't stuff around trying the keep the local OAuth secret up to date, just
     // refresh it each time.
     api.refresh_token().await.unwrap();
-    let query = GetLibraryArtistsQuery::default();
-    let res = api.get_library_artists(query).await.unwrap();
+    let res = api.get_library_artists().await.unwrap();
     assert!(!res.is_empty());
 }
 #[tokio::test]
 async fn test_get_library_artists() {
     let api = new_standard_api().await.unwrap();
-    let query = GetLibraryArtistsQuery::default();
-    let res = api.get_library_artists(query).await.unwrap();
+    let res = api.get_library_artists().await.unwrap();
     assert!(!res.is_empty());
 }
 #[tokio::test]
@@ -446,9 +412,7 @@ async fn test_watch_playlist() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
     let res = api
-        .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
-            "9mWr4c_ig54",
-        )))
+        .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
         .await
         .unwrap();
     let example = WatchPlaylist {
@@ -463,15 +427,10 @@ async fn test_get_lyrics() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
     let res = api
-        .get_watch_playlist(GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(
-            "9mWr4c_ig54",
-        )))
+        .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
         .await
         .unwrap();
-    let res = api
-        .get_lyrics(GetLyricsQuery::new(res.lyrics_id))
-        .await
-        .unwrap();
+    let res = api.get_lyrics(res.lyrics_id).await.unwrap();
     let example = Lyrics {
             lyrics: "You're my lesson I had to learn\nAnother page I'll have to turn\nI got one more message, always tryna be heard\nBut you never listen to a word\n\nHeaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nJust give me one second and I'll be fine\nJust let me catch my breath and come back to life\nI finally get the message, you were never meant to be mine\nCouldn't see the truth, I was blind (meant to be mine)\n\nWhoa, heaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nLetting go, we came so close (how foolish of me)\nOh, I'm letting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me".into(),
             source: "Source: Musixmatch".into(),
@@ -538,10 +497,8 @@ async fn test_get_artist_albums() {
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
-    // For some reason the params is wrong. needs investigation.
-    let channel_id = &albums.browse_id.unwrap();
-    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
-    api.get_artist_albums(q).await.unwrap();
+    let channel_id = albums.browse_id.unwrap();
+    api.get_artist_albums(channel_id, params).await.unwrap();
     let now = std::time::Instant::now();
     println!("Get albums took {} ms", now.elapsed().as_millis());
 }

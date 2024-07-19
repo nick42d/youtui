@@ -4,7 +4,7 @@
         artist: "Radiohead",
         year: "2021",
         explicit: NotExplicit,
-        browse_id: ChannelID(
+        album_id: AlbumID(
             "MPREb_E7NpKw54NIT",
         ),
         album_type: Album,
@@ -26,7 +26,7 @@
         artist: "Aj Lee & Blue Summit",
         year: "2021",
         explicit: NotExplicit,
-        browse_id: ChannelID(
+        album_id: AlbumID(
             "MPREb_tlzBJv4t1DX",
         ),
         album_type: Album,
@@ -48,7 +48,7 @@
         artist: "Kendrick Lamar",
         year: "2015",
         explicit: IsExplicit,
-        browse_id: ChannelID(
+        album_id: AlbumID(
             "MPREb_3jGuGO44ziy",
         ),
         album_type: Album,

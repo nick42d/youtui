@@ -640,7 +640,6 @@ mod tests {
         query::GetArtistAlbumsQuery,
         ChannelID,
     };
-    
 
     #[tokio::test]
     async fn test_get_artist_albums_query() {

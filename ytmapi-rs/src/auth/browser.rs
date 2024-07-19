@@ -11,6 +11,7 @@ use crate::{
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::fmt::Debug;
 use std::path::Path;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -136,5 +137,13 @@ impl BrowserToken {
     {
         let contents = tokio::fs::read_to_string(path).await.unwrap();
         BrowserToken::from_str(&contents, client).await
+    }
+}
+
+// Don't use default Debug implementation for BrowserToken - contents are
+// private
+impl Debug for BrowserToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Private BrowserToken")
     }
 }

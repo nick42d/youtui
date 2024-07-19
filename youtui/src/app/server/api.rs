@@ -232,11 +232,7 @@ impl Api {
                 // Should this be a ChannelID or BrowseID? Should take a trait?.
                 // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
                 // ChannelID::Artist?
-                let artist = api
-                    .get_artist(ytmapi_rs::query::GetArtistQuery::new(
-                        ytmapi_rs::ChannelID::from_raw(browse_id.get_raw()),
-                    ))
-                    .await;
+                let artist = api.get_artist(browse_id).await;
                 let artist = match artist {
                     Ok(a) => a,
                     Err(e) => {
@@ -298,13 +294,7 @@ impl Api {
                         unreachable!("Checked not none above")
                     };
 
-                    let albums = match api
-                        .get_artist_albums(ytmapi_rs::query::GetArtistAlbumsQuery::new(
-                            ytmapi_rs::ChannelID::from_raw(temp_browse_id.get_raw()),
-                            temp_params,
-                        ))
-                        .await
-                    {
+                    let albums = match api.get_artist_albums(temp_browse_id, temp_params).await {
                         Ok(r) => r,
                         Err(e) => {
                             error!("Received error on get_artist_albums query \"{}\"", e);
@@ -332,10 +322,7 @@ impl Api {
                             "Spawning request for caller tracks for request ID {:?}",
                             id
                         );
-                        let album = match api
-                            .get_album(ytmapi_rs::query::GetAlbumQuery::new(&b_id))
-                            .await
-                        {
+                        let album = match api.get_album(&b_id).await {
                             Ok(album) => album,
                             Err(e) => {
                                 error!("Error <{e}> getting album {:?}", b_id);

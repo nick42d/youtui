@@ -8,7 +8,6 @@ use crate::{
 use serde_json::json;
 use std::borrow::Cow;
 
-// Is this really a query? It's more of an action/command.
 // TODO: Confirm if all options can be passed - or mutually exclusive.
 pub struct EditPlaylistQuery<'a> {
     id: PlaylistID<'a>,
@@ -28,7 +27,8 @@ pub enum AddOrder {
 }
 
 impl<'a> EditPlaylistQuery<'a> {
-    pub fn new_title<S: Into<Cow<'a, str>>>(id: PlaylistID<'a>, new_title: S) -> Self {
+    pub fn new_title<T: Into<PlaylistID<'a>>, S: Into<Cow<'a, str>>>(id: T, new_title: S) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: Some(new_title.into()),
@@ -39,7 +39,11 @@ impl<'a> EditPlaylistQuery<'a> {
             add_playlist: None,
         }
     }
-    pub fn new_description<S: Into<Cow<'a, str>>>(id: PlaylistID<'a>, new_description: S) -> Self {
+    pub fn new_description<T: Into<PlaylistID<'a>>, S: Into<Cow<'a, str>>>(
+        id: T,
+        new_description: S,
+    ) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: None,
@@ -50,7 +54,11 @@ impl<'a> EditPlaylistQuery<'a> {
             add_playlist: None,
         }
     }
-    pub fn new_privacy_status(id: PlaylistID<'a>, new_privacy_status: PrivacyStatus) -> Self {
+    pub fn new_privacy_status<T: Into<PlaylistID<'a>>>(
+        id: T,
+        new_privacy_status: PrivacyStatus,
+    ) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: None,
@@ -61,11 +69,12 @@ impl<'a> EditPlaylistQuery<'a> {
             add_playlist: None,
         }
     }
-    pub fn swap_videos_order(
-        id: PlaylistID<'a>,
+    pub fn swap_videos_order<T: Into<PlaylistID<'a>>>(
+        id: T,
         video_1: SetVideoID<'a>,
         video_2: SetVideoID<'a>,
     ) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: None,
@@ -76,7 +85,8 @@ impl<'a> EditPlaylistQuery<'a> {
             add_playlist: None,
         }
     }
-    pub fn change_add_order(id: PlaylistID<'a>, change_add_order: AddOrder) -> Self {
+    pub fn change_add_order<T: Into<PlaylistID<'a>>>(id: T, change_add_order: AddOrder) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: None,
@@ -87,7 +97,8 @@ impl<'a> EditPlaylistQuery<'a> {
             add_playlist: None,
         }
     }
-    pub fn add_playlist(id: PlaylistID<'a>, add_playlist: PlaylistID<'a>) -> Self {
+    pub fn add_playlist<T: Into<PlaylistID<'a>>>(id: T, add_playlist: PlaylistID<'a>) -> Self {
+        let id = id.into();
         Self {
             id,
             new_title: None,

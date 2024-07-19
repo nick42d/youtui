@@ -231,7 +231,7 @@ pub struct SearchResultAlbum {
     pub artist: String,
     pub year: String,
     pub explicit: Explicit,
-    pub browse_id: ChannelID<'static>,
+    pub album_id: AlbumID<'static>,
     pub album_type: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -386,10 +386,10 @@ mod lyrics {
                 SECTION_LIST_ITEM,
                 DESCRIPTION_SHELF
             ))?;
-            Ok(Lyrics::new(
-                description_shelf.take_value_pointer(DESCRIPTION)?,
-                description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
-            ))
+            Ok(Lyrics {
+                lyrics: description_shelf.take_value_pointer(DESCRIPTION)?,
+                source: description_shelf.take_value_pointer(concatcp!("/footer", RUN_TEXT))?,
+            })
         }
     }
 
