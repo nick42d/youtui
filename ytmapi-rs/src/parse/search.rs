@@ -74,7 +74,7 @@ fn parse_basic_search_result_from_section_list_contents(
                 top_results = category
                     .navigate_pointer("/contents")?
                     .as_array_iter_mut()?
-                    .map(|r| parse_top_result_from_music_shelf_contents(r))
+                    .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
                     .collect::<Result<Vec<TopResult>>>()?;
             }
             // TODO: Use a navigation constant
@@ -162,7 +162,9 @@ fn parse_top_results_from_music_card_shelf_contents(
     let mut results = Vec::new();
     // Begin - first result parsing
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
-    let result_type = music_shelf_contents.take_value_pointer::<TopResultType>(SUBTITLE)?;
+    let result_type = music_shelf_contents
+        .take_value_pointer::<TopResultType>(SUBTITLE)
+        .ok();
     // Possibly artists only.
     let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
     // Imperative solution, may be able to make more functional.
@@ -175,7 +177,7 @@ fn parse_top_results_from_music_card_shelf_contents(
     let thumbnails: Vec<Thumbnail> = music_shelf_contents.take_value_pointer(THUMBNAILS)?;
     let first_result = TopResult {
         // Assuming that in non-card case top result always has a result type.
-        result_type: Some(result_type),
+        result_type,
         subscribers,
         thumbnails,
         result_name,
@@ -192,18 +194,20 @@ fn parse_top_results_from_music_card_shelf_contents(
     let mut other_results = music_shelf_contents
         .navigate_pointer("/contents")?
         .as_array_iter_mut()?
-        // Seems this won't work, as Song in Card renderer has less fields than Song in basic
-        // renderer.
-        .map(|r| parse_top_result_from_music_shelf_contents(r))
+        .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
         // TODO: Remove allocation.
-        .collect::<Result<Vec<TopResult>>>()?;
+        .collect::<Result<Vec<_>>>()?;
     results.append(&mut other_results);
     Ok(results)
 }
 // TODO: Tests
 fn parse_top_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
-) -> Result<TopResult> {
+) -> Result<Option<TopResult>> {
+    // This is the "More from YouTube" seperator
+    if music_shelf_contents.path_exists("/messageRenderer") {
+        return Ok(None);
+    };
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let result_name = parse_item_text(&mut mrlir, 0, 0)?;
     // It's possible to have artist name in the first position instead of a
@@ -253,7 +257,7 @@ fn parse_top_result_from_music_shelf_contents(
         }
     }
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-    Ok(TopResult {
+    Ok(Some(TopResult {
         result_type,
         subscribers,
         thumbnails,
@@ -264,7 +268,7 @@ fn parse_top_result_from_music_shelf_contents(
         duration,
         year,
         plays,
-    })
+    }))
 }
 // TODO: Type safety
 // TODO: Tests

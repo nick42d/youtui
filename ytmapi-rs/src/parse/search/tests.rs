@@ -12,6 +12,17 @@ use pretty_assertions::assert_eq;
 use std::path::Path;
 
 #[tokio::test]
+async fn test_search_basic_top_result_no_type() {
+    // Case where topmost result doesn't contain a type.
+    parse_test!(
+        "./test_json/search_basic_top_result_no_type_20240720.json",
+        "./test_json/search_basic_top_result_no_type_20240720_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+
+#[tokio::test]
 async fn test_search_artists_empty() {
     let source_path = Path::new("./test_json/search_artists_no_results_20231226.json");
     let source = tokio::fs::read_to_string(source_path)
