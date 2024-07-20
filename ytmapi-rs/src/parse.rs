@@ -68,51 +68,30 @@ pub struct SearchResults {
 /// Each Top Result has it's own type.
 pub enum TopResultType {
     Artist,
-    // We are able to re-use the album type defined elsewhere in the application.
-    Album(AlbumType),
     Playlist,
     Song,
     Video,
     Station,
     Podcast,
+    #[serde(untagged)]
+    Album(AlbumType),
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 // Helper enum for parsing different search result types.
 enum SearchResultType {
-    TopResults,
+    #[serde(alias = "Top result")]
+    TopResult,
     Artists,
     Albums,
+    #[serde(alias = "Featured playlists")]
     FeaturedPlaylists,
+    #[serde(alias = "Community playlists")]
     CommunityPlaylists,
     Songs,
     Videos,
     Podcasts,
     Episodes,
     Profiles,
-}
-impl TryFrom<&str> for SearchResultType {
-    type Error = Error;
-    fn try_from(value: &str) -> Result<Self> {
-        let result = match value {
-            "Songs" => Self::Songs,
-            "Top result" => Self::TopResults,
-            "Albums" => Self::Albums,
-            "Artists" => Self::Artists,
-            "Videos" => Self::Videos,
-            "Podcasts" => Self::Podcasts,
-            "Episodes" => Self::Episodes,
-            "Profiles" => Self::Profiles,
-            "Community playlists" => Self::CommunityPlaylists,
-            "Featured playlists" => Self::FeaturedPlaylists,
-            // TODO: Better error.
-            other => {
-                return Err(Error::other(format!(
-                    "Error parsing, value {other} outside expected range for search result types."
-                )))
-            }
-        };
-        Ok(result)
-    }
 }
 impl TryFrom<&str> for TopResultType {
     type Error = Error;

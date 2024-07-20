@@ -2,14 +2,14 @@ use super::{
     parse_item_text, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
-    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
+    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType, TEXT_RUN_TEXT,
 };
 use crate::auth::AuthToken;
 use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
+    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT, TEXT_RUNS,
     THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
@@ -21,6 +21,8 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use serde::de::IntoDeserializer;
+use serde::Deserialize;
 
 #[cfg(test)]
 mod tests;
@@ -67,11 +69,8 @@ fn parse_basic_search_result_from_section_list_contents(
 
     for category in results.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
         let mut category = category?;
-        match SearchResultType::try_from(
-            // TODO: Better navigation
-            category.take_value_pointer::<String>(TITLE_TEXT)?.as_str(),
-        )? {
-            SearchResultType::TopResults => {
+        match category.take_value_pointer::<SearchResultType>(TITLE_TEXT)? {
+            SearchResultType::TopResult => {
                 top_results = category
                     .navigate_pointer("/contents")?
                     .as_array_iter_mut()?
@@ -163,11 +162,7 @@ fn parse_top_results_from_music_card_shelf_contents(
     let mut results = Vec::new();
     // Begin - first result parsing
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
-    let result_type = TopResultType::try_from(
-        music_shelf_contents
-            .take_value_pointer::<String>(SUBTITLE)?
-            .as_str(),
-    )?;
+    let result_type = music_shelf_contents.take_value_pointer::<TopResultType>(SUBTITLE)?;
     // Possibly artists only.
     let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
     // Imperative solution, may be able to make more functional.
@@ -211,8 +206,15 @@ fn parse_top_result_from_music_shelf_contents(
 ) -> Result<TopResult> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let result_name = parse_item_text(&mut mrlir, 0, 0)?;
-    let result_type_string: String = parse_item_text(&mut mrlir, 1, 0)?;
-    let result_type = TopResultType::try_from(result_type_string.as_str());
+    // It's possible to have artist name in the first position instead of a
+    // TopResultType. There may be a way to differentiate this even further.
+    let flex_1_0 = parse_item_text(&mut mrlir, 1, 0)?;
+    // Deserialize without taking ownership of flex_1_0 - not possible with
+    // JsonCrawler::take_value_pointer().
+    // TODO: add methods like borrow_value_pointer() to JsonCrawler.
+    let result_type_result: std::result::Result<_, serde::de::value::Error> =
+        TopResultType::deserialize(flex_1_0.as_str().into_deserializer());
+    let result_type = result_type_result.ok();
     // Imperative solution, may be able to make more functional.
     let mut subscribers = None;
     let mut publisher = None;
@@ -223,14 +225,14 @@ fn parse_top_result_from_music_shelf_contents(
     let mut plays = None;
     match result_type {
         // XXX: Perhaps also populate Artist field.
-        Ok(TopResultType::Artist) => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
-        Ok(TopResultType::Album(_)) => {
+        Some(TopResultType::Artist) => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Some(TopResultType::Album(_)) => {
             // XXX: Perhaps also populate Album field.
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             year = Some(parse_item_text(&mut mrlir, 1, 4)?);
         }
-        Ok(TopResultType::Playlist) => todo!(),
-        Ok(TopResultType::Song) => {
+        Some(TopResultType::Playlist) => todo!(),
+        Some(TopResultType::Song) => {
             artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
             album = Some(parse_item_text(&mut mrlir, 1, 4)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
@@ -238,14 +240,11 @@ fn parse_top_result_from_music_shelf_contents(
             // optional. TODO: Could make this more type safe in future.
             plays = parse_item_text(&mut mrlir, 1, 8).ok();
         }
-        Ok(TopResultType::Video) => todo!(),
-        Ok(TopResultType::Station) => todo!(),
-        Ok(TopResultType::Podcast) => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
-        // It's possible to have artist name in the first position instead of a TopResultType.
-        // There may be a way to differentiate this even further.
-        // TODO: Add tests.
-        Err(_) => {
-            artist = Some(result_type_string);
+        Some(TopResultType::Video) => todo!(),
+        Some(TopResultType::Station) => todo!(),
+        Some(TopResultType::Podcast) => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        None => {
+            artist = Some(flex_1_0);
             album = Some(parse_item_text(&mut mrlir, 1, 2)?);
             duration = Some(parse_item_text(&mut mrlir, 1, 4)?);
             // This does not show up in all Card renderer results and so we'll define it as
@@ -255,7 +254,7 @@ fn parse_top_result_from_music_shelf_contents(
     }
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(TopResult {
-        result_type: result_type.ok(),
+        result_type,
         subscribers,
         thumbnails,
         result_name,
