@@ -1,44 +1,63 @@
 [![dependency status](https://deps.rs/repo/github/nick42d/youtui/status.svg)](https://deps.rs/repo/github/nick42d/youtui)
-# About
+![build](https://github.com/nick42d/youtui/actions/workflows/release-plz.yml/badge.svg)
+
+## About
 Youtui - a simple TUI YouTube Music player written in Rust aiming to implement an Artist->Albums workflow for searching for music, and using discoverability principles for navigation. Inspired by https://github.com/ccgauche/ytermusic/ and cmus.
 
 Ytmapi-rs - an asynchronous API for YouTube Music using Google's internal API, Tokio and Reqwest. Inspired by https://github.com/sigma67/ytmusicapi/.
 
 This project is not supported or endorsed by Google.
-# Features
+
+## Features
 - Quickly and easily display entire artist's discography
 - Buffer upcoming songs
 - Search suggestions
 - Sorting and filtering
-# Demo
+
+## Demo
 [![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
-# How to install and run
-1. The easiest way to install is using crates.io by running `cargo install youtui`.
-    1. Alternatively, youtui is now available in the AUR, install using your favourite helper (e.g `paru -S youtui`).
+
+## Installing youtui
+[![Packaging status](https://repology.org/badge/vertical-allrepos/youtui.svg)](https://repology.org/project/youtui/versions)
+
+### Arch Linux
+`paru -S youtui`
+
+### FreeBSD
+`pkg install youtui`
+
+### Cargo
+`cargo install youtui`
+
+## Running youtui
 1. Give the application an authorisation header:
     1. Open YouTube Music in your browser - ensure you are logged in.
     1. Open web developer tools (F12).
     1. Open Network tab and locate a POST request to `music.youtube.com`.
     1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory (e.g ~/.config/youtui/ on Linux). Note you will need to create the directory if it does not exist.
-1. To run the TUI application, execute `youtui` with no arguments.
-1. To use the API in command-line mode, execute `youtui --help` to see available commands.
-## Cookie extraction examples
+2. To run the TUI application, execute `youtui` with no arguments.
+3. To use the API in command-line mode, execute `youtui --help` to see available commands.
+
+### Cookie extraction examples
 Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
 Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
-# Dependencies note
-## General
+
+## Dependencies note
+### General
 - A font that can render FontAwesome symbols is required.
-## Linux specific
+### Linux specific
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
-# Limitations
+
+## Limitations
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
 - Song progress updates are currently emulated with a ticker and may be slightly out.
-# Roadmap
-## Application
+
+## Roadmap
+### Application
 - [x] Windows support (target for 0.0.1)
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
@@ -55,7 +74,7 @@ Chrome example (Select manually and paste):
 - [ ] Display lyrics and album cover (pixel art)
 - [ ] Theming
 - [ ] Configurable key bindings
-## API
+### API
 - [x] Document public API
 - [ ] Automatically update User Agent using a library
 - [ ] Implement endpoint continuations
@@ -120,6 +139,6 @@ Chrome example (Select manually and paste):
 \* get history is partially implemented only
 - does not return a date, and remove from history feedback items are not generated.
 
-# Additional information
+## Additional information
 See the wiki for additional information
 https://github.com/nick42d/youtui/wiki
