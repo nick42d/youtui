@@ -1,0 +1,12 @@
+SearchResults {
+    top_results: [],
+    artists: [],
+    albums: [],
+    featured_playlists: [],
+    community_playlists: [],
+    songs: [],
+    videos: [],
+    podcasts: [],
+    episodes: [],
+    profiles: [],
+}

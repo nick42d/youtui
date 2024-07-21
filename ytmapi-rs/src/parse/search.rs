@@ -31,7 +31,6 @@ const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
 const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // TODO: Type safety
-// TODO: Tests
 fn parse_basic_search_result_from_section_list_contents(
     mut section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
@@ -581,6 +580,9 @@ fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListConte
     section_contents
         .0
         .path_exists("/0/itemSectionRenderer/contents/0/didYouMeanRenderer")
+        || section_contents
+            .0
+            .path_exists("/0/itemSectionRenderer/contents/0/messageRenderer")
 }
 impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, S>>>
     for BasicSearchSectionListContents
