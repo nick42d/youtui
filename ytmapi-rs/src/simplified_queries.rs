@@ -358,10 +358,10 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_albums().await;
     /// # };
-    // pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
-    //     let query = GetLibraryAlbumsQuery::default();
-    //     query.call(self).await
-    // }
+    pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
+        let query = GetLibraryAlbumsQuery::default();
+        query.call(self).await
+    }
     /// Gets a list of all artist subscriptions in your Library.
     /// # Additional functionality
     /// See [`GetLibraryArtistSubscriptionsQuery`] and [`YtMusic.query()`]
