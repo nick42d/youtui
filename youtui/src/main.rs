@@ -5,7 +5,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::path::PathBuf;
-use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::auth::{AuthToken, BrowserToken, OAuthToken};
 
 mod app;
 mod appevent;

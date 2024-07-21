@@ -12,6 +12,49 @@ use pretty_assertions::assert_eq;
 use std::path::Path;
 
 #[tokio::test]
+async fn test_search_basic_top_result_no_type() {
+    // Case where topmost result doesn't contain a type.
+    parse_test!(
+        "./test_json/search_basic_top_result_no_type_20240720.json",
+        "./test_json/search_basic_top_result_no_type_20240720_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
+async fn test_search_basic_top_result_card() {
+    // Case where there is only a 'card' top result, with no children.
+    parse_test!(
+        "./test_json/search_basic_top_result_card_20240721.json",
+        "./test_json/search_basic_top_result_card_20240721_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
+async fn test_basic_search_no_results_suggestions() {
+    // Case where there are no results, but there are 'Did You Mean' suggestions.
+    parse_test_value!(
+        "./test_json/search_basic_no_results_suggestions_20240104.json",
+        SearchResults::default(),
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+
+#[tokio::test]
+async fn test_search_basic_no_results() {
+    // Case where there are no results, and there are not 'Did You Mean'
+    // suggestions.
+    parse_test!(
+        "./test_json/search_basic_no_results_20240721.json",
+        "./test_json/search_basic_no_results_20240721_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+
+#[tokio::test]
 async fn test_search_artists_empty() {
     let source_path = Path::new("./test_json/search_artists_no_results_20231226.json");
     let source = tokio::fs::read_to_string(source_path)
@@ -48,8 +91,8 @@ async fn test_basic_search_has_card_top_result() {
 }
 #[tokio::test]
 // Test results appear for the correct categories.
-async fn basic_test_to_test_basic_search() {
-    let source_path = Path::new("./test_json/search_no_top_result_20231228.json");
+async fn test_basic_search_no_top_results_has_results() {
+    let source_path = Path::new("./test_json/search_basic_no_top_result_20231228.json");
     let source = tokio::fs::read_to_string(source_path)
         .await
         .expect("Expect file read to pass during tests");
@@ -93,17 +136,6 @@ async fn test_basic_search_with_vodcasts_type_specified() {
         SearchQuery::new(""),
         BrowserToken
     );
-}
-#[tokio::test]
-async fn test_basic_search_is_empty() {
-    let source_path = Path::new("./test_json/search_no_results_20240104.json");
-    let source = tokio::fs::read_to_string(source_path)
-        .await
-        .expect("Expect file read to pass during tests");
-    // Blank query has no bearing on function
-    let query = SearchQuery::new("ajhkjhdslkfjhsdfglkjdsf");
-    let output = process_json::<_, BrowserToken>(source, query).unwrap();
-    assert_eq!(output, SearchResults::default());
 }
 #[tokio::test]
 async fn test_search_artists() {

@@ -113,6 +113,18 @@ generate_query_test!(
 );
 generate_query_test!(test_basic_search, SearchQuery::new("Beatles"));
 generate_query_test!(
+    test_basic_search_alternate_query_1,
+    SearchQuery::new("Beaten")
+);
+generate_query_test!(
+    test_basic_search_alternate_query_2,
+    SearchQuery::new("Chasing scratch")
+);
+generate_query_test!(
+    test_basic_search_alternate_query_no_results,
+    SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
+);
+generate_query_test!(
     test_search_artists,
     SearchQuery::new("Beatles").with_filter(ArtistsFilter)
 );

@@ -84,3 +84,18 @@ macro_rules! parse_test {
         pretty_assertions::assert_eq!(expected, output);
     };
 }
+/// Macro to test that an input file succesfully parses directly against the
+/// expected output value.
+/// Input file, output value, query, token
+/// Note, this is async due to use of tokio::fs
+#[cfg(test)]
+macro_rules! parse_test_value {
+    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+        let source_path = std::path::Path::new($in);
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let parsed = crate::process_json::<_, $token>(source, $query).unwrap();
+        pretty_assertions::assert_eq!(parsed, $out);
+    };
+}

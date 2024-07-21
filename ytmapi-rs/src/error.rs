@@ -35,6 +35,9 @@ pub enum ErrorKind {
         json: Arc<String>,
         /// The format we were trying to parse into.
         target: ParseTarget,
+        /// The message we received from the parser, if any.
+        //TODO: Include in ParseTarget.
+        message: Option<String>,
     },
     /// Expected key did not occur in the JSON file.
     Navigation {
@@ -124,12 +127,18 @@ impl Error {
             }),
         }
     }
-    pub(crate) fn parsing<S: Into<String>>(key: S, json: Arc<String>, target: ParseTarget) -> Self {
+    pub(crate) fn parsing<S: Into<String>>(
+        key: S,
+        json: Arc<String>,
+        target: ParseTarget,
+        message: Option<String>,
+    ) -> Self {
         Self {
             inner: Box::new(ErrorKind::Parsing {
                 key: key.into(),
                 json,
                 target,
+                message,
             }),
         }
     }
@@ -189,7 +198,12 @@ impl Display for ErrorKind {
                 key,
                 json: _,
                 target,
-            } => write!(f, "Unable to parse into {:?} at {key}", target),
+                message,
+            } => write!(
+                f,
+                "Error {:?}. Unable to parse into {:?} at {key}",
+                message, target
+            ),
             ErrorKind::OAuthTokenExpired => write!(f, "OAuth token has expired"),
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
             ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),

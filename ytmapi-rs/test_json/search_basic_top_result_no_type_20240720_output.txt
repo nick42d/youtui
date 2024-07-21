@@ -1,0 +1,562 @@
+SearchResults {
+    top_results: [
+        TopResult {
+            result_name: "Rose Tattoo - We Can't Be Beaten (1982)",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/dIhRZNHuWlo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k_UPq7dk33niW4uUrNkxU-TcoAaQ",
+                },
+            ],
+            artist: None,
+            album: None,
+            duration: None,
+            year: None,
+            subscribers: Some(
+                "219K views",
+            ),
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "We Can't Be Beaten",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Njso50it-qMx_tt5jqYjscKH3qAyjiBDWAOTojd63Tt-jWaoygeb2KE8CVgBSbfcC_oBq0BB4EsNe5s_=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Njso50it-qMx_tt5jqYjscKH3qAyjiBDWAOTojd63Tt-jWaoygeb2KE8CVgBSbfcC_oBq0BB4EsNe5s_=w120-h120-l90-rj",
+                },
+            ],
+            artist: Some(
+                "Rose Tattoo",
+            ),
+            album: Some(
+                "25 To Life",
+            ),
+            duration: Some(
+                "4:28",
+            ),
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "We Can't Be Beaten (Live)",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/jtQ4tCGc9djQVD3otSr9o_x0BirOvx_lSv9JnwNiCJKaZtEHCSbzFKi0dAswk_jGBeJdgKMGcL0YsZH_=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/jtQ4tCGc9djQVD3otSr9o_x0BirOvx_lSv9JnwNiCJKaZtEHCSbzFKi0dAswk_jGBeJdgKMGcL0YsZH_=w120-h120-l90-rj",
+                },
+            ],
+            artist: Some(
+                "Rose Tattoo",
+            ),
+            album: Some(
+                "Tatts: Live in Brunswick",
+            ),
+            duration: Some(
+                "3:53",
+            ),
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+        TopResult {
+            result_name: "We Can't Be Beaten (Live at Wax Museum)",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/1gZW8jOEPUCFRjwBnrMZosBa6w7IW2pacdJu1dH8_7CxUErxBw9cuaQKzg21O_2mulr5vWGbxCqzgTFwBw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/1gZW8jOEPUCFRjwBnrMZosBa6w7IW2pacdJu1dH8_7CxUErxBw9cuaQKzg21O_2mulr5vWGbxCqzgTFwBw=w120-h120-l90-rj",
+                },
+            ],
+            artist: Some(
+                "Rose Tattoo",
+            ),
+            album: Some(
+                "Scarred for Live 1980-1982",
+            ),
+            duration: Some(
+                "3:45",
+            ),
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+        },
+    ],
+    artists: [
+        SearchResultArtist {
+            artist: "Beaten to Death",
+            subscribers: Some(
+                "241 subscribers",
+            ),
+            browse_id: ChannelID(
+                "UC-aF-xJ6PL6Eo5398Li4uwQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/4LGtaM1YH9QHwmkJ8Naxf4ROSJp7zJNv3nY2PR_o8O0aWszqwUskJWsvDz5-_eKsrKJwxVcyR1e1gXjlqg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/4LGtaM1YH9QHwmkJ8Naxf4ROSJp7zJNv3nY2PR_o8O0aWszqwUskJWsvDz5-_eKsrKJwxVcyR1e1gXjlqg=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Beaten",
+            subscribers: Some(
+                "5 subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCCzQfznqMBvMSEaCpHUk2xA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/K04Y9TAqzu04JdAUWt2tzDYUjm183c32GCuAeRwYLfoa6ofLBvN3n5Rx80_cWMXf17l_VtSSpWUXWih0aw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/K04Y9TAqzu04JdAUWt2tzDYUjm183c32GCuAeRwYLfoa6ofLBvN3n5Rx80_cWMXf17l_VtSSpWUXWih0aw=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "The Beaten Track",
+            subscribers: Some(
+                "29 subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCpKYFnC3Y1tMu27lK5R9wWQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/M-D8bjoy8djVM0-RFPw-uHpGZCZ41WicnmqOWfTDVBq03J_rl727qsfemfs6irrB019QisuiRKzb4T2NKQ=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/M-D8bjoy8djVM0-RFPw-uHpGZCZ41WicnmqOWfTDVBq03J_rl727qsfemfs6irrB019QisuiRKzb4T2NKQ=w120-h120-l90-rj",
+                },
+            ],
+        },
+    ],
+    albums: [
+        SearchResultAlbum {
+            title: "Buweloboy",
+            artist: "Beaten",
+            year: "2024",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_iS75Bo8pzeB",
+            ),
+            album_type: Single,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/-P8xzA828EUOXN6Cfa__F3SbjdU7tkeV7dV7b-yqRL32lpRtljq-0C6wrDHEo9h0IqygKlfER7FZu0uwig=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/-P8xzA828EUOXN6Cfa__F3SbjdU7tkeV7dV7b-yqRL32lpRtljq-0C6wrDHEo9h0IqygKlfER7FZu0uwig=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/-P8xzA828EUOXN6Cfa__F3SbjdU7tkeV7dV7b-yqRL32lpRtljq-0C6wrDHEo9h0IqygKlfER7FZu0uwig=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/-P8xzA828EUOXN6Cfa__F3SbjdU7tkeV7dV7b-yqRL32lpRtljq-0C6wrDHEo9h0IqygKlfER7FZu0uwig=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "Swørn",
+            artist: "Beaten",
+            year: "2023",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_MmR2XjdNKWL",
+            ),
+            album_type: Single,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/gqWCfd9NQgIc3g9E5WXuIfkcyNrncDR4-UIcgnPbXMs15yLNLIifjIY-V5UTLyr3IYmyNycEtc_sju8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/gqWCfd9NQgIc3g9E5WXuIfkcyNrncDR4-UIcgnPbXMs15yLNLIifjIY-V5UTLyr3IYmyNycEtc_sju8=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/gqWCfd9NQgIc3g9E5WXuIfkcyNrncDR4-UIcgnPbXMs15yLNLIifjIY-V5UTLyr3IYmyNycEtc_sju8=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/gqWCfd9NQgIc3g9E5WXuIfkcyNrncDR4-UIcgnPbXMs15yLNLIifjIY-V5UTLyr3IYmyNycEtc_sju8=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "STeXeN",
+            artist: "Beaten",
+            year: "2024",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_SLDHqv8rRfF",
+            ),
+            album_type: Single,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/WGapEkXRtN3YBJqC9RJ4yMphUiwq2QvbouppsJCda3wqiSmnIUha8NTE4ogw9Mqw5JkQQywzxCh4pzgP=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/WGapEkXRtN3YBJqC9RJ4yMphUiwq2QvbouppsJCda3wqiSmnIUha8NTE4ogw9Mqw5JkQQywzxCh4pzgP=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/WGapEkXRtN3YBJqC9RJ4yMphUiwq2QvbouppsJCda3wqiSmnIUha8NTE4ogw9Mqw5JkQQywzxCh4pzgP=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/WGapEkXRtN3YBJqC9RJ4yMphUiwq2QvbouppsJCda3wqiSmnIUha8NTE4ogw9Mqw5JkQQywzxCh4pzgP=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    featured_playlists: [
+        SearchResultFeaturedPlaylist {
+            title: "Left Brain, Right Beat",
+            author: "YouTube Music",
+            songs: "98 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_k16Jz1rrCopbgWM2ajYI8KFyLHgbBVVMk",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/BX4RBh-N1Sn6yoTYaN4ybU0iubzvSj46348fIMv4f1vsQdju7RJEYaAOcVC9K0FS9r_0EZTqpJMOHoU=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/BX4RBh-N1Sn6yoTYaN4ybU0iubzvSj46348fIMv4f1vsQdju7RJEYaAOcVC9K0FS9r_0EZTqpJMOHoU=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/BX4RBh-N1Sn6yoTYaN4ybU0iubzvSj46348fIMv4f1vsQdju7RJEYaAOcVC9K0FS9r_0EZTqpJMOHoU=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/BX4RBh-N1Sn6yoTYaN4ybU0iubzvSj46348fIMv4f1vsQdju7RJEYaAOcVC9K0FS9r_0EZTqpJMOHoU=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Instrumental Hip Hop",
+            author: "YouTube Music",
+            songs: "72 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_nP64-u5MXfV4txrErGCxucDQ9iyAnE9F4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L2LWseeZ5Q17CkIXBFDFkrpE1GpUE1LfoQPjUVGsgj2v4_iBTD7076mKgNW1AK9eZCCdJJI6UB-QNQ=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L2LWseeZ5Q17CkIXBFDFkrpE1GpUE1LfoQPjUVGsgj2v4_iBTD7076mKgNW1AK9eZCCdJJI6UB-QNQ=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/L2LWseeZ5Q17CkIXBFDFkrpE1GpUE1LfoQPjUVGsgj2v4_iBTD7076mKgNW1AK9eZCCdJJI6UB-QNQ=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/L2LWseeZ5Q17CkIXBFDFkrpE1GpUE1LfoQPjUVGsgj2v4_iBTD7076mKgNW1AK9eZCCdJJI6UB-QNQ=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Tollywood Party",
+            author: "YouTube Music",
+            songs: "40 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_nGC5IUV3lYF-P_wGb-LzMPFydA-RkPblc",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/5zL-CQSujkztXILtvo6JelZeDePj1QdQ4j04K9hukM6_6qan5GvBBCHjQ92ynPSKhvbfiLgnzNLiHA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/5zL-CQSujkztXILtvo6JelZeDePj1QdQ4j04K9hukM6_6qan5GvBBCHjQ92ynPSKhvbfiLgnzNLiHA=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/5zL-CQSujkztXILtvo6JelZeDePj1QdQ4j04K9hukM6_6qan5GvBBCHjQ92ynPSKhvbfiLgnzNLiHA=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 512,
+                    width: 512,
+                    url: "https://lh3.googleusercontent.com/5zL-CQSujkztXILtvo6JelZeDePj1QdQ4j04K9hukM6_6qan5GvBBCHjQ92ynPSKhvbfiLgnzNLiHA=w512-h512-l90-rj",
+                },
+            ],
+        },
+    ],
+    community_playlists: [
+        SearchResultCommunityPlaylist {
+            title: "Beaten In Lips",
+            author: "Khaya Murphy",
+            views: "158 views",
+            playlist_id: PlaylistID(
+                "VLPL0foXylfYKx6Z_iDVvcL2gXxDobrXuxsh",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s1200",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "Mara  beat",
+            author: "Abdulbasit Abdulwahab",
+            views: "56K views",
+            playlist_id: PlaylistID(
+                "VLPLv6zItff9F7SKANBJ1yK_FYIGm_4Xg-7f",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s1200",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "Beating Again Best Bits",
+            author: "TroubleMcTrouble",
+            views: "51K views",
+            playlist_id: PlaylistID(
+                "VLPLwlfAxK4NisNl0Xi8U9CbP6Cq05dlRUk3",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mBuh_6b-4ikO7JhYZwvD-nN5zPXQ",
+                },
+                Thumbnail {
+                    height: 240,
+                    width: 426,
+                    url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k6losySYtaw6VCKDItkrmFqXlzIA",
+                },
+            ],
+        },
+    ],
+    songs: [
+        SearchResultSong {
+            title: "For the Beaten",
+            artist: "Filter",
+            album: "For the Beaten",
+            duration: "3:32",
+            plays: "180K plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "ldZfRRud9UI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/_hN7Igku-lm8Ua85ptQ6CkZDok1MN_QsOsc2hQl7q_v1B_WjD4d2GeDUMCYquXgYUZLtDyXFUznRYaI=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/_hN7Igku-lm8Ua85ptQ6CkZDok1MN_QsOsc2hQl7q_v1B_WjD4d2GeDUMCYquXgYUZLtDyXFUznRYaI=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Beaten",
+            artist: "Biohazard",
+            album: "Alternative Metal Giants",
+            duration: "3:11",
+            plays: "19K plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "eUiis5br2Yk",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/SV79XMu-sQjsgrRoP4mpeRUZSn3iqtg50s3YZPrBhKU7EcijWOqIb2ZYSPDFP424nxiBSUgNKMEODV0l=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/SV79XMu-sQjsgrRoP4mpeRUZSn3iqtg50s3YZPrBhKU7EcijWOqIb2ZYSPDFP424nxiBSUgNKMEODV0l=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Beat It",
+            artist: "Michael Jackson",
+            album: "Thriller",
+            duration: "4:19",
+            plays: "1.5B plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "kOn-HdEg6AQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w120-h120-l90-rj",
+                },
+            ],
+        },
+    ],
+    videos: [
+        Video {
+            title: "Silkboss - Beaten (Official Video) ft. Rytikal & Rhumba",
+            channel_name: "TRENDI DON ENT",
+            video_id: VideoID(
+                "cDGi01NkG3k",
+            ),
+            views: "164K views",
+            length: "3:04",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/cDGi01NkG3k/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mDI1b-hLkbS6UU0HzDtQcNii9tFw",
+                },
+            ],
+        },
+        Video {
+            title: "Mother's Cake - Off The Beaten Track (Full Album)",
+            channel_name: "Mother's Cake",
+            video_id: VideoID(
+                "sOd154X302Y",
+            ),
+            views: "387K views",
+            length: "41:09",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/sOd154X302Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mKZ_b96mc4846aErD_bNU0-4Uu6w",
+                },
+            ],
+        },
+        Video {
+            title: "Off The Beaten Track",
+            channel_name: "Derek Ryan",
+            video_id: VideoID(
+                "OU-RVu3aBMk",
+            ),
+            views: "23K views",
+            length: "2:55",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/OU-RVu3aBMk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nl1-h8WoQOB9Dbjle2vqcTTuVSGA",
+                },
+            ],
+        },
+    ],
+    podcasts: [],
+    episodes: [],
+    profiles: [],
+}
