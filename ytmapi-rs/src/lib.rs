@@ -355,7 +355,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
-        query.call(self).await
+        Q::Output::parse_from(self.processed_query(query).await?)
     }
 }
 // TODO: Keep session alive after calling these methods.

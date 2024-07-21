@@ -30,12 +30,6 @@ pub trait Query<A: AuthToken> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
-    fn call(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
-    where
-        Self: Sized,
-    {
-        async { Self::Output::parse_from(yt.processed_query(self).await?) }
-    }
 }
 
 pub mod album {
