@@ -4,16 +4,17 @@ use config::{ApiKey, Config};
 use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
-use std::path::PathBuf;
+use std::{path::PathBuf, process::ExitCode};
 use ytmapi_rs::auth::{AuthToken, BrowserToken, OAuthToken};
 
+mod api;
 mod app;
 mod appevent;
 mod cli;
 mod config;
 mod core;
 mod drawutils;
-pub mod error;
+mod error;
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -172,12 +173,13 @@ pub struct RuntimeInfo {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> ExitCode {
     // Using try block to print error using Display instead of Debug.
     if let Err(e) = try_main().await {
         println!("{e}");
-        // XXX: Return error code?
+        return ExitCode::FAILURE;
     };
+    ExitCode::SUCCESS
 }
 
 // Main function is refactored here so that we can pretty print errors.

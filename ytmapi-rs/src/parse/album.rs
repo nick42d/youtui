@@ -1,5 +1,4 @@
 use super::{parse_item_text, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
-use crate::auth::AuthToken;
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
@@ -77,10 +76,8 @@ pub struct AlbumParams {
     pub library_status: LibraryStatus,
 }
 
-impl<'a, A: AuthToken> ParseFrom<GetAlbumQuery<'a>, A> for AlbumParams {
-    fn parse_from(
-        p: ProcessedResult<GetAlbumQuery<'a>>,
-    ) -> crate::Result<<GetAlbumQuery<'a> as Query<A>>::Output> {
+impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+    fn parse_from(p: ProcessedResult<GetAlbumQuery<'a>>) -> crate::Result<Self> {
         parse_album_query_2024(p)
     }
 }

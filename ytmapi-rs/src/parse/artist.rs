@@ -81,13 +81,11 @@ fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> 
     Ok(GetArtistSongs { results, browse_id })
 }
 
-impl<'a, A: AuthToken> ParseFrom<GetArtistQuery<'a>, A> for ArtistParams {
+impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
     // While this function gets improved, we'll allow this lint for the creation of
     // GetArtistTopReleases.
     #[allow(clippy::field_reassign_with_default)]
-    fn parse_from(
-        p: ProcessedResult<GetArtistQuery<'a>>,
-    ) -> crate::Result<<GetArtistQuery<'a> as Query<A>>::Output> {
+    fn parse_from(p: ProcessedResult<GetArtistQuery<'a>>) -> crate::Result<Self> {
         // TODO: Make this optional.
         let mut json_crawler: JsonCrawler = p.into();
         let mut results =
@@ -598,10 +596,8 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
         .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
         .collect()
 }
-impl<'a, A: AuthToken> ParseFrom<GetArtistAlbumsQuery<'a>, A> for Vec<crate::Album> {
-    fn parse_from(
-        p: ProcessedResult<GetArtistAlbumsQuery<'a>>,
-    ) -> crate::Result<<GetArtistAlbumsQuery<'a> as Query<A>>::Output> {
+impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+    fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         let mut albums = Vec::new();
         let mut json_crawler = json_crawler.navigate_pointer(concatcp!(

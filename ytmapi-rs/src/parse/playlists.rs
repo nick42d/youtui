@@ -52,29 +52,19 @@ pub struct AddPlaylistItem {
     pub set_video_id: SetVideoID<'static>,
 }
 
-impl<'a, A: AuthToken> ParseFrom<RemovePlaylistItemsQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        _: ProcessedResult<RemovePlaylistItemsQuery<'a>>,
-    ) -> crate::Result<<RemovePlaylistItemsQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
+    fn parse_from(_: ProcessedResult<RemovePlaylistItemsQuery<'a>>) -> crate::Result<Self> {
         Ok(ApiSuccess)
     }
 }
-impl<'a, A: AuthToken, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>, A>
-    for PlaylistID<'static>
-{
-    fn parse_from(
-        p: ProcessedResult<CreatePlaylistQuery<'a, C>>,
-    ) -> crate::Result<<CreatePlaylistQuery<'a, C> as crate::query::Query<A>>::Output> {
+impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
+    fn parse_from(p: ProcessedResult<CreatePlaylistQuery<'a, C>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
         json_crawler.take_value_pointer("/playlistId")
     }
 }
-impl<'a, A: AuthToken, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>, A>
-    for Vec<AddPlaylistItem>
-{
-    fn parse_from(
-        p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>,
-    ) -> crate::Result<<AddPlaylistItemsQuery<'a, T> as crate::query::Query<A>>::Output> {
+impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
+    fn parse_from(p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
         let status: String = json_crawler.borrow_pointer("/status")?.take_value()?;
         match status.as_str() {
@@ -99,10 +89,8 @@ impl<'a, A: AuthToken, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, 
             .collect()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<EditPlaylistQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        p: ProcessedResult<EditPlaylistQuery<'a>>,
-    ) -> crate::Result<<EditPlaylistQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiSuccess {
+    fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         let status: String = json_crawler.navigate_pointer("/status")?.take_value()?;
         match status.as_str() {
@@ -113,18 +101,14 @@ impl<'a, A: AuthToken> ParseFrom<EditPlaylistQuery<'a>, A> for ApiSuccess {
         }
     }
 }
-impl<'a, A: AuthToken> ParseFrom<DeletePlaylistQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        _: ProcessedResult<DeletePlaylistQuery<'a>>,
-    ) -> crate::Result<<DeletePlaylistQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
+    fn parse_from(_: ProcessedResult<DeletePlaylistQuery<'a>>) -> crate::Result<Self> {
         Ok(ApiSuccess)
     }
 }
 
-impl<'a, A: AuthToken> ParseFrom<GetPlaylistQuery<'a>, A> for GetPlaylist {
-    fn parse_from(
-        p: ProcessedResult<GetPlaylistQuery<'a>>,
-    ) -> crate::Result<<GetPlaylistQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
+    fn parse_from(p: ProcessedResult<GetPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         if json_crawler.path_exists("/header") {
             get_playlist(json_crawler)

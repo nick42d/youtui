@@ -753,10 +753,8 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
             .collect()
     }
 }
-impl<'a, A: AuthToken, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>, A> for SearchResults {
-    fn parse_from(
-        p: ProcessedResult<SearchQuery<'a, S>>,
-    ) -> crate::Result<<SearchQuery<'a, S> as Query<A>>::Output> {
+impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResults {
+    fn parse_from(p: ProcessedResult<SearchQuery<'a, S>>) -> crate::Result<Self> {
         let section_list_contents = BasicSearchSectionListContents::try_from(p)?;
         if section_list_contents_is_empty(&section_list_contents) {
             return Ok(Self::default());
@@ -765,12 +763,10 @@ impl<'a, A: AuthToken, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>, A>
     }
 }
 
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>, A>
-    for Vec<SearchResultArtist>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<SearchResultArtist> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<ArtistsFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -778,12 +774,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>,
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>, A>
-    for Vec<SearchResultProfile>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> for Vec<SearchResultProfile> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<ProfilesFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -791,12 +785,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>, A>
-    for Vec<SearchResultAlbum>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<SearchResultAlbum> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<AlbumsFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -804,12 +796,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>, 
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>, A>
-    for Vec<SearchResultSong>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<SearchResultSong> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<SongsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<SongsFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -817,12 +807,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>, A
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>, A>
-    for Vec<SearchResultVideo>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<SearchResultVideo> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<VideosFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<VideosFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -830,12 +818,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>, 
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>, A>
-    for Vec<SearchResultEpisode>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>> for Vec<SearchResultEpisode> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<EpisodesFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -843,12 +829,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>, A>
-    for Vec<SearchResultPodcast>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>> for Vec<SearchResultPodcast> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<PodcastsFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -856,14 +840,12 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>, A>
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
     for Vec<SearchResultPlaylist>
 {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
-    ) -> crate::Result<
-        <SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> as Query<A>>::Output,
-    > {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -871,13 +853,12 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylis
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>, A>
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
     for Vec<SearchResultFeaturedPlaylist>
 {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> as Query<A>>::Output>
-    {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -885,12 +866,10 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylist
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>, A>
-    for Vec<SearchResultPlaylist>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<SearchResultPlaylist> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>,
-    ) -> crate::Result<<SearchQuery<'a, FilteredSearch<PlaylistsFilter>> as Query<A>>::Output> {
+    ) -> crate::Result<Self> {
         let section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&section_contents) {
             return Ok(Vec::new());
@@ -899,10 +878,8 @@ impl<'a, A: AuthToken> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>
     }
 }
 
-impl<'a, A: AuthToken> ParseFrom<GetSearchSuggestionsQuery<'a>, A> for Vec<SearchSuggestion> {
-    fn parse_from(
-        p: ProcessedResult<GetSearchSuggestionsQuery<'a>>,
-    ) -> crate::Result<<GetSearchSuggestionsQuery<'a> as Query<A>>::Output> {
+impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
+    fn parse_from(p: ProcessedResult<GetSearchSuggestionsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;

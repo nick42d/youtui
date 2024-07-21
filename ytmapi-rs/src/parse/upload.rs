@@ -92,10 +92,8 @@ pub struct GetLibraryUploadAlbumSong {
     pub like_status: LikeStatus,
 }
 
-impl<A: AuthToken> ParseFrom<GetLibraryUploadSongsQuery, A> for Vec<TableListUploadSong> {
-    fn parse_from(
-        p: super::ProcessedResult<GetLibraryUploadSongsQuery>,
-    ) -> Result<<GetLibraryUploadSongsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
+    fn parse_from(p: super::ProcessedResult<GetLibraryUploadSongsQuery>) -> Result<Self> {
         let crawler: JsonCrawler = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
@@ -119,10 +117,8 @@ impl<A: AuthToken> ParseFrom<GetLibraryUploadSongsQuery, A> for Vec<TableListUpl
             .collect()
     }
 }
-impl<A: AuthToken> ParseFrom<GetLibraryUploadAlbumsQuery, A> for Vec<UploadAlbum> {
-    fn parse_from(
-        p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>,
-    ) -> Result<<GetLibraryUploadAlbumsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
+    fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>) -> Result<Self> {
         fn parse_item_list_upload_album(mut json_crawler: JsonCrawler) -> Result<UploadAlbum> {
             let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
             let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -153,10 +149,8 @@ impl<A: AuthToken> ParseFrom<GetLibraryUploadAlbumsQuery, A> for Vec<UploadAlbum
             .collect()
     }
 }
-impl<A: AuthToken> ParseFrom<GetLibraryUploadArtistsQuery, A> for Vec<UploadArtist> {
-    fn parse_from(
-        p: super::ProcessedResult<GetLibraryUploadArtistsQuery>,
-    ) -> Result<<GetLibraryUploadArtistsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
+    fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
         fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
             let artist_name = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
@@ -183,10 +177,8 @@ impl<A: AuthToken> ParseFrom<GetLibraryUploadArtistsQuery, A> for Vec<UploadArti
             .collect()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<GetLibraryUploadAlbumQuery<'a>, A> for GetLibraryUploadAlbum {
-    fn parse_from(
-        p: super::ProcessedResult<GetLibraryUploadAlbumQuery>,
-    ) -> Result<<GetLibraryUploadAlbumQuery as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
+    fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumQuery>) -> Result<Self> {
         fn parse_playlist_upload_song(
             mut json_crawler: JsonCrawler,
         ) -> Result<GetLibraryUploadAlbumSong> {
@@ -247,10 +239,8 @@ impl<'a, A: AuthToken> ParseFrom<GetLibraryUploadAlbumQuery<'a>, A> for GetLibra
         })
     }
 }
-impl<'a, A: AuthToken> ParseFrom<GetLibraryUploadArtistQuery<'a>, A> for Vec<TableListUploadSong> {
-    fn parse_from(
-        p: super::ProcessedResult<GetLibraryUploadArtistQuery>,
-    ) -> Result<<GetLibraryUploadArtistQuery as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
+    fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistQuery>) -> Result<Self> {
         let crawler: JsonCrawler = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
@@ -274,10 +264,8 @@ impl<'a, A: AuthToken> ParseFrom<GetLibraryUploadArtistQuery<'a>, A> for Vec<Tab
             .collect()
     }
 }
-impl<'a, A: AuthToken> ParseFrom<DeleteUploadEntityQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>,
-    ) -> crate::Result<<DeleteUploadEntityQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
+    fn parse_from(p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>) -> crate::Result<Self> {
         let crawler: JsonCrawler = p.into();
         // Passing an invalid entity ID with will throw a 400 error which
         // is caught by AuthToken.

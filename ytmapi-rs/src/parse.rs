@@ -31,12 +31,8 @@ mod upload;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->
 // String API.
-pub trait ParseFrom<Q, A>: Debug
-where
-    Q: Query<A>,
-    A: AuthToken,
-{
-    fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Q::Output>;
+pub trait ParseFrom<Q>: Debug + Sized {
+    fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -355,10 +351,8 @@ mod lyrics {
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
 
-    impl<'a, A: AuthToken> ParseFrom<GetLyricsQuery<'a>, A> for Lyrics {
-        fn parse_from(
-            p: ProcessedResult<GetLyricsQuery<'a>>,
-        ) -> crate::Result<<GetLyricsQuery<'a> as crate::query::Query<A>>::Output> {
+    impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
+        fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
             let json_crawler: JsonCrawler = p.into();
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
                 "/contents",
@@ -415,12 +409,8 @@ mod watch {
 
     use super::{ParseFrom, ProcessedResult};
 
-    impl<A: AuthToken, T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>, A>
-        for WatchPlaylist
-    {
-        fn parse_from(
-            p: ProcessedResult<GetWatchPlaylistQuery<T>>,
-        ) -> crate::Result<<GetWatchPlaylistQuery<T> as crate::query::Query<A>>::Output> {
+    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
+        fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;

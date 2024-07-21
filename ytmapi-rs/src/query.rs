@@ -24,7 +24,7 @@ mod upload;
 pub trait Query<A: AuthToken> {
     // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
     // this into a trait object.
-    type Output: ParseFrom<Self, A>
+    type Output: ParseFrom<Self>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
@@ -91,11 +91,10 @@ pub mod continuations {
         continuation_params: String,
         query: Q,
     }
-    impl<'a, A: AuthToken> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>, A> for () {
+    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
         fn parse_from(
             _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
-        ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query<A>>::Output>
-        {
+        ) -> crate::Result<Self> {
             todo!()
         }
     }

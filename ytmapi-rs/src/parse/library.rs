@@ -30,54 +30,40 @@ pub struct GetLibraryArtistSubscription {
     pub thumbnails: Vec<Thumbnail>,
 }
 
-impl<A: AuthToken> ParseFrom<GetLibraryArtistSubscriptionsQuery, A>
-    for Vec<GetLibraryArtistSubscription>
-{
-    fn parse_from(
-        p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>,
-    ) -> crate::Result<<GetLibraryArtistSubscriptionsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
+    fn parse_from(p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artist_subscriptions(json_crawler)
     }
 }
 
-impl<A: AuthToken> ParseFrom<GetLibraryAlbumsQuery, A> for Vec<SearchResultAlbum> {
-    fn parse_from(
-        p: ProcessedResult<GetLibraryAlbumsQuery>,
-    ) -> crate::Result<<GetLibraryAlbumsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
+    fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_albums(json_crawler)
     }
 }
 
-impl<A: AuthToken> ParseFrom<GetLibrarySongsQuery, A> for Vec<TableListSong> {
-    fn parse_from(
-        p: ProcessedResult<GetLibrarySongsQuery>,
-    ) -> crate::Result<<GetLibrarySongsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
+    fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_songs(json_crawler)
     }
 }
 
-impl<A: AuthToken> ParseFrom<GetLibraryArtistsQuery, A> for Vec<LibraryArtist> {
-    fn parse_from(
-        p: ProcessedResult<GetLibraryArtistsQuery>,
-    ) -> crate::Result<<GetLibraryArtistsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+    fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artists(json_crawler)
     }
 }
 
-impl<'a, A: AuthToken> ParseFrom<EditSongLibraryStatusQuery<'a>, A>
-    for Vec<crate::Result<ApiSuccess>>
-{
-    fn parse_from(
-        p: super::ProcessedResult<EditSongLibraryStatusQuery>,
-    ) -> crate::Result<<EditSongLibraryStatusQuery as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSuccess>> {
+    fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> crate::Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
@@ -98,10 +84,8 @@ impl<'a, A: AuthToken> ParseFrom<EditSongLibraryStatusQuery<'a>, A>
     }
 }
 
-impl<A: AuthToken> ParseFrom<GetLibraryPlaylistsQuery, A> for Vec<Playlist> {
-    fn parse_from(
-        p: ProcessedResult<GetLibraryPlaylistsQuery>,
-    ) -> crate::Result<<GetLibraryPlaylistsQuery as crate::query::Query<A>>::Output> {
+impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+    fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         // TODO: Implement count and author fields
         let json_crawler = p.into();
