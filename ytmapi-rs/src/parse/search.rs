@@ -189,15 +189,17 @@ fn parse_top_results_from_music_card_shelf_contents(
         plays,
     };
     // End - first result parsing.
-    // TODO: Improve efficiency.
     results.push(first_result);
-    let mut other_results = music_shelf_contents
-        .navigate_pointer("/contents")?
-        .as_array_iter_mut()?
-        .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
-        // TODO: Remove allocation.
-        .collect::<Result<Vec<_>>>()?;
-    results.append(&mut other_results);
+    // Other results may not exist.
+    if let Ok(mut contents) = music_shelf_contents.navigate_pointer("/contents") {
+        contents
+            .as_array_iter_mut()?
+            .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
+            .try_for_each(|r| -> Result<()> {
+                results.push(r?);
+                Ok(())
+            })?;
+    }
     Ok(results)
 }
 // TODO: Tests

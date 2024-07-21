@@ -21,6 +21,16 @@ async fn test_search_basic_top_result_no_type() {
         BrowserToken
     );
 }
+#[tokio::test]
+async fn test_search_basic_top_result_card() {
+    // Case where there is only a 'card' top result, with no children.
+    parse_test!(
+        "./test_json/search_basic_top_result_card_20240721.json",
+        "./test_json/search_basic_top_result_card_20240721_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
 
 #[tokio::test]
 async fn test_search_artists_empty() {

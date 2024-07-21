@@ -63,10 +63,10 @@ macro_rules! generate_query_test {
                     .expect("Expected query to run succesfully under oauth");
             };
             let browser_auth_future = async {
-                let api = crate::utils::new_standard_api()
+                let api = crate::utils::new_standard_api().await.unwrap();
+                api.query($query)
                     .await
                     .expect("Expected query to run succesfully under browser auth");
-                api.query($query).await.unwrap();
             };
             tokio::join!(oauth_future, browser_auth_future);
         }
