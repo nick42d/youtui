@@ -19,30 +19,55 @@ impl DynamicYtMusic {
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
     {
-        let res = match self {
+        match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await,
             DynamicYtMusic::OAuth(yt) => yt.query(query).await,
-        };
-        res
+        }
     }
     pub async fn browser_query<Q>(&self, query: Q) -> ytmapi_rs::Result<Q::Output>
     where
         Q: Query<BrowserToken>,
     {
-        let res = match self {
+        match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await,
             DynamicYtMusic::OAuth(_) => panic!("Should return an error"),
-        };
-        res
+        }
     }
     pub async fn oauth_query<Q>(&self, query: Q) -> ytmapi_rs::Result<Q::Output>
     where
         Q: Query<OAuthToken>,
     {
-        let res = match self {
+        match self {
             DynamicYtMusic::Browser(_) => panic!("Should return an error"),
             DynamicYtMusic::OAuth(yt) => yt.query(query).await,
-        };
-        res
+        }
+    }
+    pub async fn query_source<Q, O>(&self, query: Q) -> ytmapi_rs::Result<String>
+    where
+        Q: Query<BrowserToken, Output = O>,
+        Q: Query<OAuthToken, Output = O>,
+    {
+        match self {
+            DynamicYtMusic::Browser(yt) => yt.raw_query(query).await.map(|r| r.destructure_json()),
+            DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json()),
+        }
+    }
+    pub async fn browser_query_source<Q>(&self, query: Q) -> ytmapi_rs::Result<String>
+    where
+        Q: Query<BrowserToken>,
+    {
+        match self {
+            DynamicYtMusic::Browser(yt) => yt.raw_query(query).await.map(|r| r.destructure_json()),
+            DynamicYtMusic::OAuth(_) => panic!("Should return an error"),
+        }
+    }
+    pub async fn oauth_query_source<Q>(&self, query: Q) -> ytmapi_rs::Result<String>
+    where
+        Q: Query<OAuthToken>,
+    {
+        match self {
+            DynamicYtMusic::Browser(_) => panic!("Should return an error"),
+            DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json()),
+        }
     }
 }
