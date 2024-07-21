@@ -220,25 +220,23 @@ async fn try_main() -> Result<()> {
     Ok(())
 }
 
-async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic<BrowserToken>> {
+async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.get_auth_type() {
         config::AuthType::OAuth =>
-        // TODO: Add OAutho back in
         {
-            unimplemented!()
-        }
-        // {
-        //     let mut oauth_loc = PathBuf::from(confdir);
-        //     oauth_loc.push(OAUTH_FILENAME);
-        //     let file = tokio::fs::read_to_string(oauth_loc).await?;
-        //     let oath_tok = serde_json::from_str(&file)?;
-        //     ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
-        // }
+            let mut oauth_loc = PathBuf::from(confdir);
+            oauth_loc.push(OAUTH_FILENAME);
+            let file = tokio::fs::read_to_string(oauth_loc).await?;
+            let oath_tok = serde_json::from_str(&file)?;
+            let api = ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
+            api::DynamicYtMusic::OAuth(api)
+        },
         config::AuthType::Browser => {
             let mut cookies_loc = PathBuf::from(confdir);
             cookies_loc.push(COOKIE_FILENAME);
-            ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?
+            let api = ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?
+            api::DynamicYtMusic::Browser(api)
         }
     };
     Ok(api)

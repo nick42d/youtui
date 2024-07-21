@@ -1,6 +1,10 @@
 use crate::config::AuthType;
 use std::{fmt::Display, path::PathBuf};
 use tokio::{sync::mpsc, task::JoinError};
+use ytmapi_rs::{
+    auth::{AuthToken, BrowserToken, OAuthToken},
+    query::{self, Query},
+};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -16,6 +20,11 @@ pub enum Error {
     ApiError(ytmapi_rs::Error),
     JsonError(serde_json::Error),
     TomlDeserializationError(toml::de::Error),
+    WrongAuthType {
+        current_authtype: AuthType,
+        supported_authtype: AuthType,
+        query_type: &'static str,
+    },
     AuthTokenError {
         token_type: AuthType,
         token_location: PathBuf,
@@ -33,6 +42,26 @@ pub enum Error {
     Other(String),
 }
 impl Error {
+    pub fn new_wrong_auth_token_error_browser<Q: Query<BrowserToken>>(query: Q) -> Self {
+        let current_authtype = AuthType::Browser;
+        let supported_authtype = current_authtype.get_inverse();
+        let query_type = std::any::type_name::<Q>();
+        Self::WrongAuthType {
+            current_authtype,
+            supported_authtype,
+            query_type,
+        }
+    }
+    pub fn new_wrong_auth_token_error_oauth<Q: Query<OAuthToken>>(query: Q) -> Self {
+        let current_authtype = AuthType::OAuth;
+        let supported_authtype = current_authtype.get_inverse();
+        let query_type = std::any::type_name::<Q>();
+        Self::WrongAuthType {
+            current_authtype,
+            supported_authtype,
+            query_type,
+        }
+    }
     // Consider taking into pathbuf.
     pub fn new_auth_token_error(
         token_type: AuthType,
@@ -77,6 +106,7 @@ impl Display for Error {
             Error::AuthTokenError { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::AuthTokenParseError { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::ErrorCreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
+            Error::WrongAuthType { current_authtype, supported_authtype, query_type } => write!(f, "Query <{query_type}> not supported on auth type {:?}. Supported auth types: {:?}",current_authtype, supported_authtype),
         }
     }
 }

@@ -48,3 +48,14 @@ impl Config {
         self.auth_type
     }
 }
+
+impl AuthType {
+    /// For the authtype, return the inverse, ie all AuthTypes that are not
+    /// self.
+    pub fn get_inverse(&self) -> AuthType {
+        match self {
+            AuthType::OAuth => AuthType::OAuth,
+            AuthType::Browser => AuthType::Browser,
+        }
+    }
+}

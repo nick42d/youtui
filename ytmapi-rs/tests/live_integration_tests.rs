@@ -383,8 +383,7 @@ async fn test_edit_playlist() {
         ))
         .await
         .unwrap();
-    EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT")
-        .call(&api)
+    api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();

@@ -1,10 +1,10 @@
 use ytmapi_rs::{
-    auth::AuthToken,
+    auth::{AuthToken, BrowserToken, OAuthToken},
     common::{
         AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
         PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
     },
-    parse::LikeStatus,
+    parse::{LikeStatus, ParseFrom},
     process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
@@ -22,7 +22,7 @@ use ytmapi_rs::{
     ChannelID, VideoID, YtMusic,
 };
 
-use crate::Command;
+use crate::{api::DynamicYtMusic, Command};
 
 pub struct CliQuery {
     pub query_type: QueryType,
@@ -34,10 +34,10 @@ pub enum QueryType {
     FromApi,
 }
 
-pub async fn command_to_query<A: AuthToken>(
+pub async fn command_to_query(
     command: Command,
     cli_query: CliQuery,
-    yt: &YtMusic<A>,
+    yt: DynamicYtMusic,
 ) -> crate::Result<String> {
     match command {
         Command::GetSearchSuggestions { query } => {
@@ -359,20 +359,21 @@ pub async fn command_to_query<A: AuthToken>(
     }
 }
 
-async fn get_string_output_of_query<Q: Query<A>, A: AuthToken>(
-    yt: &YtMusic<A>,
+async fn get_string_output_of_query<Q, O>(
+    yt: DynamicYtMusic,
     q: Q,
     cli_query: CliQuery,
-) -> crate::Result<String> {
+) -> crate::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
     match cli_query {
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt
-            .raw_query(q)
-            .await
-            .map(|r| r.destructure_json())
-            .map_err(|e| e.into()),
+        } => yt.query_source(q).await.map_err(|e| e.into()),
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
