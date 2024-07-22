@@ -19,6 +19,8 @@ pub mod constants {
 use constants::YTM_URL;
 use sha1::{Digest, Sha1};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+pub mod process_results;
 /// Calculates the Authorization hash from Google's SAPISID.
 /// https://stackoverflow.com/a/32065323/5726546
 /// Returns "{elapsed_since_epoch}_{hashed_sapisid}"

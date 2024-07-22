@@ -86,7 +86,10 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 
+// NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
+// recommendations.
 generate_query_test!(test_get_history, GetHistoryQuery);
+generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
 generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))

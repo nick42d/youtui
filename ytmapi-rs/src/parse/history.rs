@@ -16,7 +16,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
         // If parse_playlist_items returns Vec<Result<SongResult>> or
         // parse_playlist_item function created, we could call potentiall call
         // flatten().collect() directly
-        // May require itertools::flatten_ok() for this.
+        // May require itertools::flatten_ok() or itertools::process_results for this.
         let nested_res: crate::Result<Vec<Vec<TableListItem>>> = contents
             .into_array_into_iter()?
             .map(|c| {

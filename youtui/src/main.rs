@@ -5,7 +5,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::{path::PathBuf, process::ExitCode};
-use ytmapi_rs::auth::{OAuthToken};
+use ytmapi_rs::auth::OAuthToken;
 
 mod api;
 mod app;
@@ -163,6 +163,11 @@ enum Command {
     },
     DeleteUploadEntity {
         upload_entity_id: String,
+    },
+    GetTasteProfile,
+    SetTasteProfile {
+        impression_token: String,
+        selection_token: String,
     },
 }
 
