@@ -1,5 +1,5 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
-use crate::{error::Error, Result};
+use crate::{config::AuthType, error::Error, Result};
 use ytmapi_rs::{
     auth::{AuthToken, BrowserToken, OAuthToken},
     parse::ParseFrom,
@@ -31,7 +31,10 @@ impl DynamicYtMusic {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
             DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(query))
+                return Err(Error::new_wrong_auth_token_error_browser(
+                    query,
+                    AuthType::OAuth,
+                ))
             }
         })
     }
@@ -40,10 +43,13 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(_) => panic!("Should return an error"),
-            DynamicYtMusic::OAuth(yt) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(query))
+            DynamicYtMusic::Browser(_) => {
+                return Err(Error::new_wrong_auth_token_error_oauth(
+                    query,
+                    AuthType::Browser,
+                ))
             }
+            DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
     }
     pub async fn query_source<Q, O>(&self, query: Q) -> Result<String>
@@ -67,7 +73,10 @@ impl DynamicYtMusic {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
             DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(query))
+                return Err(Error::new_wrong_auth_token_error_browser(
+                    query,
+                    AuthType::OAuth,
+                ))
             }
         })
     }
@@ -77,7 +86,10 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(query))
+                return Err(Error::new_wrong_auth_token_error_oauth(
+                    query,
+                    AuthType::Browser,
+                ))
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })

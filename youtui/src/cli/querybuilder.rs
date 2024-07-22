@@ -1,3 +1,4 @@
+use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
     auth::{AuthToken, BrowserToken, OAuthToken},
     common::{
@@ -21,8 +22,6 @@ use ytmapi_rs::{
     },
     ChannelID, VideoID, YtMusic,
 };
-
-use crate::{api::DynamicYtMusic, Command};
 
 pub struct CliQuery {
     pub query_type: QueryType,
