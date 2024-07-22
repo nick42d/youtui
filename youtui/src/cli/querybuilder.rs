@@ -1,10 +1,11 @@
+use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
-    auth::AuthToken,
+    auth::{BrowserToken, OAuthToken},
     common::{
         AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
         PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
     },
-    parse::LikeStatus,
+    parse::{LikeStatus, ParseFrom},
     process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
@@ -19,10 +20,8 @@ use ytmapi_rs::{
         ProfilesFilter, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
         SongsFilter, VideosFilter,
     },
-    ChannelID, VideoID, YtMusic,
+    ChannelID, VideoID,
 };
-
-use crate::Command;
 
 pub struct CliQuery {
     pub query_type: QueryType,
@@ -34,10 +33,10 @@ pub enum QueryType {
     FromApi,
 }
 
-pub async fn command_to_query<A: AuthToken>(
+pub async fn command_to_query(
     command: Command,
     cli_query: CliQuery,
-    yt: &YtMusic<A>,
+    yt: DynamicYtMusic,
 ) -> crate::Result<String> {
     match command {
         Command::GetSearchSuggestions { query } => {
@@ -359,20 +358,21 @@ pub async fn command_to_query<A: AuthToken>(
     }
 }
 
-async fn get_string_output_of_query<Q: Query<A>, A: AuthToken>(
-    yt: &YtMusic<A>,
+async fn get_string_output_of_query<Q, O>(
+    yt: DynamicYtMusic,
     q: Q,
     cli_query: CliQuery,
-) -> crate::Result<String> {
+) -> crate::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
     match cli_query {
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt
-            .raw_query(q)
-            .await
-            .map(|r| r.destructure_json())
-            .map_err(|e| e.into()),
+        } => yt.query_source(q).await.map_err(|e| e.into()),
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
@@ -388,8 +388,18 @@ async fn get_string_output_of_query<Q: Query<A>, A: AuthToken>(
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: false,
-        } => process_json::<Q, A>(source, q)
-            .map(|r| format!("{:#?}", r))
-            .map_err(|e| e.into()),
+        } => {
+            // Neat hack to ensure process_json utilises the same AuthType as was set in
+            // config. This works as the config step sets the variant of
+            // DynamicYtMusic.
+            match yt {
+                DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+                DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+            }
+        }
     }
 }

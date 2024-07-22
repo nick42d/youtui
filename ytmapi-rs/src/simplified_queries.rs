@@ -12,13 +12,12 @@ use crate::common::{
 };
 use crate::common::{AlbumID, BrowseParams, LyricsID, SetVideoID};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetArtistAlbums,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams,
     GetLibraryArtistSubscription, GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
     TableListSong,
 };
-use crate::process::RawResult;
 use crate::query::DuplicateHandlingMode;
 use crate::query::{
     filteredsearch::{
@@ -29,7 +28,7 @@ use crate::query::{
     lyrics::GetLyricsQuery,
     rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
+    AddPlaylistItemsQuery, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
     GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
@@ -54,7 +53,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<SearchResults> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Artists only.
     /// ```no_run
@@ -67,7 +66,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultArtist>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Albums only.
     /// ```no_run
@@ -80,7 +79,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultAlbum>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Songs only.
     /// ```no_run
@@ -93,7 +92,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultSong>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Playlists only.
     /// ```no_run
@@ -106,7 +105,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPlaylist>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Community Playlists only.
     /// ```no_run
@@ -122,7 +121,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPlaylist>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Featured Playlists only.
     /// ```no_run
@@ -138,7 +137,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultFeaturedPlaylist>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Episodes only.
     /// ```no_run
@@ -151,7 +150,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultEpisode>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Podcasts only.
     /// ```no_run
@@ -164,7 +163,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultPodcast>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Videos only.
     /// ```no_run
@@ -177,7 +176,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultVideo>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// API Search Query for Profiles only.
     /// ```no_run
@@ -190,7 +189,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: Q,
     ) -> Result<Vec<SearchResultProfile>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets information about an artist and their top releases.
     /// ```no_run
@@ -204,7 +203,7 @@ impl<A: AuthToken> YtMusic<A> {
         channel_id: T,
     ) -> Result<ArtistParams> {
         let query = GetArtistQuery::new(channel_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a full list albums for an artist.
     /// ```no_run
@@ -223,7 +222,7 @@ impl<A: AuthToken> YtMusic<A> {
         browse_params: U,
     ) -> Result<Vec<Album>> {
         let query = GetArtistAlbumsQuery::new(channel_id.into(), browse_params.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets information about an album and its tracks.
     /// ```no_run
@@ -234,7 +233,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_album<'a, T: Into<AlbumID<'a>>>(&self, album_id: T) -> Result<AlbumParams> {
         let query = GetAlbumQuery::new(album_id);
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets the information that's available when playing a song or playlist;
     /// upcoming tracks and lyrics.
@@ -260,7 +259,7 @@ impl<A: AuthToken> YtMusic<A> {
         video_id: S,
     ) -> Result<WatchPlaylist> {
         let query = GetWatchPlaylistQuery::new_from_video_id(video_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets song lyrics and the source.
     /// ```no_run
@@ -272,7 +271,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_lyrics<'a, T: Into<LyricsID<'a>>>(&self, lyrics_id: T) -> Result<Lyrics> {
         let query = GetLyricsQuery::new(lyrics_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets information about a playlist and its tracks.
     /// ```no_run
@@ -286,7 +285,7 @@ impl<A: AuthToken> YtMusic<A> {
         playlist_id: T,
     ) -> Result<GetPlaylist> {
         let query = GetPlaylistQuery::new(playlist_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets search suggestions
     /// ```no_run
@@ -299,7 +298,7 @@ impl<A: AuthToken> YtMusic<A> {
         query: S,
     ) -> Result<Vec<SearchSuggestion>> {
         let query = query.into();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all playlists in your Library.
     /// ```no_run
@@ -309,7 +308,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
         let query = GetLibraryPlaylistsQuery;
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all artists in your Library.
     /// # Additional functionality
@@ -326,7 +325,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_library_artists(&self) -> Result<Vec<LibraryArtist>> {
         let query = GetLibraryArtistsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all songs in your Library.
     /// # Additional functionality
@@ -343,7 +342,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_library_songs(&self) -> Result<Vec<TableListSong>> {
         let query = GetLibrarySongsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all albums in your Library.
     /// # Additional functionality
@@ -360,7 +359,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
         let query = GetLibraryAlbumsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all artist subscriptions in your Library.
     /// # Additional functionality
@@ -379,7 +378,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
     ) -> Result<Vec<GetLibraryArtistSubscription>> {
         let query = GetLibraryArtistSubscriptionsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets your recently played history.
     /// ```no_run
@@ -389,7 +388,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn get_history(&self) -> Result<Vec<TableListItem>> {
         let query = GetHistoryQuery;
-        query.call(self).await
+        self.query(query).await
     }
     /// Removes a list of items from your recently played history.
     /// # Note
@@ -406,14 +405,14 @@ impl<A: AuthToken> YtMusic<A> {
         feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
-        query.call(self).await
+        self.query(query).await
     }
     // TODO: Docs / alternative constructors.
     pub async fn edit_song_library_status<'a>(
         &self,
         query: EditSongLibraryStatusQuery<'a>,
     ) -> Result<Vec<Result<ApiSuccess>>> {
-        query.call(self).await
+        self.query(query).await
     }
     /// Sets the like status for a song.
     /// ```no_run
@@ -428,7 +427,7 @@ impl<A: AuthToken> YtMusic<A> {
         rating: LikeStatus,
     ) -> Result<ApiSuccess> {
         let query = RateSongQuery::new(video_id.into(), rating);
-        query.call(self).await
+        self.query(query).await
     }
     /// Sets the like status for a playlist.
     /// A 'Liked' playlist will be added to your library, an 'Indifferent' will
@@ -451,7 +450,7 @@ impl<A: AuthToken> YtMusic<A> {
         rating: LikeStatus,
     ) -> Result<ApiSuccess> {
         let query = RatePlaylistQuery::new(playlist_id.into(), rating);
-        query.call(self).await
+        self.query(query).await
     }
     /// Deletes a playlist you own.
     ///  ```no_run
@@ -465,7 +464,7 @@ impl<A: AuthToken> YtMusic<A> {
         playlist_id: T,
     ) -> Result<ApiSuccess> {
         let query = DeletePlaylistQuery::new(playlist_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Creates a new playlist.
     ///  ```no_run
@@ -486,7 +485,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         query: CreatePlaylistQuery<'a, T>,
     ) -> Result<PlaylistID<'static>> {
-        query.call(self).await
+        self.query(query).await
     }
     /// Adds video items to a playlist you own.
     ///  ```no_run
@@ -510,7 +509,7 @@ impl<A: AuthToken> YtMusic<A> {
             video_ids,
             DuplicateHandlingMode::default(),
         );
-        query.call(self).await
+        self.query(query).await
     }
     /// Appends another playlist to a playlist you own.
     ///  ```no_run
@@ -535,7 +534,7 @@ impl<A: AuthToken> YtMusic<A> {
             destination_playlist.into(),
             source_playlist.into(),
         );
-        query.call(self).await
+        self.query(query).await
     }
     /// Removes items from a playlist you own.
     ///  ```no_run
@@ -561,7 +560,7 @@ impl<A: AuthToken> YtMusic<A> {
         video_items: Vec<SetVideoID<'a>>,
     ) -> Result<ApiSuccess> {
         let query = RemovePlaylistItemsQuery::new(playlist_id.into(), video_items);
-        query.call(self).await
+        self.query(query).await
     }
     /// Makes changes to a playlist.
     ///  ```no_run
@@ -578,7 +577,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// yt.edit_playlist(query).await
     /// # };
     pub async fn edit_playlist(&self, query: EditPlaylistQuery<'_>) -> Result<ApiSuccess> {
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all uploaded songs in your Library.
     /// # Additional functionality
@@ -597,7 +596,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
     ) -> Result<<GetLibraryUploadSongsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadSongsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all uploaded artists in your Library.
     /// # Additional functionality
@@ -616,7 +615,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
     ) -> Result<<GetLibraryUploadArtistsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadArtistsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets a list of all uploaded albums in your Library.
     /// # Additional functionality
@@ -635,7 +634,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
     ) -> Result<<GetLibraryUploadAlbumsQuery as Query<A>>::Output> {
         let query = GetLibraryUploadAlbumsQuery::default();
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets information and tracks for an uploaded album in your Library.
     /// ```no_run
@@ -649,7 +648,7 @@ impl<A: AuthToken> YtMusic<A> {
         upload_album_id: T,
     ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
         let query = GetLibraryUploadAlbumQuery::new(upload_album_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Gets all tracks for an uploaded artist in your Library.
     /// ```no_run
@@ -663,7 +662,7 @@ impl<A: AuthToken> YtMusic<A> {
         upload_artist_id: T,
     ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
         let query = GetLibraryUploadArtistQuery::new(upload_artist_id.into());
-        query.call(self).await
+        self.query(query).await
     }
     /// Deletes an upload entity from your library - this is either a song or an
     /// album.
@@ -678,6 +677,6 @@ impl<A: AuthToken> YtMusic<A> {
         upload_entity_id: T,
     ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
         let query = DeleteUploadEntityQuery::new(upload_entity_id.into());
-        query.call(self).await
+        self.query(query).await
     }
 }

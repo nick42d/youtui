@@ -1,15 +1,12 @@
 use super::{ApiSuccess, ParseFrom};
 use crate::{
-    auth::AuthToken,
     crawler::JsonCrawler,
     query::rate::{RatePlaylistQuery, RateSongQuery},
     Error,
 };
 
-impl<'a, A: AuthToken> ParseFrom<RateSongQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        _: super::ProcessedResult<RateSongQuery<'a>>,
-    ) -> crate::Result<<RateSongQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<RateSongQuery<'a>> for ApiSuccess {
+    fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {
         // Passing an invalid video ID with Like or Dislike will throw a 400 error which
         // is caught by AuthToken. Youtube does no checking on Indifferent, even
         // an invalid video ID will return no error code. Therefore, if we've
@@ -17,10 +14,8 @@ impl<'a, A: AuthToken> ParseFrom<RateSongQuery<'a>, A> for ApiSuccess {
         Ok(ApiSuccess)
     }
 }
-impl<'a, A: AuthToken> ParseFrom<RatePlaylistQuery<'a>, A> for ApiSuccess {
-    fn parse_from(
-        p: super::ProcessedResult<RatePlaylistQuery<'a>>,
-    ) -> crate::Result<<RatePlaylistQuery<'a> as crate::query::Query<A>>::Output> {
+impl<'a> ParseFrom<RatePlaylistQuery<'a>> for ApiSuccess {
+    fn parse_from(p: super::ProcessedResult<RatePlaylistQuery<'a>>) -> crate::Result<Self> {
         // Passing an invalid playlist ID to Like or Indifferent will throw a 404 error
         // which is caught by AuthToken. Youtube does no checking on
         // Indifferent, even an invalid PlaylistID will return success.

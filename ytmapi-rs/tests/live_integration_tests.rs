@@ -9,8 +9,6 @@ use ytmapi_rs::common::{
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
-use ytmapi_rs::query::lyrics::GetLyricsQuery;
-use ytmapi_rs::query::watch::GetWatchPlaylistQuery;
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
@@ -383,8 +381,7 @@ async fn test_edit_playlist() {
         ))
         .await
         .unwrap();
-    EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT")
-        .call(&api)
+    api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
         .await
         .unwrap();
     api.delete_playlist(id).await.unwrap();
@@ -504,7 +501,7 @@ async fn test_get_artist_albums() {
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res = <ArtistParams as ParseFrom<GetArtistQuery, BrowserToken>>::parse_from(res).unwrap();
+    let res: ArtistParams = ParseFrom::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -533,7 +530,7 @@ async fn test_get_artist_album_songs() {
     // This won't compile:
     // let res = res.process().unwrap().parse().unwrap();
     let res = res.process().unwrap();
-    let res = <ArtistParams as ParseFrom<GetArtistQuery, BrowserToken>>::parse_from(res).unwrap();
+    let res = ArtistParams::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -549,8 +546,7 @@ async fn test_get_artist_album_songs() {
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res =
-        <Vec<Album> as ParseFrom<GetArtistAlbumsQuery, BrowserToken>>::parse_from(res).unwrap();
+    let res: Vec<Album> = ParseFrom::parse_from(res).unwrap();
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
@@ -565,6 +561,6 @@ async fn test_get_artist_album_songs() {
     );
     let now = std::time::Instant::now();
     let res = res.process().map_err(|e| write_json(&e)).unwrap();
-    let _ = <AlbumParams as ParseFrom<GetAlbumQuery, BrowserToken>>::parse_from(res).unwrap();
+    let _ = AlbumParams::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

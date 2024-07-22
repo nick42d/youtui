@@ -40,7 +40,7 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
                 show_source,
             };
             let api = get_api(&config).await?;
-            let res = command_to_query(command, cli_query, &api).await?;
+            let res = command_to_query(command, cli_query, api).await?;
             println!("{res}");
         }
         Cli {
@@ -53,7 +53,7 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
                 show_source,
             };
             let api = get_api(&config).await?;
-            let res = command_to_query(command, cli_query, &api).await?;
+            let res = command_to_query(command, cli_query, api).await?;
             println!("{res}");
         }
     }

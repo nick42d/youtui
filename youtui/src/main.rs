@@ -4,16 +4,17 @@ use config::{ApiKey, Config};
 use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
-use std::path::PathBuf;
-use ytmapi_rs::auth::{AuthToken, BrowserToken, OAuthToken};
+use std::{path::PathBuf, process::ExitCode};
+use ytmapi_rs::auth::{OAuthToken};
 
+mod api;
 mod app;
 mod appevent;
 mod cli;
 mod config;
 mod core;
 mod drawutils;
-pub mod error;
+mod error;
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
@@ -172,12 +173,13 @@ pub struct RuntimeInfo {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> ExitCode {
     // Using try block to print error using Display instead of Debug.
     if let Err(e) = try_main().await {
         println!("{e}");
-        // XXX: Return error code?
+        return ExitCode::FAILURE;
     };
+    ExitCode::SUCCESS
 }
 
 // Main function is refactored here so that we can pretty print errors.
@@ -218,25 +220,22 @@ async fn try_main() -> Result<()> {
     Ok(())
 }
 
-async fn get_api(config: &Config) -> Result<ytmapi_rs::YtMusic<BrowserToken>> {
+async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.get_auth_type() {
-        config::AuthType::OAuth =>
-        // TODO: Add OAutho back in
-        {
-            unimplemented!()
+        config::AuthType::OAuth => {
+            let mut oauth_loc = PathBuf::from(confdir);
+            oauth_loc.push(OAUTH_FILENAME);
+            let file = tokio::fs::read_to_string(oauth_loc).await?;
+            let oath_tok = serde_json::from_str(&file)?;
+            let api = ytmapi_rs::YtMusic::from_oauth_token(oath_tok);
+            api::DynamicYtMusic::OAuth(api)
         }
-        // {
-        //     let mut oauth_loc = PathBuf::from(confdir);
-        //     oauth_loc.push(OAUTH_FILENAME);
-        //     let file = tokio::fs::read_to_string(oauth_loc).await?;
-        //     let oath_tok = serde_json::from_str(&file)?;
-        //     ytmapi_rs::YtMusic::from_oauth_token(oath_tok)
-        // }
         config::AuthType::Browser => {
             let mut cookies_loc = PathBuf::from(confdir);
             cookies_loc.push(COOKIE_FILENAME);
-            ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?
+            let api = ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?;
+            api::DynamicYtMusic::Browser(api)
         }
     };
     Ok(api)

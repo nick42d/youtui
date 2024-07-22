@@ -1,7 +1,6 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
-use crate::{Result, YtMusic};
 pub use album::*;
 pub use artist::*;
 pub use history::*;
@@ -9,7 +8,6 @@ pub use library::*;
 pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
-use std::future::Future;
 pub use upload::*;
 
 mod artist;
@@ -24,18 +22,12 @@ mod upload;
 pub trait Query<A: AuthToken> {
     // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
     // this into a trait object.
-    type Output: ParseFrom<Self, A>
+    type Output: ParseFrom<Self>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
-    fn call(self, yt: &YtMusic<A>) -> impl Future<Output = Result<Self::Output>>
-    where
-        Self: Sized,
-    {
-        async { Self::Output::parse_from(yt.processed_query(self).await?) }
-    }
 }
 
 pub mod album {
@@ -91,11 +83,10 @@ pub mod continuations {
         continuation_params: String,
         query: Q,
     }
-    impl<'a, A: AuthToken> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>, A> for () {
+    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
         fn parse_from(
             _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
-        ) -> crate::Result<<GetContinuationsQuery<SearchQuery<'a, BasicSearch>> as Query<A>>::Output>
-        {
+        ) -> crate::Result<Self> {
             todo!()
         }
     }

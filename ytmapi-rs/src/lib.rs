@@ -290,8 +290,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
     ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let raw_result = yt.raw_query(query).await?;
-    /// let result =
-    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(raw_result.process()?)?;
+    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist>
+    ///     = ParseFrom::parse_from(raw_result.process()?)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
@@ -312,8 +312,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
     ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let processed_result = yt.processed_query(query).await?;
-    /// let result =
-    ///     <Vec::<ytmapi_rs::parse::SearchResultArtist> as ParseFrom<_,BrowserToken>>::parse_from(processed_result)?;
+    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist>
+    ///     = ParseFrom::parse_from(processed_result)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
@@ -355,7 +355,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
-        query.call(self).await
+        Q::Output::parse_from(self.processed_query(query).await?)
     }
 }
 // TODO: Keep session alive after calling these methods.
