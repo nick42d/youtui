@@ -2,8 +2,7 @@
 use crate::{config::AuthType, error::Error, Result};
 use ytmapi_rs::{
     auth::{AuthToken, BrowserToken, OAuthToken},
-    parse::ParseFrom,
-    query::{self, GetLibraryAlbumsQuery, Query},
+    query::{Query},
     YtMusic,
 };
 

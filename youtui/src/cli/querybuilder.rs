@@ -1,6 +1,6 @@
 use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
-    auth::{AuthToken, BrowserToken, OAuthToken},
+    auth::{BrowserToken, OAuthToken},
     common::{
         AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
         PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
@@ -20,7 +20,7 @@ use ytmapi_rs::{
         ProfilesFilter, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
         SongsFilter, VideosFilter,
     },
-    ChannelID, VideoID, YtMusic,
+    ChannelID, VideoID,
 };
 
 pub struct CliQuery {

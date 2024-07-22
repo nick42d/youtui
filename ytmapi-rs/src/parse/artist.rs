@@ -4,7 +4,6 @@ use super::{
     ProcessedResult, SearchResultVideo, TableListUploadSong,
 };
 use crate::{
-    auth::AuthToken,
     common::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,

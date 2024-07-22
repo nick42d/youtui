@@ -12,13 +12,12 @@ use crate::common::{
 };
 use crate::common::{AlbumID, BrowseParams, LyricsID, SetVideoID};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetArtistAlbums,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams,
     GetLibraryArtistSubscription, GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
     SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
     SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
     TableListSong,
 };
-use crate::process::RawResult;
 use crate::query::DuplicateHandlingMode;
 use crate::query::{
     filteredsearch::{
@@ -29,7 +28,7 @@ use crate::query::{
     lyrics::GetLyricsQuery,
     rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, AddVideosToPlaylist, BasicSearch, CreatePlaylistQuery,
+    AddPlaylistItemsQuery, BasicSearch, CreatePlaylistQuery,
     CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
     GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,

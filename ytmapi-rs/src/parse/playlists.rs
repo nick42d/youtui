@@ -4,7 +4,6 @@ use super::{
     TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
-    auth::AuthToken,
     common::{PlaylistID, SetVideoID},
     crawler::JsonCrawler,
     nav_consts::{

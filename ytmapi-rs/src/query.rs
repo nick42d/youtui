@@ -1,7 +1,6 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
-use crate::{Result, YtMusic};
 pub use album::*;
 pub use artist::*;
 pub use history::*;
@@ -9,7 +8,6 @@ pub use library::*;
 pub use playlist::*;
 pub use search::*;
 use std::borrow::Cow;
-use std::future::Future;
 pub use upload::*;
 
 mod artist;

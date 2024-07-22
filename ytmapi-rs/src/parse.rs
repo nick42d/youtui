@@ -1,12 +1,10 @@
 //! Results from parsing Innertube queries.
 use crate::{
-    auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
     nav_consts::*,
     process::{self, process_flex_column_item},
-    query::Query,
     ChannelID,
 };
 use crate::{Error, Result};
@@ -344,7 +342,7 @@ mod tests {
 
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
-    use crate::auth::AuthToken;
+    
     use crate::common::browsing::Lyrics;
     use crate::crawler::JsonCrawler;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
@@ -399,7 +397,6 @@ mod watch {
     use const_format::concatcp;
 
     use crate::{
-        auth::AuthToken,
         common::watch::WatchPlaylist,
         crawler::{JsonCrawler, JsonCrawlerBorrowed},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},

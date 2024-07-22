@@ -9,7 +9,6 @@ use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::common::YoutubeID;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::ChannelID;

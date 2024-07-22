@@ -1,6 +1,5 @@
 use super::{ApiSuccess, ParseFrom};
 use crate::{
-    auth::AuthToken,
     crawler::JsonCrawler,
     query::rate::{RatePlaylistQuery, RateSongQuery},
     Error,

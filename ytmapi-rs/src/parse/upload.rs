@@ -3,7 +3,6 @@ use super::{
     SUBTITLE,
 };
 use crate::{
-    auth::AuthToken,
     common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
     crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{

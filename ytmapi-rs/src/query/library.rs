@@ -1,6 +1,6 @@
 use super::Query;
 use crate::{
-    auth::{AuthToken, BrowserToken},
+    auth::{AuthToken},
     common::{
         library::{LibraryArtist, Playlist},
         FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,

@@ -9,8 +9,6 @@ use ytmapi_rs::common::{
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
-use ytmapi_rs::query::lyrics::GetLyricsQuery;
-use ytmapi_rs::query::watch::GetWatchPlaylistQuery;
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
