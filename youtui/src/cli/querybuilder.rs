@@ -389,8 +389,18 @@ where
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: false,
-        } => process_json::<Q, A>(source, q)
-            .map(|r| format!("{:#?}", r))
-            .map_err(|e| e.into()),
+        } => {
+            // Neat hack to ensure process_json utilises the same AuthType as was set in
+            // config. This works as the config step sets the variant of
+            // DynamicYtMusic.
+            match yt {
+                DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+                DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+            }
+        }
     }
 }
