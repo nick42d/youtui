@@ -1,7 +1,11 @@
 use serde_json::{json, Value};
 
 use super::Query;
-use crate::{auth::AuthToken, common::recomendations::TasteToken, parse::TasteProfileArtist};
+use crate::{
+    auth::AuthToken,
+    common::recomendations::TasteToken,
+    parse::{ApiSuccess, TasteProfileArtist},
+};
 
 #[derive(Clone)]
 pub struct GetTasteProfileQuery;
@@ -44,7 +48,7 @@ where
     A: AuthToken,
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
-    type Output = ()
+    type Output = ApiSuccess
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

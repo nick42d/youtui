@@ -1,13 +1,12 @@
 use super::{
-    ParseFrom, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION,
+    ApiSuccess, ParseFrom, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION,
     TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
 use crate::{
     common::recomendations::TasteToken,
     crawler::JsonCrawler,
     query::{GetTasteProfileQuery, SetTasteProfileQuery},
-    utils::{self, process_results},
-    Result,
+    utils, Result,
 };
 use serde::{Deserialize, Serialize};
 
@@ -17,12 +16,13 @@ pub struct TasteProfileArtist {
     pub taste_tokens: TasteToken<'static>,
 }
 
-impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ()
+impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ApiSuccess
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
     fn parse_from(p: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
-        todo!()
+        // Always returns succesfully no matter what value is passed.
+        Ok(ApiSuccess)
     }
 }
 
@@ -33,11 +33,11 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
         let nested_iter = crawler
             .navigate_pointer(TASTE_PROFILE_ITEMS)?
             .into_array_into_iter()?
-            .map(|item| {
-                item.navigate_pointer(TASTE_ITEM_CONTENTS).and_then(|item| {
-                    item.into_array_into_iter()
-                        .map(|res| res.map(get_taste_profile_artist))
-                })
+            .map(|item| -> Result<_> {
+                Ok(item
+                    .navigate_pointer(TASTE_ITEM_CONTENTS)?
+                    .into_array_into_iter()?
+                    .map(get_taste_profile_artist))
             });
         utils::process_results::process_results(nested_iter, |i| {
             i.flatten().collect::<Result<Vec<TasteProfileArtist>>>()
@@ -63,6 +63,10 @@ fn get_taste_profile_artist(mut crawler: JsonCrawler) -> Result<TasteProfileArti
 mod tests {
     use crate::{
         auth::BrowserToken,
+        common::{
+            recomendations::TasteToken, TasteTokenImpression, TasteTokenSelection, YoutubeID,
+        },
+        parse::ApiSuccess,
         query::{GetTasteProfileQuery, SetTasteProfileQuery},
     };
 
@@ -77,7 +81,14 @@ mod tests {
     }
     #[tokio::test]
     async fn test_set_taste_profile() {
-        let query = SetTasteProfileQuery::new(Vec::new());
-        panic!()
+        parse_test_value!(
+            "./test_json/set_taste_profile_20240723.json",
+            ApiSuccess,
+            SetTasteProfileQuery::new([TasteToken {
+                impression_value: TasteTokenImpression::from_raw(""),
+                selection_value: TasteTokenSelection::from_raw("")
+            }]),
+            BrowserToken
+        );
     }
 }

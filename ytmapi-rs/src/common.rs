@@ -249,6 +249,7 @@ pub mod recomendations {
     use serde::{Deserialize, Serialize};
 
     #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+    // TODO: constructor
     pub struct TasteToken<'a> {
         pub impression_value: TasteTokenImpression<'a>,
         pub selection_value: TasteTokenSelection<'a>,

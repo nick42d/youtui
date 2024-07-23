@@ -165,6 +165,7 @@ enum Command {
         upload_entity_id: String,
     },
     GetTasteProfile,
+    // Simple implementation - only allows a single set per command.
     SetTasteProfile {
         impression_token: String,
         selection_token: String,
