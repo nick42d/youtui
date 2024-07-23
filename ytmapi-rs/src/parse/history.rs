@@ -1,6 +1,6 @@
 use const_format::concatcp;
 
-use super::{parse_table_list_items, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF};
+use super::{parse_table_list_item, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF};
 use crate::{
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
@@ -12,13 +12,18 @@ impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
     fn parse_from(p: super::ProcessedResult<GetHistoryQuery>) -> Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
-        let nested_iter = contents.into_array_into_iter()?.map(|c| {
-            // TODO: Remove collect from parse_table_list_items.
-            parse_table_list_items(c.navigate_pointer(concatcp!(MUSIC_SHELF, "/contents"))?)
-        });
+        let nested_iter = contents
+            .into_array_into_iter()?
+            .map(|c| -> crate::Result<_> {
+                let iter = c
+                    .navigate_pointer(concatcp!(MUSIC_SHELF, "/contents"))?
+                    .into_array_into_iter()?
+                    .filter_map(|item| parse_table_list_item(item).transpose());
+                Ok(iter)
+            });
         utils::process_results::process_results(nested_iter, |i| {
-            i.flatten().collect::<Vec<TableListItem>>()
-        })
+            i.flatten().collect::<Result<Vec<TableListItem>>>()
+        })?
     }
 }
 impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<Result<ApiSuccess>> {

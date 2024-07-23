@@ -257,13 +257,7 @@ fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryAr
     }
     Ok(results)
 }
-pub(crate) fn parse_table_list_items(contents: JsonCrawler) -> Result<Vec<TableListItem>> {
-    contents
-        .into_array_into_iter()?
-        .filter_map(|item| parse_table_list_item(item).transpose())
-        .collect()
-}
-fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<TableListItem>> {
+pub(crate) fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<TableListItem>> {
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
     };

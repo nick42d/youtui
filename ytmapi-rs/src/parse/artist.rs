@@ -375,6 +375,7 @@ pub enum PlaylistItem {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Potentially should be HistoryItem
 pub enum TableListItem {
     Song(TableListSong),
     Video(TableListVideo),
