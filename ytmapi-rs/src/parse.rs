@@ -16,7 +16,7 @@ pub use album::*;
 pub use artist::*;
 pub use library::*;
 pub use playlists::*;
-pub use recommendations::TasteProfileArtist;
+pub use recommendations::*;
 pub use upload::*;
 
 mod album;

@@ -170,6 +170,10 @@ enum Command {
         impression_token: String,
         selection_token: String,
     },
+    GetMoodCategories,
+    GetMoodPlaylists {
+        mood_category_params: String,
+    },
 }
 
 pub struct RuntimeInfo {
@@ -230,7 +234,7 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.get_auth_type() {
         config::AuthType::OAuth => {
-            let mut oauth_loc = PathBuf::from(confdir);
+            let mut oauth_loc = confdir;
             oauth_loc.push(OAUTH_FILENAME);
             let file = tokio::fs::read_to_string(oauth_loc).await?;
             let oath_tok = serde_json::from_str(&file)?;
@@ -238,7 +242,7 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
             api::DynamicYtMusic::OAuth(api)
         }
         config::AuthType::Browser => {
-            let mut cookies_loc = PathBuf::from(confdir);
+            let mut cookies_loc = confdir;
             cookies_loc.push(COOKIE_FILENAME);
             let api = ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?;
             api::DynamicYtMusic::Browser(api)
@@ -287,10 +291,9 @@ pub fn get_config_dir() -> Result<PathBuf> {
 async fn load_cookie_file() -> Result<String> {
     let mut path = get_config_dir()?;
     path.push(COOKIE_FILENAME);
-    let file = tokio::fs::read_to_string(&path)
+    tokio::fs::read_to_string(&path)
         .await
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e));
-    file
+        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e))
 }
 
 async fn load_oauth_file() -> Result<OAuthToken> {

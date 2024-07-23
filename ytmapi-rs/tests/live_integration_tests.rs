@@ -86,10 +86,11 @@ async fn test_new() {
     new_standard_oauth_api().await.unwrap();
 }
 
+generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
-generate_query_test!(test_get_history, GetHistoryQuery);
 generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
+generate_query_test!(test_get_history, GetHistoryQuery);
 generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
@@ -165,6 +166,33 @@ generate_query_test!(
     test_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
+#[tokio::test]
+async fn test_get_mood_playlists() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_mood_playlist = browser_api
+        .query(GetMoodCategoriesQuery)
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .unwrap()
+        .mood_categories
+        .into_iter()
+        .next()
+        .unwrap();
+    let query = GetMoodPlaylistsQuery::new(first_mood_playlist.params);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to
+        //date, just refresh it each time.
+        api.refresh_token().await.unwrap();
+        api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
 #[tokio::test]
 async fn test_get_library_upload_artist() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();

@@ -11,7 +11,7 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, BrowseParams, LyricsID, SetVideoID};
+use crate::common::{AlbumID, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
     GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
@@ -36,7 +36,10 @@ use crate::query::{
     GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
     RemovePlaylistItemsQuery, SearchQuery,
 };
-use crate::query::{DuplicateHandlingMode, GetTasteProfileQuery, SetTasteProfileQuery};
+use crate::query::{
+    DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
+    SetTasteProfileQuery,
+};
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
 
@@ -710,5 +713,30 @@ impl<A: AuthToken> YtMusic<A> {
         II: IntoIterator<IntoIter = I>,
     {
         self.query(SetTasteProfileQuery::new(taste_tokens)).await
+    }
+    /// Fetches 'Moods & Genres' categories.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_mood_categories().await
+    /// # };
+    pub async fn get_mood_categories(
+        &self,
+    ) -> Result<<GetMoodCategoriesQuery as Query<A>>::Output> {
+        self.query(GetMoodCategoriesQuery).await
+    }
+    /// Returns a list of playlists for a given mood category.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_mood_categories().await.unwrap();
+    /// yt.get_mood_playlists(&results[0].mood_categories[0].params).await
+    /// # };
+    pub async fn get_mood_playlists<'a, T: Into<MoodCategoryParams<'a>>>(
+        &self,
+        mood_params: T,
+    ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
+        self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
+            .await
     }
 }

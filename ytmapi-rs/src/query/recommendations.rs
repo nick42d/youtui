@@ -3,8 +3,8 @@ use serde_json::{json, Value};
 use super::Query;
 use crate::{
     auth::AuthToken,
-    common::recomendations::TasteToken,
-    parse::{ApiSuccess, TasteProfileArtist},
+    common::{recomendations::TasteToken, MoodCategoryParams},
+    parse::{ApiSuccess, MoodCategorySection, TasteProfileArtist},
 };
 
 #[derive(Clone)]
@@ -18,6 +18,14 @@ where
     taste_tokens: I,
 }
 
+#[derive(Clone)]
+pub struct GetMoodCategoriesQuery;
+
+#[derive(Clone)]
+pub struct GetMoodPlaylistsQuery<'a> {
+    params: MoodCategoryParams<'a>,
+}
+
 impl<'a, I> SetTasteProfileQuery<'a, I>
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
@@ -25,6 +33,12 @@ where
     pub fn new<II: IntoIterator<IntoIter = I>>(taste_tokens: II) -> Self {
         let taste_tokens = taste_tokens.into_iter();
         Self { taste_tokens }
+    }
+}
+
+impl<'a> GetMoodPlaylistsQuery<'a> {
+    pub fn new(params: MoodCategoryParams<'a>) -> Self {
+        Self { params }
     }
 }
 
@@ -66,6 +80,42 @@ where
                     "selectedValues": selection_tokens
                 }),
             ),
+        ])
+    }
+    fn params(&self) -> Option<std::borrow::Cow<str>> {
+        None
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+
+impl<A: AuthToken> Query<A> for GetMoodCategoriesQuery {
+    type Output = Vec<MoodCategorySection>
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_moods_and_genres"))])
+    }
+    fn params(&self) -> Option<std::borrow::Cow<str>> {
+        None
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+
+impl<'a, A: AuthToken> Query<A> for GetMoodPlaylistsQuery<'a> {
+    type Output = ()
+    where
+        Self: Sized;
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        serde_json::Map::from_iter([
+            (
+                "browseId".to_string(),
+                json!("FEmusic_moods_and_genres_category"),
+            ),
+            ("params".to_string(), json!(self.params)),
         ])
     }
     fn params(&self) -> Option<std::borrow::Cow<str>> {

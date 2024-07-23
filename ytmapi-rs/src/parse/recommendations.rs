@@ -1,13 +1,18 @@
 use super::{
-    ApiSuccess, ParseFrom, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION,
-    TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
+    ApiSuccess, ParseFrom, CATEGORY_TITLE, GRID, GRID_ITEMS, HEADER_DETAIL, RUN_TEXT,
+    TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS,
+    TASTE_PROFILE_SELECTION,
 };
 use crate::{
-    common::recomendations::TasteToken,
-    crawler::JsonCrawler,
-    query::{GetTasteProfileQuery, SetTasteProfileQuery},
+    common::{recomendations::TasteToken, MoodCategoryParams},
+    crawler::{self, JsonCrawler},
+    nav_consts::{CATEGORY_PARAMS, NAVIGATION_BROWSE, SECTION_LIST, SINGLE_COLUMN_TAB},
+    query::{
+        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+    },
     utils, Result,
 };
+use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -15,13 +20,25 @@ pub struct TasteProfileArtist {
     pub artist: String,
     pub taste_tokens: TasteToken<'static>,
 }
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct MoodCategorySection {
+    pub section_name: String,
+    pub mood_categories: Vec<MoodCategory>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct MoodCategory {
+    pub title: String,
+    pub params: MoodCategoryParams<'static>,
+}
 
 impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ApiSuccess
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
     fn parse_from(p: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
-        // Always returns succesfully no matter what value is passed.
+        // Doesn't seem to be an identifier in the response to determine if success or
+        // failure - so always assume success.
         Ok(ApiSuccess)
     }
 }
@@ -45,6 +62,43 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     }
 }
 
+impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
+    fn parse_from(p: super::ProcessedResult<GetMoodCategoriesQuery>) -> crate::Result<Self> {
+        let crawler = JsonCrawler::from(p);
+        crawler
+            .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
+            .into_array_into_iter()?
+            .map(parse_mood_category_sections)
+            .collect()
+    }
+}
+impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for () {
+    fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> crate::Result<Self> {
+        todo!()
+    }
+}
+
+fn parse_mood_category_sections(crawler: JsonCrawler) -> Result<MoodCategorySection> {
+    let mut crawler = crawler.navigate_pointer(GRID)?;
+    let section_name =
+        crawler.take_value_pointer(concatcp!("/header/gridHeaderRenderer/title", RUN_TEXT))?;
+    let mood_categories = crawler
+        .navigate_pointer("/items")?
+        .into_array_into_iter()?
+        .map(parse_mood_categories)
+        .collect::<Result<Vec<_>>>()?;
+    Ok(MoodCategorySection {
+        section_name,
+        mood_categories,
+    })
+}
+fn parse_mood_categories(crawler: JsonCrawler) -> Result<MoodCategory> {
+    let mut crawler = crawler.navigate_pointer("/musicNavigationButtonRenderer")?;
+    let title = crawler.take_value_pointer(concatcp!(CATEGORY_TITLE))?;
+    let params = crawler.take_value_pointer(concatcp!(CATEGORY_PARAMS))?;
+    Ok(MoodCategory { title, params })
+}
+
 fn get_taste_profile_artist(mut crawler: JsonCrawler) -> Result<TasteProfileArtist> {
     let artist = crawler.take_value_pointer(TASTE_PROFILE_ARTIST)?;
     let impression_value = crawler.take_value_pointer(TASTE_PROFILE_IMPRESSION)?;
@@ -64,12 +118,34 @@ mod tests {
     use crate::{
         auth::BrowserToken,
         common::{
-            recomendations::TasteToken, TasteTokenImpression, TasteTokenSelection, YoutubeID,
+            recomendations::TasteToken, MoodCategoryParams, TasteTokenImpression,
+            TasteTokenSelection, YoutubeID,
         },
         parse::ApiSuccess,
-        query::{GetTasteProfileQuery, SetTasteProfileQuery},
+        query::{
+            GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
+            SetTasteProfileQuery,
+        },
     };
 
+    #[tokio::test]
+    async fn test_get_mood_categories() {
+        parse_test!(
+            "./test_json/get_mood_categories_20240723.json",
+            "./test_json/get_mood_categories_20240723_output.txt",
+            GetMoodCategoriesQuery,
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_mood_playlists() {
+        parse_test!(
+            "./test_json/get_mood_playlists_20240723.json",
+            "./test_json/get_mood_playlists_20240723_output.txt",
+            GetMoodPlaylistsQuery::new(MoodCategoryParams::from_raw("")),
+            BrowserToken
+        );
+    }
     #[tokio::test]
     async fn test_get_taste_profile() {
         parse_test!(

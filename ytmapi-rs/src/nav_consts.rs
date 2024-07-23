@@ -33,8 +33,7 @@ pub const FEEDBACK_TOKEN: &str = "/feedbackEndpoint/feedbackToken";
 pub const BADGE_PATH: &str =
     "/0/musicInlineBadgeRenderer/accessibilityData/accessibilityData/label";
 pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibilityData/label";
-pub const _CATEGORY_PARAMS: &str =
-    "/musicNavigationButtonRenderer/clickCommand/browseEndpoint/params";
+pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
@@ -82,7 +81,7 @@ pub const STRAPLINE_THUMBNAIL: &str =
 pub const BADGE_LABEL: &str = concatcp!("/badges", BADGE_PATH);
 pub const LIVE_BADGE_LABEL: &str = concatcp!("/badges", LIVE_BADGE_PATH);
 pub const SUBTITLE_BADGE_LABEL: &str = concatcp!("/subtitleBadges", BADGE_PATH);
-pub const _CATEGORY_TITLE: &str = concatcp!("/musicNavigationButtonRenderer/buttonText", RUN_TEXT);
+pub const CATEGORY_TITLE: &str = concatcp!("/buttonText", RUN_TEXT);
 pub const MENU_PLAYLIST_ID: &str = concatcp!(
     MENU_ITEMS,
     "/0/menuNavigationItemRenderer",
