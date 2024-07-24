@@ -76,9 +76,6 @@ impl PathList {
     fn push(&mut self, path: JsonPath) {
         self.list.push(path)
     }
-    fn pop(&mut self) -> Option<JsonPath> {
-        self.list.pop()
-    }
 }
 impl From<&PathList> for String {
     fn from(value: &PathList) -> Self {
@@ -201,6 +198,8 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             cur_back,
         })
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::IndexNum(index));
@@ -279,6 +278,8 @@ impl<'a> JsonCrawlerBorrowed<'a> {
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn get_source(&self) -> &str {
         &self.source
     }
@@ -325,6 +326,8 @@ impl JsonCrawler {
             cur_back,
         })
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::IndexNum(index));
@@ -361,6 +364,8 @@ impl JsonCrawler {
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn navigate_index(self, index: usize) -> Result<Self> {
         let Self {
             source,
@@ -395,6 +400,8 @@ impl JsonCrawler {
             path,
         })
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn from_string(string: String) -> Result<Self> {
         Ok(Self {
             crawler: serde_json::from_str(string.as_ref())
@@ -432,6 +439,8 @@ impl JsonCrawler {
             )
         })
     }
+    // Allow dead code - library type code that may be used in future.
+    #[allow(dead_code)]
     pub fn get_source(&self) -> &str {
         &self.source
     }
