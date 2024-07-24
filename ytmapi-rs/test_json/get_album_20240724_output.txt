@@ -1,0 +1,304 @@
+AlbumParams {
+    title: "VULTURES 1",
+    category: Album,
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w60-h60-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w120-h120-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w226-h226-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w544-h544-l90-rj",
+        },
+    ],
+    description: Some(
+        "Vultures 1 is the debut studio album by the American hip hop supergroup ¥$, composed of the rapper Kanye West and the singer Ty Dolla Sign. It was released independently by the former's YZY brand on February 10, 2024. Guest appearances include West's daughter North, India Love, Freddie Gibbs, YG, Quavo, Playboi Carti, Travis Scott, Bump J, Lil Durk, Rich the Kid and Chris Brown. Production was primarily handled by West, alongside the Legendary Traxster, 88-Keys, Camper, JPEGMafia, Timbaland, Swizz Beatz, Ojivolta, Chrishan, Anthony Kilhoffer, and others.\nWest and Ty Dolla Sign began recording the album with collaborators in Italy in October 2023, then relocated to Saudi Arabia for three months. The album sustained multiple delays and changes to the tracklist before release, following West's struggle to secure a distributor. The release was first teased throughout late 2023 under the placeholder title ¥$ and was set to be titled Vultures before being retitled to Vultures 1 as the first volume in an album series. The tracks \"Everybody\" and \"New Body\" were announced for the album, but could not be included due to clearance issues.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/Vultures_1) under Creative Commons Attribution CC-BY-SA 3.0 (https://creativecommons.org/licenses/...)",
+    ),
+    artists: [
+        ParsedSongArtist {
+            name: "¥$",
+            id: Some(
+                ChannelID(
+                    "UCI-4sezWoZmtJXoW7E5k7Zw",
+                ),
+            ),
+        },
+    ],
+    year: "2024",
+    track_count_text: Some(
+        "16 songs",
+    ),
+    duration: "55 minutes",
+    audio_playlist_id: Some(
+        PlaylistID(
+            "OLAK5uy_nfksLEr5NjaidtkdY2HypJ3i6heoxU_kE",
+        ),
+    ),
+    tracks: [
+        AlbumSong {
+            video_id: VideoID(
+                "cUcMegPmYIo",
+            ),
+            track_no: 1,
+            duration: "1:56",
+            plays: "3.6M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpIiyn29gccrtP2QxysOlL3v8q6aGktUqYf85phv3PT-My96G1P8DZySD3VBiltbixsJxFPubRbihThQPueqf9ciBV6aZg",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpLxczURgkxVeEcPSYKU-X1f0beYZnw85Q4PKdkZdEbMr1mfqRM4OO2BV7Zia2UZGUsKBToWb-5D9ECrieJGB_Iw0nzOwA",
+            ),
+            title: "STARS",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "Q8uCafZkw0I",
+            ),
+            track_no: 2,
+            duration: "2:55",
+            plays: "2.1M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpKEqeO7fJRhhQTYAzOgJTPY5MwygZhOtNuppGQEfwiEIlPwPfdcsMaus61OPdOJqevcjGjdjXWOG-EperteLSrc4p743g",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpKCyhTCEsjWqBJHVc6is9K6YBXx6YYCVjL8Ir0a5yJKXQftYyws4rKVz3ZqxyK7uc4UnewjGMo3BJsmCuFFOvQp0MZRrA",
+            ),
+            title: "KEYS TO MY LIFE",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "GEzGZ8dTuz0",
+            ),
+            track_no: 3,
+            duration: "3:16",
+            plays: "2.9M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpICSJr9fmEYKqK3rjsH8xo8rhH9sPqWtZZMnHMBbYlqetWQismSi-f_IhazdwGdi0rO-rix8LH0x8Hh-L8_snHzA_UgQw",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpLmgmZPThZt8NWRxVsDrRwipzuMJXPZqQM8rR4DZa8gwNLTffe-l3nAl_ZNe3LpeVHikpntSqsnuTKqy7sM7Yw4NVe7dQ",
+            ),
+            title: "PAID",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "IgPL5a-cMlU",
+            ),
+            track_no: 4,
+            duration: "3:06",
+            plays: "27M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpLVcwetEWb3D9UfJxWgT7HRDeGpe5tFpOO9Vc_rZXnTDbjbX4A_Vfx8wNCplvlfqGTtU_I8DX0aEPQNeZsRx73kV_JYeA",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpJb2_lQuW6MYls9JhAcYQqw6uPmKjfEOcCFZ8h6iD8lc5qJv1w3uPuHv0jZtibCQOxUOLdfYndbO8C7EgGTwVlK8Uq8iw",
+            ),
+            title: "TALKING",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "Ed2TGPP6nc4",
+            ),
+            track_no: 5,
+            duration: "4:56",
+            plays: "7.1M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpK8NY-AND40um8ZPP7Df09zxKmOFN8j2QmKj9Bi4SopqS78tmFfrHy5EVlPHeNFB2GcRaoscz2vV3026rUSm-l8TA112g",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpKaJ21zOLwK6QG5vZ7VK0xDoBwVbFvtN1eo_Oe_we0YUHpaLt1c3WIA_IUr_KIHx8a1KTRnm3N8TOI8_dBsbkr99OpHqw",
+            ),
+            title: "BACK TO ME",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "0Z2mE3culDo",
+            ),
+            track_no: 6,
+            duration: "3:43",
+            plays: "1.7M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpLPu465o5jqGkqKciOY8PIsDw8jkfwwejWpP1lezLLptK4d1MFHMhcSPlUqde_e3ziB5TQPPOlpXV87xPA5kt80RMGKbw",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpIFn6cwHiQKsWi512mrGZBF-5up9-xTxlsSHITotsgkBMfekCA8JqL1IIp-XvIx2BWWeahE8zi5sZUvYQYv2H5iKfF35w",
+            ),
+            title: "HOODRAT",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "OFvR2x_-HqA",
+            ),
+            track_no: 7,
+            duration: "3:45",
+            plays: "3.4M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpL69UeVMjkjVJHYZ7x1HnIowoEs1HtYJHclENvHvP9c_faMnxyUFwQDobRqUlm6etS2CJqGO9vWGZyYBG2-QHSqPDpZvg",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpIHpGT2o_nXTzd0PpeiqaxBb2LKRWpR-X0dGIgTaA24P1Gz94gp0NeKHfrZdZ1PgUkyTPlRjC6L8AAd_D-GUYYAbraTxw",
+            ),
+            title: "DO IT",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "xpJ8wI_dIvA",
+            ),
+            track_no: 8,
+            duration: "2:26",
+            plays: "3M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpKAMhXhpmY0UGbxWuQulluj6SKYOwkBPUoTH8E1Zt5bwliPEczLTLBhdPByDeyiMsi0KWCCj63A9_8-JMGE3qcG_qyutg",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpKfo5TZyy1fT2zHYCMyfBPFYyYD9MKBf0ahMHajcUYjfVFMHqpLIMBKLuLaLBB3nt2Ew-ee00mmAmW1qUUQ8ZmnTNGdiA",
+            ),
+            title: "PAPERWORK",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "DnEOoCWqY9M",
+            ),
+            track_no: 9,
+            duration: "1:52",
+            plays: "4.5M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpLn7zV4gWKZLb9TX-zW32b2vrGX_5KCJL79Ql57AraX-8psJg6E2yQkJo_sSwd-ioJZ067XbLeB4weRx-cGNd1jChqpTA",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpIJ2050E0-GEEYe7v7J7_bZs0WE6k-yyLwZn2N5H7Pc3PChN7c4F43P3tuGokeh3u46D7nOZT9P4Dx9Ma2KOONf0bxFrA",
+            ),
+            title: "BURN",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "Hkvb1C3ZDg4",
+            ),
+            track_no: 11,
+            duration: "4:37",
+            plays: "10M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpIfGuoCCTU_KiRD98e36thipwBYRJfqZe8k9ZYwh2PNBzCbHsbe64z4yrjJX8xckl_poQn6tukromfzCus66lfxisxVmQ",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpLiKsH1fVjzxSO91zUwuvBmQZs3IRSqT4k9hnl2EqFzR2P4s_DpHB6UcouUh1dmNlOpSapLremIBlKKjJkYWPONMDsMBA",
+            ),
+            title: "VULTURES",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "hAxeU0gtDkY",
+            ),
+            track_no: 12,
+            duration: "4:25",
+            plays: "72M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpL1t4yNjndWz2p7N_qBkrEeukynNLFe1gLf6cZUTEB5OoTg7qk7h23gZLnM4Ssla5zTbN_KU057CXC_I6Wo1leFjEAXKg",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpKveNW6nhVYuPqbu8itdRTOKMEIgQ4WF9spK8_J-0Qo2-oT3fmPOOABw47uWTCwFwiJzTk6xRMFlJys67SuIWkgy5qETQ",
+            ),
+            title: "CARNIVAL",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "Zo9gPBbp9WY",
+            ),
+            track_no: 13,
+            duration: "6:09",
+            plays: "2.5M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpLqPZBZWsGAj3b862HhdjEszx1QtKR4H20cKdDTkNf7HKIcC_d-JEC4OBcf6D_LNRZVTo3L_Ednte8cyjvaKmlCN8R5iA",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpLfjX-WSwTGNML-5HsKh_RwSjJ98tJ4s-LiBcyB86ZvsdtuYMkDBcgKwQigYajZbpQGcrawM3-duhDs4WfMFp7rGxrYHQ",
+            ),
+            title: "BEG FORGIVENESS",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "PQHLDcajPyE",
+            ),
+            track_no: 15,
+            duration: "3:15",
+            plays: "1.8M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpKXz2gSPINuavttugbfbapat0lA_guO_qoZUrpm6QjJmVBreENO2GIz284kB_k9obIHJYTGfybLRqA-XWEiQ33IIa2vnQ",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpIJfRcRgAVwOByFzlSLF2L2l5d6x5WsVp46yVUNUNjHW6GfWey_g-aoAc6YqEtjZ2nWhVL3_XuX5_iBdxAl5IAT6TRTWw",
+            ),
+            title: "PROBLEMATIC",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "OS7EU14N0p0",
+            ),
+            track_no: 16,
+            duration: "2:37",
+            plays: "1.3M plays",
+            library_status: NotInLibrary,
+            feedback_tok_add: FeedbackTokenAddToLibrary(
+                "AB9zfpLSs5n9tW9VrZPdiBzWodubWQaMT5pTmLkfKgr_AluCb5-dvOU8qctbWG58u3vRickBi3glqNT1mCZ0WXkJnMs-h5NEnA",
+            ),
+            feedback_tok_rem: FeedbackTokenRemoveFromLibrary(
+                "AB9zfpJpDvuyE0ZwDu9lbUL7-fS2I7p9MiU7MaXH0Nhl5aJ44-pL6p9hQxACRbGixYKVajeak69TIxi8Dzr47Jx43yTykltFnA",
+            ),
+            title: "KING",
+            like_status: Indifferent,
+            explicit: IsExplicit,
+        },
+    ],
+    library_status: NotInLibrary,
+}

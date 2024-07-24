@@ -78,12 +78,20 @@ pub struct AlbumParams {
 
 impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
     fn parse_from(p: ProcessedResult<GetAlbumQuery<'a>>) -> crate::Result<Self> {
-        parse_album_query_2024(p)
+        parse_album_query(p)
     }
 }
 
-fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
+fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>> {
     let mut data = json.borrow_pointer(MRLIR)?;
+    // A playlist item could be greyed out, and in this case we'll ignore the song
+    // from the list of tracks.
+    if let Ok("MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT") = data
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
+        .as_deref()
+    {
+        return Ok(None);
+    }
     let title = super::parse_item_text(&mut data, 0, 0)?;
     let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
@@ -119,7 +127,7 @@ fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
     } else {
         Explicit::NotExplicit
     };
-    Ok(AlbumSong {
+    Ok(Some(AlbumSong {
         video_id,
         track_no,
         duration,
@@ -130,11 +138,11 @@ fn parse_album_track_2024(json: &mut JsonCrawlerBorrowed) -> Result<AlbumSong> {
         title,
         like_status,
         explicit,
-    })
+    }))
 }
 
 // NOTE: Similar code to get_playlist_2024
-fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
+fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let json_crawler = JsonCrawler::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let mut header =
@@ -171,7 +179,7 @@ fn parse_album_query_2024(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumPara
             "/secondaryContents/sectionListRenderer/contents/0/musicShelfRenderer/contents",
         )?
         .into_array_iter_mut()?
-        .map(|mut track| parse_album_track_2024(&mut track))
+        .filter_map(|mut track| parse_album_track(&mut track).transpose())
         .collect::<Result<Vec<AlbumSong>>>()?;
     Ok(AlbumParams {
         library_status,
@@ -199,9 +207,9 @@ mod tests {
     #[tokio::test]
     async fn test_get_album_query() {
         parse_test!(
-            "./test_json/get_album_20240622.json",
-            "./test_json/get_album_20240622_output.txt",
-            GetAlbumQuery::new(AlbumID::from_raw("MPREb_Ylw2kL9wqcw")),
+            "./test_json/get_album_20240724.json",
+            "./test_json/get_album_20240724_output.txt",
+            GetAlbumQuery::new(AlbumID::from_raw("")),
             BrowserToken
         );
     }
