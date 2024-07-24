@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.8](https://github.com/nick42d/youtui/compare/youtui/v0.0.7...youtui/v0.0.8) - 2024-07-24
 
 ### Added
-- Add commandline flag to change auth type. Resolves [#98](https://github.com/nick42d/youtui/pull/98) ([#99](https://github.com/nick42d/youtui/pull/99))- Implement Taste Profiles and Moods - Resolves [#75](https://github.com/nick42d/youtui/pull/75) ([#97](https://github.com/nick42d/youtui/pull/97))- feat! Add oauth option for CLI back in. Resolves [#89](https://github.com/nick42d/youtui/pull/89) ([#93](https://github.com/nick42d/youtui/pull/93))- [**breaking**] Handle new formats for Top Results. Resolves [#87](https://github.com/nick42d/youtui/pull/87) ([#88](https://github.com/nick42d/youtui/pull/88))
+- Add commandline flag to change auth type. Resolves [#98](https://github.com/nick42d/youtui/pull/98) ([#99](https://github.com/nick42d/youtui/pull/99))
+- Implement Taste Profiles and Moods - Resolves [#75](https://github.com/nick42d/youtui/pull/75) ([#97](https://github.com/nick42d/youtui/pull/97))
+- feat! Add oauth option for CLI back in. Resolves [#89](https://github.com/nick42d/youtui/pull/89) ([#93](https://github.com/nick42d/youtui/pull/93))
+- [**breaking**] Handle new formats for Top Results. Resolves [#87](https://github.com/nick42d/youtui/pull/87) ([#88](https://github.com/nick42d/youtui/pull/88))
 New field 'message' added to ErrorKind::Parsing to improve error output.
+
 ### Other
-- Improve README.md ([#91](https://github.com/nick42d/youtui/pull/91)) - Closes [#90](https://github.com/nick42d/youtui/pull/90)- Update README.md## [0.0.7](https://github.com/nick42d/youtui/compare/youtui/v0.0.6...youtui/v0.0.7) - 2024-07-19
+- Improve README.md ([#91](https://github.com/nick42d/youtui/pull/91)) by @jonas - Closes [#90](https://github.com/nick42d/youtui/pull/90)- Update README.md
+
+## [0.0.7](https://github.com/nick42d/youtui/compare/youtui/v0.0.6...youtui/v0.0.7) - 2024-07-19
 
 ### Added
 - feat: More reliable use of rustls-tls
