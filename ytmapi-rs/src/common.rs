@@ -1,10 +1,9 @@
 //! Re-usable core structures.
 // Intended to be for structures that are also suitable to be reused by other
 // libraries. As opposed to simply part of the interface.
+use crate::Error;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-
-use crate::Error;
 
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
@@ -136,6 +135,12 @@ pub struct SetVideoID<'a>(Cow<'a, str>);
 pub struct UploadAlbumID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct UploadArtistID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct TasteTokenSelection<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct TasteTokenImpression<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct MoodCategoryParams<'a>(Cow<'a, str>);
 
 impl_youtube_id!(UploadEntityID<'a>);
 impl_youtube_id!(SetVideoID<'a>);
@@ -151,6 +156,9 @@ impl_youtube_id!(LyricsID<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
 impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
+impl_youtube_id!(TasteTokenImpression<'a>);
+impl_youtube_id!(TasteTokenSelection<'a>);
+impl_youtube_id!(MoodCategoryParams<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
@@ -236,5 +244,17 @@ pub mod browsing {
     pub struct Lyrics {
         pub lyrics: String,
         pub source: String,
+    }
+}
+
+pub mod recomendations {
+    use super::{TasteTokenImpression, TasteTokenSelection};
+    use serde::{Deserialize, Serialize};
+
+    #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+    // TODO: constructor
+    pub struct TasteToken<'a> {
+        pub impression_value: TasteTokenImpression<'a>,
+        pub selection_value: TasteTokenSelection<'a>,
     }
 }

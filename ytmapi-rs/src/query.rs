@@ -1,19 +1,22 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
+use std::borrow::Cow;
+
 pub use album::*;
 pub use artist::*;
 pub use history::*;
 pub use library::*;
 pub use playlist::*;
+pub use recommendations::*;
 pub use search::*;
-use std::borrow::Cow;
 pub use upload::*;
 
 mod artist;
 mod history;
 mod library;
 mod playlist;
+mod recommendations;
 mod search;
 mod upload;
 

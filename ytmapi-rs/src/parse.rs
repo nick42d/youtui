@@ -8,13 +8,15 @@ use crate::{
     ChannelID,
 };
 use crate::{Error, Result};
-pub use album::*;
-pub use artist::*;
 use const_format::concatcp;
-pub use library::*;
-pub use playlists::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+
+pub use album::*;
+pub use artist::*;
+pub use library::*;
+pub use playlists::*;
+pub use recommendations::*;
 pub use upload::*;
 
 mod album;
@@ -24,6 +26,7 @@ mod history;
 mod library;
 mod playlists;
 mod rate;
+mod recommendations;
 mod search;
 mod upload;
 
@@ -342,7 +345,7 @@ mod tests {
 
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
-    
+
     use crate::common::browsing::Lyrics;
     use crate::crawler::JsonCrawler;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};

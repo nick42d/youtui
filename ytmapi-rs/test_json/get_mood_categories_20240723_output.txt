@@ -1,0 +1,275 @@
+[
+    MoodCategorySection {
+        section_name: "For you",
+        mood_categories: [
+            MoodCategory {
+                title: "1960s",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX3htNGNrZ3UwT3RI",
+                ),
+            },
+            MoodCategory {
+                title: "Commute",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX044Z2o5WERLckpU",
+                ),
+            },
+            MoodCategory {
+                title: "Focus",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0NvNGNhWThMYWRh",
+                ),
+            },
+            MoodCategory {
+                title: "Chill",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1JOQWZFeDByc2Jm",
+                ),
+            },
+            MoodCategory {
+                title: "Dance & Electronic",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1NPTld3SDN3WGs4",
+                ),
+            },
+            MoodCategory {
+                title: "Metal",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzdlSXhKZ0hMV1Z4",
+                ),
+            },
+        ],
+    },
+    MoodCategorySection {
+        section_name: "Moods & moments",
+        mood_categories: [
+            MoodCategory {
+                title: "Black Lives Matter",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzJxenpkRkNOMk1y",
+                ),
+            },
+            MoodCategory {
+                title: "Chill",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1JOQWZFeDByc2Jm",
+                ),
+            },
+            MoodCategory {
+                title: "Commute",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX044Z2o5WERLckpU",
+                ),
+            },
+            MoodCategory {
+                title: "Energy Boosters",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2lRZUZiMnNrQnJW",
+                ),
+            },
+            MoodCategory {
+                title: "Feel Good",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzZQbDB5eThLRTQ3",
+                ),
+            },
+            MoodCategory {
+                title: "Focus",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0NvNGNhWThMYWRh",
+                ),
+            },
+            MoodCategory {
+                title: "Halloween",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0VzUzRpMkExMENQ",
+                ),
+            },
+            MoodCategory {
+                title: "Party",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2w1aW1CRDFTSUNo",
+                ),
+            },
+            MoodCategory {
+                title: "Pride",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1YzRjl4a2NKajkx",
+                ),
+            },
+            MoodCategory {
+                title: "Romance",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1JCQnB2QXVYVEIz",
+                ),
+            },
+            MoodCategory {
+                title: "Sad",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX3NISTh4UmtWcFgz",
+                ),
+            },
+            MoodCategory {
+                title: "Sleep",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1MxaFQ3Z0JMZkN4",
+                ),
+            },
+            MoodCategory {
+                title: "Workout",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzIxYkNac21YZ2Z0",
+                ),
+            },
+        ],
+    },
+    MoodCategorySection {
+        section_name: "Genres",
+        mood_categories: [
+            MoodCategory {
+                title: "African",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0UzWGxlRE5jMDVk",
+                ),
+            },
+            MoodCategory {
+                title: "Arabic",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX3VOQWxsblVZTFNE",
+                ),
+            },
+            MoodCategory {
+                title: "Blues",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2NXUkgxdW0zUHJp",
+                ),
+            },
+            MoodCategory {
+                title: "Bollywood & Indian",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2hacTRJOU5KcndD",
+                ),
+            },
+            MoodCategory {
+                title: "Christian & Gospel",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX3E1VnpSRHhLVElG",
+                ),
+            },
+            MoodCategory {
+                title: "Classical",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1N4VmduTmdUR3dm",
+                ),
+            },
+            MoodCategory {
+                title: "Country & Americana",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1RXcFlyZEpRb1d3",
+                ),
+            },
+            MoodCategory {
+                title: "Dance & Electronic",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1NPTld3SDN3WGs4",
+                ),
+            },
+            MoodCategory {
+                title: "Decades",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0M4VkwxOFRzMDR1",
+                ),
+            },
+            MoodCategory {
+                title: "Family",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzMyY3J2SGM0bVh5",
+                ),
+            },
+            MoodCategory {
+                title: "Folk & Acoustic",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzBTRFBmQ3N4b0R6",
+                ),
+            },
+            MoodCategory {
+                title: "Hip-Hop",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2E4aVJuU05GOVQ0",
+                ),
+            },
+            MoodCategory {
+                title: "Indie & Alternative",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX21NWWpBbU01SDgy",
+                ),
+            },
+            MoodCategory {
+                title: "J-Pop",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzAwSjVITDBZckJR",
+                ),
+            },
+            MoodCategory {
+                title: "Jazz",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX3lPcDFRaE9wM1BS",
+                ),
+            },
+            MoodCategory {
+                title: "K-Pop",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX0JrbjBDOFFPSzJW",
+                ),
+            },
+            MoodCategory {
+                title: "Latin",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX29wWTRjMHV1dWN5",
+                ),
+            },
+            MoodCategory {
+                title: "Mandopop & Cantopop",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2hXVUQwc0JTNXlE",
+                ),
+            },
+            MoodCategory {
+                title: "Metal",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzdlSXhKZ0hMV1Z4",
+                ),
+            },
+            MoodCategory {
+                title: "Pop",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1BmNzc2V2p0YXJ5",
+                ),
+            },
+            MoodCategory {
+                title: "R&B & Soul",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2JxQ2hxc2J5UFhR",
+                ),
+            },
+            MoodCategory {
+                title: "Reggae & Caribbean",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX1JUc2lFcDFuUUth",
+                ),
+            },
+            MoodCategory {
+                title: "Rock",
+                params: MoodCategoryParams(
+                    "ggMPOg1uXzJKTm5jUEZ5Uzlu",
+                ),
+            },
+            MoodCategory {
+                title: "Soundtracks & Musicals",
+                params: MoodCategoryParams(
+                    "ggMPOg1uX2tWZXBsRm05cHNR",
+                ),
+            },
+        ],
+    },
+]

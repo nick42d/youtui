@@ -4,21 +4,20 @@
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
 use crate::auth::AuthToken;
+use crate::common::recomendations::TasteToken;
 use crate::common::{
     browsing::Lyrics,
     library::{LibraryArtist, Playlist},
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, BrowseParams, LyricsID, SetVideoID};
+use crate::common::{AlbumID, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams,
-    GetLibraryArtistSubscription, GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListItem,
-    TableListSong,
+    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
+    GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
 };
-use crate::query::DuplicateHandlingMode;
 use crate::query::{
     filteredsearch::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
@@ -28,14 +27,18 @@ use crate::query::{
     lyrics::GetLyricsQuery,
     rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, BasicSearch, CreatePlaylistQuery,
-    CreatePlaylistType, DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
-    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
+    AddPlaylistItemsQuery, BasicSearch, CreatePlaylistQuery, CreatePlaylistType,
+    DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
     RemovePlaylistItemsQuery, SearchQuery,
+};
+use crate::query::{
+    DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
+    SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
@@ -678,5 +681,62 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
         let query = DeleteUploadEntityQuery::new(upload_entity_id.into());
         self.query(query).await
+    }
+    /// Fetches suggested artists from taste profile
+    /// [https://music.youtube.com/tasteprofile].
+    /// Tasteprofile allows users to pick artists to update their
+    /// recommendations.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_taste_profile().await
+    /// # };
+    pub async fn get_taste_profile(&self) -> Result<<GetTasteProfileQuery as Query<A>>::Output> {
+        self.query(GetTasteProfileQuery).await
+    }
+    /// Sets artists as favourites to influence your recommendations.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_taste_profile().await.unwrap();
+    /// yt.set_taste_profile(results.into_iter()
+    ///     .take(5)
+    ///     .map(|r| r.taste_tokens))
+    ///     .await
+    /// # };
+    pub async fn set_taste_profile<'a, I, II>(
+        &self,
+        taste_tokens: II,
+    ) -> Result<<SetTasteProfileQuery<'a, I> as Query<A>>::Output>
+    where
+        I: Iterator<Item = TasteToken<'a>> + Clone,
+        II: IntoIterator<IntoIter = I>,
+    {
+        self.query(SetTasteProfileQuery::new(taste_tokens)).await
+    }
+    /// Fetches 'Moods & Genres' categories.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_mood_categories().await
+    /// # };
+    pub async fn get_mood_categories(
+        &self,
+    ) -> Result<<GetMoodCategoriesQuery as Query<A>>::Output> {
+        self.query(GetMoodCategoriesQuery).await
+    }
+    /// Returns a list of playlists for a given mood category.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_mood_categories().await.unwrap();
+    /// yt.get_mood_playlists(&results[0].mood_categories[0].params).await
+    /// # };
+    pub async fn get_mood_playlists<'a, T: Into<MoodCategoryParams<'a>>>(
+        &self,
+        mood_params: T,
+    ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
+        self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
+            .await
     }
 }

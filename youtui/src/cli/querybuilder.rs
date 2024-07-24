@@ -2,8 +2,10 @@ use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
-        AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
-        PlaylistID, SetVideoID, UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID,
+        recomendations::TasteToken, AlbumID, BrowseParams, FeedbackTokenAddToLibrary,
+        FeedbackTokenRemoveFromHistory, MoodCategoryParams, PlaylistID, SetVideoID,
+        TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
+        YoutubeID,
     },
     parse::{LikeStatus, ParseFrom},
     process_json,
@@ -16,8 +18,9 @@ use ytmapi_rs::{
         GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
         GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-        GetPlaylistQuery, GetSearchSuggestionsQuery, PlaylistsFilter, PodcastsFilter,
-        ProfilesFilter, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
+        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
+        GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
+        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
         SongsFilter, VideosFilter,
     },
     ChannelID, VideoID,
@@ -351,6 +354,36 @@ pub async fn command_to_query(
             get_string_output_of_query(
                 yt,
                 DeleteUploadEntityQuery::new(UploadEntityID::from_raw(upload_entity_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetTasteProfile => {
+            get_string_output_of_query(yt, GetTasteProfileQuery, cli_query).await
+        }
+        Command::SetTasteProfile {
+            impression_token,
+            selection_token,
+        } => {
+            get_string_output_of_query(
+                yt,
+                SetTasteProfileQuery::new([TasteToken {
+                    impression_value: TasteTokenImpression::from_raw(impression_token),
+                    selection_value: TasteTokenSelection::from_raw(selection_token),
+                }]),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetMoodCategories => {
+            get_string_output_of_query(yt, GetMoodCategoriesQuery, cli_query).await
+        }
+        Command::GetMoodPlaylists {
+            mood_category_params,
+        } => {
+            get_string_output_of_query(
+                yt,
+                GetMoodPlaylistsQuery::new(MoodCategoryParams::from_raw(mood_category_params)),
                 cli_query,
             )
             .await

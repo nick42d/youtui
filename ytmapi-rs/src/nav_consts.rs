@@ -33,19 +33,21 @@ pub const FEEDBACK_TOKEN: &str = "/feedbackEndpoint/feedbackToken";
 pub const BADGE_PATH: &str =
     "/0/musicInlineBadgeRenderer/accessibilityData/accessibilityData/label";
 pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibilityData/label";
-pub const _CATEGORY_PARAMS: &str =
-    "/musicNavigationButtonRenderer/clickCommand/browseEndpoint/params";
+pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
-pub const _TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
-pub const _TASTE_PROFILE_ARTIST: &str = "/title/runs";
+pub const TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
+pub const TASTE_ITEM_CONTENTS: &str = "/tastebuilderItemListRenderer/contents";
+pub const TASTE_PROFILE_SELECTION: &str = "/tastebuilderItemRenderer/selectionFormValue";
+pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impressionFormValue";
+pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
 pub const DESCRIPTION_SHELF_RUNS: &str =
     "/description/musicDescriptionShelfRenderer/description/runs";
-pub const _CAROUSEL: &str = "/musicCarouselShelfRenderer";
+pub const CAROUSEL: &str = "/musicCarouselShelfRenderer";
 pub const _IMMERSIVE_CAROUSEL: &str = "/musicImmersiveCarouselShelfRenderer";
 pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/mutations";
 pub const INDEX_TEXT: &str = "/index/runs/0/text";
@@ -79,14 +81,14 @@ pub const STRAPLINE_THUMBNAIL: &str =
 pub const BADGE_LABEL: &str = concatcp!("/badges", BADGE_PATH);
 pub const LIVE_BADGE_LABEL: &str = concatcp!("/badges", LIVE_BADGE_PATH);
 pub const SUBTITLE_BADGE_LABEL: &str = concatcp!("/subtitleBadges", BADGE_PATH);
-pub const _CATEGORY_TITLE: &str = concatcp!("/musicNavigationButtonRenderer/buttonText", RUN_TEXT);
+pub const CATEGORY_TITLE: &str = concatcp!("/buttonText", RUN_TEXT);
 pub const MENU_PLAYLIST_ID: &str = concatcp!(
     MENU_ITEMS,
     "/0/menuNavigationItemRenderer",
     NAVIGATION_WATCH_PLAYLIST_ID
 );
 pub const DESCRIPTION: &str = concatcp!("/description", RUN_TEXT);
-pub const _CAROUSEL_CONTENTS: &str = concatcp!(_CAROUSEL, "/contents");
+pub const _CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);

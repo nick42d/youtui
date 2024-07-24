@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     common::{PlaylistID, SetVideoID},
-    crawler::JsonCrawler,
+    crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
@@ -193,9 +193,8 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let views = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/4/text")?;
-    let id = header.take_value_pointer(
-        "/buttons/1/musicPlayButtonRenderer/playNavigationEndpoint/watchEndpoint/playlistId",
-    )?;
+    let id = get_play_button_from_buttons(header.navigate_pointer("/buttons")?)?
+        .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let music_shelf = columns.borrow_pointer(
         "/secondaryContents/sectionListRenderer/contents/0/musicPlaylistShelfRenderer/contents",
     )?;
@@ -215,6 +214,14 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         views,
         tracks,
     })
+}
+
+fn get_play_button_from_buttons(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
+    let cur_path = menu.get_path();
+    menu.into_array_iter_mut()?
+        .find_map(|item| item.navigate_pointer("/musicPlayButtonRenderer").ok())
+        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
+        .ok_or_else(|| Error::other(format!("expected playlist item to contain a /musicPlayButtonRenderer underneath path {cur_path}")))
 }
 
 #[cfg(test)]
