@@ -3,8 +3,8 @@ use serde_json::{json, Value};
 use super::Query;
 use crate::{
     auth::AuthToken,
-    common::{recomendations::TasteToken, MoodCategoryParams},
-    parse::{ApiSuccess, MoodCategorySection, TasteProfileArtist},
+    common::{library::Playlist, recomendations::TasteToken, MoodCategoryParams},
+    parse::{ApiSuccess, MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist},
 };
 
 #[derive(Clone)]
@@ -106,7 +106,7 @@ impl<A: AuthToken> Query<A> for GetMoodCategoriesQuery {
 }
 
 impl<'a, A: AuthToken> Query<A> for GetMoodPlaylistsQuery<'a> {
-    type Output = ()
+    type Output = Vec<MoodPlaylistCategory>
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

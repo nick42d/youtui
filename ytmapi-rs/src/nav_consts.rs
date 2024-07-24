@@ -47,7 +47,7 @@ pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
 pub const DESCRIPTION_SHELF_RUNS: &str =
     "/description/musicDescriptionShelfRenderer/description/runs";
-pub const _CAROUSEL: &str = "/musicCarouselShelfRenderer";
+pub const CAROUSEL: &str = "/musicCarouselShelfRenderer";
 pub const _IMMERSIVE_CAROUSEL: &str = "/musicImmersiveCarouselShelfRenderer";
 pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/mutations";
 pub const INDEX_TEXT: &str = "/index/runs/0/text";
@@ -88,7 +88,7 @@ pub const MENU_PLAYLIST_ID: &str = concatcp!(
     NAVIGATION_WATCH_PLAYLIST_ID
 );
 pub const DESCRIPTION: &str = concatcp!("/description", RUN_TEXT);
-pub const _CAROUSEL_CONTENTS: &str = concatcp!(_CAROUSEL, "/contents");
+pub const _CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);

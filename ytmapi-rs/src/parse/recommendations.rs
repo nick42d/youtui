@@ -4,13 +4,17 @@ use super::{
     TASTE_PROFILE_SELECTION,
 };
 use crate::{
-    common::{recomendations::TasteToken, MoodCategoryParams},
-    crawler::{self, JsonCrawler},
-    nav_consts::{CATEGORY_PARAMS, NAVIGATION_BROWSE, SECTION_LIST, SINGLE_COLUMN_TAB},
+    common::{library::Playlist, recomendations::TasteToken, MoodCategoryParams, PlaylistID},
+    crawler::{self, JsonCrawler, JsonCrawlerBorrowed},
+    nav_consts::{
+        CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, CONTENT, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE,
+        NAVIGATION_BROWSE_ID, SECTION_LIST, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE2, SUBTITLE_RUNS,
+        THUMBNAIL, THUMBNAIL_RENDERER, TITLE_TEXT,
+    },
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Result,
+    utils, Error, Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -30,6 +34,20 @@ pub struct MoodCategorySection {
 pub struct MoodCategory {
     pub title: String,
     pub params: MoodCategoryParams<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct MoodPlaylistCategory {
+    pub category_name: String,
+    pub playlists: Vec<MoodPlaylist>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct MoodPlaylist {
+    pub playlist_id: PlaylistID<'static>,
+    pub title: String,
+    pub thumbnails: Vec<Thumbnail>,
+    pub author: String,
 }
 
 impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ApiSuccess
@@ -72,9 +90,79 @@ impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for () {
+impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> crate::Result<Self> {
-        todo!()
+        fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
+            if let Ok(grid) = crawler.borrow_pointer(GRID) {
+                parse_mood_playlist_category_grid(grid)
+            } else if let Ok(carousel) = crawler.borrow_pointer(CAROUSEL) {
+                parse_mood_playlist_category_carousel(carousel)
+            } else {
+                return Err(Error::other(format!(
+                    "Expected <{}> to contain {GRID} or {CAROUSEL}",
+                    crawler.get_path()
+                )));
+            }
+        }
+        fn parse_mood_playlist_category_grid(
+            mut crawler: JsonCrawlerBorrowed,
+        ) -> Result<MoodPlaylistCategory> {
+            let category_name =
+                crawler.take_value_pointer(concatcp!("/header/gridHeaderRenderer", TITLE_TEXT))?;
+            let playlists = crawler
+                .navigate_pointer("/items")?
+                .into_array_iter_mut()?
+                .map(parse_mood_playlist)
+                .collect::<Result<_>>()?;
+            Ok(MoodPlaylistCategory {
+                category_name,
+                playlists,
+            })
+        }
+        fn parse_mood_playlist_category_carousel(
+            mut crawler: JsonCrawlerBorrowed,
+        ) -> Result<MoodPlaylistCategory> {
+            let category_name = crawler.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
+            let playlists = crawler
+                .navigate_pointer("/contents")?
+                .into_array_iter_mut()?
+                .map(parse_mood_playlist)
+                .collect::<Result<_>>()?;
+            Ok(MoodPlaylistCategory {
+                category_name,
+                playlists,
+            })
+        }
+        fn parse_mood_playlist(crawler: JsonCrawlerBorrowed) -> Result<MoodPlaylist> {
+            let mut item = crawler.navigate_pointer(MTRIR)?;
+            let playlist_id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let title = item.take_value_pointer(TITLE_TEXT)?;
+            let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
+            let author = item
+                .borrow_pointer(SUBTITLE_RUNS)?
+                .into_array_iter_mut()?
+                .take(3)
+                .last()
+                .map(|mut run| run.take_value_pointer("/text"))
+                .ok_or_else(|| {
+                    Error::other(format!(
+                        "Expected at least 1 item in array at {}{SUBTITLE_RUNS}",
+                        item.get_path(),
+                    ))
+                })??;
+            Ok(MoodPlaylist {
+                playlist_id,
+                title,
+                thumbnails,
+                author,
+            })
+        }
+        let json_crawler: JsonCrawler = p.into();
+        json_crawler
+            .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
+            .into_array_into_iter()?
+            .map(parse_mood_playlist_category)
+            .collect()
     }
 }
 

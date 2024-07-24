@@ -166,7 +166,7 @@ fn process_library_contents_grid(mut json_crawler: JsonCrawler) -> Option<JsonCr
     let section = json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST));
     // Assume empty library in this case.
     if let Ok(section) = section {
-        if section.path_exists("itemSectionRenderer") {
+        if section.path_exists("/itemSectionRenderer") {
             json_crawler
                 .navigate_pointer(concatcp!(ITEM_SECTION, GRID))
                 .ok()

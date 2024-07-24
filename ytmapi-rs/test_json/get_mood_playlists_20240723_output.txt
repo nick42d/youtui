@@ -1,0 +1,625 @@
+[
+    MoodPlaylistCategory {
+        category_name: "Classic Reggae & Caribbean",
+        playlists: [
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lheErTnEXzx41DFOdllzXH0qFOH6I6rbo",
+                ),
+                title: "Essential Reggae",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/XBYVrnq8yWF982MKI4exiDTLo-HD6Nqm9CgXs7mEwuz4uQDyqk5SEAdzCKYz9PdHOc8GSe7yv_WALTM=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/XBYVrnq8yWF982MKI4exiDTLo-HD6Nqm9CgXs7mEwuz4uQDyqk5SEAdzCKYz9PdHOc8GSe7yv_WALTM=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nGgzkCTUJrY6A8IWiySTH-NK_7dNOB5Bk",
+                ),
+                title: "'70s Roots Reggae",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/iaLIAxVdxYoNuhXRreezinc_Dz0RhPGhd6mJuGdlvyfPYwkQ5tWFfgw1RpnuBc3W4N9tJHbzyk1YVA=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/iaLIAxVdxYoNuhXRreezinc_Dz0RhPGhd6mJuGdlvyfPYwkQ5tWFfgw1RpnuBc3W4N9tJHbzyk1YVA=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kHzdoA3aH0HIVzkOih-R5OXRrtG5sNIU8",
+                ),
+                title: "Reggae Rewind",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/-wRw--5kZWHIcaQZGz5KInl2vRFwbe_Dj4nAckTrI8Wfx7_6p_XDIZYRIo-UorfZ7vtqB5GZoa1UsXQ=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/-wRw--5kZWHIcaQZGz5KInl2vRFwbe_Dj4nAckTrI8Wfx7_6p_XDIZYRIo-UorfZ7vtqB5GZoa1UsXQ=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_mWChIyo800Sh01YcXvbP_kinI3XpQ_Cak",
+                ),
+                title: "Ska Sounds",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/t4ID2brDjbmdB7JtBxmj832H0INoVJ-4rAuESQ7Xn_tNorOu_hxh_-_CPiQCH57yuC3S3xdo0CVKyeY=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/t4ID2brDjbmdB7JtBxmj832H0INoVJ-4rAuESQ7Xn_tNorOu_hxh_-_CPiQCH57yuC3S3xdo0CVKyeY=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_k9J5Gley3uvN5GYRbZPE2f94UTR7QbN0I",
+                ),
+                title: "Lovers Rock Classics",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/kg8ApSAKUl8lcvOHRnTUK8r-R4Cn1sbiiUqhiZqsTmZr0k8Nn-Sibz4HnnTxc4neugZlnMOZi3-1ikI=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/kg8ApSAKUl8lcvOHRnTUK8r-R4Cn1sbiiUqhiZqsTmZr0k8Nn-Sibz4HnnTxc4neugZlnMOZi3-1ikI=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kKSL58K7ReSqMM5jwKWS7-kAgEBWLU5CI",
+                ),
+                title: "Dancehall Essentials ",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/dNiziUiYuPDDqxvekfpJn-Fcxep0tPLYROZcjWHLlTlz3O7ISmld_koyLrrakWYlZcS0sZ39LMRZaKon=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/dNiziUiYuPDDqxvekfpJn-Fcxep0tPLYROZcjWHLlTlz3O7ISmld_koyLrrakWYlZcS0sZ39LMRZaKon=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_ncXhIKFnvPuvLTNX-hjLwhQYl7GR8UmyA",
+                ),
+                title: "'90s Dancehall",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/yOafQ21go57kp0ZCACUmv0tRQbvTPfC_wpFhQABGrn64i7ngQ_cSOlz3eW5PgSMyidFdoh2M1Fs6s38=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/yOafQ21go57kp0ZCACUmv0tRQbvTPfC_wpFhQABGrn64i7ngQ_cSOlz3eW5PgSMyidFdoh2M1Fs6s38=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kf1l4lqvMZ747K9ZJxNWiOYWMb-4DqP3g",
+                ),
+                title: "'10s Soca",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/quWR7d1jCdZwsM4zc9SJ3NojtSSInTT-OIve8HphoSpXUNFMgnBGO1Kjyc9s0G0fQcJgrOrJ4b9J_ks=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/quWR7d1jCdZwsM4zc9SJ3NojtSSInTT-OIve8HphoSpXUNFMgnBGO1Kjyc9s0G0fQcJgrOrJ4b9J_ks=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nxD7pTGgcC3h_8950Pbgc-So8HcuU0rqE",
+                ),
+                title: "'10s Dancehall & Reggae",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/fv6b2fQgZEfAt5J61xlhKqoctRzD3PgDbEnt2DO_trpCrT7jZ3tcIyTlk8i0YxASZnf-ht_GM-wgokY=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/fv6b2fQgZEfAt5J61xlhKqoctRzD3PgDbEnt2DO_trpCrT7jZ3tcIyTlk8i0YxASZnf-ht_GM-wgokY=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kak1eJLcrvuud50-z5FWgVwI2FOrwIVf8",
+                ),
+                title: "French Caribbean Essentials",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/eWK5i8U4HTXLS5xHrH5QYps7jFJ12W1YU8Fbq9f2D6FXgR1ZYly3A9lruKq1ERExP845sOqNfoS2AEEh=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/eWK5i8U4HTXLS5xHrH5QYps7jFJ12W1YU8Fbq9f2D6FXgR1ZYly3A9lruKq1ERExP845sOqNfoS2AEEh=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+        ],
+    },
+    MoodPlaylistCategory {
+        category_name: "Caribbean Moods & Vibes",
+        playlists: [
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nCjZkAjxyiC-klzpxBVZlbLQ55y8ESMXo",
+                ),
+                title: "Electric Riddims",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/95hJnw9-33XSwlTe593QRRHzxyhvk_pTcMmNXn46kwsg_Fp4ZHv0GDWE0FaHf3DIKNLGos_rF3WTVXE=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/95hJnw9-33XSwlTe593QRRHzxyhvk_pTcMmNXn46kwsg_Fp4ZHv0GDWE0FaHf3DIKNLGos_rF3WTVXE=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lB05cV6UuwuCdQx0TXu3R-hN39P90f058",
+                ),
+                title: "Poolside Riddims",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/60VUEdqJKfdfTSLbv4qah_OVee1DiskztWlTZVPUUDWL4tUdixoPlMmyvcF9Olr71evIeu2bE3kynps=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/60VUEdqJKfdfTSLbv4qah_OVee1DiskztWlTZVPUUDWL4tUdixoPlMmyvcF9Olr71evIeu2bE3kynps=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lTN8j40AYIG_Mc9P2t7DECfqGn0A1uQo4",
+                ),
+                title: "Reggae Relaxation",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/jZ9prKBqVQhTW2X1DXxyJTH89Hlkf6oCxmoUk8b9n2tR5EfbAm2Ik5dGjYMXkI6K7Vq7vtiXGZ5smeQ=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/jZ9prKBqVQhTW2X1DXxyJTH89Hlkf6oCxmoUk8b9n2tR5EfbAm2Ik5dGjYMXkI6K7Vq7vtiXGZ5smeQ=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lyjUksO6rVkVneKO06-gGk72X4sPfVd9s",
+                ),
+                title: "Sunshine Reggae",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/cIcxgm5iWJ0VLCCH_XhCfRvf_bWj7PKC7HF-ZkU7XmCWUvZiG5a_sEJIGv1ZClO3PJUeAlvf4W_08r4r=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/cIcxgm5iWJ0VLCCH_XhCfRvf_bWj7PKC7HF-ZkU7XmCWUvZiG5a_sEJIGv1ZClO3PJUeAlvf4W_08r4r=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_l5dKTUvxIyVBm0bjNDUbbjG6QgvTE17zg",
+                ),
+                title: "Reggae Ohana",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/xDhYoH7p_O6jIttqsH99szc5Tk3j-ofHGcE6QX9s3sEGrxbzVF-JOyCQdOJBIZ0jk1tDW1dvJXpOZA=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/xDhYoH7p_O6jIttqsH99szc5Tk3j-ofHGcE6QX9s3sEGrxbzVF-JOyCQdOJBIZ0jk1tDW1dvJXpOZA=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nLUMOygwJOsoDb_WlEj8EyihlVJ0d-XNw",
+                ),
+                title: "Bashment Party",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/07eGKnITQessbzXD8XU-JwzFXaVy18Vhbulj6OgmdRMWp3JoIfOIIkWDreCe8TdkkcjxPP3zML_e6t0=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/07eGKnITQessbzXD8XU-JwzFXaVy18Vhbulj6OgmdRMWp3JoIfOIIkWDreCe8TdkkcjxPP3zML_e6t0=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lqF-F7XEInAA9x7SLAVbGjXXDoJVOg9as",
+                ),
+                title: "Groovy Soca",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/VYP3kL9exuLhz5tLTlEJloGsQOVCaiIIzfi-DFsg80DVb8NC4dLpjYejpDvy_xqaG42mcghlntUXMCVC=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/VYP3kL9exuLhz5tLTlEJloGsQOVCaiIIzfi-DFsg80DVb8NC4dLpjYejpDvy_xqaG42mcghlntUXMCVC=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nqUUZaGFNYIcBMiuXqzv4YbRUnpvK5KWY",
+                ),
+                title: "Afro Riddims",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/55NcNwwdRC1g7PmPCB33LRQ3VreDDtHylumnyydTsQ5mGjnFlt-KsdmUHj9_Gwjb4Hq9tsBuItLpCoQ=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/55NcNwwdRC1g7PmPCB33LRQ3VreDDtHylumnyydTsQ5mGjnFlt-KsdmUHj9_Gwjb4Hq9tsBuItLpCoQ=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_ken67KPS9ZaraWCRnWq9Vx7ixTOw5xNrk",
+                ),
+                title: "Classic Afro Reggae",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/uSNhDiBSRvcUZ40KUbeMjCDydO1bYvuZOX6Vww2pRBj8Qeu0qe2d2Zfq1krtLis1eY626ZYTsGnHnwk=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/uSNhDiBSRvcUZ40KUbeMjCDydO1bYvuZOX6Vww2pRBj8Qeu0qe2d2Zfq1krtLis1eY626ZYTsGnHnwk=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_ltf-jG6zP7J0dy6On8e9BHTTkHFZ73MEQ",
+                ),
+                title: "Reggae Japan",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/gTmkxka6LNvG5AV-gVFy5FYRpUKWEM0GRlUHa4k8c91-nd9aYDSTHzmCwA9VEssSa7y1vXxq06Dei8U=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/gTmkxka6LNvG5AV-gVFy5FYRpUKWEM0GRlUHa4k8c91-nd9aYDSTHzmCwA9VEssSa7y1vXxq06Dei8U=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+        ],
+    },
+    MoodPlaylistCategory {
+        category_name: "Caribbean Music Icons",
+        playlists: [
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kG_HIh2_NBDgmCGJiw_3AeebxcfJko0-Q",
+                ),
+                title: "Presenting Bob Marley",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/sqBYz5CEULKiGTqKdhitmn3TMTiyvgGz0vsEWkhRMM1kXqaosnbP8gqHHyaqFLgPAIhcLFRlN7ceCLVf=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/sqBYz5CEULKiGTqKdhitmn3TMTiyvgGz0vsEWkhRMM1kXqaosnbP8gqHHyaqFLgPAIhcLFRlN7ceCLVf=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_mMpj2ktIfk_Rgo8gkoPu7YFfm_dxW-I0k",
+                ),
+                title: "Presenting Lee \"Scratch\" Perry",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/IU8hMriSi_fMi4GjrXm97ShehoPBMPTu_-Mr_2ygOIz8kB1NRwHHNCn3JAEreTOmGTI7hyhFswN6-to=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/IU8hMriSi_fMi4GjrXm97ShehoPBMPTu_-Mr_2ygOIz8kB1NRwHHNCn3JAEreTOmGTI7hyhFswN6-to=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kd2WzC4hXD-A0reRpayIqkCquq5Q-taTw",
+                ),
+                title: "Presenting: Toots and The Maytals",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/a2S2C_WVrvAxC0q3iKpOPzvYaA8GLuMccaxN6X06KTsJNz2i6nN1OaNRDxnNO-q2khcJ7ENAdNJIHw=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/a2S2C_WVrvAxC0q3iKpOPzvYaA8GLuMccaxN6X06KTsJNz2i6nN1OaNRDxnNO-q2khcJ7ENAdNJIHw=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_miJzotyMQVm6b-TWpXJzW7BMewZJAxRfw",
+                ),
+                title: "Presenting Buju Banton",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/4-0juGDeVcydMZ20JR_nbDWz2V9HRxvPVYLwKFY6HYMlm7O3g2c0d_I8KEUkMNWF312EkXP1r-5cr1g=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/4-0juGDeVcydMZ20JR_nbDWz2V9HRxvPVYLwKFY6HYMlm7O3g2c0d_I8KEUkMNWF312EkXP1r-5cr1g=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nTmuZ_oxFi1oC3UuCmMwDvXGdnS1_xW9w",
+                ),
+                title: "Presenting Sean Paul",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/cobMqrDXIchvWQQvm-CksePoENGQs_TfKE18fjl2qaZEl78gItsZg04R70sxWhx88hB2wXGxnVAHCA=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/cobMqrDXIchvWQQvm-CksePoENGQs_TfKE18fjl2qaZEl78gItsZg04R70sxWhx88hB2wXGxnVAHCA=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kbKDtrutjzdkid89iEV1YaSqSql7NaT6s",
+                ),
+                title: "Presenting Damian Marley",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/Mj0m8nJre9NTyoP3eWisR2Mko4X1HnTYsJfv70maQlHu_FLRh3F-QHq53LLcTFV4HtfD899OkFlazyE=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/Mj0m8nJre9NTyoP3eWisR2Mko4X1HnTYsJfv70maQlHu_FLRh3F-QHq53LLcTFV4HtfD899OkFlazyE=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_kXCfjpZ8ZooXI8r9UFFdc_Cu0-m7uHhUs",
+                ),
+                title: "Presenting Stephen Marley",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/ZCUNFB76T98pZUWoVgpNcTlIXe3jfGe-TxxUa9GHkmPVLXg_L553AOxCLsYNsx3_ThSyVW11XsqxCg=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/ZCUNFB76T98pZUWoVgpNcTlIXe3jfGe-TxxUa9GHkmPVLXg_L553AOxCLsYNsx3_ThSyVW11XsqxCg=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_nCpdZEa3JFm8aFIm1ir-MkWqJXsZyMqQU",
+                ),
+                title: "Presenting Jackie Mittoo",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/Jyh1sm66Wp2zqNYqArdaVRe--Iczg-U1IJqtPdl7ab7QBuY_BPCL0hq8oA2uUTgWgIF-ID4jUg3Qvg=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/Jyh1sm66Wp2zqNYqArdaVRe--Iczg-U1IJqtPdl7ab7QBuY_BPCL0hq8oA2uUTgWgIF-ID4jUg3Qvg=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lLjy4RK-wRGsCVGWWnNlFYjll21pDpdT4",
+                ),
+                title: "Presenting Shenseea",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/mKZUBF95qwH8dGJrcbIe7MPY2qyKTs9thEzaOMqDbxZDlmKPVN636TanxAzd2Ku5kARpIM9XQqDGrpk=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/mKZUBF95qwH8dGJrcbIe7MPY2qyKTs9thEzaOMqDbxZDlmKPVN636TanxAzd2Ku5kARpIM9XQqDGrpk=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_k6Eq9S4j5LOK9AvSvcuKWHlbc5psLKgaQ",
+                ),
+                title: "Presenting Koffee",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/nr5AefNpn4VG9dtv9pdjbmrKkoLXvD5SAAWQwQ5FjuNrn9ST442tOXYxjiNVJc_6G5HrrRkJwhV2SCw=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/nr5AefNpn4VG9dtv9pdjbmrKkoLXvD5SAAWQwQ5FjuNrn9ST442tOXYxjiNVJc_6G5HrrRkJwhV2SCw=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_lbBfpf0IB4BFyimo_oIf7dZzQr0fRQdl8",
+                ),
+                title: "Presenting Jimmy Cliff",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/WM6CN5oEW2dTdUkxAPrrhiEOlZbqpJiDex3UvJTEvV2kDE7k43A36aXXF4lFnVjSdsrm0hAQdXHl50w=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/WM6CN5oEW2dTdUkxAPrrhiEOlZbqpJiDex3UvJTEvV2kDE7k43A36aXXF4lFnVjSdsrm0hAQdXHl50w=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+            MoodPlaylist {
+                playlist_id: PlaylistID(
+                    "VLRDCLAK5uy_n3ybzfbXXsbuXfluOIdzHGl0p220OVOFQ",
+                ),
+                title: "Presenting Spice",
+                thumbnails: [
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://lh3.googleusercontent.com/ziiEu6iqEeCIoRgOUxWARL_svBvxcQw3s-XSc7wlLw7eVCGf4vpVC_CvLq3YL8X39SU4gb8NnQrwQ4M=w226-h226-l90-rj",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://lh3.googleusercontent.com/ziiEu6iqEeCIoRgOUxWARL_svBvxcQw3s-XSc7wlLw7eVCGf4vpVC_CvLq3YL8X39SU4gb8NnQrwQ4M=w544-h544-l90-rj",
+                    },
+                ],
+                author: "YouTube Music",
+            },
+        ],
+    },
+]
