@@ -96,10 +96,10 @@ Chrome example (Select manually and paste):
 |GetSong|[ ]||
 |GetSongRelated|[ ]||
 |GetLyrics|[x]||
-|GetTasteProfile|[ ]||
-|SetTasteProfile|[ ]||
-|GetMoodCategories|[ ]||
-|GetMoodPlaylists|[ ]||
+|GetTasteProfile|[x]||
+|SetTasteProfile|[x]||
+|GetMoodCategories|[x]||
+|GetMoodPlaylists|[x]||
 |GetCharts|[ ]||
 |GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
