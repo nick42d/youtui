@@ -3,8 +3,8 @@ use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::process::{get_library_menu_from_menu, process_fixed_column_item};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
+use crate::process::process_fixed_column_item;
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
@@ -93,7 +93,10 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
         return Ok(None);
     }
     let title = super::parse_item_text(&mut data, 0, 0)?;
-    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    let mut library_menu = data
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add, feedback_tok_rem) = match library_status {
         LibraryStatus::InLibrary => (

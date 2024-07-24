@@ -23,9 +23,21 @@ pub enum ErrorKind {
     /// General io error.
     // TODO: improve
     Io(io::Error),
-    // Api was not in the expected format for the library (e.g, expected an array).
+    /// Expected the array at `key` to contain a `target_path`
+    PathNotFoundInArray {
+        /// The target path (JSON pointer notation) that we tried to parse.
+        key: String,
+        /// The source json from Innertube that we were trying to parse.
+        // NOTE: API could theoretically produce multiple errors referring to the same source json.
+        // Hence reference counted, Arc particularly to ensure Error is thread safe.
+        json: Arc<String>,
+        /// The path (JSON pointer notation) we tried to find in the elements of
+        /// the array.
+        target_path: String,
+    },
     // TODO: Add query type to error.
-    /// Field of the JSON file was not in the expected format.
+    /// Field of the JSON file was not in the expected format (e.g expected an
+    /// array).
     Parsing {
         /// The target path (JSON pointer notation) that we tried to parse.
         key: String,
@@ -92,6 +104,7 @@ impl Error {
         match self.inner.as_ref() {
             ErrorKind::Navigation { json, key } => Some((json.to_string(), key)),
             ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
+            ErrorKind::PathNotFoundInArray { key, json, .. } => Some((json.to_string(), key)),
             ErrorKind::Web(_)
             | ErrorKind::Io(_)
             | ErrorKind::InvalidResponse { .. }
@@ -124,6 +137,21 @@ impl Error {
             inner: Box::new(ErrorKind::Navigation {
                 key: key.into(),
                 json,
+            }),
+        }
+    }
+    pub(crate) fn path_not_found_in_array(
+        key: impl Into<String>,
+        json: Arc<String>,
+        target_path: impl Into<String>,
+    ) -> Self {
+        let key = key.into();
+        let target_path = target_path.into();
+        Self {
+            inner: Box::new(ErrorKind::PathNotFoundInArray {
+                key,
+                json,
+                target_path,
             }),
         }
     }
@@ -191,6 +219,9 @@ impl Display for ErrorKind {
                     "Http error code {code} recieved in response. Message: <{message}>."
                 )
             }
+            ErrorKind::PathNotFoundInArray {
+                key, target_path, ..
+            } => write!(f, "Expected {key} to contain a {target_path}"),
             ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")
             }

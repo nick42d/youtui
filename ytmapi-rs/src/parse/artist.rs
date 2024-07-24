@@ -8,9 +8,9 @@ use crate::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
     },
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::*,
-    process::{get_library_menu_from_menu, process_fixed_column_item, process_flex_column_item},
+    process::{process_fixed_column_item, process_flex_column_item},
     query::*,
     ChannelID, Error, Result, Thumbnail,
 };
@@ -44,7 +44,10 @@ fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
         Explicit::NotExplicit
     };
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    let mut library_menu = data
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add_to_library, feedback_tok_rem_from_library) = match library_status {
         LibraryStatus::InLibrary => (
@@ -420,7 +423,10 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
     } else {
         Explicit::NotExplicit
     };
-    let mut library_menu = get_library_menu_from_menu(navigator.borrow_pointer(MENU_ITEMS)?)?;
+    let mut library_menu = navigator
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     Ok(AlbumResult {
         title,
@@ -436,7 +442,10 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
 pub(crate) fn parse_library_management_items_from_menu(
     menu: JsonCrawlerBorrowed,
 ) -> Result<Option<LibraryManager>> {
-    let Ok(mut library_menu) = get_library_menu_from_menu(menu) else {
+    let Ok(mut library_menu) = menu
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")
+    else {
         return Ok(None);
     };
     let status = library_menu.take_value_pointer("/defaultIcon/iconType")?;

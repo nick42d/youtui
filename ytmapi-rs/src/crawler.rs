@@ -30,6 +30,13 @@ pub(crate) struct JsonCrawlerBorrowed<'a> {
     crawler: &'a mut serde_json::Value,
     path: PathList,
 }
+
+/// Iterator extension trait containing special methods for Json Crawler
+/// iterators.
+pub(crate) trait JsonCrawlerIterator: Iterator {
+    fn find_path(self, path: impl AsRef<str>) -> Result<Self::Item>;
+}
+
 pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
@@ -86,6 +93,16 @@ impl From<&PathList> for String {
         path
     }
 }
+// TODO: Merge with above (AsRef<&PathList>) or specialize.
+impl From<PathList> for String {
+    fn from(value: PathList) -> Self {
+        let mut path = String::new();
+        for p in &value.list {
+            path.push_str(String::from(p).as_str());
+        }
+        path
+    }
+}
 
 impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
     type Item = JsonCrawlerBorrowed<'a>;
@@ -127,6 +144,13 @@ impl<'a> DoubleEndedIterator for JsonCrawlerArrayIterMut<'a> {
     }
 }
 
+impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
+    fn find_path(mut self, path: impl AsRef<str>) -> Result<Self::Item> {
+        self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
+            .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
+    }
+}
+
 impl Iterator for JsonCrawlerArrayIntoIter {
     type Item = JsonCrawler;
     fn next(&mut self) -> Option<Self::Item> {
@@ -163,6 +187,12 @@ impl DoubleEndedIterator for JsonCrawlerArrayIntoIter {
         });
         self.cur_back = self.cur_back.saturating_sub(1);
         out
+    }
+}
+impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
+    fn find_path(mut self, path: impl AsRef<str>) -> Result<Self::Item> {
+        self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
+            .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
     }
 }
 
