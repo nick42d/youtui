@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.0.8](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.7...ytmapi-rs/v0.0.8) - 2024-07-24
 
+### Added
+- Add commandline flag to change auth type. Resolves [#98](https://github.com/nick42d/youtui/pull/98) ([#99](https://github.com/nick42d/youtui/pull/99))- Implement Taste Profiles and Moods - Resolves [#75](https://github.com/nick42d/youtui/pull/75) ([#97](https://github.com/nick42d/youtui/pull/97))- feat! Add oauth option for CLI back in. Resolves [#89](https://github.com/nick42d/youtui/pull/89) ([#93](https://github.com/nick42d/youtui/pull/93))- [**breaking**] Handle new formats for Top Results. Resolves [#87](https://github.com/nick42d/youtui/pull/87) ([#88](https://github.com/nick42d/youtui/pull/88))
+New field 'message' added to ErrorKind::Parsing to improve error output.
+### Fixed
+- Fix not available songs in album failing to parse ([#100](https://github.com/nick42d/youtui/pull/100))
 ## [0.0.7](https://github.com/nick42d/youtui/compare/ytmapi-rs-v0.0.6...ytmapi-rs-v0.0.7) - 2024-07-19
 
 ### Added
