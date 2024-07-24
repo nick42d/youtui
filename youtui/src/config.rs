@@ -1,5 +1,6 @@
 use crate::get_config_dir;
 use crate::Result;
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::auth::OAuthToken;
 
@@ -25,11 +26,12 @@ impl std::fmt::Debug for ApiKey {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
-    auth_type: AuthType,
+    pub auth_type: AuthType,
 }
 
-#[derive(Copy, Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum AuthType {
+    #[value(name = "oauth")]
     OAuth,
     #[default]
     Browser,
@@ -43,8 +45,5 @@ impl Config {
         } else {
             Ok(Self::default())
         }
-    }
-    pub fn get_auth_type(&self) -> AuthType {
-        self.auth_type
     }
 }

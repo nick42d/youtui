@@ -1,6 +1,6 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use cli::handle_cli_command;
-use config::{ApiKey, Config};
+use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
@@ -26,16 +26,18 @@ struct Arguments {
     /// Display and log additional debug information.
     #[arg(short, long, default_value_t = false)]
     debug: bool,
-    // What happens if given both cli and auth_cmd?
     #[command(flatten)]
     cli: Cli,
     #[command(subcommand)]
     auth_cmd: Option<AuthCmd>,
+    /// Force the use of an auth type. NOTE: TUI currently only supports Browser
+    /// auth.
+    #[arg(value_enum, short, long)]
+    auth_type: Option<AuthType>,
 }
 
 #[derive(Args, Debug, Clone)]
-// Probably shouldn't be public
-pub struct Cli {
+struct Cli {
     /// Print the source output Json from YouTube Music's API instead of the
     /// processed value.
     #[arg(short, long, default_value_t = false)]
@@ -200,6 +202,7 @@ async fn try_main() -> Result<()> {
         debug,
         cli,
         auth_cmd,
+        auth_type,
     } = args;
     // We don't need configuration to setup oauth token.
     if let Some(c) = auth_cmd {
@@ -212,7 +215,11 @@ async fn try_main() -> Result<()> {
     // Config and API key files will be in OS directories.
     // Create them if they don't exist.
     initialise_directories().await?;
-    let config = config::Config::new()?;
+    let mut config = config::Config::new()?;
+    // Command line flag for auth_type should override config for auth_type.
+    if let Some(auth_type) = auth_type {
+        config.auth_type = auth_type
+    }
     // Once config has loaded, load API key to memory
     // (Which key to load depends on configuration)
     // XXX: check that this won't cause any delays.
@@ -232,7 +239,7 @@ async fn try_main() -> Result<()> {
 
 async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
-    let api = match config.get_auth_type() {
+    let api = match config.auth_type {
         config::AuthType::OAuth => {
             let mut oauth_loc = confdir;
             oauth_loc.push(OAUTH_FILENAME);
@@ -320,8 +327,7 @@ async fn initialise_directories() -> Result<()> {
 }
 
 async fn load_api_key(cfg: &Config) -> Result<ApiKey> {
-    // TODO: Better error hanadling
-    let api_key = match cfg.get_auth_type() {
+    let api_key = match cfg.auth_type {
         config::AuthType::OAuth => ApiKey::OAuthToken(load_oauth_file().await?),
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
     };
