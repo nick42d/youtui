@@ -1,4 +1,5 @@
 //! Results from parsing Innertube queries.
+use crate::Result;
 use crate::{
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
@@ -7,8 +8,8 @@ use crate::{
     process::{self, process_flex_column_item},
     ChannelID,
 };
-use crate::{Error, Result};
 use const_format::concatcp;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -89,28 +90,6 @@ enum SearchResultType {
     Podcasts,
     Episodes,
     Profiles,
-}
-impl TryFrom<&str> for TopResultType {
-    type Error = Error;
-    fn try_from(value: &str) -> Result<Self> {
-        let result = match value {
-            "Song" => Self::Song,
-            "Album" => Self::Album(AlbumType::Album),
-            "EP" => Self::Album(AlbumType::EP),
-            "Single" => Self::Album(AlbumType::Single),
-            "Artist" => Self::Artist,
-            "Video" => Self::Video,
-            "Podcast" => Self::Podcast,
-            "Station" => Self::Station,
-            // TODO: Better error.
-            other => {
-                return Err(Error::other(format!(
-                    "Error parsing, value {other} outside expected range for top result types."
-                )))
-            }
-        };
-        Ok(result)
-    }
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedSongArtist {
@@ -313,17 +292,17 @@ fn parse_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedSongArtist>
 
 fn parse_song_album(data: &mut JsonCrawlerBorrowed, col_idx: usize) -> Result<ParsedSongAlbum> {
     Ok(ParsedSongAlbum {
-        name: parse_item_text(data, col_idx, 0)?,
+        name: parse_flex_column_item(data, col_idx, 0)?,
         id: process_flex_column_item(data, col_idx)?
             .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))?,
     })
 }
 
-fn parse_item_text(
+fn parse_flex_column_item<T: DeserializeOwned>(
     item: &mut JsonCrawlerBorrowed,
     col_idx: usize,
     run_idx: usize,
-) -> Result<String> {
+) -> Result<T> {
     // Consider early return over the and_then calls.
     let pointer = format!("/text/runs/{run_idx}/text");
     process_flex_column_item(item, col_idx)?.take_value_pointer(pointer)

@@ -11,7 +11,7 @@ use crate::{
         SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
         THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
     },
-    parse::parse_item_text,
+    parse::parse_flex_column_item,
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
         DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
@@ -106,7 +106,7 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_item_text(&mut data, 0, 0)?;
+                let title = parse_flex_column_item(&mut data, 0, 0)?;
                 if title == "Shuffle all" {
                     return Ok(None);
                 };
@@ -152,8 +152,8 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
         fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
-            let artist_name = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
-            let songs = parse_item_text(&mut data.borrow_mut(), 1, 0)?;
+            let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
+            let songs = parse_flex_column_item(&mut data.borrow_mut(), 1, 0)?;
             let thumbnails = data.take_value_pointer(THUMBNAILS)?;
             let artist_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             Ok(UploadArtist {
@@ -182,10 +182,12 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
             mut json_crawler: JsonCrawler,
         ) -> Result<GetLibraryUploadAlbumSong> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
-            let title = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
+            let title = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
             let album = parse_upload_song_album(data.borrow_mut(), 2)?;
             let duration = process_fixed_column_item(&mut data.borrow_mut(), 0)?
                 .take_value_pointer(TEXT_RUN_TEXT)?;
+            // TODO: Better error
+            // Believe this needs to first covert to string as Json field has quote marks.
             let track_no = str::parse(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
                 .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
             let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
@@ -253,7 +255,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_item_text(&mut data, 0, 0)?;
+                let title = parse_flex_column_item(&mut data, 0, 0)?;
                 if title == "Shuffle all" {
                     return Ok(None);
                 };
@@ -299,7 +301,7 @@ fn parse_upload_song_album(
     col_idx: usize,
 ) -> Result<ParsedUploadSongAlbum> {
     Ok(ParsedUploadSongAlbum {
-        name: parse_item_text(&mut data, col_idx, 0)?,
+        name: parse_flex_column_item(&mut data, col_idx, 0)?,
         id: process_flex_column_item(&mut data, col_idx)?
             .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))?,
     })

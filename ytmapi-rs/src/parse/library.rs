@@ -1,11 +1,11 @@
 use super::{
-    parse_item_text, parse_library_management_items_from_menu, parse_table_list_upload_song,
+    parse_flex_column_item, parse_library_management_items_from_menu, parse_table_list_upload_song,
     ApiSuccess, EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum,
     TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
     MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
-use crate::common::{AlbumType, Explicit, PlaylistID};
+use crate::common::{Explicit, PlaylistID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -120,7 +120,7 @@ fn parse_library_songs(
             let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                 return Ok(None);
             };
-            let title = super::parse_item_text(&mut data, 0, 0)?;
+            let title = super::parse_flex_column_item(&mut data, 0, 0)?;
             if title == "Shuffle all" {
                 return Ok(None);
             }
@@ -206,7 +206,7 @@ fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAl
     let title = data.take_value_pointer(TITLE_TEXT)?;
     let artist = data.take_value_pointer(SUBTITLE2)?;
     let year = data.take_value_pointer(SUBTITLE3)?;
-    let album_type = AlbumType::try_from_str(data.take_value_pointer::<String>(SUBTITLE)?)?;
+    let album_type = data.take_value_pointer(SUBTITLE)?;
     let explicit = if data.path_exists(SUBTITLE_BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -228,8 +228,8 @@ fn parse_content_list_artist_subscription(
 ) -> Result<GetLibraryArtistSubscription> {
     let mut data = json_crawler.borrow_pointer(MRLIR)?;
     let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-    let name = parse_item_text(&mut data, 0, 0)?;
-    let subscribers = parse_item_text(&mut data, 1, 0)?;
+    let name = parse_flex_column_item(&mut data, 0, 0)?;
+    let subscribers = parse_flex_column_item(&mut data, 1, 0)?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     Ok(GetLibraryArtistSubscription {
         name,
@@ -247,8 +247,8 @@ fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryAr
     {
         let mut data = result.navigate_pointer(MRLIR)?;
         let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-        let artist = parse_item_text(&mut data, 0, 0)?;
-        let byline = parse_item_text(&mut data, 1, 0)?;
+        let artist = parse_flex_column_item(&mut data, 0, 0)?;
+        let byline = parse_flex_column_item(&mut data, 1, 0)?;
         results.push(LibraryArtist {
             channel_id,
             artist,
@@ -261,7 +261,7 @@ pub(crate) fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<Tabl
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
     };
-    let title = super::parse_item_text(&mut data, 0, 0)?;
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     if title == "Shuffle all" {
         return Ok(None);
     }
@@ -310,7 +310,7 @@ fn parse_table_list_episode(
     let (duration, date) = match is_live {
         true => (EpisodeDuration::Live, EpisodeDate::Live),
         false => {
-            let date = parse_item_text(&mut data, 2, 0)?;
+            let date = parse_flex_column_item(&mut data, 2, 0)?;
             let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
                 i.take_value_pointer("/text/simpleText")
                     .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
@@ -321,7 +321,7 @@ fn parse_table_list_episode(
             )
         }
     };
-    let podcast_name = parse_item_text(&mut data, 1, 0)?;
+    let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
     let podcast_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
@@ -349,7 +349,7 @@ fn parse_table_list_video(title: String, mut data: JsonCrawlerBorrowed) -> Resul
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = parse_item_text(&mut data, 1, 0)?;
+    let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {

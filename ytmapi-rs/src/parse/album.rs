@@ -1,4 +1,6 @@
-use super::{parse_item_text, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
+use super::{
+    parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
+};
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
@@ -92,7 +94,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
     {
         return Ok(None);
     }
-    let title = super::parse_item_text(&mut data, 0, 0)?;
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     let mut library_menu = data
         .borrow_pointer(MENU_ITEMS)?
         .into_array_iter_mut()?
@@ -118,7 +120,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
         i.take_value_pointer("/text/simpleText")
             .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
     })?;
-    let plays = parse_item_text(&mut data, 2, 0)?;
+    let plays = parse_flex_column_item(&mut data, 2, 0)?;
     let track_no = str::parse(
         data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
@@ -151,8 +153,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let mut header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
-    let category =
-        AlbumType::try_from_str(header.take_value_pointer::<String>(SUBTITLE)?.as_str())?;
+    let category = header.take_value_pointer(SUBTITLE)?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?

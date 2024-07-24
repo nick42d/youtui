@@ -1,5 +1,5 @@
 use super::{
-    parse_item_text, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
+    parse_flex_column_item, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
     LibraryManager, LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
     ProcessedResult, SearchResultVideo, TableListUploadSong,
 };
@@ -33,8 +33,8 @@ pub struct ArtistParams {
 
 fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
     let mut data = json.borrow_pointer(MRLIR)?;
-    let title = parse_item_text(&mut data, 0, 0)?;
-    let plays = parse_item_text(&mut data, 2, 0)?;
+    let title = parse_flex_column_item(&mut data, 0, 0)?;
+    let plays = parse_flex_column_item(&mut data, 2, 0)?;
     let artists = parse_song_artists(&mut data, 1)?;
     let album = parse_song_album(&mut data, 3)?;
     let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
@@ -145,11 +145,10 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             // XXX should only be mandatory for albums, singles, playlists
             // as a result leaving as optional for now.
             let params = r
-                .take_value_pointer::<String>(concatcp!(
+                .take_value_pointer(concatcp!(
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
-                .map(BrowseParams::from_raw)
                 .ok();
             // TODO: finish other categories
             match category {
@@ -528,7 +527,7 @@ pub(crate) fn parse_playlist_video(
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = parse_item_text(&mut data, 1, 0)?;
+    let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
@@ -567,7 +566,7 @@ pub(crate) fn parse_playlist_item(
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
     };
-    let title = super::parse_item_text(&mut data, 0, 0)?;
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     if title == "Song deleted" {
         return Ok(None);
     }
@@ -577,6 +576,7 @@ pub(crate) fn parse_playlist_item(
         NAVIGATION_VIDEO_TYPE
     );
     let video_type: String = data.take_value_pointer(video_type_path)?;
+    // TODO: Deserialize to enum
     let item = match video_type.as_ref() {
         // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
         "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => Some(PlaylistItem::Video(
