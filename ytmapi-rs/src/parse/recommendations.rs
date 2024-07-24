@@ -1,15 +1,13 @@
 use super::{
-    ApiSuccess, ParseFrom, CATEGORY_TITLE, GRID, GRID_ITEMS, HEADER_DETAIL, RUN_TEXT,
-    TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS,
-    TASTE_PROFILE_SELECTION,
+    ApiSuccess, ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS,
+    TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
 use crate::{
-    common::{library::Playlist, recomendations::TasteToken, MoodCategoryParams, PlaylistID},
-    crawler::{self, JsonCrawler, JsonCrawlerBorrowed},
+    common::{recomendations::TasteToken, MoodCategoryParams, PlaylistID},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
-        CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, CONTENT, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE,
-        NAVIGATION_BROWSE_ID, SECTION_LIST, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE2, SUBTITLE_RUNS,
-        THUMBNAIL, THUMBNAIL_RENDERER, TITLE_TEXT,
+        CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
+        SINGLE_COLUMN_TAB, SUBTITLE_RUNS, THUMBNAIL_RENDERER, TITLE_TEXT,
     },
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
@@ -54,7 +52,7 @@ impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ApiSuccess
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
-    fn parse_from(p: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
+    fn parse_from(_: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
         // Doesn't seem to be an identifier in the response to determine if success or
         // failure - so always assume success.
         Ok(ApiSuccess)

@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
