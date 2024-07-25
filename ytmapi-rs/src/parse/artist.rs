@@ -12,7 +12,8 @@ use crate::{
     nav_consts::*,
     process::{process_fixed_column_item, process_flex_column_item},
     query::*,
-    ChannelID, Error, Result, Thumbnail,
+    youtube_enums::YoutubeMusicVideoType,
+    ChannelID, Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -575,23 +576,15 @@ pub(crate) fn parse_playlist_item(
         "/playNavigationEndpoint",
         NAVIGATION_VIDEO_TYPE
     );
-    let video_type: String = data.take_value_pointer(video_type_path)?;
+    let video_type: YoutubeMusicVideoType = data.take_value_pointer(video_type_path)?;
     // TODO: Deserialize to enum
-    let item = match video_type.as_ref() {
-        // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
-        "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => Some(PlaylistItem::Video(
+    let item = match video_type {
+        YoutubeMusicVideoType::UGC | YoutubeMusicVideoType::OMV => Some(PlaylistItem::Video(
             parse_playlist_video(title, track_no, data)?,
         )),
-        // Could be 'Audio Track Video'?
-        "MUSIC_VIDEO_TYPE_ATV" => Some(PlaylistItem::Song(parse_playlist_song(
+        YoutubeMusicVideoType::ATV => Some(PlaylistItem::Song(parse_playlist_song(
             title, track_no, data,
         )?)),
-        other => {
-            return Err(Error::other(format!(
-                "Unsupported video type <{other}> at location {}{video_type_path}",
-                data.get_path()
-            )))
-        }
     };
     Ok(item)
 }

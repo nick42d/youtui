@@ -14,6 +14,7 @@ use crate::{
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // The original reason for the two different structs was that we did not save
@@ -136,15 +137,8 @@ impl AuthToken for OAuthToken {
         } else {
             unreachable!("Body created in this function as an object")
         };
-        let request_time_unix = self
-            .request_time
-            .duration_since(UNIX_EPOCH)
-            .map_err(|_| Error::other("Error calculating time since unix epoch"))?
-            .as_secs();
-        let now_unix = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map_err(|_| Error::other("Error calculating time since unix epoch"))?
-            .as_secs();
+        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
+        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
         if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
             return Err(Error::oauth_token_expired());
@@ -178,8 +172,9 @@ impl AuthToken for OAuthToken {
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
-                return Err(Error::other(
-                    "Error message received from server, but doesn't have an error code",
+                return Err(Error::navigation(
+                    "/error/code",
+                    Arc::new(processed.clone_json()),
                 ));
             };
             let message = error

@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use super::{
     ApiSuccess, LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS,
     SUBTITLE,
 };
 use crate::{
     common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::{
         GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
         NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB,
@@ -125,8 +127,11 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
             let title = data.take_value_pointer(TITLE_TEXT)?;
             let artist = data.take_value_pointer(SUBTITLE2)?;
             let year = data.take_value_pointer(SUBTITLE3).ok();
-            let menu = data.borrow_pointer(MENU_ITEMS)?;
-            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+            let entity_id = data
+                .borrow_pointer(MENU_ITEMS)?
+                .into_array_iter_mut()?
+                .find_path(DELETION_ENTITY_ID)?
+                .take_value()?;
             Ok(UploadAlbum {
                 title,
                 year,
@@ -196,8 +201,11 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
                 "/playNavigationEndpoint",
                 WATCH_VIDEO_ID
             ))?;
-            let menu = data.navigate_pointer(MENU_ITEMS)?;
-            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+            let entity_id = data
+                .borrow_pointer(MENU_ITEMS)?
+                .into_array_iter_mut()?
+                .find_path(DELETION_ENTITY_ID)?
+                .take_value()?;
             Ok(GetLibraryUploadAlbumSong {
                 title,
                 track_no,
@@ -216,8 +224,11 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
         let song_count = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/0/text"))?;
         let duration = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/2/text"))?;
         let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
-        let menu = header.navigate_pointer(MENU_ITEMS)?;
-        let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+        let entity_id = header
+            .navigate_pointer(MENU_ITEMS)?
+            .into_array_iter_mut()?
+            .find_path(DELETION_ENTITY_ID)?
+            .take_value()?;
         let songs = crawler
             .navigate_pointer(concatcp!(
                 SINGLE_COLUMN_TAB,
@@ -320,8 +331,11 @@ pub(crate) fn parse_table_list_upload_song(
     let thumbnails = crawler.take_value_pointer(THUMBNAILS)?;
     let artists = parse_upload_song_artists(crawler.borrow_mut(), 1)?;
     let album = parse_upload_song_album(crawler.borrow_mut(), 2)?;
-    let menu = crawler.borrow_pointer(MENU_ITEMS)?;
-    let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+    let entity_id = crawler
+        .navigate_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path(DELETION_ENTITY_ID)?
+        .take_value()?;
     Ok(TableListUploadSong {
         entity_id,
         video_id,
@@ -334,26 +348,18 @@ pub(crate) fn parse_table_list_upload_song(
     })
 }
 
-fn get_delete_history_entity_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
-    let cur_path = menu.get_path();
-    menu.into_array_iter_mut()?
-        .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
-        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
-        .ok_or_else(|| {
-            Error::other(format!("Expected playlist item to contain at least one <{DELETION_ENTITY_ID}> underneath path {cur_path}"))
-        })
-}
-
 fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
-    let tabs_path = concatcp!(SINGLE_COLUMN, "/tabs");
+    let tabs_path = concatcp!(SINGLE_COLUMN_TAB);
     json.navigate_pointer(tabs_path)?
         .into_array_into_iter()?
         // Assume Uploads as always the last element.
         .last()
         .ok_or_else(|| {
-            Error::other(format!(
-                "Expected array at <{tabs_path}> to contain elements",
-            ))
+            Error::empty_array(
+                format!("{}{}", json.get_path(), tabs_path),
+                // TODO: Remove allocation
+                Arc::new(json.get_source().into()),
+            )
         })
 }
 

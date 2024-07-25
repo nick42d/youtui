@@ -1,6 +1,6 @@
 use super::{
-    ApiSuccess, ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS,
-    TASTE_PROFILE_ARTIST, TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
+    ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
+    TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
 use crate::{
     common::{recomendations::TasteToken, MoodCategoryParams, PlaylistID},
@@ -48,14 +48,14 @@ pub struct MoodPlaylist {
     pub author: String,
 }
 
-impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ApiSuccess
+impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ()
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
     fn parse_from(_: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
         // Doesn't seem to be an identifier in the response to determine if success or
         // failure - so always assume success.
-        Ok(ApiSuccess)
+        Ok(())
     }
 }
 
@@ -91,6 +91,7 @@ impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
 impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> crate::Result<Self> {
         fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
+            crawler.navigate_first([GRID, CAROUSEL])
             if let Ok(grid) = crawler.borrow_pointer(GRID) {
                 parse_mood_playlist_category_grid(grid)
             } else if let Ok(carousel) = crawler.borrow_pointer(CAROUSEL) {

@@ -53,30 +53,33 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
-pub use error::{Error, Result};
 use parse::{ParseFrom, ProcessedResult};
-pub use process::RawResult;
 use query::Query;
 use reqwest::Client;
 use std::path::Path;
 
-// TODO: Confirm if auth should be pub
-pub mod auth;
+pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
+pub use error::{Error, Result};
+pub use process::RawResult;
+
 #[macro_use]
 mod utils;
-mod locales {}
-mod nav_consts;
-// Consider if pub is correct for this
-pub mod common;
 mod crawler;
+mod nav_consts;
+mod process;
+mod youtube_enums;
+
+// TODO: Confirm if auth should be pub
+pub mod auth;
+pub mod common;
 pub mod error;
 pub mod parse;
-mod process;
 pub mod query;
+
 #[cfg(feature = "simplified-queries")]
 #[cfg_attr(docsrs, doc(cfg(feature = "simplified-queries")))]
 pub mod simplified_queries;
+
 #[cfg(test)]
 mod tests;
 

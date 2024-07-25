@@ -25,6 +25,16 @@ pub enum TextRun {
     Normal(String),
 }
 
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[must_use]
+/// Indicates a result from an API action such as a 'delete playlist'
+pub enum ApiOutcome {
+    #[serde(alias = "STATUS_SUCCEEDED")]
+    Success,
+    #[serde(alias = "STATUS_FAILED")]
+    Failure,
+}
+
 impl TextRun {
     /// Take the text from the run, ignoring format.
     pub fn take_text(self) -> String {

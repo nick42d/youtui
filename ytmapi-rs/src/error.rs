@@ -1,6 +1,6 @@
 //! Module to contain code related to errors that could be produced by the API.
 use core::fmt::{Debug, Display};
-use std::{io, sync::Arc};
+use std::{io, sync::Arc, time::SystemTimeError};
 
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;
@@ -17,12 +17,22 @@ pub struct Error {
 /// on it.
 #[non_exhaustive]
 pub enum ErrorKind {
-    /// General web error.
-    // TODO: improve and avoid leaking reqwest::Error
-    Web(reqwest::Error),
+    /// Error from HTTP client.
+    Web {
+        message: String,
+    },
     /// General io error.
     // TODO: improve
     Io(io::Error),
+    /// Expected array at `key` to contain elements.
+    EmptyArray {
+        /// The target path (JSON pointer notation) that we tried to parse.
+        key: String,
+        /// The source json from Innertube that we were trying to parse.
+        // NOTE: API could theoretically produce multiple errors referring to the same source json.
+        // Hence reference counted, Arc particularly to ensure Error is thread safe.
+        json: Arc<String>,
+    },
     /// Expected the array at `key` to contain a `target_path`
     PathNotFoundInArray {
         /// The target path (JSON pointer notation) that we tried to parse.
@@ -35,7 +45,18 @@ pub enum ErrorKind {
         /// the array.
         target_path: String,
     },
-    // TODO: Add query type to error.
+    /// Expected `key` to contain at least one of `target_paths`
+    PathsNotFound {
+        /// The path (JSON pointer notation) that we tried to parse.
+        key: String,
+        /// The source json from Innertube that we were trying to parse.
+        // NOTE: API could theoretically produce multiple errors referring to the same source json.
+        // Hence reference counted, Arc particularly to ensure Error is thread safe.
+        json: Arc<String>,
+        /// The paths (JSON pointer notation) we tried to find.
+        target_paths: Vec<String>,
+    },
+    // TODO: Consider adding query type to error.
     /// Field of the JSON file was not in the expected format (e.g expected an
     /// array).
     Parsing {
@@ -86,6 +107,12 @@ pub enum ErrorKind {
         code: u64,
         message: String,
     },
+    /// Innertube returned a STATUS_FAILED for the query.
+    ApiStatusFailed,
+    /// Unable to obtain system time for the query to Innertube.
+    SystemTimeError {
+        message: String,
+    },
 }
 /// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
@@ -105,15 +132,19 @@ impl Error {
             ErrorKind::Navigation { json, key } => Some((json.to_string(), key)),
             ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
             ErrorKind::PathNotFoundInArray { key, json, .. } => Some((json.to_string(), key)),
-            ErrorKind::Web(_)
+            ErrorKind::PathsNotFound { key, json, .. } => Some((json.to_string(), key)),
+            ErrorKind::EmptyArray { key, json } => Some((json.to_string(), key)),
+            ErrorKind::Web { .. }
             | ErrorKind::Io(_)
             | ErrorKind::InvalidResponse { .. }
             | ErrorKind::Header
+            | ErrorKind::ApiStatusFailed
             | ErrorKind::Other(_)
             | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
             | ErrorKind::OtherErrorCodeInResponse { .. }
             | ErrorKind::OAuthTokenExpired
             | ErrorKind::BrowserAuthenticationFailed
+            | ErrorKind::SystemTimeError { .. }
             | ErrorKind::InvalidUserAgent(_) => None,
         }
     }
@@ -140,6 +171,12 @@ impl Error {
             }),
         }
     }
+    pub(crate) fn empty_array(key: impl Into<String>, json: Arc<String>) -> Self {
+        let key = key.into();
+        Self {
+            inner: Box::new(ErrorKind::EmptyArray { key, json }),
+        }
+    }
     pub(crate) fn path_not_found_in_array(
         key: impl Into<String>,
         json: Arc<String>,
@@ -152,6 +189,20 @@ impl Error {
                 key,
                 json,
                 target_path,
+            }),
+        }
+    }
+    pub(crate) fn paths_not_found(
+        key: impl Into<String>,
+        json: Arc<String>,
+        target_paths: Vec<String>,
+    ) -> Self {
+        let key = key.into();
+        Self {
+            inner: Box::new(ErrorKind::PathsNotFound {
+                key,
+                json,
+                target_paths,
             }),
         }
     }
@@ -190,14 +241,14 @@ impl Error {
             inner: Box::new(ErrorKind::UnableToSerializeGoogleOAuthToken { response, err }),
         }
     }
-    pub(crate) fn other<S: Into<String>>(msg: S) -> Self {
-        Self {
-            inner: Box::new(ErrorKind::Other(msg.into())),
-        }
-    }
     pub(crate) fn other_code(code: u64, message: String) -> Self {
         Self {
             inner: Box::new(ErrorKind::OtherErrorCodeInResponse { code, message }),
+        }
+    }
+    pub(crate) fn status_failed() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::ApiStatusFailed),
         }
     }
 }
@@ -206,7 +257,7 @@ impl std::error::Error for Error {}
 impl Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ErrorKind::Web(e) => write!(f, "Web error {e} received."),
+            ErrorKind::Web { message } => write!(f, "Web error <{message}> received."),
             ErrorKind::Io(e) => write!(f, "IO error {e} recieved."),
             ErrorKind::Header => write!(f, "Error parsing header."),
             ErrorKind::InvalidResponse { response: _ } => {
@@ -219,11 +270,21 @@ impl Display for ErrorKind {
                     "Http error code {code} recieved in response. Message: <{message}>."
                 )
             }
+            ErrorKind::PathsNotFound {
+                key, target_paths, ..
+            } => write!(
+                f,
+                "Expected {key} to contain one of the following paths: {:?}",
+                target_paths
+            ),
             ErrorKind::PathNotFoundInArray {
                 key, target_path, ..
             } => write!(f, "Expected {key} to contain a {target_path}"),
             ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")
+            }
+            ErrorKind::EmptyArray { key, .. } => {
+                write!(f, "Expected {key} to contain non-empty array.")
             }
             ErrorKind::Parsing {
                 key,
@@ -235,6 +296,7 @@ impl Display for ErrorKind {
                 "Error {:?}. Unable to parse into {:?} at {key}",
                 message, target
             ),
+            ErrorKind::ApiStatusFailed => write!(f, "Api returned STATUS_FAILED for the query"),
             ErrorKind::OAuthTokenExpired => write!(f, "OAuth token has expired"),
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
             ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
@@ -242,6 +304,10 @@ impl Display for ErrorKind {
                 f,
                 "Unable to serialize Google auth token {}, received error {}",
                 response, err
+            ),
+            ErrorKind::SystemTimeError { message } => write!(
+                f,
+                "Error obtaining system time to use in API query. <{message}>"
             ),
         }
     }
@@ -260,9 +326,10 @@ impl Display for Error {
     }
 }
 impl From<reqwest::Error> for Error {
-    fn from(e: reqwest::Error) -> Self {
+    fn from(err: reqwest::Error) -> Self {
+        let message = err.to_string();
         Self {
-            inner: Box::new(ErrorKind::Web(e)),
+            inner: Box::new(ErrorKind::SystemTimeError { message }),
         }
     }
 }
@@ -270,6 +337,14 @@ impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Self {
             inner: Box::new(ErrorKind::Io(err)),
+        }
+    }
+}
+impl From<SystemTimeError> for Error {
+    fn from(err: SystemTimeError) -> Self {
+        let message = err.to_string();
+        Self {
+            inner: Box::new(ErrorKind::SystemTimeError { message }),
         }
     }
 }

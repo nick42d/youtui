@@ -4,7 +4,7 @@ use crate::{
     Error, Result,
 };
 use serde::de::DeserializeOwned;
-use std::{slice::IterMut, sync::Arc, vec::IntoIter};
+use std::{borrow::BorrowMut, slice::IterMut, sync::Arc, vec::IntoIter};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum JsonPath {
@@ -32,9 +32,12 @@ pub(crate) struct JsonCrawlerBorrowed<'a> {
 }
 
 /// Iterator extension trait containing special methods for Json Crawler
-/// iterators.
+/// iterators to help with error handling.
 pub(crate) trait JsonCrawlerIterator: Iterator {
+    /// Return the first crawler found at `path`, or error.
     fn find_path(self, path: impl AsRef<str>) -> Result<Self::Item>;
+    /// Consume self to return (`source`, `path`).
+    fn get_context(self) -> (Arc<String>, PathList);
 }
 
 pub(crate) struct JsonCrawlerArrayIterMut<'a> {
@@ -149,6 +152,10 @@ impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
         self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
             .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
     }
+    fn get_context(self) -> (Arc<String>, PathList) {
+        let Self { source, path, .. } = self;
+        (source, path)
+    }
 }
 
 impl Iterator for JsonCrawlerArrayIntoIter {
@@ -193,6 +200,10 @@ impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
     fn find_path(mut self, path: impl AsRef<str>) -> Result<Self::Item> {
         self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
             .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
+    }
+    fn get_context(self) -> (Arc<String>, PathList) {
+        let Self { source, path, .. } = self;
+        (source, path)
     }
 }
 
@@ -263,7 +274,8 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: self.path.to_owned(),
         }
     }
-    // Seems to be a duplicate of the above. Not required?
+    // Seems to be a duplicate of borrow_pointer.
+    // Only difference is by ref vs by value.
     pub fn navigate_pointer<S: AsRef<str>>(self, path: S) -> Result<JsonCrawlerBorrowed<'a>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::pointer(path.as_ref()));
@@ -413,15 +425,15 @@ impl JsonCrawler {
             path,
         })
     }
-    pub fn navigate_pointer(self, new_path: &str) -> Result<Self> {
+    pub fn navigate_pointer(self, new_path: impl AsRef<str>) -> Result<Self> {
         let Self {
             source,
             crawler: mut old_crawler,
             mut path,
         } = self;
-        path.push(JsonPath::pointer(new_path));
+        path.push(JsonPath::pointer(new_path.as_ref()));
         let crawler = old_crawler
-            .pointer_mut(new_path)
+            .pointer_mut(new_path.as_ref())
             .map(|v| v.take())
             .ok_or_else(|| Error::navigation(&path, source.clone()))?;
         Ok(Self {
@@ -429,6 +441,34 @@ impl JsonCrawler {
             crawler,
             path,
         })
+    }
+    /// From a list of paths, navigate to the first one that is available.
+    pub fn navigate_first<I, S>(self, paths: impl IntoIterator<IntoIter = I>) -> Result<JsonCrawler>
+    where
+        I: Iterator<Item = S> + Clone,
+        S: AsRef<str>,
+    {
+        let Self {
+            source,
+            crawler: mut old_crawler,
+            path: mut old_path,
+        } = self;
+        let iter = paths.into_iter();
+        for path in iter.clone() {
+            if let Some(found) = old_crawler.pointer_mut(path.as_ref()) {
+                old_path.push(JsonPath::pointer(path.as_ref()));
+                return Ok(Self {
+                    source,
+                    crawler: found.take(),
+                    path: old_path,
+                });
+            }
+        }
+        Err(Error::paths_not_found(
+            &old_path,
+            source.clone(),
+            iter.map(|s| s.as_ref().to_string()).collect(),
+        ))
     }
     // Allow dead code - library type code that may be used in future.
     #[allow(dead_code)]

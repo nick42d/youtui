@@ -131,7 +131,7 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
 }
 
 impl<'a, A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'a> {
-    type Output = ApiSuccess;
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({
             "playlistId": self.id,

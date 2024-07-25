@@ -4,8 +4,8 @@ use super::{
     TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
-    common::{PlaylistID, SetVideoID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    common::{ApiOutcome, PlaylistID, SetVideoID},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
@@ -41,19 +41,15 @@ pub struct GetPlaylist {
     tracks: Vec<PlaylistItem>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-/// Indicates a successful result from an API action such as a 'delete playlist'
-// May be common
-pub struct ApiSuccess;
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Provides a SetVideoID and VideoID for each video added to the playlist.
 pub struct AddPlaylistItem {
     pub video_id: VideoID<'static>,
     pub set_video_id: SetVideoID<'static>,
 }
 
-impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for ApiSuccess {
+impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
     fn parse_from(_: ProcessedResult<RemovePlaylistItemsQuery<'a>>) -> crate::Result<Self> {
-        Ok(ApiSuccess)
+        Ok(())
     }
 }
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
@@ -65,16 +61,10 @@ impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for Playli
 impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
     fn parse_from(p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
-        let status: String = json_crawler.borrow_pointer("/status")?.take_value()?;
-        match status.as_str() {
-            "STATUS_SUCCEEDED" => (),
-            "STATUS_FAILED" => return Err(Error::other("STATUS_FAILED received from API")),
-            other => {
-                return Err(Error::other(format!(
-                    "Unknown status {other} received from API"
-                )))
-            }
-        };
+        let status: ApiOutcome = json_crawler.borrow_pointer("/status")?.take_value()?;
+        if let ApiOutcome::Failure = status {
+            return Err(Error::status_failed());
+        }
         json_crawler
             .navigate_pointer("/playlistEditResults")?
             .as_array_iter_mut()?
@@ -88,21 +78,15 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
             .collect()
     }
 }
-impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiSuccess {
+impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
     fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
-        let status: String = json_crawler.navigate_pointer("/status")?.take_value()?;
-        match status.as_str() {
-            "STATUS_SUCCEEDED" => Ok(ApiSuccess),
-            other => Err(Error::other(format!(
-                "Unknown status {other} received from API"
-            ))),
-        }
+        json_crawler.navigate_pointer("/status")?.take_value()
     }
 }
-impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for ApiSuccess {
+impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
     fn parse_from(_: ProcessedResult<DeletePlaylistQuery<'a>>) -> crate::Result<Self> {
-        Ok(ApiSuccess)
+        Ok(())
     }
 }
 
@@ -193,7 +177,10 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let views = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/4/text")?;
-    let id = get_play_button_from_buttons(header.navigate_pointer("/buttons")?)?
+    let id = header
+        .navigate_pointer("/buttons")?
+        .into_array_iter_mut()?
+        .find_path("/musicPlayButtonRenderer")?
         .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let music_shelf = columns.borrow_pointer(
         "/secondaryContents/sectionListRenderer/contents/0/musicPlaylistShelfRenderer/contents",
@@ -214,14 +201,6 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         views,
         tracks,
     })
-}
-
-fn get_play_button_from_buttons(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
-    let cur_path = menu.get_path();
-    menu.into_array_iter_mut()?
-        .find_map(|item| item.navigate_pointer("/musicPlayButtonRenderer").ok())
-        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
-        .ok_or_else(|| Error::other(format!("expected playlist item to contain a /musicPlayButtonRenderer underneath path {cur_path}")))
 }
 
 #[cfg(test)]
@@ -257,7 +236,7 @@ mod tests {
             PlaylistID::from_raw(""),
         );
         let output = process_json::<_, BrowserToken>(source, query);
-        let err: crate::Result<()> = Err(Error::other("STATUS_FAILED received from API"));
+        let err: crate::Result<()> = Err(Error::status_failed());
         assert_eq!(format!("{:?}", err), format!("{:?}", output));
     }
     #[tokio::test]

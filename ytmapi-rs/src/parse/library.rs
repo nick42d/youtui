@@ -1,11 +1,11 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_table_list_upload_song,
-    ApiSuccess, EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum,
-    TableListEpisode, TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
-    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode,
+    TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS,
+    SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
-use crate::common::{Explicit, PlaylistID};
+use crate::common::{ApiOutcome, Explicit, PlaylistID};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -17,6 +17,7 @@ use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
+use crate::youtube_enums::YoutubeMusicTableListVideoType;
 use crate::{ChannelID, Error, Result, Thumbnail};
 use const_format::concatcp;
 
@@ -61,7 +62,7 @@ impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     }
 }
 
-impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSuccess>> {
+impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> crate::Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
@@ -72,10 +73,9 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<crate::Result<ApiSucc
                     .take_value_pointer::<bool>("/isProcessed")
                     .map(|p| {
                         if p {
-                            return Ok(ApiSuccess);
+                            return ApiOutcome::Success;
                         }
-                        // Better handled in another way...
-                        Err(Error::other("Recieved isProcessed false"))
+                        ApiOutcome::Failure
                     })
             })
             .rev()
@@ -270,27 +270,21 @@ pub(crate) fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<Tabl
         "/playNavigationEndpoint",
         NAVIGATION_VIDEO_TYPE
     );
-    let video_type: String = data.take_value_pointer(video_type_path)?;
-    let item = match video_type.as_ref() {
+    let video_type: YoutubeMusicTableListVideoType = data.take_value_pointer(video_type_path)?;
+    let item = match video_type {
         // NOTE - Possible for History, but most likely not possible for Library.
-        "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK" => Some(TableListItem::UploadSong(
+        YoutubeMusicTableListVideoType::Upload => Some(TableListItem::UploadSong(
             parse_table_list_upload_song(title, data)?,
         )),
         // NOTE - Possible for Library, but most likely not possible for History.
-        "MUSIC_VIDEO_TYPE_PODCAST_EPISODE" => Some(TableListItem::Episode(
+        YoutubeMusicTableListVideoType::Episode => Some(TableListItem::Episode(
             parse_table_list_episode(title, data)?,
         )),
-        // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
-        "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => {
+        YoutubeMusicTableListVideoType::UGC | YoutubeMusicTableListVideoType::OMV => {
             Some(TableListItem::Video(parse_table_list_video(title, data)?))
         }
-        // Could be 'Audio Track Video'?
-        "MUSIC_VIDEO_TYPE_ATV" => Some(TableListItem::Song(parse_table_list_song(title, data)?)),
-        other => {
-            return Err(Error::other(format!(
-                "Unsupported video type <{other}> at location {}{video_type_path}",
-                data.get_path()
-            )))
+        YoutubeMusicTableListVideoType::ATV => {
+            Some(TableListItem::Song(parse_table_list_song(title, data)?))
         }
     };
     Ok(item)

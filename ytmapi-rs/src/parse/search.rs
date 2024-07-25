@@ -4,7 +4,7 @@ use super::{
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
     SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
-use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
+use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,

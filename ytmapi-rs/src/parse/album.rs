@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{
     parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
 };
@@ -121,12 +123,19 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
             .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
     })?;
     let plays = parse_flex_column_item(&mut data, 2, 0)?;
-    let track_no = str::parse(
+    let track_no = str::parse::<usize>(
         data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
     )
-    // TODO: Better error
-    .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+    .map_err(|e| {
+        Error::parsing(
+            data.get_path(),
+            // TODO: Remove allocation.
+            Arc::new(data.get_source().to_owned()),
+            crate::error::ParseTarget::Other("usize".to_string()),
+            Some(e.to_string()),
+        )
+    })?;
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

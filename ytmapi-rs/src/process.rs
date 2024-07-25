@@ -4,7 +4,7 @@ use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
-use crate::{Error, Result};
+use crate::Result;
 
 // Should trait be Result?
 /// The raw result of a query to the API.

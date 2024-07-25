@@ -86,6 +86,7 @@ macro_rules! parse_test {
         pretty_assertions::assert_eq!(expected, output);
     };
 }
+
 /// Macro to test that an input file succesfully parses directly against the
 /// expected output value.
 /// Input file, output value, query, token
