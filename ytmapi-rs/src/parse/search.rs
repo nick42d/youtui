@@ -43,6 +43,7 @@ fn parse_basic_search_result_from_section_list_contents(
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
 
+    // Warning: Used in expect() below.
     let music_shelf_exists = section_list_contents
         .0
         .path_exists(concatcp!("/0", MUSIC_CARD_SHELF));
