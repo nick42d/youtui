@@ -1,4 +1,3 @@
-
 use super::{
     parse_flex_column_item, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
@@ -43,21 +42,15 @@ fn parse_basic_search_result_from_section_list_contents(
     let mut podcasts = Vec::new();
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
-    let results_iter = section_list_contents.0.into_array_into_iter()?;
-    let results_iter_peekable = results_iter.clone().peekable();
+
+    let music_shelf_exists = section_list_contents
+        .0
+        .path_exists(concatcp!("/0", MUSIC_CARD_SHELF));
+    let mut results_iter = section_list_contents.0.into_array_into_iter()?;
     // XXX: Naive solution.
-    if results_iter_peekable
-        .clone()
-        .peek()
-        .ok_or_else(|| {
-            let (source, path) = results_iter.clone().get_context();
-            Error::array_size(path, source, 1)
-        })?
-        .path_exists(MUSIC_CARD_SHELF)
-    {
+    if music_shelf_exists {
         top_results = parse_top_results_from_music_card_shelf_contents(
             results_iter
-                .clone()
                 .next()
                 .ok_or_else(|| {
                     let (source, path) = results_iter.clone().get_context();

@@ -38,54 +38,54 @@ mod tests {
 
     #[tokio::test]
     async fn test_rate_song_like() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_song_like_20240710.json",
-            "./test_json/rate_song_like_20240710_output.txt",
+            (),
             RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Liked),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_rate_song_dislike() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_song_dislike_20240710.json",
-            "./test_json/rate_song_dislike_20240710_output.txt",
+            (),
             RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Disliked),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_rate_song_indifferent() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_song_indifferent_20240710.json",
-            "./test_json/rate_song_indifferent_20240710_output.txt",
+            (),
             RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Indifferent),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_rate_playlist_like() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_playlist_like_20240710.json",
-            "./test_json/rate_playlist_like_20240710_output.txt",
+            (),
             RatePlaylistQuery::new(PlaylistID::from_raw(""), crate::parse::LikeStatus::Liked),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_rate_playlist_dislike() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_playlist_dislike_20240710.json",
-            "./test_json/rate_playlist_dislike_20240710_output.txt",
+            (),
             RatePlaylistQuery::new(PlaylistID::from_raw(""), crate::parse::LikeStatus::Disliked),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_rate_playlist_indifferent() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/rate_playlist_indifferent_20240710.json",
-            "./test_json/rate_playlist_indifferent_20240710_output.txt",
+            (),
             RatePlaylistQuery::new(
                 PlaylistID::from_raw(""),
                 crate::parse::LikeStatus::Indifferent

@@ -7,8 +7,8 @@ use crate::{
     nav_consts::{
         GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
         NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-        SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
-        THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
+        SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS,
+        THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
     },
     parse::parse_flex_column_item,
     process::{process_fixed_column_item, process_flex_column_item},
@@ -354,7 +354,7 @@ pub(crate) fn parse_table_list_upload_song(
 }
 
 fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
-    let tabs_path = concatcp!(SINGLE_COLUMN_TAB);
+    let tabs_path = concatcp!(SINGLE_COLUMN_TABS);
     let iter = json.navigate_pointer(tabs_path)?.into_array_into_iter()?;
     iter.clone().last().ok_or_else(|| {
         let (source, path) = iter.get_context();
@@ -415,9 +415,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_delete_upload_entity() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/delete_upload_entity_20240715.json",
-            "./test_json/api_success_output.txt",
+            (),
             crate::query::DeleteUploadEntityQuery::new(UploadEntityID::from_raw("")),
             BrowserToken
         );
