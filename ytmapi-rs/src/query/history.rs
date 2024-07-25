@@ -2,7 +2,7 @@ use super::Query;
 use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory},
-    parse::{ApiSuccess, TableListItem},
+    parse::TableListItem,
 };
 use serde_json::json;
 
@@ -36,7 +36,7 @@ impl<A: AuthToken> Query<A> for GetHistoryQuery {
 
 // NOTE: Does not work on brand accounts
 impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
-    type Output = Vec<crate::Result<ApiOutcome>>
+    type Output = Vec<ApiOutcome>
     where
         Self: Sized;
 

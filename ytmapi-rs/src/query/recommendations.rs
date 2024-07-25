@@ -4,7 +4,7 @@ use super::Query;
 use crate::{
     auth::AuthToken,
     common::{recomendations::TasteToken, MoodCategoryParams},
-    parse::{ApiSuccess, MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist},
+    parse::{MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist},
 };
 
 #[derive(Clone)]
@@ -62,7 +62,7 @@ where
     A: AuthToken,
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
-    type Output = ApiSuccess
+    type Output = ()
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

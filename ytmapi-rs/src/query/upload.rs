@@ -1,8 +1,8 @@
 use super::{get_sort_order_params, GetLibrarySortOrder, Query};
 use crate::{
     auth::AuthToken,
-    common::{UploadAlbumID, UploadArtistID, UploadEntityID},
-    parse::{ApiSuccess, GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
+    common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID},
+    parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
 };
 use serde_json::json;
 
@@ -147,7 +147,7 @@ impl<A: AuthToken> Query<A> for GetLibraryUploadArtistsQuery {
 }
 // Auth required
 impl<'a, A: AuthToken> Query<A> for DeleteUploadEntityQuery<'a> {
-    type Output = ApiSuccess
+    type Output = ()
     where
         Self: Sized;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {

@@ -167,9 +167,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
     let subtitle_len = subtitle.as_array_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
-        Some(PrivacyStatus::try_from(
-            subtitle.take_value_pointer::<String>("/text")?.as_str(),
-        )?)
+        Some(subtitle.take_value_pointer("/text")?)
     } else {
         None
     };

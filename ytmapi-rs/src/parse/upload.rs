@@ -1,8 +1,5 @@
-use std::sync::Arc;
-
 use super::{
-    ApiSuccess, LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS,
-    SUBTITLE,
+    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
 };
 use crate::{
     common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
@@ -23,6 +20,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedUploadArtist {
@@ -191,10 +189,18 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
             let album = parse_upload_song_album(data.borrow_mut(), 2)?;
             let duration = process_fixed_column_item(&mut data.borrow_mut(), 0)?
                 .take_value_pointer(TEXT_RUN_TEXT)?;
-            // TODO: Better error
             // Believe this needs to first covert to string as Json field has quote marks.
-            let track_no = str::parse(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
-                .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+            let track_no =
+                str::parse::<i64>(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
+                    .map_err(|e| {
+                        Error::parsing(
+                            data.get_path(),
+                            // TODO: Remove allocation.
+                            Arc::new(data.get_source().to_owned()),
+                            crate::error::ParseTarget::Other("i64".to_string()),
+                            Some(e.to_string()),
+                        )
+                    })?;
             let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
             let video_id = data.take_value_pointer(concatcp!(
                 PLAY_BUTTON,
@@ -276,7 +282,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
             .collect()
     }
 }
-impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
+impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>) -> crate::Result<Self> {
         let crawler: JsonCrawler = p.into();
         // Passing an invalid entity ID with will throw a 400 error which
@@ -285,9 +291,8 @@ impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
         crawler
             .navigate_pointer("/actions")?
             .into_array_into_iter()?
-            .find_map(|a| a.navigate_pointer("/addToToastAction").ok())
-            .map(|_| ApiSuccess)
-            .ok_or_else(|| Error::other("Expected /actions to contain a /addToToastAction"))
+            .find_path("/addToToastAction")
+            .map(|_| ())
     }
 }
 fn parse_upload_song_artists(
@@ -350,17 +355,11 @@ pub(crate) fn parse_table_list_upload_song(
 
 fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
     let tabs_path = concatcp!(SINGLE_COLUMN_TAB);
-    json.navigate_pointer(tabs_path)?
-        .into_array_into_iter()?
-        // Assume Uploads as always the last element.
-        .last()
-        .ok_or_else(|| {
-            Error::empty_array(
-                format!("{}{}", json.get_path(), tabs_path),
-                // TODO: Remove allocation
-                Arc::new(json.get_source().into()),
-            )
-        })
+    let iter = json.navigate_pointer(tabs_path)?.into_array_into_iter()?;
+    iter.clone().last().ok_or_else(|| {
+        let (source, path) = iter.get_context();
+        Error::array_size(path, source, 0)
+    })
 }
 
 #[cfg(test)]

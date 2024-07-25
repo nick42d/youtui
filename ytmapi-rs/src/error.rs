@@ -24,14 +24,16 @@ pub enum ErrorKind {
     /// General io error.
     // TODO: improve
     Io(io::Error),
-    /// Expected array at `key` to contain elements.
-    EmptyArray {
+    /// Expected array at `key` to contain a minimum number of elements.
+    ArraySize {
         /// The target path (JSON pointer notation) that we tried to parse.
         key: String,
         /// The source json from Innertube that we were trying to parse.
         // NOTE: API could theoretically produce multiple errors referring to the same source json.
         // Hence reference counted, Arc particularly to ensure Error is thread safe.
         json: Arc<String>,
+        /// The minimum number of expected elements.
+        min_elements: usize,
     },
     /// Expected the array at `key` to contain a `target_path`
     PathNotFoundInArray {
@@ -133,7 +135,7 @@ impl Error {
             ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
             ErrorKind::PathNotFoundInArray { key, json, .. } => Some((json.to_string(), key)),
             ErrorKind::PathsNotFound { key, json, .. } => Some((json.to_string(), key)),
-            ErrorKind::EmptyArray { key, json } => Some((json.to_string(), key)),
+            ErrorKind::ArraySize { key, json, .. } => Some((json.to_string(), key)),
             ErrorKind::Web { .. }
             | ErrorKind::Io(_)
             | ErrorKind::InvalidResponse { .. }
@@ -171,10 +173,18 @@ impl Error {
             }),
         }
     }
-    pub(crate) fn empty_array(key: impl Into<String>, json: Arc<String>) -> Self {
+    pub(crate) fn array_size(
+        key: impl Into<String>,
+        json: Arc<String>,
+        min_elements: usize,
+    ) -> Self {
         let key = key.into();
         Self {
-            inner: Box::new(ErrorKind::EmptyArray { key, json }),
+            inner: Box::new(ErrorKind::ArraySize {
+                key,
+                json,
+                min_elements,
+            }),
         }
     }
     pub(crate) fn path_not_found_in_array(
@@ -283,8 +293,15 @@ impl Display for ErrorKind {
             ErrorKind::Navigation { key, json: _ } => {
                 write!(f, "Key {key} not found in Api response.")
             }
-            ErrorKind::EmptyArray { key, .. } => {
-                write!(f, "Expected {key} to contain non-empty array.")
+            ErrorKind::ArraySize {
+                key,
+                json: _,
+                min_elements,
+            } => {
+                write!(
+                    f,
+                    "Expected {key} to contain at least {min_elements} elements."
+                )
             }
             ErrorKind::Parsing {
                 key,

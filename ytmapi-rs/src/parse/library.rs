@@ -280,10 +280,10 @@ pub(crate) fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<Tabl
         YoutubeMusicTableListVideoType::Episode => Some(TableListItem::Episode(
             parse_table_list_episode(title, data)?,
         )),
-        YoutubeMusicTableListVideoType::UGC | YoutubeMusicTableListVideoType::OMV => {
+        YoutubeMusicTableListVideoType::Ugc | YoutubeMusicTableListVideoType::Omv => {
             Some(TableListItem::Video(parse_table_list_video(title, data)?))
         }
-        YoutubeMusicTableListVideoType::ATV => {
+        YoutubeMusicTableListVideoType::Atv => {
             Some(TableListItem::Song(parse_table_list_song(title, data)?))
         }
     };

@@ -11,10 +11,10 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
+use crate::common::{AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ApiSuccess, ArtistParams, GetLibraryArtistSubscription,
-    GetPlaylist, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist,
+    LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
 };
@@ -406,7 +406,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn remove_history_items<'a>(
         &self,
         feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
-    ) -> Result<Vec<Result<ApiSuccess>>> {
+    ) -> Result<Vec<ApiOutcome>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
         self.query(query).await
     }
@@ -414,7 +414,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn edit_song_library_status<'a>(
         &self,
         query: EditSongLibraryStatusQuery<'a>,
-    ) -> Result<Vec<Result<ApiSuccess>>> {
+    ) -> Result<Vec<ApiOutcome>> {
         self.query(query).await
     }
     /// Sets the like status for a song.
@@ -428,7 +428,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         video_id: T,
         rating: LikeStatus,
-    ) -> Result<ApiSuccess> {
+    ) -> Result<()> {
         let query = RateSongQuery::new(video_id.into(), rating);
         self.query(query).await
     }
@@ -451,7 +451,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         playlist_id: T,
         rating: LikeStatus,
-    ) -> Result<ApiSuccess> {
+    ) -> Result<()> {
         let query = RatePlaylistQuery::new(playlist_id.into(), rating);
         self.query(query).await
     }
@@ -462,10 +462,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.get_library_playlists().await.unwrap();
     /// yt.delete_playlist(&results[0].playlist_id).await
     /// # };
-    pub async fn delete_playlist<'a, T: Into<PlaylistID<'a>>>(
-        &self,
-        playlist_id: T,
-    ) -> Result<ApiSuccess> {
+    pub async fn delete_playlist<'a, T: Into<PlaylistID<'a>>>(&self, playlist_id: T) -> Result<()> {
         let query = DeletePlaylistQuery::new(playlist_id.into());
         self.query(query).await
     }
@@ -561,7 +558,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         playlist_id: T,
         video_items: Vec<SetVideoID<'a>>,
-    ) -> Result<ApiSuccess> {
+    ) -> Result<()> {
         let query = RemovePlaylistItemsQuery::new(playlist_id.into(), video_items);
         self.query(query).await
     }
@@ -579,7 +576,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///     .with_new_description("Edited description");
     /// yt.edit_playlist(query).await
     /// # };
-    pub async fn edit_playlist(&self, query: EditPlaylistQuery<'_>) -> Result<ApiSuccess> {
+    pub async fn edit_playlist(&self, query: EditPlaylistQuery<'_>) -> Result<ApiOutcome> {
         self.query(query).await
     }
     /// Gets a list of all uploaded songs in your Library.

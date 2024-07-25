@@ -4,7 +4,7 @@ use crate::{
     Error, Result,
 };
 use serde::de::DeserializeOwned;
-use std::{borrow::BorrowMut, slice::IterMut, sync::Arc, vec::IntoIter};
+use std::{borrow::BorrowMut, iter::Map, slice::IterMut, sync::Arc, vec::IntoIter};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum JsonPath {
@@ -37,7 +37,7 @@ pub(crate) trait JsonCrawlerIterator: Iterator {
     /// Return the first crawler found at `path`, or error.
     fn find_path(self, path: impl AsRef<str>) -> Result<Self::Item>;
     /// Consume self to return (`source`, `path`).
-    fn get_context(self) -> (Arc<String>, PathList);
+    fn get_context(self) -> (Arc<String>, String);
 }
 
 pub(crate) struct JsonCrawlerArrayIterMut<'a> {
@@ -47,6 +47,7 @@ pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     cur_front: usize,
     cur_back: usize,
 }
+#[derive(Clone)]
 pub(crate) struct JsonCrawlerArrayIntoIter {
     source: Arc<String>,
     array: IntoIter<serde_json::Value>,
@@ -152,9 +153,9 @@ impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
         self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
             .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
     }
-    fn get_context(self) -> (Arc<String>, PathList) {
+    fn get_context(self) -> (Arc<String>, String) {
         let Self { source, path, .. } = self;
-        (source, path)
+        (source, path.into())
     }
 }
 
@@ -201,9 +202,9 @@ impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
         self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
             .ok_or_else(|| Error::path_not_found_in_array(self.path, self.source, path.as_ref()))
     }
-    fn get_context(self) -> (Arc<String>, PathList) {
+    fn get_context(self) -> (Arc<String>, String) {
         let Self { source, path, .. } = self;
-        (source, path)
+        (source, path.into())
     }
 }
 
@@ -513,5 +514,17 @@ impl JsonCrawler {
     #[allow(dead_code)]
     pub fn get_source(&self) -> &str {
         &self.source
+    }
+    /// Produce a new paths not found error, with the current context.
+    pub fn generate_error_paths_not_found(
+        &self,
+        paths: impl IntoIterator<IntoIter = impl Iterator<Item = impl AsRef<str>>>,
+    ) -> Error {
+        let path_clone = self.path.clone();
+        Error::paths_not_found(
+            path_clone,
+            self.source.clone(),
+            paths.into_iter().map(|s| s.as_ref().to_string()).collect(),
+        )
     }
 }

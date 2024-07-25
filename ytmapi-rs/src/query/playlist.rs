@@ -2,7 +2,7 @@ use super::Query;
 use crate::{
     auth::AuthToken,
     common::{PlaylistID, SetVideoID, YoutubeID},
-    parse::{ApiSuccess, GetPlaylist},
+    parse::GetPlaylist,
     Error, Result,
 };
 pub use additems::*;
@@ -28,19 +28,6 @@ pub enum PrivacyStatus {
     #[default]
     Private,
     Unlisted,
-}
-impl TryFrom<&str> for PrivacyStatus {
-    type Error = crate::Error;
-    fn try_from(value: &str) -> Result<Self> {
-        match value {
-            "Public" => Ok(PrivacyStatus::Public),
-            "Private" => Ok(PrivacyStatus::Private),
-            "Unlisted" => Ok(PrivacyStatus::Unlisted),
-            other => Err(Error::other(format!(
-                "Error parsing PlaylistPrivacy from value {other}"
-            ))),
-        }
-    }
 }
 impl Display for PrivacyStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -107,7 +94,7 @@ impl<'a, A: AuthToken> Query<A> for GetPlaylistQuery<'a> {
 }
 
 impl<'a, A: AuthToken> Query<A> for DeletePlaylistQuery<'a> {
-    type Output = ApiSuccess;
+    type Output = ();
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({

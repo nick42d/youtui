@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{
     parse_flex_column_item, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
@@ -5,13 +7,14 @@ use super::{
     SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
 use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
     THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
+use crate::youtube_enums::PlaylistEndpointParams;
 use crate::{query::*, Thumbnail};
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -25,9 +28,6 @@ use serde::Deserialize;
 
 #[cfg(test)]
 mod tests;
-// watchPlaylistEndpoint params within overlay.
-const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
-const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // TODO: Type safety
 fn parse_basic_search_result_from_section_list_contents(
@@ -44,28 +44,31 @@ fn parse_basic_search_result_from_section_list_contents(
     let mut podcasts = Vec::new();
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
-    let mut results = section_list_contents.0.as_array_iter_mut()?.peekable();
-    // TODO: Better error.
+    let results_iter = section_list_contents.0.into_array_into_iter()?;
+    let results_iter_peekable = results_iter.clone().peekable();
     // XXX: Naive solution.
-    if results
+    if results_iter_peekable
+        .clone()
         .peek()
-        .ok_or(Error::other(
-            "Expected more than one element in search results",
-        ))?
+        .ok_or_else(|| {
+            let (source, path) = results_iter.clone().get_context();
+            Error::array_size(path, source, 1)
+        })?
         .path_exists(MUSIC_CARD_SHELF)
     {
-        // TODO: Better error.
         top_results = parse_top_results_from_music_card_shelf_contents(
-            results
+            results_iter
+                .clone()
                 .next()
-                .ok_or(Error::other(
-                    "Expected more than one element in search results",
-                ))?
-                .navigate_pointer(MUSIC_CARD_SHELF)?,
+                .ok_or_else(|| {
+                    let (source, path) = results_iter.clone().get_context();
+                    Error::array_size(path, source, 1)
+                })?
+                .borrow_pointer(MUSIC_CARD_SHELF)?,
         )?;
     }
 
-    for category in results.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
+    for category in results_iter.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
         let mut category = category?;
         match category.take_value_pointer::<SearchResultType>(TITLE_TEXT)? {
             SearchResultType::TopResult => {
@@ -529,14 +532,13 @@ fn parse_playlist_search_result_from_music_shelf_contents(
     let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     // The playlist search contains a mix of Community and Featured playlists.
-    let playlist_params: String = mrlir.take_value_pointer(concatcp!(
+    let playlist_params: PlaylistEndpointParams = mrlir.take_value_pointer(concatcp!(
         PLAY_BUTTON,
         "/playNavigationEndpoint/watchPlaylistEndpoint/params"
     ))?;
-    let playlist_params_str = playlist_params.as_str();
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-    let playlist = match playlist_params_str {
-        FEATURED_PLAYLIST_ENDPOINT_PARAMS => {
+    let playlist = match playlist_params {
+        PlaylistEndpointParams::Featured => {
             SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
                 title,
                 author,
@@ -545,7 +547,7 @@ fn parse_playlist_search_result_from_music_shelf_contents(
                 thumbnails,
             })
         }
-        COMMUNITY_PLAYLIST_ENDPOINT_PARAMS => {
+        PlaylistEndpointParams::Community => {
             SearchResultPlaylist::Community(SearchResultCommunityPlaylist {
                 title,
                 author,
@@ -553,12 +555,6 @@ fn parse_playlist_search_result_from_music_shelf_contents(
                 playlist_id,
                 thumbnails,
             })
-        }
-        other => {
-            return Err(Error::other(format!(
-                "Unexpected playlist params: {}",
-                other
-            )));
         }
     };
     Ok(playlist)

@@ -123,6 +123,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
             .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
     })?;
     let plays = parse_flex_column_item(&mut data, 2, 0)?;
+    // Believe this needs to first covert to string as Json field has quote marks.
     let track_no = str::parse::<usize>(
         data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
             .as_str(),

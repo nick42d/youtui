@@ -1,11 +1,11 @@
 use super::Query;
 use crate::{
-    auth::{AuthToken},
+    auth::AuthToken,
     common::{
         library::{LibraryArtist, Playlist},
-        FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
+        ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
     },
-    parse::{ApiSuccess, GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
+    parse::{GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -186,7 +186,7 @@ impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
 impl<'a, A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'a> {
-    type Output = Vec<crate::Result<ApiSuccess>>
+    type Output = Vec<ApiOutcome>
     where
         Self: Sized;
 

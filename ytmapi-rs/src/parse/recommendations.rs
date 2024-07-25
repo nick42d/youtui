@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{
     ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
     TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
@@ -91,16 +93,12 @@ impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
 impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> crate::Result<Self> {
         fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
-            crawler.navigate_first([GRID, CAROUSEL])
             if let Ok(grid) = crawler.borrow_pointer(GRID) {
                 parse_mood_playlist_category_grid(grid)
             } else if let Ok(carousel) = crawler.borrow_pointer(CAROUSEL) {
                 parse_mood_playlist_category_carousel(carousel)
             } else {
-                return Err(Error::other(format!(
-                    "Expected <{}> to contain {GRID} or {CAROUSEL}",
-                    crawler.get_path()
-                )));
+                return Err(crawler.generate_error_paths_not_found([GRID, CAROUSEL]));
             }
         }
         fn parse_mood_playlist_category_grid(
@@ -144,10 +142,12 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
                 .last()
                 .map(|mut run| run.take_value_pointer("/text"))
                 .ok_or_else(|| {
-                    Error::other(format!(
-                        "Expected at least 1 item in array at {}{SUBTITLE_RUNS}",
-                        item.get_path(),
-                    ))
+                    Error::array_size(
+                        format!("{}{SUBTITLE_RUNS}/text", item.get_path()),
+                        // TODO: Remove allocation
+                        Arc::new(item.get_source().into()),
+                        1,
+                    )
                 })??;
             Ok(MoodPlaylist {
                 playlist_id,
@@ -208,7 +208,6 @@ mod tests {
             recomendations::TasteToken, MoodCategoryParams, TasteTokenImpression,
             TasteTokenSelection, YoutubeID,
         },
-        parse::ApiSuccess,
         query::{
             GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
             SetTasteProfileQuery,
@@ -246,7 +245,7 @@ mod tests {
     async fn test_set_taste_profile() {
         parse_test_value!(
             "./test_json/set_taste_profile_20240723.json",
-            ApiSuccess,
+            (),
             SetTasteProfileQuery::new([TasteToken {
                 impression_value: TasteTokenImpression::from_raw(""),
                 selection_value: TasteTokenSelection::from_raw("")
