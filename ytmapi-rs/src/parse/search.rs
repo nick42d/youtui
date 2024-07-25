@@ -1,10 +1,10 @@
 use super::{
-    parse_item_text, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    parse_flex_column_item, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
     SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
-use crate::common::{AlbumType, Explicit, SearchSuggestion, SuggestionType, TextRun};
+use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -12,6 +12,7 @@ use crate::nav_consts::{
     THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
+use crate::youtube_enums::PlaylistEndpointParams;
 use crate::{query::*, Thumbnail};
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -25,13 +26,10 @@ use serde::Deserialize;
 
 #[cfg(test)]
 mod tests;
-// watchPlaylistEndpoint params within overlay.
-const FEATURED_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB";
-const COMMUNITY_PLAYLIST_ENDPOINT_PARAMS: &str = "wAEB8gECKAE%3D";
 
 // TODO: Type safety
 fn parse_basic_search_result_from_section_list_contents(
-    mut section_list_contents: BasicSearchSectionListContents,
+    section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
     // Imperative solution, may be able to make more functional.
     let mut top_results = Vec::new();
@@ -44,28 +42,23 @@ fn parse_basic_search_result_from_section_list_contents(
     let mut podcasts = Vec::new();
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
-    let mut results = section_list_contents.0.as_array_iter_mut()?.peekable();
-    // TODO: Better error.
+
+    // Warning: Used in expect() below.
+    let music_shelf_exists = section_list_contents
+        .0
+        .path_exists(concatcp!("/0", MUSIC_CARD_SHELF));
+    let mut results_iter = section_list_contents.0.into_array_into_iter()?;
     // XXX: Naive solution.
-    if results
-        .peek()
-        .ok_or(Error::other(
-            "Expected more than one element in search results",
-        ))?
-        .path_exists(MUSIC_CARD_SHELF)
-    {
-        // TODO: Better error.
+    if music_shelf_exists {
         top_results = parse_top_results_from_music_card_shelf_contents(
-            results
+            results_iter
                 .next()
-                .ok_or(Error::other(
-                    "Expected more than one element in search results",
-                ))?
-                .navigate_pointer(MUSIC_CARD_SHELF)?,
+                .expect("Path /0 exists as part of precondition")
+                .borrow_pointer(MUSIC_CARD_SHELF)?,
         )?;
     }
 
-    for category in results.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
+    for category in results_iter.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
         let mut category = category?;
         match category.take_value_pointer::<SearchResultType>(TITLE_TEXT)? {
             SearchResultType::TopResult => {
@@ -209,10 +202,10 @@ fn parse_top_result_from_music_shelf_contents(
         return Ok(None);
     };
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let result_name = parse_item_text(&mut mrlir, 0, 0)?;
+    let result_name = parse_flex_column_item(&mut mrlir, 0, 0)?;
     // It's possible to have artist name in the first position instead of a
     // TopResultType. There may be a way to differentiate this even further.
-    let flex_1_0 = parse_item_text(&mut mrlir, 1, 0)?;
+    let flex_1_0: String = parse_flex_column_item(&mut mrlir, 1, 0)?;
     // Deserialize without taking ownership of flex_1_0 - not possible with
     // JsonCrawler::take_value_pointer().
     // TODO: add methods like borrow_value_pointer() to JsonCrawler.
@@ -229,31 +222,33 @@ fn parse_top_result_from_music_shelf_contents(
     let mut plays = None;
     match result_type {
         // XXX: Perhaps also populate Artist field.
-        Some(TopResultType::Artist) => subscribers = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Some(TopResultType::Artist) => {
+            subscribers = Some(parse_flex_column_item(&mut mrlir, 1, 2)?)
+        }
         Some(TopResultType::Album(_)) => {
             // XXX: Perhaps also populate Album field.
-            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
-            year = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            artist = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
+            year = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
         }
         Some(TopResultType::Playlist) => todo!(),
         Some(TopResultType::Song) => {
-            artist = Some(parse_item_text(&mut mrlir, 1, 2)?);
-            album = Some(parse_item_text(&mut mrlir, 1, 4)?);
-            duration = Some(parse_item_text(&mut mrlir, 1, 6)?);
+            artist = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
+            album = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
+            duration = Some(parse_flex_column_item(&mut mrlir, 1, 6)?);
             // This does not show up in all Card renderer results and so we'll define it as
             // optional. TODO: Could make this more type safe in future.
-            plays = parse_item_text(&mut mrlir, 1, 8).ok();
+            plays = parse_flex_column_item(&mut mrlir, 1, 8).ok();
         }
         Some(TopResultType::Video) => todo!(),
         Some(TopResultType::Station) => todo!(),
-        Some(TopResultType::Podcast) => publisher = Some(parse_item_text(&mut mrlir, 1, 2)?),
+        Some(TopResultType::Podcast) => publisher = Some(parse_flex_column_item(&mut mrlir, 1, 2)?),
         None => {
             artist = Some(flex_1_0);
-            album = Some(parse_item_text(&mut mrlir, 1, 2)?);
-            duration = Some(parse_item_text(&mut mrlir, 1, 4)?);
+            album = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
+            duration = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
             // This does not show up in all Card renderer results and so we'll define it as
             // optional. TODO: Could make this more type safe in future.
-            plays = parse_item_text(&mut mrlir, 1, 6).ok();
+            plays = parse_flex_column_item(&mut mrlir, 1, 6).ok();
         }
     }
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
@@ -276,8 +271,8 @@ fn parse_artist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultArtist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let artist = parse_item_text(&mut mrlir, 0, 0)?;
-    let subscribers = parse_item_text(&mut mrlir, 1, 2).ok();
+    let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let subscribers = parse_flex_column_item(&mut mrlir, 1, 2).ok();
     let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultArtist {
@@ -293,8 +288,8 @@ fn parse_profile_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultProfile> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let username = parse_item_text(&mut mrlir, 1, 2)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let username = parse_flex_column_item(&mut mrlir, 1, 2)?;
     let profile_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultProfile {
@@ -310,10 +305,10 @@ fn parse_album_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultAlbum> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let artist = parse_item_text(&mut mrlir, 0, 0)?;
-    let album_type = parse_item_text(&mut mrlir, 1, 0).and_then(AlbumType::try_from_str)?;
-    let title = parse_item_text(&mut mrlir, 1, 2)?;
-    let year = parse_item_text(&mut mrlir, 1, 4)?;
+    let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 1, 2)?;
+    let year = parse_flex_column_item(&mut mrlir, 1, 4)?;
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -337,11 +332,11 @@ fn parse_song_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultSong> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let artist = parse_item_text(&mut mrlir, 1, 0)?;
-    let album = parse_item_text(&mut mrlir, 1, 2)?;
-    let duration = parse_item_text(&mut mrlir, 1, 4)?;
-    let plays = parse_item_text(&mut mrlir, 2, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let artist = parse_flex_column_item(&mut mrlir, 1, 0)?;
+    let album = parse_flex_column_item(&mut mrlir, 1, 2)?;
+    let duration = parse_flex_column_item(&mut mrlir, 1, 4)?;
+    let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -366,14 +361,14 @@ fn parse_video_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultVideo> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let first_field = parse_item_text(&mut mrlir, 1, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let first_field: String = parse_flex_column_item(&mut mrlir, 1, 0)?;
     // Handle video podcasts - seems to be 2 different ways to display these.
     match first_field.as_str() {
         "Video" => {
-            let channel_name = parse_item_text(&mut mrlir, 1, 2)?;
-            let views = parse_item_text(&mut mrlir, 1, 4)?;
-            let length = parse_item_text(&mut mrlir, 1, 6)?;
+            let channel_name = parse_flex_column_item(&mut mrlir, 1, 2)?;
+            let views = parse_flex_column_item(&mut mrlir, 1, 4)?;
+            let length = parse_flex_column_item(&mut mrlir, 1, 6)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
             Ok(SearchResultVideo::Video {
@@ -388,9 +383,9 @@ fn parse_video_search_result_from_music_shelf_contents(
         "Episode" => {
             //TODO: Handle live episode
             let date = EpisodeDate::Recorded {
-                date: parse_item_text(&mut mrlir, 1, 2)?,
+                date: parse_flex_column_item(&mut mrlir, 1, 2)?,
             };
-            let channel_name = parse_item_text(&mut mrlir, 1, 4)?;
+            let channel_name = parse_flex_column_item(&mut mrlir, 1, 4)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
             Ok(SearchResultVideo::VideoEpisode {
@@ -405,8 +400,8 @@ fn parse_video_search_result_from_music_shelf_contents(
             // Assume that if a watch endpoint exists, it's a video.
             if mrlir.path_exists("/flexColumns/0/musicResponsiveListItemFlexColumnRenderer/text/runs/0/navigationEndpoint/watchEndpoint") {
 
-            let views = parse_item_text(&mut mrlir, 1, 2)?;
-            let length = parse_item_text(&mut mrlir, 1, 4)?;
+            let views = parse_flex_column_item(&mut mrlir, 1, 2)?;
+            let length = parse_flex_column_item(&mut mrlir, 1, 4)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
             Ok(SearchResultVideo::Video {
@@ -418,7 +413,7 @@ fn parse_video_search_result_from_music_shelf_contents(
                 video_id,
             })
             } else {
-            let channel_name = parse_item_text(&mut mrlir, 1, 2)?;
+            let channel_name = parse_flex_column_item(&mut mrlir, 1, 2)?;
             let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
             let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
             Ok(SearchResultVideo::VideoEpisode {
@@ -439,8 +434,8 @@ fn parse_podcast_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultPodcast> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let publisher = parse_item_text(&mut mrlir, 1, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let publisher = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultPodcast {
@@ -456,17 +451,17 @@ fn parse_episode_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultEpisode> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let date = if mrlir.path_exists(LIVE_BADGE_LABEL) {
         EpisodeDate::Live
     } else {
         EpisodeDate::Recorded {
-            date: parse_item_text(&mut mrlir, 1, 0)?,
+            date: parse_flex_column_item(&mut mrlir, 1, 0)?,
         }
     };
     let channel_name = match date {
-        EpisodeDate::Live => parse_item_text(&mut mrlir, 1, 0)?,
-        EpisodeDate::Recorded { .. } => parse_item_text(&mut mrlir, 1, 2)?,
+        EpisodeDate::Live => parse_flex_column_item(&mut mrlir, 1, 0)?,
+        EpisodeDate::Recorded { .. } => parse_flex_column_item(&mut mrlir, 1, 2)?,
     };
     let video_id = mrlir.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
@@ -484,9 +479,9 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultFeaturedPlaylist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let author = parse_item_text(&mut mrlir, 1, 0)?;
-    let songs = parse_item_text(&mut mrlir, 1, 2)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
+    let songs = parse_flex_column_item(&mut mrlir, 1, 2)?;
     let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultFeaturedPlaylist {
@@ -503,9 +498,9 @@ fn parse_community_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultCommunityPlaylist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let author = parse_item_text(&mut mrlir, 1, 0)?;
-    let views = parse_item_text(&mut mrlir, 1, 2)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
+    let views = parse_flex_column_item(&mut mrlir, 1, 2)?;
     let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
     Ok(SearchResultCommunityPlaylist {
@@ -523,40 +518,33 @@ fn parse_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultPlaylist> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_item_text(&mut mrlir, 0, 0)?;
-    let author = parse_item_text(&mut mrlir, 1, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     // The playlist search contains a mix of Community and Featured playlists.
-    let playlist_params: String = mrlir.take_value_pointer(concatcp!(
+    let playlist_params: PlaylistEndpointParams = mrlir.take_value_pointer(concatcp!(
         PLAY_BUTTON,
         "/playNavigationEndpoint/watchPlaylistEndpoint/params"
     ))?;
-    let playlist_params_str = playlist_params.as_str();
     let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-    let playlist = match playlist_params_str {
-        FEATURED_PLAYLIST_ENDPOINT_PARAMS => {
+    let playlist = match playlist_params {
+        PlaylistEndpointParams::Featured => {
             SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
                 title,
                 author,
-                songs: parse_item_text(&mut mrlir, 1, 2)?,
+                songs: parse_flex_column_item(&mut mrlir, 1, 2)?,
                 playlist_id,
                 thumbnails,
             })
         }
-        COMMUNITY_PLAYLIST_ENDPOINT_PARAMS => {
+        PlaylistEndpointParams::Community => {
             SearchResultPlaylist::Community(SearchResultCommunityPlaylist {
                 title,
                 author,
-                views: parse_item_text(&mut mrlir, 1, 2)?,
+                views: parse_flex_column_item(&mut mrlir, 1, 2)?,
                 playlist_id,
                 thumbnails,
             })
-        }
-        other => {
-            return Err(Error::other(format!(
-                "Unexpected playlist params: {}",
-                other
-            )));
         }
     };
     Ok(playlist)

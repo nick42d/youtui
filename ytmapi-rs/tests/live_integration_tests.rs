@@ -4,7 +4,8 @@ use reqwest::Client;
 use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
-    ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, SearchSuggestion,
+    ApiOutcome, ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
+    SearchSuggestion,
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
@@ -285,24 +286,30 @@ async fn test_add_remove_songs_from_library() {
         .with_remove_from_library_feedback_tokens(vec![song1_rem]);
     let q3 =
         EditSongLibraryStatusQuery::new_from_remove_from_library_feedback_tokens(vec![song2_rem]);
-    api.query(q1)
+    assert!(!api
+        .query(q1)
         .await
         .unwrap()
         .into_iter()
-        .collect::<Result<Vec<_>>>()
-        .unwrap();
-    api.query(q2)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .any(|x| x == ApiOutcome::Failure));
+    assert!(!api
+        .query(q2)
         .await
         .unwrap()
         .into_iter()
-        .collect::<Result<Vec<_>>>()
-        .unwrap();
-    api.query(q3)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .any(|x| x == ApiOutcome::Failure));
+    assert!(!api
+        .query(q3)
         .await
         .unwrap()
         .into_iter()
-        .collect::<Result<Vec<_>>>()
-        .unwrap();
+        .collect::<Vec<_>>()
+        .into_iter()
+        .any(|x| x == ApiOutcome::Failure));
 }
 #[tokio::test]
 async fn test_rate_songs() {
@@ -412,9 +419,12 @@ async fn test_edit_playlist() {
         ))
         .await
         .unwrap();
-    api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
-        .await
-        .unwrap();
+    assert_eq!(
+        api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
+            .await
+            .unwrap(),
+        ApiOutcome::Success
+    );
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]

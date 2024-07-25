@@ -1,7 +1,6 @@
 //! Re-usable core structures.
 // Intended to be for structures that are also suitable to be reused by other
 // libraries. As opposed to simply part of the interface.
-use crate::Error;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
@@ -24,6 +23,16 @@ pub enum SuggestionType {
 pub enum TextRun {
     Bold(String),
     Normal(String),
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[must_use]
+/// Indicates a result from an API action such as a 'delete playlist'
+pub enum ApiOutcome {
+    #[serde(alias = "STATUS_SUCCEEDED")]
+    Success,
+    #[serde(alias = "STATUS_FAILED")]
+    Failure,
 }
 
 impl TextRun {
@@ -153,6 +162,7 @@ impl_youtube_id!(VideoID<'a>);
 impl_youtube_id!(PlaylistID<'a>);
 impl_youtube_id!(ChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
+impl_youtube_id!(BrowseParams<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
 impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
@@ -162,32 +172,6 @@ impl_youtube_id!(MoodCategoryParams<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}
-
-impl<'a> BrowseParams<'a> {
-    pub fn from_raw<S>(raw_str: S) -> BrowseParams<'a>
-    where
-        S: Into<Cow<'a, str>>,
-    {
-        Self(raw_str.into())
-    }
-    pub fn get_raw(&self) -> &str {
-        &self.0
-    }
-}
-
-// As we can't implement generic TryFrom, instead implement a method. See below:
-// https://stackoverflow.com/questions/37347311/how-is-there-a-conflicting-implementation-of-from-when-using-a-generic-type
-// Specialization may assist in future.
-impl AlbumType {
-    pub fn try_from_str<S: AsRef<str>>(value: S) -> Result<Self, crate::Error> {
-        match value.as_ref() {
-            "Album" => Ok(AlbumType::Album),
-            "EP" => Ok(AlbumType::EP),
-            "Single" => Ok(AlbumType::Single),
-            x => Err(Error::other(format!("Error parsing AlbumType from {x}"))),
-        }
-    }
-}
 
 pub mod watch {
     use serde::Deserialize;

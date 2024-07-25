@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fmt::Debug;
 use std::path::Path;
+use std::sync::Arc;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct BrowserToken {
@@ -71,8 +72,9 @@ impl AuthToken for BrowserToken {
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
-                return Err(Error::other(
-                    "Error message received from server, but doesn't have an error code",
+                return Err(Error::navigation(
+                    "/error/code",
+                    Arc::new(processed.clone_json()),
                 ));
             };
             let message = error

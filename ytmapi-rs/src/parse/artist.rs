@@ -1,5 +1,5 @@
 use super::{
-    parse_item_text, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
+    parse_flex_column_item, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
     LibraryManager, LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
     ProcessedResult, SearchResultVideo, TableListUploadSong,
 };
@@ -8,11 +8,12 @@ use crate::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
     },
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::*,
-    process::{get_library_menu_from_menu, process_fixed_column_item, process_flex_column_item},
+    process::{process_fixed_column_item, process_flex_column_item},
     query::*,
-    ChannelID, Error, Result, Thumbnail,
+    youtube_enums::YoutubeMusicVideoType,
+    ChannelID, Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -33,8 +34,8 @@ pub struct ArtistParams {
 
 fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
     let mut data = json.borrow_pointer(MRLIR)?;
-    let title = parse_item_text(&mut data, 0, 0)?;
-    let plays = parse_item_text(&mut data, 2, 0)?;
+    let title = parse_flex_column_item(&mut data, 0, 0)?;
+    let plays = parse_flex_column_item(&mut data, 2, 0)?;
     let artists = parse_song_artists(&mut data, 1)?;
     let album = parse_song_album(&mut data, 3)?;
     let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
@@ -44,7 +45,10 @@ fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
         Explicit::NotExplicit
     };
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    let mut library_menu = data
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add_to_library, feedback_tok_rem_from_library) = match library_status {
         LibraryStatus::InLibrary => (
@@ -142,11 +146,10 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             // XXX should only be mandatory for albums, singles, playlists
             // as a result leaving as optional for now.
             let params = r
-                .take_value_pointer::<String>(concatcp!(
+                .take_value_pointer(concatcp!(
                     CAROUSEL_TITLE,
                     "/navigationEndpoint/browseEndpoint/params"
                 ))
-                .map(BrowseParams::from_raw)
                 .ok();
             // TODO: finish other categories
             match category {
@@ -420,7 +423,10 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
     } else {
         Explicit::NotExplicit
     };
-    let mut library_menu = get_library_menu_from_menu(navigator.borrow_pointer(MENU_ITEMS)?)?;
+    let mut library_menu = navigator
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     Ok(AlbumResult {
         title,
@@ -436,7 +442,10 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
 pub(crate) fn parse_library_management_items_from_menu(
     menu: JsonCrawlerBorrowed,
 ) -> Result<Option<LibraryManager>> {
-    let Ok(mut library_menu) = get_library_menu_from_menu(menu) else {
+    let Ok(mut library_menu) = menu
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")
+    else {
         return Ok(None);
     };
     let status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
@@ -519,7 +528,7 @@ pub(crate) fn parse_playlist_video(
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let channel_name = parse_item_text(&mut data, 1, 0)?;
+    let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
     let channel_id = process_flex_column_item(&mut data, 1)?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
@@ -558,7 +567,7 @@ pub(crate) fn parse_playlist_item(
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
     };
-    let title = super::parse_item_text(&mut data, 0, 0)?;
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     if title == "Song deleted" {
         return Ok(None);
     }
@@ -567,22 +576,15 @@ pub(crate) fn parse_playlist_item(
         "/playNavigationEndpoint",
         NAVIGATION_VIDEO_TYPE
     );
-    let video_type: String = data.take_value_pointer(video_type_path)?;
-    let item = match video_type.as_ref() {
-        // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
-        "MUSIC_VIDEO_TYPE_UGC" | "MUSIC_VIDEO_TYPE_OMV" => Some(PlaylistItem::Video(
+    let video_type: YoutubeMusicVideoType = data.take_value_pointer(video_type_path)?;
+    // TODO: Deserialize to enum
+    let item = match video_type {
+        YoutubeMusicVideoType::Ugc | YoutubeMusicVideoType::Omv => Some(PlaylistItem::Video(
             parse_playlist_video(title, track_no, data)?,
         )),
-        // Could be 'Audio Track Video'?
-        "MUSIC_VIDEO_TYPE_ATV" => Some(PlaylistItem::Song(parse_playlist_song(
+        YoutubeMusicVideoType::Atv => Some(PlaylistItem::Song(parse_playlist_song(
             title, track_no, data,
         )?)),
-        other => {
-            return Err(Error::other(format!(
-                "Unsupported video type <{other}> at location {}{video_type_path}",
-                data.get_path()
-            )))
-        }
     };
     Ok(item)
 }

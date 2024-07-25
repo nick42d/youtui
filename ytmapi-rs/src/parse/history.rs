@@ -1,12 +1,12 @@
-use const_format::concatcp;
-
-use super::{parse_table_list_item, ApiSuccess, ParseFrom, TableListItem, MUSIC_SHELF};
+use super::{parse_table_list_item, ParseFrom, TableListItem, MUSIC_SHELF};
 use crate::{
+    common::ApiOutcome,
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
     query::{GetHistoryQuery, RemoveHistoryItemsQuery},
-    utils, Error, Result,
+    utils, Result,
 };
+use const_format::concatcp;
 
 impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
     fn parse_from(p: super::ProcessedResult<GetHistoryQuery>) -> Result<Self> {
@@ -26,7 +26,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
         })?
     }
 }
-impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<Result<ApiSuccess>> {
+impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<RemoveHistoryItemsQuery>) -> Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
@@ -37,10 +37,10 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<Result<ApiSuccess>> {
                     .take_value_pointer::<bool>("/isProcessed")
                     .map(|p| {
                         if p {
-                            return Ok(ApiSuccess);
+                            return ApiOutcome::Success;
                         }
                         // Better handled in another way...
-                        Err(Error::other("Recieved isProcessed false"))
+                        ApiOutcome::Failure
                     })
             })
             .rev()

@@ -1,17 +1,16 @@
 use super::{
-    ApiSuccess, LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS,
-    SUBTITLE,
+    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
 };
 use crate::{
     common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::{
         GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
-        NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN, SINGLE_COLUMN_TAB,
-        SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED,
-        THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
+        NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+        SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS,
+        THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
     },
-    parse::parse_item_text,
+    parse::parse_flex_column_item,
     process::{process_fixed_column_item, process_flex_column_item},
     query::{
         DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
@@ -21,6 +20,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedUploadArtist {
@@ -106,7 +106,7 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_item_text(&mut data, 0, 0)?;
+                let title = parse_flex_column_item(&mut data, 0, 0)?;
                 if title == "Shuffle all" {
                     return Ok(None);
                 };
@@ -125,8 +125,11 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
             let title = data.take_value_pointer(TITLE_TEXT)?;
             let artist = data.take_value_pointer(SUBTITLE2)?;
             let year = data.take_value_pointer(SUBTITLE3).ok();
-            let menu = data.borrow_pointer(MENU_ITEMS)?;
-            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+            let entity_id = data
+                .borrow_pointer(MENU_ITEMS)?
+                .into_array_iter_mut()?
+                .find_path(DELETION_ENTITY_ID)?
+                .take_value()?;
             Ok(UploadAlbum {
                 title,
                 year,
@@ -152,8 +155,8 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
         fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
-            let artist_name = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
-            let songs = parse_item_text(&mut data.borrow_mut(), 1, 0)?;
+            let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
+            let songs = parse_flex_column_item(&mut data.borrow_mut(), 1, 0)?;
             let thumbnails = data.take_value_pointer(THUMBNAILS)?;
             let artist_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             Ok(UploadArtist {
@@ -182,20 +185,33 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
             mut json_crawler: JsonCrawler,
         ) -> Result<GetLibraryUploadAlbumSong> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
-            let title = parse_item_text(&mut data.borrow_mut(), 0, 0)?;
+            let title = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
             let album = parse_upload_song_album(data.borrow_mut(), 2)?;
             let duration = process_fixed_column_item(&mut data.borrow_mut(), 0)?
                 .take_value_pointer(TEXT_RUN_TEXT)?;
-            let track_no = str::parse(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
-                .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+            // Believe this needs to first covert to string as Json field has quote marks.
+            let track_no =
+                str::parse::<i64>(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
+                    .map_err(|e| {
+                        Error::parsing(
+                            data.get_path(),
+                            // TODO: Remove allocation.
+                            Arc::new(data.get_source().to_owned()),
+                            crate::error::ParseTarget::Other("i64".to_string()),
+                            Some(e.to_string()),
+                        )
+                    })?;
             let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
             let video_id = data.take_value_pointer(concatcp!(
                 PLAY_BUTTON,
                 "/playNavigationEndpoint",
                 WATCH_VIDEO_ID
             ))?;
-            let menu = data.navigate_pointer(MENU_ITEMS)?;
-            let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+            let entity_id = data
+                .borrow_pointer(MENU_ITEMS)?
+                .into_array_iter_mut()?
+                .find_path(DELETION_ENTITY_ID)?
+                .take_value()?;
             Ok(GetLibraryUploadAlbumSong {
                 title,
                 track_no,
@@ -214,8 +230,11 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
         let song_count = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/0/text"))?;
         let duration = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/2/text"))?;
         let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
-        let menu = header.navigate_pointer(MENU_ITEMS)?;
-        let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+        let entity_id = header
+            .navigate_pointer(MENU_ITEMS)?
+            .into_array_iter_mut()?
+            .find_path(DELETION_ENTITY_ID)?
+            .take_value()?;
         let songs = crawler
             .navigate_pointer(concatcp!(
                 SINGLE_COLUMN_TAB,
@@ -253,7 +272,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_item_text(&mut data, 0, 0)?;
+                let title = parse_flex_column_item(&mut data, 0, 0)?;
                 if title == "Shuffle all" {
                     return Ok(None);
                 };
@@ -263,7 +282,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
             .collect()
     }
 }
-impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
+impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>) -> crate::Result<Self> {
         let crawler: JsonCrawler = p.into();
         // Passing an invalid entity ID with will throw a 400 error which
@@ -272,9 +291,8 @@ impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for ApiSuccess {
         crawler
             .navigate_pointer("/actions")?
             .into_array_into_iter()?
-            .find_map(|a| a.navigate_pointer("/addToToastAction").ok())
-            .map(|_| ApiSuccess)
-            .ok_or_else(|| Error::other("Expected /actions to contain a /addToToastAction"))
+            .find_path("/addToToastAction")
+            .map(|_| ())
     }
 }
 fn parse_upload_song_artists(
@@ -299,7 +317,7 @@ fn parse_upload_song_album(
     col_idx: usize,
 ) -> Result<ParsedUploadSongAlbum> {
     Ok(ParsedUploadSongAlbum {
-        name: parse_item_text(&mut data, col_idx, 0)?,
+        name: parse_flex_column_item(&mut data, col_idx, 0)?,
         id: process_flex_column_item(&mut data, col_idx)?
             .take_value_pointer(concatcp!("/text/runs/0", NAVIGATION_BROWSE_ID))?,
     })
@@ -318,8 +336,11 @@ pub(crate) fn parse_table_list_upload_song(
     let thumbnails = crawler.take_value_pointer(THUMBNAILS)?;
     let artists = parse_upload_song_artists(crawler.borrow_mut(), 1)?;
     let album = parse_upload_song_album(crawler.borrow_mut(), 2)?;
-    let menu = crawler.borrow_pointer(MENU_ITEMS)?;
-    let entity_id = get_delete_history_entity_from_menu(menu)?.take_value()?;
+    let entity_id = crawler
+        .navigate_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path(DELETION_ENTITY_ID)?
+        .take_value()?;
     Ok(TableListUploadSong {
         entity_id,
         video_id,
@@ -332,27 +353,13 @@ pub(crate) fn parse_table_list_upload_song(
     })
 }
 
-fn get_delete_history_entity_from_menu(menu: JsonCrawlerBorrowed) -> Result<JsonCrawlerBorrowed> {
-    let cur_path = menu.get_path();
-    menu.into_array_iter_mut()?
-        .find_map(|item| item.navigate_pointer(DELETION_ENTITY_ID).ok())
-        // Future function try_map() will potentially eliminate this ok->ok_or_else combo.
-        .ok_or_else(|| {
-            Error::other(format!("Expected playlist item to contain at least one <{DELETION_ENTITY_ID}> underneath path {cur_path}"))
-        })
-}
-
 fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
-    let tabs_path = concatcp!(SINGLE_COLUMN, "/tabs");
-    json.navigate_pointer(tabs_path)?
-        .into_array_into_iter()?
-        // Assume Uploads as always the last element.
-        .last()
-        .ok_or_else(|| {
-            Error::other(format!(
-                "Expected array at <{tabs_path}> to contain elements",
-            ))
-        })
+    let tabs_path = concatcp!(SINGLE_COLUMN_TABS);
+    let iter = json.navigate_pointer(tabs_path)?.into_array_into_iter()?;
+    iter.clone().last().ok_or_else(|| {
+        let (source, path) = iter.get_context();
+        Error::array_size(path, source, 0)
+    })
 }
 
 #[cfg(test)]
@@ -408,9 +415,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_delete_upload_entity() {
-        parse_test!(
+        parse_test_value!(
             "./test_json/delete_upload_entity_20240715.json",
-            "./test_json/api_success_output.txt",
+            (),
             crate::query::DeleteUploadEntityQuery::new(UploadEntityID::from_raw("")),
             BrowserToken
         );

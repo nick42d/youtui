@@ -1,8 +1,7 @@
 use super::PrivacyStatus;
 use crate::{
     auth::AuthToken,
-    common::{PlaylistID, SetVideoID, YoutubeID},
-    parse::ApiSuccess,
+    common::{ApiOutcome, PlaylistID, SetVideoID, YoutubeID},
     query::Query,
 };
 use serde_json::json;
@@ -136,7 +135,7 @@ impl<'a> EditPlaylistQuery<'a> {
 }
 
 impl<'a, A: AuthToken> Query<A> for EditPlaylistQuery<'a> {
-    type Output = ApiSuccess;
+    type Output = ApiOutcome;
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let mut actions = Vec::new();
         if let Some(new_title) = &self.new_title {

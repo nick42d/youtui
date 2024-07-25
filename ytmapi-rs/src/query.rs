@@ -265,16 +265,14 @@ pub mod watch {
 }
 
 pub mod rate {
-    use serde_json::json;
-
+    use super::Query;
     use crate::{
         auth::AuthToken,
         common::{PlaylistID, YoutubeID},
-        parse::{ApiSuccess, LikeStatus},
+        parse::LikeStatus,
         VideoID,
     };
-
-    use super::Query;
+    use serde_json::json;
 
     pub struct RateSongQuery<'a> {
         video_id: VideoID<'a>,
@@ -300,7 +298,7 @@ pub mod rate {
 
     // AUTH REQUIRED
     impl<'a, A: AuthToken> Query<A> for RateSongQuery<'a> {
-        type Output = ApiSuccess
+        type Output = ()
         where
             Self: Sized;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
@@ -319,7 +317,7 @@ pub mod rate {
 
     // AUTH REQUIRED
     impl<'a, A: AuthToken> Query<A> for RatePlaylistQuery<'a> {
-        type Output = ApiSuccess
+        type Output = ()
         where
             Self: Sized;
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {

@@ -1,10 +1,14 @@
-use super::{parse_item_text, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult};
+use std::sync::Arc;
+
+use super::{
+    parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
+};
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
-use crate::process::{get_library_menu_from_menu, process_fixed_column_item};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
+use crate::process::process_fixed_column_item;
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
@@ -92,8 +96,11 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
     {
         return Ok(None);
     }
-    let title = super::parse_item_text(&mut data, 0, 0)?;
-    let mut library_menu = get_library_menu_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
+    let mut library_menu = data
+        .borrow_pointer(MENU_ITEMS)?
+        .into_array_iter_mut()?
+        .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add, feedback_tok_rem) = match library_status {
         LibraryStatus::InLibrary => (
@@ -115,13 +122,21 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
         i.take_value_pointer("/text/simpleText")
             .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
     })?;
-    let plays = parse_item_text(&mut data, 2, 0)?;
-    let track_no = str::parse(
+    let plays = parse_flex_column_item(&mut data, 2, 0)?;
+    // Believe this needs to first covert to string as Json field has quote marks.
+    let track_no = str::parse::<usize>(
         data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
             .as_str(),
     )
-    // TODO: Better error
-    .map_err(|e| Error::other(format!("Error {e} parsing into u64")))?;
+    .map_err(|e| {
+        Error::parsing(
+            data.get_path(),
+            // TODO: Remove allocation.
+            Arc::new(data.get_source().to_owned()),
+            crate::error::ParseTarget::Other("usize".to_string()),
+            Some(e.to_string()),
+        )
+    })?;
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -148,8 +163,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let mut header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
-    let category =
-        AlbumType::try_from_str(header.take_value_pointer::<String>(SUBTITLE)?.as_str())?;
+    let category = header.take_value_pointer(SUBTITLE)?;
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?
