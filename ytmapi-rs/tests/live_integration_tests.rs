@@ -419,9 +419,12 @@ async fn test_edit_playlist() {
         ))
         .await
         .unwrap();
-    api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
-        .await
-        .unwrap();
+    assert_eq!(
+        api.query(EditPlaylistQuery::new_title(id.clone(), "TEST_EDIT"))
+            .await
+            .unwrap(),
+        ApiOutcome::Success
+    );
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
