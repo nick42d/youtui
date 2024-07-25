@@ -4,7 +4,7 @@ use crate::{
     Error, Result,
 };
 use serde::de::DeserializeOwned;
-use std::{borrow::BorrowMut, iter::Map, slice::IterMut, sync::Arc, vec::IntoIter};
+use std::{slice::IterMut, sync::Arc, vec::IntoIter};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum JsonPath {

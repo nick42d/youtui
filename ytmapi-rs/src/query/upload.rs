@@ -1,7 +1,7 @@
 use super::{get_sort_order_params, GetLibrarySortOrder, Query};
 use crate::{
     auth::AuthToken,
-    common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID},
+    common::{UploadAlbumID, UploadArtistID, UploadEntityID},
     parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
 };
 use serde_json::json;

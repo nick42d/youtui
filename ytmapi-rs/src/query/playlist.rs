@@ -3,7 +3,6 @@ use crate::{
     auth::AuthToken,
     common::{PlaylistID, SetVideoID, YoutubeID},
     parse::GetPlaylist,
-    Error, Result,
 };
 pub use additems::*;
 pub use create::*;

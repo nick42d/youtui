@@ -1,4 +1,3 @@
-use std::sync::Arc;
 
 use super::{
     parse_flex_column_item, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
@@ -31,7 +30,7 @@ mod tests;
 
 // TODO: Type safety
 fn parse_basic_search_result_from_section_list_contents(
-    mut section_list_contents: BasicSearchSectionListContents,
+    section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
     // Imperative solution, may be able to make more functional.
     let mut top_results = Vec::new();

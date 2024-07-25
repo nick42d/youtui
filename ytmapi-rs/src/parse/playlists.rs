@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     common::{ApiOutcome, PlaylistID, SetVideoID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
+    crawler::{JsonCrawler, JsonCrawlerIterator},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
