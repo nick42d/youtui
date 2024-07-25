@@ -329,9 +329,6 @@ impl<'a> JsonCrawlerBorrowed<'a> {
 }
 
 impl JsonCrawler {
-    pub fn get_path(&self) -> String {
-        (&self.path).into()
-    }
     pub fn into_array_into_iter(self) -> Result<JsonCrawlerArrayIntoIter> {
         if let JsonCrawler {
             source,
@@ -442,34 +439,6 @@ impl JsonCrawler {
             crawler,
             path,
         })
-    }
-    /// From a list of paths, navigate to the first one that is available.
-    pub fn navigate_first<I, S>(self, paths: impl IntoIterator<IntoIter = I>) -> Result<JsonCrawler>
-    where
-        I: Iterator<Item = S> + Clone,
-        S: AsRef<str>,
-    {
-        let Self {
-            source,
-            crawler: mut old_crawler,
-            path: mut old_path,
-        } = self;
-        let iter = paths.into_iter();
-        for path in iter.clone() {
-            if let Some(found) = old_crawler.pointer_mut(path.as_ref()) {
-                old_path.push(JsonPath::pointer(path.as_ref()));
-                return Ok(Self {
-                    source,
-                    crawler: found.take(),
-                    path: old_path,
-                });
-            }
-        }
-        Err(Error::paths_not_found(
-            &old_path,
-            source.clone(),
-            iter.map(|s| s.as_ref().to_string()).collect(),
-        ))
     }
     // Allow dead code - library type code that may be used in future.
     #[allow(dead_code)]
