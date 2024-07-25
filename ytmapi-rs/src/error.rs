@@ -18,9 +18,7 @@ pub struct Error {
 #[non_exhaustive]
 pub enum ErrorKind {
     /// Error from HTTP client.
-    Web {
-        message: String,
-    },
+    Web { message: String },
     /// General io error.
     // TODO: improve
     Io(io::Error),
@@ -85,12 +83,9 @@ pub enum ErrorKind {
     },
     /// Received a response from InnerTube that was not in the expected (JSON)
     /// format.
-    InvalidResponse {
-        response: String,
-    },
+    InvalidResponse { response: String },
     /// InnerTube credential header not in expected format.
     Header,
-    Other(String), // Generic catchall - TODO: Remove all of these.
     UnableToSerializeGoogleOAuthToken {
         response: String,
         err: serde_json::Error,
@@ -105,16 +100,11 @@ pub enum ErrorKind {
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
     /// Recieved an error code in the Json reply from InnerTube.
-    OtherErrorCodeInResponse {
-        code: u64,
-        message: String,
-    },
+    OtherErrorCodeInResponse { code: u64, message: String },
     /// Innertube returned a STATUS_FAILED for the query.
     ApiStatusFailed,
     /// Unable to obtain system time for the query to Innertube.
-    SystemTimeError {
-        message: String,
-    },
+    SystemTimeError { message: String },
 }
 /// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
@@ -141,7 +131,6 @@ impl Error {
             | ErrorKind::InvalidResponse { .. }
             | ErrorKind::Header
             | ErrorKind::ApiStatusFailed
-            | ErrorKind::Other(_)
             | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
             | ErrorKind::OtherErrorCodeInResponse { .. }
             | ErrorKind::OAuthTokenExpired
@@ -273,7 +262,6 @@ impl Display for ErrorKind {
             ErrorKind::InvalidResponse { response: _ } => {
                 write!(f, "Response is invalid json - unable to deserialize.")
             }
-            ErrorKind::Other(msg) => write!(f, "Generic error - {msg} - recieved."),
             ErrorKind::OtherErrorCodeInResponse { code, message } => {
                 write!(
                     f,
