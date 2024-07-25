@@ -1,14 +1,6 @@
 [
-    Ok(
-        ApiSuccess,
-    ),
-    Err(
-        Generic error - Recieved isProcessed false - recieved.,
-    ),
-    Err(
-        Generic error - Recieved isProcessed false - recieved.,
-    ),
-    Err(
-        Generic error - Recieved isProcessed false - recieved.,
-    ),
+    Success,
+    Failure,
+    Failure,
+    Failure,
 ]

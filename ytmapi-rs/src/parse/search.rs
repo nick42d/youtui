@@ -52,10 +52,7 @@ fn parse_basic_search_result_from_section_list_contents(
         top_results = parse_top_results_from_music_card_shelf_contents(
             results_iter
                 .next()
-                .ok_or_else(|| {
-                    let (source, path) = results_iter.clone().get_context();
-                    Error::array_size(path, source, 1)
-                })?
+                .expect("Path /0 exists as part of precondition")
                 .borrow_pointer(MUSIC_CARD_SHELF)?,
         )?;
     }

@@ -205,7 +205,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
 mod tests {
     use crate::{
         auth::BrowserToken,
-        common::{PlaylistID, YoutubeID},
+        common::{ApiOutcome, PlaylistID, YoutubeID},
         process_json,
         query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery},
         Error,
@@ -239,40 +239,24 @@ mod tests {
     }
     #[tokio::test]
     async fn test_add_playlist_items_query() {
-        let source_path = Path::new("./test_json/add_playlist_items_20240626.json");
-        let expected_path = Path::new("./test_json/add_playlist_items_20240626_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = AddPlaylistItemsQuery::new_from_playlist(
-            PlaylistID::from_raw(""),
-            PlaylistID::from_raw(""),
+        parse_test!(
+            "./test_json/add_playlist_items_20240626.json",
+            "./test_json/add_playlist_items_20240626_output.txt",
+            AddPlaylistItemsQuery::new_from_playlist(
+                PlaylistID::from_raw(""),
+                PlaylistID::from_raw(""),
+            ),
+            BrowserToken
         );
-        let output = process_json::<_, BrowserToken>(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
     }
     #[tokio::test]
     async fn test_edit_playlist_title_query() {
-        let source_path = Path::new("./test_json/edit_playlist_title_20240626.json");
-        let expected_path = Path::new("./test_json/edit_playlist_title_20240626_output.txt");
-        let source = tokio::fs::read_to_string(source_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = tokio::fs::read_to_string(expected_path)
-            .await
-            .expect("Expect file read to pass during tests");
-        let expected = expected.trim();
-        // Blank query has no bearing on function
-        let query = EditPlaylistQuery::new_title(PlaylistID::from_raw(""), "");
-        let output = process_json::<_, BrowserToken>(source, query).unwrap();
-        let output = format!("{:#?}", output);
-        assert_eq!(output, expected);
+        parse_test_value!(
+            "./test_json/edit_playlist_title_20240626.json",
+            ApiOutcome::Success,
+            EditPlaylistQuery::new_title(PlaylistID::from_raw(""), ""),
+            BrowserToken
+        );
     }
 
     #[tokio::test]
