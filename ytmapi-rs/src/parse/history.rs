@@ -3,7 +3,7 @@ use crate::{
     common::ApiOutcome,
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
-    query::{GetHistoryQuery, RemoveHistoryItemsQuery},
+    query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     utils, Result,
 };
 use const_format::concatcp;
@@ -45,6 +45,12 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
             })
             .rev()
             .collect()
+    }
+}
+impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
+    fn parse_from(p: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
+        let _json_crawler = JsonCrawler::from(p);
+        todo!()
     }
 }
 

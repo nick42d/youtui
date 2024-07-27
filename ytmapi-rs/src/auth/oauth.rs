@@ -2,6 +2,7 @@ use super::private::Sealed;
 use super::AuthToken;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
+use crate::process::RawResultGet;
 use crate::{
     process::RawResult,
     query::Query,
@@ -11,7 +12,7 @@ use crate::{
         YTM_URL,
     },
 };
-use reqwest::Client;
+use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::Arc;
@@ -166,6 +167,63 @@ impl AuthToken for OAuthToken {
     fn deserialize_json<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
+        let (json, query) = raw.destructure();
+        let processed = ProcessedResult::from_raw(json, query)?;
+        // Guard against error codes in json response.
+        // TODO: Add a test for this
+        if let Some(error) = processed.get_json().pointer("/error") {
+            let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
+                return Err(Error::navigation(
+                    "/error/code",
+                    Arc::new(processed.clone_json()),
+                ));
+            };
+            let message = error
+                .pointer("/message")
+                .and_then(|s| s.as_str())
+                .map(|s| s.to_string())
+                .unwrap_or_default();
+            // TODO: Error matching
+            return Err(Error::other_code(code, message));
+        }
+        Ok(processed)
+    }
+    async fn raw_query_get<Q: crate::query::QueryGet<Self>>(
+        &self,
+        client: &Client,
+        query: Q,
+    ) -> Result<crate::process::RawResultGet<Q, Self>> {
+        // CODE DUPLICATION WITH RAW QUERY.
+        let url = Url::parse_with_params(query.url(), query.params())
+            .map_err(|e| Error::web(format!("{e}")))?;
+        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
+        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        // TODO: Better handling for expiration case.
+        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
+            return Err(Error::oauth_token_expired());
+        }
+        let result = client
+            .get(url)
+            .header("User-Agent", USER_AGENT)
+            .header("X-Origin", YTM_URL)
+            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                format!("{} {}", self.token_type, self.access_token),
+            )
+            .header("X-Goog-Request-Time", request_time_unix)
+            .send()
+            .await?
+            .text()
+            .await?;
+        let result = RawResultGet::from_raw(result, query);
+        Ok(result)
+    }
+
+    fn deserialize_json_get<Q: crate::query::QueryGet<Self>>(
+        raw: crate::process::RawResultGet<Q, Self>,
+    ) -> Result<ProcessedResult<Q>> {
+        // COPY AND PASTE OF ABOVE
         let (json, query) = raw.destructure();
         let processed = ProcessedResult::from_raw(json, query)?;
         // Guard against error codes in json response.

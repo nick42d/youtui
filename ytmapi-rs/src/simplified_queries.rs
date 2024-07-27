@@ -11,7 +11,9 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
+use crate::common::{
+    AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongUrl,
+};
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist,
     LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
@@ -37,8 +39,8 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::query::{
-    DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
-    SetTasteProfileQuery,
+    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetTasteProfileQuery, QueryGet, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
@@ -734,6 +736,19 @@ impl<A: AuthToken> YtMusic<A> {
         mood_params: T,
     ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
         self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
+            .await
+    }
+    /// Adds an item to the accounts history.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.add_history_item(SongUrl::from_raw("FAKE URL")).await
+    /// # };
+    pub async fn add_history_item<'a, T: Into<SongUrl<'a>>>(
+        &self,
+        song_url: T,
+    ) -> Result<<AddHistoryItemQuery<'a> as QueryGet<A>>::Output> {
+        self.query_get(AddHistoryItemQuery::new(song_url.into()))
             .await
     }
 }

@@ -150,6 +150,8 @@ pub struct TasteTokenSelection<'a>(Cow<'a, str>);
 pub struct TasteTokenImpression<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct MoodCategoryParams<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct SongUrl<'a>(Cow<'a, str>);
 
 impl_youtube_id!(UploadEntityID<'a>);
 impl_youtube_id!(SetVideoID<'a>);
@@ -169,6 +171,7 @@ impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
 impl_youtube_id!(TasteTokenImpression<'a>);
 impl_youtube_id!(TasteTokenSelection<'a>);
 impl_youtube_id!(MoodCategoryParams<'a>);
+impl_youtube_id!(SongUrl<'a>);
 
 impl<'a> BrowseID<'a> for PlaylistID<'a> {}
 impl<'a> BrowseID<'a> for ChannelID<'a> {}

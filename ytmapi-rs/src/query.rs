@@ -33,6 +33,15 @@ pub trait Query<A: AuthToken> {
     fn path(&self) -> &str;
 }
 
+/// Represents a plain GET query that can be sent to Innertube.
+pub trait QueryGet<A: AuthToken> {
+    type Output: ParseFrom<Self>
+    where
+        Self: Sized;
+    fn url(&self) -> &str;
+    fn params(&self) -> Vec<(&str, Cow<str>)>;
+}
+
 pub mod album {
     use super::Query;
     use crate::{

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
-use crate::query::Query;
+use crate::query::{Query, QueryGet};
 use crate::Result;
 
 // Should trait be Result?
@@ -12,6 +12,18 @@ use crate::Result;
 pub struct RawResult<Q, A>
 where
     Q: Query<A>,
+    A: AuthToken,
+{
+    query: Q,
+    // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
+    // generated it.
+    token: PhantomData<A>,
+    json: String,
+}
+
+pub struct RawResultGet<Q, A>
+where
+    Q: QueryGet<A>,
     A: AuthToken,
 {
     query: Q,
@@ -43,6 +55,30 @@ impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
     }
     pub fn process(self) -> Result<ProcessedResult<Q>> {
         A::deserialize_json(self)
+    }
+}
+impl<Q: QueryGet<A>, A: AuthToken> RawResultGet<Q, A> {
+    pub fn from_raw(json: String, query: Q) -> Self {
+        Self {
+            query,
+            token: PhantomData,
+            json,
+        }
+    }
+    pub fn get_query(&self) -> &Q {
+        &self.query
+    }
+    pub fn get_json(&self) -> &str {
+        &self.json
+    }
+    pub fn destructure_json(self) -> String {
+        self.json
+    }
+    pub fn destructure(self) -> (String, Q) {
+        (self.json, self.query)
+    }
+    pub fn process(self) -> Result<ProcessedResult<Q>> {
+        A::deserialize_json_get(self)
     }
 }
 // Could return FixedColumnItem

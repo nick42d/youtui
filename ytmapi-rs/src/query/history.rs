@@ -1,8 +1,14 @@
-use super::Query;
+use std::borrow::Cow;
+
+use super::{Query, QueryGet};
 use crate::{
     auth::AuthToken,
-    common::{ApiOutcome, FeedbackTokenRemoveFromHistory},
-    parse::TableListItem,
+    common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongUrl, YoutubeID},
+    parse::{ParseFrom, TableListItem},
+};
+use rand::{
+    distributions::{self, Alphanumeric, Slice},
+    Rng,
 };
 use serde_json::json;
 
@@ -10,10 +16,19 @@ pub struct GetHistoryQuery;
 pub struct RemoveHistoryItemsQuery<'a> {
     feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
 }
+pub struct AddHistoryItemQuery<'a> {
+    song_url: SongUrl<'a>,
+}
 
 impl<'a> RemoveHistoryItemsQuery<'a> {
     pub fn new(feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>) -> Self {
         Self { feedback_tokens }
+    }
+}
+
+impl<'a> AddHistoryItemQuery<'a> {
+    pub fn new(song_url: SongUrl<'a>) -> Self {
+        Self { song_url }
     }
 }
 
@@ -48,5 +63,34 @@ impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
     }
     fn path(&self) -> &str {
         "feedback"
+    }
+}
+
+impl<'a, A: AuthToken> QueryGet<A> for AddHistoryItemQuery<'a> {
+    type Output = ()
+    where
+        Self: Sized;
+    fn url(&self) -> &str {
+        self.song_url.get_raw()
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        // Original implementation by sigma67
+        // https://github.com/sigma67/ytmusicapi/blob/a15d90c4f356a530c6b2596277a9d70c0b117a0c/ytmusicapi/mixins/library.py#L310
+        let possible_chars: Vec<char> =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+                .chars()
+                .collect();
+        let random_cpn: String = rand::thread_rng()
+            .sample_iter(
+                rand::distributions::Slice::new(&possible_chars)
+                    .expect("Provided a hard-coded non-empty slice"),
+            )
+            .take(16)
+            .collect();
+        vec![
+            ("ver", "2".into()),
+            ("c", "WEB_REMIX".into()),
+            ("cpn", random_cpn.into()),
+        ]
     }
 }

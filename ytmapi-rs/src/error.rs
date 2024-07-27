@@ -2,6 +2,8 @@
 use core::fmt::{Debug, Display};
 use std::{io, sync::Arc, time::SystemTimeError};
 
+use reqwest::Url;
+
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -250,6 +252,13 @@ impl Error {
             inner: Box::new(ErrorKind::ApiStatusFailed),
         }
     }
+    pub(crate) fn web(message: impl Into<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::Web {
+                message: message.into(),
+            }),
+        }
+    }
 }
 
 impl std::error::Error for Error {}
@@ -334,7 +343,7 @@ impl From<reqwest::Error> for Error {
     fn from(err: reqwest::Error) -> Self {
         let message = err.to_string();
         Self {
-            inner: Box::new(ErrorKind::SystemTimeError { message }),
+            inner: Box::new(ErrorKind::Web { message }),
         }
     }
 }

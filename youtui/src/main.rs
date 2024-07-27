@@ -176,6 +176,9 @@ enum Command {
     GetMoodPlaylists {
         mood_category_params: String,
     },
+    AddHistoryItem {
+        song_url: String,
+    },
 }
 
 pub struct RuntimeInfo {

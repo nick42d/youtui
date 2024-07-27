@@ -3,7 +3,7 @@ use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
         recomendations::TasteToken, AlbumID, BrowseParams, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromHistory, MoodCategoryParams, PlaylistID, SetVideoID,
+        FeedbackTokenRemoveFromHistory, MoodCategoryParams, PlaylistID, SetVideoID, SongUrl,
         TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
         YoutubeID,
     },
@@ -11,17 +11,17 @@ use ytmapi_rs::{
     process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
-        AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter,
-        CreatePlaylistQuery, DeletePlaylistQuery, DeleteUploadEntityQuery, EditPlaylistQuery,
-        EditSongLibraryStatusQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
-        GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
-        GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-        GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-        GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
-        GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
-        SongsFilter, VideosFilter,
+        AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
+        CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery,
+        DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, EpisodesFilter,
+        FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
+        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
+        GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetMoodCategoriesQuery,
+        GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
+        PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, QueryGet, RemoveHistoryItemsQuery,
+        RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID,
 };
@@ -388,6 +388,14 @@ pub async fn command_to_query(
             )
             .await
         }
+        Command::AddHistoryItem { song_url } => {
+            get_string_output_of_get_query(
+                yt,
+                AddHistoryItemQuery::new(SongUrl::from_raw(song_url)),
+                cli_query,
+            )
+            .await
+        }
     }
 }
 
@@ -430,6 +438,52 @@ where
                     .map(|r| format!("{:#?}", r))
                     .map_err(|e| e.into()),
                 DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+            }
+        }
+    }
+}
+
+async fn get_string_output_of_get_query<Q, O>(
+    yt: DynamicYtMusic,
+    q: Q,
+    cli_query: CliQuery,
+) -> crate::Result<String>
+where
+    Q: QueryGet<BrowserToken, Output = O>,
+    Q: QueryGet<OAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
+    match cli_query {
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: true,
+        } => yt.query_get_source(q).await.map_err(|e| e.into()),
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: false,
+        } => yt
+            .query_get(q)
+            .await
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
+        CliQuery {
+            query_type: QueryType::FromSourceFile(source),
+            show_source: true,
+        } => Ok(source),
+        CliQuery {
+            query_type: QueryType::FromSourceFile(source),
+            show_source: false,
+        } => {
+            // Neat hack to ensure process_json utilises the same AuthType as was set in
+            // config. This works as the config step sets the variant of
+            // DynamicYtMusic.
+            match yt {
+                DynamicYtMusic::Browser(_) => process_json_get::<Q, BrowserToken>(source, q)
+                    .map(|r| format!("{:#?}", r))
+                    .map_err(|e| e.into()),
+                DynamicYtMusic::OAuth(_) => process_json_get::<Q, OAuthToken>(source, q)
                     .map(|r| format!("{:#?}", r))
                     .map_err(|e| e.into()),
             }

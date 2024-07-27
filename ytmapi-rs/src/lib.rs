@@ -54,7 +54,7 @@ use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
 use parse::{ParseFrom, ProcessedResult};
-use query::Query;
+use query::{Query, QueryGet};
 use reqwest::Client;
 use std::path::Path;
 
@@ -325,6 +325,28 @@ impl<A: AuthToken> YtMusic<A> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await?.process()
     }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON _for a GET query_.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// todo
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub async fn processed_query_get<Q: QueryGet<A>>(
+        &self,
+        query: Q,
+    ) -> Result<ProcessedResult<Q>> {
+        // TODO: Check for a response the reflects an expired Headers token
+        self.token
+            .raw_query_get(&self.client, query)
+            .await?
+            .process()
+    }
     /// Return the raw JSON returned by YouTube music for Query Q.
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
@@ -359,6 +381,18 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
         Q::Output::parse_from(self.processed_query(query).await?)
+    }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// processed into parsable JSON _for a GET query_.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// todo
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub async fn query_get<Q: QueryGet<A>>(&self, query: Q) -> Result<Q::Output> {
+        Q::Output::parse_from(self.processed_query_get(query).await?)
     }
 }
 // TODO: Keep session alive after calling these methods.
