@@ -3,14 +3,15 @@ use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
         recomendations::TasteToken, AlbumID, BrowseParams, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromHistory, MoodCategoryParams, PlaylistID, SetVideoID, SongUrl,
-        TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
-        YoutubeID,
+        FeedbackTokenRemoveFromHistory, MoodCategoryParams, PlaylistID, SetVideoID,
+        SongTrackingUrl, TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID,
+        UploadEntityID, YoutubeID,
     },
     parse::{LikeStatus, ParseFrom},
-    process_json,
+    process_json, process_json_get,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
+        song::GetSongTrackingUrlQuery,
         AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
         CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery,
         DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, EpisodesFilter,
@@ -388,10 +389,20 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::AddHistoryItem { song_url } => {
+        Command::AddHistoryItem {
+            song_tracking_url: song_url,
+        } => {
             get_string_output_of_get_query(
                 yt,
-                AddHistoryItemQuery::new(SongUrl::from_raw(song_url)),
+                AddHistoryItemQuery::new(SongTrackingUrl::from_raw(song_url)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetSongTrackingUrl { video_id } => {
+            get_string_output_of_query(
+                yt,
+                GetSongTrackingUrlQuery::new(VideoID::from_raw(video_id))?,
                 cli_query,
             )
             .await
@@ -413,15 +424,11 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source(q).await.map_err(|e| e.into()),
+        } => yt.query_source(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt
-            .query(q)
-            .await
-            .map(|r| format!("{:#?}", r))
-            .map_err(|e| e.into()),
+        } => yt.query(q).await.map(|r| format!("{:#?}", r)),
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: true,
@@ -459,15 +466,11 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_get_source(q).await.map_err(|e| e.into()),
+        } => yt.query_source_get(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt
-            .query_get(q)
-            .await
-            .map(|r| format!("{:#?}", r))
-            .map_err(|e| e.into()),
+        } => yt.query_get(q).await.map(|r| format!("{:#?}", r)),
         CliQuery {
             query_type: QueryType::FromSourceFile(source),
             show_source: true,

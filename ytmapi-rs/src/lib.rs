@@ -54,6 +54,7 @@ use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
 use parse::{ParseFrom, ProcessedResult};
+use process::RawResultGet;
 use query::{Query, QueryGet};
 use reqwest::Client;
 use std::path::Path;
@@ -303,6 +304,22 @@ impl<A: AuthToken> YtMusic<A> {
         // TODO: Check for a response the reflects an expired Headers token
         self.token.raw_query(&self.client, query).await
     }
+    /// Return a raw result from YouTube music for query Q that requires further
+    /// processing _for a GET query_.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// todo
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub async fn raw_query_get<Q: QueryGet<A>>(&self, query: Q) -> Result<RawResultGet<Q, A>> {
+        // TODO: Check for a response the reflects an expired Headers token
+        self.token.raw_query_get(&self.client, query).await
+    }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
     /// # Usage
@@ -455,4 +472,17 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserT
 /// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
     Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
+}
+/// Process a string of JSON as if it had been directly received from the
+/// api for a get query. Note that this is generic across AuthToken, and you may
+/// need to provide the AuthToken type using 'turbofish'.
+/// # Usage
+/// ```
+/// let json = r#"{ "test" : true }"#.to_string();
+/// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
+/// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
+/// assert!(result.is_err());
+/// ```
+pub fn process_json_get<Q: QueryGet<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
+    Q::Output::parse_from(RawResultGet::from_raw(json, query).process()?)
 }

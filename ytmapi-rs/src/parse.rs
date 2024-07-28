@@ -308,20 +308,6 @@ fn parse_flex_column_item<T: DeserializeOwned>(
     process_flex_column_item(item, col_idx)?.take_value_pointer(pointer)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::query::SearchQuery;
-
-    #[tokio::test]
-    async fn test_all_processed_impl() {
-        let query = SearchQuery::new("Beatles");
-        let source = "{\"name\": \"John Doe\"}".to_string();
-        let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
-        assert_eq!(&query, p.get_query());
-    }
-}
-
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
 
@@ -419,5 +405,55 @@ mod watch {
         // TODO: Safe option that returns none if tab doesn't exist.
         let path = format!("/tabs/{tab_id}/tabRenderer/endpoint/browseEndpoint/browseId");
         watch_next_renderer.borrow_pointer(path)
+    }
+}
+mod song {
+    use super::ParseFrom;
+    use crate::{
+        common::SongTrackingUrl, crawler::JsonCrawler, query::song::GetSongTrackingUrlQuery,
+    };
+
+    impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
+        fn parse_from(
+            p: super::ProcessedResult<GetSongTrackingUrlQuery<'a>>,
+        ) -> crate::Result<Self> {
+            let mut crawler = JsonCrawler::from(p);
+            crawler.take_value_pointer("/playbackTracking/videostatsPlaybackUrl/baseUrl")
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::{
+            auth::BrowserToken,
+            common::{SongTrackingUrl, YoutubeID},
+            query::song::GetSongTrackingUrlQuery,
+            VideoID,
+        };
+
+        #[tokio::test]
+        async fn test_get_song_tracking_url_query() {
+            let output = SongTrackingUrl::from_raw("https://s.youtube.com/api/stats/playback?cl=655300395&docid=FZ8BxMU3BYc&ei=JSimZqHaNeyB9fwP9oqh0Ak&fexp=&ns=yt&plid=AAYeTNocW-liNkl6&el=detailpage&len=193&of=URbTjA0hNUiM-oZxeU_KzQ&osid=AAAAAYfxXtM%3AAOeUNAZhCDiglWHfELd4I0ksz0dyuGtLVg&uga=m32&vm=CAMQARgBOjJBSHFpSlRJMDQteFk3b0Z2MUZXblN3NTlza3ZKcEhkcXpWeVhhMXl4RGQyZXVFR2twZ2JiQU9BckJGdG4zbDdCcElKTGJHNkt3dlJVX2ZzZGdKMndGR1ZZdk92MVItWWYtUTBOYmdFQnYxd3J6cGJBNzdrZUJXMlQ0QWR4MVo4S1Rza1JTM0hvWGRTd2llYk5xZFd6Nne4AQE");
+            parse_test_value!(
+                "./test_json/get_song_tracking_url_20240728.json",
+                output,
+                GetSongTrackingUrlQuery::new(VideoID::from_raw("")).unwrap(),
+                BrowserToken
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::query::SearchQuery;
+
+    #[tokio::test]
+    async fn test_all_processed_impl() {
+        let query = SearchQuery::new("Beatles");
+        let source = "{\"name\": \"John Doe\"}".to_string();
+        let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
+        assert_eq!(&query, p.get_query());
     }
 }

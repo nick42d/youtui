@@ -1,6 +1,7 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
+use crate::RawResult;
 use std::borrow::Cow;
 
 pub use album::*;
@@ -349,5 +350,71 @@ pub mod rate {
             LikeStatus::Disliked => "like/dislike",
             LikeStatus::Indifferent => "like/removelike",
         }
+    }
+}
+
+// Potentially better belongs within another module.
+pub mod song {
+    use super::Query;
+    use crate::{auth::AuthToken, common::SongTrackingUrl, Result, VideoID};
+    use serde_json::json;
+    use std::time::SystemTime;
+
+    pub struct GetSongTrackingUrlQuery<'a> {
+        video_id: VideoID<'a>,
+        signature_timestamp: u64,
+    }
+
+    impl<'a> GetSongTrackingUrlQuery<'a> {
+        /// # NOTE
+        /// A GetSongTrackingUrlQuery stores a timestamp, it's not recommended
+        /// to store these for a long period of time. The constructor can fail
+        /// due to a System Time error.
+        pub fn new(video_id: VideoID) -> Result<GetSongTrackingUrlQuery<'_>> {
+            let signature_timestamp = get_signature_timestamp()?;
+            Ok(GetSongTrackingUrlQuery {
+                video_id,
+                signature_timestamp,
+            })
+        }
+    }
+
+    impl<'a, A: AuthToken> Query<A> for GetSongTrackingUrlQuery<'a> {
+        type Output = SongTrackingUrl<'static>
+        where
+            Self: Sized;
+        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+            serde_json::Map::from_iter([
+                (
+                    "playbackContext".to_string(),
+                    json!(
+                        {
+                            "contentPlaybackContext": {
+                                "signatureTimestamp": self.signature_timestamp
+                            }
+                        }
+                    ),
+                ),
+                ("video_id".to_string(), json!(self.video_id)),
+            ])
+        }
+        fn params(&self) -> Option<std::borrow::Cow<str>> {
+            None
+        }
+        fn path(&self) -> &str {
+            "player"
+        }
+    }
+
+    // Original: https://github.com/sigma67/ytmusicapi/blob/a15d90c4f356a530c6b2596277a9d70c0b117a0c/ytmusicapi/mixins/_utils.py#L42
+    /// Approximation for google's signatureTimestamp which would normally be
+    /// extracted from base.js.
+    fn get_signature_timestamp() -> Result<u64> {
+        const SECONDS_IN_DAY: u64 = 60 * 60 * 24;
+        Ok(SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)?
+            .as_secs()
+            // SAFETY: SECONDS_IN_DAY is nonzero.
+            .saturating_div(SECONDS_IN_DAY))
     }
 }

@@ -12,7 +12,7 @@ use crate::common::{
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
 use crate::common::{
-    AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongUrl,
+    AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongTrackingUrl,
 };
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist,
@@ -20,6 +20,7 @@ use crate::parse::{
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
 };
+use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
     filteredsearch::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
@@ -744,11 +745,25 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.add_history_item(SongUrl::from_raw("FAKE URL")).await
     /// # };
-    pub async fn add_history_item<'a, T: Into<SongUrl<'a>>>(
+    pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
         &self,
         song_url: T,
     ) -> Result<<AddHistoryItemQuery<'a> as QueryGet<A>>::Output> {
         self.query_get(AddHistoryItemQuery::new(song_url.into()))
             .await
+    }
+    /// Get detailed song information.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_song(VideoID::from_raw("")).await
+    /// todo
+    /// # };
+    pub async fn get_song_tracking_url<'a, T: Into<VideoID<'a>>>(
+        &self,
+        video_id: T,
+    ) -> Result<SongTrackingUrl<'static>> {
+        let query = GetSongTrackingUrlQuery::new(video_id.into())?;
+        self.query(query).await
     }
 }

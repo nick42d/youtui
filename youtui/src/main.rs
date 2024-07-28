@@ -177,7 +177,10 @@ enum Command {
         mood_category_params: String,
     },
     AddHistoryItem {
-        song_url: String,
+        song_tracking_url: String,
+    },
+    GetSongTrackingUrl {
+        video_id: String,
     },
 }
 

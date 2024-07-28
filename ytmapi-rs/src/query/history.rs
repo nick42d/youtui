@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use super::{Query, QueryGet};
 use crate::{
     auth::AuthToken,
-    common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongUrl, YoutubeID},
+    common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
     parse::{ParseFrom, TableListItem},
 };
 use rand::{
@@ -17,7 +17,7 @@ pub struct RemoveHistoryItemsQuery<'a> {
     feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
 }
 pub struct AddHistoryItemQuery<'a> {
-    song_url: SongUrl<'a>,
+    song_url: SongTrackingUrl<'a>,
 }
 
 impl<'a> RemoveHistoryItemsQuery<'a> {
@@ -27,7 +27,7 @@ impl<'a> RemoveHistoryItemsQuery<'a> {
 }
 
 impl<'a> AddHistoryItemQuery<'a> {
-    pub fn new(song_url: SongUrl<'a>) -> Self {
+    pub fn new(song_url: SongTrackingUrl<'a>) -> Self {
         Self { song_url }
     }
 }

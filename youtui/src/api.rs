@@ -2,7 +2,7 @@
 use crate::{config::AuthType, error::Error, Result};
 use ytmapi_rs::{
     auth::{AuthToken, BrowserToken, OAuthToken},
-    query::{Query},
+    query::{Query, QueryGet},
     YtMusic,
 };
 
@@ -91,6 +91,94 @@ impl DynamicYtMusic {
                 ))
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
+        })
+    }
+    pub async fn query_get<Q, O>(&self, query: Q) -> Result<O>
+    where
+        Q: QueryGet<BrowserToken, Output = O>,
+        Q: QueryGet<OAuthToken, Output = O>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => yt.query_get(query).await?,
+            DynamicYtMusic::OAuth(yt) => yt.query_get(query).await?,
+        })
+    }
+    pub async fn browser_query_get<Q>(&self, query: Q) -> Result<Q::Output>
+    where
+        Q: QueryGet<BrowserToken>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => yt.query_get(query).await?,
+            DynamicYtMusic::OAuth(_) => {
+                return Err(Error::new_wrong_auth_token_error_browser(
+                    query,
+                    AuthType::OAuth,
+                ))
+            }
+        })
+    }
+    pub async fn oauth_query_get<Q>(&self, query: Q) -> Result<Q::Output>
+    where
+        Q: QueryGet<OAuthToken>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(_) => {
+                return Err(Error::new_wrong_auth_token_error_oauth(
+                    query,
+                    AuthType::Browser,
+                ))
+            }
+            DynamicYtMusic::OAuth(yt) => yt.query_get(query).await?,
+        })
+    }
+    pub async fn query_source_get<Q, O>(&self, query: Q) -> Result<String>
+    where
+        Q: QueryGet<BrowserToken, Output = O>,
+        Q: QueryGet<OAuthToken, Output = O>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => yt
+                .raw_query_get(query)
+                .await
+                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::OAuth(yt) => yt
+                .raw_query_get(query)
+                .await
+                .map(|r| r.destructure_json())?,
+        })
+    }
+    pub async fn browser_query_source_get<Q>(&self, query: Q) -> Result<String>
+    where
+        Q: QueryGet<BrowserToken>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => yt
+                .raw_query_get(query)
+                .await
+                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::OAuth(_) => {
+                return Err(Error::new_wrong_auth_token_error_browser(
+                    query,
+                    AuthType::OAuth,
+                ))
+            }
+        })
+    }
+    pub async fn oauth_query_source_get<Q>(&self, query: Q) -> Result<String>
+    where
+        Q: QueryGet<OAuthToken>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(_) => {
+                return Err(Error::new_wrong_auth_token_error_oauth(
+                    query,
+                    AuthType::Browser,
+                ))
+            }
+            DynamicYtMusic::OAuth(yt) => yt
+                .raw_query_get(query)
+                .await
+                .map(|r| r.destructure_json())?,
         })
     }
 }
