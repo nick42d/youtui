@@ -2,7 +2,6 @@
 //! be used when implementing the Query trait.
 
 use crate::Result;
-use reqwest::header::HeaderMap;
 use serde::Serialize;
 use std::borrow::Cow;
 

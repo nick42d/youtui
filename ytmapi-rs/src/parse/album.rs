@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use super::{
-    parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
+    parse_flex_column_item, parse_song_artist, ParsedSongArtist, ProcessedResult, TryParseFrom,
 };
 use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
@@ -80,7 +80,7 @@ pub struct AlbumParams {
     pub library_status: LibraryStatus,
 }
 
-impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+impl<'a> TryParseFrom<GetAlbumQuery<'a>> for AlbumParams {
     fn parse_from(p: ProcessedResult<GetAlbumQuery<'a>>) -> crate::Result<Self> {
         parse_album_query(p)
     }

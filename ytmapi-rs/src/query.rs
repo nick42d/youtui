@@ -1,6 +1,7 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
-use crate::parse::ParseFrom;
+use crate::client::Client;
+use crate::parse::TryParseFrom;
 use crate::{RawResult, Result};
 use std::borrow::Cow;
 use std::future::Future;
@@ -22,52 +23,77 @@ mod recommendations;
 mod search;
 mod upload;
 
-// TODO: Check visibility.
 /// Represents a query that can be passed to Innertube.
+/// The Output associated type describes how to parse a result from the query,
+/// and the Method associated type describes how to call the query.
 pub trait Query<A: AuthToken> {
-    // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
-    // this into a trait object.
-    type Output: ParseFrom<Self>
-    where
-        Self: Sized;
-    fn call(&self, tok: &A) -> Self::Output;
+    type Output: TryParseFrom<Self>;
+    type Method: QueryMethod<Self, A, Self::Output>;
 }
-// TODO: Check visibility.
-/// Represents a query that can be passed to Innertube.
-pub trait QueryNew<A: AuthToken> {
-    // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
-    // this into a trait object.
-    type Output: ParseFrom<Self>
-    where
-        Self: Sized;
-    fn call(&self, client: &reqwest::Client, tok: &A)
-        -> impl Future<Output = Result<Self::Output>>;
+
+/// The GET query method
+pub struct GetMethod;
+/// The POST query method
+pub struct PostMethod;
+
+/// Represents a method of calling an query, using a query, client and auth
+/// token.
+pub trait QueryMethod<Q, A, O> {
+    fn call(
+        query: Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Future<Output = Result<RawResult<Q, A>>>;
 }
-pub trait QueryPost {
+
+impl<Q, A, O> QueryMethod<Q, A, O> for GetMethod
+where
+    Q: GetQuery + Query<A, Output = O>,
+    A: AuthToken,
+{
+    fn call(
+        query: Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Future<Output = Result<RawResult<Q, A>>>
+    where
+        Self: Sized,
+    {
+        tok.raw_query_get(client, query)
+    }
+}
+
+impl<Q, A, O> QueryMethod<Q, A, O> for PostMethod
+where
+    Q: PostQuery + Query<A, Output = O>,
+    A: AuthToken,
+{
+    fn call(
+        query: Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Future<Output = Result<RawResult<Q, A>>>
+    where
+        Self: Sized,
+    {
+        tok.raw_query_post(client, query)
+    }
+}
+
+/// Represents a plain POST query that can be sent to Innertube.
+pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
 }
 /// Represents a plain GET query that can be sent to Innertube.
-pub trait QueryGet {
+pub trait GetQuery {
     fn url(&self) -> &str;
     fn params(&self) -> Vec<(&str, Cow<str>)>;
 }
-fn call<Q: QueryNew<A>, A: AuthToken>(
-    s: Q,
-    client: &reqwest::Client,
-    tok: &A,
-) -> impl Future<Output = Result<Q::Output>> {
-    async {
-        let raw = tok.raw_query_get(client, *self).await?;
-        let proc = A::deserialize_json(raw)?;
-        let ret = Q::Output::parse_from(proc);
-        ret
-    }
-}
 
 pub mod album {
-    use super::Query;
+    use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
         common::{AlbumID, YoutubeID},
@@ -81,6 +107,9 @@ pub mod album {
     }
     impl<'a, A: AuthToken> Query<A> for GetAlbumQuery<'a> {
         type Output = AlbumParams;
+        type Method = PostMethod;
+    }
+    impl<'a> PostQuery for GetAlbumQuery<'a> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                  "browseId" : self.browse_id.get_raw(),
@@ -109,7 +138,7 @@ pub mod album {
 pub mod continuations {
     use crate::{
         auth::AuthToken,
-        parse::{ParseFrom, ProcessedResult},
+        parse::{ProcessedResult, TryParseFrom},
     };
 
     use super::{BasicSearch, Query, SearchQuery};
@@ -119,7 +148,7 @@ pub mod continuations {
         continuation_params: String,
         query: Q,
     }
-    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
+    impl<'a> TryParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
         fn parse_from(
             _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
         ) -> crate::Result<Self> {
@@ -298,7 +327,7 @@ pub mod watch {
 }
 
 pub mod rate {
-    use super::Query;
+    use super::{PostMethod, PostQuery, Query, QueryNew};
     use crate::{
         auth::AuthToken,
         common::{PlaylistID, YoutubeID},
@@ -349,10 +378,12 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a, A: AuthToken> Query<A> for RatePlaylistQuery<'a> {
-        type Output = ()
-        where
-            Self: Sized;
+    impl<'a, A: AuthToken> QueryNew<A> for RatePlaylistQuery<'a> {
+        type Output = ();
+        type QueryType = PostMethod;
+    }
+
+    impl<'a> PostQuery for RatePlaylistQuery<'a> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([(
                 "target".to_string(),

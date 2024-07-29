@@ -1,4 +1,4 @@
-use super::{parse_table_list_item, ParseFrom, TableListItem, MUSIC_SHELF};
+use super::{parse_table_list_item, TableListItem, TryParseFrom, MUSIC_SHELF};
 use crate::{
     common::ApiOutcome,
     crawler::JsonCrawler,
@@ -8,7 +8,7 @@ use crate::{
 };
 use const_format::concatcp;
 
-impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
+impl TryParseFrom<GetHistoryQuery> for Vec<TableListItem> {
     fn parse_from(p: super::ProcessedResult<GetHistoryQuery>) -> Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
@@ -26,7 +26,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
         })?
     }
 }
-impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
+impl<'a> TryParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<RemoveHistoryItemsQuery>) -> Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
@@ -47,7 +47,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
             .collect()
     }
 }
-impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
+impl<'a> TryParseFrom<AddHistoryItemQuery<'a>> for () {
     fn parse_from(p: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
         let _json_crawler = JsonCrawler::from(p);
         todo!()

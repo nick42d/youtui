@@ -41,7 +41,7 @@ use crate::query::{
 };
 use crate::query::{
     AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
-    GetTasteProfileQuery, QueryGet, SetTasteProfileQuery,
+    GetQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
@@ -748,7 +748,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
         &self,
         song_url: T,
-    ) -> Result<<AddHistoryItemQuery<'a> as QueryGet<A>>::Output> {
+    ) -> Result<<AddHistoryItemQuery<'a> as GetQuery<A>>::Output> {
         self.query_get(AddHistoryItemQuery::new(song_url.into()))
             .await
     }

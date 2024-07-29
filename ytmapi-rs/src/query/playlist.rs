@@ -1,4 +1,4 @@
-use super::Query;
+use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{PlaylistID, SetVideoID, YoutubeID},
@@ -75,6 +75,9 @@ impl<'a> RemovePlaylistItemsQuery<'a> {
 
 impl<'a, A: AuthToken> Query<A> for GetPlaylistQuery<'a> {
     type Output = GetPlaylist;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for GetPlaylistQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -94,6 +97,9 @@ impl<'a, A: AuthToken> Query<A> for GetPlaylistQuery<'a> {
 
 impl<'a, A: AuthToken> Query<A> for DeletePlaylistQuery<'a> {
     type Output = ();
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for DeletePlaylistQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -118,6 +124,9 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
 
 impl<'a, A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'a> {
     type Output = ();
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for RemovePlaylistItemsQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({
             "playlistId": self.id,

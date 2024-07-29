@@ -6,7 +6,7 @@ use crate::{
     error,
     nav_consts::*,
     process::{self, process_flex_column_item},
-    query::{Query, QueryNew},
+    query::Query,
     ChannelID,
 };
 use crate::{RawResult, Result};
@@ -35,7 +35,9 @@ mod upload;
 
 // By requiring ParseFrom to also implement Debug, this simplifies our Query ->
 // String API.
-pub trait ParseFrom<Q>: Debug + Sized {
+/// Describes how to parse the ProcessedResult from a Query into the target
+/// type.
+pub trait TryParseFrom<Q>: Debug + Sized {
     fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self>;
 }
 
@@ -237,7 +239,7 @@ pub struct ProcessedResult<Q> {
     json: serde_json::Value,
 }
 
-impl<Q: QueryNew<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> {
+impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> {
     type Error = crate::Error;
     fn try_from(value: RawResult<Q, A>) -> Result<Self> {
         let RawResult {
@@ -275,6 +277,12 @@ impl<Q> ProcessedResult<Q> {
     #[cfg(test)]
     pub(crate) fn get_query(&self) -> &Q {
         &self.query
+    }
+}
+
+impl<Q> ProcessedResult<Q> {
+    pub fn parse<QQ: Query<A>, A: AuthToken>(self) -> Result<QQ::Output> {
+        QQ::Output::parse_from(self)
     }
 }
 
@@ -320,7 +328,7 @@ fn parse_flex_column_item<T: DeserializeOwned>(
 }
 
 mod lyrics {
-    use super::{ParseFrom, ProcessedResult};
+    use super::{ProcessedResult, TryParseFrom};
 
     use crate::common::browsing::Lyrics;
     use crate::crawler::JsonCrawler;
@@ -328,7 +336,7 @@ mod lyrics {
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
 
-    impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
+    impl<'a> TryParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
             let json_crawler: JsonCrawler = p.into();
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
@@ -383,9 +391,9 @@ mod watch {
         Result,
     };
 
-    use super::{ParseFrom, ProcessedResult};
+    use super::{ProcessedResult, TryParseFrom};
 
-    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
+    impl<T: GetWatchPlaylistQueryID> TryParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
@@ -419,12 +427,12 @@ mod watch {
     }
 }
 mod song {
-    use super::ParseFrom;
+    use super::TryParseFrom;
     use crate::{
         common::SongTrackingUrl, crawler::JsonCrawler, query::song::GetSongTrackingUrlQuery,
     };
 
-    impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
+    impl<'a> TryParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         fn parse_from(
             p: super::ProcessedResult<GetSongTrackingUrlQuery<'a>>,
         ) -> crate::Result<Self> {

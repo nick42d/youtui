@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
-use crate::query::{Query, QueryGet, QueryNew};
+use crate::query::{GetQuery, Query};
 use crate::Result;
 
 // Should trait be Result?
@@ -11,7 +11,7 @@ use crate::Result;
 #[derive(PartialEq, Debug)]
 pub struct RawResult<Q, A>
 where
-    Q: QueryNew<A>,
+    Q: Query<A>,
     A: AuthToken,
 {
     // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
@@ -21,7 +21,7 @@ where
     pub json: String,
 }
 
-impl<Q: QueryNew<A>, A: AuthToken> RawResult<Q, A> {
+impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
     pub fn from_raw(json: String, query: Q) -> Self {
         Self {
             query,

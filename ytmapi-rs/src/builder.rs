@@ -4,52 +4,61 @@ use crate::{
     Result, YtMusic,
 };
 
-pub enum Tls {
-    #[cfg(feature = "default-tls")]
+pub enum ClientOptions {
     Default,
     #[cfg(feature = "rustls-tls")]
     Rustls,
     #[cfg(feature = "native-tls")]
     Native,
+    Existing(Client),
 }
 
 pub struct NoToken;
 
 pub struct YtMusicBuilder<T> {
-    tls: Tls,
+    tls: ClientOptions,
     token: T,
 }
 
-impl YtMusicBuilder<NoToken> {
-    #[cfg(feature = "default-tls")]
+impl<T> YtMusicBuilder<T> {
     pub fn new() -> Self {
         YtMusicBuilder {
-            tls: Tls::Default,
+            tls: ClientOptions::Default,
+            token: NoToken,
+        }
+    }
+    pub fn new_with_client(client: Client) -> Self {
+        YtMusicBuilder {
+            tls: ClientOptions::Existing(client),
             token: NoToken,
         }
     }
     #[cfg(feature = "rustls-tls")]
     pub fn new_rustls_tls() -> Self {
         YtMusicBuilder {
-            tls: Tls::Rustls,
+            tls: ClientOptions::Rustls,
             token: NoToken,
         }
     }
     #[cfg(feature = "native-tls")]
     pub fn new_native_tls() -> Self {
         YtMusicBuilder {
-            tls: Tls::Native,
+            tls: ClientOptions::Native,
             token: NoToken,
         }
     }
+    pub fn with_client(mut self, client: Client) -> Self {
+        self.tls = ClientOptions::Existing(client);
+        self
+    }
     #[cfg(feature = "rustls-tls")]
     pub fn with_rustls_tls(mut self) -> Self {
-        self.tls = Tls::Rustls;
+        self.tls = ClientOptions::Rustls;
         self
     }
     #[cfg(feature = "native-tls")]
     pub fn with_native_tls(mut self) -> Self {
-        self.tls = Tls::Native;
+        self.tls = ClientOptions::Native;
         self
     }
     pub fn with_browser_token(self, token: BrowserToken) -> YtMusicBuilder<BrowserToken> {
@@ -78,13 +87,13 @@ impl YtMusicBuilder<OAuthToken> {
     }
 }
 
-fn build_client(tls: Tls) -> Result<Client> {
+fn build_client(tls: ClientOptions) -> Result<Client> {
     match tls {
-        #[cfg(feature = "default-tls")]
-        Tls::Default => Client::new(),
+        ClientOptions::Default => Client::new(),
         #[cfg(feature = "rustls-tls")]
-        Tls::Rustls => Client::new_rustls_tls(),
+        ClientOptions::Rustls => Client::new_rustls_tls(),
         #[cfg(feature = "native-tls")]
-        Tls::Native => Client::new_native_tls(),
+        ClientOptions::Native => Client::new_native_tls(),
+        ClientOptions::Existing(client) => Ok(client),
     }
 }

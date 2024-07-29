@@ -2,7 +2,7 @@
 use crate::{config::AuthType, error::Error, Result};
 use ytmapi_rs::{
     auth::{AuthToken, BrowserToken, OAuthToken},
-    query::{Query, QueryGet},
+    query::{GetQuery, Query},
     YtMusic,
 };
 
@@ -95,8 +95,8 @@ impl DynamicYtMusic {
     }
     pub async fn query_get<Q, O>(&self, query: Q) -> Result<O>
     where
-        Q: QueryGet<BrowserToken, Output = O>,
-        Q: QueryGet<OAuthToken, Output = O>,
+        Q: GetQuery<BrowserToken, Output = O>,
+        Q: GetQuery<OAuthToken, Output = O>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query_get(query).await?,
@@ -105,7 +105,7 @@ impl DynamicYtMusic {
     }
     pub async fn browser_query_get<Q>(&self, query: Q) -> Result<Q::Output>
     where
-        Q: QueryGet<BrowserToken>,
+        Q: GetQuery<BrowserToken>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query_get(query).await?,
@@ -119,7 +119,7 @@ impl DynamicYtMusic {
     }
     pub async fn oauth_query_get<Q>(&self, query: Q) -> Result<Q::Output>
     where
-        Q: QueryGet<OAuthToken>,
+        Q: GetQuery<OAuthToken>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
@@ -133,8 +133,8 @@ impl DynamicYtMusic {
     }
     pub async fn query_source_get<Q, O>(&self, query: Q) -> Result<String>
     where
-        Q: QueryGet<BrowserToken, Output = O>,
-        Q: QueryGet<OAuthToken, Output = O>,
+        Q: GetQuery<BrowserToken, Output = O>,
+        Q: GetQuery<OAuthToken, Output = O>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt
@@ -149,7 +149,7 @@ impl DynamicYtMusic {
     }
     pub async fn browser_query_source_get<Q>(&self, query: Q) -> Result<String>
     where
-        Q: QueryGet<BrowserToken>,
+        Q: GetQuery<BrowserToken>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt
@@ -166,7 +166,7 @@ impl DynamicYtMusic {
     }
     pub async fn oauth_query_source_get<Q>(&self, query: Q) -> Result<String>
     where
-        Q: QueryGet<OAuthToken>,
+        Q: GetQuery<OAuthToken>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {

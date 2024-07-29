@@ -1,10 +1,10 @@
 use std::borrow::Cow;
 
-use super::{Query, QueryGet};
+use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
-    parse::{ParseFrom, TableListItem},
+    parse::{TableListItem, TryParseFrom},
 };
 use rand::{
     distributions::{self, Alphanumeric, Slice},
@@ -35,9 +35,10 @@ impl<'a> AddHistoryItemQuery<'a> {
 // NOTE: Requires auth
 // TODO: Return played and feedback_token component.
 impl<A: AuthToken> Query<A> for GetHistoryQuery {
-    type Output = Vec<TableListItem>
-    where
-        Self: Sized;
+    type Output = Vec<TableListItem>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetHistoryQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_history"))])
     }
@@ -51,10 +52,10 @@ impl<A: AuthToken> Query<A> for GetHistoryQuery {
 
 // NOTE: Does not work on brand accounts
 impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
-    type Output = Vec<ApiOutcome>
-    where
-        Self: Sized;
-
+    type Output = Vec<ApiOutcome>;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for RemoveHistoryItemsQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(self.feedback_tokens))])
     }
@@ -66,10 +67,12 @@ impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> QueryGet<A> for AddHistoryItemQuery<'a> {
-    type Output = ()
-    where
-        Self: Sized;
+impl<'a, A: AuthToken> Query<A> for AddHistoryItemQuery<'a> {
+    type Output = ();
+    type Method = GetMethod;
+}
+
+impl<'a> GetQuery for AddHistoryItemQuery<'a> {
     fn url(&self) -> &str {
         self.song_url.get_raw()
     }

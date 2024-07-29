@@ -1,7 +1,7 @@
 use super::{
     parse_flex_column_item, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
-    LibraryManager, LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
-    ProcessedResult, SearchResultVideo, TableListUploadSong,
+    LibraryManager, LibraryStatus, LikeStatus, ParsedSongAlbum, ParsedSongArtist, ProcessedResult,
+    SearchResultVideo, TableListUploadSong, TryParseFrom,
 };
 use crate::{
     common::{
@@ -84,7 +84,7 @@ fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> 
     Ok(GetArtistSongs { results, browse_id })
 }
 
-impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
+impl<'a> TryParseFrom<GetArtistQuery<'a>> for ArtistParams {
     // While this function gets improved, we'll allow this lint for the creation of
     // GetArtistTopReleases.
     #[allow(clippy::field_reassign_with_default)]
@@ -598,7 +598,7 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
         .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
         .collect()
 }
-impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+impl<'a> TryParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         let mut albums = Vec::new();

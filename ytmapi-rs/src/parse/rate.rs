@@ -1,10 +1,10 @@
-use super::ParseFrom;
+use super::TryParseFrom;
 use crate::{
     crawler::{JsonCrawler, JsonCrawlerIterator},
     query::rate::{RatePlaylistQuery, RateSongQuery},
 };
 
-impl<'a> ParseFrom<RateSongQuery<'a>> for () {
+impl<'a> TryParseFrom<RateSongQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {
         // Passing an invalid video ID with Like or Dislike will throw a 400 error which
         // is caught by AuthToken. Youtube does no checking on Indifferent, even
@@ -13,7 +13,7 @@ impl<'a> ParseFrom<RateSongQuery<'a>> for () {
         Ok(())
     }
 }
-impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
+impl<'a> TryParseFrom<RatePlaylistQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<RatePlaylistQuery<'a>>) -> crate::Result<Self> {
         // Passing an invalid playlist ID to Like or Indifferent will throw a 404 error
         // which is caught by AuthToken. Youtube does no checking on

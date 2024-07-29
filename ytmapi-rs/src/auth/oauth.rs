@@ -4,7 +4,7 @@ use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{self, QueryGet, QueryNew, QueryPost};
+use crate::query::{self, GetQuery, PostQuery};
 use crate::{
     query::Query,
     utils::constants::{
@@ -115,7 +115,7 @@ impl OAuthDeviceCode {
 
 impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    async fn raw_query_post<Q: QueryPost + QueryNew<Self>>(
+    async fn raw_query_post<Q: PostQuery + Query<Self>>(
         &self,
         client: &Client,
         query: Q,
@@ -161,7 +161,7 @@ impl AuthToken for OAuthToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    async fn raw_query_get<Q: QueryGet + QueryNew<Self>>(
+    async fn raw_query_get<Q: GetQuery + Query<Self>>(
         &self,
         client: &Client,
         query: Q,
@@ -190,7 +190,7 @@ impl AuthToken for OAuthToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    fn deserialize_json<Q: QueryNew<Self>>(
+    fn deserialize_json<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -223,14 +223,8 @@ impl OAuthToken {
             "code": code.get_code(),
             "client_id" : OAUTH_CLIENT_ID
         });
-        let result = client
-            .post(OAUTH_TOKEN_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
+        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
+        let result = client.post_query(OAUTH_TOKEN_URL, headers, &body).await?;
         let google_token: GoogleOAuthToken =
             serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
         Ok(OAuthToken::from_google_token(
@@ -245,14 +239,8 @@ impl OAuthToken {
             "refresh_token" : self.refresh_token,
             "client_id" : OAUTH_CLIENT_ID,
         });
-        let result = client
-            .post(OAUTH_TOKEN_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
+        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
+        let result = client.post_query(OAUTH_TOKEN_URL, headers, &body).await?;
         let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result)
             .map_err(|e| Error::unable_to_serialize_oauth(&result, e))?;
         Ok(OAuthToken::from_google_refresh_token(
@@ -270,14 +258,8 @@ impl OAuthTokenGenerator {
             "scope" : OAUTH_SCOPE,
             "client_id" : OAUTH_CLIENT_ID
         });
-        let result = client
-            .post(OAUTH_CODE_URL)
-            .header("User-Agent", OAUTH_USER_AGENT)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
+        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
+        let result = client.post_query(OAUTH_CODE_URL, headers, &body).await?;
         serde_json::from_str(&result).map_err(|_| Error::response(&result))
     }
 }

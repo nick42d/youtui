@@ -1,17 +1,18 @@
 use super::private::Sealed;
 use super::AuthToken;
+use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::query::QueryPost;
-use crate::utils;
+use crate::query::PostQuery;
+use crate::{client, utils};
 use crate::{
     process::RawResult,
     query::Query,
     utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL},
 };
-use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::path::Path;
 use std::sync::Arc;
@@ -25,9 +26,9 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query_post<Q: QueryPost<Self>>(
+    async fn raw_query_post<Q: PostQuery + Query<Self>>(
         &self,
-        client: &Client,
+        client: &client::Client,
         query: Q,
     ) -> Result<RawResult<Q, BrowserToken>> {
         // TODO: Functionize - used for OAuth as well.
@@ -49,39 +50,31 @@ impl AuthToken for BrowserToken {
             unreachable!("Body created in this function as an object")
         };
         let hash = utils::hash_sapisid(&self.sapisid);
-        let result = client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .header("Authorization", format!("SAPISIDHASH {hash}"))
-            .header("X-Origin", YTM_URL)
-            .header("Cookie", &self.cookies)
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
-
+        let headers = [
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            ("Authorization", format!("SAPISIDHASH {hash}").into()),
+            ("Cookie", self.cookies.as_str().into()),
+        ];
+        let result = client.post_query(url, headers, &body).await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    async fn raw_query_get<Q: crate::query::QueryGet<Self>>(
+    async fn raw_query_get<Q: crate::query::GetQuery + Query<Self>>(
         &self,
         client: &Client,
         query: Q,
     ) -> Result<crate::process::RawResult<Q, Self>> {
         // COPY AND PASTE OF ABOVE.
         let hash = utils::hash_sapisid(&self.sapisid);
-        let url = Url::parse_with_params(query.url(), query.params())
-            .map_err(|e| Error::web(format!("{e}")))?;
+        let headers = [
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            ("Authorization", format!("SAPISIDHASH {hash}").into()),
+            ("Cookie", self.cookies.as_str().into()),
+        ];
         let result = client
-            .get(url)
-            .header("Content-Type", "application/json")
-            .header("Authorization", format!("SAPISIDHASH {hash}"))
-            .header("X-Origin", YTM_URL)
-            .header("Cookie", &self.cookies)
-            .send()
-            .await?
-            .text()
+            .get_query(query.url(), headers, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -120,14 +113,11 @@ impl BrowserToken {
     pub async fn from_str(cookie_str: &str, client: &Client) -> Result<Self> {
         let cookies = cookie_str.trim().to_string();
         let user_agent = USER_AGENT;
-        let response = client
-            .get(YTM_URL)
-            .header(reqwest::header::COOKIE, &cookies)
-            .header(reqwest::header::USER_AGENT, user_agent)
-            .send()
-            .await?
-            .text()
-            .await?;
+        let headers = [
+            ("User-Agent", user_agent.into()),
+            ("Cookie", cookies.as_str().into()),
+        ];
+        let response = client.get_query(YTM_URL, headers, &()).await?;
         // parse for user agent issues here.
         if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
             return Err(Error::invalid_user_agent(user_agent));

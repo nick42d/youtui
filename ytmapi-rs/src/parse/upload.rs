@@ -1,5 +1,5 @@
 use super::{
-    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
+    LikeStatus, TryParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
 };
 use crate::{
     common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
@@ -91,7 +91,7 @@ pub struct GetLibraryUploadAlbumSong {
     pub like_status: LikeStatus,
 }
 
-impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
+impl TryParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadSongsQuery>) -> Result<Self> {
         let crawler: JsonCrawler = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
@@ -116,7 +116,7 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
             .collect()
     }
 }
-impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
+impl TryParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>) -> Result<Self> {
         fn parse_item_list_upload_album(mut json_crawler: JsonCrawler) -> Result<UploadAlbum> {
             let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
@@ -151,7 +151,7 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
             .collect()
     }
 }
-impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
+impl TryParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
         fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
@@ -179,7 +179,7 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
+impl<'a> TryParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumQuery>) -> Result<Self> {
         fn parse_playlist_upload_song(
             mut json_crawler: JsonCrawler,
@@ -257,7 +257,7 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
         })
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
+impl<'a> TryParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistQuery>) -> Result<Self> {
         let crawler: JsonCrawler = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
@@ -282,7 +282,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
             .collect()
     }
 }
-impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
+impl<'a> TryParseFrom<DeleteUploadEntityQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>) -> crate::Result<Self> {
         let crawler: JsonCrawler = p.into();
         // Passing an invalid entity ID with will throw a 400 error which

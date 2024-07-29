@@ -1,6 +1,12 @@
 use serde_json::json;
 
-use crate::{auth::AuthToken, common::PlaylistID, parse::AddPlaylistItem, query::Query, VideoID};
+use crate::{
+    auth::AuthToken,
+    common::PlaylistID,
+    parse::AddPlaylistItem,
+    query::{PostMethod, PostQuery, Query},
+    VideoID,
+};
 use std::borrow::Cow;
 
 use super::SpecialisedQuery;
@@ -86,6 +92,9 @@ impl<'a> AddPlaylistItemsQuery<'a, AddVideosToPlaylist<'a>> {
 
 impl<'a, A: AuthToken, T: SpecialisedQuery> Query<A> for AddPlaylistItemsQuery<'a, T> {
     type Output = Vec<AddPlaylistItem>;
+    type Method = PostMethod;
+}
+impl<'a, T: SpecialisedQuery> PostQuery for AddPlaylistItemsQuery<'a, T> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({
             "playlistId" : self.id,

@@ -1,8 +1,8 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_table_list_upload_song,
-    EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode,
-    TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS,
-    SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    EpisodeDate, EpisodeDuration, ProcessedResult, SearchResultAlbum, TableListEpisode,
+    TableListItem, TableListSong, TableListVideo, TryParseFrom, BADGE_LABEL, LIVE_BADGE_LABEL,
+    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{ApiOutcome, Explicit, PlaylistID};
@@ -30,7 +30,7 @@ pub struct GetLibraryArtistSubscription {
     pub thumbnails: Vec<Thumbnail>,
 }
 
-impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
+impl TryParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
     fn parse_from(p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
@@ -38,7 +38,7 @@ impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubsc
     }
 }
 
-impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
+impl TryParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
     fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
@@ -46,7 +46,7 @@ impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
     }
 }
 
-impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
+impl TryParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
     fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
@@ -54,7 +54,7 @@ impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
     }
 }
 
-impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+impl TryParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
@@ -62,7 +62,7 @@ impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     }
 }
 
-impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
+impl<'a> TryParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> crate::Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
@@ -83,7 +83,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 
-impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+impl TryParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
     fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         // TODO: Implement count and author fields

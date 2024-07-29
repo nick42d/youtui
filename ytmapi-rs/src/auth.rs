@@ -3,7 +3,7 @@ use self::private::Sealed;
 use crate::client::Client;
 use crate::error::Result;
 use crate::parse::ProcessedResult;
-use crate::query::{QueryGet, QueryNew, QueryPost};
+use crate::query::{GetQuery, PostQuery};
 use crate::{process::RawResult, query::Query};
 pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
@@ -22,17 +22,17 @@ mod private {
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
     /// Run a post query that returns a raw json response.
-    async fn raw_query_post<Q: QueryPost + QueryNew<Self>>(
+    async fn raw_query_post<Q: PostQuery + Query<Self>>(
         &self,
         client: &Client,
         query: Q,
     ) -> Result<RawResult<Q, Self>>;
     /// Run a get query that returns a raw json response.
-    async fn raw_query_get<Q: QueryGet + QueryNew<Self>>(
+    async fn raw_query_get<Q: GetQuery + Query<Self>>(
         &self,
         client: &Client,
         query: Q,
     ) -> Result<RawResult<Q, Self>>;
     /// Process the result, by deserializing into JSON and checking for errors.
-    fn deserialize_json<Q: QueryNew<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+    fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
