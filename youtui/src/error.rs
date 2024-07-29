@@ -1,10 +1,14 @@
 use crate::config::AuthType;
 use std::{fmt::Display, path::PathBuf};
 use tokio::{sync::mpsc, task::JoinError};
+use ytmapi_rs::{
+    auth::{BrowserToken, OAuthToken},
+    query::Query,
+};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Error {
     OAuthNotYetSupportedByApp,
     Communication,

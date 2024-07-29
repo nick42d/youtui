@@ -6,6 +6,7 @@ use std::{io, sync::Arc, time::SystemTimeError};
 pub type Result<T> = core::result::Result<T, Error>;
 
 /// This type represents all errors this API could produce.
+#[derive(Clone)]
 pub struct Error {
     // This is boxed to avoid passing around very large errors - in the case of an Api error we
     // want to provide the source file to the caller.
