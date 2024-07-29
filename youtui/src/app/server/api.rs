@@ -5,13 +5,16 @@ use crate::config::ApiKey;
 use crate::error::Error;
 use crate::Result;
 use tokio::sync::mpsc;
+use tokio::sync::RwLock;
 use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
+use ytmapi_rs::auth::OAuthToken;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::ChannelID;
+use ytmapi_rs::YtMusic;
 
 pub enum Request {
     GetSearchSuggestions(String, KillableTask),
@@ -41,6 +44,52 @@ pub struct Api {
     api: Option<ytmapi_rs::YtMusic<BrowserToken>>,
     api_init: Option<tokio::task::JoinHandle<Result<ytmapi_rs::YtMusic<BrowserToken>>>>,
     response_tx: mpsc::Sender<super::Response>,
+}
+pub enum DynamicApi {
+    OAuth(RwLock<YtMusic<OAuthToken>>),
+    Browser(YtMusic<BrowserToken>),
+}
+impl DynamicApi {
+    pub async fn new_from_cookie(cookie: String) -> Result<Self> {
+        Ok(DynamicApi::Browser(
+            YtMusic::from_cookie_file_rustls_tls(cookie).await?,
+        ))
+    }
+    pub async fn new_from_oauth_token(token: OAuthToken) -> Self {
+        DynamicApi::OAuth(RwLock::new(YtMusic::from_oauth_token_rustls_tls(token)))
+    }
+    /// Run a query. If the oauth token is expired, take the lock and refresh
+    /// it.
+    // NOTE: Determine how to handle if multiple queries in progress when we lock.
+    pub async fn query<Q, O>(&self, query: Q) -> Result<O>
+    where
+        Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
+        Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
+        Q: Clone,
+    {
+        match self {
+            DynamicApi::Browser(yt) => Ok(yt.query(query).await?),
+            DynamicApi::OAuth(yt) => {
+                // TODO: Remove clone
+                let result = yt.read().await.query(query.clone()).await;
+                match result {
+                    Ok(r) => Ok(r),
+                    Err(e) => {
+                        if matches!(
+                            // TODO: Remove clone
+                            e.clone().into_kind(),
+                            ytmapi_rs::error::ErrorKind::OAuthTokenExpired
+                        ) {
+                            yt.write().await.refresh_token().await;
+                            Ok(yt.read().await.query(query).await?)
+                        } else {
+                            Err(e.into())
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl Api {
