@@ -1,13 +1,12 @@
 //! Available authorisation tokens.
 use self::private::Sealed;
+use crate::client::Client;
 use crate::error::Result;
 use crate::parse::ProcessedResult;
-use crate::process::RawResultGet;
-use crate::query::QueryGet;
+use crate::query::{QueryGet, QueryNew, QueryPost};
 use crate::{process::RawResult, query::Query};
 pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
-use reqwest::Client;
 
 pub mod browser;
 pub mod oauth;
@@ -22,21 +21,18 @@ mod private {
 #[allow(async_fn_in_trait)]
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
-    async fn raw_query<Q: Query<Self>>(
+    /// Run a post query that returns a raw json response.
+    async fn raw_query_post<Q: QueryPost + QueryNew<Self>>(
         &self,
         client: &Client,
         query: Q,
     ) -> Result<RawResult<Q, Self>>;
-    async fn raw_query_get<Q: QueryGet<Self>>(
+    /// Run a get query that returns a raw json response.
+    async fn raw_query_get<Q: QueryGet + QueryNew<Self>>(
         &self,
         client: &Client,
         query: Q,
-    ) -> Result<RawResultGet<Q, Self>>;
-    /// Process the result, by deserializing into JSON.
-    /// Current implementations do error checking against expected responses for
-    /// the token here too.
-    fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
-    fn deserialize_json_get<Q: QueryGet<Self>>(
-        raw: RawResultGet<Q, Self>,
-    ) -> Result<ProcessedResult<Q>>;
+    ) -> Result<RawResult<Q, Self>>;
+    /// Process the result, by deserializing into JSON and checking for errors.
+    fn deserialize_json<Q: QueryNew<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }

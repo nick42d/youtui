@@ -1,13 +1,15 @@
 //! Results from parsing Innertube queries.
-use crate::Result;
 use crate::{
+    auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
     nav_consts::*,
     process::{self, process_flex_column_item},
+    query::{Query, QueryNew},
     ChannelID,
 };
+use crate::{RawResult, Result};
 use const_format::concatcp;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -235,8 +237,14 @@ pub struct ProcessedResult<Q> {
     json: serde_json::Value,
 }
 
-impl<Q> ProcessedResult<Q> {
-    pub(crate) fn from_raw(source: String, query: Q) -> Result<Self> {
+impl<Q: QueryNew<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> {
+    type Error = crate::Error;
+    fn try_from(value: RawResult<Q, A>) -> Result<Self> {
+        let RawResult {
+            json: source,
+            query,
+            ..
+        } = value;
         let json = serde_json::from_str(source.as_ref())
             .map_err(|_| error::Error::response("Error deserializing"))?;
         Ok(Self {
@@ -245,6 +253,9 @@ impl<Q> ProcessedResult<Q> {
             json,
         })
     }
+}
+
+impl<Q> ProcessedResult<Q> {
     pub(crate) fn destructure(self) -> (Q, String, serde_json::Value) {
         let ProcessedResult {
             query,

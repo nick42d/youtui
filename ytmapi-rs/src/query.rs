@@ -1,8 +1,9 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
-use crate::RawResult;
+use crate::{RawResult, Result};
 use std::borrow::Cow;
+use std::future::Future;
 
 pub use album::*;
 pub use artist::*;
@@ -29,18 +30,40 @@ pub trait Query<A: AuthToken> {
     type Output: ParseFrom<Self>
     where
         Self: Sized;
+    fn call(&self, tok: &A) -> Self::Output;
+}
+// TODO: Check visibility.
+/// Represents a query that can be passed to Innertube.
+pub trait QueryNew<A: AuthToken> {
+    // TODO: Consider if it's possible to remove the Self: Sized restriction to turn
+    // this into a trait object.
+    type Output: ParseFrom<Self>
+    where
+        Self: Sized;
+    fn call(&self, client: &reqwest::Client, tok: &A)
+        -> impl Future<Output = Result<Self::Output>>;
+}
+pub trait QueryPost {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Option<Cow<str>>;
     fn path(&self) -> &str;
 }
-
 /// Represents a plain GET query that can be sent to Innertube.
-pub trait QueryGet<A: AuthToken> {
-    type Output: ParseFrom<Self>
-    where
-        Self: Sized;
+pub trait QueryGet {
     fn url(&self) -> &str;
     fn params(&self) -> Vec<(&str, Cow<str>)>;
+}
+fn call<Q: QueryNew<A>, A: AuthToken>(
+    s: Q,
+    client: &reqwest::Client,
+    tok: &A,
+) -> impl Future<Output = Result<Q::Output>> {
+    async {
+        let raw = tok.raw_query_get(client, *self).await?;
+        let proc = A::deserialize_json(raw)?;
+        let ret = Q::Output::parse_from(proc);
+        ret
+    }
 }
 
 pub mod album {

@@ -53,10 +53,10 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
+use builder::{NoToken, YtMusicBuilder};
+use client::Client;
 use parse::{ParseFrom, ProcessedResult};
-use process::RawResultGet;
-use query::{Query, QueryGet};
-use reqwest::Client;
+use query::{Query, QueryGet, QueryNew};
 use std::path::Path;
 
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
@@ -72,6 +72,8 @@ mod youtube_enums;
 
 // TODO: Confirm if auth should be pub
 pub mod auth;
+pub mod builder;
+pub mod client;
 pub mod common;
 pub mod error;
 pub mod parse;
@@ -282,6 +284,19 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::parse::ParseFrom;
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// todo
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub fn builder() -> YtMusicBuilder<NoToken> {
+        YtMusicBuilder::new()
+    }
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
     /// # Usage
@@ -442,7 +457,7 @@ pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String)> 
 /// # Ok::<(), ytmapi_rs::Error>(())
 /// # };
 /// ```
-pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<OAuthToken> {
+pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<(OAuthToken, Client)> {
     let client = Client::new();
     OAuthToken::from_code(&client, code).await
 }
@@ -470,19 +485,6 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<BrowserT
 /// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
 /// assert!(result.is_err());
 /// ```
-pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
+pub fn process_json<Q: QueryNew<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
     Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
-}
-/// Process a string of JSON as if it had been directly received from the
-/// api for a get query. Note that this is generic across AuthToken, and you may
-/// need to provide the AuthToken type using 'turbofish'.
-/// # Usage
-/// ```
-/// let json = r#"{ "test" : true }"#.to_string();
-/// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
-/// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
-/// assert!(result.is_err());
-/// ```
-pub fn process_json_get<Q: QueryGet<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
-    Q::Output::parse_from(RawResultGet::from_raw(json, query).process()?)
 }

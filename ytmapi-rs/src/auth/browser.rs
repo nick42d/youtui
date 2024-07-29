@@ -2,7 +2,7 @@ use super::private::Sealed;
 use super::AuthToken;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::RawResultGet;
+use crate::query::QueryPost;
 use crate::utils;
 use crate::{
     process::RawResult,
@@ -25,7 +25,7 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query<Q: Query<Self>>(
+    async fn raw_query_post<Q: QueryPost<Self>>(
         &self,
         client: &Client,
         query: Q,
@@ -64,41 +64,11 @@ impl AuthToken for BrowserToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    fn deserialize_json<Q: Query<Self>>(
-        raw: RawResult<Q, Self>,
-    ) -> Result<crate::parse::ProcessedResult<Q>> {
-        let (json, query) = raw.destructure();
-        let processed = ProcessedResult::from_raw(json, query)?;
-        // Guard against error codes in json response.
-        // TODO: Add a test for this
-        if let Some(error) = processed.get_json().pointer("/error") {
-            let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
-                return Err(Error::navigation(
-                    "/error/code",
-                    Arc::new(processed.clone_json()),
-                ));
-            };
-            let message = error
-                .pointer("/message")
-                .and_then(|s| s.as_str())
-                .map(|s| s.to_string())
-                .unwrap_or_default();
-            match code {
-                // Assuming Error:NotAuthenticated means browser token has expired.
-                // May be incorrect - browser token may be invalid?
-                // TODO: Investigate.
-                401 => return Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other, message)),
-            }
-        }
-        Ok(processed)
-    }
-
     async fn raw_query_get<Q: crate::query::QueryGet<Self>>(
         &self,
         client: &Client,
         query: Q,
-    ) -> Result<crate::process::RawResultGet<Q, Self>> {
+    ) -> Result<crate::process::RawResult<Q, Self>> {
         // COPY AND PASTE OF ABOVE.
         let hash = utils::hash_sapisid(&self.sapisid);
         let url = Url::parse_with_params(query.url(), query.params())
@@ -113,16 +83,13 @@ impl AuthToken for BrowserToken {
             .await?
             .text()
             .await?;
-        let result = RawResultGet::from_raw(result, query);
+        let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-
-    fn deserialize_json_get<Q: crate::query::QueryGet<Self>>(
-        raw: crate::process::RawResultGet<Q, Self>,
-    ) -> Result<ProcessedResult<Q>> {
-        // COPY AND PASTE OF ABOVE
-        let (json, query) = raw.destructure();
-        let processed = ProcessedResult::from_raw(json, query)?;
+    fn deserialize_json<Q: Query<Self>>(
+        raw: RawResult<Q, Self>,
+    ) -> Result<crate::parse::ProcessedResult<Q>> {
+        let processed = ProcessedResult::try_from(raw)?;
         // Guard against error codes in json response.
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
