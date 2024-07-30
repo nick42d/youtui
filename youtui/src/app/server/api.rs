@@ -7,6 +7,7 @@ use crate::config::ApiKey;
 use crate::error::Error;
 use crate::Result;
 use tokio::sync::mpsc;
+use tokio::sync::OnceCell;
 use tokio::sync::RwLock;
 use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
@@ -44,12 +45,14 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Option<DynamicApi>,
-    api_init: Option<tokio::task::JoinHandle<Result<DynamicApi>>>,
+    api: OnceCell<DynamicApi>,
+    api_key: ApiKey,
+    _api_init: tokio::task::JoinHandle<Result<()>>,
     response_tx: mpsc::Sender<super::Response>,
 }
 #[derive(Clone)]
 pub enum DynamicApi {
+    // Arc is there to allow clone. Could potentially be removed if Clone can be removed.
     OAuth(Arc<RwLock<YtMusic<OAuthToken>>>),
     Browser(YtMusic<BrowserToken>),
 }
@@ -100,37 +103,32 @@ impl DynamicApi {
 
 impl Api {
     pub fn new(api_key: ApiKey, response_tx: mpsc::Sender<super::Response>) -> Self {
-        let api_init = Some(tokio::spawn(async move {
+        let api = OnceCell::new();
+        let api_init = tokio::spawn(async move {
             info!("Initialising API");
             // TODO: Error handling
-            let api = match api_key {
+            let api_gen = match api_key {
                 ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await?,
                 ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t),
             };
+            &api.set(api_gen);
             info!("API initialised");
-            Ok(api)
-        }));
+            Ok(())
+        });
         Self {
-            api: None,
-            api_init,
+            api: OnceCell::new(),
+            api_key,
+            _api_init: api_init,
             response_tx,
         }
     }
-    async fn get_api(&mut self) -> Result<&DynamicApi> {
-        // NOTE: This function returns a different type of error if not called before,
-        // due to difficulties I'm having in saving Result<T,E> but returning
-        // Result<&T, E>.
-        if let Some(handle) = self.api_init.take() {
-            let api = handle.await??;
-            self.api = Some(api);
-        }
-        if let Some(api) = self.api.as_ref() {
-            Ok(api)
-        } else {
-            // Rough guard against the case of sending an unkown api error.
-            // TODO: Better handling for this edge case.
-            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-            Err(crate::Error::UnknownAPIError)
+    async fn get_api(&self) -> &DynamicApi {
+        loop {
+            let api = self.api.get_or_try_init(|| async { Err(()) }).await;
+            match api {
+                Err(_) => info!("Attempted to get api, not yet initialised. Retrying"),
+                Ok(api) => return api,
+            }
         }
     }
     pub async fn handle_request(&mut self, request: Request) -> Result<()> {
