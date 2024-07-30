@@ -1,3 +1,5 @@
+use std::future::Future;
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
 use super::spawn_run_or_kill;
@@ -6,9 +8,13 @@ use crate::app::taskmanager::TaskID;
 use crate::config::ApiKey;
 use crate::error::Error;
 use crate::Result;
+use futures::FutureExt;
+use futures::TryFutureExt;
 use tokio::sync::mpsc;
+use tokio::sync::Notify;
 use tokio::sync::OnceCell;
 use tokio::sync::RwLock;
+use tokio::sync::Semaphore;
 use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::auth::OAuthToken;
@@ -46,8 +52,8 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: OnceCell<DynamicApi>,
-    api_key: ApiKey,
+    api: Arc<OnceCell<DynamicApi>>,
+    notify: Arc<Notify>,
     _api_init: tokio::task::JoinHandle<Result<()>>,
     response_tx: mpsc::Sender<super::Response>,
 }
@@ -109,31 +115,36 @@ impl DynamicApi {
 
 impl Api {
     pub fn new(api_key: ApiKey, response_tx: mpsc::Sender<super::Response>) -> Self {
-        let api = OnceCell::new();
-        let api_init = tokio::spawn(async move {
+        let api = Arc::new(OnceCell::new());
+        let notify = Arc::new(Notify::new());
+        let api_clone = api.clone();
+        let notify_clone = notify.clone();
+        let _api_init = tokio::spawn(async move {
             info!("Initialising API");
             // TODO: Error handling
             let api_gen = match api_key {
                 ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await?,
                 ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t)?,
             };
-            &api.set(api_gen);
+            api_clone.set(api_gen);
+            notify_clone.notify_one();
             info!("API initialised");
             Ok(())
         });
         Self {
-            api: OnceCell::new(),
-            api_key,
-            _api_init: api_init,
+            api,
             response_tx,
+            notify,
+            _api_init,
         }
     }
     async fn get_api(&self) -> &DynamicApi {
+        // Consider returning an error, instead of looping.
         loop {
-            let api = self.api.get_or_try_init(|| async { Err(()) }).await;
-            match api {
-                Err(_) => info!("Attempted to get api, not yet initialised. Retrying"),
-                Ok(api) => return api,
+            match self.api.get() {
+                // Wait for initialisation to complete if it hasn't already.
+                None => self.notify.notified().await,
+                Some(api) => return api,
             }
         }
     }

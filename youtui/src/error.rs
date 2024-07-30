@@ -8,7 +8,7 @@ use ytmapi_rs::{
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Error {
     OAuthNotYetSupportedByApp,
     Communication,
