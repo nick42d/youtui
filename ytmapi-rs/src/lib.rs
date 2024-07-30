@@ -61,7 +61,10 @@ use auth::{
 };
 use parse::{ParseFrom, ProcessedResult};
 use query::{Query, QueryMethod};
-use std::path::Path;
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    path::Path,
+};
 
 pub use builder::YtMusicBuilder;
 pub use client::Client;
@@ -155,6 +158,13 @@ impl YtMusic<OAuthToken> {
         let refreshed_token = self.token.refresh(&self.client).await?;
         self.token = refreshed_token.clone();
         Ok(refreshed_token)
+    }
+    /// Get a hash of the internal oauth token, for use in comparison
+    /// operations.
+    pub fn get_token_hash(&self) -> u64 {
+        let mut h = DefaultHasher::new();
+        self.token.hash(&mut h);
+        h.finish()
     }
 }
 impl<A: AuthToken> YtMusic<A> {
