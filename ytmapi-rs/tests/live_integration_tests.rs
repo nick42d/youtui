@@ -43,7 +43,10 @@ async fn test_expired_oauth() {
     let Err(error) = res else {
         panic!("Expected an error")
     };
-    assert!(matches!(error.into_kind(), ErrorKind::OAuthTokenExpired));
+    assert!(matches!(
+        error.into_kind(),
+        ErrorKind::OAuthTokenExpired { .. }
+    ));
 }
 // Placeholder for future implementation.
 // #[tokio::test]

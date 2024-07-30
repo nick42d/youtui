@@ -51,9 +51,9 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Arc<OnceCell<DynamicApi>>,
+    api: Arc<OnceCell<Result<DynamicApi>>>,
     notify: Arc<Notify>,
-    _api_init: tokio::task::JoinHandle<Result<()>>,
+    _api_init: tokio::task::JoinHandle<()>,
     response_tx: mpsc::Sender<super::Response>,
 }
 #[derive(Clone)]
@@ -85,7 +85,7 @@ impl DynamicApi {
         match self {
             DynamicApi::Browser(yt) => Ok(yt.query(query).await?),
             DynamicApi::OAuth(yt) => {
-                // TODO: Remove clone
+                // TODO: Remove clone. It's required currently to allow retry of the query.
                 let result = yt.read().await.query(query.clone()).await;
                 match result {
                     Ok(r) => Ok(r),
@@ -117,13 +117,12 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api_gen = match api_key {
-                ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await?,
-                ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t),
+                ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await,
+                ApiKey::OAuthToken(t) => Ok(DynamicApi::new_from_oauth_token(t)),
             };
             api_clone.set(api_gen);
             notify_clone.notify_one();
             info!("API initialised");
-            Ok(())
         });
         Self {
             api,
@@ -132,13 +131,14 @@ impl Api {
             _api_init,
         }
     }
-    async fn get_api(&self) -> &DynamicApi {
+    async fn get_api(&self) -> Result<&DynamicApi> {
         // Consider returning an error, instead of looping.
         loop {
             match self.api.get() {
                 // Wait for initialisation to complete if it hasn't already.
                 None => self.notify.notified().await,
-                Some(api) => return api,
+                // TODO: Better error - hack to turn &E into E
+                Some(api) => return api.as_ref().map_err(|_| Error::UnknownAPIError),
             }
         }
     }
