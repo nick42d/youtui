@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::spawn_run_or_kill;
 use super::KillableTask;
 use crate::app::taskmanager::TaskID;
@@ -11,6 +13,7 @@ use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::auth::OAuthToken;
 use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::common::SearchSuggestion;
+use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::ChannelID;
@@ -41,12 +44,13 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Option<ytmapi_rs::YtMusic<BrowserToken>>,
-    api_init: Option<tokio::task::JoinHandle<Result<ytmapi_rs::YtMusic<BrowserToken>>>>,
+    api: Option<DynamicApi>,
+    api_init: Option<tokio::task::JoinHandle<Result<DynamicApi>>>,
     response_tx: mpsc::Sender<super::Response>,
 }
+#[derive(Clone)]
 pub enum DynamicApi {
-    OAuth(RwLock<YtMusic<OAuthToken>>),
+    OAuth(Arc<RwLock<YtMusic<OAuthToken>>>),
     Browser(YtMusic<BrowserToken>),
 }
 impl DynamicApi {
@@ -55,11 +59,13 @@ impl DynamicApi {
             YtMusic::from_cookie_file_rustls_tls(cookie).await?,
         ))
     }
-    pub async fn new_from_oauth_token(token: OAuthToken) -> Self {
-        DynamicApi::OAuth(RwLock::new(YtMusic::from_oauth_token_rustls_tls(token)))
+    pub fn new_from_oauth_token(token: OAuthToken) -> Self {
+        DynamicApi::OAuth(Arc::new(RwLock::new(YtMusic::from_oauth_token_rustls_tls(
+            token,
+        ))))
     }
     /// Run a query. If the oauth token is expired, take the lock and refresh
-    /// it.
+    /// it (single retry only).
     // NOTE: Determine how to handle if multiple queries in progress when we lock.
     pub async fn query<Q, O>(&self, query: Q) -> Result<O>
     where
@@ -74,18 +80,18 @@ impl DynamicApi {
                 let result = yt.read().await.query(query.clone()).await;
                 match result {
                     Ok(r) => Ok(r),
-                    Err(e) => {
-                        if matches!(
-                            // TODO: Remove clone
-                            e.clone().into_kind(),
-                            ytmapi_rs::error::ErrorKind::OAuthTokenExpired
-                        ) {
-                            yt.write().await.refresh_token().await;
+                    Err(e) => match e.into_kind() {
+                        ErrorKind::OAuthTokenExpired { token_hash } => {
+                            // First check to see if the token_hash hasn't changed since calling the
+                            // query. If it has, that means another query must have already
+                            // refreshed the token.
+                            if yt.read().await.get_token_hash() == token_hash {
+                                yt.write().await.refresh_token().await;
+                            }
                             Ok(yt.read().await.query(query).await?)
-                        } else {
-                            Err(e.into())
                         }
-                    }
+                        other => Err(ytmapi_rs::Error::from(other).into()),
+                    },
                 }
             }
         }
@@ -98,12 +104,8 @@ impl Api {
             info!("Initialising API");
             // TODO: Error handling
             let api = match api_key {
-                ApiKey::BrowserToken(c) => ytmapi_rs::YtMusic::from_cookie_rustls_tls(c).await?,
-                ApiKey::OAuthToken(_) =>
-                // TODO: Add OAuth
-                {
-                    unimplemented!()
-                } // ytmapi_rs::YtMusic::from_oauth_token(t),
+                ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await?,
+                ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t),
             };
             info!("API initialised");
             Ok(api)
@@ -114,7 +116,7 @@ impl Api {
             response_tx,
         }
     }
-    async fn get_api(&mut self) -> Result<&ytmapi_rs::YtMusic<BrowserToken>> {
+    async fn get_api(&mut self) -> Result<&DynamicApi> {
         // NOTE: This function returns a different type of error if not called before,
         // due to difficulties I'm having in saving Result<T,E> but returning
         // Result<&T, E>.
@@ -128,7 +130,7 @@ impl Api {
             // Rough guard against the case of sending an unkown api error.
             // TODO: Better handling for this edge case.
             tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-            Err(Error::UnknownAPIError)
+            Err(crate::Error::UnknownAPIError)
         }
     }
     pub async fn handle_request(&mut self, request: Request) -> Result<()> {
@@ -170,7 +172,8 @@ impl Api {
         let _ = spawn_run_or_kill(
             async move {
                 tracing::info!("Getting search suggestions for {text}");
-                let search_suggestions = match api.get_search_suggestions(&text).await {
+                let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
+                let search_suggestions = match api.query(query).await {
                     Ok(t) => t,
                     Err(e) => {
                         error!("Received error on search suggestions query \"{}\"", e);
@@ -219,7 +222,7 @@ impl Api {
                 //            let search_res = api.search_artists(&self.search_contents, 20);
                 tracing::info!("Running search query");
                 let search_res = match api
-                    .search_artists(
+                    .query(
                         ytmapi_rs::query::SearchQuery::new(artist)
                             .with_filter(ytmapi_rs::query::ArtistsFilter)
                             .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
@@ -280,7 +283,8 @@ impl Api {
                 // Should this be a ChannelID or BrowseID? Should take a trait?.
                 // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
                 // ChannelID::Artist?
-                let artist = api.get_artist(browse_id).await;
+                let query = ytmapi_rs::query::GetArtistQuery::new(browse_id);
+                let artist = api.query(query).await;
                 let artist = match artist {
                     Ok(a) => a,
                     Err(e) => {

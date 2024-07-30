@@ -202,7 +202,7 @@ pub struct GetSearchSuggestionsQuery<'a> {
 }
 
 impl<'a> GetSearchSuggestionsQuery<'a> {
-    fn new<S: Into<Cow<'a, str>>>(value: S) -> GetSearchSuggestionsQuery<'a> {
+    pub fn new<S: Into<Cow<'a, str>>>(value: S) -> GetSearchSuggestionsQuery<'a> {
         GetSearchSuggestionsQuery {
             query: value.into(),
         }

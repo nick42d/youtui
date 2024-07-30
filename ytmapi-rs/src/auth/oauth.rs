@@ -21,7 +21,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // the refresh token. But now we do, so consider simply making this only one
 // struct. Otherwise the only difference is not including Scope which is not
 // super relevant.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct OAuthToken {
     token_type: String,
     access_token: String,
@@ -141,7 +141,7 @@ impl AuthToken for OAuthToken {
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
         if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired());
+            return Err(Error::oauth_token_expired(self));
         }
         let result = client
             // Could include gzip deflation in headers - may improve performance?

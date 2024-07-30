@@ -1,12 +1,16 @@
 //! Module to contain code related to errors that could be produced by the API.
 use core::fmt::{Debug, Display};
-use std::{io, sync::Arc, time::SystemTimeError};
+use std::{
+    hash::{Hash, Hasher},
+    io,
+    sync::Arc,
+    time::SystemTimeError,
+};
 
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;
 
 /// This type represents all errors this API could produce.
-#[derive(Clone)]
 pub struct Error {
     // This is boxed to avoid passing around very large errors - in the case of an Api error we
     // want to provide the source file to the caller.
@@ -97,7 +101,8 @@ pub enum ErrorKind {
     /// or been incorrectly provided).
     BrowserAuthenticationFailed,
     /// OAuthToken has expired.
-    OAuthTokenExpired,
+    /// Returns a hash of the expired token generated using the default hasher.
+    OAuthTokenExpired { token_hash: u64 },
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
     /// Recieved an error code in the Json reply from InnerTube.
@@ -134,7 +139,7 @@ impl Error {
             | ErrorKind::ApiStatusFailed
             | ErrorKind::UnableToSerializeGoogleOAuthToken { .. }
             | ErrorKind::OtherErrorCodeInResponse { .. }
-            | ErrorKind::OAuthTokenExpired
+            | ErrorKind::OAuthTokenExpired { .. }
             | ErrorKind::BrowserAuthenticationFailed
             | ErrorKind::SystemTimeError { .. }
             | ErrorKind::InvalidUserAgent(_) => None,
@@ -145,9 +150,12 @@ impl Error {
             inner: Box::new(ErrorKind::InvalidUserAgent(user_agent.into())),
         }
     }
-    pub(crate) fn oauth_token_expired() -> Self {
+    pub(crate) fn oauth_token_expired(token: &crate::auth::OAuthToken) -> Self {
+        let mut h = std::hash::DefaultHasher::new();
+        token.hash(&mut h);
+        let token_hash = h.finish();
         Self {
-            inner: Box::new(ErrorKind::OAuthTokenExpired),
+            inner: Box::new(ErrorKind::OAuthTokenExpired { token_hash }),
         }
     }
     pub(crate) fn browser_authentication_failed() -> Self {
@@ -303,7 +311,7 @@ impl Display for ErrorKind {
                 message, target
             ),
             ErrorKind::ApiStatusFailed => write!(f, "Api returned STATUS_FAILED for the query"),
-            ErrorKind::OAuthTokenExpired => write!(f, "OAuth token has expired"),
+            ErrorKind::OAuthTokenExpired { token_hash: _ } => write!(f, "OAuth token has expired"),
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
             ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
             ErrorKind::UnableToSerializeGoogleOAuthToken { response, err } => write!(
@@ -351,6 +359,13 @@ impl From<SystemTimeError> for Error {
         let message = err.to_string();
         Self {
             inner: Box::new(ErrorKind::SystemTimeError { message }),
+        }
+    }
+}
+impl From<ErrorKind> for Error {
+    fn from(value: ErrorKind) -> Self {
+        Self {
+            inner: Box::new(value),
         }
     }
 }
