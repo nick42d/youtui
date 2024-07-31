@@ -144,6 +144,7 @@ pub mod album {
     use serde_json::json;
     use std::borrow::Cow;
 
+    #[derive(Clone)]
     pub struct GetAlbumQuery<'a> {
         browse_id: AlbumID<'a>,
     }

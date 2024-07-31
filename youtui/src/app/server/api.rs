@@ -22,6 +22,8 @@ use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
+use ytmapi_rs::query::GetAlbumQuery;
+use ytmapi_rs::query::GetArtistAlbumsQuery;
 use ytmapi_rs::ChannelID;
 use ytmapi_rs::YtMusic;
 use ytmapi_rs::YtMusicBuilder;
@@ -81,7 +83,8 @@ impl DynamicApi {
     /// Run a query. If the oauth token is expired, take the lock and refresh
     /// it (single retry only).
     // NOTE: Determine how to handle if multiple queries in progress when we lock.
-    pub async fn query<Q, O>(&self, query: Q) -> Result<O>
+    // TODO: Refresh the oauth file also.
+    pub async fn query<Q, O>(&self, query: Q) -> ytmapi_rs::Result<O>
     where
         Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
         Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
@@ -100,11 +103,12 @@ impl DynamicApi {
                             // query. If it has, that means another query must have already
                             // refreshed the token.
                             if yt.read().await.get_token_hash() == token_hash {
-                                yt.write().await.refresh_token().await;
+                                info!("Refreshing oauth token");
+                                yt.write().await.refresh_token().await?;
                             }
                             Ok(yt.read().await.query(query).await?)
                         }
-                        other => Err(ytmapi_rs::Error::from(other).into()),
+                        other => Err(other.into()),
                     },
                 }
             }
@@ -360,8 +364,8 @@ impl Api {
                     let Some(temp_params) = artist_albums_params else {
                         unreachable!("Checked not none above")
                     };
-
-                    let albums = match api.get_artist_albums(temp_browse_id, temp_params).await {
+                    let query = GetArtistAlbumsQuery::new(temp_browse_id, temp_params);
+                    let albums = match api.query(query).await {
                         Ok(r) => r,
                         Err(e) => {
                             error!("Received error on get_artist_albums query \"{}\"", e);
@@ -389,7 +393,8 @@ impl Api {
                             "Spawning request for caller tracks for request ID {:?}",
                             id
                         );
-                        let album = match api.get_album(&b_id).await {
+                        let query = GetAlbumQuery::new(&b_id);
+                        let album = match api.query(query).await {
                             Ok(album) => album,
                             Err(e) => {
                                 error!("Error <{e}> getting album {:?}", b_id);

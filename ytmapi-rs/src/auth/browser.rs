@@ -148,7 +148,7 @@ impl BrowserToken {
     where
         P: AsRef<Path>,
     {
-        let contents = tokio::fs::read_to_string(path).await.unwrap();
+        let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
     }
 }
