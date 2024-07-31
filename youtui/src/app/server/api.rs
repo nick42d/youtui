@@ -9,7 +9,6 @@ use futures::TryFutureExt;
 use std::future::Future;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
-use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::Notify;
 use tokio::sync::OnceCell;
@@ -58,7 +57,7 @@ pub struct Api {
     _api_init: tokio::task::JoinHandle<()>,
     response_tx: mpsc::Sender<super::Response>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum DynamicApi {
     // Arc is there to allow clone. Could potentially be removed if Clone can be removed.
     OAuth(Arc<RwLock<YtMusic<OAuthToken>>>),
@@ -130,7 +129,9 @@ impl Api {
                 ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t),
             }
             .map_err(Into::into);
-            api_clone.set(api_gen);
+            api_clone
+                .set(api_gen)
+                .expect("First time initializing api should always succeed");
             notify_clone.notify_one();
             info!("API initialised");
         });
@@ -152,7 +153,7 @@ impl Api {
             }
         }
     }
-    pub async fn handle_request(&mut self, request: Request) -> Result<()> {
+    pub async fn handle_request(&self, request: Request) -> Result<()> {
         match request {
             Request::NewArtistSearch(a, task) => self.handle_new_artist_search(a, task).await,
             Request::GetSearchSuggestions(text, task) => {
@@ -163,11 +164,7 @@ impl Api {
             }
         }
     }
-    async fn handle_get_search_suggestions(
-        &mut self,
-        text: String,
-        task: KillableTask,
-    ) -> Result<()> {
+    async fn handle_get_search_suggestions(&self, text: String, task: KillableTask) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
         // Give the task a clone of the API. Not ideal but works.
         // The largest part of the API is Reqwest::Client which contains an Arc
@@ -181,10 +178,7 @@ impl Api {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
                     .await?;
-                // Rough guard against the case of sending an unkown api error.
-                // TODO: Better handling for this edge case.
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                return Err(Error::UnknownAPIError);
+                return Ok(());
             }
         }
         .clone();
@@ -214,7 +208,7 @@ impl Api {
         Ok(())
     }
 
-    async fn handle_new_artist_search(&mut self, artist: String, task: KillableTask) -> Result<()> {
+    async fn handle_new_artist_search(&self, artist: String, task: KillableTask) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
         // Give the task a clone of the API. Not ideal but works.
         // The largest part of the API is Reqwest::Client which contains an Arc
@@ -228,10 +222,7 @@ impl Api {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
                     .await?;
-                // Rough guard against the case of sending an unkown api error.
-                // TODO: Better handling for this edge case.
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                return Err(Error::UnknownAPIError);
+                return Ok(());
             }
         }
         .clone();
@@ -272,7 +263,7 @@ impl Api {
         Ok(())
     }
     async fn handle_search_selected_artist(
-        &mut self,
+        &self,
         browse_id: ChannelID<'static>,
         task: KillableTask,
     ) -> Result<()> {
@@ -285,10 +276,7 @@ impl Api {
                 error!("Error {e} connecting to API");
                 tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
                     .await?;
-                // Rough guard against the case of sending an unkown api error.
-                // TODO: Better handling for this edge case.
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                return Err(Error::UnknownAPIError);
+                return Ok(());
             }
         }
         .clone();
