@@ -1,7 +1,7 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::{config::AuthType, error::Error, Result};
 use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
+    auth::{AuthToken, BrowserToken, OAuthToken},
     query::Query,
     YtMusic,
 };

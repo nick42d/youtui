@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::spawn_run_or_kill;
 use super::KillableTask;
 use crate::app::taskmanager::TaskID;
