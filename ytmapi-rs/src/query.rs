@@ -26,7 +26,7 @@ mod upload;
 /// Represents a query that can be passed to Innertube.
 /// The Output associated type describes how to parse a result from the query,
 /// and the Method associated type describes how to call the query.
-pub trait Query<A: AuthToken> {
+pub trait Query<A: AuthToken>: Sized {
     type Output: TryParseFrom<Self>;
     type Method: QueryMethod<Self, A, Self::Output>;
 }
@@ -38,7 +38,11 @@ pub struct PostMethod;
 
 /// Represents a method of calling an query, using a query, client and auth
 /// token.
-pub trait QueryMethod<Q, A, O> {
+pub trait QueryMethod<Q, A, O>
+where
+    Q: Query<A>,
+    A: AuthToken,
+{
     fn call(
         query: Q,
         client: &crate::client::Client,
@@ -141,7 +145,7 @@ pub mod continuations {
         parse::{ProcessedResult, TryParseFrom},
     };
 
-    use super::{BasicSearch, Query, SearchQuery};
+    use super::{BasicSearch, PostMethod, PostQuery, Query, SearchQuery};
     use std::borrow::Cow;
 
     pub struct GetContinuationsQuery<Q> {
@@ -161,6 +165,12 @@ pub mod continuations {
         SearchQuery<'a, BasicSearch>: Query<A>,
     {
         type Output = ();
+        type Method = PostMethod;
+    }
+    impl<'a> PostQuery for GetContinuationsQuery<SearchQuery<'a, BasicSearch>>
+    where
+        SearchQuery<'a, BasicSearch>: PostQuery,
+    {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             self.query.header()
         }
@@ -182,7 +192,7 @@ pub mod continuations {
 }
 
 pub mod lyrics {
-    use super::Query;
+    use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
         common::{browsing::Lyrics, LyricsID, YoutubeID},
@@ -195,6 +205,9 @@ pub mod lyrics {
     }
     impl<'a, A: AuthToken> Query<A> for GetLyricsQuery<'a> {
         type Output = Lyrics;
+        type Method = PostMethod;
+    }
+    impl<'a> PostQuery for GetLyricsQuery<'a> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                 "browseId": self.id.get_raw(),
@@ -218,7 +231,7 @@ pub mod lyrics {
 }
 
 pub mod watch {
-    use super::Query;
+    use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
         common::{watch::WatchPlaylist, PlaylistID, YoutubeID},
@@ -269,6 +282,9 @@ pub mod watch {
 
     impl<T: GetWatchPlaylistQueryID, A: AuthToken> Query<A> for GetWatchPlaylistQuery<T> {
         type Output = WatchPlaylist;
+        type Method = PostMethod;
+    }
+    impl<T: GetWatchPlaylistQueryID> PostQuery for GetWatchPlaylistQuery<T> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(mut map) = json!({
                 "enablePersistentPlaylistPanel": true,
@@ -327,7 +343,7 @@ pub mod watch {
 }
 
 pub mod rate {
-    use super::{PostMethod, PostQuery, Query, QueryNew};
+    use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
         common::{PlaylistID, YoutubeID},
@@ -360,9 +376,10 @@ pub mod rate {
 
     // AUTH REQUIRED
     impl<'a, A: AuthToken> Query<A> for RateSongQuery<'a> {
-        type Output = ()
-        where
-            Self: Sized;
+        type Output = ();
+        type Method = PostMethod;
+    }
+    impl<'a> PostQuery for RateSongQuery<'a> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([(
                 "target".to_string(),
@@ -378,9 +395,9 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a, A: AuthToken> QueryNew<A> for RatePlaylistQuery<'a> {
+    impl<'a, A: AuthToken> Query<A> for RatePlaylistQuery<'a> {
         type Output = ();
-        type QueryType = PostMethod;
+        type Method = PostMethod;
     }
 
     impl<'a> PostQuery for RatePlaylistQuery<'a> {
@@ -409,7 +426,7 @@ pub mod rate {
 
 // Potentially better belongs within another module.
 pub mod song {
-    use super::Query;
+    use super::{PostMethod, PostQuery, Query};
     use crate::{auth::AuthToken, common::SongTrackingUrl, Result, VideoID};
     use serde_json::json;
     use std::time::SystemTime;
@@ -434,9 +451,10 @@ pub mod song {
     }
 
     impl<'a, A: AuthToken> Query<A> for GetSongTrackingUrlQuery<'a> {
-        type Output = SongTrackingUrl<'static>
-        where
-            Self: Sized;
+        type Output = SongTrackingUrl<'static>;
+        type Method = PostMethod;
+    }
+    impl<'a> PostQuery for GetSongTrackingUrlQuery<'a> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([
                 (

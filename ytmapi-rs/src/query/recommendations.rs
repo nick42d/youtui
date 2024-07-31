@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use super::Query;
+use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{recomendations::TasteToken, MoodCategoryParams},
@@ -43,9 +43,10 @@ impl<'a> GetMoodPlaylistsQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetTasteProfileQuery {
-    type Output = Vec<TasteProfileArtist>
-    where
-        Self: Sized;
+    type Output = Vec<TasteProfileArtist>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetTasteProfileQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_tastebuilder"))])
     }
@@ -62,9 +63,13 @@ where
     A: AuthToken,
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
-    type Output = ()
-    where
-        Self: Sized;
+    type Output = ();
+    type Method = PostMethod;
+}
+impl<'a, I> PostQuery for SetTasteProfileQuery<'a, I>
+where
+    I: Iterator<Item = TasteToken<'a>> + Clone,
+{
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let (impression_tokens, selection_tokens): (Vec<Value>, Vec<Value>) = self
             .taste_tokens
@@ -91,9 +96,10 @@ where
 }
 
 impl<A: AuthToken> Query<A> for GetMoodCategoriesQuery {
-    type Output = Vec<MoodCategorySection>
-    where
-        Self: Sized;
+    type Output = Vec<MoodCategorySection>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetMoodCategoriesQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_moods_and_genres"))])
     }
@@ -106,9 +112,10 @@ impl<A: AuthToken> Query<A> for GetMoodCategoriesQuery {
 }
 
 impl<'a, A: AuthToken> Query<A> for GetMoodPlaylistsQuery<'a> {
-    type Output = Vec<MoodPlaylistCategory>
-    where
-        Self: Sized;
+    type Output = Vec<MoodPlaylistCategory>;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for GetMoodPlaylistsQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([
             (

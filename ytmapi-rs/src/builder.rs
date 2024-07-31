@@ -21,25 +21,6 @@ pub struct YtMusicBuilder<T> {
 }
 
 impl<T> YtMusicBuilder<T> {
-    pub fn new() -> Self {
-        YtMusicBuilder {
-            tls: ClientOptions::Default,
-            token: NoToken,
-        }
-    }
-    pub fn new_with_client(client: Client) -> Self {
-        YtMusicBuilder {
-            tls: ClientOptions::Existing(client),
-            token: NoToken,
-        }
-    }
-    #[cfg(feature = "rustls-tls")]
-    pub fn new_rustls_tls() -> Self {
-        YtMusicBuilder {
-            tls: ClientOptions::Rustls,
-            token: NoToken,
-        }
-    }
     #[cfg(feature = "native-tls")]
     pub fn new_native_tls() -> Self {
         YtMusicBuilder {
@@ -68,6 +49,28 @@ impl<T> YtMusicBuilder<T> {
     pub fn with_oauth_token(self, token: OAuthToken) -> YtMusicBuilder<OAuthToken> {
         let YtMusicBuilder { tls, token: _ } = self;
         YtMusicBuilder { tls, token }
+    }
+}
+
+impl YtMusicBuilder<NoToken> {
+    pub fn new() -> YtMusicBuilder<NoToken> {
+        YtMusicBuilder {
+            tls: ClientOptions::Default,
+            token: NoToken,
+        }
+    }
+    pub fn new_with_client(client: Client) -> YtMusicBuilder<NoToken> {
+        YtMusicBuilder {
+            tls: ClientOptions::Existing(client),
+            token: NoToken,
+        }
+    }
+    #[cfg(feature = "rustls-tls")]
+    pub fn new_rustls_tls() -> YtMusicBuilder<NoToken> {
+        YtMusicBuilder {
+            tls: ClientOptions::Rustls,
+            token: NoToken,
+        }
     }
 }
 

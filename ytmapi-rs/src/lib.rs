@@ -157,10 +157,7 @@ impl YtMusic<BrowserToken> {
     #[cfg(feature = "native-tls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
     pub async fn from_cookie_file_native_tls<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let client = Client::builder()
-            .use_native_tls()
-            .build()
-            .expect("Expected Client build to succeed");
+        let client = Client::new_native_tls().expect("Expected Client build to succeed");
         let token = BrowserToken::from_cookie_file(path, &client).await?;
         Ok(Self { client, token })
     }
@@ -183,10 +180,7 @@ impl YtMusic<BrowserToken> {
     #[cfg(feature = "native-tls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
     pub async fn from_cookie_native_tls<S: AsRef<str>>(cookie: S) -> Result<Self> {
-        let client = Client::builder()
-            .use_native_tls()
-            .build()
-            .expect("Expected Client build to succeed");
+        let client = Client::new_native_tls().expect("Expected Client build to succeed");
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
@@ -197,9 +191,7 @@ impl YtMusic<OAuthToken> {
     /// # Panics
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::builder()
-            .build()
-            .expect("Expected Client build to succeed");
+        let client = Client::new().expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Create a new API handle using an OAuthToken.
@@ -211,10 +203,7 @@ impl YtMusic<OAuthToken> {
     #[cfg(feature = "rustls-tls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
     pub fn from_oauth_token_rustls_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::builder()
-            .use_rustls_tls()
-            .build()
-            .expect("Expected Client build to succeed");
+        let client = Client::new_rustls_tls().expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Create a new API handle using an OAuthToken.
@@ -226,10 +215,7 @@ impl YtMusic<OAuthToken> {
     #[cfg(feature = "native-tls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
     pub fn from_oauth_token_native_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::builder()
-            .use_native_tls()
-            .build()
-            .expect("Expected Client build to succeed");
+        let client = Client::new_native_tls().expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Refresh the internal oauth token, and return a clone of it (for user to
@@ -397,5 +383,5 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<(Browser
 /// assert!(result.is_err());
 /// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
-    RawResult::from_raw(json, query).process()?.parse()
+    Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
 }

@@ -748,9 +748,8 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
         &self,
         song_url: T,
-    ) -> Result<<AddHistoryItemQuery<'a> as GetQuery<A>>::Output> {
-        self.query_get(AddHistoryItemQuery::new(song_url.into()))
-            .await
+    ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
+        self.query(AddHistoryItemQuery::new(song_url.into())).await
     }
     /// Get detailed song information.
     /// ```no_run

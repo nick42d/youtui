@@ -280,11 +280,11 @@ impl<Q> ProcessedResult<Q> {
     }
 }
 
-impl<Q> ProcessedResult<Q> {
-    pub fn parse<QQ: Query<A>, A: AuthToken>(self) -> Result<QQ::Output> {
-        QQ::Output::parse_from(self)
-    }
-}
+// impl<Q> ProcessedResult<Q> {
+//     pub fn parse<QQ: Query<A>, A: AuthToken>(self) -> Result<QQ::Output> {
+//         QQ::Output::parse_from(self)
+//     }
+// }
 
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto
 // fixedcolumnitem also. Not sure if this should error.
@@ -470,9 +470,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_all_processed_impl() {
+        todo!();
         let query = SearchQuery::new("Beatles");
         let source = "{\"name\": \"John Doe\"}".to_string();
-        let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
-        assert_eq!(&query, p.get_query());
+        // let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
+        // assert_eq!(&query, p.get_query());
     }
 }
