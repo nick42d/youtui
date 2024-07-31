@@ -1,5 +1,10 @@
 use super::PrivacyStatus;
-use crate::{auth::AuthToken, common::PlaylistID, query::Query, VideoID};
+use crate::{
+    auth::AuthToken,
+    common::PlaylistID,
+    query::{PostMethod, PostQuery, Query},
+    VideoID,
+};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -103,6 +108,9 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
 
 impl<'a, A: AuthToken, C: CreatePlaylistType> Query<A> for CreatePlaylistQuery<'a, C> {
     type Output = PlaylistID<'static>;
+    type Method = PostMethod;
+}
+impl<'a, C: CreatePlaylistType> PostQuery for CreatePlaylistQuery<'a, C> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
         let serde_json::Value::Object(mut map) = json!({

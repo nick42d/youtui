@@ -250,6 +250,13 @@ impl Error {
             inner: Box::new(ErrorKind::ApiStatusFailed),
         }
     }
+    pub(crate) fn web(message: impl Into<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::Web {
+                message: message.into(),
+            }),
+        }
+    }
 }
 
 impl std::error::Error for Error {}
@@ -259,8 +266,11 @@ impl Display for ErrorKind {
             ErrorKind::Web { message } => write!(f, "Web error <{message}> received."),
             ErrorKind::Io(e) => write!(f, "IO error {e} recieved."),
             ErrorKind::Header => write!(f, "Error parsing header."),
-            ErrorKind::InvalidResponse { response: _ } => {
-                write!(f, "Response is invalid json - unable to deserialize.")
+            ErrorKind::InvalidResponse { response } => {
+                write!(
+                    f,
+                    "Response is invalid json - unable to deserialize. <{response}>"
+                )
             }
             ErrorKind::OtherErrorCodeInResponse { code, message } => {
                 write!(
@@ -334,7 +344,7 @@ impl From<reqwest::Error> for Error {
     fn from(err: reqwest::Error) -> Self {
         let message = err.to_string();
         Self {
-            inner: Box::new(ErrorKind::SystemTimeError { message }),
+            inner: Box::new(ErrorKind::Web { message }),
         }
     }
 }

@@ -8,19 +8,21 @@ description = "An asynchronous (tokio) pure Rust API for Youtube Music using Goo
 homepage = "https://github.com/nick42d/youtui"
 repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
-exclude = [
-    "test_json/*",
-]
+exclude = ["test_json/*"]
 
 [dependencies]
-tokio = {version = "1.38.0", features = ["full"]}
+tokio = { version = "1.38.0", features = ["full"] }
 # To allow alternative TLS options, we need to opt out of a single reqwest feature.
 # This isn't possible in Cargo, so we need to opt back into the other default features.
 # https://github.com/rust-lang/cargo/issues/3126
 # As of 26/4/24 the following are reqwest default features:
 # http2, default-tls, charset
-reqwest = {version = "0.12.4", features = ["json", "http2", "charset"], default-features = false}
-serde = {version = "1.0.203", features = ["derive"]}
+reqwest = { version = "0.12.4", features = [
+  "json",
+  "http2",
+  "charset",
+], default-features = false }
+serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
 sha1 = "0.10.6"
 tokio-stream = "0.1.15"
@@ -31,13 +33,12 @@ rand = "0.8.5"
 
 [features]
 default = ["default-tls", "simplified-queries"]
-# Provide alternative TLS options, but use reqwest's default by default.
-# NOTE: To use an alternative TLS with the standard builders,
-# you will need to specify default-features = false.
-# As reqwest preferentially uses default-tls when multiple TLS features are enabled.
-# See reqwest docs for more information.
+# Provide alternative TLS options to reqwest's default.
+# NOTE: At least one of the TLS features must be enabled.
+# If multiple are enabled, or another crate enables multiple,
+# the standard builder functions will prefer reqwest's default.
+# For more information, see reqest's documentation.
 # https://docs.rs/reqwest/latest/reqwest/tls/index.html
-# TODO: Implement builder functions that allow us to ensure we use a specific TLS.
 default-tls = ["reqwest/default-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
@@ -48,10 +49,10 @@ simplified-queries = []
 [dev-dependencies]
 pretty_assertions = "1.4.0"
 
-# docs.rs-specific configuration required to enable nightly documentation features
+# Docs.rs-specific configuration required to enable documentation of
+# code requiring optional features.
 [package.metadata.docs.rs]
-# document all features
+# Document all features
 all-features = true
-# defines the configuration attribute `docsrs`
+# Defines the configuration attribute `docsrs`
 rustdoc-args = ["--cfg", "docsrs"]
-

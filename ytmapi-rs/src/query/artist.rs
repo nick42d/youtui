@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use super::Query;
+use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{BrowseParams, ChannelID, YoutubeID},
@@ -31,6 +31,9 @@ impl<'a> GetArtistAlbumsQuery<'a> {
 
 impl<'a, A: AuthToken> Query<A> for GetArtistQuery<'a> {
     type Output = ArtistParams;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for GetArtistQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
         // or even better, could do this first time called, and store state so not
@@ -53,6 +56,9 @@ impl<'a, A: AuthToken> Query<A> for GetArtistQuery<'a> {
 // TODO: Check if the MPLA strip is correct for both of these.
 impl<'a, A: AuthToken> Query<A> for GetArtistAlbumsQuery<'a> {
     type Output = Vec<Album>;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for GetArtistAlbumsQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: should do in new
         // XXX: Think I could remove allocation here

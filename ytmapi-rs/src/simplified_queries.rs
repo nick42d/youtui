@@ -1,5 +1,7 @@
 //! This module contains the implementation for more convenient ways to call the
 //! API, in many cases without the need of building Query structs.
+//! This module contains purely additional implementations for YtMusic. To see
+//! the documentation, refer to the [`YtMusic`] documentation itself.
 //! # Optional
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
@@ -11,13 +13,16 @@ use crate::common::{
     watch::WatchPlaylist,
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
 };
-use crate::common::{AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID};
+use crate::common::{
+    AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongTrackingUrl,
+};
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist,
     LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults, TableListItem, TableListSong,
 };
+use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
     filteredsearch::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
@@ -37,8 +42,8 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::query::{
-    DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
-    SetTasteProfileQuery,
+    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
@@ -680,7 +685,7 @@ impl<A: AuthToken> YtMusic<A> {
         self.query(query).await
     }
     /// Fetches suggested artists from taste profile
-    /// [https://music.youtube.com/tasteprofile].
+    /// <https://music.youtube.com/tasteprofile>.
     /// Tasteprofile allows users to pick artists to update their
     /// recommendations.
     /// ```no_run
@@ -735,5 +740,44 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
         self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
             .await
+    }
+    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
+    /// history using `add_history_item()`.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let song = yt.search_songs("While My Guitar Gently Weeps")
+    ///     .await
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .next()
+    ///     .unwrap();
+    /// yt.get_song_tracking_url(song.video_id).await
+    /// # };
+    pub async fn get_song_tracking_url<'a, T: Into<VideoID<'a>>>(
+        &self,
+        video_id: T,
+    ) -> Result<SongTrackingUrl<'static>> {
+        let query = GetSongTrackingUrlQuery::new(video_id.into())?;
+        self.query(query).await
+    }
+    /// Adds an item to the accounts history.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let song = yt.search_songs("While My Guitar Gently Weeps")
+    ///     .await
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .next()
+    ///     .unwrap();
+    /// let url = yt.get_song_tracking_url(song.video_id).await.unwrap();
+    /// yt.add_history_item(url).await
+    /// # };
+    pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
+        &self,
+        song_url: T,
+    ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
+        self.query(AddHistoryItemQuery::new(song_url.into())).await
     }
 }

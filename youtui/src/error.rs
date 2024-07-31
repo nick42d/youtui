@@ -1,10 +1,6 @@
 use crate::config::AuthType;
 use std::{fmt::Display, path::PathBuf};
 use tokio::{sync::mpsc, task::JoinError};
-use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    query::{Query},
-};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -42,10 +38,7 @@ pub enum Error {
     Other(String),
 }
 impl Error {
-    pub fn new_wrong_auth_token_error_browser<Q: Query<BrowserToken>>(
-        query: Q,
-        current_authtype: AuthType,
-    ) -> Self {
+    pub fn new_wrong_auth_token_error_browser<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::Browser;
         let query_type = std::any::type_name::<Q>();
         Self::WrongAuthType {
@@ -54,10 +47,7 @@ impl Error {
             query_type,
         }
     }
-    pub fn new_wrong_auth_token_error_oauth<Q: Query<OAuthToken>>(
-        query: Q,
-        current_authtype: AuthType,
-    ) -> Self {
+    pub fn new_wrong_auth_token_error_oauth<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::OAuth;
         let query_type = std::any::type_name::<Q>();
         Self::WrongAuthType {

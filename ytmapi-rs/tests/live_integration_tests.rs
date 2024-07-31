@@ -1,6 +1,5 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use reqwest::Client;
 use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
@@ -26,7 +25,7 @@ async fn test_refresh_expired_oauth() {
 
 #[tokio::test]
 async fn test_get_oauth_code() {
-    let client = Client::new();
+    let client = crate::client::Client::new().unwrap();
     let _code = OAuthTokenGenerator::new(&client).await.unwrap();
 }
 
@@ -167,6 +166,30 @@ generate_query_test!(
     test_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
+#[tokio::test]
+async fn test_add_remove_history_items() {
+    // TODO: Oauth.
+    let api = new_standard_api().await.unwrap();
+    let song = api
+        .search_songs("Ride the lightning")
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .unwrap();
+    println!("{}", &song.video_id.get_raw());
+    let song_url = api.get_song_tracking_url(&song.video_id).await.unwrap();
+    api.add_history_item(song_url).await.unwrap();
+    let history = api.get_history().await.unwrap();
+    let first_history_item_name = match history.first().unwrap() {
+        parse::TableListItem::Song(i) => i.title.as_str(),
+        parse::TableListItem::Video(i) => i.title.as_str(),
+        parse::TableListItem::Episode(i) => i.title.as_str(),
+        parse::TableListItem::UploadSong(i) => i.title.as_str(),
+    };
+    pretty_assertions::assert_eq!(first_history_item_name, song.title);
+    todo!("Delete history item after adding");
+}
 #[tokio::test]
 async fn test_get_mood_playlists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();

@@ -3,7 +3,7 @@ use crate::{
     common::ApiOutcome,
     crawler::JsonCrawler,
     nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
-    query::{GetHistoryQuery, RemoveHistoryItemsQuery},
+    query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     utils, Result,
 };
 use const_format::concatcp;
@@ -47,11 +47,30 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
             .collect()
     }
 }
+impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
+    fn parse_from(_: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
+        // Api only returns an empty string, no way of validating if correct or not.
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::BrowserToken;
+    use crate::{
+        auth::BrowserToken,
+        common::{SongTrackingUrl, YoutubeID},
+        query::AddHistoryItemQuery,
+    };
 
+    #[tokio::test]
+    async fn test_add_history_item_query() {
+        let source = String::new();
+        crate::process_json::<_, BrowserToken>(
+            source,
+            AddHistoryItemQuery::new(SongTrackingUrl::from_raw("")),
+        )
+        .unwrap();
+    }
     #[tokio::test]
     async fn test_get_history() {
         parse_test!(

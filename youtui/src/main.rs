@@ -176,6 +176,12 @@ enum Command {
     GetMoodPlaylists {
         mood_category_params: String,
     },
+    AddHistoryItem {
+        song_tracking_url: String,
+    },
+    GetSongTrackingUrl {
+        video_id: String,
+    },
 }
 
 pub struct RuntimeInfo {
@@ -245,7 +251,9 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
             oauth_loc.push(OAUTH_FILENAME);
             let file = tokio::fs::read_to_string(oauth_loc).await?;
             let oath_tok = serde_json::from_str(&file)?;
-            let mut api = ytmapi_rs::YtMusic::from_oauth_token(oath_tok);
+            let mut api = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
+                .with_oauth_token(oath_tok)
+                .build()?;
             // For simplicity for now - refresh OAuth token every time.
             let _ = api.refresh_token().await?;
             api::DynamicYtMusic::OAuth(api)
@@ -253,7 +261,10 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
         config::AuthType::Browser => {
             let mut cookies_loc = confdir;
             cookies_loc.push(COOKIE_FILENAME);
-            let api = ytmapi_rs::YtMusic::from_cookie_file_rustls_tls(cookies_loc).await?;
+            let api = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
+                .with_browser_token_cookie_file(cookies_loc)
+                .build()
+                .await?;
             api::DynamicYtMusic::Browser(api)
         }
     };

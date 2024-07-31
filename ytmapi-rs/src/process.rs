@@ -14,11 +14,11 @@ where
     Q: Query<A>,
     A: AuthToken,
 {
-    query: Q,
     // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
     // generated it.
     token: PhantomData<A>,
-    json: String,
+    pub query: Q,
+    pub json: String,
 }
 
 impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
@@ -29,17 +29,8 @@ impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
             json,
         }
     }
-    pub fn get_query(&self) -> &Q {
-        &self.query
-    }
-    pub fn get_json(&self) -> &str {
-        &self.json
-    }
     pub fn destructure_json(self) -> String {
         self.json
-    }
-    pub fn destructure(self) -> (String, Q) {
-        (self.json, self.query)
     }
     pub fn process(self) -> Result<ProcessedResult<Q>> {
         A::deserialize_json(self)

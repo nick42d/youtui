@@ -1,4 +1,4 @@
-use super::Query;
+use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{
@@ -105,6 +105,9 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 
 impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
     type Output = Vec<Playlist>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryPlaylistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
              "browseId" : "FEmusic_liked_playlists"
@@ -122,6 +125,9 @@ impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
     type Output = Vec<LibraryArtist>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryArtistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(map) = json!({
              "browseId" : "FEmusic_library_corpus_track_artists"
@@ -139,9 +145,10 @@ impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
 }
 
 impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
-    type Output = Vec<TableListSong>
-    where
-        Self: Sized;
+    type Output = Vec<TableListSong>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibrarySongsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_videos"))])
     }
@@ -153,9 +160,10 @@ impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
-    type Output = Vec<SearchResultAlbum>
-    where
-        Self: Sized;
+    type Output = Vec<SearchResultAlbum>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryAlbumsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_albums"))])
     }
@@ -167,9 +175,10 @@ impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
-    type Output = Vec<GetLibraryArtistSubscription>
-    where
-        Self: Sized;
+    type Output = Vec<GetLibraryArtistSubscription>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryArtistSubscriptionsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([(
             "browseId".to_string(),
@@ -186,10 +195,10 @@ impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
 impl<'a, A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'a> {
-    type Output = Vec<ApiOutcome>
-    where
-        Self: Sized;
-
+    type Output = Vec<ApiOutcome>;
+    type Method = PostMethod;
+}
+impl<'a> PostQuery for EditSongLibraryStatusQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let add_feedback_tokens_raw = self
             .add_to_library_feedback_tokens
