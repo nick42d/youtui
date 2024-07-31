@@ -47,18 +47,18 @@ pub struct YtMusicBuilder<T> {
 }
 
 impl<T> YtMusicBuilder<T> {
+    pub fn with_default_tls(mut self) -> Self {
+        self.client_options = ClientOptions::Default;
+        self
+    }
     pub fn with_client(mut self, client: Client) -> Self {
         self.client_options = ClientOptions::Existing(client);
         self
     }
     #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
     pub fn with_rustls_tls(mut self) -> Self {
         self.client_options = ClientOptions::RustlsTls;
-        self
-    }
-    #[cfg(feature = "rustls-tls")]
-    pub fn with_default_tls(mut self) -> Self {
-        self.client_options = ClientOptions::Default;
         self
     }
     #[cfg(feature = "native-tls")]
