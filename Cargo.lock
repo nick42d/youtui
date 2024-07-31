@@ -4335,7 +4335,6 @@ dependencies = [
  "pretty_assertions",
  "rand",
  "reqwest",
- "rusty_ytdl",
  "serde",
  "serde_json",
  "sha1",

@@ -11,13 +11,14 @@ pub use oauth::{OAuthToken, OAuthTokenGenerator};
 pub mod browser;
 pub mod oauth;
 
-// Seal AuthToken for now, due to instability of async trait currently.
 mod private {
     pub trait Sealed {}
 }
+
 /// An authentication token into Youtube Music that can be used to query the
-/// API.
-// Allow async_fn_in_trait, as trait currently sealed.
+/// API. Currently sealed due to use of async, although this could become open
+/// for implementation in future.
+// Allow async_fn_in_trait required, as trait currently sealed.
 #[allow(async_fn_in_trait)]
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?

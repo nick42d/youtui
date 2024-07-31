@@ -30,7 +30,6 @@ async-stream = "0.3.5"
 const_format = "0.2.32"
 chrono = "0.4.38"
 rand = "0.8.5"
-rusty_ytdl = { version = "0.7.3", default-features = false, optional = true }
 
 [features]
 default = ["default-tls", "simplified-queries"]
@@ -45,12 +44,6 @@ native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 # Enable the use of simplified queries such as YtMusic::search("xx")
 simplified-queries = []
-# Enable get_song_url function. This requires the use of third party dependency rusty_ytdl
-# and also the simplified-queries feature.
-get-song-url-query = ["dep:rusty_ytdl", "simplified-queries"]
-# Enable interoperability with reqwest APIs, e.g allow use of reqwest::Client
-# Note, disabling this only disables reqwest interoperability, it doesn't remove the dependency.
-reqwest = []
 
 # Dev only section
 [dev-dependencies]

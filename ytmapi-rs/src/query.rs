@@ -1,4 +1,36 @@
-//! Type safe queries to pass to the API.
+//! Type safe queries to pass to the API, and the traits to allow you to
+//! implement new ones.
+//! # Implementation example
+//! Note, to implement Query, you must also meet the trait bounds for
+//! QueryMethod. In practice, this means you must implement both Query and
+//! PostQuery when using PostMethod, and Query and GetQuery when using
+//! GetMethod.
+//! In addition, note that your output type will need to implement ParseFrom -
+//! see [`crate::parse`] for implementation notes.
+//! ```no_run
+//! # #[derive(Debug)]
+//! # struct Date;
+//! # impl ytmapi_rs::parse::ParseFrom<GetDateQuery> for Date {
+//! #     fn parse_from(_: ytmapi_rs::parse::ProcessedResult<GetDateQuery>) -> ytmapi_rs::Result<Self> {todo!()}
+//! # }
+//! struct GetDateQuery;
+//! impl ytmapi_rs::query::Query<ytmapi_rs::auth::BrowserToken> for GetDateQuery {
+//!     type Output = Date;
+//!     type Method = ytmapi_rs::query::PostMethod;
+//! }
+//! // Note that this is not a real Innertube endpoint - example for reference only!
+//! impl ytmapi_rs::query::PostQuery for GetDateQuery {
+//!     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+//!         serde_json::Map::from_iter([("get_date".to_string(), serde_json::json!("YYYYMMDD"))])
+//!     }
+//!     fn params(&self) -> Option<std::borrow::Cow<str>> {
+//!         None
+//!     }
+//!     fn path(&self) -> &str {
+//!         "date"
+//!     }
+//! }
+//! ```
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
@@ -10,6 +42,7 @@ pub use artist::*;
 pub use history::*;
 pub use library::*;
 pub use playlist::*;
+use private::Sealed;
 pub use recommendations::*;
 pub use search::*;
 pub use upload::*;
@@ -22,6 +55,10 @@ mod recommendations;
 mod search;
 mod upload;
 
+mod private {
+    pub trait Sealed {}
+}
+
 /// Represents a query that can be passed to Innertube.
 /// The Output associated type describes how to parse a result from the query,
 /// and the Method associated type describes how to call the query.
@@ -30,25 +67,38 @@ pub trait Query<A: AuthToken>: Sized {
     type Method: QueryMethod<Self, A, Self::Output>;
 }
 
+/// Represents a plain POST query that can be sent to Innertube.
+pub trait PostQuery {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value>;
+    fn params(&self) -> Option<Cow<str>>;
+    fn path(&self) -> &str;
+}
+/// Represents a plain GET query that can be sent to Innertube.
+pub trait GetQuery {
+    fn url(&self) -> &str;
+    fn params(&self) -> Vec<(&str, Cow<str>)>;
+}
+
 /// The GET query method
 pub struct GetMethod;
 /// The POST query method
 pub struct PostMethod;
 
 /// Represents a method of calling an query, using a query, client and auth
-/// token.
-pub trait QueryMethod<Q, A, O>
+/// token. Not intended to be implemented by api users, the pre-implemented
+/// GetMethod and PostMethod structs should be sufficient, and in addition,
+/// async methods are required currently.
+// Allow async_fn_in_trait required, as trait currently sealed.
+#[allow(async_fn_in_trait)]
+pub trait QueryMethod<Q, A, O>: Sealed
 where
     Q: Query<A>,
     A: AuthToken,
 {
-    fn call(
-        query: Q,
-        client: &crate::client::Client,
-        tok: &A,
-    ) -> impl Future<Output = Result<RawResult<Q, A>>>;
+    async fn call(query: Q, client: &crate::client::Client, tok: &A) -> Result<RawResult<Q, A>>;
 }
 
+impl Sealed for GetMethod {}
 impl<Q, A, O> QueryMethod<Q, A, O> for GetMethod
 where
     Q: GetQuery + Query<A, Output = O>,
@@ -66,6 +116,7 @@ where
     }
 }
 
+impl Sealed for PostMethod {}
 impl<Q, A, O> QueryMethod<Q, A, O> for PostMethod
 where
     Q: PostQuery + Query<A, Output = O>,
@@ -81,18 +132,6 @@ where
     {
         tok.raw_query_post(client, query)
     }
-}
-
-/// Represents a plain POST query that can be sent to Innertube.
-pub trait PostQuery {
-    fn header(&self) -> serde_json::Map<String, serde_json::Value>;
-    fn params(&self) -> Option<Cow<str>>;
-    fn path(&self) -> &str;
-}
-/// Represents a plain GET query that can be sent to Innertube.
-pub trait GetQuery {
-    fn url(&self) -> &str;
-    fn params(&self) -> Vec<(&str, Cow<str>)>;
 }
 
 pub mod album {

@@ -1,4 +1,7 @@
 //! Results from parsing Innertube queries.
+//! # Implementation example
+//! Implementation example is pending refactoring of ProcessedResult to remove
+//! leaking external type `serde_json::Value`
 use crate::{
     auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
@@ -33,10 +36,10 @@ mod recommendations;
 mod search;
 mod upload;
 
-// By requiring ParseFrom to also implement Debug, this simplifies our Query ->
-// String API.
 /// Describes how to parse the ProcessedResult from a Query into the target
 /// type.
+// By requiring ParseFrom to also implement Debug, this simplifies our Query ->
+// String API.
 pub trait ParseFrom<Q>: Debug + Sized {
     fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self>;
 }

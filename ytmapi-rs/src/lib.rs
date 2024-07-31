@@ -37,16 +37,17 @@
 //! ```
 //! ## Optional Features
 //! ### TLS
-//! NOTE: To use an alternative TLS, you will need to specify `default-features
-//! = false`. As reqwest preferentially uses default-tls when multiple TLS
-//! features are enabled. See reqwest docs for more information.
-//! <https://docs.rs/reqwest/latest/reqwest/tls/index.html>
+//! NOTE: reqwest will prefer to utilise default-tls if multiple features are
+//! built when using the standard constructors. Use `YtMusicBuilder` to ensure
+//! the preferred choice of TLS is used. See reqwest docs for more information <https://docs.rs/reqwest/latest/reqwest/tls/index.html>.
 //! - **default-tls** *(enabled by default)*: Utilises the default TLS from
 //!   reqwest - at the time of writing is native-tls.
 //! - **native-tls**: This feature allows use of the the native-tls crate,
 //!   reliant on vendors tls.
 //! - **rustls-tls**: This feature allows use of the rustls crate, written in
 //!   rust.
+//! ### Other
+//! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
