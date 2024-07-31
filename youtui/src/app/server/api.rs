@@ -1,5 +1,3 @@
-use std::future::Future;
-use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
 use super::spawn_run_or_kill;
@@ -14,7 +12,6 @@ use tokio::sync::mpsc;
 use tokio::sync::Notify;
 use tokio::sync::OnceCell;
 use tokio::sync::RwLock;
-use tokio::sync::Semaphore;
 use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::auth::OAuthToken;
