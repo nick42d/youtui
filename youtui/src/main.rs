@@ -30,8 +30,7 @@ struct Arguments {
     cli: Cli,
     #[command(subcommand)]
     auth_cmd: Option<AuthCmd>,
-    /// Force the use of an auth type. NOTE: TUI currently only supports Browser
-    /// auth.
+    /// Force the use of an auth type.
     #[arg(value_enum, short, long)]
     auth_type: Option<AuthType>,
 }
@@ -261,13 +260,6 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
-    // Oauth is not yet supported in the app due to needing to refresh the tokens.
-    // So we'll error in that case for now.
-    // TODO: Implement OAuth in the app.
-    match &rt.api_key {
-        ApiKey::OAuthToken(_) => return Err(Error::OAuthNotYetSupportedByApp),
-        ApiKey::BrowserToken(_) => (),
-    };
     let mut app = app::Youtui::new(rt)?;
     app.run().await?;
     Ok(())

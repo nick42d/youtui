@@ -9,11 +9,11 @@ use crate::{
 };
 use std::borrow::Cow;
 
+#[derive(Debug, Clone)]
 pub struct GetArtistQuery<'a> {
     channel_id: ChannelID<'a>,
 }
-// TODO make params no longer public.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GetArtistAlbumsQuery<'a> {
     channel_id: ChannelID<'a>,
     params: BrowseParams<'a>,
