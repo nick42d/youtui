@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.0.9](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.8...ytmapi-rs/v0.0.9) - 2024-07-31
+
+### Added
+- [**breaking**] Implement Get method requests - specifically AddHistoryItemQuery. Resolves [#60](https://github.com/nick42d/youtui/pull/60) ([#107](https://github.com/nick42d/youtui/pull/107)), and includes fix for [#106](https://github.com/nick42d/youtui/pull/106).
+_generate_xx functions now take Client parameter. Removal of complex YtMusic constructors (functionality moved to new YtMusicBuilder), removed some public functions from RawResult. Query and AuthToken traits modified to allow for specialising by Post / Get type._
+- [**breaking**] Improve error messages ([#102](https://github.com/nick42d/youtui/pull/102))
+_Removed TryFrom implementation for AlbumType, remove ErrorKind::Other, replaced ZST ApiSuccess with ApiOutcome enum._
+
 ## [0.0.8](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.7...ytmapi-rs/v0.0.8) - 2024-07-24
 
 ### Added
