@@ -4,7 +4,7 @@ use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{self, GetQuery, PostQuery};
+use crate::query::{GetQuery, PostQuery};
 use crate::{
     query::Query,
     utils::constants::{
@@ -16,7 +16,6 @@ use crate::{
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::borrow::Cow;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 

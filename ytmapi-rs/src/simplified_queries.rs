@@ -40,8 +40,7 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::query::{
-    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
-    GetQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};

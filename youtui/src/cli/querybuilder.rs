@@ -20,7 +20,7 @@ use ytmapi_rs::{
         GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
         GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
         GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetMoodCategoriesQuery,
-        GetMoodPlaylistsQuery, GetPlaylistQuery, GetQuery, GetSearchSuggestionsQuery,
+        GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
         GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
         RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
         SongsFilter, VideosFilter,

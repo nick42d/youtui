@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
-use crate::query::{GetQuery, Query};
+use crate::query::{Query};
 use crate::Result;
 
 // Should trait be Result?

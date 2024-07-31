@@ -1,6 +1,5 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use reqwest::Client;
 use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{

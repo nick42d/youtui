@@ -1,6 +1,5 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
-use crate::client::Client;
 use crate::parse::TryParseFrom;
 use crate::{RawResult, Result};
 use std::borrow::Cow;

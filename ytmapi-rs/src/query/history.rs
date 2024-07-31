@@ -4,10 +4,9 @@ use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
-    parse::{TableListItem, TryParseFrom},
+    parse::{TableListItem},
 };
 use rand::{
-    distributions::{self, Alphanumeric, Slice},
     Rng,
 };
 use serde_json::json;

@@ -56,7 +56,7 @@ use auth::{
 use builder::{NoToken, YtMusicBuilder};
 use client::Client;
 use parse::{ProcessedResult, TryParseFrom};
-use query::{GetQuery, Query, QueryMethod};
+use query::{Query, QueryMethod};
 use std::path::Path;
 
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
