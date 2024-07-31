@@ -38,7 +38,7 @@ pub enum Error {
     Other(String),
 }
 impl Error {
-    pub fn new_wrong_auth_token_error_browser<Q>(_: Q, current_authtype: AuthType) -> Self {
+    pub fn new_wrong_auth_token_error_browser<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::Browser;
         let query_type = std::any::type_name::<Q>();
         Self::WrongAuthType {
@@ -47,7 +47,7 @@ impl Error {
             query_type,
         }
     }
-    pub fn new_wrong_auth_token_error_oauth<Q>(_: Q, current_authtype: AuthType) -> Self {
+    pub fn new_wrong_auth_token_error_oauth<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::OAuth;
         let query_type = std::any::type_name::<Q>();
         Self::WrongAuthType {

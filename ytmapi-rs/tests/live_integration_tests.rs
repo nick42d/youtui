@@ -8,7 +8,7 @@ use ytmapi_rs::common::{
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, TryParseFrom};
+use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
@@ -565,7 +565,7 @@ async fn test_get_artist_albums() {
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res: ArtistParams = TryParseFrom::parse_from(res).unwrap();
+    let res: ArtistParams = ParseFrom::parse_from(res).unwrap();
     println!("Parse artist took {} ms", now.elapsed().as_millis());
     let _now = std::time::Instant::now();
     let albums = res.top_releases.albums.unwrap();
@@ -610,7 +610,7 @@ async fn test_get_artist_album_songs() {
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res: Vec<Album> = TryParseFrom::parse_from(res).unwrap();
+    let res: Vec<Album> = ParseFrom::parse_from(res).unwrap();
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;

@@ -1,5 +1,5 @@
 use super::{
-    parse_playlist_items, PlaylistItem, ProcessedResult, TryParseFrom, DESCRIPTION_SHELF_RUNS,
+    parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
     TITLE_TEXT, TWO_COLUMN,
 };
@@ -47,18 +47,18 @@ pub struct AddPlaylistItem {
     pub set_video_id: SetVideoID<'static>,
 }
 
-impl<'a> TryParseFrom<RemovePlaylistItemsQuery<'a>> for () {
+impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
     fn parse_from(_: ProcessedResult<RemovePlaylistItemsQuery<'a>>) -> crate::Result<Self> {
         Ok(())
     }
 }
-impl<'a, C: CreatePlaylistType> TryParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
+impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
     fn parse_from(p: ProcessedResult<CreatePlaylistQuery<'a, C>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
         json_crawler.take_value_pointer("/playlistId")
     }
 }
-impl<'a, T: SpecialisedQuery> TryParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
+impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
     fn parse_from(p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
         let status: ApiOutcome = json_crawler.borrow_pointer("/status")?.take_value()?;
@@ -78,19 +78,19 @@ impl<'a, T: SpecialisedQuery> TryParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec
             .collect()
     }
 }
-impl<'a> TryParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
+impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
     fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         json_crawler.navigate_pointer("/status")?.take_value()
     }
 }
-impl<'a> TryParseFrom<DeletePlaylistQuery<'a>> for () {
+impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
     fn parse_from(_: ProcessedResult<DeletePlaylistQuery<'a>>) -> crate::Result<Self> {
         Ok(())
     }
 }
 
-impl<'a> TryParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
+impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
     fn parse_from(p: ProcessedResult<GetPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         if json_crawler.path_exists("/header") {

@@ -1,6 +1,6 @@
 //! Type safe queries to pass to the API.
 use crate::auth::AuthToken;
-use crate::parse::TryParseFrom;
+use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 use std::borrow::Cow;
 use std::future::Future;
@@ -26,7 +26,7 @@ mod upload;
 /// The Output associated type describes how to parse a result from the query,
 /// and the Method associated type describes how to call the query.
 pub trait Query<A: AuthToken>: Sized {
-    type Output: TryParseFrom<Self>;
+    type Output: ParseFrom<Self>;
     type Method: QueryMethod<Self, A, Self::Output>;
 }
 
@@ -141,7 +141,7 @@ pub mod album {
 pub mod continuations {
     use crate::{
         auth::AuthToken,
-        parse::{ProcessedResult, TryParseFrom},
+        parse::{ParseFrom, ProcessedResult},
     };
 
     use super::{BasicSearch, PostMethod, PostQuery, Query, SearchQuery};
@@ -151,7 +151,7 @@ pub mod continuations {
         continuation_params: String,
         query: Q,
     }
-    impl<'a> TryParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
+    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
         fn parse_from(
             _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
         ) -> crate::Result<Self> {

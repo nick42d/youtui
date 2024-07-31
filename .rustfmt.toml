@@ -1,4 +1,6 @@
-# Auto format comment width for this project. Note that this is an unstable feature.
 unstable_features = true
+# Auto format comment width for this project. Note that this is an unstable feature.
 wrap_comments = true
+# Auto format doc comments, also unstable.
+format_code_in_doc_comments = true
 edition = "2021"

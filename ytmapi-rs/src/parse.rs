@@ -37,7 +37,7 @@ mod upload;
 // String API.
 /// Describes how to parse the ProcessedResult from a Query into the target
 /// type.
-pub trait TryParseFrom<Q>: Debug + Sized {
+pub trait ParseFrom<Q>: Debug + Sized {
     fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self>;
 }
 
@@ -332,7 +332,7 @@ fn parse_flex_column_item<T: DeserializeOwned>(
 }
 
 mod lyrics {
-    use super::{ProcessedResult, TryParseFrom};
+    use super::{ParseFrom, ProcessedResult};
 
     use crate::common::browsing::Lyrics;
     use crate::crawler::JsonCrawler;
@@ -340,7 +340,7 @@ mod lyrics {
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
 
-    impl<'a> TryParseFrom<GetLyricsQuery<'a>> for Lyrics {
+    impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
             let json_crawler: JsonCrawler = p.into();
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
@@ -395,9 +395,9 @@ mod watch {
         Result,
     };
 
-    use super::{ProcessedResult, TryParseFrom};
+    use super::{ParseFrom, ProcessedResult};
 
-    impl<T: GetWatchPlaylistQueryID> TryParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
+    impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
             // TODO: Continuations
             let json_crawler: JsonCrawler = p.into();
@@ -431,12 +431,12 @@ mod watch {
     }
 }
 mod song {
-    use super::TryParseFrom;
+    use super::ParseFrom;
     use crate::{
         common::SongTrackingUrl, crawler::JsonCrawler, query::song::GetSongTrackingUrlQuery,
     };
 
-    impl<'a> TryParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
+    impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         fn parse_from(
             p: super::ProcessedResult<GetSongTrackingUrlQuery<'a>>,
         ) -> crate::Result<Self> {

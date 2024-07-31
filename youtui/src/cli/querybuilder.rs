@@ -7,7 +7,7 @@ use ytmapi_rs::{
         SongTrackingUrl, TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID,
         UploadEntityID, YoutubeID,
     },
-    parse::{LikeStatus, TryParseFrom},
+    parse::{LikeStatus, ParseFrom},
     process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
@@ -20,10 +20,9 @@ use ytmapi_rs::{
         GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
         GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
         GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetMoodCategoriesQuery,
-        GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery,
-        GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
-        SongsFilter, VideosFilter,
+        GetMoodPlaylistsQuery, GetPlaylistQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
+        PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, RemoveHistoryItemsQuery,
+        RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SongsFilter, VideosFilter,
     },
     ChannelID, VideoID,
 };
@@ -419,7 +418,7 @@ async fn get_string_output_of_query<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
-    O: TryParseFrom<Q>,
+    O: ParseFrom<Q>,
 {
     match cli_query {
         CliQuery {

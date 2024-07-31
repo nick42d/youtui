@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use super::{
-    TryParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
+    ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
     TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
 use crate::{
@@ -50,7 +50,7 @@ pub struct MoodPlaylist {
     pub author: String,
 }
 
-impl<'a, I> TryParseFrom<SetTasteProfileQuery<'a, I>> for ()
+impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ()
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl TryParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
+impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     fn parse_from(p: super::ProcessedResult<GetTasteProfileQuery>) -> Result<Self> {
         let crawler = JsonCrawler::from(p);
         // TODO: Neaten this
@@ -80,7 +80,7 @@ impl TryParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     }
 }
 
-impl TryParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
+impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
     fn parse_from(p: super::ProcessedResult<GetMoodCategoriesQuery>) -> crate::Result<Self> {
         let crawler = JsonCrawler::from(p);
         crawler
@@ -90,7 +90,7 @@ impl TryParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
             .collect()
     }
 }
-impl<'a> TryParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
+impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> crate::Result<Self> {
         fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
             if let Ok(grid) = crawler.borrow_pointer(GRID) {

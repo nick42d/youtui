@@ -40,7 +40,8 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::query::{
-    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Album, ChannelID, Result, VideoID, YtMusic};
@@ -682,7 +683,7 @@ impl<A: AuthToken> YtMusic<A> {
         self.query(query).await
     }
     /// Fetches suggested artists from taste profile
-    /// [https://music.youtube.com/tasteprofile].
+    /// <https://music.youtube.com/tasteprofile>.
     /// Tasteprofile allows users to pick artists to update their
     /// recommendations.
     /// ```no_run
@@ -738,24 +739,18 @@ impl<A: AuthToken> YtMusic<A> {
         self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
             .await
     }
-    /// Adds an item to the accounts history.
+    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
+    /// history using `add_history_item()`.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.add_history_item(SongUrl::from_raw("FAKE URL")).await
-    /// # };
-    pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
-        &self,
-        song_url: T,
-    ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
-        self.query(AddHistoryItemQuery::new(song_url.into())).await
-    }
-    /// Get detailed song information.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_song(VideoID::from_raw("")).await
-    /// todo
+    /// let song = yt.search_songs("While My Guitar Gently Weeps")
+    ///     .await
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .next()
+    ///     .unwrap();
+    /// yt.get_song_tracking_url(song.video_id).await
     /// # };
     pub async fn get_song_tracking_url<'a, T: Into<VideoID<'a>>>(
         &self,
@@ -763,5 +758,26 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<SongTrackingUrl<'static>> {
         let query = GetSongTrackingUrlQuery::new(video_id.into())?;
         self.query(query).await
+    }
+    /// Adds an item to the accounts history.
+    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
+    /// history using `add_history_item()`.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let song = yt.search_songs("While My Guitar Gently Weeps")
+    ///     .await
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .next()
+    ///     .unwrap();
+    /// let url = yt.get_song_tracking_url(song.video_id).await.unwrap();
+    /// yt.add_history_item(url).await
+    /// # };
+    pub async fn add_history_item<'a, T: Into<SongTrackingUrl<'a>>>(
+        &self,
+        song_url: T,
+    ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
+        self.query(AddHistoryItemQuery::new(song_url.into())).await
     }
 }

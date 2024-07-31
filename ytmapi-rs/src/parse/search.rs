@@ -1,8 +1,8 @@
 use super::{
-    parse_flex_column_item, ProcessedResult, SearchResultAlbum, SearchResultArtist,
+    parse_flex_column_item, ParseFrom, ProcessedResult, SearchResultAlbum, SearchResultArtist,
     SearchResultCommunityPlaylist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
-    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType, TryParseFrom,
+    SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
 use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
 use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
@@ -740,7 +740,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
             .collect()
     }
 }
-impl<'a, S: UnfilteredSearchType> TryParseFrom<SearchQuery<'a, S>> for SearchResults {
+impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResults {
     fn parse_from(p: ProcessedResult<SearchQuery<'a, S>>) -> crate::Result<Self> {
         let section_list_contents = BasicSearchSectionListContents::try_from(p)?;
         if section_list_contents_is_empty(&section_list_contents) {
@@ -750,7 +750,7 @@ impl<'a, S: UnfilteredSearchType> TryParseFrom<SearchQuery<'a, S>> for SearchRes
     }
 }
 
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<SearchResultArtist> {
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<SearchResultArtist> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>,
     ) -> crate::Result<Self> {
@@ -761,9 +761,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<Se
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>
-    for Vec<SearchResultProfile>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> for Vec<SearchResultProfile> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>,
     ) -> crate::Result<Self> {
@@ -774,7 +772,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<SearchResultAlbum> {
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<SearchResultAlbum> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>,
     ) -> crate::Result<Self> {
@@ -785,7 +783,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<Sea
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<SearchResultSong> {
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<SearchResultSong> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<SongsFilter>>>,
     ) -> crate::Result<Self> {
@@ -796,7 +794,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<Sear
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<SearchResultVideo> {
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<SearchResultVideo> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<VideosFilter>>>,
     ) -> crate::Result<Self> {
@@ -807,9 +805,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<Sea
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>
-    for Vec<SearchResultEpisode>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>> for Vec<SearchResultEpisode> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>,
     ) -> crate::Result<Self> {
@@ -820,9 +816,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>
-    for Vec<SearchResultPodcast>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>> for Vec<SearchResultPodcast> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>,
     ) -> crate::Result<Self> {
@@ -833,7 +827,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
     for Vec<SearchResultPlaylist>
 {
     fn parse_from(
@@ -846,7 +840,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
     for Vec<SearchResultFeaturedPlaylist>
 {
     fn parse_from(
@@ -859,9 +853,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>
-    for Vec<SearchResultPlaylist>
-{
+impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<SearchResultPlaylist> {
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>,
     ) -> crate::Result<Self> {
@@ -873,7 +865,7 @@ impl<'a> TryParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>
     }
 }
 
-impl<'a> TryParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
+impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
     fn parse_from(p: ProcessedResult<GetSearchSuggestionsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
         let mut suggestions = json_crawler

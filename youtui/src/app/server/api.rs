@@ -50,8 +50,7 @@ impl Api {
             // TODO: Error handling
             let api = match api_key {
                 ApiKey::BrowserToken(c) => {
-                    ytmapi_rs::YtMusic::<BrowserToken>::builder()
-                        .with_rustls_tls()
+                    ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
                         .with_browser_token_cookie(c)
                         .build()
                         .await?

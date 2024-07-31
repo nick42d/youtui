@@ -1,7 +1,8 @@
 //! # ytmapi_rs
 //! Library into YouTube Music's internal API.
 //! ## Examples
-//! Basic usage with a pre-created cookie file :
+//! For additional examples using builder, see [`builder`] module.
+//! ### Basic usage with a pre-created cookie file.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -13,18 +14,22 @@
 //!     Ok(())
 //! }
 //! ```
-//! Basic usage - oauth:
+//! ### OAuth usage, using the workflow, and builder method to re-use the `Client`.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
-//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+//!     let client = ytmapi_rs::Client::new().unwrap();
+//!     let (code, url) = ytmapi_rs::generate_oauth_code_and_url(&client).await?;
 //!     println!("Go to {url}, finish the login flow, and press enter when done");
 //!     let mut _buf = String::new();
 //!     let _ = std::io::stdin().read_line(&mut _buf);
-//!     let token = ytmapi_rs::generate_oauth_token(code).await?;
+//!     let token = ytmapi_rs::generate_oauth_token(&client, code).await?;
 //!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
 //!     // so it's recommended to save it to a file here.
-//!     let yt = ytmapi_rs::YtMusic::from_oauth_token(token);
+//!     let yt = ytmapi_rs::YtMusicBuilder::new_with_client(client)
+//!         .with_oauth_token(token)
+//!         .build()
+//!         .unwrap();
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
 //!     Ok(())
@@ -38,9 +43,9 @@
 //! <https://docs.rs/reqwest/latest/reqwest/tls/index.html>
 //! - **default-tls** *(enabled by default)*: Utilises the default TLS from
 //!   reqwest - at the time of writing is native-tls.
-//! - **native-tls**: This feature forces use of the the native-tls crate,
+//! - **native-tls**: This feature allows use of the the native-tls crate,
 //!   reliant on vendors tls.
-//! - **rustls-tls**: This feature forces use of the rustls crate, written in
+//! - **rustls-tls**: This feature allows use of the rustls crate, written in
 //!   rust.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -53,12 +58,12 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use builder::{NoToken, YtMusicBuilder};
-use client::Client;
-use parse::{ProcessedResult, TryParseFrom};
+use parse::{ParseFrom, ProcessedResult};
 use query::{Query, QueryMethod};
 use std::path::Path;
 
+pub use builder::YtMusicBuilder;
+pub use client::Client;
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 pub use process::RawResult;
@@ -113,30 +118,6 @@ impl YtMusic<BrowserToken> {
         let client = Client::new().expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
-    /// Create a new API handle using a BrowserToken. Forces the use of
-    /// `rustls-tls`
-    /// # Optional
-    /// This requires the optional `rustls-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "rustls-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
-    pub fn from_browser_token_rustls_tls(token: BrowserToken) -> YtMusic<BrowserToken> {
-        let client = Client::new_rustls_tls().expect("Expected Client build to succeed");
-        YtMusic { client, token }
-    }
-    /// Create a new API handle using a BrowserToken. Forces the use of
-    /// `native-tls`
-    /// # Optional
-    /// This requires the optional `native-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "native-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
-    pub fn from_browser_token_native_tls(token: BrowserToken) -> YtMusic<BrowserToken> {
-        let client = Client::new_native_tls().expect("Expected Client build to succeed");
-        YtMusic { client, token }
-    }
     /// Create a new API handle using a real browser authentication cookie saved
     /// to a file on disk.
     /// Utilises the default TLS option for the enabled features.
@@ -144,20 +125,6 @@ impl YtMusic<BrowserToken> {
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub async fn from_cookie_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let client = Client::new().expect("Expected Client build to succeed");
-        let token = BrowserToken::from_cookie_file(path, &client).await?;
-        Ok(Self { client, token })
-    }
-    /// Create a new API handle using a real browser authentication cookie saved
-    /// to a file on disk. Forces the use of `native-tls`
-    /// Utilises the default TLS option for the enabled features.
-    /// # Optional
-    /// This requires the optional `native-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "native-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
-    pub async fn from_cookie_file_native_tls<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let client = Client::new_native_tls().expect("Expected Client build to succeed");
         let token = BrowserToken::from_cookie_file(path, &client).await?;
         Ok(Self { client, token })
     }
@@ -171,19 +138,6 @@ impl YtMusic<BrowserToken> {
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
-    /// Create a new API handle using a real browser authentication cookie in a
-    /// String. Forces the use of `native-tls`
-    /// # Optional
-    /// This requires the optional `native-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "native-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
-    pub async fn from_cookie_native_tls<S: AsRef<str>>(cookie: S) -> Result<Self> {
-        let client = Client::new_native_tls().expect("Expected Client build to succeed");
-        let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
-        Ok(Self { client, token })
-    }
 }
 impl YtMusic<OAuthToken> {
     /// Create a new API handle using an OAuthToken.
@@ -192,30 +146,6 @@ impl YtMusic<OAuthToken> {
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
     pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
         let client = Client::new().expect("Expected Client build to succeed");
-        YtMusic { client, token }
-    }
-    /// Create a new API handle using an OAuthToken.
-    /// Forces the use of `rustls-tls`.
-    /// # Optional
-    /// This requires the optional `rustls-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "rustls-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
-    pub fn from_oauth_token_rustls_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::new_rustls_tls().expect("Expected Client build to succeed");
-        YtMusic { client, token }
-    }
-    /// Create a new API handle using an OAuthToken.
-    /// Forces the use of `native-tls`.
-    /// # Optional
-    /// This requires the optional `native-tls` feature.
-    /// # Panics
-    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    #[cfg(feature = "native-tls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
-    pub fn from_oauth_token_native_tls(token: OAuthToken) -> YtMusic<OAuthToken> {
-        let client = Client::new_native_tls().expect("Expected Client build to succeed");
         YtMusic { client, token }
     }
     /// Refresh the internal oauth token, and return a clone of it (for user to
@@ -227,34 +157,20 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
-    // TODO: This currently requires turbofish - avoid this.
-    /// # Usage
-    /// ```no_run
-    /// use ytmapi_rs::parse::ParseFrom;
-    /// use ytmapi_rs::auth::BrowserToken;
-    ///
-    /// # async {
-    /// todo
-    /// # Ok::<(), ytmapi_rs::Error>(())
-    /// # };
-    /// ```
-    pub fn builder() -> YtMusicBuilder<NoToken> {
-        YtMusicBuilder::new()
-    }
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
     /// # Usage
     /// ```no_run
-    /// use ytmapi_rs::parse::ParseFrom;
     /// use ytmapi_rs::auth::BrowserToken;
+    /// use ytmapi_rs::parse::ParseFrom;
     ///
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query =
+    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let raw_result = yt.raw_query(query).await?;
-    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist>
-    ///     = ParseFrom::parse_from(raw_result.process()?)?;
+    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
+    ///     ParseFrom::parse_from(raw_result.process()?)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
@@ -267,16 +183,16 @@ impl<A: AuthToken> YtMusic<A> {
     /// processed into parsable JSON.
     /// # Usage
     /// ```no_run
-    /// use ytmapi_rs::parse::ParseFrom;
     /// use ytmapi_rs::auth::BrowserToken;
+    /// use ytmapi_rs::parse::ParseFrom;
     ///
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query =
+    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let processed_result = yt.processed_query(query).await?;
-    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist>
-    ///     = ParseFrom::parse_from(processed_result)?;
+    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
+    ///     ParseFrom::parse_from(processed_result)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
@@ -292,8 +208,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query =
+    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let json_string = yt.json_query(query).await?;
     /// assert!(serde_json::from_str::<serde_json::Value>(&json_string).is_ok());
     /// # Ok::<(), ytmapi_rs::Error>(())
@@ -310,8 +226,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query =
+    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
     /// let result = yt.query(query).await?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
@@ -321,57 +237,62 @@ impl<A: AuthToken> YtMusic<A> {
         Q::Output::parse_from(self.processed_query(query).await?)
     }
 }
-// TODO: Keep session alive after calling these methods.
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
 /// you to authenticate yourself at.
-/// This requires a Client to run, and for re-use purposes, returns it.
-/// (OAuthDeviceCode, URL, Client)
+/// This requires a [`Client`] to run.
+/// (OAuthDeviceCode, URL)
 /// # Usage
 /// ```no_run
 /// #  async {
-/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// let client = ytmapi_rs::Client::new().unwrap();
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url(&client).await?;
 /// # Ok::<(), ytmapi_rs::Error>(())
 /// # };
 /// ```
-pub async fn generate_oauth_code_and_url() -> Result<(OAuthDeviceCode, String, Client)> {
-    let client = Client::new()?;
-    let code = OAuthTokenGenerator::new(&client).await?;
+pub async fn generate_oauth_code_and_url(client: &Client) -> Result<(OAuthDeviceCode, String)> {
+    let code = OAuthTokenGenerator::new(client).await?;
     let url = format!("{}?user_code={}", code.verification_url, code.user_code);
-    Ok((code.device_code, url, client))
+    Ok((code.device_code, url))
 }
 /// Generates an OAuth Token when given an OAuthDeviceCode.
-/// This requires a Client to run, and for re-use purposes, returns it.
+/// This requires a [`Client`] to run.
 /// # Usage
 /// ```no_run
 /// #  async {
-/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url().await?;
+/// let client = ytmapi_rs::Client::new().unwrap();
+/// let (code, url) = ytmapi_rs::generate_oauth_code_and_url(&client).await?;
 /// println!("Go to {url}, finish the login flow, and press enter when done");
 /// let mut buf = String::new();
 /// let _ = std::io::stdin().read_line(&mut buf);
-/// let token = ytmapi_rs::generate_oauth_token(code).await;
+/// let token = ytmapi_rs::generate_oauth_token(&client, code).await;
 /// assert!(token.is_ok());
 /// # Ok::<(), ytmapi_rs::Error>(())
 /// # };
 /// ```
-pub async fn generate_oauth_token(code: OAuthDeviceCode) -> Result<(OAuthToken, Client)> {
-    let client = Client::new()?;
-    let token = OAuthToken::from_code(&client, code).await?;
-    Ok((token, client))
+pub async fn generate_oauth_token(client: &Client, code: OAuthDeviceCode) -> Result<OAuthToken> {
+    let token = OAuthToken::from_code(client, code).await?;
+    Ok(token)
 }
 /// Generates a Browser Token when given a browser cookie.
-/// This requires a Client to run, and for re-use purposes, returns it.
+/// This requires a [`Client`] to run.
 /// # Usage
 /// ```no_run
 /// # async {
+/// let client = ytmapi_rs::Client::new().unwrap();
 /// let cookie = "FAKE COOKIE";
-/// let token = ytmapi_rs::generate_browser_token(cookie).await;
-/// assert!(matches!(token.unwrap_err().into_kind(),ytmapi_rs::error::ErrorKind::Header));
+/// let token = ytmapi_rs::generate_browser_token(&client, cookie).await;
+/// assert!(matches!(
+///     token.unwrap_err().into_kind(),
+///     ytmapi_rs::error::ErrorKind::Header
+/// ));
 /// # };
 /// ```
-pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<(BrowserToken, Client)> {
-    let client = Client::new()?;
-    let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
-    Ok((token, client))
+pub async fn generate_browser_token<S: AsRef<str>>(
+    client: &Client,
+    cookie: S,
+) -> Result<BrowserToken> {
+    let token = BrowserToken::from_str(cookie.as_ref(), client).await?;
+    Ok(token)
 }
 /// Process a string of JSON as if it had been directly received from the
 /// api for a query. Note that this is generic across AuthToken, and you may
@@ -380,7 +301,7 @@ pub async fn generate_browser_token<S: AsRef<str>>(cookie: S) -> Result<(Browser
 /// ```
 /// let json = r#"{ "test" : true }"#.to_string();
 /// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
-/// let result = ytmapi_rs::process_json::<_,ytmapi_rs::auth::BrowserToken>(json, query);
+/// let result = ytmapi_rs::process_json::<_, ytmapi_rs::auth::BrowserToken>(json, query);
 /// assert!(result.is_err());
 /// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {

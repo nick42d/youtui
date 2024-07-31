@@ -48,6 +48,9 @@ simplified-queries = []
 # Enable get_song_url function. This requires the use of third party dependency rusty_ytdl
 # and also the simplified-queries feature.
 get-song-url-query = ["dep:rusty_ytdl", "simplified-queries"]
+# Enable interoperability with reqwest APIs, e.g allow use of reqwest::Client
+# Note, disabling this only disables reqwest interoperability, it doesn't remove the dependency.
+reqwest = []
 
 # Dev only section
 [dev-dependencies]
