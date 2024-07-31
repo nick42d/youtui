@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [**breaking**] Implement Get method requests - specifically AddHistoryItemQuery. Resolves [#60](https://github.com/nick42d/youtui/pull/60) ([#107](https://github.com/nick42d/youtui/pull/107)), and includes fix for [#106](https://github.com/nick42d/youtui/pull/106).
-generate_xx functions now take Client parameter. Removal of complex YtMusic constructors (functionality moved to new YtMusicBuilder), removed some public functions from RawResult. Query and AuthToken traits modified to allow for specialising by Post / Get type.
+_generate_xx functions now take Client parameter. Removal of complex YtMusic constructors (functionality moved to new YtMusicBuilder), removed some public functions from RawResult. Query and AuthToken traits modified to allow for specialising by Post / Get type._
 ### Other
-- Update README.md## [0.0.8](https://github.com/nick42d/youtui/compare/youtui/v0.0.7...youtui/v0.0.8) - 2024-07-24
+- Update README.md
+
+##[0.0.8](https://github.com/nick42d/youtui/compare/youtui/v0.0.7...youtui/v0.0.8) - 2024-07-24
 
 ### Added
 - Add commandline flag to change auth type. Resolves [#98](https://github.com/nick42d/youtui/pull/98) ([#99](https://github.com/nick42d/youtui/pull/99))
@@ -21,7 +23,7 @@ generate_xx functions now take Client parameter. Removal of complex YtMusic cons
 New field 'message' added to ErrorKind::Parsing to improve error output.
 
 ### Other
-- Improve README.md ([#91](https://github.com/nick42d/youtui/pull/91)) by @jonas - Closes [#90](https://github.com/nick42d/youtui/pull/90)- Update README.md
+- Improve README.md ([#91](https://github.com/nick42d/youtui/pull/91)) by @yonas - Closes [#90](https://github.com/nick42d/youtui/pull/90)- Update README.md
 
 ## [0.0.7](https://github.com/nick42d/youtui/compare/youtui/v0.0.6...youtui/v0.0.7) - 2024-07-19
 

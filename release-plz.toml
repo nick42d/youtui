@@ -13,7 +13,7 @@ body = """
 - *({{commit.scope}})* {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }}{%- if commit.links %} ({% for link in commit.links %}[{{link.text}}]({{link.href}}) {% endfor -%}){% endif %}
 {% else -%}
 - {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }}\
-  {% if commit.breaking %} \n {{ commit.breaking_description }}{% endif %}\
+  {% if commit.breaking %}\n   - _{{ commit.breaking_description }}_ \n{% endif %}\
 {% endif -%}
 {% endfor -%}
 {% endfor %}
