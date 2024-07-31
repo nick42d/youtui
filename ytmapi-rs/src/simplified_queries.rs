@@ -1,5 +1,7 @@
 //! This module contains the implementation for more convenient ways to call the
 //! API, in many cases without the need of building Query structs.
+//! This module contains purely additional implementations for YtMusic. To see
+//! the documentation, refer to the [`YtMusic`] documentation itself.
 //! # Optional
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
@@ -760,8 +762,6 @@ impl<A: AuthToken> YtMusic<A> {
         self.query(query).await
     }
     /// Adds an item to the accounts history.
-    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
-    /// history using `add_history_item()`.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
