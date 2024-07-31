@@ -48,16 +48,29 @@ impl<'a> TryParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 impl<'a> TryParseFrom<AddHistoryItemQuery<'a>> for () {
-    fn parse_from(p: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
-        let _json_crawler = JsonCrawler::from(p);
-        todo!()
+    fn parse_from(_: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
+        // Api only returns an empty string, no way of validating if correct or not.
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::BrowserToken;
+    use crate::{
+        auth::BrowserToken,
+        common::{SongTrackingUrl, YoutubeID},
+        query::AddHistoryItemQuery,
+    };
 
+    #[tokio::test]
+    async fn test_add_history_item_query() {
+        let source = String::new();
+        crate::process_json::<_, BrowserToken>(
+            source,
+            AddHistoryItemQuery::new(SongTrackingUrl::from_raw("")),
+        )
+        .unwrap();
+    }
     #[tokio::test]
     async fn test_get_history() {
         parse_test!(

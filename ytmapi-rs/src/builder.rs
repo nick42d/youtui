@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::{
     auth::{BrowserToken, OAuthToken},
     client::Client,
@@ -14,6 +16,8 @@ pub enum ClientOptions {
 }
 
 pub struct NoToken;
+pub struct FromCookie(String);
+pub struct FromCookieFile<T>(T);
 
 pub struct YtMusicBuilder<T> {
     tls: ClientOptions,
@@ -46,12 +50,48 @@ impl<T> YtMusicBuilder<T> {
         let YtMusicBuilder { tls, token: _ } = self;
         YtMusicBuilder { tls, token }
     }
+    // TODO: Improve how this handles building client.
+    pub fn with_browser_token_cookie(self, cookie: String) -> YtMusicBuilder<FromCookie> {
+        let YtMusicBuilder { tls, token: _ } = self;
+        let token = FromCookie(cookie);
+        YtMusicBuilder { tls, token }
+    }
+    // TODO: Improve how this handles building client.
+    pub fn with_browser_token_cookie_file<P: AsRef<Path>>(
+        self,
+        cookie_file: P,
+    ) -> YtMusicBuilder<FromCookieFile<P>> {
+        let YtMusicBuilder { tls, token: _ } = self;
+        let token = FromCookieFile(cookie_file);
+        YtMusicBuilder { tls, token }
+    }
     pub fn with_oauth_token(self, token: OAuthToken) -> YtMusicBuilder<OAuthToken> {
         let YtMusicBuilder { tls, token: _ } = self;
         YtMusicBuilder { tls, token }
     }
 }
-
+impl YtMusicBuilder<FromCookie> {
+    pub async fn build(self) -> Result<YtMusic<BrowserToken>> {
+        let YtMusicBuilder {
+            tls,
+            token: FromCookie(cookie),
+        } = self;
+        let client = build_client(tls)?;
+        let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
+        Ok(YtMusic { client, token })
+    }
+}
+impl<P: AsRef<Path>> YtMusicBuilder<FromCookieFile<P>> {
+    pub async fn build(self) -> Result<YtMusic<BrowserToken>> {
+        let YtMusicBuilder {
+            tls,
+            token: FromCookieFile(cookie_file),
+        } = self;
+        let client = build_client(tls)?;
+        let token = BrowserToken::from_cookie_file(cookie_file, &client).await?;
+        Ok(YtMusic { client, token })
+    }
+}
 impl YtMusicBuilder<NoToken> {
     pub fn new() -> YtMusicBuilder<NoToken> {
         YtMusicBuilder {

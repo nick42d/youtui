@@ -183,11 +183,15 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
-    let audio_playlist_id = header.take_value_pointer(
-        "/buttons/1/musicPlayButtonRenderer/playNavigationEndpoint/watchEndpoint/playlistId",
-    )?;
-    let library_status =
-        header.take_value_pointer("/buttons/0/toggleButtonRenderer/defaultIcon/iconType")?;
+    let mut buttons = header.borrow_pointer("/buttons")?;
+    let audio_playlist_id = buttons
+        .as_array_iter_mut()?
+        .find_path("/musicPlayButtonRenderer")?
+        .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
+    let library_status = buttons
+        .as_array_iter_mut()?
+        .find_path("/toggleButtonRenderer")?
+        .take_value_pointer("/defaultIcon/iconType")?;
     let tracks = columns
         .borrow_pointer(
             "/secondaryContents/sectionListRenderer/contents/0/musicShelfRenderer/contents",

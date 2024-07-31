@@ -227,6 +227,7 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
+    // TODO: This currently requires turbofish - avoid this.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::parse::ParseFrom;

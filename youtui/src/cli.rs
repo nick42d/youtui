@@ -70,11 +70,11 @@ pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) -> Result<()
     Ok(())
 }
 async fn get_oauth_token() -> Result<String> {
-    let (code, url) = generate_oauth_code_and_url().await?;
+    let (code, url, _) = generate_oauth_code_and_url().await?;
     // Hack to wait for input
     println!("Go to {url}, finish the login flow, and press enter when done");
     let mut _buf = String::new();
     let _ = std::io::stdin().read_line(&mut _buf);
-    let token = generate_oauth_token(code).await?;
+    let (token, _) = generate_oauth_token(code).await?;
     Ok(serde_json::to_string_pretty(&token)?)
 }

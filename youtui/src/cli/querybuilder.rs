@@ -8,7 +8,7 @@ use ytmapi_rs::{
         UploadEntityID, YoutubeID,
     },
     parse::{LikeStatus, TryParseFrom},
-    process_json, process_json_get,
+    process_json,
     query::{
         rate::{RatePlaylistQuery, RateSongQuery},
         song::GetSongTrackingUrlQuery,
@@ -393,7 +393,7 @@ pub async fn command_to_query(
         Command::AddHistoryItem {
             song_tracking_url: song_url,
         } => {
-            get_string_output_of_get_query(
+            get_string_output_of_query(
                 yt,
                 AddHistoryItemQuery::new(SongTrackingUrl::from_raw(song_url)),
                 cli_query,
@@ -446,48 +446,6 @@ where
                     .map(|r| format!("{:#?}", r))
                     .map_err(|e| e.into()),
                 DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, q)
-                    .map(|r| format!("{:#?}", r))
-                    .map_err(|e| e.into()),
-            }
-        }
-    }
-}
-
-async fn get_string_output_of_get_query<Q, O>(
-    yt: DynamicYtMusic,
-    q: Q,
-    cli_query: CliQuery,
-) -> crate::Result<String>
-where
-    Q: GetQuery<BrowserToken, Output = O>,
-    Q: GetQuery<OAuthToken, Output = O>,
-    O: TryParseFrom<Q>,
-{
-    match cli_query {
-        CliQuery {
-            query_type: QueryType::FromApi,
-            show_source: true,
-        } => yt.query_source_get(q).await,
-        CliQuery {
-            query_type: QueryType::FromApi,
-            show_source: false,
-        } => yt.query_get(q).await.map(|r| format!("{:#?}", r)),
-        CliQuery {
-            query_type: QueryType::FromSourceFile(source),
-            show_source: true,
-        } => Ok(source),
-        CliQuery {
-            query_type: QueryType::FromSourceFile(source),
-            show_source: false,
-        } => {
-            // Neat hack to ensure process_json utilises the same AuthType as was set in
-            // config. This works as the config step sets the variant of
-            // DynamicYtMusic.
-            match yt {
-                DynamicYtMusic::Browser(_) => process_json_get::<Q, BrowserToken>(source, q)
-                    .map(|r| format!("{:#?}", r))
-                    .map_err(|e| e.into()),
-                DynamicYtMusic::OAuth(_) => process_json_get::<Q, OAuthToken>(source, q)
                     .map(|r| format!("{:#?}", r))
                     .map_err(|e| e.into()),
             }

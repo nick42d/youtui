@@ -268,8 +268,11 @@ impl Display for ErrorKind {
             ErrorKind::Web { message } => write!(f, "Web error <{message}> received."),
             ErrorKind::Io(e) => write!(f, "IO error {e} recieved."),
             ErrorKind::Header => write!(f, "Error parsing header."),
-            ErrorKind::InvalidResponse { response: _ } => {
-                write!(f, "Response is invalid json - unable to deserialize.")
+            ErrorKind::InvalidResponse { response } => {
+                write!(
+                    f,
+                    "Response is invalid json - unable to deserialize. <{response}>"
+                )
             }
             ErrorKind::OtherErrorCodeInResponse { code, message } => {
                 write!(

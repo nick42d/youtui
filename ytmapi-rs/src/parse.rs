@@ -247,8 +247,12 @@ impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> 
             query,
             ..
         } = value;
-        let json = serde_json::from_str(source.as_ref())
-            .map_err(|_| error::Error::response("Error deserializing"))?;
+        let json = match source.as_str() {
+            // Workaround for Get request returning empty string.
+            "" => serde_json::Value::Null,
+            other => serde_json::from_str(other)
+                .map_err(|e| error::Error::response(format!("{:?}", e)))?,
+        };
         Ok(Self {
             query,
             source,
@@ -470,10 +474,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_all_processed_impl() {
-        todo!();
         let query = SearchQuery::new("Beatles");
         let source = "{\"name\": \"John Doe\"}".to_string();
-        // let p = ProcessedResult::from_raw(source, query.clone()).unwrap();
-        // assert_eq!(&query, p.get_query());
+        let p = ProcessedResult {
+            query: query.clone(),
+            source: source.clone(),
+            json: serde_json::from_str(source.as_str()).unwrap(),
+        };
+        assert_eq!(&query, p.get_query());
     }
 }
