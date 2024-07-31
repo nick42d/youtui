@@ -6,9 +6,9 @@
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
 //!     let cookie_path = std::path::Path::new("./cookie.txt");
 //!     let yt = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
-//!     .with_browser_token_cookie_file(cookie_path)
-//!     .build()
-//!     .await?;
+//!         .with_browser_token_cookie_file(cookie_path)
+//!         .build()
+//!         .await?;
 //!     yt.get_search_suggestions("Beatles").await?;
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);

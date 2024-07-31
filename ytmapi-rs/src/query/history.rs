@@ -4,11 +4,9 @@ use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
-    parse::{TableListItem},
+    parse::TableListItem,
 };
-use rand::{
-    Rng,
-};
+use rand::Rng;
 use serde_json::json;
 
 pub struct GetHistoryQuery;

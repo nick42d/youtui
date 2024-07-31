@@ -2,7 +2,6 @@
 use core::fmt::{Debug, Display};
 use std::{io, sync::Arc, time::SystemTimeError};
 
-
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;
 
