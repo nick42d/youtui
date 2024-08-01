@@ -183,7 +183,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query =
     ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
-    /// let raw_result = yt.raw_query(query).await?;
+    /// let raw_result = yt.raw_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(raw_result.process()?)?;
     /// assert_eq!(result[0].artist, "The Beatles");
@@ -196,6 +196,9 @@ impl<A: AuthToken> YtMusic<A> {
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
+    /// # Note
+    /// The returned raw result will hold a reference to the query it was called
+    /// with. Therefore, passing an owned value is not permitted.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::auth::BrowserToken;
@@ -205,7 +208,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query =
     ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
-    /// let processed_result = yt.processed_query(query).await?;
+    /// let processed_result = yt.processed_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(processed_result)?;
     /// assert_eq!(result[0].artist, "The Beatles");
