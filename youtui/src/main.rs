@@ -51,8 +51,12 @@ struct Cli {
 enum AuthCmd {
     /// Generate an OAuth token.
     SetupOauth {
-        /// Optional: Write to a file.
+        /// Optional: Write to a specific file instead of the config directory.
+        #[arg(short, long)]
         file_name: Option<PathBuf>,
+        /// Optional: Print to stdout instead of the config directory.
+        #[arg(short, long, default_value_t = false)]
+        stdout: bool,
     },
 }
 #[derive(Subcommand, Debug, Clone)]
@@ -212,7 +216,9 @@ async fn try_main() -> Result<()> {
     // We don't need configuration to setup oauth token.
     if let Some(c) = auth_cmd {
         match c {
-            AuthCmd::SetupOauth { file_name } => cli::get_and_output_oauth_token(file_name).await?,
+            AuthCmd::SetupOauth { file_name, stdout } => {
+                cli::get_and_output_oauth_token(file_name, stdout).await?
+            }
         };
         // Done here if we got this command. No need to go further.
         return Ok(());
