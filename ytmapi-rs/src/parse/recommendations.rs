@@ -213,7 +213,6 @@ mod tests {
             SetTasteProfileQuery,
         },
     };
-    use std::convert::AsRef;
 
     #[tokio::test]
     async fn test_get_mood_categories() {

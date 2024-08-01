@@ -62,6 +62,7 @@ use auth::{
 use parse::{ParseFrom, ProcessedResult};
 use query::{Query, QueryMethod};
 use std::{
+    borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
 };
@@ -229,10 +230,10 @@ impl<A: AuthToken> YtMusic<A> {
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn json_query<Q: Query<A>>(&self, query: impl AsRef<Q>) -> Result<String> {
+    pub async fn json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
         // TODO: Remove allocation
         let json = self
-            .raw_query(query.as_ref())
+            .raw_query(query.borrow())
             .await?
             .process()?
             .clone_json();
@@ -251,8 +252,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn query<Q: Query<A>>(&self, query: impl AsRef<Q>) -> Result<Q::Output> {
-        Q::Output::parse_from(self.processed_query(query.as_ref()).await?)
+    pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
+        Q::Output::parse_from(self.processed_query(query.borrow()).await?)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
@@ -324,7 +325,7 @@ pub async fn generate_browser_token<S: AsRef<str>>(
 /// ```
 pub fn process_json<Q: Query<A>, A: AuthToken>(
     json: String,
-    query: impl AsRef<Q>,
+    query: impl Borrow<Q>,
 ) -> Result<Q::Output> {
-    Q::Output::parse_from(RawResult::from_raw(json, query.as_ref()).process()?)
+    Q::Output::parse_from(RawResult::from_raw(json, query.borrow()).process()?)
 }
