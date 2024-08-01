@@ -571,7 +571,7 @@ fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListConte
             .0
             .path_exists("/0/itemSectionRenderer/contents/0/messageRenderer")
 }
-impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, S>>>
+impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, S>>>
     for BasicSearchSectionListContents
 {
     type Error = Error;
@@ -585,7 +585,7 @@ impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, S>>>
         Ok(BasicSearchSectionListContents(section_list_contents))
     }
 }
-impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>>
+impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, FilteredSearch<F>>>>
     for SectionContentsCrawler
 {
     type Error = Error;

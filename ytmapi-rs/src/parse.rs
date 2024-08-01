@@ -3,7 +3,7 @@
 //! Implementation example is pending refactoring of ProcessedResult to remove
 //! leaking external type `serde_json::Value`
 use crate::{
-    auth::AuthToken,
+    auth::{AuthToken, BrowserToken, OAuthToken},
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
@@ -287,11 +287,11 @@ impl<'a, Q> ProcessedResult<'a, Q> {
     }
 }
 
-// impl<Q> ProcessedResult<Q> {
-//     pub fn parse<QQ: Query<A>, A: AuthToken>(self) -> Result<QQ::Output> {
-//         QQ::Output::parse_from(self)
-//     }
-// }
+impl<'a, Q> ProcessedResult<'a, Q> {
+    pub fn parse_into<O: ParseFrom<Q>>(self) -> Result<O> {
+        O::parse_from(self)
+    }
+}
 
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto
 // fixedcolumnitem also. Not sure if this should error.
@@ -480,7 +480,7 @@ mod tests {
         let query = SearchQuery::new("Beatles");
         let source = "{\"name\": \"John Doe\"}".to_string();
         let p = ProcessedResult {
-            query: query.clone(),
+            query: &query,
             source: source.clone(),
             json: serde_json::from_str(source.as_str()).unwrap(),
         };

@@ -32,7 +32,7 @@ impl<'a, Q: Query<A>, A: AuthToken> RawResult<'a, Q, A> {
     pub fn destructure_json(self) -> String {
         self.json
     }
-    pub fn process(self) -> Result<ProcessedResult<Q>> {
+    pub fn process(self) -> Result<ProcessedResult<'a, Q>> {
         A::deserialize_json(self)
     }
 }

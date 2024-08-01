@@ -558,13 +558,11 @@ async fn test_get_artist_albums() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let res = api
-        .raw_query(GetArtistQuery::new(ChannelID::from_raw(
-            // Metallica
-            "UCGexNm_Kw4rdQjLxmpb2EKw",
-        )))
-        .await
-        .unwrap();
+    let q = GetArtistQuery::new(ChannelID::from_raw(
+        // Metallica
+        "UCGexNm_Kw4rdQjLxmpb2EKw",
+    ));
+    let res = api.raw_query(&q).await.unwrap();
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
@@ -585,12 +583,11 @@ async fn test_get_artist_album_songs() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let res = api
-        .raw_query(GetArtistQuery::new(ChannelID::from_raw(
-            "UCGexNm_Kw4rdQjLxmpb2EKw",
-        )))
-        .await
-        .unwrap();
+    let q = GetArtistQuery::new(ChannelID::from_raw(
+        // Metallica
+        "UCGexNm_Kw4rdQjLxmpb2EKw",
+    ));
+    let res = api.raw_query(&q).await.unwrap();
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     // TODO: fix temporary value dropped while borrowed error.
@@ -603,13 +600,8 @@ async fn test_get_artist_album_songs() {
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     let channel_id = &albums.browse_id.unwrap();
-    let res = api
-        .raw_query(GetArtistAlbumsQuery::new(
-            ChannelID::from_raw(channel_id.get_raw()),
-            params,
-        ))
-        .await
-        .unwrap();
+    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
+    let res = api.raw_query(&q).await.unwrap();
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
@@ -617,10 +609,8 @@ async fn test_get_artist_album_songs() {
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
-    let res = api
-        .raw_query(GetAlbumQuery::new(browse_id.clone()))
-        .await
-        .unwrap();
+    let q = GetAlbumQuery::new(browse_id.clone());
+    let res = api.raw_query(&q).await.unwrap();
     println!(
         "Get album {} took {} ms",
         browse_id.get_raw(),

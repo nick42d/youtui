@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
@@ -412,7 +414,7 @@ pub async fn command_to_query(
 
 async fn get_string_output_of_query<Q, O>(
     yt: DynamicYtMusic,
-    q: Q,
+    q: impl Borrow<Q>,
     cli_query: CliQuery,
 ) -> crate::Result<String>
 where
@@ -424,7 +426,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source(q).await,
+        } => yt.query_source(q.borrow()).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,

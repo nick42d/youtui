@@ -1,7 +1,8 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::{config::AuthType, error::Error, Result};
+use std::borrow::Borrow;
 use ytmapi_rs::{
-    auth::{AuthToken, BrowserToken, OAuthToken},
+    auth::{BrowserToken, OAuthToken},
     query::Query,
     YtMusic,
 };
@@ -13,7 +14,7 @@ pub enum DynamicYtMusic {
 }
 
 impl DynamicYtMusic {
-    pub async fn query<Q, O>(&self, query: &Q) -> Result<O>
+    pub async fn query<Q, O>(&self, query: impl Borrow<Q>) -> Result<O>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -23,7 +24,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
     }
-    pub async fn browser_query<Q>(&self, query: &Q) -> Result<Q::Output>
+    pub async fn browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<BrowserToken>,
     {
@@ -37,7 +38,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query<Q>(&self, query: &Q) -> Result<Q::Output>
+    pub async fn oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<OAuthToken>,
     {

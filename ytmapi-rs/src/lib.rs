@@ -171,6 +171,9 @@ impl YtMusic<OAuthToken> {
 impl<A: AuthToken> YtMusic<A> {
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
+    /// # Note
+    /// The returned raw result will hold a reference to the query it was called
+    /// with. Therefore, passing an owned value is not permitted.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::auth::BrowserToken;
