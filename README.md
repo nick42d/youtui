@@ -32,16 +32,15 @@ This project is not supported or endorsed by Google.
 ## Running youtui
 The default option is to use oauth authentication. To change this to browser authentication, a `config.toml` file can be added to the local youtui config directory (e.g `~/.config/youtui/` on Linux), with the value `auth_type = "Browser"`. Please note however that config file format is currently unstable and could change in the future. 
 ### Commands
-2. To run the TUI application, execute `youtui` with no arguments.
-3. To use the API in command-line mode, execute `youtui --help` to see available commands.
+1. To run the TUI application, execute `youtui` with no arguments.
+1. To use the API in command-line mode, execute `youtui --help` to see available commands.
 ### OAuth Setup Steps
 1. Setup the oauth token in the default configuration directory by running `youtui setup-oauth` and following the instructions.
 ### Browser Auth Setup Steps
-1. Give the application an authorisation header:
-    1. Open YouTube Music in your browser - ensure you are logged in.
-    1. Open web developer tools (F12).
-    1. Open Network tab and locate a POST request to `music.youtube.com`.
-    1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory . Note you will need to create the directory if it does not exist.
+1. Open YouTube Music in your browser - ensure you are logged in.
+1. Open web developer tools (F12).
+1. Open Network tab and locate a POST request to `music.youtube.com`.
+1. Copy the `Cookie` into a text file named `cookie.txt` into your local youtui config directory. Note you will need to create the directory if it does not exist.
 Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
 Chrome example (Select manually and paste):
