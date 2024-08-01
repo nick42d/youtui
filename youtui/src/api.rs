@@ -13,7 +13,7 @@ pub enum DynamicYtMusic {
 }
 
 impl DynamicYtMusic {
-    pub async fn query<Q, O>(&self, query: Q) -> Result<O>
+    pub async fn query<Q, O>(&self, query: &Q) -> Result<O>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -23,7 +23,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
     }
-    pub async fn browser_query<Q>(&self, query: Q) -> Result<Q::Output>
+    pub async fn browser_query<Q>(&self, query: &Q) -> Result<Q::Output>
     where
         Q: Query<BrowserToken>,
     {
@@ -37,7 +37,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query<Q>(&self, query: Q) -> Result<Q::Output>
+    pub async fn oauth_query<Q>(&self, query: &Q) -> Result<Q::Output>
     where
         Q: Query<OAuthToken>,
     {
@@ -51,7 +51,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
     }
-    pub async fn query_source<Q, O>(&self, query: Q) -> Result<String>
+    pub async fn query_source<Q, O>(&self, query: &Q) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -63,7 +63,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })
     }
-    pub async fn browser_query_source<Q>(&self, query: Q) -> Result<String>
+    pub async fn browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<BrowserToken>,
     {
@@ -79,7 +79,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query_source<Q>(&self, query: Q) -> Result<String>
+    pub async fn oauth_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<OAuthToken>,
     {

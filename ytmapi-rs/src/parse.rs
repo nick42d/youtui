@@ -236,15 +236,15 @@ pub struct SearchResultFeaturedPlaylist {
 
 /// A result from the api that has been checked for errors and processed into
 /// JSON.
-pub struct ProcessedResult<Q> {
-    query: Q,
+pub struct ProcessedResult<'a, Q> {
+    query: &'a Q,
     source: String,
     json: serde_json::Value,
 }
 
-impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> {
+impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {
     type Error = crate::Error;
-    fn try_from(value: RawResult<Q, A>) -> Result<Self> {
+    fn try_from(value: RawResult<'a, Q, A>) -> Result<Self> {
         let RawResult {
             json: source,
             query,
@@ -264,8 +264,8 @@ impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> 
     }
 }
 
-impl<Q> ProcessedResult<Q> {
-    pub(crate) fn destructure(self) -> (Q, String, serde_json::Value) {
+impl<'a, Q> ProcessedResult<'a, Q> {
+    pub(crate) fn destructure(self) -> (&'a Q, String, serde_json::Value) {
         let ProcessedResult {
             query,
             source,

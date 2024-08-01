@@ -5,7 +5,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::{path::PathBuf, process::ExitCode};
-use ytmapi_rs::auth::OAuthToken;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 mod api;
 mod app;
@@ -242,6 +242,7 @@ async fn try_main() -> Result<()> {
     Ok(())
 }
 
+// XXX: Seems to be some duplication of load_api_key.
 async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.auth_type {
@@ -254,7 +255,7 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
                 .with_oauth_token(oath_tok)
                 .build()?;
             // For simplicity for now - refresh OAuth token every time.
-            let _ = api.refresh_token().await?;
+            api.refresh_token().await?;
             api::DynamicYtMusic::OAuth(api)
         }
         config::AuthType::Browser => {

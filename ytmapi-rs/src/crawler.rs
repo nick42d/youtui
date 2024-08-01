@@ -55,7 +55,7 @@ pub(crate) struct JsonCrawlerArrayIntoIter {
     cur_front: usize,
     cur_back: usize,
 }
-impl<Q> From<ProcessedResult<Q>> for JsonCrawler {
+impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawler {
     fn from(value: ProcessedResult<Q>) -> Self {
         let (_, source, crawler) = value.destructure();
         Self {

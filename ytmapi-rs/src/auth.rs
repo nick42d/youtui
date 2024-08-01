@@ -23,17 +23,17 @@ mod private {
 pub trait AuthToken: Sized + Sealed {
     // TODO: Continuations - as Stream?
     /// Run a post query that returns a raw json response.
-    async fn raw_query_post<Q: PostQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, Self>>;
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>>;
     /// Run a get query that returns a raw json response.
-    async fn raw_query_get<Q: GetQuery + Query<Self>>(
+    async fn raw_query_get<'a, Q: GetQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, Self>>;
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>>;
     /// Process the result, by deserializing into JSON and checking for errors.
     fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }

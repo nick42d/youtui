@@ -114,11 +114,11 @@ impl OAuthDeviceCode {
 
 impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    async fn raw_query_post<Q: PostQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, OAuthToken>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, OAuthToken>> {
         // TODO: Functionize - used for Browser Auth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
@@ -160,11 +160,11 @@ impl AuthToken for OAuthToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    async fn raw_query_get<Q: GetQuery + Query<Self>>(
+    async fn raw_query_get<'a, Q: GetQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, Self>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>> {
         // CODE DUPLICATION WITH RAW QUERY.
         let url = Url::parse_with_params(query.url(), query.params())
             .map_err(|e| Error::web(format!("{e}")))?;
