@@ -1,13 +1,11 @@
 use super::spawn_run_or_kill;
 use super::KillableTask;
+use crate::api::DynamicYtMusic;
 use crate::app::taskmanager::TaskID;
 use crate::config::ApiKey;
 use crate::error::Error;
 use crate::Result;
-use futures::FutureExt;
-use futures::TryFutureExt;
-use std::future::Future;
-use std::sync::atomic::AtomicBool;
+use std::borrow::Borrow;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::Notify;
@@ -52,65 +50,45 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Arc<OnceCell<Result<DynamicApi>>>,
+    api: Arc<OnceCell<Result<ApiWrapper>>>,
     notify: Arc<Notify>,
     _api_init: tokio::task::JoinHandle<()>,
     response_tx: mpsc::Sender<super::Response>,
 }
-#[derive(Clone, Debug)]
-pub enum DynamicApi {
-    // Arc is there to allow clone. Could potentially be removed if Clone can be removed.
-    OAuth(Arc<RwLock<YtMusic<OAuthToken>>>),
-    Browser(YtMusic<BrowserToken>),
+
+struct ApiWrapper {
+    api: Arc<RwLock<DynamicYtMusic>>,
 }
-impl DynamicApi {
-    pub async fn new_from_cookie(cookie: String) -> Result<Self> {
-        Ok(DynamicApi::Browser(
-            YtMusicBuilder::new_rustls_tls()
-                .with_browser_token_cookie(cookie)
-                .build()
-                .await?,
-        ))
-    }
-    pub fn new_from_oauth_token(token: OAuthToken) -> Result<Self> {
-        Ok(DynamicApi::OAuth(Arc::new(RwLock::new(
-            YtMusicBuilder::new_rustls_tls()
-                .with_oauth_token(token)
-                .build()?,
-        ))))
-    }
+
+impl ApiWrapper {
     /// Run a query. If the oauth token is expired, take the lock and refresh
-    /// it (single retry only).
+    /// it (single retry only). If another error occurs, try a single retry too.
     // NOTE: Determine how to handle if multiple queries in progress when we lock.
-    // TODO: Refresh the oauth file also.
-    pub async fn query<Q, O>(&self, query: Q) -> ytmapi_rs::Result<O>
+    // TODO: Refresh the oauth file also. (send message to server - filemanager -
+    // component)
+    async fn query_with_retry<Q, O>(&self, query: impl Borrow<Q>) -> crate::Result<O>
     where
         Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
         Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
-        Q: Clone,
     {
-        match self {
-            DynamicApi::Browser(yt) => Ok(yt.query(query).await?),
-            DynamicApi::OAuth(yt) => {
-                // TODO: Remove clone. It's required currently to allow retry of the query.
-                let result = yt.read().await.query(query.clone()).await;
-                match result {
-                    Ok(r) => Ok(r),
-                    Err(e) => match e.into_kind() {
-                        ErrorKind::OAuthTokenExpired { token_hash } => {
-                            // First check to see if the token_hash hasn't changed since calling the
-                            // query. If it has, that means another query must have already
-                            // refreshed the token.
-                            if yt.read().await.get_token_hash() == token_hash {
-                                info!("Refreshing oauth token");
-                                yt.write().await.refresh_token().await?;
-                            }
-                            Ok(yt.read().await.query(query).await?)
-                        }
-                        other => Err(other.into()),
-                    },
+        let res = self.api.read().await.query::<Q, O>(query.borrow()).await;
+        match res {
+            Ok(r) => return Ok(r),
+            Err(Error::ApiError(e)) => match e.into_kind() {
+                ErrorKind::OAuthTokenExpired { token_hash } => {
+                    // First check to see if the token_hash hasn't changed since calling the
+                    // query. If it has, that means another query must have already
+                    // refreshed the token.
+                    if self.api.read().await.get_token_hash()? == token_hash {
+                        info!("Refreshing oauth token");
+                        let tok = self.api.write().await.refresh_token().await?;
+                    }
+                    Ok(self.api.read().await.query(query).await?)
                 }
-            }
+                // Regular retry without token refresh, if token isn't expired.
+                other => Ok(self.api.read().await.query(query).await?),
+            },
+            Err(other_err) => return Err(other_err),
         }
     }
 }
@@ -124,11 +102,7 @@ impl Api {
         let _api_init = tokio::spawn(async move {
             info!("Initialising API");
             // TODO: Error handling
-            let api_gen = match api_key {
-                ApiKey::BrowserToken(c) => DynamicApi::new_from_cookie(c).await,
-                ApiKey::OAuthToken(t) => DynamicApi::new_from_oauth_token(t),
-            }
-            .map_err(Into::into);
+            let api_gen = DynamicYtMusic::new(api_key).await.map_err(Into::into);
             api_clone
                 .set(api_gen)
                 .expect("First time initializing api should always succeed");
@@ -142,7 +116,7 @@ impl Api {
             _api_init,
         }
     }
-    async fn get_api(&self) -> Result<&DynamicApi> {
+    async fn get_api(&self) -> Result<&DynamicYtMusic> {
         // Consider returning an error, instead of looping.
         loop {
             match self.api.get() {

@@ -1,10 +1,17 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
-use crate::{config::AuthType, error::Error, Result};
-use std::borrow::Borrow;
+use crate::{
+    config::{ApiKey, AuthType},
+    error::Error,
+    Result,
+};
+use std::{borrow::Borrow, sync::Arc};
+use tokio::sync::RwLock;
+use tracing::info;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
+    error::ErrorKind,
     query::Query,
-    YtMusic,
+    YtMusic, YtMusicBuilder,
 };
 
 #[derive(Debug, Clone)]
@@ -14,6 +21,35 @@ pub enum DynamicYtMusic {
 }
 
 impl DynamicYtMusic {
+    pub async fn new(key: ApiKey) -> Result<Self> {
+        match key {
+            ApiKey::BrowserToken(cookie) => Ok(DynamicYtMusic::Browser(
+                YtMusicBuilder::new_rustls_tls()
+                    .with_browser_token_cookie(cookie)
+                    .build()
+                    .await?,
+            )),
+            ApiKey::OAuthToken(token) => Ok(DynamicYtMusic::OAuth(
+                YtMusicBuilder::new_rustls_tls()
+                    .with_oauth_token(token)
+                    .build()?,
+            )),
+        }
+    }
+    // TO DETERMINE HOW TO HANDLE BROWSER CASE.
+    pub async fn refresh_token(&self) -> Result<OAuthToken> {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => (),
+            DynamicYtMusic::OAuth(yt) => yt.refresh_token().await?,
+        })
+    }
+    // TO DETERMINE HOW TO HANDLE BROWSER CASE.
+    pub fn get_token_hash(&self) -> Result<u64> {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => (),
+            DynamicYtMusic::OAuth(yt) => yt.get_token_hash(),
+        })
+    }
     pub async fn query<Q, O>(&self, query: impl Borrow<Q>) -> Result<O>
     where
         Q: Query<BrowserToken, Output = O>,
