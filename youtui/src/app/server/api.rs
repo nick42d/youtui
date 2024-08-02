@@ -5,7 +5,9 @@ use crate::app::taskmanager::TaskID;
 use crate::config::ApiKey;
 use crate::error::Error;
 use crate::Result;
+use serde::Deserialize;
 use std::borrow::Borrow;
+use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::Notify;
@@ -22,8 +24,6 @@ use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::query::GetAlbumQuery;
 use ytmapi_rs::query::GetArtistAlbumsQuery;
 use ytmapi_rs::ChannelID;
-use ytmapi_rs::YtMusic;
-use ytmapi_rs::YtMusicBuilder;
 
 pub enum Request {
     GetSearchSuggestions(String, KillableTask),
@@ -50,47 +50,55 @@ pub enum Response {
 }
 pub struct Api {
     // Do I want to keep track of tasks here in a joinhandle?
-    api: Arc<OnceCell<Result<ApiWrapper>>>,
+    api: Arc<OnceCell<Result<ConcurrentApi>>>,
     notify: Arc<Notify>,
     _api_init: tokio::task::JoinHandle<()>,
     response_tx: mpsc::Sender<super::Response>,
 }
+type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
-struct ApiWrapper {
-    api: Arc<RwLock<DynamicYtMusic>>,
-}
-
-impl ApiWrapper {
-    /// Run a query. If the oauth token is expired, take the lock and refresh
-    /// it (single retry only). If another error occurs, try a single retry too.
-    // NOTE: Determine how to handle if multiple queries in progress when we lock.
-    // TODO: Refresh the oauth file also. (send message to server - filemanager -
-    // component)
-    async fn query_with_retry<Q, O>(&self, query: impl Borrow<Q>) -> crate::Result<O>
-    where
-        Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
-        Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
-    {
-        let res = self.api.read().await.query::<Q, O>(query.borrow()).await;
-        match res {
-            Ok(r) => return Ok(r),
-            Err(Error::ApiError(e)) => match e.into_kind() {
+/// Run a query. If the oauth token is expired, take the lock and refresh
+/// it (single retry only). If another error occurs, try a single retry too.
+// NOTE: Determine how to handle if multiple queries in progress when we lock.
+// TODO: Refresh the oauth file also. (send message to server - filemanager -
+// component)
+async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> crate::Result<O>
+where
+    Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
+    Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
+{
+    let res = api.read().await.query::<Q, O>(query.borrow()).await;
+    match res {
+        Ok(r) => return Ok(r),
+        Err(Error::ApiError(e)) => {
+            info!("Got error {e} from api");
+            match e.into_kind() {
                 ErrorKind::OAuthTokenExpired { token_hash } => {
                     // First check to see if the token_hash hasn't changed since calling the
                     // query. If it has, that means another query must have already
                     // refreshed the token.
-                    if self.api.read().await.get_token_hash()? == token_hash {
+                    if api.read().await.get_token_hash()? == Some(token_hash) {
                         info!("Refreshing oauth token");
-                        let tok = self.api.write().await.refresh_token().await?;
+                        let tok = api.write().await.refresh_token().await?;
                     }
-                    Ok(self.api.read().await.query(query).await?)
+                    Ok(api.read().await.query(query).await?)
                 }
                 // Regular retry without token refresh, if token isn't expired.
-                other => Ok(self.api.read().await.query(query).await?),
-            },
-            Err(other_err) => return Err(other_err),
+                _ => {
+                    info!("Retrying once");
+                    Ok(api.read().await.query(query).await?)
+                }
+            }
         }
+        Err(other_err) => return Err(other_err),
     }
+}
+
+async fn update_oauth_token_file(token: OAuthToken, path: impl Into<PathBuf>) -> Result<()> {
+    let mut tmp_path = path.into();
+    let out = serde_json::to_string_pretty(&token)?;
+    tokio::fs::File::create_new(path).await?;
+    tokio::fs::File::rename(tmp_path, path).await?;
 }
 
 impl Api {
@@ -116,7 +124,7 @@ impl Api {
             _api_init,
         }
     }
-    async fn get_api(&self) -> Result<&DynamicYtMusic> {
+    async fn get_api(&self) -> Result<&ConcurrentApi> {
         // Consider returning an error, instead of looping.
         loop {
             match self.api.get() {

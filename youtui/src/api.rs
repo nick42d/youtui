@@ -37,17 +37,17 @@ impl DynamicYtMusic {
         }
     }
     // TO DETERMINE HOW TO HANDLE BROWSER CASE.
-    pub async fn refresh_token(&self) -> Result<OAuthToken> {
+    pub async fn refresh_token(&mut self) -> Result<Option<OAuthToken>> {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => (),
-            DynamicYtMusic::OAuth(yt) => yt.refresh_token().await?,
+            DynamicYtMusic::Browser(_) => None,
+            DynamicYtMusic::OAuth(yt) => Some(yt.refresh_token().await?),
         })
     }
     // TO DETERMINE HOW TO HANDLE BROWSER CASE.
-    pub fn get_token_hash(&self) -> Result<u64> {
+    pub fn get_token_hash(&self) -> Result<Option<u64>> {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => (),
-            DynamicYtMusic::OAuth(yt) => yt.get_token_hash(),
+            DynamicYtMusic::Browser(_) => None,
+            DynamicYtMusic::OAuth(yt) => Some(yt.get_token_hash()),
         })
     }
     pub async fn query<Q, O>(&self, query: impl Borrow<Q>) -> Result<O>
