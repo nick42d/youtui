@@ -8,7 +8,9 @@ use crate::Result;
 use serde::Deserialize;
 use std::borrow::Borrow;
 use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
+use tokio::io::AsyncWriteExt;
 use tokio::sync::mpsc;
 use tokio::sync::Notify;
 use tokio::sync::OnceCell;
@@ -94,11 +96,18 @@ where
     }
 }
 
-async fn update_oauth_token_file(token: OAuthToken, path: impl Into<PathBuf>) -> Result<()> {
-    let mut tmp_path = path.into();
+async fn update_oauth_token_file(
+    token: OAuthToken,
+    path: impl Into<PathBuf> + AsRef<Path>,
+    file_name: impl Into<PathBuf> + AsRef<Path>,
+) -> Result<()> {
+    let mut tmp_path: PathBuf = path.as_ref().into();
+    tmp_path.push(file_name);
     let out = serde_json::to_string_pretty(&token)?;
-    tokio::fs::File::create_new(path).await?;
-    tokio::fs::File::rename(tmp_path, path).await?;
+    let mut file = tokio::fs::File::create_new(path.as_ref()).await?;
+    file.write(out.as_str().as_bytes()).await?;
+    tokio::fs::rename(tmp_path, path).await?;
+    Ok(())
 }
 
 impl Api {
@@ -110,7 +119,10 @@ impl Api {
         let _api_init = tokio::spawn(async move {
             info!("Initialising API");
             // TODO: Error handling
-            let api_gen = DynamicYtMusic::new(api_key).await.map_err(Into::into);
+            let api_gen = DynamicYtMusic::new(api_key)
+                .await
+                .map(|api| Arc::new(RwLock::new(api)))
+                .map_err(Into::into);
             api_clone
                 .set(api_gen)
                 .expect("First time initializing api should always succeed");
@@ -168,7 +180,7 @@ impl Api {
             async move {
                 tracing::info!("Getting search suggestions for {text}");
                 let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
-                let search_suggestions = match api.query(query).await {
+                let search_suggestions = match query_api_with_retry(&api, query).await {
                     Ok(t) => t,
                     Err(e) => {
                         error!("Received error on search suggestions query \"{}\"", e);
@@ -213,13 +225,13 @@ impl Api {
                 //            let api = crate::app::api::APIHandler::new();
                 //            let search_res = api.search_artists(&self.search_contents, 20);
                 tracing::info!("Running search query");
-                let search_res = match api
-                    .query(
-                        ytmapi_rs::query::SearchQuery::new(artist)
-                            .with_filter(ytmapi_rs::query::ArtistsFilter)
-                            .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
-                    )
-                    .await
+                let search_res = match query_api_with_retry(
+                    &api,
+                    ytmapi_rs::query::SearchQuery::new(artist)
+                        .with_filter(ytmapi_rs::query::ArtistsFilter)
+                        .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
+                )
+                .await
                 {
                     Ok(t) => t,
                     Err(e) => {
@@ -273,7 +285,7 @@ impl Api {
                 // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
                 // ChannelID::Artist?
                 let query = ytmapi_rs::query::GetArtistQuery::new(browse_id);
-                let artist = api.query(query).await;
+                let artist = query_api_with_retry(&api, query).await;
                 let artist = match artist {
                     Ok(a) => a,
                     Err(e) => {
@@ -335,7 +347,7 @@ impl Api {
                         unreachable!("Checked not none above")
                     };
                     let query = GetArtistAlbumsQuery::new(temp_browse_id, temp_params);
-                    let albums = match api.query(query).await {
+                    let albums = match query_api_with_retry(&api, query).await {
                         Ok(r) => r,
                         Err(e) => {
                             error!("Received error on get_artist_albums query \"{}\"", e);
@@ -364,7 +376,7 @@ impl Api {
                             id
                         );
                         let query = GetAlbumQuery::new(&b_id);
-                        let album = match api.query(query).await {
+                        let album = match query_api_with_retry(&api, query).await {
                             Ok(album) => album,
                             Err(e) => {
                                 error!("Error <{e}> getting album {:?}", b_id);
