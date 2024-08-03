@@ -2690,20 +2690,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rodio"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6006a627c1a38d37f3d3a85c6575418cfe34a5392d60a686d0071e1c8d427acb"
-dependencies = [
- "claxon",
- "cpal",
- "hound",
- "lewton",
- "symphonia",
- "thiserror",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4282,7 +4268,6 @@ dependencies = [
  "gag",
  "itertools 0.13.0",
  "ratatui",
- "rodio",
  "serde",
  "serde_json",
  "tokio",
@@ -4290,8 +4275,23 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tui-logger",
+ "youtui-vendored-rodio",
  "youtui-vendored-rusty_ytdl",
  "ytmapi-rs",
+]
+
+[[package]]
+name = "youtui-vendored-rodio"
+version = "0.19.0-youtui-vendored.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a04dcacfe72ecd1a41ac89e008ab863febd3fcb778d4d7037c96871b86d6a3ef"
+dependencies = [
+ "claxon",
+ "cpal",
+ "hound",
+ "lewton",
+ "symphonia",
+ "thiserror",
 ]
 
 [[package]]
