@@ -8,8 +8,6 @@ use crate::get_config_dir;
 use crate::Result;
 use crate::OAUTH_FILENAME;
 use std::borrow::Borrow;
-use std::path::Path;
-use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::mpsc;
@@ -86,18 +84,15 @@ where
                     // already refreshed the token, and we don't need to do
                     // anything.
                     let api_token_hash = api_locked.get_token_hash()?;
-                    info!("API hash: {:?}", api_token_hash);
-                    info!("OTH hash: {:?}", Some(token_hash));
                     if api_token_hash == Some(token_hash) {
                         info!("Refreshing oauth token");
                         let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
-                        info!("NEW hash: {:?}", api_locked.get_token_hash()?);
+                        info!("Oauth token refreshed");
                         if let Err(e) = update_oauth_token_file(tok).await {
                             error!("Error updating locally saved oauth token: <{e}>")
                         }
                     }
-                    drop(api_locked);
-                    Ok(api.read().await.query(query).await?)
+                    Ok(api_locked.downgrade().query(query).await?)
                 }
                 // Regular retry without token refresh, if token isn't expired.
                 _ => {
@@ -116,6 +111,7 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
     let mut tmpfile_path = file_path.clone();
     tmpfile_path.set_extension("json.tmp");
     let out = serde_json::to_string_pretty(&token)?;
+    info!("Updating oauth token at: {:?}", &file_path);
     let mut file = tokio::fs::File::create_new(&tmpfile_path).await?;
     file.write_all(out.as_bytes()).await?;
     tokio::fs::rename(tmpfile_path, &file_path).await?;
