@@ -414,6 +414,12 @@ impl TaskManager {
                 }
                 ui_state.handle_set_to_stopped(song_id).await;
             }
+            player::Response::Error(song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return;
+                }
+                ui_state.handle_set_to_error(song_id).await;
+            }
             player::Response::ProgressUpdate(perc, song_id, id) => {
                 if !self.is_task_valid(id) {
                     return;

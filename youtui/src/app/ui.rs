@@ -341,6 +341,9 @@ impl YoutuiWindow {
     pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_stopped(id)
     }
+    pub async fn handle_set_to_error(&mut self, id: ListSongID) {
+        self.playlist.handle_set_to_error(id)
+    }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }

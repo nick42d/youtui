@@ -8,8 +8,10 @@ use crate::{
 };
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use tokio::sync::mpsc;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use ytmapi_rs::{common::YoutubeID, VideoID};
+
+const MAX_RETRIES: usize = 5;
 
 pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
@@ -25,6 +27,7 @@ pub enum DownloadProgressUpdateType {
     Downloading(Percentage),
     Completed(Vec<u8>),
     Error,
+    Retrying { times_retried: usize },
 }
 pub struct Downloader {
     options: VideoOptions,
@@ -94,46 +97,15 @@ impl Downloader {
                     .await;
                     return;
                 };
-                let stream = match video.stream().await {
-                    Ok(s) => s,
-                    Err(e) => {
-                        error!("Error <{e}> received converting song to stream");
-                        send_or_error(
-                            &tx,
-                            super::Response::Downloader(Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Error,
-                                playlist_id,
-                                id,
-                            )),
-                        )
-                        .await;
-                        return;
-                    }
-                };
-                let mut i = 0;
+                let mut retries = 0;
+                let mut download_succeeded = false;
                 let mut songbuffer = Vec::new();
-                loop {
-                    match stream.chunk().await {
-                        Ok(Some(chunk)) => {
-                            i += 1;
-                            songbuffer.append(&mut chunk.into());
-                            let progress =
-                                (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
-                            info!("Sending song progress update");
-                            send_or_error(
-                                &tx,
-                                super::Response::Downloader(Response::DownloadProgressUpdate(
-                                    DownloadProgressUpdateType::Downloading(Percentage(
-                                        progress as u8,
-                                    )),
-                                    playlist_id,
-                                    id,
-                                )),
-                            )
-                            .await;
-                        }
+                while retries <= 5 && !download_succeeded {
+                    // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
+                    let stream = match video.stream().await {
+                        Ok(s) => s,
                         Err(e) => {
-                            error!("Error <{e}> received downloading song");
+                            error!("Error <{e}> received converting song to stream");
                             send_or_error(
                                 &tx,
                                 super::Response::Downloader(Response::DownloadProgressUpdate(
@@ -145,7 +117,66 @@ impl Downloader {
                             .await;
                             return;
                         }
-                        Ok(None) => break,
+                    };
+                    let mut i = 0;
+                    loop {
+                        match stream.chunk().await {
+                            Ok(Some(chunk)) => {
+                                i += 1;
+                                songbuffer.append(&mut chunk.into());
+                                let progress = (i * DL_CALLBACK_CHUNK_SIZE) * 100
+                                    / stream.content_length() as u64;
+                                info!("Sending song progress update");
+                                send_or_error(
+                                    &tx,
+                                    super::Response::Downloader(Response::DownloadProgressUpdate(
+                                        DownloadProgressUpdateType::Downloading(Percentage(
+                                            progress as u8,
+                                        )),
+                                        playlist_id,
+                                        id,
+                                    )),
+                                )
+                                .await;
+                            }
+                            // SUCCESS
+                            Ok(None) => {
+                                download_succeeded = true;
+                                break;
+                            }
+                            Err(e) => {
+                                warn!("Error <{e}> received downloading song");
+                                retries += 1;
+                                if retries > MAX_RETRIES {
+                                    error!("Max retries exceeded");
+                                    send_or_error(
+                                        &tx,
+                                        super::Response::Downloader(
+                                            Response::DownloadProgressUpdate(
+                                                DownloadProgressUpdateType::Error,
+                                                playlist_id,
+                                                id,
+                                            ),
+                                        ),
+                                    )
+                                    .await;
+                                    return;
+                                }
+                                warn!("Retrying - {} tries left", MAX_RETRIES - retries);
+                                send_or_error(
+                                    &tx,
+                                    super::Response::Downloader(Response::DownloadProgressUpdate(
+                                        DownloadProgressUpdateType::Retrying {
+                                            times_retried: retries,
+                                        },
+                                        playlist_id,
+                                        id,
+                                    )),
+                                )
+                                .await;
+                                break;
+                            }
+                        }
                     }
                 }
                 info!("Song downloaded");

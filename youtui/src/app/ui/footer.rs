@@ -53,7 +53,10 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let duration_str = secs_to_time_string(duration);
     let bar_str = format!("{}/{}", progress_str, duration_str);
     let song_title = match w.playlist.play_status {
-        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
             .map(|s| s.raw.title.to_owned())
@@ -62,7 +65,10 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         PlayState::Stopped => "Not playing".to_string(),
     };
     let album_title = match w.playlist.play_status {
-        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
             .map(|s| s.get_album().to_owned())
@@ -71,7 +77,10 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         PlayState::Stopped => "".to_string(),
     };
     let artist_title = match w.playlist.play_status {
-        PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => w
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
             // TODO: tidy this up as ListSong only contains one artist currently.
@@ -88,7 +97,10 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         PlayState::Stopped => "".to_string(),
     };
     let song_title_string = match w.playlist.play_status {
-        PlayState::Playing(_) | PlayState::Paused(_) | PlayState::Buffering(_) => format!(
+        PlayState::Error(_)
+        | PlayState::Playing(_)
+        | PlayState::Paused(_)
+        | PlayState::Buffering(_) => format!(
             "{} {song_title} - {artist_title}",
             w.playlist.play_status.list_icon()
         ),

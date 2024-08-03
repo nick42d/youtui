@@ -29,7 +29,6 @@ pub struct Playlist {
     pub play_status: PlayState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    pub help_shown: bool,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
 }
@@ -183,7 +182,6 @@ impl Playlist {
             .try_send(AppCallback::GetVolume)
             .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
         Playlist {
-            help_shown: false,
             ui_tx,
             volume: Percentage(50),
             play_status: PlayState::NotPlaying,
@@ -246,6 +244,11 @@ impl Playlist {
                     song.download_status = DownloadStatus::Failed;
                 }
             }
+            DownloadProgressUpdateType::Retrying { times_retried } => {
+                if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
+                    song.download_status = DownloadStatus::Retrying { times_retried };
+                }
+            }
             DownloadProgressUpdateType::Downloading(p) => {
                 if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
                     song.download_status = DownloadStatus::Downloading(p);
@@ -285,6 +288,13 @@ impl Playlist {
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
+        }
+    }
+    pub fn handle_set_to_error(&mut self, id: ListSongID) {
+        info!("Received message that song had a playback error {:?}", id);
+        if self.check_id_is_cur(id) {
+            info!("Setting song state to Error {:?}", id);
+            self.play_status = PlayState::Error(id)
         }
     }
     pub async fn play_selected(&mut self) {
@@ -413,7 +423,10 @@ impl Playlist {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play next, but not currently playing");
             }
-            PlayState::Paused(id) | PlayState::Playing(id) | PlayState::Buffering(id) => {
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
                 // Guard against duplicate message received.
                 if id > &prev_id {
                     return;
@@ -479,7 +492,10 @@ impl Playlist {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play prev, but not currently playing");
             }
-            PlayState::Paused(id) | PlayState::Playing(id) | PlayState::Buffering(id) => {
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
                 let prev_song_id = self
                     .get_index_from_id(*id)
                     .and_then(|i| i.checked_sub(1))
@@ -514,8 +530,11 @@ impl Playlist {
     }
     pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
         match self.play_status {
-            PlayState::Playing(id) | PlayState::Paused(id) | PlayState::Buffering(id) => Some(id),
-            _ => None,
+            PlayState::Error(id)
+            | PlayState::Playing(id)
+            | PlayState::Paused(id)
+            | PlayState::Buffering(id) => Some(id),
+            PlayState::NotPlaying | PlayState::Stopped => None,
         }
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
