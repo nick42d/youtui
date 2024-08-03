@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [0.0.9](https://github.com/nick42d/youtui/compare/youtui/v0.0.8...youtui/v0.0.9) - 2024-07-31
+## [0.0.10](https://github.com/nick42d/youtui/compare/youtui/v0.0.9...youtui/v0.0.10) - 2024-08-03
+
+### Fixed
+- Fix all songs causing crash with 'UnrecognisedFormat', and subset of songs causing crash with 'End of stream'. Downloads will now retry up to 5 times. (Resolves [#113](https://github.com/nick42d/youtui/pull/113), [#95](https://github.com/nick42d/youtui/pull/95)) ([#115](https://github.com/nick42d/youtui/pull/115))## [0.0.9](https://github.com/nick42d/youtui/compare/youtui/v0.0.8...youtui/v0.0.9) - 2024-07-31
 
 ### Added
 - [**breaking**] Implement Get method requests - specifically AddHistoryItemQuery. Resolves [#60](https://github.com/nick42d/youtui/pull/60) ([#107](https://github.com/nick42d/youtui/pull/107)), and includes fix for [#106](https://github.com/nick42d/youtui/pull/106).
