@@ -1,21 +1,18 @@
+use super::KillableTask;
+use crate::app::structures::ListSongID;
+use crate::app::structures::Percentage;
+use crate::app::taskmanager::TaskID;
+use crate::core::blocking_send_or_error;
+use crate::Result;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::Duration;
 use tokio::sync::mpsc;
-
 use tracing::debug;
+use tracing::error;
 use tracing::info;
 use tracing::trace;
 use tracing::warn;
-
-use crate::app::structures::Percentage;
-use crate::core::blocking_send_or_error;
-use crate::Result;
-
-use crate::app::structures::ListSongID;
-use crate::app::taskmanager::TaskID;
-
-use super::KillableTask;
 
 const EVENT_POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(10);
 const PROGRESS_UPDATE_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
@@ -26,7 +23,7 @@ pub enum Request {
     GetVolume(KillableTask),
     IncreaseVolume(i8, TaskID),
     PlaySong(Arc<Vec<u8>>, ListSongID, TaskID),
-    GetPlayProgress(ListSongID, TaskID), // Should give ID?
+    GetPlayProgress(ListSongID, TaskID),
     Stop(ListSongID, TaskID),
     PausePlay(ListSongID, TaskID),
 }
@@ -37,8 +34,9 @@ pub enum Response {
     Paused(ListSongID, TaskID),
     Playing(ListSongID, TaskID),
     Stopped(ListSongID, TaskID),
+    Error(ListSongID, TaskID),
     ProgressUpdate(f64, ListSongID, TaskID),
-    VolumeUpdate(Percentage, TaskID), // Should be Percentage
+    VolumeUpdate(Percentage, TaskID),
 }
 
 pub struct PlayerManager {
@@ -98,12 +96,26 @@ pub fn spawn_rodio_thread(
                         let owned_song =
                             Arc::try_unwrap(song_pointer).unwrap_or_else(|arc| (*arc).clone());
                         let cur = std::io::Cursor::new(owned_song);
-                        let source = rodio::Decoder::new(cur).unwrap();
+                        let source = match rodio::Decoder::new(cur) {
+                            Ok(source) => source,
+                            Err(e) => {
+                                error!("Received error when trying to play song <{e}>");
+                                if !sink.empty() {
+                                    sink.stop()
+                                }
+                                blocking_send_or_error(
+                                    &response_tx,
+                                    super::Response::Player(Response::Error(song_id, id)),
+                                );
+                                thinks_is_playing = false;
+                                continue;
+                            }
+                        };
                         if !sink.empty() {
                             sink.stop()
                         }
                         sink.append(source);
-                        // Handle case we're we've received a play message but queue was paused.
+                        // Handle case were we've received a play message but queue was paused.
                         if sink.is_paused() {
                             sink.play();
                         }
@@ -208,7 +220,7 @@ pub fn spawn_rodio_thread(
             if !sink.empty() && !sink.is_paused() {
                 std::thread::sleep(PROGRESS_UPDATE_INTERVAL.saturating_sub(EVENT_POLL_INTERVAL));
                 let passed = std::time::Instant::now() - last_tick_time;
-                cur_song_elapsed = cur_song_elapsed + passed;
+                cur_song_elapsed += passed;
             }
             if sink.empty() && thinks_is_playing {
                 // NOTE: This simple model won't work if we have multiple songs in the sink.

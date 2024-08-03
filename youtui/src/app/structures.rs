@@ -47,7 +47,8 @@ pub enum DownloadStatus {
     Queued,
     Downloading(Percentage),
     Downloaded(Arc<Vec<u8>>),
-    Failed, // Should keep track of times failed
+    Failed,
+    Retrying { times_retried: usize },
 }
 
 #[derive(Clone, Debug)]
@@ -57,6 +58,7 @@ pub enum PlayState {
     Paused(ListSongID),
     // May be the same as NotPlaying?
     Stopped,
+    Error(ListSongID),
     Buffering(ListSongID),
 }
 
@@ -68,6 +70,7 @@ impl PlayState {
             PlayState::Playing(_) => '',
             PlayState::Paused(_) => '',
             PlayState::Stopped => '',
+            PlayState::Error(_) => '',
         }
     }
 }
@@ -80,6 +83,7 @@ impl DownloadStatus {
             Self::None => ' ',
             Self::Downloading(_) => '',
             Self::Downloaded(_) => '',
+            Self::Retrying { .. } => '',
         }
     }
 }
@@ -114,12 +118,15 @@ impl ListSong {
                     DownloadStatus::Downloading(p) => {
                         format!("{}[{}]%", self.download_status.list_icon(), p.0)
                     }
+                    DownloadStatus::Retrying { times_retried } => {
+                        format!("{}[x{}]", self.download_status.list_icon(), times_retried)
+                    }
                     _ => self.download_status.list_icon().to_string(),
                 }),
                 self.get_track_no().to_string().into(),
                 // TODO: Remove allocation
                 self.get_artists()
-                    .get(0)
+                    .first()
                     .map(|a| a.to_string())
                     .unwrap_or_default()
                     .into(),
