@@ -119,6 +119,7 @@ impl Downloader {
                         }
                     };
                     let mut i = 0;
+                    songbuffer.clear();
                     loop {
                         match stream.chunk().await {
                             Ok(Some(chunk)) => {
