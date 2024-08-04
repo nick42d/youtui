@@ -332,10 +332,15 @@ impl Playlist {
     }
     pub async fn handle_next(&mut self) {
         match self.play_status {
-            PlayState::Playing(id) => {
+            PlayState::NotPlaying | PlayState::Stopped => {
+                warn!("Asked to play next, but not currently playing");
+            }
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
                 self.play_next_or_finish(id).await;
             }
-            _ => (),
         }
     }
     pub async fn handle_previous(&mut self) {
