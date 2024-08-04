@@ -23,7 +23,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // the refresh token. But now we do, so consider simply making this only one
 // struct. Otherwise the only difference is not including Scope which is not
 // super relevant.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct OAuthToken {
     token_type: String,
     access_token: String,
@@ -114,11 +114,11 @@ impl OAuthDeviceCode {
 
 impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    async fn raw_query_post<Q: PostQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, OAuthToken>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, OAuthToken>> {
         // TODO: Functionize - used for Browser Auth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
@@ -143,7 +143,7 @@ impl AuthToken for OAuthToken {
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
         if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired());
+            return Err(Error::oauth_token_expired(self));
         }
         let headers = [
             // TODO: Confirm if parsing for expired user agent also relevant here.
@@ -160,11 +160,11 @@ impl AuthToken for OAuthToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    async fn raw_query_get<Q: GetQuery + Query<Self>>(
+    async fn raw_query_get<'a, Q: GetQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<RawResult<Q, Self>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>> {
         // CODE DUPLICATION WITH RAW QUERY.
         let url = Url::parse_with_params(query.url(), query.params())
             .map_err(|e| Error::web(format!("{e}")))?;
@@ -172,7 +172,7 @@ impl AuthToken for OAuthToken {
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
         if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired());
+            return Err(Error::oauth_token_expired(self));
         }
         let headers = [
             // TODO: Confirm if parsing for expired user agent also relevant here.

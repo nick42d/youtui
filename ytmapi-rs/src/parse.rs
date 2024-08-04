@@ -3,7 +3,7 @@
 //! Implementation example is pending refactoring of ProcessedResult to remove
 //! leaking external type `serde_json::Value`
 use crate::{
-    auth::AuthToken,
+    auth::{AuthToken, BrowserToken, OAuthToken},
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
@@ -236,15 +236,15 @@ pub struct SearchResultFeaturedPlaylist {
 
 /// A result from the api that has been checked for errors and processed into
 /// JSON.
-pub struct ProcessedResult<Q> {
-    query: Q,
+pub struct ProcessedResult<'a, Q> {
+    query: &'a Q,
     source: String,
     json: serde_json::Value,
 }
 
-impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> {
+impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {
     type Error = crate::Error;
-    fn try_from(value: RawResult<Q, A>) -> Result<Self> {
+    fn try_from(value: RawResult<'a, Q, A>) -> Result<Self> {
         let RawResult {
             json: source,
             query,
@@ -264,8 +264,8 @@ impl<Q: Query<A>, A: AuthToken> TryFrom<RawResult<Q, A>> for ProcessedResult<Q> 
     }
 }
 
-impl<Q> ProcessedResult<Q> {
-    pub(crate) fn destructure(self) -> (Q, String, serde_json::Value) {
+impl<'a, Q> ProcessedResult<'a, Q> {
+    pub(crate) fn destructure(self) -> (&'a Q, String, serde_json::Value) {
         let ProcessedResult {
             query,
             source,
@@ -287,11 +287,11 @@ impl<Q> ProcessedResult<Q> {
     }
 }
 
-// impl<Q> ProcessedResult<Q> {
-//     pub fn parse<QQ: Query<A>, A: AuthToken>(self) -> Result<QQ::Output> {
-//         QQ::Output::parse_from(self)
-//     }
-// }
+impl<'a, Q> ProcessedResult<'a, Q> {
+    pub fn parse_into<O: ParseFrom<Q>>(self) -> Result<O> {
+        O::parse_from(self)
+    }
+}
 
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto
 // fixedcolumnitem also. Not sure if this should error.
@@ -480,7 +480,7 @@ mod tests {
         let query = SearchQuery::new("Beatles");
         let source = "{\"name\": \"John Doe\"}".to_string();
         let p = ProcessedResult {
-            query: query.clone(),
+            query: &query,
             source: source.clone(),
             json: serde_json::from_str(source.as_str()).unwrap(),
         };

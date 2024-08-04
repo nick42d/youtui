@@ -1,12 +1,15 @@
 use crate::config::AuthType;
 use std::{fmt::Display, path::PathBuf};
 use tokio::{sync::mpsc, task::JoinError};
+use ytmapi_rs::{
+    auth::{BrowserToken, OAuthToken},
+    query::Query,
+};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    OAuthNotYetSupportedByApp,
     Communication,
     UnknownAPIError,
     DirectoryNameError,
@@ -87,7 +90,6 @@ impl Display for Error {
         match self {
             Error::Communication => write!(f, "Error sending message to channel"),
             Error::DirectoryNameError => write!(f, "Error generating application directory for your host system. See README.md for more information about application directories."),
-            Error::OAuthNotYetSupportedByApp => write!(f, "App does not currently support Oauth tokens for authentication. Use browser authentication. See README.md for more information."),
             Error::UnknownAPIError => write!(f, "Unknown API error."),
             Error::Other(s) => write!(f, "Unknown error with message \"{s}\""),
             Error::IoError(e) => write!(f, "Standard io error <{e}>"),

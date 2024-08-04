@@ -25,11 +25,11 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query_post<Q: PostQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &client::Client,
-        query: Q,
-    ) -> Result<RawResult<Q, BrowserToken>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, BrowserToken>> {
         // TODO: Functionize - used for OAuth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let mut body = json!({
@@ -59,11 +59,11 @@ impl AuthToken for BrowserToken {
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
-    async fn raw_query_get<Q: crate::query::GetQuery + Query<Self>>(
+    async fn raw_query_get<'a, Q: crate::query::GetQuery + Query<Self>>(
         &self,
         client: &Client,
-        query: Q,
-    ) -> Result<crate::process::RawResult<Q, Self>> {
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>> {
         // COPY AND PASTE OF ABOVE.
         let hash = utils::hash_sapisid(&self.sapisid);
         let headers = [
@@ -148,7 +148,7 @@ impl BrowserToken {
     where
         P: AsRef<Path>,
     {
-        let contents = tokio::fs::read_to_string(path).await.unwrap();
+        let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
     }
 }

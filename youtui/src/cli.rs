@@ -1,7 +1,9 @@
 use crate::get_api;
+use crate::get_config_dir;
 use crate::Cli;
 use crate::Result;
 use crate::RuntimeInfo;
+use crate::OAUTH_FILENAME;
 use querybuilder::command_to_query;
 use querybuilder::CliQuery;
 use querybuilder::QueryType;
@@ -59,12 +61,25 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
     }
     Ok(())
 }
-pub async fn get_and_output_oauth_token(file_name: Option<PathBuf>) -> Result<()> {
+pub async fn get_and_output_oauth_token(
+    file_name: Option<PathBuf>,
+    write_to_stdout: bool,
+) -> Result<()> {
     let token_str = get_oauth_token().await?;
-    if let Some(file_name) = file_name {
-        tokio::fs::write(&file_name, token_str).await?;
-        println!("Wrote Oauth token to {}", file_name.display());
-    } else {
+    match (file_name, write_to_stdout) {
+        (Some(file_name), _) => {
+            tokio::fs::write(&file_name, &token_str).await?;
+            println!("Wrote Oauth token to {}", file_name.display());
+        }
+        (None, false) => {
+            let mut path = get_config_dir()?;
+            path.push(OAUTH_FILENAME);
+            tokio::fs::write(&path, &token_str).await?;
+            println!("Wrote Oauth token to {}", path.display());
+        }
+        (None, true) => (),
+    };
+    if write_to_stdout {
         println!("{token_str}");
     }
     Ok(())

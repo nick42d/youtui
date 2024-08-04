@@ -5,7 +5,7 @@ use directories::ProjectDirs;
 use error::Error;
 pub use error::Result;
 use std::{path::PathBuf, process::ExitCode};
-use ytmapi_rs::auth::OAuthToken;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 
 mod api;
 mod app;
@@ -30,8 +30,7 @@ struct Arguments {
     cli: Cli,
     #[command(subcommand)]
     auth_cmd: Option<AuthCmd>,
-    /// Force the use of an auth type. NOTE: TUI currently only supports Browser
-    /// auth.
+    /// Force the use of an auth type.
     #[arg(value_enum, short, long)]
     auth_type: Option<AuthType>,
 }
@@ -52,8 +51,12 @@ struct Cli {
 enum AuthCmd {
     /// Generate an OAuth token.
     SetupOauth {
-        /// Optional: Write to a file.
+        /// Optional: Write to a specific file instead of the config directory.
+        #[arg(short, long)]
         file_name: Option<PathBuf>,
+        /// Optional: Print to stdout instead of the config directory.
+        #[arg(short, long, default_value_t = false)]
+        stdout: bool,
     },
 }
 #[derive(Subcommand, Debug, Clone)]
@@ -213,7 +216,9 @@ async fn try_main() -> Result<()> {
     // We don't need configuration to setup oauth token.
     if let Some(c) = auth_cmd {
         match c {
-            AuthCmd::SetupOauth { file_name } => cli::get_and_output_oauth_token(file_name).await?,
+            AuthCmd::SetupOauth { file_name, stdout } => {
+                cli::get_and_output_oauth_token(file_name, stdout).await?
+            }
         };
         // Done here if we got this command. No need to go further.
         return Ok(());
@@ -243,6 +248,7 @@ async fn try_main() -> Result<()> {
     Ok(())
 }
 
+// XXX: Seems to be some duplication of load_api_key.
 async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.auth_type {
@@ -255,7 +261,7 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
                 .with_oauth_token(oath_tok)
                 .build()?;
             // For simplicity for now - refresh OAuth token every time.
-            let _ = api.refresh_token().await?;
+            api.refresh_token().await?;
             api::DynamicYtMusic::OAuth(api)
         }
         config::AuthType::Browser => {
@@ -272,13 +278,6 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
-    // Oauth is not yet supported in the app due to needing to refresh the tokens.
-    // So we'll error in that case for now.
-    // TODO: Implement OAuth in the app.
-    match &rt.api_key {
-        ApiKey::OAuthToken(_) => return Err(Error::OAuthNotYetSupportedByApp),
-        ApiKey::BrowserToken(_) => (),
-    };
     let mut app = app::Youtui::new(rt)?;
     app.run().await?;
     Ok(())

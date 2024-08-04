@@ -95,7 +95,11 @@ where
     Q: Query<A>,
     A: AuthToken,
 {
-    async fn call(query: Q, client: &crate::client::Client, tok: &A) -> Result<RawResult<Q, A>>;
+    async fn call<'a>(
+        query: &'a Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> Result<RawResult<'a, Q, A>>;
 }
 
 impl Sealed for GetMethod {}
@@ -104,11 +108,11 @@ where
     Q: GetQuery + Query<A, Output = O>,
     A: AuthToken,
 {
-    fn call(
-        query: Q,
+    fn call<'a>(
+        query: &'a Q,
         client: &crate::client::Client,
         tok: &A,
-    ) -> impl Future<Output = Result<RawResult<Q, A>>>
+    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>
     where
         Self: Sized,
     {
@@ -122,11 +126,11 @@ where
     Q: PostQuery + Query<A, Output = O>,
     A: AuthToken,
 {
-    fn call(
-        query: Q,
+    fn call<'a>(
+        query: &'a Q,
         client: &crate::client::Client,
         tok: &A,
-    ) -> impl Future<Output = Result<RawResult<Q, A>>>
+    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>
     where
         Self: Sized,
     {
@@ -144,6 +148,7 @@ pub mod album {
     use serde_json::json;
     use std::borrow::Cow;
 
+    #[derive(Clone)]
     pub struct GetAlbumQuery<'a> {
         browse_id: AlbumID<'a>,
     }

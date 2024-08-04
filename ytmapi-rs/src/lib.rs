@@ -61,7 +61,11 @@ use auth::{
 };
 use parse::{ParseFrom, ProcessedResult};
 use query::{Query, QueryMethod};
-use std::path::Path;
+use std::{
+    borrow::Borrow,
+    hash::{DefaultHasher, Hash, Hasher},
+    path::Path,
+};
 
 pub use builder::YtMusicBuilder;
 pub use client::Client;
@@ -156,10 +160,20 @@ impl YtMusic<OAuthToken> {
         self.token = refreshed_token.clone();
         Ok(refreshed_token)
     }
+    /// Get a hash of the internal oauth token, for use in comparison
+    /// operations.
+    pub fn get_token_hash(&self) -> u64 {
+        let mut h = DefaultHasher::new();
+        self.token.hash(&mut h);
+        h.finish()
+    }
 }
 impl<A: AuthToken> YtMusic<A> {
     /// Return a raw result from YouTube music for query Q that requires further
     /// processing.
+    /// # Note
+    /// The returned raw result will hold a reference to the query it was called
+    /// with. Therefore, passing an owned value is not permitted.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::auth::BrowserToken;
@@ -169,19 +183,22 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query =
     ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
-    /// let raw_result = yt.raw_query(query).await?;
+    /// let raw_result = yt.raw_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(raw_result.process()?)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn raw_query<Q: Query<A>>(&self, query: Q) -> Result<RawResult<Q, A>> {
+    pub async fn raw_query<'a, Q: Query<A>>(&self, query: &'a Q) -> Result<RawResult<'a, Q, A>> {
         // TODO: Check for a response the reflects an expired Headers token
         Q::Method::call(query, &self.client, &self.token).await
     }
     /// Return a result from YouTube music that has had errors removed and been
     /// processed into parsable JSON.
+    /// # Note
+    /// The returned raw result will hold a reference to the query it was called
+    /// with. Therefore, passing an owned value is not permitted.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::auth::BrowserToken;
@@ -191,14 +208,17 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query =
     ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
-    /// let processed_result = yt.processed_query(query).await?;
+    /// let processed_result = yt.processed_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(processed_result)?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn processed_query<Q: Query<A>>(&self, query: Q) -> Result<ProcessedResult<Q>> {
+    pub async fn processed_query<'a, Q: Query<A>>(
+        &self,
+        query: &'a Q,
+    ) -> Result<ProcessedResult<'a, Q>> {
         // TODO: Check for a response the reflects an expired Headers token
         self.raw_query(query).await?.process()
     }
@@ -216,9 +236,13 @@ impl<A: AuthToken> YtMusic<A> {
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn json_query<Q: Query<A>>(&self, query: Q) -> Result<String> {
+    pub async fn json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
         // TODO: Remove allocation
-        let json = self.raw_query(query).await?.process()?.clone_json();
+        let json = self
+            .raw_query(query.borrow())
+            .await?
+            .process()?
+            .clone_json();
         Ok(json)
     }
     /// Return a result from YouTube music that has had errors removed and been
@@ -234,8 +258,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn query<Q: Query<A>>(&self, query: Q) -> Result<Q::Output> {
-        Q::Output::parse_from(self.processed_query(query).await?)
+    pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
+        Q::Output::parse_from(self.processed_query(query.borrow()).await?)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
@@ -305,6 +329,9 @@ pub async fn generate_browser_token<S: AsRef<str>>(
 /// let result = ytmapi_rs::process_json::<_, ytmapi_rs::auth::BrowserToken>(json, query);
 /// assert!(result.is_err());
 /// ```
-pub fn process_json<Q: Query<A>, A: AuthToken>(json: String, query: Q) -> Result<Q::Output> {
-    Q::Output::parse_from(RawResult::from_raw(json, query).process()?)
+pub fn process_json<Q: Query<A>, A: AuthToken>(
+    json: String,
+    query: impl Borrow<Q>,
+) -> Result<Q::Output> {
+    Q::Output::parse_from(RawResult::from_raw(json, query.borrow()).process()?)
 }

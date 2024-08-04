@@ -9,7 +9,7 @@ use crate::Result;
 // Should trait be Result?
 /// The raw result of a query to the API.
 #[derive(PartialEq, Debug)]
-pub struct RawResult<Q, A>
+pub struct RawResult<'a, Q, A>
 where
     Q: Query<A>,
     A: AuthToken,
@@ -17,12 +17,12 @@ where
     // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
     // generated it.
     token: PhantomData<A>,
-    pub query: Q,
+    pub query: &'a Q,
     pub json: String,
 }
 
-impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
-    pub fn from_raw(json: String, query: Q) -> Self {
+impl<'a, Q: Query<A>, A: AuthToken> RawResult<'a, Q, A> {
+    pub fn from_raw(json: String, query: &'a Q) -> Self {
         Self {
             query,
             token: PhantomData,
@@ -32,7 +32,7 @@ impl<Q: Query<A>, A: AuthToken> RawResult<Q, A> {
     pub fn destructure_json(self) -> String {
         self.json
     }
-    pub fn process(self) -> Result<ProcessedResult<Q>> {
+    pub fn process(self) -> Result<ProcessedResult<'a, Q>> {
         A::deserialize_json(self)
     }
 }
