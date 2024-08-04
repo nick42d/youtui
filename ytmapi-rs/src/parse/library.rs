@@ -1,8 +1,8 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_table_list_upload_song,
-    EpisodeDate, EpisodeDuration, ParseFrom, ProcessedResult, SearchResultAlbum, TableListEpisode,
-    TableListItem, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS,
-    SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    EpisodeDate, EpisodeDuration, HistoryItem, ParseFrom, ProcessedResult, SearchResultAlbum,
+    TableListEpisode, TableListSong, TableListVideo, BADGE_LABEL, LIVE_BADGE_LABEL,
+    MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{ApiOutcome, Explicit, PlaylistID};
@@ -256,38 +256,6 @@ fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryAr
         })
     }
     Ok(results)
-}
-pub(crate) fn parse_table_list_item(mut json: JsonCrawler) -> Result<Option<TableListItem>> {
-    let Ok(mut data) = json.borrow_pointer(MRLIR) else {
-        return Ok(None);
-    };
-    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
-    if title == "Shuffle all" {
-        return Ok(None);
-    }
-    let video_type_path = concatcp!(
-        PLAY_BUTTON,
-        "/playNavigationEndpoint",
-        NAVIGATION_VIDEO_TYPE
-    );
-    let video_type: YoutubeMusicTableListVideoType = data.take_value_pointer(video_type_path)?;
-    let item = match video_type {
-        // NOTE - Possible for History, but most likely not possible for Library.
-        YoutubeMusicTableListVideoType::Upload => Some(TableListItem::UploadSong(
-            parse_table_list_upload_song(title, data)?,
-        )),
-        // NOTE - Possible for Library, but most likely not possible for History.
-        YoutubeMusicTableListVideoType::Episode => Some(TableListItem::Episode(
-            parse_table_list_episode(title, data)?,
-        )),
-        YoutubeMusicTableListVideoType::Ugc | YoutubeMusicTableListVideoType::Omv => {
-            Some(TableListItem::Video(parse_table_list_video(title, data)?))
-        }
-        YoutubeMusicTableListVideoType::Atv => {
-            Some(TableListItem::Song(parse_table_list_song(title, data)?))
-        }
-    };
-    Ok(item)
 }
 
 fn parse_table_list_episode(

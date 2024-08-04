@@ -20,6 +20,7 @@ use std::fmt::Debug;
 
 pub use album::*;
 pub use artist::*;
+pub use history::*;
 pub use library::*;
 pub use playlists::*;
 pub use recommendations::*;

@@ -1,29 +1,117 @@
-use super::{parse_table_list_item, ParseFrom, TableListItem, MUSIC_SHELF};
+use super::{
+    parse_library_management_items_from_menu, parse_table_list_item, EpisodeDate, EpisodeDuration,
+    LibraryManager, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedUploadArtist,
+    ParsedUploadSongAlbum, BADGE_LABEL, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
+    THUMBNAILS, TITLE_TEXT,
+};
 use crate::{
-    common::ApiOutcome,
-    crawler::JsonCrawler,
-    nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
+    common::{ApiOutcome, Explicit, FeedbackTokenRemoveFromHistory, PlaylistID, UploadEntityID},
+    crawler::{JsonCrawler, JsonCrawlerBorrowed},
+    nav_consts::{
+        FEEDBACK_TOKEN, MENU_SERVICE, NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON,
+        SECTION_LIST, SINGLE_COLUMN_TAB, WATCH_VIDEO_ID, _MENU_SERVICE,
+    },
+    process::process_fixed_column_item,
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
-    utils, Result,
+    utils,
+    youtube_enums::YoutubeMusicTableListVideoType,
+    ChannelID, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
+use serde::{Deserialize, Serialize};
 
-impl ParseFrom<GetHistoryQuery> for Vec<TableListItem> {
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct HistoryPeriod {
+    period_name: String,
+    items: Vec<HistoryItem>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub enum HistoryItem {
+    Song(HistoryItemSong),
+    Video(HistoryItemVideo),
+    Episode(HistoryItemEpisode),
+    UploadSong(HistoryItemUploadSong),
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Could this alternatively be Result<Song>?
+// May need to be enum to track 'Not Available' case.
+pub struct HistoryItemSong {
+    pub video_id: VideoID<'static>,
+    pub album: ParsedSongAlbum,
+    pub duration: String,
+    /// Some songs may not have library management features. There could be
+    /// various resons for this.
+    pub library_management: Option<LibraryManager>,
+    pub title: String,
+    pub artists: Vec<super::ParsedSongArtist>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub explicit: Explicit,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+    pub feedback_token_remove: FeedbackTokenRemoveFromHistory<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct HistoryItemVideo {
+    pub video_id: VideoID<'static>,
+    pub duration: String,
+    pub title: String,
+    // Could be 'ParsedVideoChannel'
+    pub channel_name: String,
+    pub channel_id: ChannelID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+    pub feedback_token_remove: FeedbackTokenRemoveFromHistory<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct HistoryItemEpisode {
+    pub video_id: VideoID<'static>,
+    // May be live or non-live...
+    pub date: EpisodeDate,
+    pub duration: EpisodeDuration,
+    pub title: String,
+    pub podcast_name: String,
+    pub podcast_id: PlaylistID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+    pub feedback_token_remove: FeedbackTokenRemoveFromHistory<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// May need to be enum to track 'Not Available' case.
+// TODO: Move to common
+pub struct HistoryItemUploadSong {
+    pub entity_id: UploadEntityID<'static>,
+    pub video_id: VideoID<'static>,
+    pub album: ParsedUploadSongAlbum,
+    pub duration: String,
+    pub like_status: LikeStatus,
+    pub title: String,
+    pub artists: Vec<ParsedUploadArtist>,
+    pub thumbnails: Vec<Thumbnail>,
+    pub feedback_token_remove: FeedbackTokenRemoveFromHistory<'static>,
+}
+
+impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
     fn parse_from(p: super::ProcessedResult<GetHistoryQuery>) -> Result<Self> {
         let json_crawler = JsonCrawler::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
-        let nested_iter = contents
+        contents
             .into_array_into_iter()?
-            .map(|c| -> crate::Result<_> {
-                let iter = c
-                    .navigate_pointer(concatcp!(MUSIC_SHELF, "/contents"))?
-                    .into_array_into_iter()?
-                    .filter_map(|item| parse_table_list_item(item).transpose());
-                Ok(iter)
-            });
-        utils::process_results::process_results(nested_iter, |i| {
-            i.flatten().collect::<Result<Vec<TableListItem>>>()
-        })?
+            .map(|c| parse_history_period(c))
+            .collect()
     }
 }
 impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
@@ -52,6 +140,124 @@ impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
         // Api only returns an empty string, no way of validating if correct or not.
         Ok(())
     }
+}
+
+fn parse_history_period(json: JsonCrawler) -> Result<HistoryPeriod> {
+    let mut data = json.navigate_pointer(MUSIC_SHELF)?;
+    let period_name = data.take_value_pointer(TITLE_TEXT)?;
+    let items = data
+        .navigate_pointer("/contents")?
+        .into_array_into_iter()?
+        .filter_map(|item| parse_history_item(item).transpose())
+        .collect::<Result<_>>()?;
+    Ok(HistoryPeriod { period_name, items })
+}
+fn parse_history_item(mut json: JsonCrawler) -> Result<Option<HistoryItem>> {
+    let Ok(mut data) = json.borrow_pointer(MRLIR) else {
+        return Ok(None);
+    };
+    let title = super::parse_flex_column_item(&mut data, 0, 0)?;
+    if title == "Shuffle all" {
+        return Ok(None);
+    }
+    let video_type_path = concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        NAVIGATION_VIDEO_TYPE
+    );
+    let video_type: YoutubeMusicTableListVideoType = data.take_value_pointer(video_type_path)?;
+    let item = match video_type {
+        // NOTE - Possible for History, but most likely not possible for Library.
+        YoutubeMusicTableListVideoType::Upload => Some(HistoryItem::UploadSong(
+            parse_history_item_upload_song(title, data)?,
+        )),
+        // NOTE - Possible for Library, but most likely not possible for History.
+        YoutubeMusicTableListVideoType::Episode => Some(HistoryItem::Episode(
+            parse_history_item_episode(title, data)?,
+        )),
+        YoutubeMusicTableListVideoType::Ugc | YoutubeMusicTableListVideoType::Omv => {
+            Some(HistoryItem::Video(parse_history_item_video(title, data)?))
+        }
+        YoutubeMusicTableListVideoType::Atv => {
+            Some(HistoryItem::Song(parse_history_item_song(title, data)?))
+        }
+    };
+    Ok(item)
+}
+
+fn parse_history_item_episode(
+    title: String,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<HistoryItemEpisode> {
+}
+fn parse_history_item_video(
+    title: String,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<HistoryItemVideo> {
+}
+fn parse_history_item_upload_song(
+    title: String,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<HistoryItemUploadSong> {
+}
+
+fn parse_history_item_song(
+    title: String,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<HistoryItemSong> {
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let library_management = data
+        .borrow_pointer(MENU_ITEMS)
+        .and_then(parse_library_management_items_from_menu)?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let artists = super::parse_song_artists(&mut data, 1)?;
+    let album = super::parse_song_album(&mut data, 2)?;
+    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+        i.take_value_pointer("/text/simpleText")
+            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+    })?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let mut menu = data.navigate_pointer(MENU_ITEMS)?;
+    let playlist_id = menu.take_value_pointer(concatcp!(
+        "/0/menuNavigationItemRenderer",
+        NAVIGATION_PLAYLIST_ID
+    ))?;
+    // Assumption - deletion token is always the last item.
+    // Future improvement: Check to see if item is the right type.
+    let feedback_token_remove = menu
+        .into_array_iter_mut()?
+        .last()
+        .unwrap()
+        .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
+    todo!("Don't unwrap!");
+    Ok(HistoryItemSong {
+        video_id,
+        duration,
+        library_management,
+        title,
+        artists,
+        like_status,
+        thumbnails,
+        explicit,
+        album,
+        playlist_id,
+        is_available,
+        feedback_token_remove,
+    })
 }
 
 #[cfg(test)]

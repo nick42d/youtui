@@ -185,10 +185,10 @@ async fn test_add_remove_history_items() {
     api.add_history_item(song_url).await.unwrap();
     let history = api.get_history().await.unwrap();
     let first_history_item_name = match history.first().unwrap() {
-        parse::TableListItem::Song(i) => i.title.as_str(),
-        parse::TableListItem::Video(i) => i.title.as_str(),
-        parse::TableListItem::Episode(i) => i.title.as_str(),
-        parse::TableListItem::UploadSong(i) => i.title.as_str(),
+        parse::HistoryItem::Song(i) => i.title.as_str(),
+        parse::HistoryItem::Video(i) => i.title.as_str(),
+        parse::HistoryItem::Episode(i) => i.title.as_str(),
+        parse::HistoryItem::UploadSong(i) => i.title.as_str(),
     };
     pretty_assertions::assert_eq!(first_history_item_name, song.title);
     todo!("Delete history item after adding");
