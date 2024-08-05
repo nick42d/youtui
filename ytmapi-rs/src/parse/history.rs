@@ -24,8 +24,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct HistoryPeriod {
-    period_name: String,
-    items: Vec<HistoryItem>,
+    pub period_name: String,
+    pub items: Vec<HistoryItem>,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]

@@ -1,5 +1,7 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
+use std::time::Duration;
+
 use ytmapi_rs::common::browsing::Lyrics;
 use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
@@ -171,6 +173,8 @@ generate_query_test!(
 );
 #[tokio::test]
 async fn test_add_remove_history_items() {
+    // Timeout to avoid flaky test
+    const GET_HISTORY_TIMEOUT: Duration = Duration::from_millis(1200);
     // TODO: Oauth.
     let api = new_standard_api().await.unwrap();
     let song = api
@@ -180,18 +184,38 @@ async fn test_add_remove_history_items() {
         .into_iter()
         .next()
         .unwrap();
-    println!("{}", &song.video_id.get_raw());
     let song_url = api.get_song_tracking_url(&song.video_id).await.unwrap();
     api.add_history_item(song_url).await.unwrap();
+    // Get history has a slight lag.
+    tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
     let history = api.get_history().await.unwrap();
-    let first_history_item_name = match history.first().unwrap() {
+    let (first_history_item_name, delete_token) =
+        match history.first().unwrap().items.first().unwrap() {
+            parse::HistoryItem::Song(i) => (i.title.as_str(), i.feedback_token_remove.clone()),
+            parse::HistoryItem::Video(i) => (i.title.as_str(), i.feedback_token_remove.clone()),
+            parse::HistoryItem::Episode(i) => (i.title.as_str(), i.feedback_token_remove.clone()),
+            parse::HistoryItem::UploadSong(i) => {
+                (i.title.as_str(), i.feedback_token_remove.clone())
+            }
+        };
+    pretty_assertions::assert_eq!(first_history_item_name, song.title);
+    assert!(matches!(
+        api.remove_history_items(vec![delete_token])
+            .await
+            .unwrap()
+            .first(),
+        Some(ApiOutcome::Success)
+    ));
+    // Get history has a slight lag.
+    tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
+    let history = api.get_history().await.unwrap();
+    let first_history_item_name_new = match history.first().unwrap().items.first().unwrap() {
         parse::HistoryItem::Song(i) => i.title.as_str(),
         parse::HistoryItem::Video(i) => i.title.as_str(),
         parse::HistoryItem::Episode(i) => i.title.as_str(),
         parse::HistoryItem::UploadSong(i) => i.title.as_str(),
     };
-    pretty_assertions::assert_eq!(first_history_item_name, song.title);
-    todo!("Delete history item after adding");
+    pretty_assertions::assert_ne!(first_history_item_name_new, song.title);
 }
 #[tokio::test]
 async fn test_get_mood_playlists() {
