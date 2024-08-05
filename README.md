@@ -87,12 +87,12 @@ Chrome example (Select manually and paste):
 Feature parity with `ytmusicapi`
 |Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- | --- |
-|GetArtist | [x] ||
-|GetAlbum | [x]* ||
-|GetArtistAlbums | [x] ||
-|Search | [x] |[ ]|
+|GetArtist |[x]||
+|GetAlbum |[x]*||
+|GetArtistAlbums |[x]||
+|Search |[x]|[ ]|
 |GetSearchSuggestions|[x]||
-|GetHome|Not Planned||
+|GetHome|Not Planned*||
 |GetAlbumBrowseId|[ ]||
 |GetUser|[ ]||
 |GetUserPlaylists|[ ]||
@@ -103,7 +103,7 @@ Feature parity with `ytmusicapi`
 |SetTasteProfile|[x]||
 |GetMoodCategories|[x]||
 |GetMoodPlaylists|[x]||
-|GetCharts|Not Planned||
+|GetCharts|Not Planned*||
 |GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
 |GetLibrarySongs|[x]|[ ]|
@@ -141,13 +141,13 @@ Feature parity with `ytmusicapi`
 |UploadAlbum|[ ]||
 |DeleteUploadEntity|[x]||
 
-\* get watch playlist is partially implemented only
+\* GetWatchPlaylist is partially implemented only
 - only returns playlist and lyrics ids
 
-\* get artist is partially implemented only
+\* GetArtist is partially implemented only
 - only returns albums and songs
 
-\* only the tracking url from get song is implemented - as GetSongTrackingUrl.
+\* Only the tracking url from GetSong is implemented - as GetSongTrackingUrl. Any additional features for GetSong are not currently planned - recommend taking a look at `rusty_ytdl` library for these features.
 
 \* Note, significantly dynamic pages, such as Get Home are not currently planned.
 
