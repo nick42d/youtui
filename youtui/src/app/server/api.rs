@@ -8,6 +8,7 @@ use crate::get_config_dir;
 use crate::Result;
 use crate::OAUTH_FILENAME;
 use std::borrow::Borrow;
+use std::ops::Deref;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::mpsc;
@@ -76,8 +77,11 @@ where
             info!("Got error {e} from api");
             match e.into_kind() {
                 ErrorKind::OAuthTokenExpired { token_hash } => {
+                    // Take a clone to re-use later.
+                    let api_clone = api.to_owned();
                     // First take an exclusive lock - prevent others from doing the same.
-                    let mut api_locked = api.write().await;
+                    let api_owned = api_clone.clone();
+                    let mut api_locked = api_owned.write_owned().await;
                     // Then check to see if the token_hash hasn't changed since calling the
                     // query. If it hasn't, we were the first one and are responsible for
                     // refreshing. If it has, that means another query must have
@@ -85,14 +89,19 @@ where
                     // anything.
                     let api_token_hash = api_locked.get_token_hash()?;
                     if api_token_hash == Some(token_hash) {
-                        info!("Refreshing oauth token");
-                        let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
-                        info!("Oauth token refreshed");
-                        if let Err(e) = update_oauth_token_file(tok).await {
-                            error!("Error updating locally saved oauth token: <{e}>")
-                        }
+                        // A task is spawned to refresh the token, to ensure that it still refreshes
+                        // even if this task is cancelled.
+                        tokio::spawn(async {
+                            info!("Refreshing oauth token");
+                            let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
+                            info!("Oauth token refreshed");
+                            if let Err(e) = update_oauth_token_file(tok).await {
+                                error!("Error updating locally saved oauth token: <{e}>")
+                            }
+                            Ok::<_,Error>(api_locked)
+                        }).await??;
                     }
-                    Ok(api_locked.downgrade().query(query).await?)
+                    Ok(api_clone.read_owned().await.query(query).await?)
                 }
                 // Regular retry without token refresh, if token isn't expired.
                 _ => {
