@@ -86,6 +86,7 @@ pub mod builder;
 pub mod client;
 pub mod common;
 pub mod error;
+pub mod json;
 pub mod parse;
 pub mod query;
 

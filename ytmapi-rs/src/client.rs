@@ -3,9 +3,9 @@ use crate::Result;
 use serde::Serialize;
 use std::borrow::Cow;
 
-/// Basic HTTP client using TLS wrapping a reqwest::Client,
+/// Basic HTTP client using TLS wrapping a `reqwest::Client`,
 /// with the minimum required features to call YouTube Music queries.
-/// Clone is low cost, internals are wrapped in an Arc.
+/// Clone is low cost, internals of `reqwest::Client` are wrapped in an Arc.
 #[derive(Debug, Clone)]
 pub struct Client {
     inner: reqwest::Client,
