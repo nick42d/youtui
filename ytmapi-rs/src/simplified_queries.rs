@@ -18,9 +18,9 @@ use crate::common::{
 };
 use crate::parse::{
     AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist,
-    HistoryItem, LikeStatus, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
-    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
-    SearchResultSong, SearchResultVideo, SearchResults, TableListSong,
+    HistoryItem, HistoryPeriod, LikeStatus, SearchResultAlbum, SearchResultArtist,
+    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
+    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListSong,
 };
 use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
@@ -394,7 +394,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_history().await;
     /// # };
-    pub async fn get_history(&self) -> Result<Vec<HistoryItem>> {
+    pub async fn get_history(&self) -> Result<Vec<HistoryPeriod>> {
         let query = GetHistoryQuery;
         self.query(query).await
     }

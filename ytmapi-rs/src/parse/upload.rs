@@ -295,7 +295,7 @@ impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
             .map(|_| ())
     }
 }
-fn parse_upload_song_artists(
+pub fn parse_upload_song_artists(
     mut data: JsonCrawlerBorrowed,
     col_idx: usize,
 ) -> Result<Vec<ParsedUploadArtist>> {
@@ -312,7 +312,7 @@ fn parse_upload_song_artist(data: &mut JsonCrawlerBorrowed) -> Result<ParsedUplo
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
     })
 }
-fn parse_upload_song_album(
+pub fn parse_upload_song_album(
     mut data: JsonCrawlerBorrowed,
     col_idx: usize,
 ) -> Result<ParsedUploadSongAlbum> {

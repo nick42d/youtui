@@ -320,6 +320,27 @@ pub struct PlaylistVideo {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Could this alternatively be Result<Song>?
+// May need to be enum to track 'Not Available' case.
+pub struct TableListSong {
+    pub video_id: VideoID<'static>,
+    pub album: ParsedSongAlbum,
+    pub duration: String,
+    /// Some songs may not have library management features. There could be
+    /// various resons for this.
+    pub library_management: Option<LibraryManager>,
+    pub title: String,
+    pub artists: Vec<super::ParsedSongArtist>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub explicit: Explicit,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub enum PlaylistItem {
     Song(PlaylistSong),
     Video(PlaylistVideo),
