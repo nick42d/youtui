@@ -1,13 +1,12 @@
-use std::borrow::Cow;
-
 use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
-    parse::TableListItem,
+    parse::HistoryPeriod,
 };
 use rand::Rng;
 use serde_json::json;
+use std::borrow::Cow;
 
 pub struct GetHistoryQuery;
 pub struct RemoveHistoryItemsQuery<'a> {
@@ -32,7 +31,7 @@ impl<'a> AddHistoryItemQuery<'a> {
 // NOTE: Requires auth
 // TODO: Return played and feedback_token component.
 impl<A: AuthToken> Query<A> for GetHistoryQuery {
-    type Output = Vec<TableListItem>;
+    type Output = Vec<HistoryPeriod>;
     type Method = PostMethod;
 }
 impl PostQuery for GetHistoryQuery {

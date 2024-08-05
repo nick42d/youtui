@@ -13,7 +13,7 @@ pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
 pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
 pub const GRID: &str = "/gridRenderer";
 pub const MENU: &str = "/menu/menuRenderer";
-pub const _MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
+pub const MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
 pub const _TOGGLE_MENU: &str = "/toggleMenuServiceItemRenderer";
 pub const PLAY_BUTTON: &str =
     "/overlay/musicItemThumbnailOverlayRenderer/content/musicPlayButtonRenderer";

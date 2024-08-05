@@ -110,7 +110,7 @@ Chrome example (Select manually and paste):
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|
 |GetLikedSongs|[ ]||
-|GetHistory|[x]*||
+|GetHistory|[x]||
 |AddHistoryItem|[x]||
 |RemoveHistoryItem|[x]||
 |RateSong|[x]||
@@ -138,10 +138,7 @@ Chrome example (Select manually and paste):
 \* get artist is partially implemented only
 - only returns albums and songs
 
-\* get history is partially implemented only
-- does not return a date, and remove from history feedback items are not generated.
-
-\* only the tracking url from get song is implemented
+\* only the tracking url from get song is implemented - as GetSongTrackingUrl.
 
 ## Developer notes
 See the wiki for additional information
