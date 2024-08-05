@@ -85,14 +85,14 @@ Chrome example (Select manually and paste):
 - [ ] i18n
 
 Feature parity with `ytmusicapi`
-|Endpoint | Implemented: Query | Implemented: Continuations | Not Planned |
-|--- | --- | --- | --- |
+|Endpoint | Implemented: Query | Implemented: Continuations |
+|--- | --- | --- |
 |GetArtist | [x] ||
 |GetAlbum | [x]* ||
 |GetArtistAlbums | [x] ||
 |Search | [x] |[ ]|
 |GetSearchSuggestions|[x]||
-|GetHome|[ ]||[ ]
+|GetHome|Not Planned||
 |GetAlbumBrowseId|[ ]||
 |GetUser|[ ]||
 |GetUserPlaylists|[ ]||
@@ -103,14 +103,17 @@ Feature parity with `ytmusicapi`
 |SetTasteProfile|[x]||
 |GetMoodCategories|[x]||
 |GetMoodPlaylists|[x]||
-|GetCharts|[ ]||
+|GetCharts|Not Planned||
 |GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
 |GetLibrarySongs|[x]|[ ]|
 |GetLibraryAlbums|[x]|[ ]|
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|
-|GetLikedSongs|[ ]||
+|GetLibraryPodcasts|[ ]|[ ]|
+|GetLibraryChannels|[ ]|[ ]|
+|GetLikedSongs|[ ]|[ ]|
+|GetSavedEpisodes|[ ]|[ ]|
 |GetHistory|[x]||
 |AddHistoryItem|[x]||
 |RemoveHistoryItem|[x]||
@@ -125,6 +128,11 @@ Feature parity with `ytmusicapi`
 |DeletePlaylist|[x]||
 |AddPlaylistItems|[x]||
 |RemovePlaylistItems|[x]||
+|GetChannel|[ ]||
+|GetChannelEpisodes|[ ]||
+|GetPodcast|[ ]|[ ]|
+|GetEpisode|[ ]||
+|GetEpisodesPlaylist|[ ]||
 |GetLibraryUploadSongs|[x]|[ ]|
 |GetLibraryUploadArtists|[x]|[ ]|
 |GetLibraryUploadAlbums|[x]|[ ]|
