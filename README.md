@@ -84,14 +84,15 @@ Chrome example (Select manually and paste):
 - [x] OAuth authentication
 - [ ] i18n
 
+Feature parity with `ytmusicapi`
 |Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- | --- |
-|GetArtist | [x] ||
-|GetAlbum | [x]* ||
-|GetArtistAlbums | [x] ||
-|Search | [x] |[ ]|
+|GetArtist |[x]||
+|GetAlbum |[x]*||
+|GetArtistAlbums |[x]||
+|Search |[x]|[ ]|
 |GetSearchSuggestions|[x]||
-|GetHome|[ ]||
+|GetHome|Not Planned*||
 |GetAlbumBrowseId|[ ]||
 |GetUser|[ ]||
 |GetUserPlaylists|[ ]||
@@ -102,14 +103,17 @@ Chrome example (Select manually and paste):
 |SetTasteProfile|[x]||
 |GetMoodCategories|[x]||
 |GetMoodPlaylists|[x]||
-|GetCharts|[ ]||
+|GetCharts|Not Planned*||
 |GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
 |GetLibrarySongs|[x]|[ ]|
 |GetLibraryAlbums|[x]|[ ]|
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|
-|GetLikedSongs|[ ]||
+|GetLibraryPodcasts|[ ]|[ ]|
+|GetLibraryChannels|[ ]|[ ]|
+|GetLikedSongs|[ ]|[ ]|
+|GetSavedEpisodes|[ ]|[ ]|
 |GetHistory|[x]||
 |AddHistoryItem|[x]||
 |RemoveHistoryItem|[x]||
@@ -124,6 +128,11 @@ Chrome example (Select manually and paste):
 |DeletePlaylist|[x]||
 |AddPlaylistItems|[x]||
 |RemovePlaylistItems|[x]||
+|GetChannel|[ ]||
+|GetChannelEpisodes|[ ]||
+|GetPodcast|[ ]|[ ]|
+|GetEpisode|[ ]||
+|GetEpisodesPlaylist|[ ]||
 |GetLibraryUploadSongs|[x]|[ ]|
 |GetLibraryUploadArtists|[x]|[ ]|
 |GetLibraryUploadAlbums|[x]|[ ]|
@@ -132,13 +141,15 @@ Chrome example (Select manually and paste):
 |UploadAlbum|[ ]||
 |DeleteUploadEntity|[x]||
 
-\* get watch playlist is partially implemented only
+\* GetWatchPlaylist is partially implemented only
 - only returns playlist and lyrics ids
 
-\* get artist is partially implemented only
+\* GetArtist is partially implemented only
 - only returns albums and songs
 
-\* only the tracking url from get song is implemented - as GetSongTrackingUrl.
+\* Only the tracking url from GetSong is implemented - as GetSongTrackingUrl. Any additional features for GetSong are not currently planned - recommend taking a look at `rusty_ytdl` library for these features.
+
+\* Note, significantly dynamic pages, such as Get Home are not currently planned.
 
 ## Developer notes
 See the wiki for additional information
