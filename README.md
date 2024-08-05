@@ -84,14 +84,15 @@ Chrome example (Select manually and paste):
 - [x] OAuth authentication
 - [ ] i18n
 
-|Endpoint | Implemented: Query | Implemented: Continuations |
-|--- | --- | --- |
+Feature parity with `ytmusicapi`
+|Endpoint | Implemented: Query | Implemented: Continuations | Not Planned |
+|--- | --- | --- | --- |
 |GetArtist | [x] ||
 |GetAlbum | [x]* ||
 |GetArtistAlbums | [x] ||
 |Search | [x] |[ ]|
 |GetSearchSuggestions|[x]||
-|GetHome|[ ]||
+|GetHome|[ ]||[ ]
 |GetAlbumBrowseId|[ ]||
 |GetUser|[ ]||
 |GetUserPlaylists|[ ]||
@@ -139,6 +140,8 @@ Chrome example (Select manually and paste):
 - only returns albums and songs
 
 \* only the tracking url from get song is implemented - as GetSongTrackingUrl.
+
+\* Note, significantly dynamic pages, such as Get Home are not currently planned.
 
 ## Developer notes
 See the wiki for additional information
