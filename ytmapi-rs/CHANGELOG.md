@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.10](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.9...ytmapi-rs/v0.0.10) - 2024-08-05
+
+### Added
+- [**breaking**] Return dates and FeedbackTokenRemoveFromHistory from GetHistoryQuery. Closes [#109](https://github.com/nick42d/youtui/pull/109) ([#121](https://github.com/nick42d/youtui/pull/121))
+- _Changed type returned from GetHistoryQuery, removed new unused types TableListItem, TableListVideo and TableListEpisode._
+
+### Fixed
+- fix! Correct feature gateing / docs for builder ([#111](https://github.com/nick42d/youtui/pull/111))
+_Removes YtMusicBuilder::with_rustls_tls unless rustls-tls feature is selected._
+
 ## [0.0.9](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.8...ytmapi-rs/v0.0.9) - 2024-07-31
 
 ### Added

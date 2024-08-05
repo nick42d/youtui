@@ -5,7 +5,8 @@ git_tag_name = "{{ package }}/v{{ version }}"
 # This is based off the default, but adds breaking change description.
 # https://release-plz.ieni.dev/docs/config#the-body-field
 body = """
-## \n[{{ version | trim_start_matches(pat="v") }}]{%- if release_link -%}({{ release_link }}){% endif %} - {{ timestamp | date(format="%Y-%m-%d") }}
+\n
+## [{{ version | trim_start_matches(pat="v") }}]{%- if release_link -%}({{ release_link }}){% endif %} - {{ timestamp | date(format="%Y-%m-%d") }}
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
@@ -17,4 +18,5 @@ body = """
 {% endif -%}
 {% endfor -%}
 {% endfor %}
+\n
 """
