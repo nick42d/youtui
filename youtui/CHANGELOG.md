@@ -5,7 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [0.0.10](https://github.com/nick42d/youtui/compare/youtui/v0.0.9...youtui/v0.0.10) - 2024-08-03
+##
+[0.0.11](https://github.com/nick42d/youtui/compare/youtui/v0.0.10...youtui/v0.0.11) - 2024-08-05
+
+### Added
+- [**breaking**] Return dates and FeedbackTokenRemoveFromHistory from GetHistoryQuery. Closes [#109](https://github.com/nick42d/youtui/pull/109) ([#121](https://github.com/nick42d/youtui/pull/121))
+- _Changed type returned from GetHistoryQuery, removed new unused types TableListItem, TableListVideo and TableListEpisode._
+- [**breaking**] Implement Oauth option for TUI. Resolves [#92](https://github.com/nick42d/youtui/pull/92) ([#104](https://github.com/nick42d/youtui/pull/104))
+- _Changed default authentication to Oauth - you will receive an error on first startup. See README.md for more details._
+
+### Fixed
+- Fix unable to play songs that had a retried download ([#120](https://github.com/nick42d/youtui/pull/120))- Resolve cant skip if current track is in error ([#119](https://github.com/nick42d/youtui/pull/119)) - Resolves [#118](https://github.com/nick42d/youtui/pull/118)## [0.0.10](https://github.com/nick42d/youtui/compare/youtui/v0.0.9...youtui/v0.0.10) - 2024-08-03
 
 ### Fixed
 - Fix all songs causing crash with 'UnrecognisedFormat', and subset of songs causing crash with 'End of stream'. Downloads will now retry up to 5 times. (Resolves [#113](https://github.com/nick42d/youtui/pull/113), [#95](https://github.com/nick42d/youtui/pull/95)) ([#115](https://github.com/nick42d/youtui/pull/115))
