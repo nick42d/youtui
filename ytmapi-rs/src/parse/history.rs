@@ -112,7 +112,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         contents
             .into_array_into_iter()?
-            .map(|c| parse_history_period(c))
+            .map(parse_history_period)
             .collect()
     }
 }
@@ -225,10 +225,8 @@ fn parse_history_item_episode(
     let feedback_token_remove = data
         .navigate_pointer(MENU_ITEMS)?
         .into_array_iter_mut()?
-        .last()
-        .unwrap()
+        .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
-    todo!("Remove unwrap");
     Ok(HistoryItemEpisode {
         video_id,
         duration,
@@ -273,10 +271,8 @@ fn parse_history_item_video(
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .into_array_iter_mut()?
-        .last()
-        .unwrap()
+        .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
-    todo!("Remove unwrap");
     Ok(HistoryItemVideo {
         video_id,
         duration,
@@ -313,10 +309,8 @@ fn parse_history_item_upload_song(
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .into_array_iter_mut()?
-        .last()
-        .unwrap()
+        .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
-    todo!("Don't unwrap!");
     Ok(HistoryItemUploadSong {
         entity_id,
         video_id,
@@ -368,10 +362,8 @@ fn parse_history_item_song(
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .into_array_iter_mut()?
-        .last()
-        .unwrap()
+        .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
-    todo!("Don't unwrap!");
     Ok(HistoryItemSong {
         video_id,
         duration,

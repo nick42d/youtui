@@ -38,6 +38,8 @@ pub(crate) trait JsonCrawlerIterator: Iterator {
     fn find_path(self, path: impl AsRef<str>) -> Result<Self::Item>;
     /// Consume self to return (`source`, `path`).
     fn get_context(self) -> (Arc<String>, String);
+    /// Return the last item of the array, or return an error with context.
+    fn try_last(self) -> Result<Self::Item>;
 }
 
 pub(crate) struct JsonCrawlerArrayIterMut<'a> {
@@ -157,6 +159,24 @@ impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
         let Self { source, path, .. } = self;
         (source, path.into())
     }
+    fn try_last(self) -> Result<Self::Item> {
+        let Self {
+            source,
+            array,
+            mut path,
+            ..
+        } = self;
+        let len = array.len();
+        path.push(JsonPath::IndexNum(len));
+        let Some(last_item) = array.last() else {
+            return Err(Error::array_size(path, source, 0));
+        };
+        Ok(Self::Item {
+            source,
+            crawler: last_item,
+            path,
+        })
+    }
 }
 
 impl Iterator for JsonCrawlerArrayIntoIter {
@@ -205,6 +225,24 @@ impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
     fn get_context(self) -> (Arc<String>, String) {
         let Self { source, path, .. } = self;
         (source, path.into())
+    }
+    fn try_last(self) -> Result<Self::Item> {
+        let Self {
+            source,
+            array,
+            mut path,
+            ..
+        } = self;
+        let len = array.len();
+        path.push(JsonPath::IndexNum(len));
+        let Some(last_item) = array.last() else {
+            return Err(Error::array_size(path, source, 0));
+        };
+        Ok(Self::Item {
+            source,
+            crawler: last_item,
+            path,
+        })
     }
 }
 
