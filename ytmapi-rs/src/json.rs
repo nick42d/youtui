@@ -1,6 +1,6 @@
 //! This module contains the representation of Json exposed in the default
 //! public API in this library.
-use serde::{Deserialize, Serialize};
+use serde::{de::Visitor, forward_to_deserialize_any, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 /// Basic representation of any valid Json value, wrapping a
@@ -8,9 +8,26 @@ use serde_json::Value;
 /// from scratch. To parse this value, you can either utilise the Serialize /
 /// Deserialize traits, or enable the `serde_json` feature to expose the
 /// internals via feature gated function `Json::into_inner`.
-#[derive(Clone, PartialEq, Hash)]
+#[derive(Clone, PartialEq, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Json {
     pub(crate) inner: Value,
+}
+#[derive(Debug)]
+pub struct JsonError;
+impl std::fmt::Display for JsonError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+impl std::error::Error for JsonError {}
+impl serde::de::Error for JsonError {
+    fn custom<T>(msg: T) -> Self
+    where
+        T: std::fmt::Display,
+    {
+        todo!()
+    }
 }
 
 impl std::fmt::Debug for Json {
@@ -19,23 +36,18 @@ impl std::fmt::Debug for Json {
     }
 }
 
-impl Serialize for Json {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+impl<'de> Deserializer<'de> for Json {
+    type Error = JsonError;
+    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
-        S: serde::Serializer,
+        V: Visitor<'de>,
     {
-        self.inner.serialize(serializer)
+        Value::deserialize_any(self.inner, visitor).map_err(|_| JsonError)
     }
-}
-
-impl<'de> Deserialize<'de> for Json {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        Ok(Self {
-            inner: Value::deserialize(deserializer)?,
-        })
+    forward_to_deserialize_any! {
+        bool i8 i16 i32 i64 i128 u8 u16 u32 u64 u128 f32 f64 char str string
+        bytes byte_buf option unit unit_struct newtype_struct seq tuple
+        tuple_struct map struct enum identifier ignored_any
     }
 }
 

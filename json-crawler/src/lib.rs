@@ -1,10 +1,10 @@
-use crate::{
-    error::{self, ParseTarget},
-    parse::ProcessedResult,
-    Error, Result,
-};
+//! Library to crawl Json using the pointer syntax.
 use serde::de::DeserializeOwned;
 use std::{slice::IterMut, sync::Arc, vec::IntoIter};
+
+pub use error::{Error, Result}
+
+mod error;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum JsonPath {
