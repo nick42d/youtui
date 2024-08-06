@@ -1,7 +1,24 @@
 //! Results from parsing Innertube queries.
 //! # Implementation example
 //! Implementation example is pending refactoring of ProcessedResult to remove
-//! leaking external type `serde_json::Value`
+//! leaking external type `serde_json::Value`.
+//! See [`crate::json`] for documentation related to the Json type.
+//! ```no_run
+//! # struct GetDateQuery;
+//! use serde::Deserialize;
+//! #[derive(Debug, Deserialize)]
+//! struct Date {
+//!     date_string: String,
+//!     date_timestamp: usize,
+//! }
+//! impl ytmapi_rs::parse::ParseFrom<GetDateQuery> for Date {
+//!     fn parse_from(
+//!         p: ytmapi_rs::parse::ProcessedResult<GetDateQuery>,
+//!     ) -> ytmapi_rs::Result<Self> {
+//!         Date::deserialize(p.json)
+//!     }
+//! }
+//! ```
 use crate::{
     auth::{AuthToken, BrowserToken, OAuthToken},
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
@@ -239,9 +256,12 @@ pub struct SearchResultFeaturedPlaylist {
 /// A result from the api that has been checked for errors and processed into
 /// JSON.
 pub struct ProcessedResult<'a, Q> {
-    query: &'a Q,
-    source: String,
-    json: Json,
+    pub query: &'a Q,
+    /// The raw string output returned from the web request to YouTube.
+    pub source: String,
+    /// The result once it has been deserialized from Json and processed to
+    /// remove errors.
+    pub json: Json,
 }
 
 impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {

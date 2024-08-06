@@ -1,10 +1,9 @@
-use std::marker::PhantomData;
-
 use crate::auth::AuthToken;
 use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::Result;
+use std::marker::PhantomData;
 
 /// The raw result of a query to the API.
 // NOTE: The reason this is exposed in the public API, is that it is required to implement
@@ -18,7 +17,9 @@ where
     // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
     // generated it.
     token: PhantomData<A>,
+    /// The query that generated this RawResult.
     pub query: &'a Q,
+    /// The raw string output returned from the web request to YouTube.
     pub json: String,
 }
 
