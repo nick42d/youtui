@@ -7,6 +7,7 @@ use crate::{
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     crawler::JsonCrawlerBorrowed,
     error,
+    json::Json,
     nav_consts::*,
     process::{self, process_flex_column_item},
     query::Query,
@@ -240,7 +241,7 @@ pub struct SearchResultFeaturedPlaylist {
 pub struct ProcessedResult<'a, Q> {
     query: &'a Q,
     source: String,
-    json: serde_json::Value,
+    json: Json,
 }
 
 impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {
@@ -257,6 +258,7 @@ impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedRe
             other => serde_json::from_str(other)
                 .map_err(|e| error::Error::response(format!("{:?}", e)))?,
         };
+        let json = Json::new(json);
         Ok(Self {
             query,
             source,
@@ -272,19 +274,19 @@ impl<'a, Q> ProcessedResult<'a, Q> {
             source,
             json,
         } = self;
-        (query, source, json)
+        (query, source, json.inner)
     }
     pub(crate) fn clone_json(self) -> String {
         serde_json::to_string_pretty(&self.json)
             .expect("Serialization of serde_json::value should not fail")
     }
     pub(crate) fn get_json(&self) -> &serde_json::Value {
-        &self.json
+        &self.json.inner
     }
     // Only required when running tests
     #[cfg(test)]
     pub(crate) fn get_query(&self) -> &Q {
-        &self.query
+        self.query
     }
 }
 

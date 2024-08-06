@@ -6,8 +6,9 @@ use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::Result;
 
-// Should trait be Result?
 /// The raw result of a query to the API.
+// NOTE: The reason this is exposed in the public API, is that it is required to implement
+// AuthToken.
 #[derive(PartialEq, Debug)]
 pub struct RawResult<'a, Q, A>
 where

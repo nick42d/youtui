@@ -44,6 +44,9 @@ native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 # Enable the use of simplified queries such as YtMusic::search("xx")
 simplified-queries = []
+# Enable functions that allow interoperability with the `serde_json` crate.
+# NOTE: serde_json dependency is still required whether or not this feature is enabled, as it is used internally.
+serde_json = []
 
 # Dev only section
 [dev-dependencies]
