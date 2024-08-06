@@ -1,71 +1,52 @@
-//! This module contains the representation of Json used in this library.
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+//! This module contains the representation of Json exposed in the default
+//! public API in this library.
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Basic representation of any valid Json value, wrapping a
-/// `serde_json::Value`, with the minimum required features to allow consumers
-/// to implement their own parsers.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Hash, Default)]
+/// `serde_json::Value`. For use if you are implementing [`crate::query::Query`]
+/// from scratch. To parse this value, you can either utilise the Serialize /
+/// Deserialize traits, or enable the `serde_json` feature to expose the
+/// internals via [`into_inner`].
+#[derive(Clone, PartialEq, Hash)]
 pub struct Json {
-    inner: Value,
+    pub(crate) inner: Value,
 }
 
-/// Basic representation of any valid borrowed Json value, wrapping a
-/// `serde_json::Value`, with the minimum required features to allow consumers
-/// to implement their own parsers.
-#[derive(Debug, Clone, Serialize, PartialEq, Hash)]
-pub struct JsonBorrowed<'a> {
-    inner: &'a Value,
+impl std::fmt::Debug for Json {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.inner.fmt(f)
+    }
 }
 
-/// Basic representation of any valid mutably borrowed Json value, wrapping a
-/// `serde_json::Value`, with the minimum required features to allow consumers
-/// to implement their own parsers.
-#[derive(Debug, Serialize, PartialEq, Hash)]
-pub struct JsonBorrowedMut<'a> {
-    inner: &'a mut Value,
+impl Serialize for Json {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.inner.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Json {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(Self {
+            inner: Value::deserialize(deserializer)?,
+        })
+    }
 }
 
 impl Json {
-    /// Take the value and deserialize, leaving a null in it's place.
-    // TODO: Determine error type.
-    pub fn take<T: DeserializeOwned>(&mut self) -> Option<T> {
-        serde_json::from_value(self.inner.take()).ok()
+    #[cfg(feature = "serde_json")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "serde_json")))]
+    /// Extract the inner `serde_json::Value`
+    fn into_inner(self) -> serde_json::Value {
+        self.inner
     }
-    pub fn pointer(&self, pointer: &str) -> Option<JsonBorrowed<'_>> {
-        Some(JsonBorrowed {
-            inner: self.inner.pointer(pointer)?,
-        })
-    }
-    pub fn pointer_mut(&mut self, pointer: &str) -> Option<JsonBorrowedMut<'_>> {
-        Some(JsonBorrowedMut {
-            inner: self.inner.pointer_mut(pointer)?,
-        })
-    }
-}
-
-impl<'a> JsonBorrowed<'a> {
-    pub fn pointer(&self, pointer: &str) -> Option<JsonBorrowed<'_>> {
-        Some(JsonBorrowed {
-            inner: self.inner.pointer(pointer)?,
-        })
-    }
-}
-
-impl<'a> JsonBorrowedMut<'a> {
-    /// Take the value and deserialize, leaving a null in it's place.
-    // TODO: Determine error type.
-    pub fn take<T: DeserializeOwned>(&mut self) -> Option<T> {
-        serde_json::from_value(self.inner.take()).ok()
-    }
-    pub fn pointer(&self, pointer: &str) -> Option<JsonBorrowed<'_>> {
-        Some(JsonBorrowed {
-            inner: self.inner.pointer(pointer)?,
-        })
-    }
-    pub fn pointer_mut(&mut self, pointer: &str) -> Option<JsonBorrowedMut<'_>> {
-        Some(JsonBorrowedMut {
-            inner: self.inner.pointer_mut(pointer)?,
-        })
+    pub(crate) fn new(json: serde_json::Value) -> Self {
+        Self { inner: json }
     }
 }

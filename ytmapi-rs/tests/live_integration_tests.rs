@@ -174,7 +174,7 @@ generate_query_test!(
 #[tokio::test]
 async fn test_add_remove_history_items() {
     // Timeout to avoid flaky test
-    const GET_HISTORY_TIMEOUT: Duration = Duration::from_millis(1200);
+    const GET_HISTORY_TIMEOUT: Duration = Duration::from_millis(2000);
     // TODO: Oauth.
     let api = new_standard_api().await.unwrap();
     let song = api
