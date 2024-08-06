@@ -7,7 +7,7 @@ use serde_json::Value;
 /// `serde_json::Value`. For use if you are implementing [`crate::query::Query`]
 /// from scratch. To parse this value, you can either utilise the Serialize /
 /// Deserialize traits, or enable the `serde_json` feature to expose the
-/// internals via [`into_inner`].
+/// internals via feature gated function `Json::into_inner`.
 #[derive(Clone, PartialEq, Hash)]
 pub struct Json {
     pub(crate) inner: Value,
