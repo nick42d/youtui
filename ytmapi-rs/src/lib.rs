@@ -48,6 +48,7 @@
 //!   rust.
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
+//! - **serde_json**: Enables some interoperability functions with `serde_json`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
