@@ -4293,7 +4293,6 @@ dependencies = [
 name = "ytmapi-rs-json-crawler"
 version = "0.0.1"
 dependencies = [
- "itertools 0.13.0",
  "serde",
  "serde_json",
 ]
