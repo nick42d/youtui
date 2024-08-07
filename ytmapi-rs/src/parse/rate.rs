@@ -1,6 +1,6 @@
 use super::ParseFrom;
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {
@@ -20,9 +20,10 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
         // TODO: Error type
         json_crawler
             .navigate_pointer("/actions")?
-            .into_array_into_iter()?
+            .try_into_iter()?
             .find_path("/addToToastAction")
             .map(|_| ())
+            .map_err(Into::into)
     }
 }
 #[cfg(test)]

@@ -11,6 +11,7 @@ use crate::nav_consts::{
     NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM,
     SINGLE_COLUMN_TAB, TEXT_RUN, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
+use crate::process::fixed_column_item_pointer;
 use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
@@ -18,7 +19,7 @@ use crate::query::{
 use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};
 
 #[derive(Debug)]
 // Very similar to LibraryArtist struct
@@ -66,7 +67,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
-            .into_array_into_iter()?
+            .try_into_iter()?
             .map(|mut response| {
                 response
                     .take_value_pointer::<bool>("/isProcessed")
@@ -78,7 +79,8 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
                     })
             })
             .rev()
-            .collect()
+            .collect::<ytmapi_rs_json_crawler::CrawlerResult<_>>()
+            .map_err(Into::into)
     }
 }
 
@@ -99,10 +101,7 @@ fn parse_library_albums(
         SECTION_LIST_ITEM,
         GRID_ITEMS
     ))?;
-    items
-        .into_array_into_iter()?
-        .map(parse_item_list_album)
-        .collect()
+    items.try_into_iter()?.map(parse_item_list_album).collect()
 }
 fn parse_library_songs(
     json_crawler: JsonCrawler,
@@ -114,7 +113,7 @@ fn parse_library_songs(
         "/contents"
     ))?;
     contents
-        .into_array_into_iter()?
+        .try_into_iter()?
         .map(|mut item| {
             let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                 return Ok(None);
@@ -138,7 +137,7 @@ fn parse_library_artist_subscriptions(
         "/contents"
     ))?;
     contents
-        .into_array_into_iter()?
+        .try_into_iter()?
         .map(parse_content_list_artist_subscription)
         .collect()
 }
@@ -240,10 +239,7 @@ fn parse_content_list_artist_subscription(
 
 fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
     let mut results = Vec::new();
-    for result in json_crawler
-        .navigate_pointer("/contents")?
-        .as_array_iter_mut()?
-    {
+    for result in json_crawler.navigate_pointer("/contents")?.try_iter_mut()? {
         let mut data = result.navigate_pointer(MRLIR)?;
         let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
         let artist = parse_flex_column_item(&mut data, 0, 0)?;
@@ -263,16 +259,14 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
         "/playNavigationEndpoint",
         WATCH_VIDEO_ID
     ))?;
-    let library_management = data
-        .borrow_pointer(MENU_ITEMS)
-        .and_then(parse_library_management_items_from_menu)?;
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
     let album = super::parse_song_album(&mut data, 2)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -309,7 +303,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
     let mut results = Vec::new();
     for result in json_crawler
         .navigate_pointer("/items")?
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         // First result is just a link to create a new playlist.
         .skip(1)
         .map(|c| c.navigate_pointer(MTRIR))
@@ -326,12 +320,12 @@ fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist
         let count = None;
         let author = None;
         if let Ok(mut subtitle) = result.borrow_pointer("/subtitle") {
-            let runs = subtitle.borrow_pointer("/runs")?.into_array_iter_mut()?;
+            let runs = subtitle.borrow_pointer("/runs")?.try_into_iter()?;
             // Extract description from runs.
             // Collect the iterator of Result<String> into a single Result<String>
             description = Some(
                 runs.map(|mut c| c.take_value_pointer::<String>("/text"))
-                    .collect::<Result<String>>()?,
+                    .collect::<std::result::Result<String, _>>()?,
             );
         }
         let playlist = Playlist {

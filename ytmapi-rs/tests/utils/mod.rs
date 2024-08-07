@@ -1,6 +1,7 @@
 use std::{env, path::Path};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
+    error::ErrorKind,
     Error, Result, YtMusic,
 };
 
@@ -40,13 +41,6 @@ pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
         YtMusic::from_cookie(cookie).await
     } else {
         YtMusic::from_cookie_file(Path::new(COOKIE_PATH)).await
-    }
-}
-pub fn write_json(e: &Error) {
-    if let Some((json, key)) = e.get_json_and_key() {
-        std::fs::write("err.json", json)
-            .unwrap_or_else(|_| eprintln!("Error writing json to err.json"));
-        panic!("{key} not found, wrote to err.json");
     }
 }
 

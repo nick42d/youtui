@@ -7,7 +7,7 @@ use std::{
     time::SystemTimeError,
 };
 
-pub use ytmapi_rs_json_crawler::Error as JsonError;
+pub use ytmapi_rs_json_crawler::CrawlerError as JsonError;
 
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;

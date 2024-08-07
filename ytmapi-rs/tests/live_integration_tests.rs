@@ -14,7 +14,7 @@ use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
-use crate::utils::{new_standard_api, new_standard_oauth_api, write_json, INVALID_COOKIE};
+use crate::utils::{new_standard_api, new_standard_oauth_api, INVALID_COOKIE};
 
 #[macro_use]
 mod utils;
@@ -641,7 +641,7 @@ async fn test_get_artist_album_songs() {
         now.elapsed().as_millis()
     );
     let now = std::time::Instant::now();
-    let res = res.process().map_err(|e| write_json(&e)).unwrap();
+    let res = res.process().unwrap();
     let _ = AlbumParams::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }
