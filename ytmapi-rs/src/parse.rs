@@ -15,7 +15,8 @@
 //!     fn parse_from(
 //!         p: ytmapi_rs::parse::ProcessedResult<GetDateQuery>,
 //!     ) -> ytmapi_rs::Result<Self> {
-//!         Date::deserialize(p.json)
+//!         let deserializer = serde_json::Value::default();
+//!         Date::deserialize(deserializer)
 //!     }
 //! }
 //! ```
