@@ -1,9 +1,9 @@
 use crate::auth::AuthToken;
-use crate::crawler::JsonCrawlerBorrowed;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::Result;
 use std::marker::PhantomData;
+use ytmapi_rs_json_crawler::JsonCrawlerBorrowed;
 
 /// The raw result of a query to the API.
 // NOTE: The reason this is exposed in the public API, is that it is required to implement
@@ -38,23 +38,11 @@ impl<'a, Q: Query<A>, A: AuthToken> RawResult<'a, Q, A> {
         A::deserialize_json(self)
     }
 }
-// Could return FixedColumnItem
-// consider if should be optional / error also.
-pub fn process_fixed_column_item<'a>(
-    item: &'a mut JsonCrawlerBorrowed,
-    col_idx: usize,
-) -> Result<JsonCrawlerBorrowed<'a>> {
-    let pointer = format!("/fixedColumns/{col_idx}/musicResponsiveListItemFixedColumnRenderer");
-    item.borrow_pointer(pointer)
+
+pub fn fixed_column_item_pointer(col_idx: usize) -> String {
+    format!("/fixedColumns/{col_idx}/musicResponsiveListItemFixedColumnRenderer")
 }
 
-// Consider if this should return a FlexColumnItem
-// In the python API this returns None if /text/runs doesn't exist, but we are
-// not doing that here. Checking should instead be done by receiver.
-pub fn process_flex_column_item<'a>(
-    item: &'a mut JsonCrawlerBorrowed,
-    col_idx: usize,
-) -> Result<JsonCrawlerBorrowed<'a>> {
-    let pointer = format!("/flexColumns/{col_idx}/musicResponsiveListItemFlexColumnRenderer");
-    item.borrow_pointer(pointer)
+pub fn flex_column_item_pointer(col_idx: usize) -> String {
+    format!("/flexColumns/{col_idx}/musicResponsiveListItemFlexColumnRenderer")
 }

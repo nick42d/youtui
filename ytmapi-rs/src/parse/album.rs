@@ -7,13 +7,13 @@ use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
-use crate::process::process_fixed_column_item;
+use crate::process::fixed_column_item_pointer;
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub struct LibraryManager {
@@ -118,25 +118,16 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))
+        .and_then(|mut i| {
+            i.take_value_pointer("/text/simpleText")
+                .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+        })?;
     let plays = parse_flex_column_item(&mut data, 2, 0)?;
-    // Believe this needs to first covert to string as Json field has quote marks.
-    let track_no = str::parse::<usize>(
-        data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
-            .as_str(),
-    )
-    .map_err(|e| {
-        Error::parsing(
-            data.get_path(),
-            // TODO: Remove allocation.
-            Arc::new(data.get_source().to_owned()),
-            crate::error::ParseTarget::Other("usize".to_string()),
-            Some(e.to_string()),
-        )
-    })?;
+    let track_no = data
+        .navigate_pointer(concatcp!("/index", RUN_TEXT))?
+        .take_and_parse_str()?;
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

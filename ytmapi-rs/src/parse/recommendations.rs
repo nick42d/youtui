@@ -6,7 +6,6 @@ use super::{
 };
 use crate::{
     common::{recomendations::TasteToken, MoodCategoryParams, PlaylistID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed},
     nav_consts::{
         CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
         SINGLE_COLUMN_TAB, SUBTITLE_RUNS, THUMBNAIL_RENDERER, TITLE_TEXT,
@@ -18,6 +17,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct TasteProfileArtist {
