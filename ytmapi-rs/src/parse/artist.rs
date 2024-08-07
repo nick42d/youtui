@@ -9,15 +9,15 @@ use crate::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, UploadEntityID, VideoID,
     },
-    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::*,
-    process::{process_fixed_column_item, process_flex_column_item},
+    process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::*,
     youtube_enums::YoutubeMusicVideoType,
     ChannelID, Result,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {
@@ -475,10 +475,9 @@ pub(crate) fn parse_playlist_song(
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
     let album = super::parse_song_album(&mut data, 2)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -601,12 +600,12 @@ pub(crate) fn parse_playlist_video(
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let channel_id = process_flex_column_item(&mut data, 1)?
+    let channel_id = data
+        .navigate_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")

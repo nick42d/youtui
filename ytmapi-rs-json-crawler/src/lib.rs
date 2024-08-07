@@ -1,8 +1,9 @@
 //! Library to crawl Json using the pointer syntax.
+use error::ParseTarget;
 use serde::de::DeserializeOwned;
-use std::{slice::IterMut, sync::Arc, vec::IntoIter};
+use std::{slice::IterMut, str::FromStr, sync::Arc, vec::IntoIter};
 
-pub use error::{Error, Result}
+pub use error::{Error, Result};
 
 mod error;
 
@@ -16,14 +17,14 @@ struct PathList {
     list: Vec<JsonPath>,
 }
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct JsonCrawler {
+pub struct JsonCrawler {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
     // want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
-pub(crate) struct JsonCrawlerBorrowed<'a> {
+pub struct JsonCrawlerBorrowed<'a> {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
     // want it to be thread safe.
     source: Arc<String>,
@@ -33,7 +34,7 @@ pub(crate) struct JsonCrawlerBorrowed<'a> {
 
 /// Iterator extension trait containing special methods for Json Crawler
 /// iterators to help with error handling.
-pub(crate) trait JsonCrawlerIterator: Iterator {
+pub trait JsonCrawlerIterator: Iterator {
     /// Return the first crawler found at `path`, or error.
     fn find_path(self, path: impl AsRef<str>) -> Result<Self::Item>;
     /// Consume self to return (`source`, `path`).
@@ -42,7 +43,7 @@ pub(crate) trait JsonCrawlerIterator: Iterator {
     fn try_last(self) -> Result<Self::Item>;
 }
 
-pub(crate) struct JsonCrawlerArrayIterMut<'a> {
+pub struct JsonCrawlerArrayIterMut<'a> {
     source: Arc<String>,
     array: IterMut<'a, serde_json::Value>,
     path: PathList,
@@ -50,22 +51,12 @@ pub(crate) struct JsonCrawlerArrayIterMut<'a> {
     cur_back: usize,
 }
 #[derive(Clone)]
-pub(crate) struct JsonCrawlerArrayIntoIter {
+pub struct JsonCrawlerArrayIntoIter {
     source: Arc<String>,
     array: IntoIter<serde_json::Value>,
     path: PathList,
     cur_front: usize,
     cur_back: usize,
-}
-impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawler {
-    fn from(value: ProcessedResult<Q>) -> Self {
-        let (_, source, crawler) = value.destructure();
-        Self {
-            source: Arc::new(source),
-            crawler,
-            path: Default::default(),
-        }
-    }
 }
 
 impl From<&JsonPath> for String {
@@ -278,8 +269,6 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             cur_back,
         })
     }
-    // Allow dead code - library type code that may be used in future.
-    #[allow(dead_code)]
     pub fn borrow_index(&mut self, index: usize) -> Result<JsonCrawlerBorrowed<'_>> {
         let mut path_clone = self.path.clone();
         path_clone.push(JsonPath::IndexNum(index));
@@ -328,6 +317,23 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             path: path_clone,
         })
     }
+    // A Json string can't directly be serialized to another type, so we can go via
+    // str::parse.
+    pub fn take_and_parse_str<F: FromStr>(&mut self) -> Result<F>
+    where
+        F::Err: std::fmt::Display,
+    {
+        let as_string = self.take_value::<String>()?;
+        str::parse::<F>(as_string.as_str()).map_err(|e| {
+            Error::parsing(
+                self.get_path(),
+                // TODO: Remove allocation.
+                Arc::new(self.get_source().to_owned()),
+                crate::error::ParseTarget::Other(std::any::type_name::<F>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take()).map_err(|e| {
             Error::parsing(
@@ -356,11 +362,36 @@ impl<'a> JsonCrawlerBorrowed<'a> {
             )
         })
     }
+    /// Try to take the first value from a list of pointers.
+    // TODO: Reduce allocation, complete error, don't require Vec.
+    pub fn take_value_pointers<T: DeserializeOwned>(
+        &mut self,
+        paths: Vec<&'static str>,
+    ) -> Result<T> {
+        let mut path_clone = self.path.clone();
+        let Some((found, path)) = paths
+            .iter()
+            .find_map(|p| self.crawler.pointer_mut(p).map(|v| (v.take(), p)))
+        else {
+            return Err(Error::paths_not_found(
+                path_clone,
+                self.source.clone(),
+                paths.iter().map(|s| s.to_string()).collect(),
+            ));
+        };
+        path_clone.push(JsonPath::Pointer(path.to_string()));
+        serde_json::from_value(found).map_err(|e| {
+            Error::parsing(
+                &path_clone,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
     pub fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
-    // Allow dead code - library type code that may be used in future.
-    #[allow(dead_code)]
     pub fn get_source(&self) -> &str {
         &self.source
     }
@@ -478,16 +509,16 @@ impl JsonCrawler {
             path,
         })
     }
-    // Allow dead code - library type code that may be used in future.
-    #[allow(dead_code)]
-    pub fn from_string(string: String) -> Result<Self> {
-        Ok(Self {
-            crawler: serde_json::from_str(string.as_ref())
-                .map_err(|_| error::Error::response("Error serializing"))?,
-            source: Arc::new(string),
-            path: PathList::default(),
-        })
-    }
+    // // Allow dead code - library type code that may be used in future.
+    // #[allow(dead_code)]
+    // pub fn from_string(string: String) -> Result<Self> {
+    //     Ok(Self {
+    //         crawler: serde_json::from_str(string.as_ref())
+    //             .map_err(|_| error::Error::response("Error serializing"))?,
+    //         source: Arc::new(string),
+    //         path: PathList::default(),
+    //     })
+    // }
     pub fn take_value<T: DeserializeOwned>(&mut self) -> Result<T> {
         serde_json::from_value(self.crawler.take()).map_err(|e| {
             Error::parsing(
@@ -517,21 +548,35 @@ impl JsonCrawler {
             )
         })
     }
+    /// Get the first valid result from a list of closure / path pairs.
+    // TODO: Reduce allocation, complete error, don't require Vec.
+    pub fn map_paths<T, F>(&mut self, f: F, paths: Vec<&'static str>) -> Result<T>
+    where
+        F: FnOnce(JsonCrawlerBorrowed) -> T,
+    {
+        let mut path_clone = self.path.clone();
+        let Some((mut found, path)) = paths
+            .iter()
+            .find_map(|p| self.crawler.pointer_mut(p).map(|v| (v.take(), p)))
+        else {
+            return Err(Error::paths_not_found(
+                path_clone,
+                self.source.clone(),
+                paths.iter().map(|s| s.to_string()).collect(),
+            ));
+        };
+        todo
+        path_clone.push(JsonPath::Pointer(path.to_string()));
+        let crawler = JsonCrawlerBorrowed {
+            source: self.source.clone(),
+            crawler: &mut found,
+            path: path_clone,
+        };
+        Ok(f(crawler))
+    }
     // Allow dead code - library type code that may be used in future.
     #[allow(dead_code)]
     pub fn get_source(&self) -> &str {
         &self.source
-    }
-    /// Produce a new paths not found error, with the current context.
-    pub fn generate_error_paths_not_found(
-        &self,
-        paths: impl IntoIterator<IntoIter = impl Iterator<Item = impl AsRef<str>>>,
-    ) -> Error {
-        let path_clone = self.path.clone();
-        Error::paths_not_found(
-            path_clone,
-            self.source.clone(),
-            paths.into_iter().map(|s| s.as_ref().to_string()).collect(),
-        )
     }
 }

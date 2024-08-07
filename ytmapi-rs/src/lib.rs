@@ -76,7 +76,6 @@ pub use process::RawResult;
 
 #[macro_use]
 mod utils;
-mod crawler;
 mod nav_consts;
 mod process;
 mod youtube_enums;

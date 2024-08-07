@@ -189,18 +189,7 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
             let album = parse_upload_song_album(data.borrow_mut(), 2)?;
             let duration = process_fixed_column_item(&mut data.borrow_mut(), 0)?
                 .take_value_pointer(TEXT_RUN_TEXT)?;
-            // Believe this needs to first covert to string as Json field has quote marks.
-            let track_no =
-                str::parse::<i64>(data.take_value_pointer::<String>(INDEX_TEXT)?.as_str())
-                    .map_err(|e| {
-                        Error::parsing(
-                            data.get_path(),
-                            // TODO: Remove allocation.
-                            Arc::new(data.get_source().to_owned()),
-                            crate::error::ParseTarget::Other("i64".to_string()),
-                            Some(e.to_string()),
-                        )
-                    })?;
+            let track_no = data.navigate_pointer(INDEX_TEXT)?.take_and_parse_str()?;
             let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
             let video_id = data.take_value_pointer(concatcp!(
                 PLAY_BUTTON,

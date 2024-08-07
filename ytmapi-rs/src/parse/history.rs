@@ -6,14 +6,13 @@ use super::{
 };
 use crate::{
     common::{ApiOutcome, Explicit, FeedbackTokenRemoveFromHistory, PlaylistID, UploadEntityID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::{
         FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID,
         NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST,
         SINGLE_COLUMN_TAB, TEXT_RUN, WATCH_VIDEO_ID,
     },
     parse::parse_flex_column_item,
-    process::{process_fixed_column_item, process_flex_column_item},
+    process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     utils,
     youtube_enums::YoutubeMusicVideoType,
@@ -21,6 +20,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct HistoryPeriod {
@@ -202,10 +202,9 @@ fn parse_history_item_episode(
         true => (EpisodeDuration::Live, EpisodeDate::Live),
         false => {
             let date = parse_flex_column_item(&mut data, 2, 0)?;
-            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-                i.take_value_pointer("/text/simpleText")
-                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-            })?;
+            let duration = date
+                .navigate_pointer(fixed_column_item_pointer(0))?
+                .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
             (
                 EpisodeDuration::Recorded { duration },
                 EpisodeDate::Recorded { date },
@@ -213,7 +212,8 @@ fn parse_history_item_episode(
         }
     };
     let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let podcast_id = process_flex_column_item(&mut data, 1)?
+    let podcast_id = data
+        .navigate_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
@@ -251,12 +251,12 @@ fn parse_history_item_video(
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let channel_id = process_flex_column_item(&mut data, 1)?
+    let channel_id = data
+        .navigate_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -290,8 +290,9 @@ fn parse_history_item_upload_song(
     title: String,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<HistoryItemUploadSong> {
-    let duration =
-        process_fixed_column_item(&mut data.borrow_mut(), 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointer(TEXT_RUN_TEXT)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -332,22 +333,19 @@ fn parse_history_item_song(
         "/playNavigationEndpoint",
         WATCH_VIDEO_ID
     ))?;
-    let library_management = data
-        .borrow_pointer(MENU_ITEMS)
-        .and_then(parse_library_management_items_from_menu)?;
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
     let album = super::parse_song_album(&mut data, 2)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .navigate_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
-
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

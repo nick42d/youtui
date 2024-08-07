@@ -1,3 +1,3 @@
 [workspace]
-members = ["youtui", "ytmapi-rs", "json-crawler"]
+members = ["youtui", "ytmapi-rs", "ytmapi-rs-json-crawler"]
 resolver = "2"

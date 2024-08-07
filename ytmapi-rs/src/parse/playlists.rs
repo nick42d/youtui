@@ -7,7 +7,6 @@ use super::{
 };
 use crate::{
     common::{ApiOutcome, PlaylistID, SetVideoID},
-    crawler::{JsonCrawler, JsonCrawlerIterator},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
@@ -20,6 +19,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerIterator};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {

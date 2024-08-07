@@ -34,7 +34,8 @@ use crate::{RawResult, Result};
 use const_format::concatcp;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
+use ytmapi_rs_json_crawler::JsonCrawler;
 
 pub use album::*;
 pub use artist::*;
@@ -316,6 +317,17 @@ impl<'a, Q> ProcessedResult<'a, Q> {
     }
 }
 
+impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawler {
+    fn from(value: ProcessedResult<Q>) -> Self {
+        let (_, source, crawler) = value.destructure();
+        Self {
+            source: Arc::new(source),
+            crawler,
+            path: Default::default(),
+        }
+    }
+}
+
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto
 // fixedcolumnitem also. Not sure if this should error.
 // XXX: I think this should return none instead of error.
@@ -359,12 +371,11 @@ fn parse_flex_column_item<T: DeserializeOwned>(
 
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
-
     use crate::common::browsing::Lyrics;
-    use crate::crawler::JsonCrawler;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
+    use ytmapi_rs_json_crawler::JsonCrawler;
 
     impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
@@ -411,17 +422,15 @@ mod lyrics {
     }
 }
 mod watch {
-    use const_format::concatcp;
-
+    use super::{ParseFrom, ProcessedResult};
     use crate::{
         common::watch::WatchPlaylist,
-        crawler::{JsonCrawler, JsonCrawlerBorrowed},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
         query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID},
         Result,
     };
-
-    use super::{ParseFrom, ProcessedResult};
+    use const_format::concatcp;
+    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed};
 
     impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
@@ -458,9 +467,8 @@ mod watch {
 }
 mod song {
     use super::ParseFrom;
-    use crate::{
-        common::SongTrackingUrl, crawler::JsonCrawler, query::song::GetSongTrackingUrlQuery,
-    };
+    use crate::{common::SongTrackingUrl, query::song::GetSongTrackingUrlQuery};
+    use ytmapi_rs_json_crawler::JsonCrawler;
 
     impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         fn parse_from(
