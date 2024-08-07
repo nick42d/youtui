@@ -2,6 +2,7 @@ use crate::auth::AuthToken;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::Result;
+use const_format::formatcp;
 use std::marker::PhantomData;
 use ytmapi_rs_json_crawler::JsonCrawlerBorrowed;
 

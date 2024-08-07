@@ -17,7 +17,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
@@ -55,7 +55,9 @@ impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
     fn parse_from(p: ProcessedResult<CreatePlaylistQuery<'a, C>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawler = p.into();
-        json_crawler.take_value_pointer("/playlistId")
+        json_crawler
+            .take_value_pointer("/playlistId")
+            .map_err(Into::into)
     }
 }
 impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
@@ -67,7 +69,7 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
         }
         json_crawler
             .navigate_pointer("/playlistEditResults")?
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|r| {
                 let mut r = r.navigate_pointer("/playlistEditVideoAddedResultData")?;
                 Ok(AddPlaylistItem {
@@ -81,7 +83,10 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
 impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
     fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawler = p.into();
-        json_crawler.navigate_pointer("/status")?.take_value()
+        json_crawler
+            .navigate_pointer("/status")?
+            .take_value()
+            .map_err(Into::into)
     }
 }
 impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
@@ -157,15 +162,15 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
-        .and_then(|d| d.into_array_iter_mut())
+        .and_then(|d| d.try_into_iter())
         .ok()
         .map(|r| {
             r.map(|mut r| r.take_value_pointer::<String>("/text"))
-                .collect::<Result<String>>()
+                .collect::<std::result::Result<String, _>>()
         })
         .transpose()?;
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
-    let subtitle_len = subtitle.as_array_iter_mut()?.len();
+    let subtitle_len = subtitle.try_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
         Some(subtitle.take_value_pointer("/text")?)
     } else {
@@ -177,7 +182,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let duration = header.take_value_pointer("/secondSubtitle/runs/4/text")?;
     let id = header
         .navigate_pointer("/buttons")?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/musicPlayButtonRenderer")?
         .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let music_shelf = columns.borrow_pointer(

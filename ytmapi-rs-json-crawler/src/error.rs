@@ -3,14 +3,14 @@ use std::{
     sync::Arc,
 };
 
-pub struct Error {
+pub struct CrawlerError {
     inner: Box<ErrorKind>,
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type CrawlerResult<T> = std::result::Result<T, CrawlerError>;
 
 /// The kind of the error.
-pub enum ErrorKind {
+enum ErrorKind {
     /// Expected array at `key` to contain a minimum number of elements.
     ArraySize {
         /// The target path (JSON pointer notation) that we tried to parse.
@@ -70,6 +70,12 @@ pub enum ErrorKind {
         // Hence reference counted, Arc particularly to ensure Error is thread safe.
         json: Arc<String>,
     },
+    /// Tried multiple ways to pass, and each one returned an error.
+    MultipleParseError {
+        key: String,
+        json: Arc<String>,
+        messages: Vec<String>,
+    },
 }
 
 /// The type we were attempting to pass from the Json.
@@ -79,20 +85,35 @@ pub enum ParseTarget {
     Other(String),
 }
 
-impl std::error::Error for Error {}
+impl std::error::Error for CrawlerError {}
 
-impl Error {
+impl CrawlerError {
     /// Return the source Json and key at the location of the error.
-    pub fn get_json_and_key(&self) -> Option<(String, &String)> {
+    pub fn get_json_and_key(&self) -> (String, &String) {
         match self.inner.as_ref() {
-            ErrorKind::Navigation { json, key } => Some((json.to_string(), key)),
-            ErrorKind::Parsing { json, key, .. } => Some((json.to_string(), key)),
-            ErrorKind::PathNotFoundInArray { key, json, .. } => Some((json.to_string(), key)),
-            ErrorKind::PathsNotFound { key, json, .. } => Some((json.to_string(), key)),
-            ErrorKind::ArraySize { key, json, .. } => Some((json.to_string(), key)),
+            ErrorKind::Navigation { json, key } => (json.to_string(), key),
+            ErrorKind::Parsing { json, key, .. } => (json.to_string(), key),
+            ErrorKind::PathNotFoundInArray { key, json, .. } => (json.to_string(), key),
+            ErrorKind::PathsNotFound { key, json, .. } => (json.to_string(), key),
+            ErrorKind::ArraySize { key, json, .. } => (json.to_string(), key),
+            ErrorKind::MultipleParseError { key, json, .. } => (json.to_string(), key),
         }
     }
-    pub(crate) fn navigation<S: Into<String>>(key: S, json: Arc<String>) -> Self {
+    pub(crate) fn multiple_parse_error(
+        key: impl Into<String>,
+        json: Arc<String>,
+        errors: Vec<CrawlerError>,
+    ) -> Self {
+        let messages = errors.into_iter().map(|e| format!("{e}")).collect();
+        Self {
+            inner: Box::new(ErrorKind::MultipleParseError {
+                key: key.into(),
+                json,
+                messages,
+            }),
+        }
+    }
+    pub(crate) fn navigation(key: impl Into<String>, json: Arc<String>) -> Self {
         Self {
             inner: Box::new(ErrorKind::Navigation {
                 key: key.into(),
@@ -100,11 +121,7 @@ impl Error {
             }),
         }
     }
-    pub(crate) fn array_size(
-        key: impl Into<String>,
-        json: Arc<String>,
-        min_elements: usize,
-    ) -> Self {
+    pub fn array_size(key: impl Into<String>, json: Arc<String>, min_elements: usize) -> Self {
         let key = key.into();
         Self {
             inner: Box::new(ErrorKind::ArraySize {
@@ -195,19 +212,20 @@ impl Display for ErrorKind {
                 "Error {:?}. Unable to parse into {:?} at {key}",
                 message, target
             ),
+            ErrorKind::MultipleParseError { key, json: _, messages } => write!(f,"Expected one of the parsing functions at {key} to succeed, but all failed with the following errors: {:?}",messages),
         }
     }
 }
 
 // As this is displayed when unwrapping, we don't want to end up including the
 // entire format of this struct (potentially including entire source json file).
-impl Debug for Error {
+impl Debug for CrawlerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // TODO: Consider customising.
         Display::fmt(&*self.inner, f)
     }
 }
-impl Display for Error {
+impl Display for CrawlerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&*self.inner, f)
     }

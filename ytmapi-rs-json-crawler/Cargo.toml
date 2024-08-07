@@ -10,5 +10,7 @@ repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
 
 [dependencies]
+# Utilised for fold_while.
+itertools = "0.13.0"
 serde = "1.0.204"
 serde_json = "1.0.122"

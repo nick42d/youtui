@@ -13,7 +13,9 @@ use crate::{nav_consts::*, VideoID};
 use crate::{Error, Result};
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+};
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub struct LibraryManager {
@@ -99,7 +101,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
     let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     let mut library_menu = data
         .borrow_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add, feedback_tok_rem) = match library_status {
@@ -119,14 +121,14 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let duration = data
-        .navigate_pointer(fixed_column_item_pointer(0))
+        .borrow_pointer(fixed_column_item_pointer(0))
         .and_then(|mut i| {
             i.take_value_pointer("/text/simpleText")
                 .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
         })?;
     let plays = parse_flex_column_item(&mut data, 2, 0)?;
     let track_no = data
-        .navigate_pointer(concatcp!("/index", RUN_TEXT))?
+        .borrow_pointer(concatcp!("/index", RUN_TEXT))?
         .take_and_parse_str()?;
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
@@ -158,17 +160,17 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .step_by(2)
         .map(|mut item| parse_song_artist(&mut item))
         .collect::<Result<Vec<ParsedSongArtist>>>()?;
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
-        .and_then(|d| d.into_array_iter_mut())
+        .and_then(|d| d.try_into_iter())
         .ok()
         .map(|r| {
             r.map(|mut r| r.take_value_pointer::<String>("/text"))
-                .collect::<Result<String>>()
+                .collect::<ytmapi_rs_json_crawler::CrawlerResult<String>>()
         })
         .transpose()?;
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
@@ -176,18 +178,18 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let mut buttons = header.borrow_pointer("/buttons")?;
     let audio_playlist_id = buttons
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path("/musicPlayButtonRenderer")?
         .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let library_status = buttons
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path("/toggleButtonRenderer")?
         .take_value_pointer("/defaultIcon/iconType")?;
     let tracks = columns
         .borrow_pointer(
             "/secondaryContents/sectionListRenderer/contents/0/musicShelfRenderer/contents",
         )?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .filter_map(|mut track| parse_album_track(&mut track).transpose())
         .collect::<Result<Vec<AlbumSong>>>()?;
     Ok(AlbumParams {
