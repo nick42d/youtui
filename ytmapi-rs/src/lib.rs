@@ -48,6 +48,7 @@
 //!   rust.
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
+//! - **serde_json**: Enables some interoperability functions with `serde_json`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
@@ -75,7 +76,6 @@ pub use process::RawResult;
 
 #[macro_use]
 mod utils;
-mod crawler;
 mod nav_consts;
 mod process;
 mod youtube_enums;
@@ -86,6 +86,7 @@ pub mod builder;
 pub mod client;
 pub mod common;
 pub mod error;
+pub mod json;
 pub mod parse;
 pub mod query;
 

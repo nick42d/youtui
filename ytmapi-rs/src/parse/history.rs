@@ -6,14 +6,13 @@ use super::{
 };
 use crate::{
     common::{ApiOutcome, Explicit, FeedbackTokenRemoveFromHistory, PlaylistID, UploadEntityID},
-    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::{
         FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID,
         NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST,
         SINGLE_COLUMN_TAB, TEXT_RUN, WATCH_VIDEO_ID,
     },
     parse::parse_flex_column_item,
-    process::{process_fixed_column_item, process_flex_column_item},
+    process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     utils,
     youtube_enums::YoutubeMusicTableListVideoType,
@@ -21,6 +20,9 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
+use ytmapi_rs_json_crawler::{
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct HistoryPeriod {
@@ -111,7 +113,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
         let json_crawler = JsonCrawler::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         contents
-            .into_array_into_iter()?
+            .try_into_iter()?
             .map(parse_history_period)
             .collect()
     }
@@ -121,7 +123,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
         let json_crawler = JsonCrawler::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
-            .into_array_into_iter()?
+            .try_into_iter()?
             .map(|mut response| {
                 response
                     .take_value_pointer::<bool>("/isProcessed")
@@ -134,7 +136,8 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
                     })
             })
             .rev()
-            .collect()
+            .collect::<ytmapi_rs_json_crawler::CrawlerResult<_>>()
+            .map_err(Into::into)
     }
 }
 impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
@@ -149,7 +152,7 @@ fn parse_history_period(json: JsonCrawler) -> Result<HistoryPeriod> {
     let period_name = data.take_value_pointer(TITLE_TEXT)?;
     let items = data
         .navigate_pointer("/contents")?
-        .into_array_into_iter()?
+        .try_into_iter()?
         .filter_map(|item| parse_history_item(item).transpose())
         .collect::<Result<_>>()?;
     Ok(HistoryPeriod { period_name, items })
@@ -202,10 +205,9 @@ fn parse_history_item_episode(
         true => (EpisodeDuration::Live, EpisodeDate::Live),
         false => {
             let date = parse_flex_column_item(&mut data, 2, 0)?;
-            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-                i.take_value_pointer("/text/simpleText")
-                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-            })?;
+            let duration = data
+                .borrow_pointer(fixed_column_item_pointer(0))?
+                .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
             (
                 EpisodeDuration::Recorded { duration },
                 EpisodeDate::Recorded { date },
@@ -213,7 +215,8 @@ fn parse_history_item_episode(
         }
     };
     let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let podcast_id = process_flex_column_item(&mut data, 1)?
+    let podcast_id = data
+        .borrow_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
@@ -224,7 +227,7 @@ fn parse_history_item_episode(
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = data
         .navigate_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
     Ok(HistoryItemEpisode {
@@ -251,12 +254,12 @@ fn parse_history_item_video(
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let channel_id = process_flex_column_item(&mut data, 1)?
+    let channel_id = data
+        .borrow_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -270,7 +273,7 @@ fn parse_history_item_video(
     // Assumption - deletion token is always the last item.
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
     Ok(HistoryItemVideo {
@@ -290,8 +293,9 @@ fn parse_history_item_upload_song(
     title: String,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<HistoryItemUploadSong> {
-    let duration =
-        process_fixed_column_item(&mut data.borrow_mut(), 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointer(TEXT_RUN_TEXT)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -302,13 +306,13 @@ fn parse_history_item_upload_song(
     let album = parse_upload_song_album(data.borrow_mut(), 2)?;
     let mut menu = data.navigate_pointer(MENU_ITEMS)?;
     let entity_id = menu
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path(DELETION_ENTITY_ID)?
         .take_value()?;
     // Assumption - deletion token is always the last item.
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
     Ok(HistoryItemUploadSong {
@@ -332,22 +336,19 @@ fn parse_history_item_song(
         "/playNavigationEndpoint",
         WATCH_VIDEO_ID
     ))?;
-    let library_management = data
-        .borrow_pointer(MENU_ITEMS)
-        .and_then(parse_library_management_items_from_menu)?;
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
     let album = super::parse_song_album(&mut data, 2)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
-
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -361,7 +362,7 @@ fn parse_history_item_song(
     // Assumption - deletion token is always the last item.
     // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
     Ok(HistoryItemSong {
