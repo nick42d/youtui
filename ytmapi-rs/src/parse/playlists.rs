@@ -114,10 +114,18 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let author = header.take_value_pointer(SUBTITLE2)?;
     let year = header.take_value_pointer(SUBTITLE3)?;
     let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
-    let views = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/0/text"))?;
-    let track_count_text = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/2/text"))?;
-    let duration = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/4/text"))?;
-
+    let mut second_subtitle_runs = header.navigate_pointer(SECOND_SUBTITLE_RUNS)?;
+    let duration = second_subtitle_runs.as_array_iter_mut()?.try_last()?;
+    let track_count_text = second_subtitle_runs
+        .as_array_iter_mut()?
+        .rev()
+        .skip(2)
+        .next();
+    let views = second_subtitle_runs
+        .as_array_iter_mut()?
+        .rev()
+        .skip(4)
+        .next();
     let mut results = json_crawler.borrow_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
@@ -258,12 +266,20 @@ mod tests {
             BrowserToken
         );
     }
-
     #[tokio::test]
     async fn test_get_playlist_query_2024() {
         parse_test!(
             "./test_json/get_playlist_20240624.json",
             "./test_json/get_playlist_20240624_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_no_views() {
+        parse_test!(
+            "./test_json/get_playlist_no_views_20240808.json",
+            "./test_json/get_playlist_no_views_20240808_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
