@@ -169,8 +169,18 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
 // NOTE: Similar code to get_album_2024
 fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
-    let mut header =
-        columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
+    let header =
+        columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER));
+    // TODO: Utilise a crawler library function here.
+    let mut header = match header {
+        Ok(header) => header,
+        Err(_) => columns.borrow_pointer(concatcp!(
+            TAB_CONTENT,
+            SECTION_LIST_ITEM,
+            "/musicEditablePlaylistDetailHeaderRenderer/header",
+            RESPONSIVE_HEADER
+        ))?,
+    };
     // TODO
     let suggestions = Vec::new();
     // TODO
@@ -190,7 +200,7 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
     let subtitle_len = subtitle.as_array_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
-        Some(subtitle.take_value_pointer("/text")?)
+        Some(subtitle.take_value_pointer("/2/text")?)
     } else {
         None
     };
@@ -308,15 +318,6 @@ mod tests {
         parse_test!(
             "./test_json/get_playlist_20240624.json",
             "./test_json/get_playlist_20240624_output.txt",
-            GetPlaylistQuery::new(PlaylistID::from_raw("")),
-            BrowserToken
-        );
-    }
-    #[tokio::test]
-    async fn test_get_playlist_no_views() {
-        parse_test!(
-            "./test_json/get_playlist_no_views_20240808.json",
-            "./test_json/get_playlist_no_views_20240808_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );

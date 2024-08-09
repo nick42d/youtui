@@ -1,19 +1,20 @@
 use super::{
-    parse_flex_column_item, parse_song_album, parse_song_artists, EpisodeDate, EpisodeDuration,
-    LibraryManager, LibraryStatus, LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist,
-    ProcessedResult, SearchResultVideo, TableListUploadSong,
+    parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
+    parse_upload_song_artists, EpisodeDate, EpisodeDuration, LibraryManager, LibraryStatus,
+    LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
+    ParsedUploadSongAlbum, ProcessedResult, SearchResultVideo, TableListUploadSong, Thumbnail,
 };
 use crate::{
     common::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromLibrary, PlaylistID, VideoID,
+        FeedbackTokenRemoveFromLibrary, PlaylistID, UploadEntityID, VideoID,
     },
     crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::*,
     process::{process_fixed_column_item, process_flex_column_item},
     query::*,
     youtube_enums::YoutubeMusicVideoType,
-    ChannelID, Result, Thumbnail,
+    ChannelID, Result,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -295,7 +296,7 @@ pub struct PlaylistSong {
     pub artists: Vec<super::ParsedSongArtist>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
-    pub thumbnails: Vec<super::Thumbnail>,
+    pub thumbnails: Vec<Thumbnail>,
     pub explicit: Explicit,
     pub is_available: bool,
     /// Id of the playlist that will get created when pressing 'Start Radio'.
@@ -313,7 +314,7 @@ pub struct PlaylistVideo {
     pub channel_id: ChannelID<'static>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
-    pub thumbnails: Vec<super::Thumbnail>,
+    pub thumbnails: Vec<Thumbnail>,
     pub is_available: bool,
     /// Id of the playlist that will get created when pressing 'Start Radio'.
     pub playlist_id: PlaylistID<'static>,
@@ -323,37 +324,29 @@ pub struct PlaylistVideo {
 pub struct PlaylistEpisode {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
-    pub album: ParsedSongAlbum,
-    pub duration: String,
-    /// Some songs may not have library management features. There could be
-    /// various resons for this.
-    pub library_management: Option<LibraryManager>,
+    pub date: EpisodeDate,
+    pub duration: EpisodeDuration,
     pub title: String,
-    pub artists: Vec<super::ParsedSongArtist>,
+    pub podcast_name: String,
+    pub podcast_id: PlaylistID<'static>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
-    pub thumbnails: Vec<super::Thumbnail>,
-    pub explicit: Explicit,
+    pub thumbnails: Vec<Thumbnail>,
     pub is_available: bool,
-    /// Id of the playlist that will get created when pressing 'Start Radio'.
-    pub playlist_id: PlaylistID<'static>,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct PlaylistUploadSong {
+    pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
     pub track_no: usize,
     pub duration: String,
+    pub album: ParsedUploadSongAlbum,
     pub title: String,
-    // Could be 'ParsedVideoChannel'
-    pub channel_name: String,
-    pub channel_id: ChannelID<'static>,
+    pub artists: Vec<ParsedUploadArtist>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
-    pub thumbnails: Vec<super::Thumbnail>,
-    pub is_available: bool,
-    /// Id of the playlist that will get created when pressing 'Start Radio'.
-    pub playlist_id: PlaylistID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -371,7 +364,7 @@ pub struct TableListSong {
     pub artists: Vec<super::ParsedSongArtist>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
-    pub thumbnails: Vec<super::Thumbnail>,
+    pub thumbnails: Vec<Thumbnail>,
     pub explicit: Explicit,
     pub is_available: bool,
     /// Id of the playlist that will get created when pressing 'Start Radio'.
@@ -522,14 +515,79 @@ pub(crate) fn parse_playlist_upload_song(
     track_no: usize,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<PlaylistUploadSong> {
-    todo!()
+    let duration =
+        process_fixed_column_item(&mut data.borrow_mut(), 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint/watchEndpoint/videoId"
+    ))?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let artists = parse_upload_song_artists(data.borrow_mut(), 1)?;
+    let album = parse_upload_song_album(data.borrow_mut(), 2)?;
+    let mut menu = data.navigate_pointer(MENU_ITEMS)?;
+    let entity_id = menu
+        .as_array_iter_mut()?
+        .find_path(DELETION_ENTITY_ID)?
+        .take_value()?;
+    Ok(PlaylistUploadSong {
+        entity_id,
+        video_id,
+        album,
+        duration,
+        like_status,
+        title,
+        artists,
+        thumbnails,
+        track_no,
+    })
 }
 pub(crate) fn parse_playlist_episode(
     title: String,
     track_no: usize,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<PlaylistEpisode> {
-    todo!()
+    let video_id = data.take_value_pointer(concatcp!(
+        PLAY_BUTTON,
+        "/playNavigationEndpoint",
+        WATCH_VIDEO_ID
+    ))?;
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let is_live = data.path_exists(LIVE_BADGE_LABEL);
+    let (duration, date) = match is_live {
+        true => (EpisodeDuration::Live, EpisodeDate::Live),
+        false => {
+            let date = parse_flex_column_item(&mut data, 2, 0)?;
+            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
+                i.take_value_pointer("/text/simpleText")
+                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+            })?;
+            (
+                EpisodeDuration::Recorded { duration },
+                EpisodeDate::Recorded { date },
+            )
+        }
+    };
+    let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
+    let podcast_id = process_flex_column_item(&mut data, 1)?
+        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let is_available = data
+        .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
+        .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
+        .unwrap_or(true);
+    Ok(PlaylistEpisode {
+        video_id,
+        duration,
+        title,
+        like_status,
+        thumbnails,
+        date,
+        podcast_name,
+        podcast_id,
+        is_available,
+        track_no,
+    })
 }
 pub(crate) fn parse_playlist_video(
     title: String,
