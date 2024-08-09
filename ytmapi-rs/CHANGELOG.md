@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.11](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.10...ytmapi-rs/v0.0.11) - 2024-08-09
+
+### Fixed
+- [**breaking**] Allow for 'about' renderer in filtered search, and not having 'views' in playlists. ([#130](https://github.com/nick42d/youtui/pull/130))
+- _Added new PlaylistItem types: Episode and UploadSong._
+
+
+
 ## [0.0.10](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.9...ytmapi-rs/v0.0.10) - 2024-08-05
 
 ### Added
