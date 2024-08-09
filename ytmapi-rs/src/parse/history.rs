@@ -16,7 +16,7 @@ use crate::{
     process::{process_fixed_column_item, process_flex_column_item},
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     utils,
-    youtube_enums::YoutubeMusicTableListVideoType,
+    youtube_enums::YoutubeMusicVideoType,
     ChannelID, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
@@ -167,20 +167,20 @@ fn parse_history_item(mut json: JsonCrawler) -> Result<Option<HistoryItem>> {
         "/playNavigationEndpoint",
         NAVIGATION_VIDEO_TYPE
     );
-    let video_type: YoutubeMusicTableListVideoType = data.take_value_pointer(video_type_path)?;
+    let video_type: YoutubeMusicVideoType = data.take_value_pointer(video_type_path)?;
     let item = match video_type {
         // NOTE - Possible for History, but most likely not possible for Library.
-        YoutubeMusicTableListVideoType::Upload => Some(HistoryItem::UploadSong(
+        YoutubeMusicVideoType::Upload => Some(HistoryItem::UploadSong(
             parse_history_item_upload_song(title, data)?,
         )),
         // NOTE - Possible for Library, but most likely not possible for History.
-        YoutubeMusicTableListVideoType::Episode => Some(HistoryItem::Episode(
-            parse_history_item_episode(title, data)?,
-        )),
-        YoutubeMusicTableListVideoType::Ugc | YoutubeMusicTableListVideoType::Omv => {
+        YoutubeMusicVideoType::Episode => Some(HistoryItem::Episode(parse_history_item_episode(
+            title, data,
+        )?)),
+        YoutubeMusicVideoType::Ugc | YoutubeMusicVideoType::Omv => {
             Some(HistoryItem::Video(parse_history_item_video(title, data)?))
         }
-        YoutubeMusicTableListVideoType::Atv => {
+        YoutubeMusicVideoType::Atv => {
             Some(HistoryItem::Song(parse_history_item_song(title, data)?))
         }
     };

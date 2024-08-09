@@ -320,8 +320,46 @@ pub struct PlaylistVideo {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct PlaylistEpisode {
+    pub video_id: VideoID<'static>,
+    pub track_no: usize,
+    pub album: ParsedSongAlbum,
+    pub duration: String,
+    /// Some songs may not have library management features. There could be
+    /// various resons for this.
+    pub library_management: Option<LibraryManager>,
+    pub title: String,
+    pub artists: Vec<super::ParsedSongArtist>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub explicit: Explicit,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub struct PlaylistUploadSong {
+    pub video_id: VideoID<'static>,
+    pub track_no: usize,
+    pub duration: String,
+    pub title: String,
+    // Could be 'ParsedVideoChannel'
+    pub channel_name: String,
+    pub channel_id: ChannelID<'static>,
+    // TODO: Song like feedback tokens.
+    pub like_status: LikeStatus,
+    pub thumbnails: Vec<super::Thumbnail>,
+    pub is_available: bool,
+    /// Id of the playlist that will get created when pressing 'Start Radio'.
+    pub playlist_id: PlaylistID<'static>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Could this alternatively be Result<Song>?
 // May need to be enum to track 'Not Available' case.
+// NOTE: Difference between this and PlaylistSong is no trackId.
 pub struct TableListSong {
     pub video_id: VideoID<'static>,
     pub album: ParsedSongAlbum,
@@ -344,6 +382,8 @@ pub struct TableListSong {
 pub enum PlaylistItem {
     Song(PlaylistSong),
     Video(PlaylistVideo),
+    Episode(PlaylistEpisode),
+    UploadSong(PlaylistUploadSong),
 }
 
 // Should be at higher level in mod structure.
@@ -477,6 +517,20 @@ pub(crate) fn parse_playlist_song(
         is_available,
     })
 }
+pub(crate) fn parse_playlist_upload_song(
+    title: String,
+    track_no: usize,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<PlaylistUploadSong> {
+    todo!()
+}
+pub(crate) fn parse_playlist_episode(
+    title: String,
+    track_no: usize,
+    mut data: JsonCrawlerBorrowed,
+) -> Result<PlaylistEpisode> {
+    todo!()
+}
 pub(crate) fn parse_playlist_video(
     title: String,
     track_no: usize,
@@ -543,6 +597,12 @@ pub(crate) fn parse_playlist_item(
             parse_playlist_video(title, track_no, data)?,
         )),
         YoutubeMusicVideoType::Atv => Some(PlaylistItem::Song(parse_playlist_song(
+            title, track_no, data,
+        )?)),
+        YoutubeMusicVideoType::Upload => Some(PlaylistItem::UploadSong(
+            parse_playlist_upload_song(title, track_no, data)?,
+        )),
+        YoutubeMusicVideoType::Episode => Some(PlaylistItem::Episode(parse_playlist_episode(
             title, track_no, data,
         )?)),
     };
