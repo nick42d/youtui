@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.12](https://github.com/nick42d/youtui/compare/youtui/v0.0.11...youtui/v0.0.12) - 2024-08-09
+
+### Fixed
+- Oauth refresh can no longer get cancelled ([#124](https://github.com/nick42d/youtui/pull/124))
+### Other
+- Update readme ([#122](https://github.com/nick42d/youtui/pull/122))
+
+
 ## [0.0.11](https://github.com/nick42d/youtui/compare/youtui/v0.0.10...youtui/v0.0.11) - 2024-08-05
 
 ### Added
