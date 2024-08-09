@@ -29,7 +29,7 @@ mod tests;
 
 // TODO: Type safety
 fn parse_basic_search_result_from_section_list_contents(
-    section_list_contents: BasicSearchSectionListContents,
+    mut section_list_contents: BasicSearchSectionListContents,
 ) -> Result<SearchResults> {
     // Imperative solution, may be able to make more functional.
     let mut top_results = Vec::new();
@@ -43,23 +43,20 @@ fn parse_basic_search_result_from_section_list_contents(
     let mut episodes = Vec::new();
     let mut profiles = Vec::new();
 
-    // Warning: Used in expect() below.
-    let music_shelf_exists = section_list_contents
+    let music_card_shelf = section_list_contents
         .0
-        .path_exists(concatcp!("/0", MUSIC_CARD_SHELF));
-    let mut results_iter = section_list_contents.0.into_array_into_iter()?;
-    // XXX: Naive solution.
-    if music_shelf_exists {
-        top_results = parse_top_results_from_music_card_shelf_contents(
-            results_iter
-                .next()
-                .expect("Path /0 exists as part of precondition")
-                .borrow_pointer(MUSIC_CARD_SHELF)?,
-        )?;
+        .as_array_iter_mut()?
+        .find_path(MUSIC_CARD_SHELF)
+        .ok();
+    if let Some(music_card_shelf) = music_card_shelf {
+        top_results = parse_top_results_from_music_card_shelf_contents(music_card_shelf)?
     }
+    let results_iter = section_list_contents
+        .0
+        .into_array_into_iter()?
+        .filter_map(|item| item.navigate_pointer(MUSIC_SHELF).ok());
 
-    for category in results_iter.map(|r| r.navigate_pointer(MUSIC_SHELF)) {
-        let mut category = category?;
+    for mut category in results_iter {
         match category.take_value_pointer::<SearchResultType>(TITLE_TEXT)? {
             SearchResultType::TopResult => {
                 top_results = category
@@ -565,13 +562,17 @@ fn section_contents_is_empty(section_contents: &mut SectionContentsCrawler) -> R
         .is_some())
 }
 // TODO: Consolidate these two functions into single function.
-fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListContents) -> bool {
-    section_contents
+// TODO: This could be implemented with a non-mutable array also.
+fn section_list_contents_is_empty(
+    section_contents: &mut BasicSearchSectionListContents,
+) -> Result<bool> {
+    let is_empty = section_contents
         .0
-        .path_exists("/0/itemSectionRenderer/contents/0/didYouMeanRenderer")
-        || section_contents
-            .0
-            .path_exists("/0/itemSectionRenderer/contents/0/messageRenderer")
+        .as_array_iter_mut()?
+        .filter(|item| item.path_exists(MUSIC_CARD_SHELF) || item.path_exists(MUSIC_SHELF))
+        .count()
+        == 0;
+    Ok(is_empty)
 }
 impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, S>>>
     for BasicSearchSectionListContents
@@ -745,8 +746,8 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
 }
 impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResults {
     fn parse_from(p: ProcessedResult<SearchQuery<'a, S>>) -> crate::Result<Self> {
-        let section_list_contents = BasicSearchSectionListContents::try_from(p)?;
-        if section_list_contents_is_empty(&section_list_contents) {
+        let mut section_list_contents = BasicSearchSectionListContents::try_from(p)?;
+        if section_list_contents_is_empty(&mut section_list_contents)? {
             return Ok(Self::default());
         }
         parse_basic_search_result_from_section_list_contents(section_list_contents)
