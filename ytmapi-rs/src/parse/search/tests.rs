@@ -147,6 +147,15 @@ async fn test_search_artists() {
     );
 }
 #[tokio::test]
+async fn test_search_artists_with_about_message() {
+    parse_test!(
+        "./test_json/search_artists_with_about_message_20240824.json",
+        "./test_json/search_artists_with_about_message_20240824_output.txt",
+        SearchQuery::new("").with_filter(ArtistsFilter),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_albums() {
     parse_test!(
         "./test_json/search_albums_20231226.json",

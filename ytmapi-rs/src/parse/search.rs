@@ -5,7 +5,7 @@ use super::{
     SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
 use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed};
+use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
@@ -556,11 +556,13 @@ struct BasicSearchSectionListContents(JsonCrawler);
 // In this case, we've searched and had no results found.
 // We are being quite explicit here to avoid a false positive.
 // See tests for an example.
-// TODO: Test this function.
-fn section_contents_is_empty(section_contents: &SectionContentsCrawler) -> bool {
-    section_contents
+// TODO: Test this function itself.
+fn section_contents_is_empty(section_contents: &mut SectionContentsCrawler) -> Result<bool> {
+    Ok(section_contents
         .0
-        .path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")
+        .as_array_iter_mut()?
+        .find(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer"))
+        .is_some())
 }
 // TODO: Consolidate these two functions into single function.
 fn section_list_contents_is_empty(section_contents: &BasicSearchSectionListContents) -> bool {
@@ -595,7 +597,6 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
             SECTION_LIST,
-            "/0"
         ))?;
         Ok(SectionContentsCrawler(section_contents))
     }
@@ -605,9 +606,11 @@ struct FilteredSearchMSRContents(JsonCrawler);
 impl TryFrom<SectionContentsCrawler> for FilteredSearchMSRContents {
     type Error = Error;
     fn try_from(value: SectionContentsCrawler) -> std::prelude::v1::Result<Self, Self::Error> {
-        Ok(FilteredSearchMSRContents(
-            value.0.navigate_pointer("/musicShelfRenderer/contents")?,
-        ))
+        let music_shelf_contents = value
+            .0
+            .into_array_into_iter()?
+            .find_path(concatcp!(MUSIC_SHELF, "/contents"))?;
+        Ok(FilteredSearchMSRContents(music_shelf_contents))
     }
 }
 impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultAlbum> {
@@ -754,8 +757,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<Searc
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -765,8 +768,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> for Vec<Sear
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -776,8 +779,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<Search
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -787,8 +790,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<SearchR
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<SongsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -798,8 +801,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<Search
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<VideosFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -809,8 +812,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>> for Vec<Sear
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -820,8 +823,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>> for Vec<Sear
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -833,8 +836,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -846,8 +849,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
@@ -857,8 +860,8 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<Sea
     fn parse_from(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>,
     ) -> crate::Result<Self> {
-        let section_contents = SectionContentsCrawler::try_from(p)?;
-        if section_contents_is_empty(&section_contents) {
+        let mut section_contents = SectionContentsCrawler::try_from(p)?;
+        if section_contents_is_empty(&mut section_contents)? {
             return Ok(Vec::new());
         }
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()

@@ -145,7 +145,7 @@ impl<'a> DoubleEndedIterator for JsonCrawlerArrayIterMut<'a> {
             // clone every time here.
             path: self.path.clone().with(JsonPath::IndexNum(self.cur_back)),
         });
-        self.cur_back -= 1;
+        self.cur_back = self.cur_back.saturating_sub(1);
         out
     }
 }

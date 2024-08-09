@@ -17,7 +17,7 @@ use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-use crate::youtube_enums::YoutubeMusicTableListVideoType;
+use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
 

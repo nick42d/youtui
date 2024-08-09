@@ -9,7 +9,9 @@ GetPlaylist {
     year: "2020",
     duration: "4 hours, 53 minutes",
     track_count_text: "100 tracks",
-    views: "24M views",
+    views: Some(
+        "24M views",
+    ),
     thumbnails: [
         Thumbnail {
             height: 192,

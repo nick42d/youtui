@@ -19,19 +19,7 @@ pub(crate) enum YoutubeMusicVideoType {
     Ugc,
     #[serde(rename = "MUSIC_VIDEO_TYPE_OMV")]
     Omv,
-    // Could be 'Audio Track Video'?
-    #[serde(rename = "MUSIC_VIDEO_TYPE_ATV")]
-    Atv,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub(crate) enum YoutubeMusicTableListVideoType {
-    // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'
-    #[serde(rename = "MUSIC_VIDEO_TYPE_UGC")]
-    Ugc,
-    #[serde(rename = "MUSIC_VIDEO_TYPE_OMV")]
-    Omv,
-    // Could be 'Audio Track Video'?
+    // Could be 'Audio Track Video'? Seems to represent a standard song.
     #[serde(rename = "MUSIC_VIDEO_TYPE_ATV")]
     Atv,
     #[serde(rename = "MUSIC_VIDEO_TYPE_PODCAST_EPISODE")]

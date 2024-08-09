@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
@@ -21,24 +23,24 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
-    id: PlaylistID<'static>,
+    pub id: PlaylistID<'static>,
     // NOTE: Only present on personal (library) playlists??
     // NOTE: May not be present on old version of API also.
-    privacy: Option<PrivacyStatus>,
-    title: String,
-    // NOTE: May not be present at all on playlists - to confirm.
-    description: Option<String>,
-    author: String,
-    year: String,
-    duration: String,
-    track_count_text: String,
-    views: String,
-    thumbnails: Vec<Thumbnail>,
+    pub privacy: Option<PrivacyStatus>,
+    pub title: String,
+    pub description: Option<String>,
+    pub author: String,
+    pub year: String,
+    pub duration: String,
+    pub track_count_text: String,
+    // NOTE: Seem to be unable to distinguish when views is optional.
+    pub views: Option<String>,
+    pub thumbnails: Vec<Thumbnail>,
     /// Not yet implemented
-    suggestions: Vec<()>,
+    pub suggestions: Vec<()>,
     /// Not yet implemented
-    related: Vec<()>,
-    tracks: Vec<PlaylistItem>,
+    pub related: Vec<()>,
+    pub tracks: Vec<PlaylistItem>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Provides a SetVideoID and VideoID for each video added to the playlist.
@@ -114,10 +116,31 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let author = header.take_value_pointer(SUBTITLE2)?;
     let year = header.take_value_pointer(SUBTITLE3)?;
     let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
-    let views = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/0/text"))?;
-    let track_count_text = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/2/text"))?;
-    let duration = header.take_value_pointer(concatcp!(SECOND_SUBTITLE_RUNS, "/4/text"))?;
-
+    let mut second_subtitle_runs = header.navigate_pointer(SECOND_SUBTITLE_RUNS)?;
+    let duration = second_subtitle_runs
+        .as_array_iter_mut()?
+        .try_last()?
+        .take_value_pointer("/text")?;
+    let track_count_text = second_subtitle_runs
+        .borrow_mut()
+        .into_array_iter_mut()?
+        .rev()
+        .nth(2)
+        .map(|mut run| run.take_value_pointer("/text"))
+        .ok_or_else(|| {
+            Error::array_size(
+                second_subtitle_runs.get_path(),
+                // TODO: Remove allocation.
+                Arc::new(second_subtitle_runs.get_source().to_owned()),
+                3,
+            )
+        })??;
+    let views = second_subtitle_runs
+        .as_array_iter_mut()?
+        .rev()
+        .nth(4)
+        .map(|mut item| item.take_value_pointer("/text"))
+        .transpose()?;
     let mut results = json_crawler.borrow_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
@@ -146,8 +169,18 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
 // NOTE: Similar code to get_album_2024
 fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
-    let mut header =
-        columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
+    let header =
+        columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER));
+    // TODO: Utilise a crawler library function here.
+    let mut header = match header {
+        Ok(header) => header,
+        Err(_) => columns.borrow_pointer(concatcp!(
+            TAB_CONTENT,
+            SECTION_LIST_ITEM,
+            "/musicEditablePlaylistDetailHeaderRenderer/header",
+            RESPONSIVE_HEADER
+        ))?,
+    };
     // TODO
     let suggestions = Vec::new();
     // TODO
@@ -167,14 +200,36 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
     let subtitle_len = subtitle.as_array_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
-        Some(subtitle.take_value_pointer("/text")?)
+        Some(subtitle.take_value_pointer("/2/text")?)
     } else {
         None
     };
     let year = subtitle.take_value_pointer(format!("/{}/text", subtitle_len.saturating_sub(1)))?;
-    let views = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
-    let track_count_text = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
-    let duration = header.take_value_pointer("/secondSubtitle/runs/4/text")?;
+    let mut second_subtitle_runs = header.borrow_pointer(SECOND_SUBTITLE_RUNS)?;
+    let duration = second_subtitle_runs
+        .as_array_iter_mut()?
+        .try_last()?
+        .take_value_pointer("/text")?;
+    let track_count_text = second_subtitle_runs
+        .borrow_mut()
+        .into_array_iter_mut()?
+        .rev()
+        .nth(2)
+        .map(|mut run| run.take_value_pointer("/text"))
+        .ok_or_else(|| {
+            Error::array_size(
+                second_subtitle_runs.get_path(),
+                // TODO: Remove allocation.
+                Arc::new(second_subtitle_runs.get_source().to_owned()),
+                3,
+            )
+        })??;
+    let views = second_subtitle_runs
+        .as_array_iter_mut()?
+        .rev()
+        .nth(4)
+        .map(|mut item| item.take_value_pointer("/text"))
+        .transpose()?;
     let id = header
         .navigate_pointer("/buttons")?
         .into_array_iter_mut()?
@@ -258,7 +313,6 @@ mod tests {
             BrowserToken
         );
     }
-
     #[tokio::test]
     async fn test_get_playlist_query_2024() {
         parse_test!(
