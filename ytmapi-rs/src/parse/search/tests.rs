@@ -138,6 +138,15 @@ async fn test_basic_search_with_vodcasts_type_specified() {
     );
 }
 #[tokio::test]
+async fn test_basic_search_with_about_message() {
+    parse_test!(
+        "./test_json/search_basic_with_about_message_20240809.json",
+        "./test_json/search_basic_with_about_message_20240809_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_artists() {
     parse_test!(
         "./test_json/search_artists_20231226.json",
