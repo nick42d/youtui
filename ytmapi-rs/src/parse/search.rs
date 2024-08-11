@@ -22,7 +22,9 @@ use filteredsearch::{
 };
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};
+use ytmapi_rs_json_crawler::{
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+};
 
 #[cfg(test)]
 mod tests;
@@ -45,7 +47,7 @@ fn parse_basic_search_result_from_section_list_contents(
 
     let music_card_shelf = section_list_contents
         .0
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path(MUSIC_CARD_SHELF)
         .ok();
     if let Some(music_card_shelf) = music_card_shelf {
@@ -53,7 +55,7 @@ fn parse_basic_search_result_from_section_list_contents(
     }
     let results_iter = section_list_contents
         .0
-        .into_array_into_iter()?
+        .try_into_iter()?
         .filter_map(|item| item.navigate_pointer(MUSIC_SHELF).ok());
 
     for mut category in results_iter {
@@ -557,7 +559,7 @@ struct BasicSearchSectionListContents(JsonCrawler);
 fn section_contents_is_empty(section_contents: &mut SectionContentsCrawler) -> Result<bool> {
     Ok(section_contents
         .0
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer"))
         .is_some())
 }
@@ -568,7 +570,7 @@ fn section_list_contents_is_empty(
 ) -> Result<bool> {
     let is_empty = section_contents
         .0
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .filter(|item| item.path_exists(MUSIC_CARD_SHELF) || item.path_exists(MUSIC_SHELF))
         .count()
         == 0;
@@ -609,7 +611,7 @@ impl TryFrom<SectionContentsCrawler> for FilteredSearchMSRContents {
     fn try_from(value: SectionContentsCrawler) -> std::prelude::v1::Result<Self, Self::Error> {
         let music_shelf_contents = value
             .0
-            .into_array_into_iter()?
+            .try_into_iter()?
             .find_path(concatcp!(MUSIC_SHELF, "/contents"))?;
         Ok(FilteredSearchMSRContents(music_shelf_contents))
     }

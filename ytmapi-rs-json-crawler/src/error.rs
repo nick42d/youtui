@@ -121,6 +121,7 @@ impl CrawlerError {
             }),
         }
     }
+    #[deprecated = "This function will be deprecated in future"]
     pub fn array_size(key: impl Into<String>, json: Arc<String>, min_elements: usize) -> Self {
         let key = key.into();
         Self {

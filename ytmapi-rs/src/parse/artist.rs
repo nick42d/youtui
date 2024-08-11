@@ -515,8 +515,9 @@ pub(crate) fn parse_playlist_upload_song(
     track_no: usize,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<PlaylistUploadSong> {
-    let duration =
-        process_fixed_column_item(&mut data.borrow_mut(), 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointer(TEXT_RUN_TEXT)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -527,7 +528,7 @@ pub(crate) fn parse_playlist_upload_song(
     let album = parse_upload_song_album(data.borrow_mut(), 2)?;
     let mut menu = data.navigate_pointer(MENU_ITEMS)?;
     let entity_id = menu
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path(DELETION_ENTITY_ID)?
         .take_value()?;
     Ok(PlaylistUploadSong {
@@ -558,10 +559,12 @@ pub(crate) fn parse_playlist_episode(
         true => (EpisodeDuration::Live, EpisodeDate::Live),
         false => {
             let date = parse_flex_column_item(&mut data, 2, 0)?;
-            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-                i.take_value_pointer("/text/simpleText")
-                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-            })?;
+            let duration =
+                data.borrow_pointer(fixed_column_item_pointer(0))
+                    .and_then(|mut i| {
+                        i.take_value_pointer("/text/simpleText")
+                            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+                    })?;
             (
                 EpisodeDuration::Recorded { duration },
                 EpisodeDate::Recorded { date },
@@ -569,7 +572,8 @@ pub(crate) fn parse_playlist_episode(
         }
     };
     let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let podcast_id = process_flex_column_item(&mut data, 1)?
+    let podcast_id = data
+        .borrow_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data

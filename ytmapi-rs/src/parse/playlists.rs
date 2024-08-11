@@ -19,7 +19,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
@@ -123,25 +123,25 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
     let mut second_subtitle_runs = header.navigate_pointer(SECOND_SUBTITLE_RUNS)?;
     let duration = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
     let track_count_text = second_subtitle_runs
         .borrow_mut()
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            Error::array_size(
+            ytmapi_rs_json_crawler::CrawlerError::array_size(
                 second_subtitle_runs.get_path(),
                 // TODO: Remove allocation.
-                Arc::new(second_subtitle_runs.get_source().to_owned()),
+                second_subtitle_runs.get_source(),
                 3,
             )
         })??;
     let views = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .rev()
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
@@ -212,25 +212,25 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let year = subtitle.take_value_pointer(format!("/{}/text", subtitle_len.saturating_sub(1)))?;
     let mut second_subtitle_runs = header.borrow_pointer(SECOND_SUBTITLE_RUNS)?;
     let duration = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
     let track_count_text = second_subtitle_runs
         .borrow_mut()
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            Error::array_size(
+            CrawlerError::array_size(
                 second_subtitle_runs.get_path(),
                 // TODO: Remove allocation.
-                Arc::new(second_subtitle_runs.get_source().to_owned()),
+                second_subtitle_runs.get_source().to_owned(),
                 3,
             )
         })??;
     let views = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .rev()
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
