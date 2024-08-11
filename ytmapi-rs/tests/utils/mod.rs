@@ -21,6 +21,8 @@ pub const INVALID_COOKIE: &str = "HSID=abc; SSID=abc; APISID=abc; SAPISID=abc; _
 //   }
 // }";
 
+// It may be possible to put these inside a static, but last time I tried I kept
+// getting web errors.
 pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
     let oauth_token = if let Ok(tok) = env::var("youtui_test_oauth") {
         tok
@@ -31,6 +33,8 @@ pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
         serde_json::from_slice(oauth_token.as_bytes()).unwrap(),
     ))
 }
+// It may be possible to put these inside a static, but last time I tried I kept
+// getting web errors.
 pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
     if let Ok(cookie) = env::var("youtui_test_cookie") {
         YtMusic::from_cookie(cookie).await
