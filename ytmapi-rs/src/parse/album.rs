@@ -1,4 +1,3 @@
-use std::sync::Arc;
 
 use super::{
     parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
@@ -10,7 +9,7 @@ use crate::common::{PlaylistID, Thumbnail};
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
 use crate::{nav_consts::*, VideoID};
-use crate::{Error, Result};
+use crate::Result;
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{

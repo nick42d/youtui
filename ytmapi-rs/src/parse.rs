@@ -17,21 +17,20 @@
 //! }
 //! ```
 use crate::{
-    auth::{AuthToken, BrowserToken, OAuthToken},
+    auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
     error,
     json::Json,
     nav_consts::*,
-    process::{self, fixed_column_item_pointer, flex_column_item_pointer},
+    process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::Query,
     ChannelID,
 };
 use crate::{RawResult, Result};
-use const_format::concatcp;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, sync::Arc};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};
+use std::fmt::Debug;
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral};
 
 pub use album::*;
 pub use artist::*;

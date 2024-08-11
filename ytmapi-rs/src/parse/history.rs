@@ -14,7 +14,6 @@ use crate::{
     parse::parse_flex_column_item,
     process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
-    utils,
     youtube_enums::YoutubeMusicVideoType,
     ChannelID, Result, Thumbnail, VideoID,
 };

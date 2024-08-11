@@ -1,8 +1,6 @@
 use std::{env, path::Path};
 use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    error::ErrorKind,
-    Error, Result, YtMusic,
+    auth::{BrowserToken, OAuthToken}, Result, YtMusic,
 };
 
 pub const COOKIE_PATH: &str = "cookie.txt";

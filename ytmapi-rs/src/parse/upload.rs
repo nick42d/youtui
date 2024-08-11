@@ -14,8 +14,7 @@ use crate::{
     query::{
         DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    },
-    Error, Result, Thumbnail, VideoID,
+    }, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};

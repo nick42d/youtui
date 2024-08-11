@@ -16,7 +16,6 @@ use crate::{
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // The original reason for the two different structs was that we did not save

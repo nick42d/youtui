@@ -14,7 +14,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fmt::Debug;
 use std::path::Path;
-use std::sync::Arc;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct BrowserToken {

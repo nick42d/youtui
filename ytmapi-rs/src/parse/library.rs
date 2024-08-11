@@ -1,22 +1,20 @@
 use super::{
-    parse_flex_column_item, parse_library_management_items_from_menu, parse_table_list_upload_song,
-    EpisodeDate, EpisodeDuration, HistoryItem, ParseFrom, ProcessedResult, SearchResultAlbum,
-    TableListSong, BADGE_LABEL, LIVE_BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3,
+    parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult, SearchResultAlbum,
+    TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3,
     SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{ApiOutcome, Explicit, PlaylistID};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM,
-    SINGLE_COLUMN_TAB, TEXT_RUN, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
+    NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM,
+    SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::process::fixed_column_item_pointer;
 use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
 use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};

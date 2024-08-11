@@ -4,12 +4,9 @@ use crate::{
     error::Error,
     Result,
 };
-use std::{borrow::Borrow, sync::Arc};
-use tokio::sync::RwLock;
-use tracing::info;
+use std::borrow::Borrow;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
-    error::ErrorKind,
     query::Query,
     YtMusic, YtMusicBuilder,
 };

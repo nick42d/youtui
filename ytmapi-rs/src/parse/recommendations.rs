@@ -11,11 +11,10 @@ use crate::{
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Error, Result, Thumbnail,
+    utils, Result, Thumbnail,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use ytmapi_rs_json_crawler::{
     CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral,
 };

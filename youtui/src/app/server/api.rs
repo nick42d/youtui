@@ -8,7 +8,6 @@ use crate::get_config_dir;
 use crate::Result;
 use crate::OAUTH_FILENAME;
 use std::borrow::Borrow;
-use std::ops::Deref;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::mpsc;

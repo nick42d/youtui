@@ -3,7 +3,6 @@ use core::fmt::{Debug, Display};
 use std::{
     hash::{Hash, Hasher},
     io,
-    sync::Arc,
     time::SystemTimeError,
 };
 

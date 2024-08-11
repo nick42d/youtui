@@ -2,9 +2,7 @@ use crate::auth::AuthToken;
 use crate::parse::ProcessedResult;
 use crate::query::Query;
 use crate::Result;
-use const_format::formatcp;
 use std::marker::PhantomData;
-use ytmapi_rs_json_crawler::JsonCrawlerBorrowed;
 
 /// The raw result of a query to the API.
 // NOTE: The reason this is exposed in the public API, is that it is required to implement
