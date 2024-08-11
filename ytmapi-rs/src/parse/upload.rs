@@ -20,7 +20,7 @@ use crate::{
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
-    CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+    CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -94,7 +94,7 @@ pub struct GetLibraryUploadAlbumSong {
 
 impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadSongsQuery>) -> Result<Self> {
-        let crawler: JsonCrawler = p.into();
+        let crawler: JsonCrawlerOwned = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
@@ -119,7 +119,7 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
 }
 impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>) -> Result<Self> {
-        fn parse_item_list_upload_album(mut json_crawler: JsonCrawler) -> Result<UploadAlbum> {
+        fn parse_item_list_upload_album(mut json_crawler: JsonCrawlerOwned) -> Result<UploadAlbum> {
             let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
             let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
@@ -140,7 +140,7 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
                 album_id,
             })
         }
-        let crawler: JsonCrawler = p.into();
+        let crawler: JsonCrawlerOwned = p.into();
         let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
@@ -154,7 +154,9 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
 }
 impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
-        fn parse_item_list_upload_artist(mut json_crawler: JsonCrawler) -> Result<UploadArtist> {
+        fn parse_item_list_upload_artist(
+            mut json_crawler: JsonCrawlerOwned,
+        ) -> Result<UploadArtist> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
             let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
             let songs = parse_flex_column_item(&mut data.borrow_mut(), 1, 0)?;
@@ -167,7 +169,7 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
                 artist_id,
             })
         }
-        let crawler: JsonCrawler = p.into();
+        let crawler: JsonCrawlerOwned = p.into();
         let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
@@ -183,7 +185,7 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
 impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumQuery>) -> Result<Self> {
         fn parse_playlist_upload_song(
-            mut json_crawler: JsonCrawler,
+            mut json_crawler: JsonCrawlerOwned,
         ) -> Result<GetLibraryUploadAlbumSong> {
             let mut data = json_crawler.borrow_pointer(MRLIR)?;
             let title = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
@@ -211,7 +213,7 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
                 like_status,
             })
         }
-        let mut crawler: JsonCrawler = p.into();
+        let mut crawler: JsonCrawlerOwned = p.into();
         let mut header = crawler.borrow_pointer(HEADER_DETAIL)?;
         let title = header.take_value_pointer(TITLE_TEXT)?;
         let album_type = header.take_value_pointer(SUBTITLE)?;
@@ -248,7 +250,7 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
 }
 impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistQuery>) -> Result<Self> {
-        let crawler: JsonCrawler = p.into();
+        let crawler: JsonCrawlerOwned = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
@@ -273,7 +275,7 @@ impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong>
 }
 impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<DeleteUploadEntityQuery<'a>>) -> crate::Result<Self> {
-        let crawler: JsonCrawler = p.into();
+        let crawler: JsonCrawlerOwned = p.into();
         // Passing an invalid entity ID with will throw a 400 error which
         // is caught by AuthToken.
         // NOTE: Passing the same entity id for deletion multiple times
@@ -344,7 +346,7 @@ pub(crate) fn parse_table_list_upload_song(
     })
 }
 
-fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
+fn get_uploads_tab(json: JsonCrawlerOwned) -> Result<JsonCrawlerOwned> {
     let tabs_path = concatcp!(SINGLE_COLUMN_TABS);
     let iter = json.navigate_pointer(tabs_path)?.try_into_iter()?;
     let iter_context = iter.get_context();

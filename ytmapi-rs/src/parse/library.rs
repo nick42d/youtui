@@ -1,14 +1,14 @@
 use super::{
-    parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult, SearchResultAlbum,
-    TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2, SUBTITLE3,
-    SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
+    SearchResultAlbum, TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
+    SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{ApiOutcome, Explicit, PlaylistID};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM,
-    SINGLE_COLUMN_TAB, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
+    NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::process::fixed_column_item_pointer;
 use crate::query::{
@@ -17,7 +17,7 @@ use crate::query::{
 };
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 
 #[derive(Debug)]
 // Very similar to LibraryArtist struct
@@ -62,7 +62,7 @@ impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
 
 impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> crate::Result<Self> {
-        let json_crawler = JsonCrawler::from(p);
+        let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
             .try_into_iter()?
@@ -92,7 +92,7 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
 }
 
 fn parse_library_albums(
-    json_crawler: JsonCrawler,
+    json_crawler: JsonCrawlerOwned,
 ) -> std::prelude::v1::Result<Vec<SearchResultAlbum>, crate::Error> {
     let items = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
@@ -102,7 +102,7 @@ fn parse_library_albums(
     items.try_into_iter()?.map(parse_item_list_album).collect()
 }
 fn parse_library_songs(
-    json_crawler: JsonCrawler,
+    json_crawler: JsonCrawlerOwned,
 ) -> std::prelude::v1::Result<Vec<TableListSong>, crate::Error> {
     let contents = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
@@ -126,7 +126,7 @@ fn parse_library_songs(
         .collect()
 }
 fn parse_library_artist_subscriptions(
-    json_crawler: JsonCrawler,
+    json_crawler: JsonCrawlerOwned,
 ) -> std::prelude::v1::Result<Vec<GetLibraryArtistSubscription>, crate::Error> {
     let contents = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
@@ -140,7 +140,7 @@ fn parse_library_artist_subscriptions(
         .collect()
 }
 
-fn parse_library_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
+fn parse_library_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryArtist>> {
     if let Some(contents) = process_library_contents_music_shelf(json_crawler) {
         parse_content_list_artists(contents)
     } else {
@@ -148,7 +148,7 @@ fn parse_library_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>
     }
 }
 
-fn parse_library_playlist_query(json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
+fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
     if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
@@ -158,7 +158,7 @@ fn parse_library_playlist_query(json_crawler: JsonCrawler) -> Result<Vec<Playlis
 
 // Consider returning ProcessedLibraryContents
 // TODO: Move to process
-fn process_library_contents_grid(mut json_crawler: JsonCrawler) -> Option<JsonCrawler> {
+fn process_library_contents_grid(mut json_crawler: JsonCrawlerOwned) -> Option<JsonCrawlerOwned> {
     let section = json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST));
     // Assume empty library in this case.
     if let Ok(section) = section {
@@ -177,7 +177,9 @@ fn process_library_contents_grid(mut json_crawler: JsonCrawler) -> Option<JsonCr
 }
 // Consider returning ProcessedLibraryContents
 // TODO: Move to process
-fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option<JsonCrawler> {
+fn process_library_contents_music_shelf(
+    mut json_crawler: JsonCrawlerOwned,
+) -> Option<JsonCrawlerOwned> {
     let section = json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST));
     // Assume empty library in this case.
     if let Ok(section) = section {
@@ -195,7 +197,7 @@ fn process_library_contents_music_shelf(mut json_crawler: JsonCrawler) -> Option
     }
 }
 
-fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAlbum> {
+fn parse_item_list_album(mut json_crawler: JsonCrawlerOwned) -> Result<SearchResultAlbum> {
     let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
     let browse_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
@@ -220,7 +222,7 @@ fn parse_item_list_album(mut json_crawler: JsonCrawler) -> Result<SearchResultAl
 }
 
 fn parse_content_list_artist_subscription(
-    mut json_crawler: JsonCrawler,
+    mut json_crawler: JsonCrawlerOwned,
 ) -> Result<GetLibraryArtistSubscription> {
     let mut data = json_crawler.borrow_pointer(MRLIR)?;
     let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -235,7 +237,7 @@ fn parse_content_list_artist_subscription(
     })
 }
 
-fn parse_content_list_artists(json_crawler: JsonCrawler) -> Result<Vec<LibraryArtist>> {
+fn parse_content_list_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryArtist>> {
     let mut results = Vec::new();
     for result in json_crawler.navigate_pointer("/contents")?.try_iter_mut()? {
         let mut data = result.navigate_pointer(MRLIR)?;
@@ -296,7 +298,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })
 }
 
-fn parse_content_list_playlist(json_crawler: JsonCrawler) -> Result<Vec<Playlist>> {
+fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
     // TODO: Implement count and author fields
     let mut results = Vec::new();
     for result in json_crawler

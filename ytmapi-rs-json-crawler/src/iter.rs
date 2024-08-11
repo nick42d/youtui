@@ -1,7 +1,7 @@
 //! Iterators and extension for working with crawlers that are pointing to
 //! arrays.
 use crate::{
-    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonPath,
+    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned, JsonPath,
     PathList,
 };
 use std::{borrow::Borrow, slice::IterMut, sync::Arc, vec::IntoIter};
@@ -10,7 +10,7 @@ use std::{borrow::Borrow, slice::IterMut, sync::Arc, vec::IntoIter};
 /// iterators to help with error handling.
 pub trait JsonCrawlerIterator: Iterator
 where
-    Self::Item: JsonCrawlerGeneral,
+    Self::Item: JsonCrawler,
 {
     /// Return the first crawler found at `path`, or error.
     fn find_path(self, path: impl AsRef<str>) -> CrawlerResult<Self::Item>;
@@ -119,10 +119,10 @@ impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
 }
 
 impl Iterator for JsonCrawlerArrayIntoIter {
-    type Item = JsonCrawler;
+    type Item = JsonCrawlerOwned;
     fn next(&mut self) -> Option<Self::Item> {
         let crawler = self.array.next()?;
-        let out = Some(JsonCrawler {
+        let out = Some(JsonCrawlerOwned {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
@@ -144,7 +144,7 @@ impl ExactSizeIterator for JsonCrawlerArrayIntoIter {}
 impl DoubleEndedIterator for JsonCrawlerArrayIntoIter {
     fn next_back(&mut self) -> Option<Self::Item> {
         let crawler = self.array.next_back()?;
-        let out = Some(JsonCrawler {
+        let out = Some(JsonCrawlerOwned {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,

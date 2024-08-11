@@ -17,7 +17,7 @@ use crate::{
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {
@@ -54,7 +54,7 @@ impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
 }
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
     fn parse_from(p: ProcessedResult<CreatePlaylistQuery<'a, C>>) -> crate::Result<Self> {
-        let mut json_crawler: JsonCrawler = p.into();
+        let mut json_crawler: JsonCrawlerOwned = p.into();
         json_crawler
             .take_value_pointer("/playlistId")
             .map_err(Into::into)
@@ -62,7 +62,7 @@ impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for Playli
 }
 impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
     fn parse_from(p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>) -> crate::Result<Self> {
-        let mut json_crawler: JsonCrawler = p.into();
+        let mut json_crawler: JsonCrawlerOwned = p.into();
         let status: ApiOutcome = json_crawler.borrow_pointer("/status")?.take_value()?;
         if let ApiOutcome::Failure = status {
             return Err(Error::status_failed());
@@ -82,7 +82,7 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
 }
 impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
     fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         json_crawler
             .navigate_pointer("/status")?
             .take_value()
@@ -97,7 +97,7 @@ impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
 
 impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
     fn parse_from(p: ProcessedResult<GetPlaylistQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         if json_crawler.path_exists("/header") {
             get_playlist(json_crawler)
         } else {
@@ -106,7 +106,7 @@ impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
     }
 }
 
-fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
+fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     let mut header = json_crawler.borrow_pointer(HEADER_DETAIL)?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
     let privacy = None;
@@ -165,7 +165,7 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
 }
 
 // NOTE: Similar code to get_album_2024
-fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
+fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER));

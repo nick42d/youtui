@@ -16,8 +16,8 @@ use crate::{
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
-    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral,
-    JsonCrawlerIterator,
+    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator,
+    JsonCrawlerOwned,
 };
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -64,7 +64,7 @@ where
 
 impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     fn parse_from(p: super::ProcessedResult<GetTasteProfileQuery>) -> Result<Self> {
-        let crawler = JsonCrawler::from(p);
+        let crawler = JsonCrawlerOwned::from(p);
         // TODO: Neaten this
         let nested_iter = crawler
             .navigate_pointer(TASTE_PROFILE_ITEMS)?
@@ -83,7 +83,7 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
 
 impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
     fn parse_from(p: super::ProcessedResult<GetMoodCategoriesQuery>) -> crate::Result<Self> {
-        let crawler = JsonCrawler::from(p);
+        let crawler = JsonCrawlerOwned::from(p);
         crawler
             .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
             .try_into_iter()?
@@ -93,12 +93,14 @@ impl ParseFrom<GetMoodCategoriesQuery> for Vec<MoodCategorySection> {
 }
 impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     fn parse_from(p: super::ProcessedResult<GetMoodPlaylistsQuery<'a>>) -> Result<Self> {
-        fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
+        fn parse_mood_playlist_category(
+            mut crawler: JsonCrawlerOwned,
+        ) -> Result<MoodPlaylistCategory> {
             let array = vec![
-                |s: &mut JsonCrawler| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
+                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
                     parse_mood_playlist_category_grid(s.borrow_pointer(GRID)?)
                 },
-                |s: &mut JsonCrawler| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
+                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
                     parse_mood_playlist_category_carousel(
                         s.borrow_pointer(CAROUSEL)?,
                     )
@@ -158,7 +160,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
                 author,
             })
         }
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         json_crawler
             .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
             .try_into_iter()?
@@ -167,7 +169,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
     }
 }
 
-fn parse_mood_category_sections(crawler: JsonCrawler) -> Result<MoodCategorySection> {
+fn parse_mood_category_sections(crawler: JsonCrawlerOwned) -> Result<MoodCategorySection> {
     let mut crawler = crawler.navigate_pointer(GRID)?;
     let section_name =
         crawler.take_value_pointer(concatcp!("/header/gridHeaderRenderer/title", RUN_TEXT))?;
@@ -181,14 +183,14 @@ fn parse_mood_category_sections(crawler: JsonCrawler) -> Result<MoodCategorySect
         mood_categories,
     })
 }
-fn parse_mood_categories(crawler: JsonCrawler) -> Result<MoodCategory> {
+fn parse_mood_categories(crawler: JsonCrawlerOwned) -> Result<MoodCategory> {
     let mut crawler = crawler.navigate_pointer("/musicNavigationButtonRenderer")?;
     let title = crawler.take_value_pointer(concatcp!(CATEGORY_TITLE))?;
     let params = crawler.take_value_pointer(concatcp!(CATEGORY_PARAMS))?;
     Ok(MoodCategory { title, params })
 }
 
-fn get_taste_profile_artist(mut crawler: JsonCrawler) -> Result<TasteProfileArtist> {
+fn get_taste_profile_artist(mut crawler: JsonCrawlerOwned) -> Result<TasteProfileArtist> {
     let artist = crawler.take_value_pointer(TASTE_PROFILE_ARTIST)?;
     let impression_value = crawler.take_value_pointer(TASTE_PROFILE_IMPRESSION)?;
     let selection_value = crawler.take_value_pointer(TASTE_PROFILE_SELECTION)?;

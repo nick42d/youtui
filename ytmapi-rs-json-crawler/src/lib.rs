@@ -8,16 +8,20 @@ pub use error::{CrawlerError, CrawlerResult};
 pub use iter::*;
 // Currently the only way to create a crawler is from a serde_json::Value, so we
 // might as well re-export it.
+// doc(no_inline) means that the re-export will be clear in the docs.
+#[doc(no_inline)]
 pub use serde_json::Value;
 
 mod error;
 mod iter;
 
-pub trait JsonCrawlerGeneral
+/// Trait to represent a JsonCrawler that may own or borrow from the original
+/// `serde_json::Value`.
+pub trait JsonCrawler
 where
     Self: Sized,
 {
-    type BorrowTo<'a>: JsonCrawlerGeneral
+    type BorrowTo<'a>: JsonCrawler
     where
         Self: 'a;
     type IterMut<'a>: Iterator<Item = Self::BorrowTo<'a>>
@@ -87,7 +91,7 @@ where
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct JsonCrawler {
+pub struct JsonCrawlerOwned {
     // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
     // want it to be thread safe.
     source: Arc<String>,
@@ -102,7 +106,7 @@ pub struct JsonCrawlerBorrowed<'a> {
     path: PathList,
 }
 
-impl JsonCrawler {
+impl JsonCrawlerOwned {
     /// Create a new JsonCrawler, where 'json' is the `serde_json::Value` that
     /// you wish to crawl and 'source' represents a serialized copy of the same
     /// `serde_json::Value`.
@@ -116,7 +120,7 @@ impl JsonCrawler {
     }
 }
 
-impl<'a> JsonCrawlerGeneral for JsonCrawlerBorrowed<'a> {
+impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
     type BorrowTo<'b> = JsonCrawlerBorrowed<'b> where Self: 'b ;
     type IterMut<'b> = JsonCrawlerArrayIterMut<'b> where Self: 'b;
     type IntoIter = JsonCrawlerArrayIterMut<'a>;
@@ -275,12 +279,12 @@ impl<'a> JsonCrawlerGeneral for JsonCrawlerBorrowed<'a> {
     }
 }
 
-impl JsonCrawlerGeneral for JsonCrawler {
+impl JsonCrawler for JsonCrawlerOwned {
     type BorrowTo<'a> = JsonCrawlerBorrowed<'a> where Self: 'a;
     type IterMut<'a> = JsonCrawlerArrayIterMut<'a> where Self: 'a;
     type IntoIter = JsonCrawlerArrayIntoIter;
     fn try_into_iter(self) -> CrawlerResult<Self::IntoIter> {
-        if let JsonCrawler {
+        if let JsonCrawlerOwned {
             source,
             crawler: serde_json::Value::Array(array),
             path,

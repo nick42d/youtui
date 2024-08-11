@@ -1,6 +1,6 @@
 use super::ParseFrom;
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral, JsonCrawlerIterator};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {
@@ -16,7 +16,7 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
         // Passing an invalid playlist ID to Like or Indifferent will throw a 404 error
         // which is caught by AuthToken. Youtube does no checking on
         // Indifferent, even an invalid PlaylistID will return success.
-        let json_crawler = JsonCrawler::from(p);
+        let json_crawler = JsonCrawlerOwned::from(p);
         // TODO: Error type
         json_crawler
             .navigate_pointer("/actions")?

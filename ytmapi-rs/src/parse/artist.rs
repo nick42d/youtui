@@ -18,7 +18,7 @@ use crate::{
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 
 #[derive(Debug, Clone)]
@@ -93,7 +93,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
     #[allow(clippy::field_reassign_with_default)]
     fn parse_from(p: ProcessedResult<GetArtistQuery<'a>>) -> crate::Result<Self> {
         // TODO: Make this optional.
-        let mut json_crawler: JsonCrawler = p.into();
+        let mut json_crawler: JsonCrawlerOwned = p.into();
         let mut results =
             json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         //        artist = {'description': None, 'views': None}
@@ -682,7 +682,7 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
 }
 impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         let mut albums = Vec::new();
         let mut json_crawler = json_crawler.navigate_pointer(concatcp!(
             SINGLE_COLUMN_TAB,

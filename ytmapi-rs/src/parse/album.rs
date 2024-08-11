@@ -1,4 +1,3 @@
-
 use super::{
     parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
 };
@@ -8,12 +7,12 @@ use crate::common::{
 use crate::common::{PlaylistID, Thumbnail};
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
-use crate::{nav_consts::*, VideoID};
 use crate::Result;
+use crate::{nav_consts::*, VideoID};
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
@@ -150,7 +149,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
 
 // NOTE: Similar code to get_playlist_2024
 fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
-    let json_crawler = JsonCrawler::from(p);
+    let json_crawler = JsonCrawlerOwned::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let mut header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;

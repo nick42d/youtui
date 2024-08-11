@@ -30,7 +30,7 @@ use crate::{RawResult, Result};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral};
+use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
 pub use album::*;
 pub use artist::*;
@@ -312,10 +312,10 @@ impl<'a, Q> ProcessedResult<'a, Q> {
     }
 }
 
-impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawler {
+impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawlerOwned {
     fn from(value: ProcessedResult<Q>) -> Self {
         let (_, source, crawler) = value.destructure();
-        JsonCrawler::new(source, crawler)
+        JsonCrawlerOwned::new(source, crawler)
     }
 }
 
@@ -323,7 +323,7 @@ impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawler {
 // fixedcolumnitem also. Not sure if this should error.
 // XXX: I think this should return none instead of error.
 fn parse_song_artists(
-    data: &mut impl JsonCrawlerGeneral,
+    data: &mut impl JsonCrawler,
     col_idx: usize,
 ) -> Result<Vec<ParsedSongArtist>> {
     data.borrow_pointer(format!("{}/text/runs", flex_column_item_pointer(col_idx)))?
@@ -333,14 +333,14 @@ fn parse_song_artists(
         .collect()
 }
 
-fn parse_song_artist(data: &mut impl JsonCrawlerGeneral) -> Result<ParsedSongArtist> {
+fn parse_song_artist(data: &mut impl JsonCrawler) -> Result<ParsedSongArtist> {
     Ok(ParsedSongArtist {
         name: data.take_value_pointer("/text")?,
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
     })
 }
 
-fn parse_song_album(data: &mut impl JsonCrawlerGeneral, col_idx: usize) -> Result<ParsedSongAlbum> {
+fn parse_song_album(data: &mut impl JsonCrawler, col_idx: usize) -> Result<ParsedSongAlbum> {
     Ok(ParsedSongAlbum {
         name: parse_flex_column_item(data, col_idx, 0)?,
         id: data.take_value_pointer(format!(
@@ -352,7 +352,7 @@ fn parse_song_album(data: &mut impl JsonCrawlerGeneral, col_idx: usize) -> Resul
 }
 
 fn parse_flex_column_item<T: DeserializeOwned>(
-    item: &mut impl JsonCrawlerGeneral,
+    item: &mut impl JsonCrawler,
     col_idx: usize,
     run_idx: usize,
 ) -> Result<T> {
@@ -364,7 +364,7 @@ fn parse_flex_column_item<T: DeserializeOwned>(
 }
 
 fn parse_fixed_column_item<T: DeserializeOwned>(
-    item: &mut impl JsonCrawlerGeneral,
+    item: &mut impl JsonCrawler,
     col_idx: usize,
 ) -> Result<T> {
     let pointer = format!("{}/text/runs/0/text", fixed_column_item_pointer(col_idx));
@@ -377,11 +377,11 @@ mod lyrics {
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral};
+    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
     impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
-            let json_crawler: JsonCrawler = p.into();
+            let json_crawler: JsonCrawlerOwned = p.into();
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
                 "/contents",
                 SECTION_LIST_ITEM,
@@ -432,12 +432,12 @@ mod watch {
         Result,
     };
     use const_format::concatcp;
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral};
+    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 
     impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
             // TODO: Continuations
-            let json_crawler: JsonCrawler = p.into();
+            let json_crawler: JsonCrawlerOwned = p.into();
             let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;
             let lyrics_id =
                 get_tab_browse_id(&mut watch_next_renderer.borrow_mut(), 1)?.take_value()?;
@@ -470,13 +470,13 @@ mod watch {
 mod song {
     use super::ParseFrom;
     use crate::{common::SongTrackingUrl, query::song::GetSongTrackingUrlQuery};
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerGeneral};
+    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
     impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         fn parse_from(
             p: super::ProcessedResult<GetSongTrackingUrlQuery<'a>>,
         ) -> crate::Result<Self> {
-            let mut crawler = JsonCrawler::from(p);
+            let mut crawler = JsonCrawlerOwned::from(p);
             crawler
                 .take_value_pointer("/playbackTracking/videostatsPlaybackUrl/baseUrl")
                 .map_err(Into::into)

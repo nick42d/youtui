@@ -20,7 +20,7 @@ use crate::{
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -109,7 +109,7 @@ pub struct HistoryItemUploadSong {
 
 impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
     fn parse_from(p: super::ProcessedResult<GetHistoryQuery>) -> Result<Self> {
-        let json_crawler = JsonCrawler::from(p);
+        let json_crawler = JsonCrawlerOwned::from(p);
         let contents = json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         contents
             .try_into_iter()?
@@ -119,7 +119,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
 }
 impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<RemoveHistoryItemsQuery>) -> Result<Self> {
-        let json_crawler = JsonCrawler::from(p);
+        let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
             .try_into_iter()?
@@ -146,7 +146,7 @@ impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
     }
 }
 
-fn parse_history_period(json: JsonCrawler) -> Result<HistoryPeriod> {
+fn parse_history_period(json: JsonCrawlerOwned) -> Result<HistoryPeriod> {
     let mut data = json.navigate_pointer(MUSIC_SHELF)?;
     let period_name = data.take_value_pointer(TITLE_TEXT)?;
     let items = data
@@ -156,7 +156,7 @@ fn parse_history_period(json: JsonCrawler) -> Result<HistoryPeriod> {
         .collect::<Result<_>>()?;
     Ok(HistoryPeriod { period_name, items })
 }
-fn parse_history_item(mut json: JsonCrawler) -> Result<Option<HistoryItem>> {
+fn parse_history_item(mut json: JsonCrawlerOwned) -> Result<Option<HistoryItem>> {
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
     };

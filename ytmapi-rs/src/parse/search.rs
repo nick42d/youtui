@@ -23,7 +23,7 @@ use filteredsearch::{
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
 use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral, JsonCrawlerIterator,
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 
 #[cfg(test)]
@@ -550,8 +550,8 @@ fn parse_playlist_search_result_from_music_shelf_contents(
 }
 
 // TODO: Rename FilteredSearchSectionContents
-struct SectionContentsCrawler(JsonCrawler);
-struct BasicSearchSectionListContents(JsonCrawler);
+struct SectionContentsCrawler(JsonCrawlerOwned);
+struct BasicSearchSectionListContents(JsonCrawlerOwned);
 // In this case, we've searched and had no results found.
 // We are being quite explicit here to avoid a false positive.
 // See tests for an example.
@@ -580,7 +580,7 @@ impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, S>
 {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, S>>) -> Result<Self> {
-        let json_crawler: JsonCrawler = value.into();
+        let json_crawler: JsonCrawlerOwned = value.into();
         let section_list_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
@@ -594,7 +594,7 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
 {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>) -> Result<Self> {
-        let json_crawler: JsonCrawler = value.into();
+        let json_crawler: JsonCrawlerOwned = value.into();
         let section_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
@@ -604,7 +604,7 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
     }
 }
 // XXX: Should this also contain query type?
-struct FilteredSearchMSRContents(JsonCrawler);
+struct FilteredSearchMSRContents(JsonCrawlerOwned);
 impl TryFrom<SectionContentsCrawler> for FilteredSearchMSRContents {
     type Error = Error;
     fn try_from(value: SectionContentsCrawler) -> std::prelude::v1::Result<Self, Self::Error> {
@@ -872,7 +872,7 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<Sea
 
 impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
     fn parse_from(p: ProcessedResult<GetSearchSuggestionsQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
         let mut results = Vec::new();
