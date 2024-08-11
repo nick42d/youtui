@@ -15,6 +15,8 @@ mod config;
 mod core;
 mod drawutils;
 mod error;
+#[cfg(test)]
+mod tests;
 
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
