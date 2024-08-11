@@ -560,8 +560,7 @@ fn section_contents_is_empty(section_contents: &mut SectionContentsCrawler) -> R
     Ok(section_contents
         .0
         .try_iter_mut()?
-        .find(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer"))
-        .is_some())
+        .any(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")))
 }
 // TODO: Consolidate these two functions into single function.
 // TODO: This could be implemented with a non-mutable array also.

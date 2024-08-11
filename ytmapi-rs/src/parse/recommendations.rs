@@ -95,12 +95,12 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
         fn parse_mood_playlist_category(mut crawler: JsonCrawler) -> Result<MoodPlaylistCategory> {
             let array = vec![
                 |s: &mut JsonCrawler| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
-                    Ok(parse_mood_playlist_category_grid(s.borrow_pointer(GRID)?)?)
+                    parse_mood_playlist_category_grid(s.borrow_pointer(GRID)?)
                 },
                 |s: &mut JsonCrawler| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
-                    Ok(parse_mood_playlist_category_carousel(
+                    parse_mood_playlist_category_carousel(
                         s.borrow_pointer(CAROUSEL)?,
-                    )?)
+                    )
                 },
             ];
             crawler.try_functions(array).map_err(Into::into)
