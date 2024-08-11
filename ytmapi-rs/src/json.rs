@@ -1,21 +1,27 @@
 //! This module contains the representation of Json exposed in the default
 //! public API in this library.
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
 /// Basic representation of any valid Json value, wrapping a
 /// `serde_json::Value`. For use if you are implementing [`crate::query::Query`]
-/// from scratch. To parse this value, you can either utilise the Serialize /
-/// Deserialize traits, or enable the `serde_json` feature to expose the
-/// internals via feature gated function `Json::into_inner`.
+/// from scratch. To parse this value, you can utilise the Serialize /
+/// Deserialize traits, the [`from_json`] function to convert to a concrete
+/// type, or enable the `serde_json` feature to expose the internals via feature
+/// gated function `Json::into_inner`.
 /// # Note
-/// This struct does not implement Deserializer, as it would require it's own
-/// Error type. Recommend using `serde_json::Value` as the Deserializer if
-/// needed.
+/// This struct does not implement Deserializer, as implementation is more
+/// complex than this thin wrapper.
 #[derive(Clone, PartialEq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Json {
     pub(crate) inner: Value,
+}
+
+/// Interpret Json as an instance of type T.
+/// See [`crate::parse`] for a usage example.
+pub fn from_json<T: DeserializeOwned>(json: Json) -> crate::Result<T> {
+    serde_json::from_value(json.inner).map_err(|e| crate::Error::from(std::io::Error::from(e)))
 }
 
 impl std::fmt::Debug for Json {

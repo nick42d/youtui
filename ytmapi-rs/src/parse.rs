@@ -1,8 +1,5 @@
 //! Results from parsing Innertube queries.
 //! # Implementation example
-//! Implementation example is pending refactoring of ProcessedResult to remove
-//! leaking external type `serde_json::Value`.
-//! See [`crate::json`] for documentation related to the Json type.
 //! ```no_run
 //! # struct GetDateQuery;
 //! use serde::Deserialize;
@@ -15,8 +12,7 @@
 //!     fn parse_from(
 //!         p: ytmapi_rs::parse::ProcessedResult<GetDateQuery>,
 //!     ) -> ytmapi_rs::Result<Self> {
-//!         let deserializer = serde_json::Value::default();
-//!         Date::deserialize(deserializer)
+//!         ytmapi_rs::json::from_json(p.json)
 //!     }
 //! }
 //! ```

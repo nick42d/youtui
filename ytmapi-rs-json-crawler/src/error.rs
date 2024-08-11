@@ -85,6 +85,15 @@ pub enum ParseTarget {
     Other(String),
 }
 
+impl std::fmt::Display for ParseTarget {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseTarget::Array => write!(f, "Array"),
+            ParseTarget::Other(t) => write!(f, "{t}"),
+        }
+    }
+}
+
 impl std::error::Error for CrawlerError {}
 
 impl CrawlerError {
@@ -210,8 +219,8 @@ impl Display for ErrorKind {
                 message,
             } => write!(
                 f,
-                "Error {:?}. Unable to parse into {:?} at {key}",
-                message, target
+                "Error {:?}. Unable to parse into {target} at {key}",
+                message 
             ),
             ErrorKind::MultipleParseError { key, json: _, messages } => write!(f,"Expected one of the parsing functions at {key} to succeed, but all failed with the following errors: {:?}",messages),
         }
