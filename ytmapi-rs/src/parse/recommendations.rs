@@ -17,6 +17,7 @@ use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs_json_crawler::{
     CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerGeneral,
+    JsonCrawlerIterator,
 };
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -141,18 +142,14 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
             let playlist_id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let title = item.take_value_pointer(TITLE_TEXT)?;
             let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
-            let author = item
-                .borrow_pointer(SUBTITLE_RUNS)?
-                .try_iter_mut()?
+            let subtitle_runs_iter = item.borrow_pointer(SUBTITLE_RUNS)?.try_into_iter()?;
+            let subtitle_runs_iter_context = subtitle_runs_iter.get_context();
+            let author = subtitle_runs_iter
                 .take(3)
                 .last()
                 .map(|mut run| run.take_value_pointer("/text"))
                 .ok_or_else(|| {
-                    CrawlerError::array_size(
-                        format!("{}{SUBTITLE_RUNS}/text", item.get_path()),
-                        item.get_source(),
-                        1,
-                    )
+                    CrawlerError::array_size_from_context(subtitle_runs_iter_context, 1)
                 })??;
             Ok(MoodPlaylist {
                 playlist_id,

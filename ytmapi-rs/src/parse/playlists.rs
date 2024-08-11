@@ -1,4 +1,3 @@
-
 use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
@@ -125,19 +124,14 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let track_count_text = second_subtitle_runs
-        .borrow_mut()
-        .try_into_iter()?
+    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
+    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
+    let track_count_text = second_subtitle_runs_iter
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            ytmapi_rs_json_crawler::CrawlerError::array_size(
-                second_subtitle_runs.get_path(),
-                // TODO: Remove allocation.
-                second_subtitle_runs.get_source(),
-                3,
-            )
+            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
         })??;
     let views = second_subtitle_runs
         .try_iter_mut()?
@@ -214,19 +208,14 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
         .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let track_count_text = second_subtitle_runs
-        .borrow_mut()
-        .try_into_iter()?
+    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
+    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
+    let track_count_text = second_subtitle_runs_iter
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            CrawlerError::array_size(
-                second_subtitle_runs.get_path(),
-                // TODO: Remove allocation.
-                second_subtitle_runs.get_source().to_owned(),
-                3,
-            )
+            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
         })??;
     let views = second_subtitle_runs
         .try_iter_mut()?

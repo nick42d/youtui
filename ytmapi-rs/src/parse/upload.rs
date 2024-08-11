@@ -14,7 +14,8 @@ use crate::{
     query::{
         DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    }, Result, Thumbnail, VideoID,
+    },
+    Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -346,12 +347,10 @@ pub(crate) fn parse_table_list_upload_song(
 fn get_uploads_tab(json: JsonCrawler) -> Result<JsonCrawler> {
     let tabs_path = concatcp!(SINGLE_COLUMN_TABS);
     let iter = json.navigate_pointer(tabs_path)?.try_into_iter()?;
+    let iter_context = iter.get_context();
     iter.clone()
         .last()
-        .ok_or_else(|| {
-            let (source, path) = iter.get_context();
-            CrawlerError::array_size(path, source, 0)
-        })
+        .ok_or_else(|| CrawlerError::array_size_from_context(iter_context, 0))
         .map_err(Into::into)
 }
 

@@ -1,9 +1,14 @@
-//! Library to crawl Json using the pointer syntax.
+//! Library to crawl Json using the pointer syntax and return useful errors.
+//! Documentation is a work in progress.
 use error::ParseTarget;
-pub use error::{CrawlerError, CrawlerResult};
-pub use iter::*;
 use serde::de::DeserializeOwned;
 use std::{fmt::Display, ops::ControlFlow, str::FromStr, sync::Arc};
+
+pub use error::{CrawlerError, CrawlerResult};
+pub use iter::*;
+// Currently the only way to create a crawler is from a serde_json::Value, so we
+// might as well re-export it.
+pub use serde_json::Value;
 
 mod error;
 mod iter;
@@ -98,8 +103,10 @@ pub struct JsonCrawlerBorrowed<'a> {
 }
 
 impl JsonCrawler {
-    // TODO: Feature gate
-    #[deprecated]
+    /// Create a new JsonCrawler, where 'json' is the `serde_json::Value` that
+    /// you wish to crawl and 'source' represents a serialized copy of the same
+    /// `serde_json::Value`.
+    // TODO: Safer constructor that avoids 'source' being out of sync with 'json'
     pub fn new(source: String, json: serde_json::Value) -> Self {
         Self {
             source: Arc::new(source),
