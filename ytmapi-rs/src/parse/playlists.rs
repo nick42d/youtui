@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
@@ -7,7 +5,6 @@ use super::{
 };
 use crate::{
     common::{ApiOutcome, PlaylistID, SetVideoID},
-    crawler::{JsonCrawler, JsonCrawlerIterator},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
@@ -19,6 +16,7 @@ use crate::{
     Error, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
+use json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -56,20 +54,22 @@ impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
 }
 impl<'a, C: CreatePlaylistType> ParseFrom<CreatePlaylistQuery<'a, C>> for PlaylistID<'static> {
     fn parse_from(p: ProcessedResult<CreatePlaylistQuery<'a, C>>) -> crate::Result<Self> {
-        let mut json_crawler: JsonCrawler = p.into();
-        json_crawler.take_value_pointer("/playlistId")
+        let mut json_crawler: JsonCrawlerOwned = p.into();
+        json_crawler
+            .take_value_pointer("/playlistId")
+            .map_err(Into::into)
     }
 }
 impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<AddPlaylistItem> {
     fn parse_from(p: ProcessedResult<AddPlaylistItemsQuery<'a, T>>) -> crate::Result<Self> {
-        let mut json_crawler: JsonCrawler = p.into();
+        let mut json_crawler: JsonCrawlerOwned = p.into();
         let status: ApiOutcome = json_crawler.borrow_pointer("/status")?.take_value()?;
         if let ApiOutcome::Failure = status {
             return Err(Error::status_failed());
         }
         json_crawler
             .navigate_pointer("/playlistEditResults")?
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|r| {
                 let mut r = r.navigate_pointer("/playlistEditVideoAddedResultData")?;
                 Ok(AddPlaylistItem {
@@ -82,8 +82,11 @@ impl<'a, T: SpecialisedQuery> ParseFrom<AddPlaylistItemsQuery<'a, T>> for Vec<Ad
 }
 impl<'a> ParseFrom<EditPlaylistQuery<'a>> for ApiOutcome {
     fn parse_from(p: ProcessedResult<EditPlaylistQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
-        json_crawler.navigate_pointer("/status")?.take_value()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        json_crawler
+            .navigate_pointer("/status")?
+            .take_value()
+            .map_err(Into::into)
     }
 }
 impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
@@ -94,7 +97,7 @@ impl<'a> ParseFrom<DeletePlaylistQuery<'a>> for () {
 
 impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
     fn parse_from(p: ProcessedResult<GetPlaylistQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         if json_crawler.path_exists("/header") {
             get_playlist(json_crawler)
         } else {
@@ -103,7 +106,7 @@ impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
     }
 }
 
-fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
+fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     let mut header = json_crawler.borrow_pointer(HEADER_DETAIL)?;
     let title = header.take_value_pointer(TITLE_TEXT)?;
     let privacy = None;
@@ -118,25 +121,20 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let thumbnails = header.take_value_pointer(THUMBNAIL_CROPPED)?;
     let mut second_subtitle_runs = header.navigate_pointer(SECOND_SUBTITLE_RUNS)?;
     let duration = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let track_count_text = second_subtitle_runs
-        .borrow_mut()
-        .into_array_iter_mut()?
+    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
+    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
+    let track_count_text = second_subtitle_runs_iter
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            Error::array_size(
-                second_subtitle_runs.get_path(),
-                // TODO: Remove allocation.
-                Arc::new(second_subtitle_runs.get_source().to_owned()),
-                3,
-            )
+            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
         })??;
     let views = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .rev()
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
@@ -167,7 +165,7 @@ fn get_playlist(mut json_crawler: JsonCrawler) -> Result<GetPlaylist> {
 }
 
 // NOTE: Similar code to get_album_2024
-fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
+fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER));
@@ -190,15 +188,15 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
-        .and_then(|d| d.into_array_iter_mut())
+        .and_then(|d| d.try_into_iter())
         .ok()
         .map(|r| {
             r.map(|mut r| r.take_value_pointer::<String>("/text"))
-                .collect::<Result<String>>()
+                .collect::<std::result::Result<String, _>>()
         })
         .transpose()?;
     let mut subtitle = header.borrow_pointer("/subtitle/runs")?;
-    let subtitle_len = subtitle.as_array_iter_mut()?.len();
+    let subtitle_len = subtitle.try_iter_mut()?.len();
     let privacy = if subtitle_len == 5 {
         Some(subtitle.take_value_pointer("/2/text")?)
     } else {
@@ -207,32 +205,27 @@ fn get_playlist_2024(json_crawler: JsonCrawler) -> Result<GetPlaylist> {
     let year = subtitle.take_value_pointer(format!("/{}/text", subtitle_len.saturating_sub(1)))?;
     let mut second_subtitle_runs = header.borrow_pointer(SECOND_SUBTITLE_RUNS)?;
     let duration = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let track_count_text = second_subtitle_runs
-        .borrow_mut()
-        .into_array_iter_mut()?
+    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
+    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
+    let track_count_text = second_subtitle_runs_iter
         .rev()
         .nth(2)
         .map(|mut run| run.take_value_pointer("/text"))
         .ok_or_else(|| {
-            Error::array_size(
-                second_subtitle_runs.get_path(),
-                // TODO: Remove allocation.
-                Arc::new(second_subtitle_runs.get_source().to_owned()),
-                3,
-            )
+            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
         })??;
     let views = second_subtitle_runs
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .rev()
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
         .transpose()?;
     let id = header
         .navigate_pointer("/buttons")?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/musicPlayButtonRenderer")?
         .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let music_shelf = columns.borrow_pointer(

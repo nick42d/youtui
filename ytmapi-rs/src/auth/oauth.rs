@@ -16,7 +16,6 @@ use crate::{
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // The original reason for the two different structs was that we did not save
@@ -197,10 +196,8 @@ impl AuthToken for OAuthToken {
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
-                return Err(Error::navigation(
-                    "/error/code",
-                    Arc::new(processed.clone_json()),
-                ));
+                // TODO: Better error.
+                return Err(Error::response("API reported an error but no code"));
             };
             let message = error
                 .pointer("/message")

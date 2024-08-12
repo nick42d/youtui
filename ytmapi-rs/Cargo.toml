@@ -24,6 +24,7 @@ reqwest = { version = "0.12.4", features = [
 ], default-features = false }
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
+json-crawler = { version = "0.0.1", path = "../json-crawler" }
 sha1 = "0.10.6"
 tokio-stream = "0.1.15"
 async-stream = "0.3.5"
@@ -44,6 +45,9 @@ native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 # Enable the use of simplified queries such as YtMusic::search("xx")
 simplified-queries = []
+# Enable functions that allow interoperability with the `serde_json` crate.
+# NOTE: serde_json dependency is still required whether or not this feature is enabled, as it is used internally.
+serde_json = []
 
 # Dev only section
 [dev-dependencies]

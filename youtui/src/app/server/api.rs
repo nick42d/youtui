@@ -8,7 +8,6 @@ use crate::get_config_dir;
 use crate::Result;
 use crate::OAUTH_FILENAME;
 use std::borrow::Borrow;
-use std::ops::Deref;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::mpsc;
@@ -333,14 +332,16 @@ async fn search_selected_artist_task(
                     .await;
                 return;
             };
-            let Some((json, key)) = e.get_json_and_key() else {
-                error!("API error received <{e}>");
+            let e = e.into_kind();
+            let ErrorKind::JsonParsing(e) = e else {
+                error!("API error received <{}>", e);
                 info!("Telling caller no songs found (error)");
                 let _ = tx
                     .send(super::Response::Api(Response::NoSongsFound(id)))
                     .await;
                 return;
             };
+            let (json, key) = e.get_json_and_key();
             // TODO: Bring loggable json errors into their own function.
             error!("API error recieved at key {:?}", key);
             let path = std::path::Path::new("test.json");

@@ -178,7 +178,7 @@ fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bo
     let mut list_state =
         ListState::default().with_selected(browser.artist_list.search.suggestions_cur);
     let list: Vec<_> = suggestions
-        .into_iter()
+        .iter()
         .map(|s| {
             ListItem::new(Line::from(
                 std::iter::once(s.suggestion_type)

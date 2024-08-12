@@ -48,6 +48,7 @@
 //!   rust.
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
+//! - **serde_json**: Enables some interoperability functions with `serde_json`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
@@ -59,7 +60,7 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use parse::{ParseFrom, ProcessedResult};
+use parse::ParseFrom;
 use query::{Query, QueryMethod};
 use std::{
     borrow::Borrow,
@@ -71,21 +72,21 @@ pub use builder::YtMusicBuilder;
 pub use client::Client;
 pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
+pub use parse::ProcessedResult;
 pub use process::RawResult;
 
 #[macro_use]
 mod utils;
-mod crawler;
 mod nav_consts;
 mod process;
 mod youtube_enums;
 
-// TODO: Confirm if auth should be pub
 pub mod auth;
 pub mod builder;
 pub mod client;
 pub mod common;
 pub mod error;
+pub mod json;
 pub mod parse;
 pub mod query;
 
@@ -98,6 +99,8 @@ mod tests;
 
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
+// XXX: Note that we would then need to use a RwLock if we wanted to use mutability for
+// refresh_token().
 /// A handle to the YouTube Music API, wrapping a http client.
 /// Generic over AuthToken, as different AuthTokens may allow different queries
 /// to be executed.

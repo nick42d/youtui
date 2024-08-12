@@ -1,9 +1,9 @@
 //! Tests for key components, to allow for automated checking of 3rd party api
 //! changes.
-use futures::{stream::FuturesUnordered, StreamExt};
+use futures::StreamExt;
 use rusty_ytdl::{Video, VideoOptions};
 use std::{env, path::Path};
-use tokio::{sync::OnceCell, task::JoinSet};
+use tokio::sync::OnceCell;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, YtMusic, YtMusicBuilder};
 
 const COOKIE_PATH: &str = "../ytmapi-rs/cookie.txt";

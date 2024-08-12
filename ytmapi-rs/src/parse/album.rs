@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use super::{
     parse_flex_column_item, parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
 };
@@ -7,12 +5,14 @@ use crate::common::{
     AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use crate::common::{PlaylistID, Thumbnail};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
-use crate::process::process_fixed_column_item;
+use crate::process::fixed_column_item_pointer;
 use crate::query::*;
+use crate::Result;
 use crate::{nav_consts::*, VideoID};
-use crate::{Error, Result};
 use const_format::concatcp;
+use json_crawler::{
+    CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
@@ -99,7 +99,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
     let title = super::parse_flex_column_item(&mut data, 0, 0)?;
     let mut library_menu = data
         .borrow_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add, feedback_tok_rem) = match library_status {
@@ -118,25 +118,16 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
         WATCH_VIDEO_ID
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))
+        .and_then(|mut i| {
+            i.take_value_pointer("/text/simpleText")
+                .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+        })?;
     let plays = parse_flex_column_item(&mut data, 2, 0)?;
-    // Believe this needs to first covert to string as Json field has quote marks.
-    let track_no = str::parse::<usize>(
-        data.take_value_pointer::<String>(concatcp!("/index", RUN_TEXT))?
-            .as_str(),
-    )
-    .map_err(|e| {
-        Error::parsing(
-            data.get_path(),
-            // TODO: Remove allocation.
-            Arc::new(data.get_source().to_owned()),
-            crate::error::ParseTarget::Other("usize".to_string()),
-            Some(e.to_string()),
-        )
-    })?;
+    let track_no = data
+        .borrow_pointer(concatcp!("/index", RUN_TEXT))?
+        .take_and_parse_str()?;
     let explicit = if data.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -158,7 +149,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
 
 // NOTE: Similar code to get_playlist_2024
 fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
-    let json_crawler = JsonCrawler::from(p);
+    let json_crawler = JsonCrawlerOwned::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let mut header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER))?;
@@ -167,17 +158,17 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let year = header.take_value_pointer(SUBTITLE2)?;
     let artists = header
         .borrow_pointer("/straplineTextOne/runs")?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .step_by(2)
         .map(|mut item| parse_song_artist(&mut item))
         .collect::<Result<Vec<ParsedSongArtist>>>()?;
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
-        .and_then(|d| d.into_array_iter_mut())
+        .and_then(|d| d.try_into_iter())
         .ok()
         .map(|r| {
             r.map(|mut r| r.take_value_pointer::<String>("/text"))
-                .collect::<Result<String>>()
+                .collect::<CrawlerResult<String>>()
         })
         .transpose()?;
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
@@ -185,18 +176,18 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let mut buttons = header.borrow_pointer("/buttons")?;
     let audio_playlist_id = buttons
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path("/musicPlayButtonRenderer")?
         .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     let library_status = buttons
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path("/toggleButtonRenderer")?
         .take_value_pointer("/defaultIcon/iconType")?;
     let tracks = columns
         .borrow_pointer(
             "/secondaryContents/sectionListRenderer/contents/0/musicShelfRenderer/contents",
         )?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .filter_map(|mut track| parse_album_track(&mut track).transpose())
         .collect::<Result<Vec<AlbumSong>>>()?;
     Ok(AlbumParams {

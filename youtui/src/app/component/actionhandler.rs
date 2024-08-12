@@ -90,10 +90,8 @@ pub trait TextHandler {
         }
         // The only accepted modifier is shift - if pressing another set of modifiers,
         // we won't handle it. Somewhere else should instead.
-        if !key_event.modifiers.is_empty() {
-            if key_event.modifiers != KeyModifiers::SHIFT {
-                return false;
-            }
+        if !key_event.modifiers.is_empty() && key_event.modifiers != KeyModifiers::SHIFT {
+            return false;
         }
         match key_event.code {
             KeyCode::Char(c) => {

@@ -5,7 +5,6 @@ use super::{
     SearchResultType, SearchResultVideo, SearchResults, TopResult, TopResultType,
 };
 use crate::common::{Explicit, SearchSuggestion, SuggestionType, TextRun};
-use crate::crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator};
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
@@ -21,6 +20,7 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
 
@@ -45,7 +45,7 @@ fn parse_basic_search_result_from_section_list_contents(
 
     let music_card_shelf = section_list_contents
         .0
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path(MUSIC_CARD_SHELF)
         .ok();
     if let Some(music_card_shelf) = music_card_shelf {
@@ -53,7 +53,7 @@ fn parse_basic_search_result_from_section_list_contents(
     }
     let results_iter = section_list_contents
         .0
-        .into_array_into_iter()?
+        .try_into_iter()?
         .filter_map(|item| item.navigate_pointer(MUSIC_SHELF).ok());
 
     for mut category in results_iter {
@@ -61,7 +61,7 @@ fn parse_basic_search_result_from_section_list_contents(
             SearchResultType::TopResult => {
                 top_results = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
                     .collect::<Result<Vec<TopResult>>>()?;
             }
@@ -69,63 +69,63 @@ fn parse_basic_search_result_from_section_list_contents(
             SearchResultType::Artists => {
                 artists = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_artist_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultArtist>>>()?;
             }
             SearchResultType::Albums => {
                 albums = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_album_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultAlbum>>>()?
             }
             SearchResultType::FeaturedPlaylists => {
                 featured_playlists = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_featured_playlist_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultFeaturedPlaylist>>>()?
             }
             SearchResultType::CommunityPlaylists => {
                 community_playlists = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_community_playlist_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultCommunityPlaylist>>>()?
             }
             SearchResultType::Songs => {
                 songs = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_song_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultSong>>>()?
             }
             SearchResultType::Videos => {
                 videos = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_video_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultVideo>>>()?
             }
             SearchResultType::Podcasts => {
                 podcasts = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_podcast_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultPodcast>>>()?
             }
             SearchResultType::Episodes => {
                 episodes = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_episode_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultEpisode>>>()?
             }
             SearchResultType::Profiles => {
                 profiles = category
                     .navigate_pointer("/contents")?
-                    .as_array_iter_mut()?
+                    .try_iter_mut()?
                     .map(|r| parse_profile_search_result_from_music_shelf_contents(r))
                     .collect::<Result<Vec<SearchResultProfile>>>()?
             }
@@ -181,7 +181,7 @@ fn parse_top_results_from_music_card_shelf_contents(
     // Other results may not exist.
     if let Ok(mut contents) = music_shelf_contents.navigate_pointer("/contents") {
         contents
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .filter_map(|r| parse_top_result_from_music_shelf_contents(r).transpose())
             .try_for_each(|r| -> Result<()> {
                 results.push(r?);
@@ -548,8 +548,8 @@ fn parse_playlist_search_result_from_music_shelf_contents(
 }
 
 // TODO: Rename FilteredSearchSectionContents
-struct SectionContentsCrawler(JsonCrawler);
-struct BasicSearchSectionListContents(JsonCrawler);
+struct SectionContentsCrawler(JsonCrawlerOwned);
+struct BasicSearchSectionListContents(JsonCrawlerOwned);
 // In this case, we've searched and had no results found.
 // We are being quite explicit here to avoid a false positive.
 // See tests for an example.
@@ -557,9 +557,8 @@ struct BasicSearchSectionListContents(JsonCrawler);
 fn section_contents_is_empty(section_contents: &mut SectionContentsCrawler) -> Result<bool> {
     Ok(section_contents
         .0
-        .as_array_iter_mut()?
-        .find(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer"))
-        .is_some())
+        .try_iter_mut()?
+        .any(|item| item.path_exists("/itemSectionRenderer/contents/0/didYouMeanRenderer")))
 }
 // TODO: Consolidate these two functions into single function.
 // TODO: This could be implemented with a non-mutable array also.
@@ -568,7 +567,7 @@ fn section_list_contents_is_empty(
 ) -> Result<bool> {
     let is_empty = section_contents
         .0
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .filter(|item| item.path_exists(MUSIC_CARD_SHELF) || item.path_exists(MUSIC_SHELF))
         .count()
         == 0;
@@ -579,7 +578,7 @@ impl<'a, S: UnfilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, S>
 {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, S>>) -> Result<Self> {
-        let json_crawler: JsonCrawler = value.into();
+        let json_crawler: JsonCrawlerOwned = value.into();
         let section_list_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
@@ -593,7 +592,7 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
 {
     type Error = Error;
     fn try_from(value: ProcessedResult<SearchQuery<'a, FilteredSearch<F>>>) -> Result<Self> {
-        let json_crawler: JsonCrawler = value.into();
+        let json_crawler: JsonCrawlerOwned = value.into();
         let section_contents = json_crawler.navigate_pointer(concatcp!(
             "/contents/tabbedSearchResultsRenderer",
             TAB_CONTENT,
@@ -603,13 +602,13 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
     }
 }
 // XXX: Should this also contain query type?
-struct FilteredSearchMSRContents(JsonCrawler);
+struct FilteredSearchMSRContents(JsonCrawlerOwned);
 impl TryFrom<SectionContentsCrawler> for FilteredSearchMSRContents {
     type Error = Error;
     fn try_from(value: SectionContentsCrawler) -> std::prelude::v1::Result<Self, Self::Error> {
         let music_shelf_contents = value
             .0
-            .into_array_into_iter()?
+            .try_into_iter()?
             .find_path(concatcp!(MUSIC_SHELF, "/contents"))?;
         Ok(FilteredSearchMSRContents(music_shelf_contents))
     }
@@ -622,7 +621,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultAlbum> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_album_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -635,7 +634,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultProfile> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_profile_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -648,7 +647,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultArtist> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -661,7 +660,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultSong> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_song_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -674,7 +673,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultVideo> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_video_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -687,7 +686,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultEpisode> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_episode_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -700,7 +699,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPodcast> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_podcast_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -713,7 +712,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultPlaylist> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_playlist_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -726,7 +725,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultCommunityPlaylist> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_community_playlist_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -739,7 +738,7 @@ impl TryFrom<FilteredSearchMSRContents> for Vec<SearchResultFeaturedPlaylist> {
         // TODO: Make this a From method.
         value
             .0
-            .as_array_iter_mut()?
+            .try_iter_mut()?
             .map(|a| parse_featured_playlist_search_result_from_music_shelf_contents(a))
             .collect()
     }
@@ -871,16 +870,16 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<Sea
 
 impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
     fn parse_from(p: ProcessedResult<GetSearchSuggestionsQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         let mut suggestions = json_crawler
             .navigate_pointer("/contents/0/searchSuggestionsSectionRenderer/contents")?;
         let mut results = Vec::new();
-        for mut s in suggestions.as_array_iter_mut()? {
+        for mut s in suggestions.try_iter_mut()? {
             let mut runs = Vec::new();
-            if let Ok(search_suggestion) =
+            if let Ok(mut search_suggestion) =
                 s.borrow_pointer("/searchSuggestionRenderer/suggestion/runs")
             {
-                for mut r in search_suggestion.into_array_iter_mut()? {
+                for mut r in search_suggestion.try_iter_mut()? {
                     if let Ok(true) = r.take_value_pointer("/bold") {
                         runs.push(r.take_value_pointer("/text").map(TextRun::Bold)?)
                     } else {
@@ -891,7 +890,7 @@ impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
             } else {
                 for mut r in s
                     .borrow_pointer("/historySuggestionRenderer/suggestion/runs")?
-                    .into_array_iter_mut()?
+                    .try_iter_mut()?
                 {
                     if let Ok(true) = r.take_value_pointer("/bold") {
                         runs.push(r.take_value_pointer("/text").map(TextRun::Bold)?)

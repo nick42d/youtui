@@ -2,21 +2,21 @@ use super::{
     parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
     parse_upload_song_artists, EpisodeDate, EpisodeDuration, LibraryManager, LibraryStatus,
     LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
-    ParsedUploadSongAlbum, ProcessedResult, SearchResultVideo, TableListUploadSong, Thumbnail,
+    ParsedUploadSongAlbum, ProcessedResult, SearchResultVideo, Thumbnail,
 };
 use crate::{
     common::{
         AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromLibrary, PlaylistID, UploadEntityID, VideoID,
     },
-    crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator},
     nav_consts::*,
-    process::{process_fixed_column_item, process_flex_column_item},
+    process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::*,
     youtube_enums::YoutubeMusicVideoType,
     ChannelID, Result,
 };
 use const_format::concatcp;
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
@@ -48,7 +48,7 @@ fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let mut library_menu = data
         .borrow_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     let (feedback_tok_add_to_library, feedback_tok_rem_from_library) = match library_status {
@@ -79,7 +79,7 @@ fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> 
     let browse_id = json.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let results = json
         .borrow_pointer("/contents")?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .map(|mut item| parse_artist_song(&mut item))
         .collect::<Result<Vec<ArtistSong>>>()?;
     Ok(GetArtistSongs { results, browse_id })
@@ -91,7 +91,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
     #[allow(clippy::field_reassign_with_default)]
     fn parse_from(p: ProcessedResult<GetArtistQuery<'a>>) -> crate::Result<Self> {
         // TODO: Make this optional.
-        let mut json_crawler: JsonCrawler = p.into();
+        let mut json_crawler: JsonCrawlerOwned = p.into();
         let mut results =
             json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
         //        artist = {'description': None, 'views': None}
@@ -107,7 +107,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         //     })
         //     .unwrap_or(Some(String::new()))
         //     .unwrap_or(String::new());
-        if let Ok(results_array) = results.as_array_iter_mut() {
+        if let Ok(results_array) = results.try_iter_mut() {
             for r in results_array {
                 if let Ok(mut description_shelf) = r.navigate_pointer(DESCRIPTION_SHELF) {
                     description = description_shelf.take_value_pointer(DESCRIPTION)?;
@@ -130,7 +130,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         // XXX: if there are multiple results for each category we only want to look at
         // the first one.
         for mut r in results
-            .as_array_iter_mut()
+            .try_iter_mut()
             .into_iter()
             .flatten()
             .filter_map(|r| r.navigate_pointer("/musicCarouselShelfRenderer").ok())
@@ -159,7 +159,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                 ArtistTopReleaseCategory::Singles => (),
                 ArtistTopReleaseCategory::Albums => {
                     let mut results = Vec::new();
-                    for i in r.navigate_pointer("/contents")?.as_array_iter_mut()? {
+                    for i in r.navigate_pointer("/contents")?.try_iter_mut()? {
                         results.push(parse_album_from_mtrir(i.navigate_pointer(MTRIR)?)?);
                     }
                     let albums = GetArtistAlbums {
@@ -418,7 +418,7 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
     };
     let mut library_menu = navigator
         .borrow_pointer(MENU_ITEMS)?
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/toggleMenuServiceItemRenderer")?;
     let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
     Ok(AlbumResult {
@@ -436,7 +436,7 @@ pub(crate) fn parse_library_management_items_from_menu(
     menu: JsonCrawlerBorrowed,
 ) -> Result<Option<LibraryManager>> {
     let Ok(mut library_menu) = menu
-        .into_array_iter_mut()?
+        .try_into_iter()?
         .find_path("/toggleMenuServiceItemRenderer")
     else {
         return Ok(None);
@@ -469,16 +469,14 @@ pub(crate) fn parse_playlist_song(
         "/playNavigationEndpoint",
         WATCH_VIDEO_ID
     ))?;
-    let library_management = data
-        .borrow_pointer(MENU_ITEMS)
-        .and_then(parse_library_management_items_from_menu)?;
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
     let album = super::parse_song_album(&mut data, 2)?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -515,8 +513,9 @@ pub(crate) fn parse_playlist_upload_song(
     track_no: usize,
     mut data: JsonCrawlerBorrowed,
 ) -> Result<PlaylistUploadSong> {
-    let duration =
-        process_fixed_column_item(&mut data.borrow_mut(), 0)?.take_value_pointer(TEXT_RUN_TEXT)?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointer(TEXT_RUN_TEXT)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -527,7 +526,7 @@ pub(crate) fn parse_playlist_upload_song(
     let album = parse_upload_song_album(data.borrow_mut(), 2)?;
     let mut menu = data.navigate_pointer(MENU_ITEMS)?;
     let entity_id = menu
-        .as_array_iter_mut()?
+        .try_iter_mut()?
         .find_path(DELETION_ENTITY_ID)?
         .take_value()?;
     Ok(PlaylistUploadSong {
@@ -558,10 +557,12 @@ pub(crate) fn parse_playlist_episode(
         true => (EpisodeDuration::Live, EpisodeDate::Live),
         false => {
             let date = parse_flex_column_item(&mut data, 2, 0)?;
-            let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-                i.take_value_pointer("/text/simpleText")
-                    .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-            })?;
+            let duration =
+                data.borrow_pointer(fixed_column_item_pointer(0))
+                    .and_then(|mut i| {
+                        i.take_value_pointer("/text/simpleText")
+                            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
+                    })?;
             (
                 EpisodeDuration::Recorded { duration },
                 EpisodeDate::Recorded { date },
@@ -569,7 +570,8 @@ pub(crate) fn parse_playlist_episode(
         }
     };
     let podcast_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let podcast_id = process_flex_column_item(&mut data, 1)?
+    let podcast_id = data
+        .borrow_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
@@ -601,12 +603,12 @@ pub(crate) fn parse_playlist_video(
     ))?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
-    let channel_id = process_flex_column_item(&mut data, 1)?
+    let channel_id = data
+        .borrow_pointer(flex_column_item_pointer(1))?
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
-    let duration = process_fixed_column_item(&mut data, 0).and_then(|mut i| {
-        i.take_value_pointer("/text/simpleText")
-            .or_else(|_| i.take_value_pointer("/text/runs/0/text"))
-    })?;
+    let duration = data
+        .borrow_pointer(fixed_column_item_pointer(0))?
+        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -669,7 +671,7 @@ pub(crate) fn parse_playlist_item(
 //TODO: Menu entries
 //TODO: Consider rename
 pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<PlaylistItem>> {
-    json.into_array_iter_mut()
+    json.try_into_iter()
         .into_iter()
         .flatten()
         .enumerate()
@@ -678,7 +680,7 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
 }
 impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
-        let json_crawler: JsonCrawler = p.into();
+        let json_crawler: JsonCrawlerOwned = p.into();
         let mut albums = Vec::new();
         let mut json_crawler = json_crawler.navigate_pointer(concatcp!(
             SINGLE_COLUMN_TAB,
@@ -687,7 +689,7 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
         ))?;
         for mut r in json_crawler
             .borrow_mut()
-            .into_array_iter_mut()?
+            .try_into_iter()?
             .flat_map(|i| i.navigate_pointer(MTRIR))
         {
             let browse_id = r.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
