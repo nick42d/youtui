@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.11](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.10...ytmapi-rs/v0.0.11) - 2024-08-12
 
 ### Fixed
-- Move to new rusty_ytdl version (reduces number of downloading 403 errors), and add new scheduled test for downloading ([#134](https://github.com/nick42d/youtui/pull/134))- Account for search case where an about message exists, but results also exist. ([#131](https://github.com/nick42d/youtui/pull/131)) - Resolves [#128](https://github.com/nick42d/youtui/pull/128)- [**breaking**] Allow for 'about' renderer in filtered search, and not having 'views' in playlists. ([#130](https://github.com/nick42d/youtui/pull/130))
-- _Added new PlaylistItem types: Episode and UploadSong._
+- Move to new rusty_ytdl version (reduces number of downloading 403 errors), and add new scheduled test for downloading ([#134](https://github.com/nick42d/youtui/pull/134))
+- Account for search case where an about message exists, but results also exist. ([#131](https://github.com/nick42d/youtui/pull/131)) - Resolves [#128](https://github.com/nick42d/youtui/pull/128)
+- [**breaking**] Allow for 'about' renderer in filtered search, and not having 'views' in playlists. ([#130](https://github.com/nick42d/youtui/pull/130))
+    - _Added new PlaylistItem types: Episode and UploadSong._
 
 ### Other
 - [**breaking**] Avoid leaking `serde_json::value` / move `JsonCrawler` to its own crate ([#127](https://github.com/nick42d/youtui/pull/127))
