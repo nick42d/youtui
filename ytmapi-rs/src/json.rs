@@ -31,10 +31,10 @@ impl std::fmt::Debug for Json {
 }
 
 impl Json {
+    /// Extract the inner `serde_json::Value`
     #[cfg(feature = "serde_json")]
     #[cfg_attr(docsrs, doc(cfg(feature = "serde_json")))]
-    /// Extract the inner `serde_json::Value`
-    fn into_inner(self) -> serde_json::Value {
+    pub fn into_inner(self) -> serde_json::Value {
         self.inner
     }
     pub(crate) fn new(json: serde_json::Value) -> Self {
