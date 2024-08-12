@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.11](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.10...ytmapi-rs/v0.0.11) - 2024-08-12
+
+### Fixed
+- Move to new rusty_ytdl version (reduces number of downloading 403 errors), and add new scheduled test for downloading ([#134](https://github.com/nick42d/youtui/pull/134))- Account for search case where an about message exists, but results also exist. ([#131](https://github.com/nick42d/youtui/pull/131)) - Resolves [#128](https://github.com/nick42d/youtui/pull/128)- [**breaking**] Allow for 'about' renderer in filtered search, and not having 'views' in playlists. ([#130](https://github.com/nick42d/youtui/pull/130))
+- _Added new PlaylistItem types: Episode and UploadSong._
+
+### Other
+- [**breaking**] Avoid leaking `serde_json::value` / move `JsonCrawler` to its own crate ([#127](https://github.com/nick42d/youtui/pull/127))
+- _ErrorKind's ArraySize, PathNotFoundInArray, PathsNotFound, Parsing and Navigation consilidated into single ErrorKind. Removed parse_upload_song_artists/album functions that had accidentally been marked pub. Removed Error::get_json_and_key function - moved to the ErrorKind itself._
+
+
+
 ## [0.0.10](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.9...ytmapi-rs/v0.0.10) - 2024-08-05
 
 ### Added
