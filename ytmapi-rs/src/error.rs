@@ -1,12 +1,11 @@
 //! Module to contain code related to errors that could be produced by the API.
 use core::fmt::{Debug, Display};
+pub use json_crawler::CrawlerError as JsonError;
 use std::{
     hash::{Hash, Hasher},
     io,
     time::SystemTimeError,
 };
-
-pub use ytmapi_rs_json_crawler::CrawlerError as JsonError;
 
 /// Alias for a Result with the error type ytmapi-rs::Error.
 pub type Result<T> = core::result::Result<T, Error>;

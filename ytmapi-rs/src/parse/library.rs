@@ -17,7 +17,7 @@ use crate::query::{
 };
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
+use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 
 #[derive(Debug)]
 // Very similar to LibraryArtist struct
@@ -77,7 +77,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
                     })
             })
             .rev()
-            .collect::<ytmapi_rs_json_crawler::CrawlerResult<_>>()
+            .collect::<CrawlerResult<_>>()
             .map_err(Into::into)
     }
 }

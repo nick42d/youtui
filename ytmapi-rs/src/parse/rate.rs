@@ -1,6 +1,6 @@
 use super::ParseFrom;
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {

@@ -10,10 +10,10 @@ use crate::query::*;
 use crate::Result;
 use crate::{nav_consts::*, VideoID};
 use const_format::concatcp;
-use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
+use json_crawler::{
+    CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub struct LibraryManager {
@@ -168,7 +168,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
         .ok()
         .map(|r| {
             r.map(|mut r| r.take_value_pointer::<String>("/text"))
-                .collect::<ytmapi_rs_json_crawler::CrawlerResult<String>>()
+                .collect::<CrawlerResult<String>>()
         })
         .transpose()?;
     let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;

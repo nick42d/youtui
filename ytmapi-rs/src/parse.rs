@@ -16,6 +16,10 @@
 //!     }
 //! }
 //! ```
+//! # Alternative implementation
+//! An alternative to working directly with [`crate::json::Json`] is to add
+//! `json-crawler` as a dependency and use the provided
+//! `From<ProcessedResult> for JsonCrawlerOwned` implementation.
 use crate::{
     auth::AuthToken,
     common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
@@ -27,10 +31,10 @@ use crate::{
     ChannelID,
 };
 use crate::{RawResult, Result};
+use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
 pub use album::*;
 pub use artist::*;
@@ -377,7 +381,7 @@ mod lyrics {
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
+    use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
     impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
@@ -432,7 +436,7 @@ mod watch {
         Result,
     };
     use const_format::concatcp;
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
+    use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 
     impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
@@ -470,7 +474,7 @@ mod watch {
 mod song {
     use super::ParseFrom;
     use crate::{common::SongTrackingUrl, query::song::GetSongTrackingUrlQuery};
-    use ytmapi_rs_json_crawler::{JsonCrawler, JsonCrawlerOwned};
+    use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
     impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         fn parse_from(

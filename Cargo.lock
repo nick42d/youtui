@@ -1669,6 +1669,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "json-crawler"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4278,6 +4286,7 @@ dependencies = [
  "async-stream",
  "chrono",
  "const_format",
+ "json-crawler",
  "pretty_assertions",
  "rand",
  "reqwest",
@@ -4286,15 +4295,6 @@ dependencies = [
  "sha1",
  "tokio",
  "tokio-stream",
- "ytmapi-rs-json-crawler",
-]
-
-[[package]]
-name = "ytmapi-rs-json-crawler"
-version = "0.0.1"
-dependencies = [
- "serde",
- "serde_json",
 ]
 
 [[package]]

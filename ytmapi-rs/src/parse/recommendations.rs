@@ -14,11 +14,11 @@ use crate::{
     utils, Result, Thumbnail,
 };
 use const_format::concatcp;
-use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{
+use json_crawler::{
     CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator,
     JsonCrawlerOwned,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct TasteProfileArtist {
@@ -97,20 +97,18 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
             mut crawler: JsonCrawlerOwned,
         ) -> Result<MoodPlaylistCategory> {
             let array = vec![
-                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
+                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, json_crawler::CrawlerError> {
                     parse_mood_playlist_category_grid(s.borrow_pointer(GRID)?)
                 },
-                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, ytmapi_rs_json_crawler::CrawlerError> {
-                    parse_mood_playlist_category_carousel(
-                        s.borrow_pointer(CAROUSEL)?,
-                    )
+                |s: &mut JsonCrawlerOwned| -> std::result::Result<_, json_crawler::CrawlerError> {
+                    parse_mood_playlist_category_carousel(s.borrow_pointer(CAROUSEL)?)
                 },
             ];
             crawler.try_functions(array).map_err(Into::into)
         }
         fn parse_mood_playlist_category_grid(
             mut crawler: JsonCrawlerBorrowed,
-        ) -> ytmapi_rs_json_crawler::CrawlerResult<MoodPlaylistCategory> {
+        ) -> json_crawler::CrawlerResult<MoodPlaylistCategory> {
             let category_name =
                 crawler.take_value_pointer(concatcp!("/header/gridHeaderRenderer", TITLE_TEXT))?;
             let playlists = crawler
@@ -125,7 +123,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
         }
         fn parse_mood_playlist_category_carousel(
             mut crawler: JsonCrawlerBorrowed,
-        ) -> ytmapi_rs_json_crawler::CrawlerResult<MoodPlaylistCategory> {
+        ) -> json_crawler::CrawlerResult<MoodPlaylistCategory> {
             let category_name = crawler.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
             let playlists = crawler
                 .navigate_pointer("/contents")?
@@ -139,7 +137,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
         }
         fn parse_mood_playlist(
             crawler: JsonCrawlerBorrowed,
-        ) -> ytmapi_rs_json_crawler::CrawlerResult<MoodPlaylist> {
+        ) -> json_crawler::CrawlerResult<MoodPlaylist> {
             let mut item = crawler.navigate_pointer(MTRIR)?;
             let playlist_id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let title = item.take_value_pointer(TITLE_TEXT)?;

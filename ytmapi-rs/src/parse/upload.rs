@@ -18,10 +18,10 @@ use crate::{
     Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
-use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{
+use json_crawler::{
     CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParsedUploadArtist {

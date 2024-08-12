@@ -18,10 +18,8 @@ use crate::{
     ChannelID, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
-};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct HistoryPeriod {
@@ -135,7 +133,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
                     })
             })
             .rev()
-            .collect::<ytmapi_rs_json_crawler::CrawlerResult<_>>()
+            .collect::<json_crawler::CrawlerResult<_>>()
             .map_err(Into::into)
     }
 }

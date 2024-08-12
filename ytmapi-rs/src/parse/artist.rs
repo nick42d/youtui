@@ -16,10 +16,8 @@ use crate::{
     ChannelID, Result,
 };
 use const_format::concatcp;
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
-};
 
 #[derive(Debug, Clone)]
 pub struct ArtistParams {

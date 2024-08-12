@@ -16,8 +16,8 @@ use crate::{
     Error, Result, Thumbnail, VideoID,
 };
 use const_format::concatcp;
+use json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
-use ytmapi_rs_json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct GetPlaylist {

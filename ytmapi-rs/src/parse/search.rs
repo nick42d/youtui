@@ -20,11 +20,9 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
-use ytmapi_rs_json_crawler::{
-    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
-};
 
 #[cfg(test)]
 mod tests;
