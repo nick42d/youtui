@@ -410,43 +410,6 @@
                                     }
                                   },
                                   {
-                                    "toggleMenuServiceItemRenderer": {
-                                      "defaultText": {
-                                        "runs": [
-                                          {
-                                            "text": "Save to library"
-                                          }
-                                        ]
-                                      },
-                                      "defaultIcon": {
-                                        "iconType": "LIBRARY_ADD"
-                                      },
-                                      "defaultServiceEndpoint": {
-                                        "clickTrackingParams": "CKEFEIT_BRgDIhMIz4DakbqOhwMViwi3AB1Zhge6",
-                                        "feedbackEndpoint": {
-                                          "feedbackToken": "AB9zfpI5plha7IqgCxSrzTDLrAGdbPaXXWJhAI4IXW08L1jpgXCPOicnoId04x-0arLDfrT0y7JMjf09vlCngve2BiqMCiTsjA"
-                                        }
-                                      },
-                                      "toggledText": {
-                                        "runs": [
-                                          {
-                                            "text": "Remove from library"
-                                          }
-                                        ]
-                                      },
-                                      "toggledIcon": {
-                                        "iconType": "LIBRARY_SAVED"
-                                      },
-                                      "toggledServiceEndpoint": {
-                                        "clickTrackingParams": "CKEFEIT_BRgDIhMIz4DakbqOhwMViwi3AB1Zhge6",
-                                        "feedbackEndpoint": {
-                                          "feedbackToken": "AB9zfpKWy2WlltmhRhqDZKCZCKLKMNenM7ID1KqXUHc8in_xGU5zaGZyNY4EMY7hmcbiqEG-GIBgATbPsFYiIO2gzRctxppVRg"
-                                        }
-                                      },
-                                      "trackingParams": "CKEFEIT_BRgDIhMIz4DakbqOhwMViwi3AB1Zhge6"
-                                    }
-                                  },
-                                  {
                                     "menuNavigationItemRenderer": {
                                       "text": {
                                         "runs": [

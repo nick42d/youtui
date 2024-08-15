@@ -46,29 +46,14 @@ fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
         Explicit::NotExplicit
     };
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let mut library_menu = data
-        .borrow_pointer(MENU_ITEMS)?
-        .try_into_iter()?
-        .find_path("/toggleMenuServiceItemRenderer")?;
-    let library_status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
-    let (feedback_tok_add_to_library, feedback_tok_rem_from_library) = match library_status {
-        LibraryStatus::InLibrary => (
-            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
-            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
-        ),
-        LibraryStatus::NotInLibrary => (
-            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
-            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
-        ),
-    };
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     Ok(ArtistSong {
         video_id,
         plays,
         album,
         artists,
-        library_status,
-        feedback_tok_add_to_library,
-        feedback_tok_rem_from_library,
+        library_management,
         title,
         like_status,
         explicit,
@@ -241,9 +226,10 @@ pub struct ArtistSong {
     pub plays: String,
     pub album: ParsedSongAlbum,
     pub artists: Vec<ParsedSongArtist>,
-    pub library_status: LibraryStatus,
-    pub feedback_tok_add_to_library: FeedbackTokenAddToLibrary<'static>,
-    pub feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary<'static>,
+    /// Library management fields are optional; if a album has already been
+    /// added to your library, you cannot add the individual songs.
+    // https://github.com/nick42d/youtui/issues/138
+    pub library_management: Option<LibraryManager>,
     pub title: String,
     pub like_status: LikeStatus,
     pub explicit: Explicit,

@@ -35,13 +35,7 @@ ArtistParams {
                                 ),
                             },
                         ],
-                        library_status: NotInLibrary,
-                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
-                            "AB9zfpI5plha7IqgCxSrzTDLrAGdbPaXXWJhAI4IXW08L1jpgXCPOicnoId04x-0arLDfrT0y7JMjf09vlCngve2BiqMCiTsjA",
-                        ),
-                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
-                            "AB9zfpKWy2WlltmhRhqDZKCZCKLKMNenM7ID1KqXUHc8in_xGU5zaGZyNY4EMY7hmcbiqEG-GIBgATbPsFYiIO2gzRctxppVRg",
-                        ),
+                        library_management: None,
                         title: "Imagine",
                         like_status: Indifferent,
                         explicit: NotExplicit,
@@ -67,12 +61,16 @@ ArtistParams {
                                 ),
                             },
                         ],
-                        library_status: NotInLibrary,
-                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
-                            "AB9zfpIdq1iQEapLKr2F7t8kTPr6zbWS8ZP9me2-LxS3qz4MZI7vJItD6Q2owS870rshvJFYuKIoROqOM5TgAbCqQFEPogRG9g",
-                        ),
-                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
-                            "AB9zfpJwsVYmu2cGEDbi1eiReE4QQFLP3u2EHg1PyizW5PcgJYyeEy3qN_lknv5HBONprt_fn1blhUJRIdqWQZbCitSOvcxsaA",
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpIdq1iQEapLKr2F7t8kTPr6zbWS8ZP9me2-LxS3qz4MZI7vJItD6Q2owS870rshvJFYuKIoROqOM5TgAbCqQFEPogRG9g",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpJwsVYmu2cGEDbi1eiReE4QQFLP3u2EHg1PyizW5PcgJYyeEy3qN_lknv5HBONprt_fn1blhUJRIdqWQZbCitSOvcxsaA",
+                                ),
+                            },
                         ),
                         title: "Woman",
                         like_status: Indifferent,
@@ -99,12 +97,16 @@ ArtistParams {
                                 ),
                             },
                         ],
-                        library_status: NotInLibrary,
-                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
-                            "AB9zfpIyAPF_zOHIju2NvcpLP6cdN0w0by5gCbPYLeYuszPPmzSCxiPaIEc-0YDK4wboCKMP8vle7ECF6OTaJWs2cBS4iGRNLQ",
-                        ),
-                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
-                            "AB9zfpIsQj8e25yWMSxYLnwpZCKE3JclsnFPOBQtWdn7LUkh_GlyyqYfDy0EI2wcaQtnKIsIcztqLaX2M5bdvQUQzJGxVkz7gQ",
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpIyAPF_zOHIju2NvcpLP6cdN0w0by5gCbPYLeYuszPPmzSCxiPaIEc-0YDK4wboCKMP8vle7ECF6OTaJWs2cBS4iGRNLQ",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpIsQj8e25yWMSxYLnwpZCKE3JclsnFPOBQtWdn7LUkh_GlyyqYfDy0EI2wcaQtnKIsIcztqLaX2M5bdvQUQzJGxVkz7gQ",
+                                ),
+                            },
                         ),
                         title: "Stand By Me (Ultimate Mix)",
                         like_status: Indifferent,
@@ -131,12 +133,16 @@ ArtistParams {
                                 ),
                             },
                         ],
-                        library_status: NotInLibrary,
-                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
-                            "AB9zfpKJqZeLIY-Gqwz7s5XDhEf5W2vaBlDx7RafSIpx5ryfla9cb6-QCAAO8XAuwUoayKXqHGUBxKkd4vcRWIGB80DjLnjPjQ",
-                        ),
-                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
-                            "AB9zfpLTz7RIN9YKRsg8DMKGLCIPuwNJFxZO4g26uXE9tCoTlvXWGhf-PxxzeCEfApz74PHBak9XDT31-bmpRzXFjI4fqRLnwg",
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpKJqZeLIY-Gqwz7s5XDhEf5W2vaBlDx7RafSIpx5ryfla9cb6-QCAAO8XAuwUoayKXqHGUBxKkd4vcRWIGB80DjLnjPjQ",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpLTz7RIN9YKRsg8DMKGLCIPuwNJFxZO4g26uXE9tCoTlvXWGhf-PxxzeCEfApz74PHBak9XDT31-bmpRzXFjI4fqRLnwg",
+                                ),
+                            },
                         ),
                         title: "Beautiful Boy (Darling Boy)",
                         like_status: Indifferent,
@@ -163,12 +169,16 @@ ArtistParams {
                                 ),
                             },
                         ],
-                        library_status: NotInLibrary,
-                        feedback_tok_add_to_library: FeedbackTokenAddToLibrary(
-                            "AB9zfpIf1A84ImsANlDFQhvIF0hgx2np8E_ttOV8_nxEZp0bXS_5Ezl5CTEtfZxdAWaElDyEQSJxyjubbfL201oIvsDLu9Xwdg",
-                        ),
-                        feedback_tok_rem_from_library: FeedbackTokenRemoveFromLibrary(
-                            "AB9zfpLDiYcL-WQEW4_B1As3qZJIOCsaPD4iMklGmeRJDf4eT0cubSgPGKDzzIxXd1QwA_vaNvi2CiSU_xp4LzLZzDxNKRwSnA",
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpIf1A84ImsANlDFQhvIF0hgx2np8E_ttOV8_nxEZp0bXS_5Ezl5CTEtfZxdAWaElDyEQSJxyjubbfL201oIvsDLu9Xwdg",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpLDiYcL-WQEW4_B1As3qZJIOCsaPD4iMklGmeRJDf4eT0cubSgPGKDzzIxXd1QwA_vaNvi2CiSU_xp4LzLZzDxNKRwSnA",
+                                ),
+                            },
                         ),
                         title: "(Just Like) Starting Over",
                         like_status: Indifferent,
