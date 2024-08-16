@@ -394,43 +394,6 @@
                               }
                             },
                             {
-                              "toggleMenuServiceItemRenderer": {
-                                "defaultText": {
-                                  "runs": [
-                                    {
-                                      "text": "Save to library"
-                                    }
-                                  ]
-                                },
-                                "defaultIcon": {
-                                  "iconType": "LIBRARY_ADD"
-                                },
-                                "defaultServiceEndpoint": {
-                                  "clickTrackingParams": "COYBEIT_BRgDIhMIxvW_--O_hwMVWptWAR0Hlwbw",
-                                  "feedbackEndpoint": {
-                                    "feedbackToken": "AB9zfpIiyn29gccrtP2QxysOlL3v8q6aGktUqYf85phv3PT-My96G1P8DZySD3VBiltbixsJxFPubRbihThQPueqf9ciBV6aZg"
-                                  }
-                                },
-                                "toggledText": {
-                                  "runs": [
-                                    {
-                                      "text": "Remove from library"
-                                    }
-                                  ]
-                                },
-                                "toggledIcon": {
-                                  "iconType": "LIBRARY_SAVED"
-                                },
-                                "toggledServiceEndpoint": {
-                                  "clickTrackingParams": "COYBEIT_BRgDIhMIxvW_--O_hwMVWptWAR0Hlwbw",
-                                  "feedbackEndpoint": {
-                                    "feedbackToken": "AB9zfpLxczURgkxVeEcPSYKU-X1f0beYZnw85Q4PKdkZdEbMr1mfqRM4OO2BV7Zia2UZGUsKBToWb-5D9ECrieJGB_Iw0nzOwA"
-                                  }
-                                },
-                                "trackingParams": "COYBEIT_BRgDIhMIxvW_--O_hwMVWptWAR0Hlwbw"
-                              }
-                            },
-                            {
                               "menuNavigationItemRenderer": {
                                 "text": {
                                   "runs": [
