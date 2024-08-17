@@ -4244,7 +4244,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.12"
+version = "0.0.13"
 dependencies = [
  "clap",
  "crossterm",
@@ -4281,7 +4281,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.0.11"
+version = "0.0.12"
 dependencies = [
  "async-stream",
  "chrono",
