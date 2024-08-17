@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.13](https://github.com/nick42d/youtui/compare/youtui/v0.0.12...youtui/v0.0.13) - 2024-08-17
+
+### Other
+- updated the following local packages: ytmapi-rs
+
+
+
+
 ## [0.0.12](https://github.com/nick42d/youtui/compare/youtui/v0.0.11...youtui/v0.0.12) - 2024-08-12
 
 ### Fixed

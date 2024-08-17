@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.12](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.11...ytmapi-rs/v0.0.12) - 2024-08-17
+
+### Fixed
+- [**breaking**] Make library management items optional for album songs ([#140](https://github.com/nick42d/youtui/pull/140))
+- _Changed type of AlbumSong to allow library options to be optional_ 
+- fix! Make library management items optional for artist songs ([#139](https://github.com/nick42d/youtui/pull/139))
+- Json::into_inner() method should be pub ([#137](https://github.com/nick42d/youtui/pull/137))
+
+
+
+
 ## [0.0.11](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.10...ytmapi-rs/v0.0.11) - 2024-08-12
 
 ### Fixed
