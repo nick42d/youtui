@@ -37,7 +37,7 @@ impl Downloader {
     pub fn new(response_tx: mpsc::Sender<super::Response>) -> Self {
         Self {
             options: VideoOptions {
-                quality: rusty_ytdl::VideoQuality::LowestAudio,
+                quality: rusty_ytdl::VideoQuality::HighestAudio,
                 filter: rusty_ytdl::VideoSearchOptions::Audio,
                 download_options: DownloadOptions {
                     dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
