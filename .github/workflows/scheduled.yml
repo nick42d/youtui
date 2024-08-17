@@ -37,4 +37,4 @@ jobs:
         # live_integration_tests are API tests for ytmapi_rs
         cargo test --verbose --test live_integration_tests
         # ignored tests are other tests live tests that shouldn't be run on every push - e.g downloading.
-        cargo test --verbose --ignored
+        cargo test --verbose -- --ignored
