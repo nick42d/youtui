@@ -185,7 +185,10 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     let related = Vec::new();
     let title = header.take_value_pointer(TITLE_TEXT)?;
     let author = header.take_value_pointer(STRAPLINE_TEXT)?;
-    let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
+    // Thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
+    let thumbnails: Vec<Thumbnail> = header
+        .take_value_pointer(STRAPLINE_THUMBNAIL)
+        .unwrap_or_default();
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
         .and_then(|d| d.try_into_iter())
@@ -311,6 +314,15 @@ mod tests {
         parse_test!(
             "./test_json/get_playlist_20240624.json",
             "./test_json/get_playlist_20240624_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_query_2024_no_channel_thumbnail() {
+        parse_test!(
+            "./test_json/get_playlist_no_channel_thumbnail_20240818.json",
+            "./test_json/get_playlist_no_channel_thumbnail_20240818_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
