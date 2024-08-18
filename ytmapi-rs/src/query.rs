@@ -238,7 +238,8 @@ pub mod lyrics {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{browsing::Lyrics, LyricsID, YoutubeID},
+        common::{LyricsID, YoutubeID},
+        parse::Lyrics,
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -277,7 +278,7 @@ pub mod watch {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{watch::WatchPlaylist, PlaylistID, YoutubeID},
+        common::{PlaylistID, YoutubeID},
         VideoID,
     };
     use serde_json::json;
@@ -324,7 +325,7 @@ pub mod watch {
     }
 
     impl<T: GetWatchPlaylistQueryID, A: AuthToken> Query<A> for GetWatchPlaylistQuery<T> {
-        type Output = WatchPlaylist;
+        type Output = crate::parse::WatchPlaylist;
         type Method = PostMethod;
     }
     impl<T: GetWatchPlaylistQueryID> PostQuery for GetWatchPlaylistQuery<T> {
@@ -389,8 +390,7 @@ pub mod rate {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{PlaylistID, YoutubeID},
-        parse::LikeStatus,
+        common::{LikeStatus, PlaylistID, YoutubeID},
         VideoID,
     };
     use serde_json::json;

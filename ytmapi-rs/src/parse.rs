@@ -40,9 +40,11 @@ pub use album::*;
 pub use artist::*;
 pub use history::*;
 pub use library::*;
+pub use lyrics::*;
 pub use playlists::*;
 pub use recommendations::*;
 pub use upload::*;
+pub use watch::*;
 
 mod album;
 mod artist;
@@ -377,11 +379,18 @@ fn parse_fixed_column_item<T: DeserializeOwned>(
 
 mod lyrics {
     use super::{ParseFrom, ProcessedResult};
-    use crate::common::browsing::Lyrics;
     use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
     use json_crawler::{JsonCrawler, JsonCrawlerOwned};
+    use serde::Deserialize;
+
+    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    #[non_exhaustive]
+    pub struct Lyrics {
+        pub lyrics: String,
+        pub source: String,
+    }
 
     impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
@@ -402,7 +411,8 @@ mod lyrics {
     mod tests {
         use crate::{
             auth::BrowserToken,
-            common::{browsing::Lyrics, LyricsID, YoutubeID},
+            common::{LyricsID, YoutubeID},
+            parse::lyrics::Lyrics,
             process_json,
             query::lyrics::GetLyricsQuery,
         };
@@ -430,13 +440,23 @@ mod lyrics {
 mod watch {
     use super::{ParseFrom, ProcessedResult};
     use crate::{
-        common::watch::WatchPlaylist,
+        common::{LyricsID, PlaylistID},
         nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
         query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID},
         Result,
     };
     use const_format::concatcp;
     use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
+    use serde::Deserialize;
+
+    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    pub struct WatchPlaylist {
+        // TODO: Implement tracks.
+        /// Unimplemented!
+        pub _tracks: Vec<()>,
+        pub playlist_id: Option<PlaylistID<'static>>,
+        pub lyrics_id: LyricsID<'static>,
+    }
 
     impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
         fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> crate::Result<Self> {
@@ -456,7 +476,11 @@ mod watch {
                 ))
                 .ok()
             });
-            Ok(WatchPlaylist::new(playlist_id, lyrics_id))
+            Ok(WatchPlaylist {
+                _tracks: Vec::new(),
+                playlist_id,
+                lyrics_id,
+            })
         }
     }
 

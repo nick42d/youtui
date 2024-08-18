@@ -1,8 +1,6 @@
-use super::{
-    LikeStatus, ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
-};
+use super::{ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE};
 use crate::{
-    common::{AlbumType, UploadAlbumID, UploadArtistID, UploadEntityID},
+    common::{AlbumType, LikeStatus, UploadAlbumID, UploadArtistID, UploadEntityID},
     nav_consts::{
         GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
         NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,

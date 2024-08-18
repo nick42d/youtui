@@ -1,11 +1,10 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{
-        library::{LibraryArtist, Playlist},
-        ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
+    common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
+    parse::{
+        GetLibraryArtistSubscription, LibraryArtist, Playlist, SearchResultAlbum, TableListSong,
     },
-    parse::{GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
 use serde_json::json;
 use std::borrow::Cow;
