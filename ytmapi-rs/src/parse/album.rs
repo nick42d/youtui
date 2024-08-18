@@ -158,7 +158,10 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
                 .collect::<CrawlerResult<String>>()
         })
         .transpose()?;
-    let thumbnails: Vec<Thumbnail> = header.take_value_pointer(STRAPLINE_THUMBNAIL)?;
+    // Thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
+    let thumbnails: Vec<Thumbnail> = header
+        .take_value_pointer(STRAPLINE_THUMBNAIL)
+        .unwrap_or_default();
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let mut buttons = header.borrow_pointer("/buttons")?;
@@ -205,6 +208,15 @@ mod tests {
         parse_test!(
             "./test_json/get_album_20240724.json",
             "./test_json/get_album_20240724_output.txt",
+            GetAlbumQuery::new(AlbumID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_album_query_no_artist_thumbnail() {
+        parse_test!(
+            "./test_json/get_album_various_artists_no_thumbnail_20240818.json",
+            "./test_json/get_album_various_artists_no_thumbnail_20240818_output.txt",
             GetAlbumQuery::new(AlbumID::from_raw("")),
             BrowserToken
         );

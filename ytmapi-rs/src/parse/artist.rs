@@ -459,7 +459,16 @@ pub(crate) fn parse_playlist_song(
         parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
     let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
     let artists = super::parse_song_artists(&mut data, 1)?;
-    let album = super::parse_song_album(&mut data, 2)?;
+    // Some playlist types (Potentially just Featured Playlists) have a 'Plays'
+    // field between Artist and Album.
+    // TODO: Find a more efficient way, and potentially parse Featured Playlists
+    // differently.
+    let album_col_idx = if data.path_exists("/flexColumns/3") {
+        3
+    } else {
+        2
+    };
+    let album = super::parse_song_album(&mut data, album_col_idx)?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
         .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;

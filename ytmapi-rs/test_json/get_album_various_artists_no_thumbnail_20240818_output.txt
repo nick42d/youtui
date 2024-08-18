@@ -1,0 +1,465 @@
+AlbumParams {
+    title: "Pavarotti & Friends for Cambodia and Tibet",
+    category: Album,
+    thumbnails: [],
+    description: None,
+    artists: [
+        ParsedSongArtist {
+            name: "Various Artists",
+            id: None,
+        },
+    ],
+    year: "2000",
+    track_count_text: Some(
+        "20 songs",
+    ),
+    duration: "1 hour, 17 minutes",
+    audio_playlist_id: Some(
+        PlaylistID(
+            "OLAK5uy_k65pW3KelqpW9w1D7Qnl_85BINjMKeVtA",
+        ),
+    ),
+    tracks: [
+        AlbumSong {
+            video_id: VideoID(
+                "x8miHO0jSN8",
+            ),
+            track_no: 1,
+            duration: "2:44",
+            plays: "10M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKJUl-GudyuiZ_QI17sr2w7EYT1F0hvVDiX6vmWmMs5du6aafKa0XL3hiJ_pT6zwdqQSQIPP_uvzJisGKWXA10FY0St1g",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpLeOXwdzjzPTrymw4-cr4ofuzmiNaLUUlekXaRwHcUJOXPUdEhz31joi9iDJT8yKFYgYwWW8IBl3vRULN3CiK-2kXo8fg",
+                    ),
+                },
+            ),
+            title: "Cielito lindo",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "oZg3tGW-Wa8",
+            ),
+            track_no: 2,
+            duration: "3:29",
+            plays: "413K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpI16dF_RkSrThyAy73DaR9t6F3ehr0qNb83Lli8NmTR54kfFaasbIq6tqAN06Z94IEZovyMe3COnH5UOcnzqpzd_BCPqA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpLUc4dO7SqiQd3Am-ftRNZa10pN6uK2gOvObwXG5fha7WUAL3AitYLW94zyVufWFX-_TLAyN7R5B7NCqgQ3lrB171ajRw",
+                    ),
+                },
+            ),
+            title: "Around The World",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "hG3gGXPsd5g",
+            ),
+            track_no: 3,
+            duration: "4:29",
+            plays: "1.7M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpI8e-cdmiH0sbGpIe3e9VQOlALGLTpTdtI5I_3IQY86Ps3LsNxi3E4sODmbRhtFjCQ6pAwJLMvZmtKofpeg9KCgsXlkLg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpLjRGxH0j4_UxBvrUkEcddXCC84o7i8mJiQ_jg-Sav57EcGm_6ffcf71UmhWbgkdqDVpL7Lo7ROaJCNmKM4zocsx4qHQg",
+                    ),
+                },
+            ),
+            title: "There Must Be An Angel Playing With My Heart",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "wDtmp2bxeJo",
+            ),
+            track_no: 4,
+            duration: "3:39",
+            plays: "142K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKIH_xrgoc1jGSXT_XZJD8HxNdlx_BGC_AXpPnjoqfrKpuZWuABWSjZp7UXkr0p0w5y-vPuJOxwZUDAaBQnTJJNv0nm5A",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpL1YePERxYiCt41R8kORPbjo7_uOM-hlDGveokqs5IpiLql0i07oQ498Luvd0oansDEg7rZ97r0WG0mK0KOhW_4iPZ30Q",
+                    ),
+                },
+            ),
+            title: "I knew I loved you",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "x8WsMmnx4_8",
+            ),
+            track_no: 5,
+            duration: "3:00",
+            plays: "784K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIpLgRSZA8vUH6PDKUOa7rbcJNl5vQvRrbBS7B0Q6oeULoeBX_nFXNTu4QvVCCMs3LVMkzqjd8k1mhxFzygjSTXyVwJqw",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIv4BM8WbtmnW57KVbvxeshW9617_ahUsWKIg4UCttU6p9K8tdathvr5ReoIvD3sVoV10gykRL49Aj9Y1OfpggOWiUskA",
+                    ),
+                },
+            ),
+            title: "Guarda che luna - In cerca di te",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "TjrjmUFNoHE",
+            ),
+            track_no: 6,
+            duration: "4:28",
+            plays: "583K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpJeiB_VuLWaQOlUBBXsui63qof4rOpo3P1V6sKO5iFclWdj4HhWU-Gr1CFd8ODiQbGuaC-WOdlIjByfjkp3kZX92ps-kQ",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpLpzzeh0gmlkooYAYtie5tfJoP-RiBcZqj9Q-h-6I-EHIC_OQf7Uk9bOJ-26rWOc1NRZuTxLN0fKsgH8BaAkvGLdy7PPw",
+                    ),
+                },
+            ),
+            title: "Brother, can you spare a dime [Americana]",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "XbldMcXBrgc",
+            ),
+            track_no: 7,
+            duration: "4:28",
+            plays: "56K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpJOz4PufGczY_zVIa0RK-qLGA6e08u9a1A-pmIx6vqyVUqozCHLa__VtSSRoJo57_brf95cfPKoAS2YLKQb9PDo47B0xg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIIlSL1avAo7wl8cVNimBmRnijTV79UbtiATTUhb2Z7z__luo0X8AyvoipoHuK1F8h2-W1m9w8zNAT2MBI3ORVY1NrShw",
+                    ),
+                },
+            ),
+            title: "Ace: Tracy's Flaw",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "PfWgfUYSv8s",
+            ),
+            track_no: 8,
+            duration: "3:32",
+            plays: "23M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpLyzpH1f1aOSbDjEZx6wxVOkyaKKviPtc7XfT0dM363JM_HR4fmWmTdawpxG1qS3gRIf5YSqH8GwmQzwtPrtlymoX8RjA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpL0I99Rv8ePHWtK61a68xuvo4HVgLz6y9e3ww8DqAigfvSSZTCvGlkebwvHEh5G5NzGPQNwG5s8LVfsEduiV_MvX5zOUg",
+                    ),
+                },
+            ),
+            title: "Baby Can I Hold You",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "zrRw1vI9Fi0",
+            ),
+            track_no: 9,
+            duration: "3:01",
+            plays: "4.7M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKxMJPiRrr5o2WRqEwycRgXcyvPvbItWM8HXT4g3hfIr_ZQsygYAwf8PH4Jl6FuhUaUbQAIO-oRgUqZAraJFhjhCW9ahQ",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpJjvMNS65rDRVc5C2guHhaWu-IQl6xRUage4Ty-5nqEQu5SyBityUHQgJu65vJWv32KgKq2GKuM7lE5viao5Yjq0O4_1A",
+                    ),
+                },
+            ),
+            title: "'O sole mio",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "0Ycfpg4xfbM",
+            ),
+            track_no: 10,
+            duration: "3:40",
+            plays: "3.7M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpL-lesIWh7Mgc5daUcAUVHnoHIp9qOYT9srm4MyrpEBOviSWBxOekgg0AgEqGY-GuVAMWZGYxr30mHx4GfUGq0qrCYGSw",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIORf1eYlNO8_hdkn_-aYOpZcqHb_NzFhaTw-1eDUmPjqEe1AZfAoieVRik1YUM5VRQniU0xp5rBoffiVSkoVp1Dw9XjA",
+                    ),
+                },
+            ),
+            title: "You'll follow me down",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "gIpdW0MkxYU",
+            ),
+            track_no: 11,
+            duration: "5:09",
+            plays: "62K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpJv4y8vrikJ66lNgDtAhk7Qh8ITvTs8Z7ZOHA19OjtHsnSNlK9wXoxImjDziJryD5RPXqkS-DhITtpA6_CNLa_tTacLhg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIXl_tyJdxi3xHNx2c5cGqsHzmG1gIi4mc0G6p2SVP8xAh-xDfQpwVuFQS64ug4L4THNpHe0VoFBrZTLPpypy3U-YtLKA",
+                    ),
+                },
+            ),
+            title: "A Wonderful World",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "122565rsvoE",
+            ),
+            track_no: 12,
+            duration: "3:15",
+            plays: "623K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpJu5jPLC96cO6tep3pKgRNxoH2SjXTiUF-oNcmMp3QfWv4YQE769Ze1CpMaDIJ4J2b8_CsRNPAES8uZejCD68Q-7BXBoQ",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIqCVlG-0e20CZz3woQSBq2p90uSsEnLMd2_wkztUtL96wBnIAVfdVBlA8kkPJC6G6zqtZQzQ6OlWDZ6bYx1gPI8Jhvag",
+                    ),
+                },
+            ),
+            title: "Agnus Dei",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "kSYa8fqKRIU",
+            ),
+            track_no: 13,
+            duration: "4:33",
+            plays: "8.5K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIZYmLWSVPEd06zFXR-Ljx2yR12TNxm-7ZoiLTDl1X1vl1FUpZATKInIwpMcoDf318waWS0yxnpFzHGakrlUjby-KxlVg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpJSPlBooYXNrnMT6H0s8QmNxZmnA7EWizYP4wfk_Mcm5-89_JUevPZ7RwvqcbMrOEpvtz9qPLwAS0BJz6q1sYZh8jug6w",
+                    ),
+                },
+            ),
+            title: "Desde que o samba e samba",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "x8DHWNYh1DY",
+            ),
+            track_no: 14,
+            duration: "2:40",
+            plays: "1.5M plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpK_t1jI9x9JwWTPPZjBDJrFPfVx1ThKrod5WwKra-dfBhsDgT8BGv5Jqm7KsKD6xGdGmlUEJP9ZrkLw8i6ZvOeyoDHBNQ",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIjdRKPMsBAZJS28wSZdNQ2Z6MF6-PsJM2s3BmJVJBm1772jdzrwM7taV64P17d9vKHWB1WOUiSrJpIVNLGhC2STl2g4w",
+                    ),
+                },
+            ),
+            title: "Funiculì, funiculà",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "93dI6TSa_lk",
+            ),
+            track_no: 15,
+            duration: "4:00",
+            plays: "19K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIDrgUgQazS0iuc16lszGFSC2w0vC2vnWZmJh_AZ8QzEB7md4yfVQWtJYC90bKzMlmTNztZ8AbGp4ohwTAaLInckSmZ3A",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIMWLdvgACSPOSwHIQgyGgd1b1GG4nD0FGE7qNTNAP13F5h8o5-TnmO0l3pyv7OUq5NzGsNBMDjpvaF6fN_nnQfPyNZBA",
+                    ),
+                },
+            ),
+            title: "Telling Stories",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "2r87WO_FL58",
+            ),
+            track_no: 16,
+            duration: "4:48",
+            plays: "570K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIXdeddiuptvrM7B8kxNlpITjbaQ5uidA9G8msaryYrFFL46vsEF0tXJtC_c1fJz324R5sekmp5GhwU85imiYsFVGcL9w",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpK8ysXOreYr57aglbDSEET-rvPaSy7sczsQO5KB_twXzIU3zI48U94arn4aH_Y6zROEkd7D6TmCHG3dmw5U_sQMkHgS6A",
+                    ),
+                },
+            ),
+            title: "Se è vero che ci sei",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "msseG711Hxg",
+            ),
+            track_no: 17,
+            duration: "3:49",
+            plays: "119K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKThd4x1qtZxWNqdzz43hCb--oSPWloPaXJDmQBmBMDKfFOuxrxYwTLoOinNf-VMCMsYOPdkkdCy2tUKbEjMZa5dIrbhw",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpJOhGM3ev45OexRMY8arAzQWx-BsOySSocHu4FBoELuKQDfQPViUb99rGquZCy0A5qAgzzk3kGPUa9o4CCniX3ENTs5yw",
+                    ),
+                },
+            ),
+            title: "I saved the World today",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "D8J5gZrMOA4",
+            ),
+            track_no: 18,
+            duration: "3:35",
+            plays: "307K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIG9Lemn5ZkWN0A4L9d4pfkgoTAFPBCwubWWD5s1gUHFrxGKrZyF4Ev68L1btsj59-7R96t7patJPJdcpPjJS8yNS3aeA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpKAiQ7lO2Cz03glnXyATa0S7wwck7ajF_-N32KwtId6JIpPECCAjhntQF1uNAdhJEp1O1GIvGZtIem5b3xv8SdGaR70eA",
+                    ),
+                },
+            ),
+            title: "Manha do Carnaval [Black Orpheus]",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "BdejHkJ9piI",
+            ),
+            track_no: 19,
+            duration: "4:33",
+            plays: "206K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpLrLnWaHqzrr9cda4_OThBl_gjVXcS5cM5f1YoQXVQ7fd3kDKBc9-WiJNaI-D6TMBXkaB82f2MKL74ONaac2ETsFqq9IA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpKKGx9O4w7b-NQr6c90OCsCpR8vq8noyHaFujglGr0hUnLBtLEyWeLu5AX2gqH3mbjHt3i9gMhGXQUbJyXuvj5wO_dHwA",
+                    ),
+                },
+            ),
+            title: "Taylor: Be with You",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+        AlbumSong {
+            video_id: VideoID(
+                "jzOpYAW1y2M",
+            ),
+            track_no: 20,
+            duration: "4:16",
+            plays: "479K plays",
+            library_management: Some(
+                LibraryManager {
+                    status: NotInLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKLFeiLFfy-P_Fq0sXncU-SkNqqj__-WAXQ38wkK5FOrVygcS-oT1UnYVUw9J-Pp9SrVkt3zx69LtiIufaw4_s4oDXKzg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpLfQNomYQhD5kOvHBPiJn9DFtueZD_Hs-BSdzmlu-52E6PPVae8kpjkZzpqUKboNJ8HRbXVZ6lZ9suLmA7RVFgxlbQYQQ",
+                    ),
+                },
+            ),
+            title: "Lennon, McCartney: All You Need Is Love",
+            like_status: Indifferent,
+            explicit: NotExplicit,
+        },
+    ],
+    library_status: NotInLibrary,
+}
