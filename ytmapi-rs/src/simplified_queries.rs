@@ -6,20 +6,19 @@
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
 use crate::auth::AuthToken;
-use crate::common::recomendations::TasteToken;
-use crate::common::{
-    browsing::Lyrics,
-    library::{LibraryArtist, Playlist},
-    watch::WatchPlaylist,
-    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
-};
 use crate::common::{
     AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongTrackingUrl,
 };
+use crate::common::{
+    FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
+};
+use crate::common::{LikeStatus, TasteToken};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ArtistParams, GetLibraryArtistSubscription, GetPlaylist, HistoryPeriod, LikeStatus, SearchResultAlbum, SearchResultArtist,
-    SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast,
-    SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults, TableListSong,
+    AddPlaylistItem, AlbumParams, ArtistParams, GetArtistAlbumsAlbum, GetLibraryArtistSubscription,
+    GetPlaylist, HistoryPeriod, LibraryArtist, Lyrics, Playlist, SearchResultAlbum,
+    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
+    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    TableListSong, WatchPlaylist,
 };
 use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
@@ -45,7 +44,7 @@ use crate::query::{
     GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
-use crate::{Album, ChannelID, Result, VideoID, YtMusic};
+use crate::{ChannelID, Result, VideoID, YtMusic};
 
 impl<A: AuthToken> YtMusic<A> {
     /// API Search Query that returns results for each category if available.
@@ -227,7 +226,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         channel_id: T,
         browse_params: U,
-    ) -> Result<Vec<Album>> {
+    ) -> Result<Vec<GetArtistAlbumsAlbum>> {
         let query = GetArtistAlbumsQuery::new(channel_id.into(), browse_params.into());
         self.query(query).await
     }

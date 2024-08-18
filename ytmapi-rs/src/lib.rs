@@ -70,7 +70,7 @@ use std::{
 
 pub use builder::YtMusicBuilder;
 pub use client::Client;
-pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
+pub use common::{ChannelID, Thumbnail, VideoID};
 pub use error::{Error, Result};
 pub use parse::ProcessedResult;
 pub use process::RawResult;

@@ -1,13 +1,13 @@
 use super::{
     parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
-    parse_upload_song_artists, EpisodeDate, EpisodeDuration, LibraryManager, LibraryStatus,
-    LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
-    ParsedUploadSongAlbum, ProcessedResult, SearchResultVideo, Thumbnail,
+    parse_upload_song_artists, EpisodeDate, EpisodeDuration, ParseFrom, ParsedSongAlbum,
+    ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum, ProcessedResult,
+    SearchResultVideo, Thumbnail,
 };
 use crate::{
     common::{
-        AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromLibrary, PlaylistID, UploadEntityID, VideoID,
+        AlbumID, AlbumType, BrowseParams, Explicit, LibraryManager, LibraryStatus, LikeStatus,
+        PlaylistID, UploadEntityID, VideoID,
     },
     nav_consts::*,
     process::{fixed_column_item_pointer, flex_column_item_pointer},
@@ -20,6 +20,7 @@ use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCr
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct ArtistParams {
     pub description: String,
     pub views: String,
@@ -31,6 +32,19 @@ pub struct ArtistParams {
     pub subscribed: Option<String>,
     pub thumbnails: Option<String>,
     pub top_releases: GetArtistTopReleases,
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct GetArtistAlbumsAlbum {
+    pub title: String,
+    // TODO: Use type system
+    pub playlist_id: Option<String>,
+    // TODO: Use type system
+    pub browse_id: AlbumID<'static>,
+    pub category: Option<String>, // TODO change to enum
+    pub thumbnails: Vec<Thumbnail>,
+    pub year: Option<String>,
 }
 
 fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
@@ -664,7 +678,7 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
         .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
         .collect()
 }
-impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<GetArtistAlbumsAlbum> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let mut albums = Vec::new();
@@ -684,7 +698,7 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
             let thumbnails = r.take_value_pointer(THUMBNAIL_RENDERER)?;
             // TODO: category
             let category = r.take_value_pointer(SUBTITLE).ok();
-            albums.push(crate::Album {
+            albums.push(GetArtistAlbumsAlbum {
                 browse_id,
                 year: None,
                 title,

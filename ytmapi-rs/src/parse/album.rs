@@ -2,9 +2,7 @@ use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist, ParseFrom,
     ParsedSongArtist, ProcessedResult,
 };
-use crate::common::{
-    AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-};
+use crate::common::{AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus};
 use crate::common::{PlaylistID, Thumbnail};
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
@@ -16,36 +14,10 @@ use json_crawler::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
-pub struct LibraryManager {
-    pub status: LibraryStatus,
-    pub add_to_library_token: FeedbackTokenAddToLibrary<'static>,
-    pub remove_from_library_token: FeedbackTokenRemoveFromLibrary<'static>,
-}
-
-#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
-pub enum LibraryStatus {
-    #[serde(alias = "LIBRARY_SAVED")]
-    InLibrary,
-    #[serde(alias = "LIBRARY_ADD")]
-    NotInLibrary,
-}
-
 /// In some contexts, dislike will also be classified as indifferent.
 #[derive(Debug)]
 pub enum InLikedSongs {
     Liked,
-    Indifferent,
-}
-
-/// Indifferent means that the song has not been liked or disliked.
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
-pub enum LikeStatus {
-    #[serde(alias = "LIKE")]
-    Liked,
-    #[serde(alias = "DISLIKE")]
-    Disliked,
-    #[serde(alias = "INDIFFERENT")]
     Indifferent,
 }
 

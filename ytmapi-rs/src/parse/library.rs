@@ -3,7 +3,6 @@ use super::{
     SearchResultAlbum, TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
     SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
-use crate::common::library::{LibraryArtist, Playlist};
 use crate::common::{ApiOutcome, Explicit, PlaylistID};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -18,14 +17,34 @@ use crate::query::{
 use crate::{ChannelID, Result, Thumbnail};
 use const_format::concatcp;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // Very similar to LibraryArtist struct
 pub struct GetLibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
     pub channel_id: ChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct Playlist {
+    pub playlist_id: PlaylistID<'static>,
+    pub title: String,
+    pub thumbnails: Vec<Thumbnail>,
+    pub count: Option<usize>,
+    pub description: Option<String>,
+    pub author: Option<String>,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryArtist {
+    pub channel_id: ChannelID<'static>,
+    pub artist: String,
+    pub byline: String, // e.g 16 songs or 17.8k subscribers
 }
 
 impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {

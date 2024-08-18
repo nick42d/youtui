@@ -4,8 +4,7 @@ use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{BrowseParams, ChannelID, YoutubeID},
-    parse::ArtistParams,
-    Album,
+    parse::{ArtistParams, GetArtistAlbumsAlbum},
 };
 use std::borrow::Cow;
 
@@ -55,7 +54,7 @@ impl<'a> PostQuery for GetArtistQuery<'a> {
 }
 // TODO: Check if the MPLA strip is correct for both of these.
 impl<'a, A: AuthToken> Query<A> for GetArtistAlbumsQuery<'a> {
-    type Output = Vec<Album>;
+    type Output = Vec<GetArtistAlbumsAlbum>;
     type Method = PostMethod;
 }
 impl<'a> PostQuery for GetArtistAlbumsQuery<'a> {
