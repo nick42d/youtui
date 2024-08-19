@@ -1,6 +1,8 @@
 use super::{ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE};
 use crate::{
-    common::{AlbumType, LikeStatus, UploadAlbumID, UploadArtistID, UploadEntityID},
+    common::{
+        AlbumType, LikeStatus, Thumbnail, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID,
+    },
     nav_consts::{
         GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
         NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
@@ -13,7 +15,7 @@ use crate::{
         DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     },
-    Result, Thumbnail, VideoID,
+    Result,
 };
 use const_format::concatcp;
 use json_crawler::{
@@ -22,19 +24,21 @@ use json_crawler::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct ParsedUploadArtist {
     pub name: String,
     pub id: Option<UploadArtistID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct ParsedUploadSongAlbum {
     pub name: String,
     pub id: UploadAlbumID<'static>,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // May need to be enum to track 'Not Available' case.
-// TODO: Move to common
 pub struct TableListUploadSong {
     pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
@@ -47,6 +51,7 @@ pub struct TableListUploadSong {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct UploadAlbum {
     pub title: String,
     pub artist: String,
@@ -58,6 +63,7 @@ pub struct UploadAlbum {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct UploadArtist {
     pub artist_name: String,
     pub song_count: String,
@@ -66,6 +72,7 @@ pub struct UploadArtist {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct GetLibraryUploadAlbum {
     pub title: String,
     pub artist_name: String,
@@ -78,8 +85,8 @@ pub struct GetLibraryUploadAlbum {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // May need to be enum to track 'Not Available' case.
-// TODO: Move to common
 pub struct GetLibraryUploadAlbumSong {
     pub title: String,
     pub track_no: i64,

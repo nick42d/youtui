@@ -1,5 +1,5 @@
 [
-    Album {
+    GetArtistAlbumsAlbum {
         title: "KID A MNESIA",
         playlist_id: Some(
             "OLAK5uy_m8Yan_MSAia_ZYmZpl6xm1AINDg8LF1NI",
@@ -24,7 +24,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "A Moon Shaped Pool",
         playlist_id: Some(
             "OLAK5uy_l2JdqQ9q-aHSQmRiz3NfIkU2kkbxd1-ps",
@@ -49,7 +49,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "The King Of Limbs",
         playlist_id: Some(
             "OLAK5uy_kkxS8q1obnji_VjkWtpgWgpZAzAePSSA0",
@@ -74,7 +74,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "In Rainbows (Bonus Album)",
         playlist_id: Some(
             "OLAK5uy_mXbNXlc9onrp6Rb6XnX2noXE0khaT1A8E",
@@ -99,7 +99,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "In Rainbows",
         playlist_id: Some(
             "OLAK5uy_m59x-hBFsC789l1_qWwFXwH3gjntwy_CA",
@@ -124,7 +124,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Hail To The Thief",
         playlist_id: Some(
             "OLAK5uy_mRDhp5c2KZe2Penu4PLevXa7z5cBk4DXY",
@@ -149,7 +149,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Knives Out",
         playlist_id: Some(
             "OLAK5uy_nLVf-4Cgs84lLD_AchfudswMoWIMuOIbA",
@@ -174,7 +174,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Pyramid Song",
         playlist_id: Some(
             "OLAK5uy_m7ToVnaKcPCN19ONmKOHl1F29TlHzkMQU",
@@ -199,7 +199,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Amnesiac",
         playlist_id: Some(
             "OLAK5uy_nRHRKov8jjIYbNTQXsAfx_Rr7P7lnigYU",
@@ -224,7 +224,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Kid A",
         playlist_id: Some(
             "OLAK5uy_lDotrFl8LXo4UMq_XeVB1areFI_b8Par8",
@@ -249,7 +249,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Karma Police",
         playlist_id: Some(
             "OLAK5uy_k7Lk_w4EAe2NQmm6RuwU_fSXjOmXtjF6k",
@@ -274,7 +274,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "OK Computer",
         playlist_id: Some(
             "OLAK5uy_nc6afxSnmK8OFML8dF9q_0D1MBMXsGnL4",
@@ -299,7 +299,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Paranoid Android",
         playlist_id: Some(
             "OLAK5uy_n61gFIaKMlrPPj-4MbGZ-72RPXXh-T8GY",
@@ -324,7 +324,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Street Spirit (Fade Out)",
         playlist_id: Some(
             "OLAK5uy_kdCFKArfUObjngCbjoJwgCVsmBW17TpfU",
@@ -349,7 +349,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "The Bends",
         playlist_id: Some(
             "OLAK5uy_mjfZt29ZKuw9FnglSH4_LLqWBPIPicLjI",
@@ -374,7 +374,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "High & Dry / Planet Telex",
         playlist_id: Some(
             "OLAK5uy_m8kiir_1NWyx_AZOLIa0h9sQ1N1hFMzhw",
@@ -399,7 +399,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "My Iron Lung",
         playlist_id: Some(
             "OLAK5uy_nOMkErKhpKy7PA_CYVOggmIq4bzsoszDg",
@@ -424,7 +424,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Pablo Honey",
         playlist_id: Some(
             "OLAK5uy_lCl8VFn-xBO9PlDF2E0FXSjhaU0dLJP9I",
@@ -449,7 +449,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Creep",
         playlist_id: Some(
             "OLAK5uy_l1_KgYytnFrThUgqIjsEA7-WaQ8M4Y-No",
@@ -474,7 +474,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Drill EP",
         playlist_id: Some(
             "OLAK5uy_mOLRx-caOv6p2hvCY4A1DLEesUhk6vi2M",
@@ -499,7 +499,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "TKOL RMX 1234567",
         playlist_id: Some(
             "OLAK5uy_mpP0BwIgxqdY3byyQDaoBMfkS6XjWabfM",
@@ -524,7 +524,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "TKOL RMX 8",
         playlist_id: Some(
             "OLAK5uy_lPELHnTGqFBAKbOLyZKSOKCEN0gOe1rCc",
@@ -549,7 +549,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "Com Lag: 2+2=5",
         playlist_id: Some(
             "OLAK5uy_khBf-OqzahfJhFkLozz7cYunqEudm3UdQ",
@@ -574,7 +574,7 @@
         ],
         year: None,
     },
-    Album {
+    GetArtistAlbumsAlbum {
         title: "I Might Be Wrong",
         playlist_id: Some(
             "OLAK5uy_kV91KZNvcYmEwK2heGhxZjwfmpGeF1r0s",

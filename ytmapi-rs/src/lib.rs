@@ -60,6 +60,7 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
+use client::Client;
 use parse::ParseFrom;
 use query::{Query, QueryMethod};
 use std::{
@@ -68,11 +69,13 @@ use std::{
     path::Path,
 };
 
+#[doc(inline)]
 pub use builder::YtMusicBuilder;
-pub use client::Client;
-pub use common::{ChannelID, Thumbnail, VideoID};
+#[doc(inline)]
 pub use error::{Error, Result};
+#[doc(inline)]
 pub use parse::ProcessedResult;
+#[doc(inline)]
 pub use process::RawResult;
 
 #[macro_use]

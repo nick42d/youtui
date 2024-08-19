@@ -22,13 +22,12 @@
 //! `From<ProcessedResult> for JsonCrawlerOwned` implementation.
 use crate::{
     auth::AuthToken,
-    common::{AlbumID, AlbumType, Explicit, PlaylistID, PodcastID, ProfileID, Thumbnail, VideoID},
+    common::{AlbumID, ChannelID, Thumbnail},
     error,
     json::Json,
     nav_consts::*,
     process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::Query,
-    ChannelID,
 };
 use crate::{RawResult, Result};
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
@@ -43,6 +42,7 @@ pub use library::*;
 pub use lyrics::*;
 pub use playlists::*;
 pub use recommendations::*;
+pub use search::*;
 pub use upload::*;
 pub use watch::*;
 
@@ -77,182 +77,17 @@ pub enum EpisodeDuration {
     Recorded { duration: String },
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SearchResults {
-    pub top_results: Vec<TopResult>,
-    pub artists: Vec<SearchResultArtist>,
-    pub albums: Vec<SearchResultAlbum>,
-    pub featured_playlists: Vec<SearchResultFeaturedPlaylist>,
-    pub community_playlists: Vec<SearchResultCommunityPlaylist>,
-    pub songs: Vec<SearchResultSong>,
-    pub videos: Vec<SearchResultVideo>,
-    pub podcasts: Vec<SearchResultPodcast>,
-    pub episodes: Vec<SearchResultEpisode>,
-    pub profiles: Vec<SearchResultProfile>,
-}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// Each Top Result has it's own type.
-pub enum TopResultType {
-    Artist,
-    Playlist,
-    Song,
-    Video,
-    Station,
-    Podcast,
-    #[serde(untagged)]
-    Album(AlbumType),
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-// Helper enum for parsing different search result types.
-enum SearchResultType {
-    #[serde(alias = "Top result")]
-    TopResult,
-    Artists,
-    Albums,
-    #[serde(alias = "Featured playlists")]
-    FeaturedPlaylists,
-    #[serde(alias = "Community playlists")]
-    CommunityPlaylists,
-    Songs,
-    Videos,
-    Podcasts,
-    Episodes,
-    Profiles,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct ParsedSongArtist {
     pub name: String,
     pub id: Option<ChannelID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct ParsedSongAlbum {
     pub name: String,
     pub id: AlbumID<'static>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// Dynamically defined top result.
-/// Some fields are optional as they are not defined for all result types.
-// In future, may be possible to make this type safe.
-pub struct TopResult {
-    pub result_name: String,
-    /// Both Videos and Songs can have this left out.
-    pub result_type: Option<TopResultType>,
-    pub thumbnails: Vec<Thumbnail>,
-    pub artist: Option<String>,
-    pub album: Option<String>,
-    pub duration: Option<String>,
-    pub year: Option<String>,
-    pub subscribers: Option<String>,
-    pub plays: Option<String>,
-    /// Podcast publisher.
-    pub publisher: Option<String>,
-    // TODO: Add endpoint id.
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// An artist search result.
-pub struct SearchResultArtist {
-    pub artist: String,
-    /// An artist with no subscribers won't contain this field.
-    pub subscribers: Option<String>,
-    pub browse_id: ChannelID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A podcast search result.
-pub struct SearchResultPodcast {
-    pub title: String,
-    pub publisher: String,
-    pub podcast_id: PodcastID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A podcast episode search result.
-pub struct SearchResultEpisode {
-    pub title: String,
-    pub date: EpisodeDate,
-    pub channel_name: String,
-    pub video_id: VideoID<'static>,
-    // Potentially can include link to channel.
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A video search result. May be a video or a video episode of a podcast.
-pub enum SearchResultVideo {
-    Video {
-        title: String,
-        /// Note: Either Youtube channel name, or artist name.
-        // Potentially can include link to channel.
-        channel_name: String,
-        video_id: VideoID<'static>,
-        views: String,
-        length: String,
-        thumbnails: Vec<Thumbnail>,
-    },
-    VideoEpisode {
-        // Potentially asame as SearchResultEpisode
-        title: String,
-        date: EpisodeDate,
-        channel_name: String,
-        video_id: VideoID<'static>,
-        // Potentially can include link to channel.
-        thumbnails: Vec<Thumbnail>,
-    },
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A profile search result.
-pub struct SearchResultProfile {
-    pub title: String,
-    pub username: String,
-    pub profile_id: ProfileID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// An album search result.
-pub struct SearchResultAlbum {
-    pub title: String,
-    pub artist: String,
-    pub year: String,
-    pub explicit: Explicit,
-    pub album_id: AlbumID<'static>,
-    pub album_type: AlbumType,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SearchResultSong {
-    // Potentially can include links to artist and album.
-    pub title: String,
-    pub artist: String,
-    pub album: String,
-    pub duration: String,
-    pub plays: String,
-    pub explicit: Explicit,
-    pub video_id: VideoID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-// A playlist search result may be a featured or community playlist.
-pub enum SearchResultPlaylist {
-    Featured(SearchResultFeaturedPlaylist),
-    Community(SearchResultCommunityPlaylist),
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A community playlist search result.
-pub struct SearchResultCommunityPlaylist {
-    pub title: String,
-    pub author: String,
-    pub views: String,
-    pub playlist_id: PlaylistID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A featured playlist search result.
-pub struct SearchResultFeaturedPlaylist {
-    pub title: String,
-    pub author: String,
-    pub songs: String,
-    pub playlist_id: PlaylistID<'static>,
-    pub thumbnails: Vec<Thumbnail>,
 }
 
 /// A result from the api that has been checked for errors and processed into
@@ -383,9 +218,9 @@ mod lyrics {
     use crate::query::lyrics::GetLyricsQuery;
     use const_format::concatcp;
     use json_crawler::{JsonCrawler, JsonCrawlerOwned};
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
     #[non_exhaustive]
     pub struct Lyrics {
         pub lyrics: String,
@@ -447,9 +282,10 @@ mod watch {
     };
     use const_format::concatcp;
     use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(PartialEq, Debug, Clone, Deserialize)]
+    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+    #[non_exhaustive]
     pub struct WatchPlaylist {
         // TODO: Implement tracks.
         /// Unimplemented!
@@ -515,9 +351,8 @@ mod song {
     mod tests {
         use crate::{
             auth::BrowserToken,
-            common::{SongTrackingUrl, YoutubeID},
+            common::{SongTrackingUrl, VideoID, YoutubeID},
             query::song::GetSongTrackingUrlQuery,
-            VideoID,
         };
 
         #[tokio::test]
@@ -530,23 +365,5 @@ mod song {
                 BrowserToken
             );
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::query::SearchQuery;
-
-    #[tokio::test]
-    async fn test_all_processed_impl() {
-        let query = SearchQuery::new("Beatles");
-        let source = "{\"name\": \"John Doe\"}".to_string();
-        let p = ProcessedResult {
-            query: &query,
-            source: source.clone(),
-            json: serde_json::from_str(source.as_str()).unwrap(),
-        };
-        assert_eq!(&query, p.get_query());
     }
 }

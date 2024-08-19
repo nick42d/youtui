@@ -9,7 +9,7 @@ use crate::{
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
-use ytmapi_rs::{common::YoutubeID, VideoID};
+use ytmapi_rs::common::{VideoID, YoutubeID};
 
 const MAX_RETRIES: usize = 5;
 const AUDIO_QUALITY: rusty_ytdl::VideoQuality = rusty_ytdl::VideoQuality::HighestAudio;

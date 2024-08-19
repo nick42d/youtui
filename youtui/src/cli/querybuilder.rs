@@ -4,10 +4,10 @@ use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
-        AlbumID, BrowseParams, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromHistory,
-        LikeStatus, MoodCategoryParams, PlaylistID, SetVideoID, SongTrackingUrl, TasteToken,
-        TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
-        YoutubeID,
+        AlbumID, BrowseParams, ChannelID, FeedbackTokenAddToLibrary,
+        FeedbackTokenRemoveFromHistory, LikeStatus, MoodCategoryParams, PlaylistID, SetVideoID,
+        SongTrackingUrl, TasteToken, TasteTokenImpression, TasteTokenSelection, UploadAlbumID,
+        UploadArtistID, UploadEntityID, VideoID, YoutubeID,
     },
     parse::ParseFrom,
     process_json,
@@ -26,7 +26,6 @@ use ytmapi_rs::{
         PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query, RemoveHistoryItemsQuery,
         RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SongsFilter, VideosFilter,
     },
-    ChannelID, VideoID,
 };
 
 pub struct CliQuery {

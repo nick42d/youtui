@@ -1,6 +1,6 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use common::LikeStatus;
+use common::{LikeStatus, VideoID};
 use parse::{GetArtistAlbumsAlbum, Lyrics, WatchPlaylist};
 use std::time::Duration;
 use ytmapi_rs::common::{
@@ -191,6 +191,7 @@ async fn test_add_remove_history_items() {
     // Get history has a slight lag.
     tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
     let history = api.get_history().await.unwrap();
+    let first_history_item_period = history.first().unwrap().period_name.clone();
     let (first_history_item_name, delete_token) =
         match history.first().unwrap().items.first().unwrap() {
             parse::HistoryItem::Song(i) => (i.title.as_str(), i.feedback_token_remove.clone()),
@@ -211,13 +212,19 @@ async fn test_add_remove_history_items() {
     // Get history has a slight lag.
     tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
     let history = api.get_history().await.unwrap();
+    let first_history_item_period_new = history.first().unwrap().period_name.clone();
     let first_history_item_name_new = match history.first().unwrap().items.first().unwrap() {
         parse::HistoryItem::Song(i) => i.title.as_str(),
         parse::HistoryItem::Video(i) => i.title.as_str(),
         parse::HistoryItem::Episode(i) => i.title.as_str(),
         parse::HistoryItem::UploadSong(i) => i.title.as_str(),
     };
-    pretty_assertions::assert_ne!(first_history_item_name_new, song.title);
+    // It's not enough to check last song isn't the one we added - as it may exist
+    // on the previous day too :)
+    pretty_assertions::assert_ne!(
+        (first_history_item_name_new, first_history_item_period),
+        (song.title.as_str(), first_history_item_period_new)
+    );
 }
 #[tokio::test]
 async fn test_get_mood_playlists() {
@@ -517,12 +524,11 @@ async fn test_watch_playlist() {
         .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
         .await
         .unwrap();
-    let example = WatchPlaylist {
-        _tracks: Vec::new(),
-        playlist_id: Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54")),
-        lyrics_id: LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"),
-    };
-    assert_eq!(res, example)
+    assert_eq!(
+        res.playlist_id,
+        Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54"))
+    );
+    assert_eq!(res.lyrics_id, LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"));
 }
 #[tokio::test]
 async fn test_get_lyrics() {
