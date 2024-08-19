@@ -2,12 +2,12 @@ use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist, ParseFrom,
     ParsedSongArtist, ProcessedResult,
 };
-use crate::common::{AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus};
+use crate::common::{AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, VideoID};
 use crate::common::{PlaylistID, Thumbnail};
+use crate::nav_consts::*;
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
 use crate::Result;
-use crate::{nav_consts::*, VideoID};
 use const_format::concatcp;
 use json_crawler::{
     CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
@@ -15,13 +15,14 @@ use json_crawler::{
 use serde::{Deserialize, Serialize};
 
 /// In some contexts, dislike will also be classified as indifferent.
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub enum InLikedSongs {
     Liked,
     Indifferent,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AlbumSong {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
@@ -38,7 +39,8 @@ pub struct AlbumSong {
 
 // Is this similar to another struct?
 // XXX: Consider correct privacy
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AlbumParams {
     pub title: String,
     pub category: AlbumType,

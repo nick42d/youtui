@@ -4,7 +4,7 @@ use super::{
     TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
-    common::{ApiOutcome, PlaylistID, SetVideoID},
+    common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID},
     nav_consts::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
@@ -13,13 +13,14 @@ use crate::{
         EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
         SpecialisedQuery,
     },
-    Error, Result, Thumbnail, VideoID,
+    Error, Result,
 };
 use const_format::concatcp;
 use json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct GetPlaylist {
     pub id: PlaylistID<'static>,
     // NOTE: Only present on personal (library) playlists??
@@ -42,6 +43,7 @@ pub struct GetPlaylist {
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 /// Provides a SetVideoID and VideoID for each video added to the playlist.
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct AddPlaylistItem {
     pub video_id: VideoID<'static>,
     pub set_video_id: SetVideoID<'static>,

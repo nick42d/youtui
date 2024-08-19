@@ -6,8 +6,8 @@ use super::{
 };
 use crate::{
     common::{
-        ApiOutcome, Explicit, FeedbackTokenRemoveFromHistory, LibraryManager, LikeStatus,
-        PlaylistID, UploadEntityID,
+        ApiOutcome, ChannelID, Explicit, FeedbackTokenRemoveFromHistory, LibraryManager,
+        LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
     },
     nav_consts::{
         FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID,
@@ -18,13 +18,14 @@ use crate::{
     process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
     youtube_enums::YoutubeMusicVideoType,
-    ChannelID, Result, Thumbnail, VideoID,
+    Result,
 };
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct HistoryPeriod {
     pub period_name: String,
     pub items: Vec<HistoryItem>,
@@ -39,6 +40,7 @@ pub enum HistoryItem {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // Could this alternatively be Result<Song>?
 // May need to be enum to track 'Not Available' case.
 pub struct HistoryItemSong {
@@ -61,6 +63,7 @@ pub struct HistoryItemSong {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct HistoryItemVideo {
     pub video_id: VideoID<'static>,
     pub duration: String,
@@ -78,6 +81,7 @@ pub struct HistoryItemVideo {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct HistoryItemEpisode {
     pub video_id: VideoID<'static>,
     // May be live or non-live...
@@ -94,6 +98,7 @@ pub struct HistoryItemEpisode {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // May need to be enum to track 'Not Available' case.
 // TODO: Move to common
 pub struct HistoryItemUploadSong {

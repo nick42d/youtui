@@ -7,7 +7,8 @@
 //! by default)
 use crate::auth::AuthToken;
 use crate::common::{
-    AlbumID, ApiOutcome, BrowseParams, LyricsID, MoodCategoryParams, SetVideoID, SongTrackingUrl,
+    AlbumID, ApiOutcome, BrowseParams, ChannelID, LyricsID, MoodCategoryParams, SetVideoID,
+    SongTrackingUrl, VideoID,
 };
 use crate::common::{
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
@@ -44,7 +45,7 @@ use crate::query::{
     GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
-use crate::{ChannelID, Result, VideoID, YtMusic};
+use crate::{Result, YtMusic};
 
 impl<A: AuthToken> YtMusic<A> {
     /// API Search Query that returns results for each category if available.

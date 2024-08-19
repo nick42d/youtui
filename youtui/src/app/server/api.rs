@@ -19,13 +19,13 @@ use tracing::{error, info};
 use ytmapi_rs::auth::BrowserToken;
 use ytmapi_rs::auth::OAuthToken;
 use ytmapi_rs::common::AlbumID;
+use ytmapi_rs::common::ChannelID;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::AlbumSong;
 use ytmapi_rs::parse::GetArtistAlbums;
 use ytmapi_rs::query::GetAlbumQuery;
 use ytmapi_rs::query::GetArtistAlbumsQuery;
-use ytmapi_rs::ChannelID;
 
 pub enum Request {
     GetSearchSuggestions(String, KillableTask),
@@ -366,6 +366,7 @@ async fn search_selected_artist_task(
         browse_id: artist_albums_browse_id,
         params: artist_albums_params,
         results: artist_albums_results,
+        ..
     } = albums;
     let browse_id_list: Vec<AlbumID> = if artist_albums_browse_id.is_none()
         && artist_albums_params.is_none()

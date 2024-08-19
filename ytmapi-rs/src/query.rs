@@ -278,8 +278,7 @@ pub mod watch {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{PlaylistID, YoutubeID},
-        VideoID,
+        common::{PlaylistID, VideoID, YoutubeID},
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -390,8 +389,7 @@ pub mod rate {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{LikeStatus, PlaylistID, YoutubeID},
-        VideoID,
+        common::{LikeStatus, PlaylistID, VideoID, YoutubeID},
     };
     use serde_json::json;
 
@@ -470,7 +468,8 @@ pub mod rate {
 // Potentially better belongs within another module.
 pub mod song {
     use super::{PostMethod, PostQuery, Query};
-    use crate::{auth::AuthToken, common::SongTrackingUrl, Result, VideoID};
+    use crate::common::VideoID;
+    use crate::{auth::AuthToken, common::SongTrackingUrl, Result};
     use serde_json::json;
     use std::time::SystemTime;
 

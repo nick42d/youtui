@@ -28,11 +28,11 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
 }
 #[cfg(test)]
 mod tests {
+    use crate::common::VideoID;
     use crate::{
         auth::BrowserToken,
         common::{PlaylistID, YoutubeID},
         query::rate::{RatePlaylistQuery, RateSongQuery},
-        VideoID,
     };
 
     #[tokio::test]
