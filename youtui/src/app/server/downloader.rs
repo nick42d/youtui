@@ -12,6 +12,7 @@ use tracing::{error, info, warn};
 use ytmapi_rs::{common::YoutubeID, VideoID};
 
 const MAX_RETRIES: usize = 5;
+const AUDIO_QUALITY: rusty_ytdl::VideoQuality = rusty_ytdl::VideoQuality::HighestAudio;
 
 pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
@@ -37,7 +38,7 @@ impl Downloader {
     pub fn new(response_tx: mpsc::Sender<super::Response>) -> Self {
         Self {
             options: VideoOptions {
-                quality: rusty_ytdl::VideoQuality::LowestAudio,
+                quality: AUDIO_QUALITY,
                 filter: rusty_ytdl::VideoSearchOptions::Audio,
                 download_options: DownloadOptions {
                     dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
