@@ -2,10 +2,9 @@ use serde_json::json;
 
 use crate::{
     auth::AuthToken,
-    common::PlaylistID,
+    common::{PlaylistID, VideoID},
     parse::AddPlaylistItem,
     query::{PostMethod, PostQuery, Query},
-    VideoID,
 };
 use std::borrow::Cow;
 

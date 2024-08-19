@@ -3,7 +3,7 @@ use super::{
     TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
 use crate::{
-    common::{recomendations::TasteToken, MoodCategoryParams, PlaylistID},
+    common::{MoodCategoryParams, PlaylistID, TasteToken, Thumbnail},
     nav_consts::{
         CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
         SINGLE_COLUMN_TAB, SUBTITLE_RUNS, THUMBNAIL_RENDERER, TITLE_TEXT,
@@ -11,7 +11,7 @@ use crate::{
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Result, Thumbnail,
+    utils, Result,
 };
 use const_format::concatcp;
 use json_crawler::{
@@ -207,8 +207,7 @@ mod tests {
     use crate::{
         auth::BrowserToken,
         common::{
-            recomendations::TasteToken, MoodCategoryParams, TasteTokenImpression,
-            TasteTokenSelection, YoutubeID,
+            MoodCategoryParams, TasteToken, TasteTokenImpression, TasteTokenSelection, YoutubeID,
         },
         query::{
             GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,

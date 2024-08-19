@@ -16,23 +16,6 @@
             },
         ],
     },
-    VideoEpisode {
-        title: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
-        date: Recorded {
-            date: "Jan 31",
-        },
-        channel_name: "Rock Band ",
-        video_id: VideoID(
-            "0YrXgBgdabc",
-        ),
-        thumbnails: [
-            Thumbnail {
-                height: 225,
-                width: 400,
-                url: "https://i.ytimg.com/vi/0YrXgBgdabc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nRlJOjuIzt8SeaLmo1AF3qJbX2ZQ",
-            },
-        ],
-    },
     Video {
         title: "BGM The Beatles in JAZZ 30  Greatest Hits - Relaxing Guitar Music for Studying, Working, Running",
         channel_name: "Massimo Roberti",

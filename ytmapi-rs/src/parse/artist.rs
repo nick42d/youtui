@@ -1,25 +1,26 @@
 use super::{
     parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
-    parse_upload_song_artists, EpisodeDate, EpisodeDuration, LibraryManager, LibraryStatus,
-    LikeStatus, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
-    ParsedUploadSongAlbum, ProcessedResult, SearchResultVideo, Thumbnail,
+    parse_upload_song_artists, search::SearchResultVideo, EpisodeDate, EpisodeDuration, ParseFrom,
+    ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum, ProcessedResult,
+    Thumbnail,
 };
 use crate::{
     common::{
-        AlbumID, AlbumType, BrowseParams, Explicit, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromLibrary, PlaylistID, UploadEntityID, VideoID,
+        AlbumID, AlbumType, BrowseParams, ChannelID, Explicit, LibraryManager, LibraryStatus,
+        LikeStatus, PlaylistID, UploadEntityID, VideoID,
     },
     nav_consts::*,
     process::{fixed_column_item_pointer, flex_column_item_pointer},
     query::*,
     youtube_enums::YoutubeMusicVideoType,
-    ChannelID, Result,
+    Result,
 };
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ArtistParams {
     pub description: String,
     pub views: String,
@@ -31,6 +32,19 @@ pub struct ArtistParams {
     pub subscribed: Option<String>,
     pub thumbnails: Option<String>,
     pub top_releases: GetArtistTopReleases,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct GetArtistAlbumsAlbum {
+    pub title: String,
+    // TODO: Use type system
+    pub playlist_id: Option<String>,
+    // TODO: Use type system
+    pub browse_id: AlbumID<'static>,
+    pub category: Option<String>, // TODO change to enum
+    pub thumbnails: Vec<Thumbnail>,
+    pub year: Option<String>,
 }
 
 fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
@@ -121,9 +135,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             .filter_map(|r| r.navigate_pointer("/musicCarouselShelfRenderer").ok())
         {
             // XXX: Should this only be on the first result per category?
-            let category = ArtistTopReleaseCategory::from_string(
-                r.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?,
-            );
+            let category = r.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
             // Likely optional, need to confirm.
             // XXX: Errors here
             let browse_id: Option<ChannelID> = r
@@ -203,7 +215,8 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         })
     }
 }
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct GetArtistTopReleases {
     pub songs: Option<GetArtistSongs>,
     pub albums: Option<GetArtistAlbums>,
@@ -211,16 +224,19 @@ pub struct GetArtistTopReleases {
     pub videos: Option<GetArtistVideos>,
     pub related: Option<GetArtistRelated>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct GetArtistRelated {
     pub results: Vec<RelatedResult>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct GetArtistSongs {
     pub results: Vec<ArtistSong>,
     pub browse_id: PlaylistID<'static>,
 }
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct ArtistSong {
     pub video_id: VideoID<'static>,
     pub plays: String,
@@ -234,7 +250,8 @@ pub struct ArtistSong {
     pub like_status: LikeStatus,
     pub explicit: Explicit,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct GetArtistVideos {
     pub results: Vec<SearchResultVideo>,
     pub browse_id: PlaylistID<'static>,
@@ -243,20 +260,23 @@ pub struct GetArtistVideos {
 /// The browse_id and params can be used to get the full list of artist's
 /// albums. If they aren't set, and results is not empty, you can assume that
 /// all albums are displayed here already.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
     // XXX: Unsure if AlbumID is correct here.
     pub browse_id: Option<ChannelID<'static>>,
     pub params: Option<BrowseParams<'static>>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct RelatedResult {
     pub browse_id: ChannelID<'static>,
     pub title: String,
     pub subscribers: String,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[non_exhaustive]
 pub struct AlbumResult {
     pub title: String,
     pub album_type: AlbumType,
@@ -268,6 +288,7 @@ pub struct AlbumResult {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // Could this alternatively be Result<Song>?
 // May need to be enum to track 'Not Available' case.
 pub struct PlaylistSong {
@@ -290,6 +311,7 @@ pub struct PlaylistSong {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PlaylistVideo {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
@@ -307,6 +329,7 @@ pub struct PlaylistVideo {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PlaylistEpisode {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
@@ -322,6 +345,7 @@ pub struct PlaylistEpisode {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PlaylistUploadSong {
     pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
@@ -336,6 +360,7 @@ pub struct PlaylistUploadSong {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // Could this alternatively be Result<Song>?
 // May need to be enum to track 'Not Available' case.
 // NOTE: Difference between this and PlaylistSong is no trackId.
@@ -366,31 +391,22 @@ pub enum PlaylistItem {
 }
 
 // Should be at higher level in mod structure.
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 enum ArtistTopReleaseCategory {
+    #[serde(alias = "albums")]
     Albums,
+    #[serde(alias = "singles")]
     Singles,
+    #[serde(alias = "videos")]
     Videos,
+    #[serde(alias = "playlists")]
     Playlists,
+    #[serde(alias = "fans might also like")]
     Related,
+    #[serde(other)]
     None,
 }
-// May not need this.
-// XXX: remove?
-impl ArtistTopReleaseCategory {
-    // Note, this only works with user lang set to english.
-    // TODO: Implement i18n.
-    pub fn from_string(str: String) -> ArtistTopReleaseCategory {
-        match str.to_lowercase().as_str() {
-            "albums" => ArtistTopReleaseCategory::Albums,
-            "singles" => ArtistTopReleaseCategory::Singles,
-            "videos" => ArtistTopReleaseCategory::Videos,
-            "playlists" => ArtistTopReleaseCategory::Playlists,
-            "fans might also like" => ArtistTopReleaseCategory::Related,
-            _ => ArtistTopReleaseCategory::None,
-        }
-    }
-}
+
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
     let album_type = navigator.take_value_pointer(SUBTITLE)?;
@@ -673,7 +689,7 @@ pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<Play
         .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
         .collect()
 }
-impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
+impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<GetArtistAlbumsAlbum> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let mut albums = Vec::new();
@@ -693,7 +709,7 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
             let thumbnails = r.take_value_pointer(THUMBNAIL_RENDERER)?;
             // TODO: category
             let category = r.take_value_pointer(SUBTITLE).ok();
-            albums.push(crate::Album {
+            albums.push(GetArtistAlbumsAlbum {
                 browse_id,
                 year: None,
                 title,
@@ -707,11 +723,11 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<crate::Album> {
 }
 #[cfg(test)]
 mod tests {
+    use crate::common::ChannelID;
     use crate::{
         auth::BrowserToken,
         common::{BrowseParams, YoutubeID},
         query::GetArtistAlbumsQuery,
-        ChannelID,
     };
 
     #[tokio::test]

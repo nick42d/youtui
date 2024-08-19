@@ -18,7 +18,7 @@ use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;
 use ui::YoutuiWindow;
-use ytmapi_rs::{ChannelID, VideoID};
+use ytmapi_rs::common::{ChannelID, VideoID};
 
 mod component;
 mod keycommand;

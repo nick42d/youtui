@@ -68,11 +68,15 @@ use std::{
     path::Path,
 };
 
+#[doc(inline)]
 pub use builder::YtMusicBuilder;
+#[doc(inline)]
 pub use client::Client;
-pub use common::{Album, BrowseID, ChannelID, Thumbnail, VideoID};
+#[doc(inline)]
 pub use error::{Error, Result};
+#[doc(inline)]
 pub use parse::ProcessedResult;
+#[doc(inline)]
 pub use process::RawResult;
 
 #[macro_use]

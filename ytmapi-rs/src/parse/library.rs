@@ -3,8 +3,7 @@ use super::{
     SearchResultAlbum, TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
     SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
-use crate::common::library::{LibraryArtist, Playlist};
-use crate::common::{ApiOutcome, Explicit, PlaylistID};
+use crate::common::{ApiOutcome, ChannelID, Explicit, PlaylistID, Thumbnail};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
@@ -15,17 +14,37 @@ use crate::query::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-use crate::{ChannelID, Result, Thumbnail};
+use crate::Result;
 use const_format::concatcp;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 // Very similar to LibraryArtist struct
 pub struct GetLibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
     pub channel_id: ChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryPlaylist {
+    pub playlist_id: PlaylistID<'static>,
+    pub title: String,
+    pub thumbnails: Vec<Thumbnail>,
+    pub count: Option<usize>,
+    pub description: Option<String>,
+    pub author: Option<String>,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryArtist {
+    pub channel_id: ChannelID<'static>,
+    pub artist: String,
+    pub byline: String, // e.g 16 songs or 17.8k subscribers
 }
 
 impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
@@ -82,7 +101,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 
-impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
     fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         // TODO: Implement count and author fields
@@ -148,7 +167,7 @@ fn parse_library_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryAr
     }
 }
 
-fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
+fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
     if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
@@ -298,7 +317,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })
 }
 
-fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
+fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
     // TODO: Implement count and author fields
     let mut results = Vec::new();
     for result in json_crawler
@@ -328,7 +347,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Pla
                     .collect::<std::result::Result<String, _>>()?,
             );
         }
-        let playlist = Playlist {
+        let playlist = LibraryPlaylist {
             description,
             author,
             playlist_id,

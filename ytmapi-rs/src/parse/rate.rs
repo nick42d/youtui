@@ -28,11 +28,11 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
 }
 #[cfg(test)]
 mod tests {
+    use crate::common::VideoID;
     use crate::{
         auth::BrowserToken,
         common::{PlaylistID, YoutubeID},
         query::rate::{RatePlaylistQuery, RateSongQuery},
-        VideoID,
     };
 
     #[tokio::test]
@@ -40,7 +40,7 @@ mod tests {
         parse_test_value!(
             "./test_json/rate_song_like_20240710.json",
             (),
-            RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Liked),
+            RateSongQuery::new(VideoID::from_raw(""), crate::common::LikeStatus::Liked),
             BrowserToken
         );
     }
@@ -49,7 +49,7 @@ mod tests {
         parse_test_value!(
             "./test_json/rate_song_dislike_20240710.json",
             (),
-            RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Disliked),
+            RateSongQuery::new(VideoID::from_raw(""), crate::common::LikeStatus::Disliked),
             BrowserToken
         );
     }
@@ -58,7 +58,10 @@ mod tests {
         parse_test_value!(
             "./test_json/rate_song_indifferent_20240710.json",
             (),
-            RateSongQuery::new(VideoID::from_raw(""), crate::parse::LikeStatus::Indifferent),
+            RateSongQuery::new(
+                VideoID::from_raw(""),
+                crate::common::LikeStatus::Indifferent
+            ),
             BrowserToken
         );
     }
@@ -67,7 +70,7 @@ mod tests {
         parse_test_value!(
             "./test_json/rate_playlist_like_20240710.json",
             (),
-            RatePlaylistQuery::new(PlaylistID::from_raw(""), crate::parse::LikeStatus::Liked),
+            RatePlaylistQuery::new(PlaylistID::from_raw(""), crate::common::LikeStatus::Liked),
             BrowserToken
         );
     }
@@ -76,7 +79,10 @@ mod tests {
         parse_test_value!(
             "./test_json/rate_playlist_dislike_20240710.json",
             (),
-            RatePlaylistQuery::new(PlaylistID::from_raw(""), crate::parse::LikeStatus::Disliked),
+            RatePlaylistQuery::new(
+                PlaylistID::from_raw(""),
+                crate::common::LikeStatus::Disliked
+            ),
             BrowserToken
         );
     }
@@ -87,7 +93,7 @@ mod tests {
             (),
             RatePlaylistQuery::new(
                 PlaylistID::from_raw(""),
-                crate::parse::LikeStatus::Indifferent
+                crate::common::LikeStatus::Indifferent
             ),
             BrowserToken
         );

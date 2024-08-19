@@ -1,11 +1,11 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{
-        library::{LibraryArtist, Playlist},
-        ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
+    common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
+    parse::{
+        GetLibraryArtistSubscription, LibraryArtist, LibraryPlaylist, SearchResultAlbum,
+        TableListSong,
     },
-    parse::{GetLibraryArtistSubscription, SearchResultAlbum, TableListSong},
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -104,7 +104,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
-    type Output = Vec<Playlist>;
+    type Output = Vec<LibraryPlaylist>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryPlaylistsQuery {

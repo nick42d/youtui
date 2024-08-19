@@ -2,54 +2,27 @@ use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist, ParseFrom,
     ParsedSongArtist, ProcessedResult,
 };
-use crate::common::{
-    AlbumType, Explicit, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-};
+use crate::common::{AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, VideoID};
 use crate::common::{PlaylistID, Thumbnail};
+use crate::nav_consts::*;
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
 use crate::Result;
-use crate::{nav_consts::*, VideoID};
 use const_format::concatcp;
 use json_crawler::{
     CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
-pub struct LibraryManager {
-    pub status: LibraryStatus,
-    pub add_to_library_token: FeedbackTokenAddToLibrary<'static>,
-    pub remove_from_library_token: FeedbackTokenRemoveFromLibrary<'static>,
-}
-
-#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
-pub enum LibraryStatus {
-    #[serde(alias = "LIBRARY_SAVED")]
-    InLibrary,
-    #[serde(alias = "LIBRARY_ADD")]
-    NotInLibrary,
-}
-
 /// In some contexts, dislike will also be classified as indifferent.
-#[derive(Debug)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub enum InLikedSongs {
     Liked,
     Indifferent,
 }
 
-/// Indifferent means that the song has not been liked or disliked.
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
-pub enum LikeStatus {
-    #[serde(alias = "LIKE")]
-    Liked,
-    #[serde(alias = "DISLIKE")]
-    Disliked,
-    #[serde(alias = "INDIFFERENT")]
-    Indifferent,
-}
-
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AlbumSong {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
@@ -66,8 +39,9 @@ pub struct AlbumSong {
 
 // Is this similar to another struct?
 // XXX: Consider correct privacy
-#[derive(Debug)]
-pub struct AlbumParams {
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct GetAlbum {
     pub title: String,
     pub category: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
@@ -82,7 +56,7 @@ pub struct AlbumParams {
     pub library_status: LibraryStatus,
 }
 
-impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+impl<'a> ParseFrom<GetAlbumQuery<'a>> for GetAlbum {
     fn parse_from(p: ProcessedResult<GetAlbumQuery<'a>>) -> crate::Result<Self> {
         parse_album_query(p)
     }
@@ -135,7 +109,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
 }
 
 // NOTE: Similar code to get_playlist_2024
-fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
+fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
     let json_crawler = JsonCrawlerOwned::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let mut header =
@@ -180,7 +154,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
         .try_into_iter()?
         .filter_map(|mut track| parse_album_track(&mut track).transpose())
         .collect::<Result<Vec<AlbumSong>>>()?;
-    Ok(AlbumParams {
+    Ok(GetAlbum {
         library_status,
         title,
         description,

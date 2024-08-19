@@ -1,4 +1,4 @@
-AlbumParams {
+GetAlbum {
     title: "VULTURES 1",
     category: Album,
     thumbnails: [

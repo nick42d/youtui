@@ -1,5 +1,5 @@
 [
-    Playlist {
+    LibraryPlaylist {
         playlist_id: PlaylistID(
             "VLLM",
         ),
@@ -22,7 +22,7 @@
         ),
         author: None,
     },
-    Playlist {
+    LibraryPlaylist {
         playlist_id: PlaylistID(
             "VLPLCZQcydUIP07hMOwAXIag92l76d3z3Thv",
         ),
@@ -45,7 +45,7 @@
         ),
         author: None,
     },
-    Playlist {
+    LibraryPlaylist {
         playlist_id: PlaylistID(
             "VLRDCLAK5uy_lRzD6ZcGWU_ef3r4y7ifNYLiGmCCX_jIk",
         ),
@@ -68,7 +68,7 @@
         ),
         author: None,
     },
-    Playlist {
+    LibraryPlaylist {
         playlist_id: PlaylistID(
             "VLSE",
         ),

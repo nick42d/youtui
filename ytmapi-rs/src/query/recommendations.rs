@@ -3,7 +3,7 @@ use serde_json::{json, Value};
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{recomendations::TasteToken, MoodCategoryParams},
+    common::{MoodCategoryParams, TasteToken},
     parse::{MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist},
 };
 

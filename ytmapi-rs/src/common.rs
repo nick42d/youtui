@@ -7,6 +7,7 @@ use std::borrow::Cow;
 /// A search suggestion containing a list of TextRuns.
 /// May be a history suggestion.
 #[derive(PartialEq, Debug, Clone, Deserialize)]
+#[non_exhaustive]
 pub struct SearchSuggestion {
     pub runs: Vec<TextRun>,
     pub suggestion_type: SuggestionType,
@@ -23,16 +24,6 @@ pub enum SuggestionType {
 pub enum TextRun {
     Bold(String),
     Normal(String),
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-#[must_use]
-/// Indicates a result from an API action such as a 'delete playlist'
-pub enum ApiOutcome {
-    #[serde(alias = "STATUS_SUCCEEDED")]
-    Success,
-    #[serde(alias = "STATUS_FAILED")]
-    Failure,
 }
 
 impl TextRun {
@@ -54,7 +45,7 @@ impl TextRun {
 
 impl SearchSuggestion {
     /// Gets the text of the runs concaternated into a String.
-    /// Note - allocation required.
+    /// Note - allocates a new String.
     pub fn get_text(&self) -> String {
         self.runs
             .iter()
@@ -68,11 +59,59 @@ impl SearchSuggestion {
     }
 }
 
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[must_use]
+/// Indicates a result from an API action such as a 'delete playlist'
+pub enum ApiOutcome {
+    #[serde(alias = "STATUS_SUCCEEDED")]
+    Success,
+    #[serde(alias = "STATUS_FAILED")]
+    Failure,
+}
+
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+// Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct Thumbnail {
     pub height: u64,
     pub width: u64,
     pub url: String,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+/// Set of both taste tokens.
+// Intentionally not marked non_exhaustive - not expecting this to change.
+// TODO: constructor
+pub struct TasteToken<'a> {
+    pub impression_value: TasteTokenImpression<'a>,
+    pub selection_value: TasteTokenSelection<'a>,
+}
+
+/// Collection of required fields to identify and change library status.
+// Intentionally not marked non_exhaustive - not expecting this to change.
+#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
+pub struct LibraryManager {
+    pub status: LibraryStatus,
+    pub add_to_library_token: FeedbackTokenAddToLibrary<'static>,
+    pub remove_from_library_token: FeedbackTokenRemoveFromLibrary<'static>,
+}
+
+#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
+pub enum LibraryStatus {
+    #[serde(alias = "LIBRARY_SAVED")]
+    InLibrary,
+    #[serde(alias = "LIBRARY_ADD")]
+    NotInLibrary,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
+pub enum LikeStatus {
+    #[serde(alias = "LIKE")]
+    Liked,
+    #[serde(alias = "DISLIKE")]
+    Disliked,
+    #[serde(alias = "INDIFFERENT")]
+    /// Indifferent means that the song has not been liked or disliked.
+    Indifferent,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -81,37 +120,19 @@ pub enum Explicit {
     NotExplicit,
 }
 
-// Note, library album will also have artists field. How do we handle - are
-// these two different types?
-// Or, is Album a trait?
-// XXX: Consider if this is the same as the Album struct that uses ResultCore.
-// XXX: I think this should become a trait.
-#[derive(Debug)]
-pub struct Album {
-    pub title: String,
-    // TODO: Use type system
-    pub playlist_id: Option<String>,
-    // TODO: Use type system
-    pub browse_id: AlbumID<'static>,
-    pub category: Option<String>, // TODO change to enum
-    pub thumbnails: Vec<Thumbnail>,
-    pub year: Option<String>,
-}
-
-// TODO: Add parsing for YoutubeID's - e.g PlaylistID begining with VL should
-// fail.
-pub trait YoutubeID<'a> {
-    fn get_raw(&self) -> &str;
-    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self;
-}
-// Need to confirm behaviour when converting from other IDs.
-pub trait BrowseID<'a>: YoutubeID<'a> {}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AlbumType {
     Single,
     Album,
     EP,
+}
+
+/// Type safe version of API ID used as part of YTM's interface.
+pub trait YoutubeID<'a> {
+    fn get_raw(&self) -> &str;
+    // TODO: Create fallible version for when parsing is required. This could
+    // possiby be a seperate trait YoutubeIDFallible
+    fn from_raw<S: Into<Cow<'a, str>>>(raw_str: S) -> Self;
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -122,6 +143,7 @@ pub struct FeedbackTokenAddToLibrary<'a>(Cow<'a, str>);
 pub struct FeedbackTokenRemoveFromLibrary<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
+// TODO: Add parsing - PlaylistID begining with VL should fail.
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -132,11 +154,11 @@ pub struct ChannelID<'a>(Cow<'a, str>);
 pub struct ProfileID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PodcastID<'a>(Cow<'a, str>);
-#[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct VideoID<'a>(Cow<'a, str>);
-#[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct UploadEntityID<'a>(Cow<'a, str>);
-#[derive(PartialEq, Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct LyricsID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SetVideoID<'a>(Cow<'a, str>);
@@ -172,76 +194,3 @@ impl_youtube_id!(TasteTokenImpression<'a>);
 impl_youtube_id!(TasteTokenSelection<'a>);
 impl_youtube_id!(MoodCategoryParams<'a>);
 impl_youtube_id!(SongTrackingUrl<'a>);
-
-impl<'a> BrowseID<'a> for PlaylistID<'a> {}
-impl<'a> BrowseID<'a> for ChannelID<'a> {}
-
-pub mod watch {
-    use serde::Deserialize;
-
-    use super::{LyricsID, PlaylistID};
-
-    #[derive(PartialEq, Debug, Clone, Deserialize)]
-    pub struct WatchPlaylist {
-        // TODO: Implement tracks.
-        pub _tracks: Vec<()>,
-        pub playlist_id: Option<PlaylistID<'static>>,
-        pub lyrics_id: LyricsID<'static>,
-    }
-
-    impl WatchPlaylist {
-        // TODO: implement tracks.
-        pub fn new(playlist_id: Option<PlaylistID<'static>>, lyrics_id: LyricsID<'static>) -> Self {
-            Self {
-                playlist_id,
-                lyrics_id,
-                _tracks: Default::default(),
-            }
-        }
-    }
-}
-
-pub mod library {
-    use crate::{ChannelID, Thumbnail};
-    use serde::{Deserialize, Serialize};
-
-    use super::PlaylistID;
-
-    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-    pub struct Playlist {
-        pub playlist_id: PlaylistID<'static>,
-        pub title: String,
-        pub thumbnails: Vec<Thumbnail>,
-        pub count: Option<usize>,
-        pub description: Option<String>,
-        pub author: Option<String>,
-    }
-    #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-    pub struct LibraryArtist {
-        pub channel_id: ChannelID<'static>,
-        pub artist: String,
-        pub byline: String, // e.g 16 songs or 17.8k subscribers
-    }
-}
-
-pub mod browsing {
-    use serde::Deserialize;
-
-    #[derive(PartialEq, Debug, Clone, Deserialize)]
-    pub struct Lyrics {
-        pub lyrics: String,
-        pub source: String,
-    }
-}
-
-pub mod recomendations {
-    use super::{TasteTokenImpression, TasteTokenSelection};
-    use serde::{Deserialize, Serialize};
-
-    #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-    // TODO: constructor
-    pub struct TasteToken<'a> {
-        pub impression_value: TasteTokenImpression<'a>,
-        pub selection_value: TasteTokenSelection<'a>,
-    }
-}

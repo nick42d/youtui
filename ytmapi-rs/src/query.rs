@@ -143,7 +143,7 @@ pub mod album {
     use crate::{
         auth::AuthToken,
         common::{AlbumID, YoutubeID},
-        parse::AlbumParams,
+        parse::GetAlbum,
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -153,7 +153,7 @@ pub mod album {
         browse_id: AlbumID<'a>,
     }
     impl<'a, A: AuthToken> Query<A> for GetAlbumQuery<'a> {
-        type Output = AlbumParams;
+        type Output = GetAlbum;
         type Method = PostMethod;
     }
     impl<'a> PostQuery for GetAlbumQuery<'a> {
@@ -238,7 +238,8 @@ pub mod lyrics {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{browsing::Lyrics, LyricsID, YoutubeID},
+        common::{LyricsID, YoutubeID},
+        parse::Lyrics,
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -277,8 +278,7 @@ pub mod watch {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{watch::WatchPlaylist, PlaylistID, YoutubeID},
-        VideoID,
+        common::{PlaylistID, VideoID, YoutubeID},
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -324,7 +324,7 @@ pub mod watch {
     }
 
     impl<T: GetWatchPlaylistQueryID, A: AuthToken> Query<A> for GetWatchPlaylistQuery<T> {
-        type Output = WatchPlaylist;
+        type Output = crate::parse::WatchPlaylist;
         type Method = PostMethod;
     }
     impl<T: GetWatchPlaylistQueryID> PostQuery for GetWatchPlaylistQuery<T> {
@@ -389,9 +389,7 @@ pub mod rate {
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
-        common::{PlaylistID, YoutubeID},
-        parse::LikeStatus,
-        VideoID,
+        common::{LikeStatus, PlaylistID, VideoID, YoutubeID},
     };
     use serde_json::json;
 
@@ -470,7 +468,8 @@ pub mod rate {
 // Potentially better belongs within another module.
 pub mod song {
     use super::{PostMethod, PostQuery, Query};
-    use crate::{auth::AuthToken, common::SongTrackingUrl, Result, VideoID};
+    use crate::common::VideoID;
+    use crate::{auth::AuthToken, common::SongTrackingUrl, Result};
     use serde_json::json;
     use std::time::SystemTime;
 

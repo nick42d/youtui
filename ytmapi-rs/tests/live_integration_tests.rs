@@ -1,16 +1,15 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
+use common::{LikeStatus, VideoID};
+use parse::{GetArtistAlbumsAlbum, Lyrics, WatchPlaylist};
 use std::time::Duration;
-
-use ytmapi_rs::common::browsing::Lyrics;
-use ytmapi_rs::common::watch::WatchPlaylist;
 use ytmapi_rs::common::{
     ApiOutcome, ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
     SearchSuggestion,
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::parse::{AlbumParams, ArtistParams, LikeStatus, ParseFrom};
+use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
@@ -90,7 +89,10 @@ async fn test_new() {
     new_standard_api().await.unwrap();
     new_standard_oauth_api().await.unwrap();
 }
-
+generate_query_test!(
+    test_search_suggestions,
+    GetSearchSuggestionsQuery::new("faded")
+);
 generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
@@ -189,6 +191,7 @@ async fn test_add_remove_history_items() {
     // Get history has a slight lag.
     tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
     let history = api.get_history().await.unwrap();
+    let first_history_item_period = history.first().unwrap().period_name.clone();
     let (first_history_item_name, delete_token) =
         match history.first().unwrap().items.first().unwrap() {
             parse::HistoryItem::Song(i) => (i.title.as_str(), i.feedback_token_remove.clone()),
@@ -209,13 +212,19 @@ async fn test_add_remove_history_items() {
     // Get history has a slight lag.
     tokio::time::sleep(GET_HISTORY_TIMEOUT).await;
     let history = api.get_history().await.unwrap();
+    let first_history_item_period_new = history.first().unwrap().period_name.clone();
     let first_history_item_name_new = match history.first().unwrap().items.first().unwrap() {
         parse::HistoryItem::Song(i) => i.title.as_str(),
         parse::HistoryItem::Video(i) => i.title.as_str(),
         parse::HistoryItem::Episode(i) => i.title.as_str(),
         parse::HistoryItem::UploadSong(i) => i.title.as_str(),
     };
-    pretty_assertions::assert_ne!(first_history_item_name_new, song.title);
+    // It's not enough to check last song isn't the one we added - as it may exist
+    // on the previous day too :)
+    pretty_assertions::assert_ne!(
+        (first_history_item_name_new, first_history_item_period),
+        (song.title.as_str(), first_history_item_period_new)
+    );
 }
 #[tokio::test]
 async fn test_get_mood_playlists() {
@@ -515,12 +524,11 @@ async fn test_watch_playlist() {
         .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
         .await
         .unwrap();
-    let example = WatchPlaylist {
-        _tracks: Vec::new(),
-        playlist_id: Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54")),
-        lyrics_id: LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"),
-    };
-    assert_eq!(res, example)
+    assert_eq!(
+        res.playlist_id,
+        Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54"))
+    );
+    assert_eq!(res.lyrics_id, LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"));
 }
 #[tokio::test]
 async fn test_get_lyrics() {
@@ -531,40 +539,12 @@ async fn test_get_lyrics() {
         .await
         .unwrap();
     let res = api.get_lyrics(res.lyrics_id).await.unwrap();
-    let example = Lyrics {
-            lyrics: "You're my lesson I had to learn\nAnother page I'll have to turn\nI got one more message, always tryna be heard\nBut you never listen to a word\n\nHeaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nJust give me one second and I'll be fine\nJust let me catch my breath and come back to life\nI finally get the message, you were never meant to be mine\nCouldn't see the truth, I was blind (meant to be mine)\n\nWhoa, heaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nLetting go, we came so close (how foolish of me)\nOh, I'm letting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me".into(),
-            source: "Source: Musixmatch".into(),
-        };
+    let example = serde_json::json! ({
+        "lyrics": "You're my lesson I had to learn\nAnother page I'll have to turn\nI got one more message, always tryna be heard\nBut you never listen to a word\n\nHeaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nJust give me one second and I'll be fine\nJust let me catch my breath and come back to life\nI finally get the message, you were never meant to be mine\nCouldn't see the truth, I was blind (meant to be mine)\n\nWhoa, heaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nLetting go, we came so close (how foolish of me)\nOh, I'm letting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me",
+        "source": "Source: Musixmatch",
+    });
+    let example: Lyrics = serde_json::from_value(example).unwrap();
     assert_eq!(res, example)
-}
-#[tokio::test]
-async fn test_search_suggestions_oauth() {
-    let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
-    api.refresh_token().await.unwrap();
-    let res = api.get_search_suggestions("faded").await.unwrap();
-    let example = SearchSuggestion {
-        suggestion_type: common::SuggestionType::Prediction,
-        runs: vec![
-            TextRun::Bold("faded".into()),
-            TextRun::Normal(" alan walker".into()),
-        ],
-    };
-    assert!(res.contains(&example));
-}
-#[tokio::test]
-async fn test_search_suggestions() {
-    let api = new_standard_api().await.unwrap();
-    let res = api.get_search_suggestions("faded").await.unwrap();
-    let example = SearchSuggestion {
-        suggestion_type: common::SuggestionType::Prediction,
-        runs: vec![
-            TextRun::Bold("faded".into()),
-            TextRun::Normal(" alan walker".into()),
-        ],
-    };
-    assert!(res.contains(&example));
 }
 #[tokio::test]
 async fn test_get_artist() {
@@ -629,7 +609,7 @@ async fn test_get_artist_album_songs() {
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let res: Vec<Album> = ParseFrom::parse_from(res).unwrap();
+    let res: Vec<GetArtistAlbumsAlbum> = ParseFrom::parse_from(res).unwrap();
     println!("Process albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
@@ -642,6 +622,6 @@ async fn test_get_artist_album_songs() {
     );
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let _ = AlbumParams::parse_from(res).unwrap();
+    let _ = GetAlbum::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

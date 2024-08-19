@@ -10,7 +10,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 use tracing::{debug, error, info, warn};
-use ytmapi_rs::{ChannelID, VideoID};
+use ytmapi_rs::common::{ChannelID, VideoID};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
 
