@@ -3,7 +3,8 @@ use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
     parse::{
-        GetLibraryArtistSubscription, LibraryArtist, Playlist, SearchResultAlbum, TableListSong,
+        GetLibraryArtistSubscription, LibraryArtist, LibraryPlaylist, SearchResultAlbum,
+        TableListSong,
     },
 };
 use serde_json::json;
@@ -103,7 +104,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
-    type Output = Vec<Playlist>;
+    type Output = Vec<LibraryPlaylist>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryPlaylistsQuery {

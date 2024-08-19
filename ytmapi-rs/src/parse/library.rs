@@ -31,7 +31,7 @@ pub struct GetLibraryArtistSubscription {
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct Playlist {
+pub struct LibraryPlaylist {
     pub playlist_id: PlaylistID<'static>,
     pub title: String,
     pub thumbnails: Vec<Thumbnail>,
@@ -101,7 +101,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 
-impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<Playlist> {
+impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
     fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         // TODO: Implement count and author fields
@@ -167,7 +167,7 @@ fn parse_library_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryAr
     }
 }
 
-fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
+fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
     if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
@@ -317,7 +317,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })
 }
 
-fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Playlist>> {
+fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
     // TODO: Implement count and author fields
     let mut results = Vec::new();
     for result in json_crawler
@@ -347,7 +347,7 @@ fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Pla
                     .collect::<std::result::Result<String, _>>()?,
             );
         }
-        let playlist = Playlist {
+        let playlist = LibraryPlaylist {
             description,
             author,
             playlist_id,

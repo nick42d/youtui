@@ -15,8 +15,8 @@ use crate::common::{
 };
 use crate::common::{LikeStatus, TasteToken};
 use crate::parse::{
-    AddPlaylistItem, AlbumParams, ArtistParams, GetArtistAlbumsAlbum, GetLibraryArtistSubscription,
-    GetPlaylist, HistoryPeriod, LibraryArtist, Lyrics, Playlist, SearchResultAlbum,
+    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryArtistSubscription,
+    GetPlaylist, HistoryPeriod, LibraryArtist, LibraryPlaylist, Lyrics, SearchResultAlbum,
     SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
     TableListSong, WatchPlaylist,
@@ -238,7 +238,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.search_albums("Dark Side Of The Moon").await.unwrap();
     /// yt.get_album(&results[0].album_id).await
     /// # };
-    pub async fn get_album<'a, T: Into<AlbumID<'a>>>(&self, album_id: T) -> Result<AlbumParams> {
+    pub async fn get_album<'a, T: Into<AlbumID<'a>>>(&self, album_id: T) -> Result<GetAlbum> {
         let query = GetAlbumQuery::new(album_id);
         self.query(query).await
     }
@@ -313,7 +313,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.get_library_playlists().await;
     /// # };
-    pub async fn get_library_playlists(&self) -> Result<Vec<Playlist>> {
+    pub async fn get_library_playlists(&self) -> Result<Vec<LibraryPlaylist>> {
         let query = GetLibraryPlaylistsQuery;
         self.query(query).await
     }
@@ -429,7 +429,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
-    /// yt.rate_song(&results[0].video_id, ytmapi_rs::parse::LikeStatus::Liked).await
+    /// yt.rate_song(&results[0].video_id, ytmapi_rs::common::LikeStatus::Liked).await
     /// # };
     pub async fn rate_song<'a, T: Into<VideoID<'a>>>(
         &self,
@@ -451,7 +451,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///     .unwrap();
     /// yt.rate_playlist(
     ///     &results[0].playlist_id,
-    ///     ytmapi_rs::parse::LikeStatus::Liked,
+    ///     ytmapi_rs::common::LikeStatus::Liked,
     /// ).await
     /// # };
     pub async fn rate_playlist<'a, T: Into<PlaylistID<'a>>>(
@@ -498,7 +498,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///  ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let ytmapi_rs::common::library::Playlist { playlist_id, .. } =
+    /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
     ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let songs = yt.search_songs("Master of puppets").await.unwrap();
     /// yt.add_video_items_to_playlist(
@@ -522,7 +522,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///  ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let ytmapi_rs::common::library::Playlist { playlist_id, .. } =
+    /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
     ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
@@ -547,7 +547,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///  ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let ytmapi_rs::common::library::Playlist { playlist_id, .. } =
+    /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
     ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
