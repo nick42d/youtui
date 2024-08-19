@@ -41,7 +41,7 @@ pub struct AlbumSong {
 // XXX: Consider correct privacy
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct AlbumParams {
+pub struct GetAlbum {
     pub title: String,
     pub category: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
@@ -56,7 +56,7 @@ pub struct AlbumParams {
     pub library_status: LibraryStatus,
 }
 
-impl<'a> ParseFrom<GetAlbumQuery<'a>> for AlbumParams {
+impl<'a> ParseFrom<GetAlbumQuery<'a>> for GetAlbum {
     fn parse_from(p: ProcessedResult<GetAlbumQuery<'a>>) -> crate::Result<Self> {
         parse_album_query(p)
     }
@@ -109,7 +109,7 @@ fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>
 }
 
 // NOTE: Similar code to get_playlist_2024
-fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
+fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
     let json_crawler = JsonCrawlerOwned::from(p);
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
     let mut header =
@@ -154,7 +154,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<AlbumParams> {
         .try_into_iter()?
         .filter_map(|mut track| parse_album_track(&mut track).transpose())
         .collect::<Result<Vec<AlbumSong>>>()?;
-    Ok(AlbumParams {
+    Ok(GetAlbum {
         library_status,
         title,
         description,

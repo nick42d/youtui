@@ -9,7 +9,7 @@ use ytmapi_rs::common::{
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::parse::{AlbumParams, ArtistParams, ParseFrom};
+use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
@@ -622,6 +622,6 @@ async fn test_get_artist_album_songs() {
     );
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
-    let _ = AlbumParams::parse_from(res).unwrap();
+    let _ = GetAlbum::parse_from(res).unwrap();
     println!("Process album took {} ms", now.elapsed().as_millis());
 }

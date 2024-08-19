@@ -143,7 +143,7 @@ pub mod album {
     use crate::{
         auth::AuthToken,
         common::{AlbumID, YoutubeID},
-        parse::AlbumParams,
+        parse::GetAlbum,
     };
     use serde_json::json;
     use std::borrow::Cow;
@@ -153,7 +153,7 @@ pub mod album {
         browse_id: AlbumID<'a>,
     }
     impl<'a, A: AuthToken> Query<A> for GetAlbumQuery<'a> {
-        type Output = AlbumParams;
+        type Output = GetAlbum;
         type Method = PostMethod;
     }
     impl<'a> PostQuery for GetAlbumQuery<'a> {
