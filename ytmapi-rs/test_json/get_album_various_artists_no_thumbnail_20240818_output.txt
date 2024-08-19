@@ -1,4 +1,4 @@
-AlbumParams {
+GetAlbum {
     title: "Pavarotti & Friends for Cambodia and Tibet",
     category: Album,
     thumbnails: [],
