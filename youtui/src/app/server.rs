@@ -89,11 +89,11 @@ where
         api_key: ApiKey,
         response_tx: mpsc::Sender<Response>,
         request_rx: mpsc::Receiver<ServerRequest>,
-    ) -> Result<Self> {
-        let api = api::Api::new(api_key, response_tx.clone());
+    ) -> Result<Server<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
+        let api = api::Api::<T>::new(api_key, response_tx.clone());
         let player = player::PlayerManager::new(response_tx.clone());
         let downloader = downloader::Downloader::new(response_tx.clone());
-        Ok(Self {
+        Ok(Server {
             api,
             player,
             downloader,

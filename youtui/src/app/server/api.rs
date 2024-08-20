@@ -76,7 +76,7 @@ where
                 .map_err(Into::into)
         });
         let api = get_concrete_type(api_handle).shared();
-        Self { api, response_tx }
+        Api { api, response_tx }
     }
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
