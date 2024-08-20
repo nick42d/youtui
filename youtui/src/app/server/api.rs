@@ -1,16 +1,15 @@
-use super::{spawn_run_or_kill, KillableTask};
+use super::{spawn_run_or_kill, KillableTask, ServerComponent};
 use crate::{
     api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
     error::Error, get_config_dir, Result, OAUTH_FILENAME,
 };
 use futures::{future::Shared, Future, FutureExt};
-use rodio::dynamic_mixer::DynamicMixer;
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
     sync::{
         mpsc::{self, Sender},
-        Notify, OnceCell, RwLock,
+        RwLock,
     },
 };
 use tracing::{error, info};
@@ -22,11 +21,13 @@ use ytmapi_rs::{
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
-pub enum Request {
-    GetSearchSuggestions(String, KillableTask),
-    NewArtistSearch(String, KillableTask),
-    SearchSelectedArtist(ChannelID<'static>, KillableTask),
+pub enum KillableServerRequest {
+    GetSearchSuggestions(String),
+    NewArtistSearch(String),
+    SearchSelectedArtist(ChannelID<'static>),
 }
+pub enum UnkillableServerRequest {}
+
 #[derive(Debug)]
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
@@ -54,62 +55,44 @@ where
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
+async fn get_concrete_type(
+    j: tokio::task::JoinHandle<Result<ConcurrentApi>>,
+) -> Arc<Result<ConcurrentApi>> {
+    Arc::new(j.await.expect("Create new API task should never panic"))
+}
+
 impl<T> Api<T>
 where
     T: Future<Output = Arc<Result<ConcurrentApi>>>,
 {
-    pub fn new(api_key: ApiKey, response_tx: mpsc::Sender<super::Response>) -> Self {
+    pub fn new(
+        api_key: ApiKey,
+        response_tx: mpsc::Sender<super::Response>,
+    ) -> Api<impl Future<Output = Arc<Result<ConcurrentApi>>>> {
         let api_handle = tokio::spawn(async {
             DynamicYtMusic::new(api_key)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)))
                 .map_err(Into::into)
         });
-        let api = async move {
-            let api = api_handle
-                .await
-                .expect("Create new API task should never panic");
-            Arc::new(api)
-        }
-        .shared();
+        let api = get_concrete_type(api_handle).shared();
         Self { api, response_tx }
     }
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
     }
-    pub async fn handle_request(&self, request: Request) -> Result<()> {
-        match request {
-            Request::NewArtistSearch(a, task) => self.handle_new_artist_search(a, task).await,
-            Request::GetSearchSuggestions(text, task) => {
-                self.handle_get_search_suggestions(text, task).await
-            }
-            Request::SearchSelectedArtist(browse_id, task) => {
-                self.handle_search_selected_artist(browse_id, task).await
-            }
-        }
-    }
-    async fn handle_get_search_suggestions(&self, text: String, task: KillableTask) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        let tx = self.response_tx.clone();
-        // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
-        // internally.
-        let api = (*self.get_api().await).clone()?;
-        spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx);
-        Ok(())
-    }
+}
 
-    async fn handle_new_artist_search(&self, artist: String, task: KillableTask) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        let tx = self.response_tx.clone();
-        // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
-        // internally.
-        let api = (*self.get_api().await).clone()?;
-        spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx);
-        Ok(())
-    }
-    async fn handle_search_selected_artist(
+impl<T> ServerComponent for Api<T>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
+    type KillableRequestType = KillableServerRequest;
+    type UnkillableRequestType = UnkillableServerRequest;
+
+    async fn handle_killable_request(
         &self,
-        browse_id: ChannelID<'static>,
+        request: Self::KillableRequestType,
         task: KillableTask,
     ) -> Result<()> {
         let KillableTask { id, kill_rx } = task;
@@ -117,8 +100,25 @@ where
         // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
         // internally.
         let api = (*self.get_api().await).clone()?;
-        spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx);
+        match request {
+            KillableServerRequest::NewArtistSearch(artist) => {
+                spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx)
+            }
+            KillableServerRequest::GetSearchSuggestions(text) => {
+                spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx)
+            }
+            KillableServerRequest::SearchSelectedArtist(browse_id) => {
+                spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx);
+            }
+        };
         Ok(())
+    }
+    async fn handle_unkillable_request(
+        &self,
+        request: Self::UnkillableRequestType,
+        task: TaskID,
+    ) -> Result<()> {
+        match request {};
     }
 }
 
@@ -259,9 +259,7 @@ async fn search_selected_artist_task(
     tx: Sender<super::Response>,
 ) {
     let tx = tx.clone();
-    let _ = tx
-        .send(super::Response::Api(Response::SongListLoading(id)))
-        .await;
+    send_or_error(tx, super::Response::Api(Response::SongListLoading(id))).await;
     tracing::info!("Running songs query");
     // Should this be a ChannelID or BrowseID? Should take a trait?.
     // Should this actually take ChannelID::try_from(BrowseID::Artist) ->

@@ -1,68 +1,68 @@
-use std::sync::Arc;
-
-use api::{ConcurrentApi, Request};
+use api::ConcurrentApi;
 use futures::Future;
-use messages::RequestEither;
+use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 mod structures;
-use super::taskmanager::TaskID;
-use crate::{config::ApiKey, Result};
-use tracing::info;
+use super::taskmanager::{KillableTask, TaskID};
+use crate::{config::ApiKey, error::Error, Result};
+use tracing::{error, info};
 
 pub mod api;
 pub mod downloader;
-mod messages;
 pub mod player;
 
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
 const MAX_RETRIES: usize = 5;
 const AUDIO_QUALITY: rusty_ytdl::VideoQuality = rusty_ytdl::VideoQuality::HighestAudio;
 
+/// A component of the server can handle requests.
+/// Note, the handler functions should not significantly block - these run
+/// sequentially, and so a blocked handler will prevent the next handler from
+/// running. Instead a handler should spawn any significant amounts of work.
+trait ServerComponent {
+    type KillableRequestType;
+    type UnkillableRequestType;
+    async fn handle_killable_request(
+        &self,
+        request: Self::KillableRequestType,
+        task: KillableTask,
+    ) -> Result<()>;
+    async fn handle_unkillable_request(
+        &self,
+        request: Self::UnkillableRequestType,
+        task: TaskID,
+    ) -> Result<()>;
+}
+
 #[derive(Debug)]
 pub struct KillRequest;
 
-#[derive(Debug)]
-pub struct KillableTask {
-    pub id: TaskID,
-    pub kill_rx: oneshot::Receiver<KillRequest>,
+// Server request MUST be an enum, whilst it's tempting to use structs here to
+// take advantage of generics, every message sent to channel must be the same
+// size.
+pub enum ServerRequest {
+    Killable {
+        killable_task: KillableTask,
+        request: KillableServerRequest,
+    },
+    Unkillable {
+        task_id: TaskID,
+        request: UnkillableServerRequest,
+    },
 }
 
-impl KillableTask {
-    pub fn new(id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) -> Self {
-        Self { id, kill_rx }
-    }
+pub enum KillableServerRequest {
+    Api(api::KillableServerRequest),
+    Player(player::KillableServerRequest),
+    Downloader(downloader::KillableServerRequest),
 }
 
-trait TaskTrait {
-    fn spawn(&self) {}
+pub enum UnkillableServerRequest {
+    Api(api::UnkillableServerRequest),
+    Player(player::UnkillableServerRequest),
+    Downloader(downloader::UnkillableServerRequest),
 }
 
-trait KillableTaskTrait {
-    fn id(&self) -> TaskID;
-    fn kill_rx(&self) -> oneshot::Receiver<KillRequest>;
-    fn task(&self) -> impl futures::Future<Output = ()> + Send + 'static;
-}
-
-impl<T: KillableTaskTrait> Task for T {
-    fn spawn(&self) {
-        // spawn_run_or_kill(self.task(), self.kill_rx());
-    }
-}
-
-fn spawn<T: Task>(task: T) {
-    task.spawn()
-}
-
-pub enum TaskType {
-    KillableTask,
-    BlockableTask,
-}
-
-pub enum Request {
-    Api(api::Request),
-    Player(player::Request),
-    Downloader(downloader::Request),
-}
 // Should this implement something like Killable/Blockable?
 #[derive(Debug)]
 pub enum Response {
@@ -75,12 +75,10 @@ pub struct Server<T>
 where
     T: Future<Output = Arc<Result<ConcurrentApi>>>,
 {
-    // Do I want to keep track of tasks here in a joinhandle?
     api: api::Api<T>,
     player: player::PlayerManager,
     downloader: downloader::Downloader,
-    _response_tx: mpsc::Sender<Response>,
-    request_rx: mpsc::Receiver<Request>,
+    request_rx: mpsc::Receiver<ServerRequest>,
 }
 
 impl<T> Server<T>
@@ -90,27 +88,67 @@ where
     pub fn new(
         api_key: ApiKey,
         response_tx: mpsc::Sender<Response>,
-        request_rx: mpsc::Receiver<Request>,
+        request_rx: mpsc::Receiver<ServerRequest>,
     ) -> Result<Self> {
         let api = api::Api::new(api_key, response_tx.clone());
-        // TODO: Error handling
-        let player = player::PlayerManager::new(response_tx.clone())?;
+        let player = player::PlayerManager::new(response_tx.clone());
         let downloader = downloader::Downloader::new(response_tx.clone());
         Ok(Self {
             api,
             player,
             downloader,
             request_rx,
-            _response_tx: response_tx,
         })
     }
     pub async fn run(&mut self) {
         while let Some(request) = self.request_rx.recv().await {
-            match request {
-                // Handler functions should be short lived, as they will block the next request.
-                Request::Api(rx) => self.api.handle_request(rx).await,
-                Request::Downloader(rx) => self.downloader.handle_request(rx).await,
-                Request::Player(rx) => self.player.handle_request(rx).await,
+            let outcome = match request {
+                ServerRequest::Killable {
+                    killable_task,
+                    request,
+                } => self.handle_killable_request(request, killable_task).await,
+                ServerRequest::Unkillable { task_id, request } => {
+                    self.handle_unkillable_request(request, task_id).await
+                }
+            };
+            if let Err(e) = outcome {
+                error!("Error handling request: {:?}", e)
+            }
+        }
+    }
+}
+
+impl<T> ServerComponent for Server<T>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
+    type KillableRequestType = KillableServerRequest;
+    type UnkillableRequestType = UnkillableServerRequest;
+    async fn handle_killable_request(
+        &self,
+        request: Self::KillableRequestType,
+        task: KillableTask,
+    ) -> Result<()> {
+        match request {
+            KillableServerRequest::Api(r) => self.api.handle_killable_request(r, task).await,
+            KillableServerRequest::Player(r) => self.player.handle_killable_request(r, task).await,
+            KillableServerRequest::Downloader(r) => {
+                self.downloader.handle_killable_request(r, task).await
+            }
+        }
+    }
+    async fn handle_unkillable_request(
+        &self,
+        request: Self::UnkillableRequestType,
+        task: TaskID,
+    ) -> Result<()> {
+        match request {
+            UnkillableServerRequest::Api(r) => self.api.handle_unkillable_request(r, task).await,
+            UnkillableServerRequest::Player(r) => {
+                self.player.handle_unkillable_request(r, task).await
+            }
+            UnkillableServerRequest::Downloader(r) => {
+                self.downloader.handle_unkillable_request(r, task).await
             }
         }
     }

@@ -56,7 +56,6 @@ Chrome example (Select manually and paste):
 
 ## Limitations
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
-- Song progress updates are currently emulated with a ticker and may be slightly out.
 
 ## Roadmap
 ### Application

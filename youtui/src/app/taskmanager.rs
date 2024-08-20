@@ -2,7 +2,7 @@ use super::server::{api, downloader, player};
 use super::structures::ListSongID;
 use super::ui::YoutuiWindow;
 use crate::app::server::KillRequest;
-use crate::app::server::{self, KillableTask};
+use crate::app::server::{self};
 use crate::config::ApiKey;
 use crate::core::send_or_error;
 use crate::Result;
@@ -18,8 +18,20 @@ pub struct TaskManager {
     cur_id: TaskID,
     tasks: Vec<Task>,
     _server_handle: tokio::task::JoinHandle<Result<()>>,
-    server_request_tx: mpsc::Sender<server::Request>,
+    server_request_tx: mpsc::Sender<server::ServerRequest>,
     server_response_rx: mpsc::Receiver<server::Response>,
+}
+
+#[derive(Debug)]
+pub struct KillableTask {
+    pub id: TaskID,
+    pub kill_rx: oneshot::Receiver<KillRequest>,
+}
+
+impl KillableTask {
+    pub fn new(id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) -> Self {
+        Self { id, kill_rx }
+    }
 }
 
 struct _Task {
