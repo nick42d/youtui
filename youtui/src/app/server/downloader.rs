@@ -134,7 +134,7 @@ async fn download_song(
     let mut retries = 0;
     let mut download_succeeded = false;
     let mut songbuffer = Vec::new();
-    while retries <= 5 && !download_succeeded {
+    while retries <= MAX_RETRIES && !download_succeeded {
         // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
         let stream = match video.stream().await {
             Ok(s) => s,
