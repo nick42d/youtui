@@ -4,7 +4,7 @@ use tokio::{sync::mpsc, task::JoinError};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Error {
     Communication,
     UnknownAPIError,

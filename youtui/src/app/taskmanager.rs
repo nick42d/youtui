@@ -22,13 +22,55 @@ pub struct TaskManager {
     server_response_rx: mpsc::Receiver<server::Response>,
 }
 
+struct _Task {
+    task_kind: _TaskType,
+    message: AppRequest,
+    category: Option<RequestCategory>, // Could be a trait - doesn't need to be stored
+    // Same comment
+    blocks_categories: Vec<RequestCategory>,
+    // Same comment
+    kills_categoties: Vec<RequestCategory>,
+}
+
+impl _Task {
+    fn spawn(&self) {
+        for category in self.blocks_categories {
+            todo!("Block all categories");
+        }
+        for category in self.kills_categoties {
+            todo!("Kill all categories");
+        }
+        match self.task_kind {
+            _TaskType::Killable(_) => todo!("serverhandle.spawn_killable()"),
+            _TaskType::Blockable(_) => todo!("serverhandle.spawn_unkillable()"),
+            _TaskType::Unblockable(_) => todo!("serverhandle.spawn_unkillable()"),
+        }
+    }
+}
+
 enum _TaskType {
-    Killable(KillableTask), /* A task that can be called by the caller. Once killed, the caller
-                             * will stop receiving messages to prevent race conditions. */
-    Blockable(TaskID), /* A task that the caller can block from receiving further messages, but
-                        * cannot be killed. */
-    Completable(TaskID), /* A task that cannot be killed or blocked. Will always run until
-                          * completion. */
+    // A task that can be called by the caller.
+    // Once killed, the caller
+    // will stop receiving messages to prevent
+    // race conditions.
+    Killable(KillableTask),
+    // A task that the caller can block from receiving further messages, but
+    // cannot be killed.
+    Blockable(TaskID),
+    // A task that cannot be killed or blocked. Will always run until
+    // completion.
+    Unblockable(TaskID),
+}
+
+enum _KindTrimmed {
+    Killable,
+    Unkillable,
+}
+
+enum _Kind {
+    Killable,
+    Blockable,
+    Unblockable,
 }
 
 #[derive(PartialEq, Default, Debug, Copy, Clone)]
@@ -39,6 +81,18 @@ struct Task {
     // XXX: to check if valid, is it as simple as check if Option is taken?
     kill: Option<oneshot::Sender<KillRequest>>,
     message: AppRequest,
+}
+
+/// Keep track of blockable tasks, as we don't want to forward on their messages
+/// if they are blocked.
+enum BlockableTaskReference {
+    Killable {
+        id: TaskID,
+        kill: oneshot::Sender<KillRequest>,
+    },
+    Unkillable {
+        id: TaskID,
+    },
 }
 
 #[derive(Clone)]
@@ -68,6 +122,48 @@ impl AppRequest {
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
+        }
+    }
+    fn kind(&self) -> _Kind {
+        match self {
+            AppRequest::SearchArtists(_) => todo!(),
+            AppRequest::GetSearchSuggestions(_) => todo!(),
+            AppRequest::GetArtistSongs(_) => todo!(),
+            AppRequest::Download(_, _) => todo!(),
+            AppRequest::IncreaseVolume(_) => todo!(),
+            AppRequest::GetVolume => todo!(),
+            AppRequest::PlaySong(_, _) => todo!(),
+            AppRequest::GetPlayProgress(_) => todo!(),
+            AppRequest::Stop(_) => todo!(),
+            AppRequest::PausePlay(_) => todo!(),
+        }
+    }
+    fn block_category(&self) -> Option<RequestCategory> {
+        match self {
+            AppRequest::SearchArtists(_) => todo!(),
+            AppRequest::GetSearchSuggestions(_) => todo!(),
+            AppRequest::GetArtistSongs(_) => todo!(),
+            AppRequest::Download(_, _) => todo!(),
+            AppRequest::IncreaseVolume(_) => todo!(),
+            AppRequest::GetVolume => todo!(),
+            AppRequest::PlaySong(_, _) => todo!(),
+            AppRequest::GetPlayProgress(_) => todo!(),
+            AppRequest::Stop(_) => todo!(),
+            AppRequest::PausePlay(_) => todo!(),
+        }
+    }
+    fn kill_category(&self) -> Option<RequestCategory> {
+        match self {
+            AppRequest::SearchArtists(_) => None,
+            AppRequest::GetSearchSuggestions(_) => None,
+            AppRequest::GetArtistSongs(_) => None,
+            AppRequest::Download(_, _) => None,
+            AppRequest::IncreaseVolume(_) => None,
+            AppRequest::GetVolume => None,
+            AppRequest::PlaySong(_, _) => None,
+            AppRequest::GetPlayProgress(_) => None,
+            AppRequest::Stop(_) => None,
+            AppRequest::PausePlay(_) => None,
         }
     }
 }
@@ -125,13 +221,37 @@ impl TaskManager {
             AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
         };
     }
-    // TODO: Consider if this should create it's own channel and return a
-    // KillableTask.
-    fn add_task(
-        &mut self,
-        kill: tokio::sync::oneshot::Sender<KillRequest>,
-        message: AppRequest,
-    ) -> TaskID {
+    fn send_spawn_request(&mut self, request: AppRequest) {
+        match request.kind() {
+            _Kind::Killable => {
+                let task = self.add_killable_task(&request);
+                if let Some(b) = request.block_category() {
+                    self.block_all_task_type_except_id(b, task.id);
+                };
+                if let Some(k) = request.kill_category() {
+                    self.kill_all_task_type_except_id(k, task.id);
+                };
+                todo!("send_or_error_killable(request.map_to_server()).await");
+            }
+            _Kind::Blockable => {
+                let id = self.add_task(&request);
+                if let Some(b) = request.block_category() {
+                    self.block_all_task_type_except_id(b, id);
+                };
+                if let Some(k) = request.kill_category() {
+                    self.kill_all_task_type_except_id(k, id);
+                };
+                todo!("send_or_error_blockable(request.map_to_server()).await");
+            }
+            _Kind::Unblockable => {
+                let id = self.get_next_id();
+                todo!("send_or_error_unblockable(request.map_to_server()).await")
+            }
+        };
+    }
+    /// Get the value next TaskID. Note that this could overflow, and will warn
+    /// if it does.
+    fn get_next_id(&mut self) -> TaskID {
         // If we exceed usize, we'll overflow instead of crash.
         // The chance of a negative impact due to this logic should be extremely slim.
         let (new_id, overflowed) = self.cur_id.0.overflowing_add(1);
@@ -139,12 +259,28 @@ impl TaskManager {
         if overflowed {
             warn!("Task ID generation has overflowed");
         }
+        self.cur_id
+    }
+    /// Add a new unkillable task, returning its ID.
+    fn add_unkillable_task(&mut self, message: &AppRequest) -> TaskID {
+        let id = self.get_next_id();
         self.tasks.push(Task {
             id: self.cur_id,
-            kill: Some(kill),
+            kill: None,
             message,
         });
         self.cur_id
+    }
+    /// Add a new killable task, returning it.
+    fn add_killable_task(&mut self, message: AppRequest) -> KillableTask {
+        let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
+        let id = self.get_next_id();
+        self.tasks.push(Task {
+            id,
+            kill: Some(kill_tx),
+            message,
+        });
+        KillableTask { id, kill_rx }
     }
     pub async fn spawn_search_artists(
         &mut self,
@@ -280,8 +416,9 @@ impl TaskManager {
             .filter(|x| x.message.category() == request_category && x.id != id)
         {
             if let Some(tx) = task.kill.take() {
-                tx.send(KillRequest)
-                    .unwrap_or_else(|_| error!("Error sending kill message"));
+                tx.send(KillRequest).unwrap_or_else(|_| {
+                    info!("Tried to kill {:?}, but it had already completed", task.id)
+                });
             }
         }
         self.tasks

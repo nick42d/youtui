@@ -1,6 +1,7 @@
-use super::{spawn_run_or_kill, KillableTask, DL_CALLBACK_CHUNK_SIZE};
+use super::{spawn_run_or_kill, KillableTask, AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::{
     app::{
+        server::MAX_RETRIES,
         structures::{ListSongID, Percentage},
         taskmanager::TaskID,
     },
@@ -10,9 +11,6 @@ use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
-
-const MAX_RETRIES: usize = 5;
-const AUDIO_QUALITY: rusty_ytdl::VideoQuality = rusty_ytdl::VideoQuality::HighestAudio;
 
 pub enum Request {
     DownloadSong(VideoID<'static>, ListSongID, KillableTask),
