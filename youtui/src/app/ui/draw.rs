@@ -16,7 +16,7 @@ use ratatui::widgets::{
 };
 use ratatui::{
     layout::{Constraint, Direction, Layout},
-    terminal::Frame,
+    Frame,
 };
 use std::borrow::Cow;
 
@@ -33,7 +33,7 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
             ]
             .as_ref(),
         )
-        .split(f.size());
+        .split(f.area());
     header::draw_header(f, w, base_layout[0]);
     let context_selected = !w.help.shown && !w.key_pending();
     match w.context {

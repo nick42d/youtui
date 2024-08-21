@@ -8,9 +8,9 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     prelude::Alignment,
     style::{Modifier, Style},
-    terminal::Frame,
     text::{Line, Span},
     widgets::{block::Title, Block, Borders, Gauge, Paragraph},
+    Frame,
 };
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {

@@ -13,7 +13,7 @@ use crate::app::{
 use crate::app::YoutuiMutableState;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use crossterm::event::KeyCode;
-use ratatui::{layout::Rect, terminal::Frame};
+use ratatui::{layout::Rect, Frame};
 use std::iter;
 use std::sync::Arc;
 use std::time::Duration;
@@ -387,6 +387,8 @@ impl Playlist {
         self.drop_unscoped_from_id(id);
         // Queue next downloads
         self.download_upcoming_from_id(id).await;
+        // Reset duration
+        self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
             if let DownloadStatus::Downloaded(pointer) = &self
                 .get_song_from_idx(song_index)

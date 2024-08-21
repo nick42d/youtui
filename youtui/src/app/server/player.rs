@@ -175,7 +175,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
         // Hopefully someone else can't create a song with the same ID?!
         let mut cur_song_id = ListSongID::default();
         while let Some(msg) = msg_rx.blocking_recv() {
-            info!("Rodio received {:?}", msg);
+            debug!("Rodio received {:?}", msg);
             match msg {
                 RodioMessage::PlaySong(song_pointer, song_id, tx, done_tx) => {
                     // compile_error!("Remember to test the new song done functionality");
