@@ -140,11 +140,6 @@ impl<'a, Q> ProcessedResult<'a, Q> {
     pub(crate) fn get_json(&self) -> &serde_json::Value {
         &self.json.inner
     }
-    // Only required when running tests
-    #[cfg(test)]
-    pub(crate) fn get_query(&self) -> &Q {
-        self.query
-    }
 }
 
 impl<'a, Q> ProcessedResult<'a, Q> {

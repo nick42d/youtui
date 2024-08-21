@@ -11,7 +11,6 @@ use super::view::Scrollable;
 use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
-use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
@@ -320,10 +319,6 @@ impl YoutuiWindow {
     fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
     }
-    // XXX: Should not be here, but required for now due to callback routing.
-    pub async fn handle_api_error(&mut self, e: Error) {
-        send_or_error(&self.callback_tx, AppCallback::HandleApiError(e)).await;
-    }
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
@@ -481,7 +476,7 @@ impl YoutuiWindow {
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_displayable_mode<'a>(&'a self) -> Option<DisplayableMode<'a>> {
+    fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
         if let Some(map) = get_key_subset(self.get_this_keybinds(), &self.key_stack) {
             if let Keymap::Mode(mode) = map {
                 return Some(DisplayableMode {

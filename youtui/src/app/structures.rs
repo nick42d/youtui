@@ -216,7 +216,9 @@ impl AlbumSongsList {
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, mut song_list: Vec<ListSong>) -> ListSongID {
         let first_id = self.create_next_id();
-        song_list.first_mut().map(|song| song.id = first_id);
+        if let Some(song) = song_list.first_mut() {
+            song.id = first_id;
+        };
         // XXX: Below panics - consider a better option.
         self.list.push(song_list.remove(0));
         for mut song in song_list {

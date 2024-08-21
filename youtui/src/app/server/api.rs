@@ -44,13 +44,9 @@ pub enum Response {
         artist: String,
         id: TaskID,
     },
-    ApiError(Error),
 }
-pub struct Api<T>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
-    api: Shared<T>,
+pub struct Api<T> {
+    api: T,
     response_tx: mpsc::Sender<super::Response>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
@@ -61,14 +57,11 @@ async fn get_concrete_type(
     Arc::new(j.await.expect("Create new API task should never panic"))
 }
 
-impl<T> Api<T>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl Api<()> {
     pub fn new(
         api_key: ApiKey,
         response_tx: mpsc::Sender<super::Response>,
-    ) -> Api<impl Future<Output = Arc<Result<ConcurrentApi>>>> {
+    ) -> Api<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
         let api_handle = tokio::spawn(async {
             DynamicYtMusic::new(api_key)
                 .await
@@ -78,12 +71,18 @@ where
         let api = get_concrete_type(api_handle).shared();
         Api { api, response_tx }
     }
+}
+
+impl<T> Api<Shared<T>>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
     }
 }
 
-impl<T> ServerComponent for Api<T>
+impl<T> ServerComponent for Api<Shared<T>>
 where
     T: Future<Output = Arc<Result<ConcurrentApi>>>,
 {
@@ -99,7 +98,10 @@ where
         let tx = self.response_tx.clone();
         // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
         // internally.
-        let api = (*self.get_api().await).clone()?;
+        let api = (*self.get_api().await)
+            .as_ref()
+            .map_err(Error::new_api_error_cloned)?
+            .clone();
         match request {
             KillableServerRequest::NewArtistSearch(artist) => {
                 spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx)
@@ -116,7 +118,7 @@ where
     async fn handle_unkillable_request(
         &self,
         request: Self::UnkillableRequestType,
-        task: TaskID,
+        _: TaskID,
     ) -> Result<()> {
         match request {};
     }
@@ -153,7 +155,7 @@ where
     let res = api.read().await.query::<Q, O>(query.borrow()).await;
     match res {
         Ok(r) => Ok(r),
-        Err(Error::ApiError(e)) => {
+        Err(Error::Api(e)) => {
             info!("Got error {e} from api");
             match e.into_kind() {
                 ErrorKind::OAuthTokenExpired { token_hash } => {
@@ -259,7 +261,7 @@ async fn search_selected_artist_task(
     tx: Sender<super::Response>,
 ) {
     let tx = tx.clone();
-    send_or_error(tx, super::Response::Api(Response::SongListLoading(id))).await;
+    send_or_error(&tx, super::Response::Api(Response::SongListLoading(id))).await;
     tracing::info!("Running songs query");
     // Should this be a ChannelID or BrowseID? Should take a trait?.
     // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
@@ -269,7 +271,7 @@ async fn search_selected_artist_task(
     let artist = match artist {
         Ok(a) => a,
         Err(e) => {
-            let Error::ApiError(e) = e else {
+            let Error::Api(e) = e else {
                 error!("API error received <{e}>");
                 info!("Telling caller no songs found (error)");
                 send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
@@ -285,7 +287,7 @@ async fn search_selected_artist_task(
             let (json, key) = e.get_json_and_key();
             // TODO: Bring loggable json errors into their own function.
             error!("API error recieved at key {:?}", key);
-            compile_error!("Remove shitty logging");
+            // compile_error!("Remove shitty logging");
             let path = std::path::Path::new("test.json");
             std::fs::write(path, json).unwrap_or_else(|e| error!("Error <{e}> writing json log"));
             info!("Wrote json to {:?}", path);
@@ -317,7 +319,7 @@ async fn search_selected_artist_task(
             .collect()
     } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
         tracing::info!("Telling caller no songs found (no params or browse_id)");
-        send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
+        send_or_error(&tx, super::Response::Api(Response::NoSongsFound(id))).await;
         return;
     } else {
         // Must have params and browse_id
@@ -339,7 +341,7 @@ async fn search_selected_artist_task(
         };
         albums.into_iter().map(|a| a.browse_id).collect()
     };
-    send_or_error(tx, super::Response::Api(Response::SongsFound(id))).await;
+    send_or_error(&tx, super::Response::Api(Response::SongsFound(id))).await;
     // Concurrently request all albums.
     let futures = browse_id_list.into_iter().map(|b_id| {
         let api = &api;

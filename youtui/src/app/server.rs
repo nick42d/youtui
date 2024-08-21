@@ -1,10 +1,10 @@
 use api::ConcurrentApi;
-use futures::Future;
+use futures::{future::Shared, Future};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 mod structures;
 use super::taskmanager::{KillableTask, TaskID};
-use crate::{config::ApiKey, error::Error, Result};
+use crate::{config::ApiKey, Result};
 use tracing::{error, info};
 
 pub mod api;
@@ -57,13 +57,19 @@ pub enum KillableServerRequest {
     Downloader(downloader::KillableServerRequest),
 }
 
+#[allow(unused)]
 pub enum UnkillableServerRequest {
     Api(api::UnkillableServerRequest),
     Player(player::UnkillableServerRequest),
     Downloader(downloader::UnkillableServerRequest),
 }
 
-// Should this implement something like Killable/Blockable?
+#[derive(Debug)]
+pub struct ServerResponse {
+    id: TaskID,
+    message: Response,
+}
+
 #[derive(Debug)]
 pub enum Response {
     Api(api::Response),
@@ -71,35 +77,39 @@ pub enum Response {
     Downloader(downloader::Response),
 }
 
-pub struct Server<T>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+/// Application backend that is capable of spawning concurrent tasks in response
+/// to requests. Tasks each receive a handle to respond back to the caller.
+/// Generic across 'T' - 'T' is a future but we need to use generics to allow
+/// use of concrete type.
+pub struct Server<T> {
     api: api::Api<T>,
     player: player::PlayerManager,
     downloader: downloader::Downloader,
     request_rx: mpsc::Receiver<ServerRequest>,
 }
 
-impl<T> Server<T>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl Server<()> {
     pub fn new(
         api_key: ApiKey,
         response_tx: mpsc::Sender<Response>,
         request_rx: mpsc::Receiver<ServerRequest>,
-    ) -> Result<Server<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
-        let api = api::Api::<T>::new(api_key, response_tx.clone());
+    ) -> Server<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
+        let api = api::Api::new(api_key, response_tx.clone());
         let player = player::PlayerManager::new(response_tx.clone());
         let downloader = downloader::Downloader::new(response_tx.clone());
-        Ok(Server {
+        Server {
             api,
             player,
             downloader,
             request_rx,
-        })
+        }
     }
+}
+
+impl<T> Server<Shared<T>>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
     pub async fn run(&mut self) {
         while let Some(request) = self.request_rx.recv().await {
             let outcome = match request {
@@ -118,7 +128,7 @@ where
     }
 }
 
-impl<T> ServerComponent for Server<T>
+impl<T> ServerComponent for Server<Shared<T>>
 where
     T: Future<Output = Arc<Result<ConcurrentApi>>>,
 {
@@ -154,15 +164,15 @@ where
     }
 }
 
+fn spawn_unkillable(future: impl futures::Future<Output = ()> + Send + 'static) {
+    tokio::spawn(future);
+}
+
 fn spawn_run_or_kill(
     future: impl futures::Future<Output = ()> + Send + 'static,
     kill_rx: oneshot::Receiver<KillRequest>,
 ) {
     tokio::spawn(run_or_kill(future, kill_rx));
-}
-
-fn spawn_unkillable(future: impl futures::Future<Output = ()> + Send + 'static) {
-    tokio::spawn(future);
 }
 
 async fn run_or_kill(
@@ -171,6 +181,6 @@ async fn run_or_kill(
 ) {
     tokio::select! {
         _ = future => (),
-        _ = kill_rx => info!("Task killed by caller"), // Is there a better way to do this?
+        _ = kill_rx => info!("Task killed by caller"),
     }
 }

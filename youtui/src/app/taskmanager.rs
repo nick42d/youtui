@@ -1,113 +1,66 @@
-use super::server::{api, downloader, player};
+use super::server::{api, downloader, player, KillableServerRequest, UnkillableServerRequest};
 use super::structures::ListSongID;
 use super::ui::YoutuiWindow;
 use crate::app::server::KillRequest;
 use crate::app::server::{self};
 use crate::config::ApiKey;
 use crate::core::send_or_error;
-use crate::Result;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 use ytmapi_rs::common::{ChannelID, VideoID};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
 
+// XXX: Need to consider a mechanism for removing _completed_ tasks from the
+// tasklist.
+/// Middle layer between synchronous frontend and asynchronous, concurrent
+/// backend. This is able to be called synchronously, to provide ergonomic
+/// cancellation of server tasks, and better handle race conditions.
 pub struct TaskManager {
     cur_id: TaskID,
     tasks: Vec<Task>,
-    _server_handle: tokio::task::JoinHandle<Result<()>>,
     server_request_tx: mpsc::Sender<server::ServerRequest>,
     server_response_rx: mpsc::Receiver<server::Response>,
 }
 
+// Maybe should be in server
 #[derive(Debug)]
 pub struct KillableTask {
     pub id: TaskID,
     pub kill_rx: oneshot::Receiver<KillRequest>,
 }
 
-impl KillableTask {
-    pub fn new(id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) -> Self {
-        Self { id, kill_rx }
-    }
+struct Task {
+    id: TaskID,
+    category: RequestCategory,
+    task_type: TaskType,
 }
 
-struct _Task {
-    task_kind: _TaskType,
-    message: AppRequest,
-    category: Option<RequestCategory>, // Could be a trait - doesn't need to be stored
-    // Same comment
-    blocks_categories: Vec<RequestCategory>,
-    // Same comment
-    kills_categoties: Vec<RequestCategory>,
-}
-
-impl _Task {
-    fn spawn(&self) {
-        for category in self.blocks_categories {
-            todo!("Block all categories");
-        }
-        for category in self.kills_categoties {
-            todo!("Kill all categories");
-        }
-        match self.task_kind {
-            _TaskType::Killable(_) => todo!("serverhandle.spawn_killable()"),
-            _TaskType::Blockable(_) => todo!("serverhandle.spawn_unkillable()"),
-            _TaskType::Unblockable(_) => todo!("serverhandle.spawn_unkillable()"),
-        }
-    }
-}
-
-enum _TaskType {
+enum TaskType {
     // A task that can be called by the caller.
     // Once killed, the caller
     // will stop receiving messages to prevent
     // race conditions.
-    Killable(KillableTask),
+    Killable(Option<oneshot::Sender<KillRequest>>),
     // A task that the caller can block from receiving further messages, but
     // cannot be killed.
-    Blockable(TaskID),
-    // A task that cannot be killed or blocked. Will always run until
-    // completion.
-    Unblockable(TaskID),
-}
-
-enum _KindTrimmed {
-    Killable,
-    Unkillable,
-}
-
-enum _Kind {
-    Killable,
     Blockable,
-    Unblockable,
+}
+
+enum TaskMessage {
+    Killable(KillableServerRequest),
+    Unkillable(UnkillableServerRequest),
 }
 
 #[derive(PartialEq, Default, Debug, Copy, Clone)]
 pub struct TaskID(usize);
 
-struct Task {
-    id: TaskID,
-    // XXX: to check if valid, is it as simple as check if Option is taken?
-    kill: Option<oneshot::Sender<KillRequest>>,
-    message: AppRequest,
-}
-
-/// Keep track of blockable tasks, as we don't want to forward on their messages
-/// if they are blocked.
-enum BlockableTaskReference {
-    Killable {
-        id: TaskID,
-        kill: oneshot::Sender<KillRequest>,
-    },
-    Unkillable {
-        id: TaskID,
-    },
-}
-
-#[derive(Clone)]
+#[derive(Debug)]
+// App request MUST be an enum, whilst it's tempting to use structs here to
+// take advantage of generics, every message sent to channel must be the same
+// size.
 pub enum AppRequest {
     SearchArtists(String),
     GetSearchSuggestions(String),
@@ -119,65 +72,6 @@ pub enum AppRequest {
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
-}
-
-impl AppRequest {
-    fn category(&self) -> RequestCategory {
-        match self {
-            AppRequest::SearchArtists(_) => RequestCategory::Search,
-            AppRequest::GetSearchSuggestions(_) => RequestCategory::GetSearchSuggestions,
-            AppRequest::GetArtistSongs(_) => RequestCategory::Get,
-            AppRequest::Download(..) => RequestCategory::Download,
-            AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
-            AppRequest::GetVolume => RequestCategory::GetVolume,
-            AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
-            AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
-            AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
-            AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
-        }
-    }
-    fn kind(&self) -> _Kind {
-        match self {
-            AppRequest::SearchArtists(_) => todo!(),
-            AppRequest::GetSearchSuggestions(_) => todo!(),
-            AppRequest::GetArtistSongs(_) => todo!(),
-            AppRequest::Download(_, _) => todo!(),
-            AppRequest::IncreaseVolume(_) => todo!(),
-            AppRequest::GetVolume => todo!(),
-            AppRequest::PlaySong(_, _) => todo!(),
-            AppRequest::GetPlayProgress(_) => todo!(),
-            AppRequest::Stop(_) => todo!(),
-            AppRequest::PausePlay(_) => todo!(),
-        }
-    }
-    fn block_category(&self) -> Option<RequestCategory> {
-        match self {
-            AppRequest::SearchArtists(_) => todo!(),
-            AppRequest::GetSearchSuggestions(_) => todo!(),
-            AppRequest::GetArtistSongs(_) => todo!(),
-            AppRequest::Download(_, _) => todo!(),
-            AppRequest::IncreaseVolume(_) => todo!(),
-            AppRequest::GetVolume => todo!(),
-            AppRequest::PlaySong(_, _) => todo!(),
-            AppRequest::GetPlayProgress(_) => todo!(),
-            AppRequest::Stop(_) => todo!(),
-            AppRequest::PausePlay(_) => todo!(),
-        }
-    }
-    fn kill_category(&self) -> Option<RequestCategory> {
-        match self {
-            AppRequest::SearchArtists(_) => None,
-            AppRequest::GetSearchSuggestions(_) => None,
-            AppRequest::GetArtistSongs(_) => None,
-            AppRequest::Download(_, _) => None,
-            AppRequest::IncreaseVolume(_) => None,
-            AppRequest::GetVolume => None,
-            AppRequest::PlaySong(_, _) => None,
-            AppRequest::GetPlayProgress(_) => None,
-            AppRequest::Stop(_) => None,
-            AppRequest::PausePlay(_) => None,
-        }
-    }
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -198,66 +92,47 @@ impl TaskManager {
     pub fn new(api_key: ApiKey) -> Self {
         let (server_request_tx, server_request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
-        let _server_handle = tokio::spawn(async {
-            let mut a = server::Server::new(api_key, server_response_tx, server_request_rx)?;
-            a.run().await?;
-            Ok(())
+        tokio::spawn(async {
+            server::Server::new(api_key, server_response_tx, server_request_rx)
+                .run()
+                .await;
         });
         Self {
             cur_id: TaskID::default(),
             tasks: Vec::new(),
-            _server_handle,
             server_request_tx,
             server_response_rx,
         }
     }
-    pub async fn send_request(&mut self, request: AppRequest) {
-        let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
-        // NOTE: We allocate as we want to keep a copy of the same message that was
-        // sent.
-        let id = self.add_task(kill_tx, request.clone());
-        match request {
-            AppRequest::SearchArtists(a) => self.spawn_search_artists(a, id, kill_rx).await,
-            AppRequest::GetSearchSuggestions(q) => {
-                self.spawn_get_search_suggestions(q, id, kill_rx).await
-            }
-            AppRequest::GetArtistSongs(a_id) => {
-                self.spawn_get_artist_songs(a_id, id, kill_rx).await
-            }
-            AppRequest::Download(v_id, s_id) => self.spawn_download(v_id, s_id, id, kill_rx).await,
-            AppRequest::IncreaseVolume(i) => self.spawn_increase_volume(i, id).await,
-            AppRequest::GetVolume => self.spawn_get_volume(id, kill_rx).await,
-            AppRequest::PlaySong(song, song_id) => self.spawn_play_song(song, song_id, id).await,
-            AppRequest::GetPlayProgress(song_id) => self.spawn_get_play_progress(song_id, id).await,
-            AppRequest::Stop(song_id) => self.spawn_stop(song_id, id).await,
-            AppRequest::PausePlay(song_id) => self.spawn_pause_play(song_id, id).await,
+    pub async fn send_spawn_request(&mut self, request: AppRequest) {
+        // Kill needs to happen before block, block will prevent kill since it will drop
+        // the kill senders.
+        if let Some(k) = request.kill_category() {
+            self.kill_all_task_type(k);
         };
-    }
-    fn send_spawn_request(&mut self, request: AppRequest) {
-        match request.kind() {
-            _Kind::Killable => {
-                let task = self.add_killable_task(&request);
-                if let Some(b) = request.block_category() {
-                    self.block_all_task_type_except_id(b, task.id);
-                };
-                if let Some(k) = request.kill_category() {
-                    self.kill_all_task_type_except_id(k, task.id);
-                };
-                todo!("send_or_error_killable(request.map_to_server()).await");
+        if let Some(b) = request.block_category() {
+            self.block_all_task_type(b);
+        };
+        let category = request.category();
+        match request.into_kind() {
+            TaskMessage::Killable(request) => {
+                let killable_task = self.add_killable_task(category);
+                send_or_error(
+                    self.server_request_tx.clone(),
+                    server::ServerRequest::Killable {
+                        killable_task,
+                        request,
+                    },
+                )
+                .await;
             }
-            _Kind::Blockable => {
-                let id = self.add_task(&request);
-                if let Some(b) = request.block_category() {
-                    self.block_all_task_type_except_id(b, id);
-                };
-                if let Some(k) = request.kill_category() {
-                    self.kill_all_task_type_except_id(k, id);
-                };
-                todo!("send_or_error_blockable(request.map_to_server()).await");
-            }
-            _Kind::Unblockable => {
-                let id = self.get_next_id();
-                todo!("send_or_error_unblockable(request.map_to_server()).await")
+            TaskMessage::Unkillable(request) => {
+                let task_id = self.add_unkillable_task(category);
+                send_or_error(
+                    self.server_request_tx.clone(),
+                    server::ServerRequest::Unkillable { task_id, request },
+                )
+                .await;
             }
         };
     }
@@ -273,178 +148,48 @@ impl TaskManager {
         }
         self.cur_id
     }
-    /// Add a new unkillable task, returning its ID.
-    fn add_unkillable_task(&mut self, message: &AppRequest) -> TaskID {
+    fn add_killable_task(&mut self, category: RequestCategory) -> KillableTask {
         let id = self.get_next_id();
-        self.tasks.push(Task {
-            id: self.cur_id,
-            kill: None,
-            message,
-        });
-        self.cur_id
-    }
-    /// Add a new killable task, returning it.
-    fn add_killable_task(&mut self, message: AppRequest) -> KillableTask {
         let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
-        let id = self.get_next_id();
         self.tasks.push(Task {
+            task_type: TaskType::Killable(Some(kill_tx)),
             id,
-            kill: Some(kill_tx),
-            message,
+            category,
         });
         KillableTask { id, kill_rx }
     }
-    pub async fn spawn_search_artists(
-        &mut self,
-        artist: String,
-        id: TaskID,
-        kill_rx: oneshot::Receiver<KillRequest>,
-    ) {
-        // Supersedes previous tasks of same type.
-        // TODO: Use this as a pattern.
-        self.kill_all_task_type_except_id(RequestCategory::Search, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Api(server::api::Request::NewArtistSearch(
-                artist,
-                KillableTask::new(id, kill_rx),
-            )),
-        )
-        .await
-    }
-    pub async fn spawn_get_search_suggestions(
-        &mut self,
-        query: String,
-        id: TaskID,
-        kill_rx: oneshot::Receiver<KillRequest>,
-    ) {
-        self.kill_all_task_type_except_id(RequestCategory::GetSearchSuggestions, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Api(server::api::Request::GetSearchSuggestions(
-                query,
-                KillableTask::new(id, kill_rx),
-            )),
-        )
-        .await
-    }
-    pub async fn spawn_get_artist_songs(
-        &mut self,
-        artist_id: ChannelID<'static>,
-        id: TaskID,
-        kill_rx: oneshot::Receiver<KillRequest>,
-    ) {
-        self.kill_all_task_type_except_id(RequestCategory::Get, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Api(server::api::Request::SearchSelectedArtist(
-                artist_id,
-                KillableTask::new(id, kill_rx),
-            )),
-        )
-        .await
-    }
-    pub async fn spawn_download(
-        &mut self,
-        video_id: VideoID<'static>,
-        list_song_id: ListSongID,
-        id: TaskID,
-        kill_rx: oneshot::Receiver<KillRequest>,
-    ) {
-        send_or_error(
-            // Does not kill previous tasks, as multiple concurrent downloads can occur.
-            &self.server_request_tx,
-            server::Request::Downloader(server::downloader::Request::DownloadSong(
-                video_id,
-                list_song_id,
-                KillableTask::new(id, kill_rx),
-            )),
-        )
-        .await
-    }
-    pub async fn spawn_increase_volume(&mut self, vol_inc: i8, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::IncreaseVolume, id);
-        self.kill_all_task_type_except_id(RequestCategory::GetVolume, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::IncreaseVolume(vol_inc, id)),
-        )
-        .await
-    }
-    pub async fn spawn_stop(&mut self, song_id: ListSongID, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::Stop(song_id, id)),
-        )
-        .await
-    }
-    pub async fn spawn_pause_play(&mut self, song_id: ListSongID, id: TaskID) {
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::PausePlay(song_id, id)),
-        )
-        .await
-    }
-    pub async fn spawn_get_play_progress(&mut self, song_id: ListSongID, id: TaskID) {
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::GetPlayProgress(song_id, id)),
-        )
-        .await
-    }
-    pub async fn spawn_play_song(&mut self, song: Arc<Vec<u8>>, song_id: ListSongID, id: TaskID) {
-        info!("Sending message to player to play song");
-        self.block_all_task_type_except_id(RequestCategory::PlayPauseStop, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::PlaySong(song, song_id, id)),
-        )
-        .await
-    }
-    pub async fn spawn_get_volume(&mut self, id: TaskID, kill_rx: oneshot::Receiver<KillRequest>) {
-        self.block_all_task_type_except_id(RequestCategory::IncreaseVolume, id);
-        self.kill_all_task_type_except_id(RequestCategory::GetVolume, id);
-        send_or_error(
-            &self.server_request_tx,
-            server::Request::Player(server::player::Request::GetVolume(KillableTask::new(
-                id, kill_rx,
-            ))),
-        )
-        .await
+    fn add_unkillable_task(&mut self, category: RequestCategory) -> TaskID {
+        let id = self.get_next_id();
+        self.tasks.push(Task {
+            task_type: TaskType::Blockable,
+            id,
+            category,
+        });
+        id
     }
     pub fn is_task_valid(&self, id: TaskID) -> bool {
         self.tasks.iter().any(|x| x.id == id)
     }
-    pub fn kill_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
-        debug!(
-            "Killing all pending {:?} tasks except {:?}",
-            request_category, id,
-        );
-        for task in self
-            .tasks
-            .iter_mut()
-            .filter(|x| x.message.category() == request_category && x.id != id)
-        {
-            if let Some(tx) = task.kill.take() {
-                tx.send(KillRequest).unwrap_or_else(|_| {
-                    info!("Tried to kill {:?}, but it had already completed", task.id)
-                });
-            }
-        }
-        self.tasks
-            .retain(|x| x.message.category() != request_category || x.id == id);
+    pub fn kill_all_task_type(&mut self, request_category: RequestCategory) {
+        debug!("Killing all pending {:?} tasks", request_category,);
+        self.tasks.retain_mut(|x| {
+            if x.category == request_category {
+                if let TaskType::Killable(tx) = &mut x.task_type {
+                    if let Some(tx) = tx.take() {
+                        tx.send(KillRequest).unwrap_or_else(|_| {
+                            info!("Tried to kill {:?}, but it had already completed", x.id)
+                        });
+                    }
+                }
+                return false;
+            };
+            true
+        });
     }
     // Stop receiving tasks from the category, but do not kill them.
-    // TODO: generalize using enums/types.
-    pub fn block_all_task_type_except_id(&mut self, request_category: RequestCategory, id: TaskID) {
-        info!(
-            "Blocking all pending {:?} tasks except {:?}",
-            request_category, id
-        );
-        self.tasks
-            .retain(|x| x.message.category() != request_category || x.id == id);
+    pub fn block_all_task_type(&mut self, request_category: RequestCategory) {
+        info!("Blocking all pending {:?} tasks", request_category);
+        self.tasks.retain(|x| x.category != request_category);
     }
     pub async fn action_messages(&mut self, ui_state: &mut YoutuiWindow) {
         // XXX: Consider general case to check if task is valid.
@@ -518,8 +263,6 @@ impl TaskManager {
                 }
                 ui_state.handle_append_song_list(song_list, album, year, artist);
             }
-            // XXX: Improve routing for this action.
-            api::Response::ApiError(e) => ui_state.handle_api_error(e).await,
         }
     }
     pub async fn process_downloader_msg(
@@ -542,7 +285,10 @@ impl TaskManager {
         match msg {
             // XXX: Why are these not blockable tasks? As receiver responsible for race conditions?
             // Is a task with race conditions a RaceConditionTask?
-            player::Response::DonePlaying(song_id) => {
+            player::Response::DonePlaying(song_id, id) => {
+                if !self.is_task_valid(id) {
+                    return;
+                }
                 ui_state.handle_done_playing(song_id).await;
             }
             player::Response::Paused(song_id, id) => {
@@ -569,11 +315,12 @@ impl TaskManager {
                 }
                 ui_state.handle_set_to_error(song_id).await;
             }
-            player::Response::ProgressUpdate(perc, song_id, id) => {
+            player::Response::ProgressUpdate(dur, song_id, id) => {
                 if !self.is_task_valid(id) {
                     return;
                 }
-                ui_state.handle_set_song_play_progress(perc, song_id);
+                // TODO: use duration properly
+                ui_state.handle_set_song_play_progress(dur.as_secs_f64(), song_id);
             }
             player::Response::VolumeUpdate(vol, id) => {
                 if !self.is_task_valid(id) {
@@ -581,6 +328,97 @@ impl TaskManager {
                 }
                 ui_state.handle_set_volume(vol);
             }
+        }
+    }
+}
+
+impl AppRequest {
+    fn category(&self) -> RequestCategory {
+        match self {
+            AppRequest::SearchArtists(_) => RequestCategory::Search,
+            AppRequest::GetSearchSuggestions(_) => RequestCategory::GetSearchSuggestions,
+            AppRequest::GetArtistSongs(_) => RequestCategory::Get,
+            AppRequest::Download(..) => RequestCategory::Download,
+            AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
+            AppRequest::GetVolume => RequestCategory::GetVolume,
+            AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
+            AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
+            AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
+            AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
+        }
+    }
+    fn into_kind(self) -> TaskMessage {
+        match self {
+            AppRequest::SearchArtists(artist) => TaskMessage::Killable(KillableServerRequest::Api(
+                api::KillableServerRequest::NewArtistSearch(artist),
+            )),
+            AppRequest::GetSearchSuggestions(text) => TaskMessage::Killable(
+                KillableServerRequest::Api(api::KillableServerRequest::GetSearchSuggestions(text)),
+            ),
+            AppRequest::GetArtistSongs(artist_channel) => {
+                TaskMessage::Killable(KillableServerRequest::Api(
+                    api::KillableServerRequest::SearchSelectedArtist(artist_channel),
+                ))
+            }
+            AppRequest::Download(video_id, song_id) => {
+                TaskMessage::Killable(KillableServerRequest::Downloader(
+                    downloader::KillableServerRequest::DownloadSong(video_id, song_id),
+                ))
+            }
+            AppRequest::IncreaseVolume(vol_inc) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::IncreaseVolume(vol_inc),
+                ))
+            }
+            AppRequest::GetVolume => TaskMessage::Killable(KillableServerRequest::Player(
+                player::KillableServerRequest::GetVolume,
+            )),
+            AppRequest::PlaySong(song_pointer, song_id) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::PlaySong(song_pointer, song_id),
+                ))
+            }
+            AppRequest::GetPlayProgress(song_id) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::GetPlayProgress(song_id),
+                ))
+            }
+            AppRequest::Stop(song_id) => TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                player::UnkillableServerRequest::Stop(song_id),
+            )),
+            AppRequest::PausePlay(song_id) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::PausePlay(song_id),
+                ))
+            }
+        }
+    }
+    fn block_category(&self) -> Option<RequestCategory> {
+        match self {
+            AppRequest::SearchArtists(_) => None,
+            AppRequest::GetSearchSuggestions(_) => None,
+            AppRequest::GetArtistSongs(_) => None,
+            AppRequest::Download(..) => None,
+            AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
+            AppRequest::GetVolume => Some(RequestCategory::IncreaseVolume),
+            AppRequest::PlaySong(..) => Some(RequestCategory::PlayPauseStop),
+            AppRequest::GetPlayProgress(_) => None,
+            AppRequest::Stop(_) => Some(RequestCategory::PlayPauseStop),
+            AppRequest::PausePlay(_) => Some(RequestCategory::PlayPauseStop),
+        }
+    }
+    fn kill_category(&self) -> Option<RequestCategory> {
+        match self {
+            AppRequest::SearchArtists(_) => Some(RequestCategory::Search),
+            AppRequest::GetSearchSuggestions(_) => Some(RequestCategory::GetSearchSuggestions),
+            AppRequest::GetArtistSongs(_) => Some(RequestCategory::Get),
+            AppRequest::Download(..) => None,
+            AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
+            AppRequest::GetVolume => Some(RequestCategory::GetVolume),
+            AppRequest::PlaySong(..) => None,
+            AppRequest::GetPlayProgress(_) => None,
+            AppRequest::Stop(_) => None,
+            AppRequest::PausePlay(_) => None,
         }
     }
 }

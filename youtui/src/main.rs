@@ -295,7 +295,7 @@ pub fn get_data_dir() -> Result<PathBuf> {
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.data_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNameError);
+        return Err(Error::DirectoryName);
     };
     Ok(directory)
 }
@@ -307,7 +307,7 @@ pub fn get_config_dir() -> Result<PathBuf> {
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.config_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNameError);
+        return Err(Error::DirectoryName);
     };
     Ok(directory)
 }

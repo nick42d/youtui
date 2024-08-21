@@ -3,7 +3,6 @@ use self::taskmanager::{AppRequest, TaskManager};
 use self::ui::WindowContext;
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
-use crate::error::Error;
 use crate::RuntimeInfo;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -71,7 +70,6 @@ pub enum AppCallback {
     Quit,
     ChangeContext(WindowContext),
     // Perhaps shiould not be here.
-    HandleApiError(Error),
     IncreaseVolume(i8),
     SearchArtist(String),
     GetSearchSuggestions(String),
@@ -183,35 +181,31 @@ impl Youtui {
             match msg {
                 AppCallback::DownloadSong(video_id, playlist_id) => {
                     self.task_manager
-                        .send_request(AppRequest::Download(video_id, playlist_id))
+                        .send_spawn_request(AppRequest::Download(video_id, playlist_id))
                         .await;
                 }
                 AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
-                AppCallback::HandleApiError(e) => {
-                    self.status = AppStatus::Exiting(format!("{e}").into())
-                }
-
                 AppCallback::ChangeContext(context) => {
                     self.window_state.handle_change_context(context)
                 }
                 AppCallback::IncreaseVolume(i) => {
                     self.task_manager
-                        .send_request(AppRequest::IncreaseVolume(i))
+                        .send_spawn_request(AppRequest::IncreaseVolume(i))
                         .await;
                 }
                 AppCallback::GetSearchSuggestions(text) => {
                     self.task_manager
-                        .send_request(AppRequest::GetSearchSuggestions(text))
+                        .send_spawn_request(AppRequest::GetSearchSuggestions(text))
                         .await;
                 }
                 AppCallback::SearchArtist(artist) => {
                     self.task_manager
-                        .send_request(AppRequest::SearchArtists(artist))
+                        .send_spawn_request(AppRequest::SearchArtists(artist))
                         .await;
                 }
                 AppCallback::GetArtistSongs(id) => {
                     self.task_manager
-                        .send_request(AppRequest::GetArtistSongs(id))
+                        .send_spawn_request(AppRequest::GetArtistSongs(id))
                         .await;
                 }
                 AppCallback::AddSongsToPlaylist(song_list) => {
@@ -224,24 +218,28 @@ impl Youtui {
                 }
                 AppCallback::PlaySong(song, id) => {
                     self.task_manager
-                        .send_request(AppRequest::PlaySong(song, id))
+                        .send_spawn_request(AppRequest::PlaySong(song, id))
                         .await;
                 }
 
                 AppCallback::PausePlay(id) => {
                     self.task_manager
-                        .send_request(AppRequest::PausePlay(id))
+                        .send_spawn_request(AppRequest::PausePlay(id))
                         .await;
                 }
                 AppCallback::Stop(id) => {
-                    self.task_manager.send_request(AppRequest::Stop(id)).await;
+                    self.task_manager
+                        .send_spawn_request(AppRequest::Stop(id))
+                        .await;
                 }
                 AppCallback::GetVolume => {
-                    self.task_manager.send_request(AppRequest::GetVolume).await;
+                    self.task_manager
+                        .send_spawn_request(AppRequest::GetVolume)
+                        .await;
                 }
                 AppCallback::GetProgress(id) => {
                     self.task_manager
-                        .send_request(AppRequest::GetPlayProgress(id))
+                        .send_spawn_request(AppRequest::GetPlayProgress(id))
                         .await;
                 }
             }

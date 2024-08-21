@@ -65,7 +65,7 @@ pub fn draw_panel<S: AsRef<str>>(
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
         f.render_widget(block, chunk);
-        return inner_chunk;
+        inner_chunk
     } else {
         let block = Block::new()
             .title(title.as_ref())
@@ -73,8 +73,8 @@ pub fn draw_panel<S: AsRef<str>>(
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
         f.render_widget(block, chunk);
-        return inner_chunk;
-    };
+        inner_chunk
+    }
 }
 
 pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool, state: &mut ListState)
@@ -109,7 +109,7 @@ where
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     // TODO: theming
-    let table_items = table.get_items().map(|item| Row::new(item));
+    let table_items = table.get_items().map(Row::new);
     let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
@@ -167,7 +167,7 @@ pub fn draw_sortable_table<T>(
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     // TODO: theming
-    let table_items = table.get_filtered_items().map(|item| Row::new(item));
+    let table_items = table.get_filtered_items().map(Row::new);
     // Likely expensive, and could be optimised.
     let number_items = table.get_filtered_items().count();
     // Minus for height of block and heading.
