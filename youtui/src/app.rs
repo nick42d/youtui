@@ -79,6 +79,7 @@ pub enum AppCallback {
     PlaySong(Arc<Vec<u8>>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
+    Seek(i8),
 }
 
 impl Youtui {
@@ -240,6 +241,11 @@ impl Youtui {
                 AppCallback::GetProgress(id) => {
                     self.task_manager
                         .send_spawn_request(AppRequest::GetPlayProgress(id))
+                        .await;
+                }
+                AppCallback::Seek(inc) => {
+                    self.task_manager
+                        .send_spawn_request(AppRequest::Seek(inc))
                         .await;
                 }
             }

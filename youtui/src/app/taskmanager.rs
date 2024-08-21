@@ -73,6 +73,7 @@ pub enum AppRequest {
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
+    Seek(i8),
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -271,6 +272,7 @@ impl AppRequest {
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
+            AppRequest::Seek(_) => RequestCategory::ProgressUpdate,
         }
     }
     fn into_kind(self) -> TaskMessage {
@@ -317,6 +319,9 @@ impl AppRequest {
                     player::UnkillableServerRequest::PausePlay(song_id),
                 ))
             }
+            AppRequest::Seek(inc) => TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                player::UnkillableServerRequest::Seek(inc),
+            )),
         }
     }
     fn block_category(&self) -> Option<RequestCategory> {
@@ -331,6 +336,7 @@ impl AppRequest {
             AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => Some(RequestCategory::PlayPauseStop),
             AppRequest::PausePlay(_) => Some(RequestCategory::PlayPauseStop),
+            AppRequest::Seek(_) => None,
         }
     }
     fn kill_category(&self) -> Option<RequestCategory> {
@@ -345,6 +351,7 @@ impl AppRequest {
             AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => None,
             AppRequest::PausePlay(_) => None,
+            AppRequest::Seek(_) => None,
         }
     }
 }

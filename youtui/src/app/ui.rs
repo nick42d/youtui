@@ -26,6 +26,7 @@ mod logger;
 mod playlist;
 
 const VOL_TICK: i8 = 5;
+const SEEK_AMOUNT_SECS: i8 = 5;
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -47,6 +48,8 @@ pub enum UIAction {
     Pause,
     StepVolUp,
     StepVolDown,
+    StepSeekForward,
+    StepSeekBack,
     ToggleHelp,
     HelpUp,
     HelpDown,
@@ -107,7 +110,7 @@ impl DominantKeyRouter for YoutuiWindow {
     }
 }
 
-// We can't implemnent KeyRouter, as it would require us to have a single Action
+// We can't implement KeyRouter, as it would require us to have a single Action
 // type for the whole application.
 impl KeyDisplayer for YoutuiWindow {
     // XXX: Can turn these boxed iterators into types.
@@ -208,6 +211,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
+            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT_SECS).await,
+            UIAction::StepSeekBack => self.handle_seek(-SEEK_AMOUNT_SECS).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -229,6 +234,8 @@ impl Action for UIAction {
             UIAction::Pause => "Global".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
+            UIAction::StepSeekForward => "Global".into(),
+            UIAction::StepSeekBack => "Global".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -243,6 +250,8 @@ impl Action for UIAction {
             UIAction::ViewLogs => "View Logs".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
+            UIAction::StepSeekForward => "Seek Forward".into(),
+            UIAction::StepSeekBack => "Seek Back".into(),
         }
     }
 }
@@ -325,6 +334,9 @@ impl YoutuiWindow {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
         send_or_error(&self.callback_tx, AppCallback::IncreaseVolume(inc)).await;
+    }
+    pub async fn handle_seek(&mut self, inc: i8) {
+        self.playlist.handle_seek(inc).await
     }
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
@@ -527,6 +539,8 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
         KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
         KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
         KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
+        KeyCommand::new_from_code(KeyCode::Char('{'), UIAction::StepSeekBack),
+        KeyCommand::new_from_code(KeyCode::Char('}'), UIAction::StepSeekForward),
         KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
         KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),

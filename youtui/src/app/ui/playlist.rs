@@ -257,6 +257,10 @@ impl Playlist {
             }
         }
     }
+    pub async fn handle_seek(&mut self, inc: i8) {
+        // Consider if we also want to update current duration.
+        send_or_error(&self.ui_tx, AppCallback::Seek(inc)).await;
+    }
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.volume = p;
     }
@@ -355,6 +359,7 @@ impl Playlist {
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
         self.list.push_song_list(song_list)
+        // Consider then triggering the download function.
     }
     pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {

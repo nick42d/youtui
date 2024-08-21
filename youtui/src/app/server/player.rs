@@ -28,6 +28,7 @@ pub enum UnkillableServerRequest {
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
+    Seek(i8),
 }
 
 #[derive(Debug)]
@@ -50,6 +51,7 @@ enum RodioMessage {
     PausePlay(ListSongID, oneshot::Sender<PlayActionTaken>),
     IncreaseVolume(i8, oneshot::Sender<Percentage>),
     GetVolume(oneshot::Sender<Percentage>),
+    Seek(i8, oneshot::Sender<Duration>),
 }
 
 #[derive(Debug)]
@@ -126,6 +128,9 @@ impl ServerComponent for Player {
             }
             UnkillableServerRequest::PausePlay(song_id) => {
                 spawn_unkillable(pause_play(song_id, rodio_tx, task, response_tx))
+            }
+            UnkillableServerRequest::Seek(inc) => {
+                spawn_unkillable(seek(inc, rodio_tx, task, response_tx))
             }
         }
         Ok(())
@@ -260,6 +265,23 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     oneshot_send_or_error(tx, Percentage((sink.volume() * 100.0).round() as u8));
                     info!("Rodio sent volume update");
                 }
+                RodioMessage::Seek(inc, tx) => {
+                    let res = if inc > 0 {
+                        sink.try_seek(
+                            sink.get_pos()
+                                .saturating_add(Duration::from_secs(inc as u64)),
+                        )
+                    } else {
+                        sink.try_seek(
+                            sink.get_pos()
+                                .saturating_sub(Duration::from_secs((-inc) as u64)),
+                        )
+                    };
+                    if res.is_err() {
+                        error!("Failed to seek!!");
+                    }
+                    oneshot_send_or_error(tx, sink.get_pos());
+                }
             }
         }
     });
@@ -334,6 +356,26 @@ async fn get_play_progress(
         ServerResponse::new_player(id, Response::ProgressUpdate(current_duration, song_id)),
     )
     .await;
+}
+async fn seek(
+    inc: i8,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    send_or_error(rodio_tx, RodioMessage::Seek(inc, tx)).await;
+    let Ok(dur) = rx.await else {
+        // This happens intentionally - when a seek is requested for a song
+        // but all songs have finished, instead of sending a reply, rodio will drop
+        // sender.
+        info!("The song I tried to seek is no longer playing {:?}", id);
+        return;
+    };
+    warn!(
+        "Not sending any update back to app after a seek at this stage, but dur was {:?}",
+        dur
+    );
 }
 async fn stop(
     song_id: ListSongID,
