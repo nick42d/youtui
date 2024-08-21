@@ -66,10 +66,10 @@ Chrome example (Select manually and paste):
 - [x] Release to AUR (target for 0.0.4)
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [x] OAuth authentication including automatic refresh of tokens
+- [x] Seeking
 - [ ] Logging to a file
 - [ ] Gapless playback
 - [ ] Dbus support for media keys
-- [ ] Seeking
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks
