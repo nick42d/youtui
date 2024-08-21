@@ -175,6 +175,7 @@ impl SongListComponent for Playlist {
     }
 }
 
+// Primatives
 impl Playlist {
     pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         // This could fail, made to try send to avoid needing to change function
@@ -192,18 +193,350 @@ impl Playlist {
             cur_selected: 0,
         }
     }
-    pub async fn handle_tick(&mut self) {
-        self.check_song_progress().await;
-        // XXX: Consider downloading upcoming songs here.
-        // self.download_upcoming_songs().await;
-    }
+    /// Ask server for a song progress update.
     pub async fn check_song_progress(&mut self) {
-        // Ask player for a progress update.
         if let PlayState::Playing(id) = self.play_status {
             info!("Tick received - requesting song progress update");
             let _ = self.ui_tx.send(AppCallback::GetProgress(id)).await;
         }
     }
+    /// Stop playing, drop downloads no longer relevant for ID, download new
+    /// relevant downloads, start playing song at ID, set PlayState.
+    pub async fn play_song_id(&mut self, id: ListSongID) {
+        if let Some(cur_id) = self.get_cur_playing_id() {
+            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+        }
+        // Drop previous songs
+        self.drop_unscoped_from_id(id);
+        // Queue next downloads
+        self.download_upcoming_from_id(id).await;
+        // Reset duration
+        self.cur_played_dur = None;
+        if let Some(song_index) = self.get_index_from_id(id) {
+            if let DownloadStatus::Downloaded(pointer) = &self
+                .get_song_from_idx(song_index)
+                .expect("Checked previously")
+                .download_status
+            {
+                send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
+                self.play_status = PlayState::Playing(id);
+            } else {
+                self.play_status = PlayState::Buffering(id);
+            }
+        }
+    }
+    /// Stop playing and clear playlist.
+    pub async fn reset(&mut self) {
+        // Stop playback, if playing.
+        if let Some(cur_id) = self.get_cur_playing_id() {
+            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+        }
+        self.clear()
+        // XXX: Also need to kill pending download tasks
+        // Alternatively, songs could kill their own download tasks on drop
+        // (RAII).
+    }
+    /// Clear all songs, reset PlayState to NotPlaying, set cur_played_dur to 0.
+    pub fn clear(&mut self) {
+        self.cur_played_dur = None;
+        self.play_status = PlayState::NotPlaying;
+        self.list.clear();
+    }
+    /// If currently playing, play previous song.
+    pub async fn play_prev(&mut self) {
+        let cur = &self.play_status;
+        match cur {
+            PlayState::NotPlaying | PlayState::Stopped => {
+                warn!("Asked to play prev, but not currently playing");
+            }
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
+                let prev_song_id = self
+                    .get_index_from_id(*id)
+                    .and_then(|i| i.checked_sub(1))
+                    .and_then(|i| self.get_song_from_idx(i))
+                    .map(|i| i.id);
+                info!("Next song id {:?}", prev_song_id);
+                match prev_song_id {
+                    Some(id) => {
+                        self.play_song_id(id).await;
+                    }
+                    None => {
+                        // TODO: Reset song to start if got here.
+                        warn!("No previous song. Doing nothing")
+                    }
+                }
+            }
+        }
+    }
+    /// Play song at ID, if it was buffering.
+    pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
+        if let PlayState::Buffering(target_id) = self.play_status {
+            if target_id == id {
+                info!("Playing");
+                self.play_song_id(id).await;
+            }
+        }
+    }
+    /// Download song at ID, if it is still in the list.
+    pub async fn download_song_if_exists(&mut self, id: ListSongID) {
+        let Some(song_index) = self.get_index_from_id(id) else {
+            return;
+        };
+        let song = self
+            .list
+            .get_list_iter_mut()
+            .nth(song_index)
+            .expect("We got the index from the id, so song must exist");
+        // Won't download if already downloaded, or downloading.
+        match song.download_status {
+            DownloadStatus::Downloading(_)
+            | DownloadStatus::Downloaded(_)
+            | DownloadStatus::Queued => return,
+            _ => (),
+        };
+        send_or_error(
+            &self.ui_tx,
+            AppCallback::DownloadSong(song.raw.video_id.clone(), id),
+        )
+        .await;
+        song.download_status = DownloadStatus::Queued;
+    }
+    /// Update the volume in the UI for immediate visual feedback - response
+    /// will be delayed one tick. Note that this does not actually change the
+    /// volume!
+    // NOTE: could cause some visual race conditions.
+    pub fn increase_volume(&mut self, inc: i8) {
+        self.volume.0 = self.volume.0.saturating_add_signed(inc).clamp(0, 100);
+    }
+    /// Add a song list to the playlist. Returns the ID of the first song added.
+    pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
+        self.list.push_song_list(song_list)
+        // Consider then triggering the download function.
+    }
+    /// Play the next song in the list if it exists, otherwise, stop playing.
+    pub async fn play_next_or_stop(&mut self, prev_id: ListSongID) {
+        let cur = &self.play_status;
+        match cur {
+            PlayState::NotPlaying | PlayState::Stopped => {
+                warn!("Asked to play next, but not currently playing");
+            }
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
+                // Guard against duplicate message received.
+                if id > &prev_id {
+                    return;
+                }
+                let next_song_id = self
+                    .get_index_from_id(*id)
+                    .map(|i| i + 1)
+                    .and_then(|i| self.get_id_from_index(i));
+                match next_song_id {
+                    Some(id) => {
+                        self.play_song_id(id).await;
+                    }
+                    None => {
+                        info!("No next song - finishing playback");
+                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
+                    }
+                }
+            }
+        }
+    }
+    /// Play the next song in the list if it exists, otherwise, set to stopped.
+    /// The distinction exists, as if we receive this in response to the player
+    /// sending a 'finished' message, we don't need to ask it to stop.
+    pub async fn play_next_or_set_stopped(&mut self, prev_id: ListSongID) {
+        let cur = &self.play_status;
+        match cur {
+            PlayState::NotPlaying | PlayState::Stopped => {
+                warn!("Asked to play next, but not currently playing");
+            }
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
+                // Guard against duplicate message received.
+                if id > &prev_id {
+                    return;
+                }
+                let next_song_id = self
+                    .get_index_from_id(*id)
+                    .map(|i| i + 1)
+                    .and_then(|i| self.get_id_from_index(i));
+                match next_song_id {
+                    Some(id) => {
+                        self.play_song_id(id).await;
+                    }
+                    None => {
+                        info!("No next song - resetting play status");
+                        self.play_status = PlayState::Stopped;
+                    }
+                }
+            }
+        }
+    }
+    /// Download some upcoming songs, if they aren't already downloaded.
+    pub async fn download_upcoming_from_id(&mut self, id: ListSongID) {
+        // Won't download if already downloaded.
+        let Some(song_index) = self.get_index_from_id(id) else {
+            return;
+        };
+        let mut song_ids_list = Vec::new();
+        song_ids_list.push(id);
+        for i in 1..SONGS_AHEAD_TO_BUFFER {
+            let next_id = self.get_song_from_idx(song_index + i).map(|song| song.id);
+            if let Some(id) = next_id {
+                song_ids_list.push(id);
+            }
+        }
+        for song_id in song_ids_list {
+            self.download_song_if_exists(song_id).await;
+        }
+    }
+    /// Drop strong reference from previous songs or songs above the buffer list
+    /// size to drop them from memory.
+    pub fn drop_unscoped_from_id(&mut self, id: ListSongID) {
+        let Some(song_index) = self.get_index_from_id(id) else {
+            return;
+        };
+        let forward_limit = song_index + SONGS_AHEAD_TO_BUFFER;
+        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
+        info!(forward_limit, backwards_limit);
+        for song in self.list.get_list_iter_mut().take(backwards_limit) {
+            // TODO: Also cancel in progress downloads
+            // TODO: Write a change download status function that will warn if song is not
+            // dropped from memory.
+            song.download_status = DownloadStatus::None
+        }
+        for song in self.list.get_list_iter_mut().skip(forward_limit) {
+            // TODO: Also cancel in progress downloads
+            // TODO: Write a change download status function that will warn if song is not
+            // dropped from memory.
+            song.download_status = DownloadStatus::None
+        }
+    }
+    pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
+        match self.play_status {
+            PlayState::Error(id)
+            | PlayState::Playing(id)
+            | PlayState::Paused(id)
+            | PlayState::Buffering(id) => Some(id),
+            PlayState::NotPlaying | PlayState::Stopped => None,
+        }
+    }
+    pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
+        self.list.get_list_iter().position(|s| s.id == id)
+    }
+    pub fn get_id_from_index(&self, index: usize) -> Option<ListSongID> {
+        self.get_song_from_idx(index).map(|s| s.id)
+    }
+    pub fn get_mut_song_from_id(&mut self, id: ListSongID) -> Option<&mut ListSong> {
+        self.list.get_list_iter_mut().find(|s| s.id == id)
+    }
+    pub fn get_song_from_id(&self, id: ListSongID) -> Option<&ListSong> {
+        self.list.get_list_iter().find(|s| s.id == id)
+    }
+    pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
+        self.get_cur_playing_id().is_some_and(|id| id == check_id)
+    }
+    pub fn get_cur_playing_index(&self) -> Option<usize> {
+        self.get_cur_playing_id()
+            .and_then(|id| self.get_index_from_id(id))
+    }
+}
+// Event handlers
+impl Playlist {
+    pub async fn handle_tick(&mut self) {
+        self.check_song_progress().await;
+        // XXX: Consider downloading upcoming songs here.
+        // self.download_upcoming_songs().await;
+    }
+    /// Handle seek command (from global keypress).
+    pub async fn handle_seek(&mut self, inc: i8) {
+        // Consider if we also want to update current duration.
+        send_or_error(&self.ui_tx, AppCallback::Seek(inc)).await;
+    }
+    /// Handle next command (from global keypress), if currently playing.
+    pub async fn handle_next(&mut self) {
+        match self.play_status {
+            PlayState::NotPlaying | PlayState::Stopped => {
+                warn!("Asked to play next, but not currently playing");
+            }
+            PlayState::Paused(id)
+            | PlayState::Playing(id)
+            | PlayState::Buffering(id)
+            | PlayState::Error(id) => {
+                self.play_next_or_stop(id).await;
+            }
+        }
+    }
+    /// Handle previous command (from global keypress).
+    pub async fn handle_previous(&mut self) {
+        self.play_prev().await;
+    }
+    /// Play the song under the cursor (from local keypress)
+    pub async fn play_selected(&mut self) {
+        let Some(id) = self.get_id_from_index(self.cur_selected) else {
+            return;
+        };
+        self.play_song_id(id).await;
+    }
+    /// Delete the song under the cursor (from local keypress). If it was
+    /// playing, stop it and set PlayState to NotPlaying.
+    pub async fn delete_selected(&mut self) {
+        let cur_selected_idx = self.cur_selected;
+        // If current song is playing, stop it.
+        if let Some(cur_playing_id) = self.get_cur_playing_id() {
+            if Some(cur_selected_idx) == self.get_cur_playing_index() {
+                self.play_status = PlayState::NotPlaying;
+                send_or_error(&self.ui_tx, AppCallback::Stop(cur_playing_id)).await;
+            }
+        }
+        self.list.remove_song_index(cur_selected_idx);
+        // If we are removing a song at a position less than current index, decrement
+        // current index. NOTE: Ok to simply take, if list only had one element.
+        if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
+            // Safe, as checked above that cur_idx >= 0
+            self.cur_selected -= 1;
+        }
+    }
+    /// Delete all songs.
+    pub async fn delete_all(&mut self) {
+        self.reset().await;
+    }
+    /// Change to Browser window.
+    pub async fn view_browser(&mut self) {
+        send_or_error(
+            &self.ui_tx,
+            AppCallback::ChangeContext(WindowContext::Browser),
+        )
+        .await;
+    }
+    /// Handle global pause/play action. Toggle state (visual), toggle playback
+    /// (server).
+    pub async fn pauseplay(&mut self) {
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return,
+        };
+        send_or_error(&self.ui_tx, AppCallback::PausePlay(id)).await;
+    }
+}
+// Server handlers
+impl Playlist {
+    /// Handle song progress update from server.
     pub async fn handle_song_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
@@ -257,20 +590,18 @@ impl Playlist {
             }
         }
     }
-    pub async fn handle_seek(&mut self, inc: i8) {
-        // Consider if we also want to update current duration.
-        send_or_error(&self.ui_tx, AppCallback::Seek(inc)).await;
-    }
+    /// Handle volume message from server
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.volume = p;
     }
+    /// Handle song progress message from server
     pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         if !self.check_id_is_cur(id) {
             return;
         }
         self.cur_played_dur = Some(d);
     }
-
+    /// Handle set to paused message from server
     pub async fn handle_set_to_paused(&mut self, s_id: ListSongID) {
         if let PlayState::Playing(p_id) = self.play_status {
             if p_id == s_id {
@@ -278,9 +609,11 @@ impl Playlist {
             }
         }
     }
+    /// Handle done playing message from server
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
-        self.play_next_or_finish(id).await;
+        self.play_next_or_set_stopped(id).await;
     }
+    /// Handle set to playing message from server
     pub fn handle_set_to_playing(&mut self, id: ListSongID) {
         if let PlayState::Paused(p_id) = self.play_status {
             if p_id == id {
@@ -288,6 +621,7 @@ impl Playlist {
             }
         }
     }
+    /// Handle set to stopped message from server
     pub fn handle_set_to_stopped(&mut self, id: ListSongID) {
         info!("Received message to stop {:?}", id);
         if self.check_id_is_cur(id) {
@@ -295,279 +629,13 @@ impl Playlist {
             self.play_status = PlayState::Stopped
         }
     }
+    /// Handle set to error message from server (playback)
     pub fn handle_set_to_error(&mut self, id: ListSongID) {
         info!("Received message that song had a playback error {:?}", id);
         if self.check_id_is_cur(id) {
             info!("Setting song state to Error {:?}", id);
             self.play_status = PlayState::Error(id)
         }
-    }
-    pub async fn play_selected(&mut self) {
-        let Some(id) = self.get_id_from_index(self.cur_selected) else {
-            return;
-        };
-        self.play_song_id(id).await;
-    }
-    pub async fn delete_selected(&mut self) {
-        let cur_selected_idx = self.cur_selected;
-        // If current song is playing, stop it.
-        if let Some(cur_playing_id) = self.get_cur_playing_id() {
-            if Some(cur_selected_idx) == self.get_cur_playing_index() {
-                self.play_status = PlayState::NotPlaying;
-                send_or_error(&self.ui_tx, AppCallback::Stop(cur_playing_id)).await;
-            }
-        }
-        self.list.remove_song_index(cur_selected_idx);
-        // If we are removing a song at a position less than current index, decrement
-        // current index. NOTE: Ok to simply take, if list only had one element.
-        if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
-            // Safe, as checked above that cur_idx >= 0
-            self.cur_selected -= 1;
-        }
-    }
-    pub async fn delete_all(&mut self) {
-        self.reset().await;
-    }
-    pub async fn view_browser(&mut self) {
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::ChangeContext(WindowContext::Browser),
-        )
-        .await;
-    }
-    pub async fn handle_next(&mut self) {
-        match self.play_status {
-            PlayState::NotPlaying | PlayState::Stopped => {
-                warn!("Asked to play next, but not currently playing");
-            }
-            PlayState::Paused(id)
-            | PlayState::Playing(id)
-            | PlayState::Buffering(id)
-            | PlayState::Error(id) => {
-                self.play_next_or_finish(id).await;
-            }
-        }
-    }
-    pub async fn handle_previous(&mut self) {
-        self.play_prev().await;
-    }
-    pub fn increase_volume(&mut self, inc: i8) {
-        // Update the volume in the UI for immediate visual feedback - response will be
-        // delayed one tick. NOTE: could cause some visual race conditions.
-        self.volume.0 = self.volume.0.saturating_add_signed(inc).clamp(0, 100);
-    }
-    // Returns the ID of the first song added.
-    pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
-        self.list.push_song_list(song_list)
-        // Consider then triggering the download function.
-    }
-    pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
-        if let PlayState::Buffering(target_id) = self.play_status {
-            if target_id == id {
-                info!("Playing");
-                self.play_song_id(id).await;
-            }
-        }
-    }
-    pub async fn reset(&mut self) {
-        // Stop playback, if playing.
-        if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
-        }
-        self.clear()
-        // XXX: Also need to kill pending download tasks
-        // Alternatively, songs could kill their own download tasks on drop
-        // (RAII).
-    }
-    pub fn clear(&mut self) {
-        self.cur_played_dur = None;
-        self.play_status = PlayState::NotPlaying;
-        self.list.clear();
-    }
-    pub async fn play_song_id(&mut self, id: ListSongID) {
-        if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
-        }
-        // Drop previous songs
-        self.drop_unscoped_from_id(id);
-        // Queue next downloads
-        self.download_upcoming_from_id(id).await;
-        // Reset duration
-        self.cur_played_dur = None;
-        if let Some(song_index) = self.get_index_from_id(id) {
-            if let DownloadStatus::Downloaded(pointer) = &self
-                .get_song_from_idx(song_index)
-                .expect("Checked previously")
-                .download_status
-            {
-                send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
-                self.play_status = PlayState::Playing(id);
-            } else {
-                self.play_status = PlayState::Buffering(id);
-            }
-        }
-    }
-    pub async fn download_song_if_exists(&mut self, id: ListSongID) {
-        let Some(song_index) = self.get_index_from_id(id) else {
-            return;
-        };
-        let song = self
-            .list
-            .get_list_iter_mut()
-            .nth(song_index)
-            .expect("We got the index from the id, so song must exist");
-        // Won't download if already downloaded, or downloading.
-        match song.download_status {
-            DownloadStatus::Downloading(_)
-            | DownloadStatus::Downloaded(_)
-            | DownloadStatus::Queued => return,
-            _ => (),
-        };
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::DownloadSong(song.raw.video_id.clone(), id),
-        )
-        .await;
-        song.download_status = DownloadStatus::Queued;
-    }
-    pub async fn play_next_or_finish(&mut self, prev_id: ListSongID) {
-        let cur = &self.play_status;
-        match cur {
-            PlayState::NotPlaying | PlayState::Stopped => {
-                warn!("Asked to play next, but not currently playing");
-            }
-            PlayState::Paused(id)
-            | PlayState::Playing(id)
-            | PlayState::Buffering(id)
-            | PlayState::Error(id) => {
-                // Guard against duplicate message received.
-                if id > &prev_id {
-                    return;
-                }
-                let next_song_id = self
-                    .get_index_from_id(*id)
-                    .map(|i| i + 1)
-                    .and_then(|i| self.get_id_from_index(i));
-                match next_song_id {
-                    Some(id) => {
-                        self.play_song_id(id).await;
-                    }
-                    None => {
-                        info!("No next song - finishing playback");
-                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
-                    }
-                }
-            }
-        }
-    }
-    pub async fn download_upcoming_from_id(&mut self, id: ListSongID) {
-        // Won't download if already downloaded.
-        let Some(song_index) = self.get_index_from_id(id) else {
-            return;
-        };
-        let mut song_ids_list = Vec::new();
-        song_ids_list.push(id);
-        for i in 1..SONGS_AHEAD_TO_BUFFER {
-            let next_id = self.get_song_from_idx(song_index + i).map(|song| song.id);
-            if let Some(id) = next_id {
-                song_ids_list.push(id);
-            }
-        }
-        for song_id in song_ids_list {
-            self.download_song_if_exists(song_id).await;
-        }
-    }
-    /// Drop strong reference from previous songs or songs above the buffer list
-    /// size to drop them from memory.
-    pub fn drop_unscoped_from_id(&mut self, id: ListSongID) {
-        let Some(song_index) = self.get_index_from_id(id) else {
-            return;
-        };
-        let forward_limit = song_index + SONGS_AHEAD_TO_BUFFER;
-        let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
-        info!(forward_limit, backwards_limit);
-        for song in self.list.get_list_iter_mut().take(backwards_limit) {
-            // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not
-            // dropped from memory.
-            song.download_status = DownloadStatus::None
-        }
-        for song in self.list.get_list_iter_mut().skip(forward_limit) {
-            // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not
-            // dropped from memory.
-            song.download_status = DownloadStatus::None
-        }
-    }
-    pub async fn play_prev(&mut self) {
-        let cur = &self.play_status;
-        match cur {
-            PlayState::NotPlaying | PlayState::Stopped => {
-                warn!("Asked to play prev, but not currently playing");
-            }
-            PlayState::Paused(id)
-            | PlayState::Playing(id)
-            | PlayState::Buffering(id)
-            | PlayState::Error(id) => {
-                let prev_song_id = self
-                    .get_index_from_id(*id)
-                    .and_then(|i| i.checked_sub(1))
-                    .and_then(|i| self.get_song_from_idx(i))
-                    .map(|i| i.id);
-                info!("Next song id {:?}", prev_song_id);
-                match prev_song_id {
-                    Some(id) => {
-                        self.play_song_id(id).await;
-                    }
-                    None => {
-                        // TODO: Reset song to start if got here.
-                        warn!("No previous song. Doing nothing")
-                    }
-                }
-            }
-        }
-    }
-    pub async fn pauseplay(&mut self) {
-        let id = match self.play_status {
-            PlayState::Playing(id) => {
-                self.play_status = PlayState::Paused(id);
-                id
-            }
-            PlayState::Paused(id) => {
-                self.play_status = PlayState::Playing(id);
-                id
-            }
-            _ => return,
-        };
-        send_or_error(&self.ui_tx, AppCallback::PausePlay(id)).await;
-    }
-    pub fn get_cur_playing_id(&self) -> Option<ListSongID> {
-        match self.play_status {
-            PlayState::Error(id)
-            | PlayState::Playing(id)
-            | PlayState::Paused(id)
-            | PlayState::Buffering(id) => Some(id),
-            PlayState::NotPlaying | PlayState::Stopped => None,
-        }
-    }
-    pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
-        self.list.get_list_iter().position(|s| s.id == id)
-    }
-    pub fn get_id_from_index(&self, index: usize) -> Option<ListSongID> {
-        self.get_song_from_idx(index).map(|s| s.id)
-    }
-    pub fn get_mut_song_from_id(&mut self, id: ListSongID) -> Option<&mut ListSong> {
-        self.list.get_list_iter_mut().find(|s| s.id == id)
-    }
-    pub fn get_song_from_id(&self, id: ListSongID) -> Option<&ListSong> {
-        self.list.get_list_iter().find(|s| s.id == id)
-    }
-    pub fn check_id_is_cur(&self, check_id: ListSongID) -> bool {
-        self.get_cur_playing_id().is_some_and(|id| id == check_id)
-    }
-    pub fn get_cur_playing_index(&self) -> Option<usize> {
-        self.get_cur_playing_id()
-            .and_then(|id| self.get_index_from_id(id))
     }
 }
 
