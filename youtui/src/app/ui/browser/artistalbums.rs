@@ -11,5 +11,5 @@ fn get_adjusted_list_column(target_col: usize, adjusted_cols: &[usize]) -> Resul
             "Unable to sort column, doesn't match up with underlying list. {}",
             target_col,
         )))
-        .map(|r| *r)
+        .copied()
 }

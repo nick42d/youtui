@@ -16,6 +16,7 @@ use crossterm::event::KeyCode;
 use ratatui::{layout::Rect, terminal::Frame};
 use std::iter;
 use std::sync::Arc;
+use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
@@ -25,7 +26,7 @@ const SONGS_BEHIND_TO_SAVE: usize = 1;
 
 pub struct Playlist {
     pub list: AlbumSongsList,
-    pub cur_played_secs: Option<f64>,
+    pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
@@ -186,7 +187,7 @@ impl Playlist {
             volume: Percentage(50),
             play_status: PlayState::NotPlaying,
             list: Default::default(),
-            cur_played_secs: None,
+            cur_played_dur: None,
             keybinds: playlist_keybinds(),
             cur_selected: 0,
         }
@@ -259,11 +260,11 @@ impl Playlist {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.volume = p;
     }
-    pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
+    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         if !self.check_id_is_cur(id) {
             return;
         }
-        self.cur_played_secs = Some(f);
+        self.cur_played_dur = Some(d);
     }
 
     pub async fn handle_set_to_paused(&mut self, s_id: ListSongID) {
@@ -374,7 +375,7 @@ impl Playlist {
         // (RAII).
     }
     pub fn clear(&mut self) {
-        self.cur_played_secs = None;
+        self.cur_played_dur = None;
         self.play_status = PlayState::NotPlaying;
         self.list.clear();
     }

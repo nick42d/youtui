@@ -163,10 +163,10 @@ impl AlbumSongsPanel {
             .iter()
             .map(|c| Self::subcolumns_of_vec().get(*c))
             .collect();
-        Box::new(self.list.get_list_iter().filter_map(move |ls| {
+        Box::new(self.list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
-            let row_matches_filter = self.get_filter_commands().iter().fold(true, |acc, e| {
+            self.get_filter_commands().iter().fold(true, |acc, e| {
                 let match_found = match e {
                     TableFilterCommand::All(f) => {
                         let mut filterable_cols_iter =
@@ -178,9 +178,7 @@ impl AlbumSongsPanel {
                                 }
                             });
                         match f {
-                            Filter::Contains(s) => {
-                                filterable_cols_iter.find(|item| s.is_in(item)).is_some()
-                            }
+                            Filter::Contains(s) => filterable_cols_iter.any(|item| s.is_in(item)),
                             Filter::NotContains(_) => todo!(),
                             Filter::Equal(_) => todo!(),
                         }
@@ -189,15 +187,7 @@ impl AlbumSongsPanel {
                 };
                 // If we find a match for each filter, can display the row.
                 acc && match_found
-            });
-
-            if row_matches_filter {
-                // XXX: Seems to be a double allocation here - may be able to use dereferences
-                // to address.
-                Some(ls)
-            } else {
-                None
-            }
+            })
         }))
     }
     pub fn apply_filter(&mut self) {
@@ -381,10 +371,7 @@ impl KeyRouter<BrowserAction> for AlbumSongsPanel {
 // Is this still relevant?
 impl Loadable for AlbumSongsPanel {
     fn is_loading(&self) -> bool {
-        match self.list.state {
-            crate::app::structures::ListStatus::Loading => true,
-            _ => false,
-        }
+        matches!(self.list.state, crate::app::structures::ListStatus::Loading)
     }
 }
 impl Scrollable for AlbumSongsPanel {

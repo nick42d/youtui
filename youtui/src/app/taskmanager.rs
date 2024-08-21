@@ -1,7 +1,8 @@
-use super::server::{api, downloader, player, KillableServerRequest, UnkillableServerRequest};
+use super::server::messages::{KillableServerRequest, UnkillableServerRequest};
+use super::server::{api, downloader, player};
 use super::structures::ListSongID;
 use super::ui::YoutuiWindow;
-use crate::app::server::KillRequest;
+use crate::app::server::messages::{KillRequest, ServerRequest};
 use crate::app::server::{self};
 use crate::config::ApiKey;
 use crate::core::send_or_error;
@@ -21,8 +22,8 @@ const MESSAGE_QUEUE_LENGTH: usize = 256;
 pub struct TaskManager {
     cur_id: TaskID,
     tasks: Vec<Task>,
-    server_request_tx: mpsc::Sender<server::ServerRequest>,
-    server_response_rx: mpsc::Receiver<server::Response>,
+    server_request_tx: mpsc::Sender<ServerRequest>,
+    server_response_rx: mpsc::Receiver<server::messages::ServerResponse>,
 }
 
 // Maybe should be in server
@@ -38,6 +39,9 @@ struct Task {
     task_type: TaskType,
 }
 
+#[derive(PartialEq, Default, Debug, Copy, Clone)]
+pub struct TaskID(usize);
+
 enum TaskType {
     // A task that can be called by the caller.
     // Once killed, the caller
@@ -46,16 +50,13 @@ enum TaskType {
     Killable(Option<oneshot::Sender<KillRequest>>),
     // A task that the caller can block from receiving further messages, but
     // cannot be killed.
-    Blockable,
+    Unkillable,
 }
 
 enum TaskMessage {
     Killable(KillableServerRequest),
     Unkillable(UnkillableServerRequest),
 }
-
-#[derive(PartialEq, Default, Debug, Copy, Clone)]
-pub struct TaskID(usize);
 
 #[derive(Debug)]
 // App request MUST be an enum, whilst it's tempting to use structs here to
@@ -87,8 +88,6 @@ pub enum RequestCategory {
 }
 
 impl TaskManager {
-    // This should handle messages as well.
-    // TODO: Error handling
     pub fn new(api_key: ApiKey) -> Self {
         let (server_request_tx, server_request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
@@ -105,6 +104,7 @@ impl TaskManager {
         }
     }
     pub async fn send_spawn_request(&mut self, request: AppRequest) {
+        info!("Received app request: {:?}", request);
         // Kill needs to happen before block, block will prevent kill since it will drop
         // the kill senders.
         if let Some(k) = request.kill_category() {
@@ -114,12 +114,13 @@ impl TaskManager {
             self.block_all_task_type(b);
         };
         let category = request.category();
+        let tx = self.server_request_tx.clone();
         match request.into_kind() {
             TaskMessage::Killable(request) => {
                 let killable_task = self.add_killable_task(category);
                 send_or_error(
-                    self.server_request_tx.clone(),
-                    server::ServerRequest::Killable {
+                    tx,
+                    ServerRequest::Killable {
                         killable_task,
                         request,
                     },
@@ -128,11 +129,7 @@ impl TaskManager {
             }
             TaskMessage::Unkillable(request) => {
                 let task_id = self.add_unkillable_task(category);
-                send_or_error(
-                    self.server_request_tx.clone(),
-                    server::ServerRequest::Unkillable { task_id, request },
-                )
-                .await;
+                send_or_error(tx, ServerRequest::Unkillable { task_id, request }).await;
             }
         };
     }
@@ -161,7 +158,7 @@ impl TaskManager {
     fn add_unkillable_task(&mut self, category: RequestCategory) -> TaskID {
         let id = self.get_next_id();
         self.tasks.push(Task {
-            task_type: TaskType::Blockable,
+            task_type: TaskType::Unkillable,
             id,
             category,
         });
@@ -191,78 +188,46 @@ impl TaskManager {
         info!("Blocking all pending {:?} tasks", request_category);
         self.tasks.retain(|x| x.category != request_category);
     }
+    /// Process ALL pending messages from the server.
     pub async fn action_messages(&mut self, ui_state: &mut YoutuiWindow) {
-        // XXX: Consider general case to check if task is valid.
-        // In this case, message could implement Task with get_id() function?
         while let Ok(msg) = self.server_response_rx.try_recv() {
-            match msg {
-                server::Response::Api(msg) => self.process_api_msg(msg, ui_state).await,
-                server::Response::Player(msg) => self.process_player_msg(msg, ui_state).await,
-                server::Response::Downloader(msg) => {
+            debug!("Processing {:?}", msg);
+            if !self.is_task_valid(msg.id) {
+                info!("Task {:?} was no longer valid", msg.id);
+                continue;
+            }
+            match msg.response {
+                server::ServerResponseType::Api(msg) => self.process_api_msg(msg, ui_state).await,
+                server::ServerResponseType::Player(msg) => {
+                    self.process_player_msg(msg, ui_state).await
+                }
+                server::ServerResponseType::Downloader(msg) => {
                     self.process_downloader_msg(msg, ui_state).await
                 }
             };
         }
     }
     pub async fn process_api_msg(&self, msg: api::Response, ui_state: &mut YoutuiWindow) {
-        tracing::debug!("Processing {:?}", msg);
         match msg {
-            api::Response::ReplaceArtistList(list, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_replace_artist_list(list).await;
+            api::Response::ReplaceArtistList(list) => {
+                ui_state.handle_replace_artist_list(list).await
             }
-            api::Response::SearchArtistError(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_search_artist_error();
-            }
-            api::Response::ReplaceSearchSuggestions(runs, id, search) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
+            api::Response::SearchArtistError => ui_state.handle_search_artist_error(),
+            api::Response::ReplaceSearchSuggestions(runs, search) => {
                 ui_state
                     .handle_replace_search_suggestions(runs, search)
-                    .await;
+                    .await
             }
-            api::Response::SongListLoading(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_song_list_loading();
-            }
-            api::Response::SongListLoaded(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_song_list_loaded();
-            }
-            api::Response::NoSongsFound(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_no_songs_found();
-            }
-            api::Response::SongsFound(id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_songs_found();
-            }
+            api::Response::SongListLoading => ui_state.handle_song_list_loading(),
+            api::Response::SongListLoaded => ui_state.handle_song_list_loaded(),
+            api::Response::NoSongsFound => ui_state.handle_no_songs_found(),
+            api::Response::SongsFound => ui_state.handle_songs_found(),
             api::Response::AppendSongList {
                 song_list,
                 album,
                 year,
                 artist,
-                id,
-            } => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_append_song_list(song_list, album, year, artist);
-            }
+            } => ui_state.handle_append_song_list(song_list, album, year, artist),
         }
     }
     pub async fn process_downloader_msg(
@@ -271,10 +236,7 @@ impl TaskManager {
         ui_state: &mut YoutuiWindow,
     ) {
         match msg {
-            downloader::Response::DownloadProgressUpdate(update_type, song_id, task_id) => {
-                if !self.is_task_valid(task_id) {
-                    return;
-                }
+            downloader::Response::DownloadProgressUpdate(update_type, song_id) => {
                 ui_state
                     .handle_set_song_download_progress(update_type, song_id)
                     .await;
@@ -283,51 +245,15 @@ impl TaskManager {
     }
     pub async fn process_player_msg(&self, msg: player::Response, ui_state: &mut YoutuiWindow) {
         match msg {
-            // XXX: Why are these not blockable tasks? As receiver responsible for race conditions?
-            // Is a task with race conditions a RaceConditionTask?
-            player::Response::DonePlaying(song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_done_playing(song_id).await;
+            player::Response::DonePlaying(song_id) => ui_state.handle_done_playing(song_id).await,
+            player::Response::Paused(song_id) => ui_state.handle_set_to_paused(song_id).await,
+            player::Response::Playing(song_id) => ui_state.handle_set_to_playing(song_id).await,
+            player::Response::Stopped(song_id) => ui_state.handle_set_to_stopped(song_id).await,
+            player::Response::Error(song_id) => ui_state.handle_set_to_error(song_id).await,
+            player::Response::ProgressUpdate(dur, song_id) => {
+                ui_state.handle_set_song_play_progress(dur, song_id)
             }
-            player::Response::Paused(song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_to_paused(song_id).await;
-            }
-            player::Response::Playing(song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_to_playing(song_id).await;
-            }
-            player::Response::Stopped(song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_to_stopped(song_id).await;
-            }
-            player::Response::Error(song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_to_error(song_id).await;
-            }
-            player::Response::ProgressUpdate(dur, song_id, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                // TODO: use duration properly
-                ui_state.handle_set_song_play_progress(dur.as_secs_f64(), song_id);
-            }
-            player::Response::VolumeUpdate(vol, id) => {
-                if !self.is_task_valid(id) {
-                    return;
-                }
-                ui_state.handle_set_volume(vol);
-            }
+            player::Response::VolumeUpdate(vol) => ui_state.handle_set_volume(vol),
         }
     }
 }

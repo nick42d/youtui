@@ -1,4 +1,4 @@
-use super::{spawn_run_or_kill, KillableTask, ServerComponent};
+use super::{messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent};
 use crate::{
     api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
     error::Error, get_config_dir, Result, OAUTH_FILENAME,
@@ -30,24 +30,23 @@ pub enum UnkillableServerRequest {}
 
 #[derive(Debug)]
 pub enum Response {
-    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
-    SearchArtistError(TaskID),
-    ReplaceSearchSuggestions(Vec<SearchSuggestion>, TaskID, String),
-    SongListLoading(TaskID),
-    SongListLoaded(TaskID),
-    NoSongsFound(TaskID),
-    SongsFound(TaskID),
+    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
+    SearchArtistError,
+    ReplaceSearchSuggestions(Vec<SearchSuggestion>, String),
+    SongListLoading,
+    SongListLoaded,
+    NoSongsFound,
+    SongsFound,
     AppendSongList {
         song_list: Vec<AlbumSong>,
         album: String,
         year: String,
         artist: String,
-        id: TaskID,
     },
 }
 pub struct Api<T> {
     api: T,
-    response_tx: mpsc::Sender<super::Response>,
+    response_tx: mpsc::Sender<ServerResponse>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -60,7 +59,7 @@ async fn get_concrete_type(
 impl Api<()> {
     pub fn new(
         api_key: ApiKey,
-        response_tx: mpsc::Sender<super::Response>,
+        response_tx: mpsc::Sender<ServerResponse>,
     ) -> Api<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
         let api_handle = tokio::spawn(async {
             DynamicYtMusic::new(api_key)
@@ -200,7 +199,7 @@ async fn handle_new_artist_search_task(
     api: ConcurrentApi,
     artist: String,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
     tracing::info!("Running search query");
     let search_res = match query_api_with_retry(
@@ -214,7 +213,7 @@ async fn handle_new_artist_search_task(
         Ok(t) => t,
         Err(e) => {
             error!("Received error on search artist query \"{}\"", e);
-            send_or_error(tx, super::Response::Api(Response::SearchArtistError(id))).await;
+            send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
             return;
         }
     };
@@ -222,7 +221,7 @@ async fn handle_new_artist_search_task(
     tracing::info!("Requesting caller to replace artist list");
     send_or_error(
         tx,
-        super::Response::Api(Response::ReplaceArtistList(artist_list, id)),
+        ServerResponse::new_api(id, Response::ReplaceArtistList(artist_list)),
     )
     .await;
 }
@@ -231,7 +230,7 @@ async fn get_search_suggestions_task(
     api: ConcurrentApi,
     text: String,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
     tracing::info!("Getting search suggestions for {text}");
     let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
@@ -245,11 +244,10 @@ async fn get_search_suggestions_task(
     tracing::info!("Requesting caller to replace search suggestions");
     send_or_error(
         tx,
-        super::Response::Api(Response::ReplaceSearchSuggestions(
-            search_suggestions,
+        ServerResponse::new_api(
             id,
-            text,
-        )),
+            Response::ReplaceSearchSuggestions(search_suggestions, text),
+        ),
     )
     .await;
 }
@@ -258,10 +256,10 @@ async fn search_selected_artist_task(
     api: ConcurrentApi,
     browse_id: ChannelID<'static>,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
     let tx = tx.clone();
-    send_or_error(&tx, super::Response::Api(Response::SongListLoading(id))).await;
+    send_or_error(&tx, ServerResponse::new_api(id, Response::SongListLoading)).await;
     tracing::info!("Running songs query");
     // Should this be a ChannelID or BrowseID? Should take a trait?.
     // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
@@ -274,14 +272,14 @@ async fn search_selected_artist_task(
             let Error::Api(e) = e else {
                 error!("API error received <{e}>");
                 info!("Telling caller no songs found (error)");
-                send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
+                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
                 return;
             };
             let e = e.into_kind();
             let ErrorKind::JsonParsing(e) = e else {
                 error!("API error received <{}>", e);
                 info!("Telling caller no songs found (error)");
-                send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
+                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
                 return;
             };
             let (json, key) = e.get_json_and_key();
@@ -292,13 +290,13 @@ async fn search_selected_artist_task(
             std::fs::write(path, json).unwrap_or_else(|e| error!("Error <{e}> writing json log"));
             info!("Wrote json to {:?}", path);
             tracing::info!("Telling caller no songs found (error)");
-            send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
+            send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
             return;
         }
     };
     let Some(albums) = artist.top_releases.albums else {
         tracing::info!("Telling caller no songs found (no params)");
-        send_or_error(tx, super::Response::Api(Response::NoSongsFound(id))).await;
+        send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
         return;
     };
 
@@ -319,7 +317,7 @@ async fn search_selected_artist_task(
             .collect()
     } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
         tracing::info!("Telling caller no songs found (no params or browse_id)");
-        send_or_error(&tx, super::Response::Api(Response::NoSongsFound(id))).await;
+        send_or_error(&tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
         return;
     } else {
         // Must have params and browse_id
@@ -335,13 +333,13 @@ async fn search_selected_artist_task(
             Err(e) => {
                 error!("Received error on get_artist_albums query \"{}\"", e);
                 // TODO: Better Error type
-                send_or_error(tx, super::Response::Api(Response::SearchArtistError(id))).await;
+                send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
                 return;
             }
         };
         albums.into_iter().map(|a| a.browse_id).collect()
     };
-    send_or_error(&tx, super::Response::Api(Response::SongsFound(id))).await;
+    send_or_error(&tx, ServerResponse::new_api(id, Response::SongsFound)).await;
     // Concurrently request all albums.
     let futures = browse_id_list.into_iter().map(|b_id| {
         let api = &api;
@@ -361,17 +359,19 @@ async fn search_selected_artist_task(
             tracing::info!("Sending caller tracks for request ID {:?}", id);
             send_or_error(
                 tx,
-                super::Response::Api(Response::AppendSongList {
-                    song_list: album.tracks,
-                    album: album.title,
-                    year: album.year,
-                    artist: artist_name,
+                ServerResponse::new_api(
                     id,
-                }),
+                    Response::AppendSongList {
+                        song_list: album.tracks,
+                        album: album.title,
+                        year: album.year,
+                        artist: artist_name,
+                    },
+                ),
             )
             .await;
         }
     });
     futures::future::join_all(futures).await;
-    send_or_error(tx, super::Response::Api(Response::SongListLoaded(id))).await;
+    send_or_error(tx, ServerResponse::new_api(id, Response::SongListLoaded)).await;
 }

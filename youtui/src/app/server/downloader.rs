@@ -1,7 +1,6 @@
-use std::sync::Arc;
-
 use super::{
-    spawn_run_or_kill, KillableTask, ServerComponent, AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE,
+    messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent, AUDIO_QUALITY,
+    DL_CALLBACK_CHUNK_SIZE,
 };
 use crate::{
     app::{
@@ -12,6 +11,7 @@ use crate::{
     core::send_or_error,
 };
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
@@ -23,7 +23,7 @@ pub enum UnkillableServerRequest {}
 
 #[derive(Debug)]
 pub enum Response {
-    DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID, TaskID),
+    DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID),
 }
 
 #[derive(Debug)]
@@ -37,10 +37,10 @@ pub enum DownloadProgressUpdateType {
 pub struct Downloader {
     /// Shared by tasks.
     options: Arc<VideoOptions>,
-    response_tx: mpsc::Sender<super::Response>,
+    response_tx: mpsc::Sender<ServerResponse>,
 }
 impl Downloader {
-    pub fn new(response_tx: mpsc::Sender<super::Response>) -> Self {
+    pub fn new(response_tx: mpsc::Sender<ServerResponse>) -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
@@ -103,16 +103,15 @@ async fn download_song(
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
     task_id: TaskID,
-    tx: mpsc::Sender<super::Response>,
+    tx: mpsc::Sender<ServerResponse>,
 ) {
     tracing::info!("Running download");
     send_or_error(
         &tx,
-        super::Response::Downloader(Response::DownloadProgressUpdate(
-            DownloadProgressUpdateType::Started,
-            song_playlist_id,
+        ServerResponse::new_downloader(
             task_id,
-        )),
+            Response::DownloadProgressUpdate(DownloadProgressUpdateType::Started, song_playlist_id),
+        ),
     )
     .await;
     // Upstream issue to remove allocation
@@ -122,11 +121,13 @@ async fn download_song(
         error!("Error received finding song");
         send_or_error(
             &tx,
-            super::Response::Downloader(Response::DownloadProgressUpdate(
-                DownloadProgressUpdateType::Error,
-                song_playlist_id,
+            ServerResponse::new_downloader(
                 task_id,
-            )),
+                Response::DownloadProgressUpdate(
+                    DownloadProgressUpdateType::Error,
+                    song_playlist_id,
+                ),
+            ),
         )
         .await;
         return;
@@ -142,11 +143,13 @@ async fn download_song(
                 error!("Error <{e}> received converting song to stream");
                 send_or_error(
                     &tx,
-                    super::Response::Downloader(Response::DownloadProgressUpdate(
-                        DownloadProgressUpdateType::Error,
-                        song_playlist_id,
+                    ServerResponse::new_downloader(
                         task_id,
-                    )),
+                        Response::DownloadProgressUpdate(
+                            DownloadProgressUpdateType::Error,
+                            song_playlist_id,
+                        ),
+                    ),
                 )
                 .await;
                 return;
@@ -164,11 +167,13 @@ async fn download_song(
                     info!("Sending song progress update");
                     send_or_error(
                         &tx,
-                        super::Response::Downloader(Response::DownloadProgressUpdate(
-                            DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
-                            song_playlist_id,
+                        ServerResponse::new_downloader(
                             task_id,
-                        )),
+                            Response::DownloadProgressUpdate(
+                                DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
+                                song_playlist_id,
+                            ),
+                        ),
                     )
                     .await;
                 }
@@ -184,11 +189,13 @@ async fn download_song(
                         error!("Max retries exceeded");
                         send_or_error(
                             &tx,
-                            super::Response::Downloader(Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Error,
-                                song_playlist_id,
+                            ServerResponse::new_downloader(
                                 task_id,
-                            )),
+                                Response::DownloadProgressUpdate(
+                                    DownloadProgressUpdateType::Error,
+                                    song_playlist_id,
+                                ),
+                            ),
                         )
                         .await;
                         return;
@@ -196,13 +203,15 @@ async fn download_song(
                     warn!("Retrying - {} tries left", MAX_RETRIES - retries);
                     send_or_error(
                         &tx,
-                        super::Response::Downloader(Response::DownloadProgressUpdate(
-                            DownloadProgressUpdateType::Retrying {
-                                times_retried: retries,
-                            },
-                            song_playlist_id,
+                        ServerResponse::new_downloader(
                             task_id,
-                        )),
+                            Response::DownloadProgressUpdate(
+                                DownloadProgressUpdateType::Retrying {
+                                    times_retried: retries,
+                                },
+                                song_playlist_id,
+                            ),
+                        ),
                     )
                     .await;
                     break;
@@ -213,11 +222,13 @@ async fn download_song(
     info!("Song downloaded");
     send_or_error(
         &tx,
-        super::Response::Downloader(Response::DownloadProgressUpdate(
-            DownloadProgressUpdateType::Completed(songbuffer),
-            song_playlist_id,
+        ServerResponse::new_downloader(
             task_id,
-        )),
+            Response::DownloadProgressUpdate(
+                DownloadProgressUpdateType::Completed(songbuffer),
+                song_playlist_id,
+            ),
+        ),
     )
     .await;
 }

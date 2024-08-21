@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ActionHandler,
@@ -342,8 +344,8 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
-        self.playlist.handle_set_song_play_progress(f, id);
+    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+        self.playlist.handle_set_song_play_progress(d, id);
     }
     pub async fn handle_set_song_download_progress(
         &mut self,
@@ -442,9 +444,8 @@ impl YoutuiWindow {
             }
         } {
             return;
-        } else {
-            self.key_stack.clear()
         }
+        self.key_stack.clear()
     }
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
@@ -477,49 +478,42 @@ impl YoutuiWindow {
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
     fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
-        if let Some(map) = get_key_subset(self.get_this_keybinds(), &self.key_stack) {
-            if let Keymap::Mode(mode) = map {
-                return Some(DisplayableMode {
-                    displayable_commands: mode.as_displayable_iter(),
-                    description: mode.describe(),
-                });
-            }
+        if let Some(Keymap::Mode(mode)) = get_key_subset(self.get_this_keybinds(), &self.key_stack)
+        {
+            return Some(DisplayableMode {
+                displayable_commands: mode.as_displayable_iter(),
+                description: mode.describe(),
+            });
         }
         match self.context {
             WindowContext::Browser => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.browser.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
             WindowContext::Playlist => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.playlist.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
             WindowContext::Logs => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.logger.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
         }

@@ -63,10 +63,10 @@ pub fn draw_browser(
             artistselected,
             artist_list_state,
         );
-        draw_search_box(f, &browser, s[0]);
+        draw_search_box(f, browser, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
-            draw_search_suggestions(f, &browser, s[0], layout[0])
+            draw_search_suggestions(f, browser, s[0], layout[0])
         }
     }
     draw_sortable_table(

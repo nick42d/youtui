@@ -1,14 +1,16 @@
+use super::taskmanager::{KillableTask, TaskID};
+use crate::{config::ApiKey, Result};
 use api::ConcurrentApi;
 use futures::{future::Shared, Future};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
-mod structures;
-use super::taskmanager::{KillableTask, TaskID};
-use crate::{config::ApiKey, Result};
 use tracing::{error, info};
+
+pub use messages::*;
 
 pub mod api;
 pub mod downloader;
+pub mod messages;
 pub mod player;
 
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
@@ -34,56 +36,13 @@ trait ServerComponent {
     ) -> Result<()>;
 }
 
-#[derive(Debug)]
-pub struct KillRequest;
-
-// Server request MUST be an enum, whilst it's tempting to use structs here to
-// take advantage of generics, every message sent to channel must be the same
-// size.
-pub enum ServerRequest {
-    Killable {
-        killable_task: KillableTask,
-        request: KillableServerRequest,
-    },
-    Unkillable {
-        task_id: TaskID,
-        request: UnkillableServerRequest,
-    },
-}
-
-pub enum KillableServerRequest {
-    Api(api::KillableServerRequest),
-    Player(player::KillableServerRequest),
-    Downloader(downloader::KillableServerRequest),
-}
-
-#[allow(unused)]
-pub enum UnkillableServerRequest {
-    Api(api::UnkillableServerRequest),
-    Player(player::UnkillableServerRequest),
-    Downloader(downloader::UnkillableServerRequest),
-}
-
-#[derive(Debug)]
-pub struct ServerResponse {
-    id: TaskID,
-    message: Response,
-}
-
-#[derive(Debug)]
-pub enum Response {
-    Api(api::Response),
-    Player(player::Response),
-    Downloader(downloader::Response),
-}
-
 /// Application backend that is capable of spawning concurrent tasks in response
 /// to requests. Tasks each receive a handle to respond back to the caller.
 /// Generic across 'T' - 'T' is a future but we need to use generics to allow
 /// use of concrete type.
 pub struct Server<T> {
     api: api::Api<T>,
-    player: player::PlayerManager,
+    player: player::Player,
     downloader: downloader::Downloader,
     request_rx: mpsc::Receiver<ServerRequest>,
 }
@@ -91,11 +50,11 @@ pub struct Server<T> {
 impl Server<()> {
     pub fn new(
         api_key: ApiKey,
-        response_tx: mpsc::Sender<Response>,
+        response_tx: mpsc::Sender<ServerResponse>,
         request_rx: mpsc::Receiver<ServerRequest>,
     ) -> Server<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
         let api = api::Api::new(api_key, response_tx.clone());
-        let player = player::PlayerManager::new(response_tx.clone());
+        let player = player::Player::new(response_tx.clone());
         let downloader = downloader::Downloader::new(response_tx.clone());
         Server {
             api,
