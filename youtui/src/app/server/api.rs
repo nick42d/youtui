@@ -12,7 +12,7 @@ use tokio::{
         RwLock,
     },
 };
-use tracing::{error, info};
+use tracing::{error, info, instrument, Level};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ChannelID, SearchSuggestion},
@@ -28,7 +28,6 @@ pub enum KillableServerRequest {
 }
 pub enum UnkillableServerRequest {}
 
-#[derive(Debug)]
 pub enum Response {
     ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
     SearchArtistError,
@@ -44,6 +43,41 @@ pub enum Response {
         artist: String,
     },
 }
+
+// Custom debug due to size of vec params.
+impl std::fmt::Debug for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Response::ReplaceArtistList(_) => f
+                .debug_tuple("ReplaceArtistList")
+                .field(&"Vec<..>")
+                .finish(),
+            Response::SearchArtistError => f.debug_tuple("SearchArtistError").finish(),
+            Response::ReplaceSearchSuggestions(_, b) => f
+                .debug_tuple("ReplaceSearchSuggestions")
+                .field(&"Vec<..>")
+                .field(b)
+                .finish(),
+            Response::SongListLoading => f.debug_tuple("SongListLoading").finish(),
+            Response::SongListLoaded => f.debug_tuple("SongListLoaded").finish(),
+            Response::NoSongsFound => f.debug_tuple("NoSongsFound").finish(),
+            Response::SongsFound => f.debug_tuple("SongsFound").finish(),
+            Response::AppendSongList {
+                song_list: _,
+                album,
+                year,
+                artist,
+            } => f
+                .debug_struct("AppendSongList")
+                .field("song_list", &"Vec<..>")
+                .field("album", album)
+                .field("year", year)
+                .field("artist", artist)
+                .finish(),
+        }
+    }
+}
+
 pub struct Api<T> {
     api: T,
     response_tx: mpsc::Sender<ServerResponse>,

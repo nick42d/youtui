@@ -58,7 +58,6 @@ enum TaskMessage {
     Unkillable(UnkillableServerRequest),
 }
 
-#[derive(Debug)]
 // App request MUST be an enum, whilst it's tempting to use structs here to
 // take advantage of generics, every message sent to channel must be the same
 // size.
@@ -86,6 +85,27 @@ pub enum RequestCategory {
     ProgressUpdate,
     IncreaseVolume, // TODO: generalize
     PlayPauseStop,
+}
+
+// Custom debug due to size
+impl std::fmt::Debug for AppRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppRequest::SearchArtists(a) => f.debug_tuple("SearchArtists").field(a).finish(),
+            AppRequest::GetSearchSuggestions(a) => {
+                f.debug_tuple("GetSearchSuggestions").field(a).finish()
+            }
+            AppRequest::GetArtistSongs(a) => f.debug_tuple("GetArtistSongs").field(a).finish(),
+            AppRequest::Download(a, b) => f.debug_tuple("Download").field(a).field(b).finish(),
+            AppRequest::IncreaseVolume(a) => f.debug_tuple("IncreaseVolume").field(a).finish(),
+            AppRequest::GetVolume => f.debug_tuple("GetVolume").finish(),
+            AppRequest::PlaySong(_, b) => f.debug_tuple("PlaySong").field(&"..").field(b).finish(),
+            AppRequest::GetPlayProgress(a) => f.debug_tuple("GetPlayProgress").field(a).finish(),
+            AppRequest::Stop(a) => f.debug_tuple("Stop").field(a).finish(),
+            AppRequest::PausePlay(a) => f.debug_tuple("PausePlay").field(a).finish(),
+            AppRequest::Seek(a) => f.debug_tuple("Seek").field(a).finish(),
+        }
+    }
 }
 
 impl TaskManager {
@@ -134,18 +154,6 @@ impl TaskManager {
             }
         };
     }
-    /// Get the value next TaskID. Note that this could overflow, and will warn
-    /// if it does.
-    fn get_next_id(&mut self) -> TaskID {
-        // If we exceed usize, we'll overflow instead of crash.
-        // The chance of a negative impact due to this logic should be extremely slim.
-        let (new_id, overflowed) = self.cur_id.0.overflowing_add(1);
-        self.cur_id.0 = new_id;
-        if overflowed {
-            warn!("Task ID generation has overflowed");
-        }
-        self.cur_id
-    }
     fn add_killable_task(&mut self, category: RequestCategory) -> KillableTask {
         let id = self.get_next_id();
         let (kill_tx, kill_rx) = tokio::sync::oneshot::channel();
@@ -164,6 +172,18 @@ impl TaskManager {
             category,
         });
         id
+    }
+    /// Get the value next TaskID. Note that this could overflow, and will warn
+    /// if it does.
+    fn get_next_id(&mut self) -> TaskID {
+        // If we exceed usize, we'll overflow instead of crash.
+        // The chance of a negative impact due to this logic should be extremely slim.
+        let (new_id, overflowed) = self.cur_id.0.overflowing_add(1);
+        self.cur_id.0 = new_id;
+        if overflowed {
+            warn!("Task ID generation has overflowed");
+        }
+        self.cur_id
     }
     pub fn is_task_valid(&self, id: TaskID) -> bool {
         self.tasks.iter().any(|x| x.id == id)
@@ -192,7 +212,7 @@ impl TaskManager {
     /// Process ALL pending messages from the server.
     pub async fn action_messages(&mut self, ui_state: &mut YoutuiWindow) {
         while let Ok(msg) = self.server_response_rx.try_recv() {
-            debug!("Processing {:?}", msg);
+            info!("Processing {:?}", msg);
             if !self.is_task_valid(msg.id) {
                 info!("Task {:?} was no longer valid", msg.id);
                 continue;

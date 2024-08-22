@@ -197,7 +197,7 @@ impl Playlist {
     pub async fn check_song_progress(&mut self) {
         if let PlayState::Playing(id) = self.play_status {
             info!("Tick received - requesting song progress update");
-            let _ = self.ui_tx.send(AppCallback::GetProgress(id)).await;
+            send_or_error(&self.ui_tx, AppCallback::GetProgress(id)).await;
         }
     }
     /// Stop playing, drop downloads no longer relevant for ID, download new
