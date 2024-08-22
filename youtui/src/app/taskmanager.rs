@@ -100,7 +100,11 @@ impl std::fmt::Debug for AppRequest {
             AppRequest::Download(a, b) => f.debug_tuple("Download").field(a).field(b).finish(),
             AppRequest::IncreaseVolume(a) => f.debug_tuple("IncreaseVolume").field(a).finish(),
             AppRequest::GetVolume => f.debug_tuple("GetVolume").finish(),
-            AppRequest::PlaySong(_, b) => f.debug_tuple("PlaySong").field(&"..").field(b).finish(),
+            AppRequest::PlaySong(_, b) => f
+                .debug_tuple("PlaySong")
+                .field(&"Arc<..>")
+                .field(b)
+                .finish(),
             AppRequest::GetPlayProgress(a) => f.debug_tuple("GetPlayProgress").field(a).finish(),
             AppRequest::Stop(a) => f.debug_tuple("Stop").field(a).finish(),
             AppRequest::PausePlay(a) => f.debug_tuple("PausePlay").field(a).finish(),

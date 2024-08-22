@@ -193,7 +193,7 @@ enum Command {
 }
 
 pub struct RuntimeInfo {
-    _debug: bool,
+    debug: bool,
     config: Config,
     api_key: ApiKey,
 }
@@ -242,7 +242,7 @@ async fn try_main() -> Result<()> {
     // TODO: Remove delay, should be handled inside app instead.
     let api_key = load_api_key(&config).await?;
     let rt = RuntimeInfo {
-        _debug: debug,
+        debug,
         config,
         api_key,
     };

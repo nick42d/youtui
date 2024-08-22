@@ -22,7 +22,6 @@ use tracing::warn;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 
-#[derive(Debug)]
 pub enum UnkillableServerRequest {
     IncreaseVolume(i8),
     PlaySong(Arc<Vec<u8>>, ListSongID),
@@ -32,12 +31,33 @@ pub enum UnkillableServerRequest {
     Seek(i8),
 }
 
+// Custom impl due to size of PlaySong debug
+impl std::fmt::Debug for UnkillableServerRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UnkillableServerRequest::PlaySong(_, b) => f
+                .debug_tuple("PlaySong")
+                .field(&"Arc<..>")
+                .field(b)
+                .finish(),
+            UnkillableServerRequest::IncreaseVolume(a) => {
+                f.debug_tuple("IncreaseVolume").field(a).finish()
+            }
+            UnkillableServerRequest::GetPlayProgress(a) => {
+                f.debug_tuple("GetPlayProgress").field(a).finish()
+            }
+            UnkillableServerRequest::Stop(a) => f.debug_tuple("Stop").field(a).finish(),
+            UnkillableServerRequest::PausePlay(a) => f.debug_tuple("PausePlay").field(a).finish(),
+            UnkillableServerRequest::Seek(a) => f.debug_tuple("Seek").field(a).finish(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum KillableServerRequest {
     GetVolume,
 }
 
-#[derive(Debug)]
 enum RodioMessage {
     PlaySong(
         Arc<Vec<u8>>,
@@ -53,6 +73,20 @@ enum RodioMessage {
     IncreaseVolume(i8, oneshot::Sender<Percentage>),
     GetVolume(oneshot::Sender<Percentage>),
     Seek(i8, oneshot::Sender<(Duration, ListSongID)>),
+}
+
+impl std::fmt::Debug for RodioMessage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RodioMessage::PlaySong(_, _, _, _) => todo!(),
+            RodioMessage::GetPlayProgress(_, _) => todo!(),
+            RodioMessage::Stop(_, _) => todo!(),
+            RodioMessage::PausePlay(_, _) => todo!(),
+            RodioMessage::IncreaseVolume(_, _) => todo!(),
+            RodioMessage::Seek(_, _) => todo!(),
+            RodioMessage::GetVolume(_) => todo!(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -250,6 +284,8 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 }
                 // XXX: May be able to handle this by reporting progress updates when playing
                 // instead of needing to request/response here.
+                // Seems to go out of sync with Sink - I can send a request here after song is
+                // dropped and still get a progress update - why?
                 RodioMessage::GetPlayProgress(song_id, tx) => {
                     info!("Got message to provide song progress update");
                     if cur_song_id == Some(song_id) {
@@ -273,6 +309,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 RodioMessage::Seek(inc, tx) => {
                     // Rodio always you to seek past song end when paused, and will report back an
                     // incorrect position for sink.get_pos().
+                    // TODO: Report upstream
                     let res = if inc > 0 {
                         sink.try_seek(
                             sink.get_pos()

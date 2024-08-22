@@ -12,7 +12,7 @@ use tokio::{
         RwLock,
     },
 };
-use tracing::{error, info, instrument, Level};
+use tracing::{error, info};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ChannelID, SearchSuggestion},
