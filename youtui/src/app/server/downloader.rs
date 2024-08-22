@@ -26,13 +26,31 @@ pub enum Response {
     DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID),
 }
 
-#[derive(Debug)]
 pub enum DownloadProgressUpdateType {
     Started,
     Downloading(Percentage),
     Completed(Vec<u8>),
     Error,
     Retrying { times_retried: usize },
+}
+// Custom derive due to complexity.
+impl std::fmt::Debug for DownloadProgressUpdateType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DownloadProgressUpdateType::Started => f.debug_struct("Started").finish(),
+            DownloadProgressUpdateType::Downloading(a) => {
+                f.debug_tuple("Downloading").field(a).finish()
+            }
+            DownloadProgressUpdateType::Completed(_) => {
+                f.debug_tuple("Completed").field(&"Vec<..>").finish()
+            }
+            DownloadProgressUpdateType::Error => f.debug_struct("Error").finish(),
+            DownloadProgressUpdateType::Retrying { times_retried } => f
+                .debug_struct("Retrying")
+                .field("times_retried", times_retried)
+                .finish(),
+        }
+    }
 }
 pub struct Downloader {
     /// Shared by tasks.

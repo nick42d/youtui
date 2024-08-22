@@ -10,6 +10,7 @@ use crate::core::oneshot_send_or_error;
 use crate::core::send_or_error;
 use crate::Result;
 use rodio::decoder::DecoderError;
+use rodio::Source;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -51,7 +52,7 @@ enum RodioMessage {
     PausePlay(ListSongID, oneshot::Sender<PlayActionTaken>),
     IncreaseVolume(i8, oneshot::Sender<Percentage>),
     GetVolume(oneshot::Sender<Percentage>),
-    Seek(i8, oneshot::Sender<Duration>),
+    Seek(i8, oneshot::Sender<(Duration, ListSongID)>),
 }
 
 #[derive(Debug)]
@@ -178,7 +179,8 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
             rodio::OutputStream::try_default().expect("Expect to get a handle to output stream");
         let sink = rodio::Sink::try_new(&stream_handle).expect("Expect music player not to error");
         // Hopefully someone else can't create a song with the same ID?!
-        let mut cur_song_id = ListSongID::default();
+        let mut cur_song_id = None;
+        let mut cur_song_duration = None;
         while let Some(msg) = msg_rx.blocking_recv() {
             debug!("Rodio received {:?}", msg);
             match msg {
@@ -202,6 +204,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             continue;
                         }
                     };
+                    cur_song_duration = source.total_duration();
                     if !sink.empty() {
                         sink.stop()
                     }
@@ -214,21 +217,23 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
                     oneshot_send_or_error(tx, Ok(()));
-                    cur_song_id = song_id;
+                    cur_song_id = Some(song_id);
                 }
                 RodioMessage::Stop(song_id, tx) => {
                     info!("Got message to stop playing {:?}", song_id);
-                    if cur_song_id != song_id {
+                    if cur_song_id != Some(song_id) {
                         continue;
                     }
                     if !sink.empty() {
                         sink.stop()
                     }
+                    cur_song_id = None;
+                    cur_song_duration = None;
                     oneshot_send_or_error(tx, ());
                 }
                 RodioMessage::PausePlay(song_id, tx) => {
                     info!("Got message to pause / play {:?}", song_id);
-                    if cur_song_id != song_id {
+                    if cur_song_id != Some(song_id) {
                         continue;
                     }
                     if sink.is_paused() {
@@ -247,7 +252,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 // instead of needing to request/response here.
                 RodioMessage::GetPlayProgress(song_id, tx) => {
                     info!("Got message to provide song progress update");
-                    if cur_song_id == song_id {
+                    if cur_song_id == Some(song_id) {
                         oneshot_send_or_error(tx, sink.get_pos());
                         info!("Rodio sent song progress update");
                     } else {
@@ -266,21 +271,29 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     info!("Rodio sent volume update");
                 }
                 RodioMessage::Seek(inc, tx) => {
+                    // Rodio always you to seek past song end when paused, and will report back an
+                    // incorrect position for sink.get_pos().
                     let res = if inc > 0 {
                         sink.try_seek(
                             sink.get_pos()
-                                .saturating_add(Duration::from_secs(inc as u64)),
+                                .saturating_add(Duration::from_secs(inc as u64))
+                                .min(cur_song_duration.unwrap_or_default()),
                         )
                     } else {
                         sink.try_seek(
                             sink.get_pos()
-                                .saturating_sub(Duration::from_secs((-inc) as u64)),
+                                .saturating_sub(Duration::from_secs((-inc) as u64))
+                                .min(cur_song_duration.unwrap_or_default()),
                         )
                     };
                     if res.is_err() {
                         error!("Failed to seek!!");
                     }
-                    oneshot_send_or_error(tx, sink.get_pos());
+                    let Some(cur_song_id) = cur_song_id else {
+                        warn!("Tried to seek, but no song loaded");
+                        continue;
+                    };
+                    oneshot_send_or_error(tx, (sink.get_pos(), cur_song_id));
                 }
             }
         }
@@ -365,17 +378,18 @@ async fn seek(
 ) {
     let (tx, rx) = tokio::sync::oneshot::channel();
     send_or_error(rodio_tx, RodioMessage::Seek(inc, tx)).await;
-    let Ok(dur) = rx.await else {
+    let Ok((current_duration, song_id)) = rx.await else {
         // This happens intentionally - when a seek is requested for a song
         // but all songs have finished, instead of sending a reply, rodio will drop
         // sender.
         info!("The song I tried to seek is no longer playing {:?}", id);
         return;
     };
-    warn!(
-        "Not sending any update back to app after a seek at this stage, but dur was {:?}",
-        dur
-    );
+    send_or_error(
+        response_tx,
+        ServerResponse::new_player(id, Response::ProgressUpdate(current_duration, song_id)),
+    )
+    .await;
 }
 async fn stop(
     song_id: ListSongID,

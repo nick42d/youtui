@@ -84,7 +84,8 @@ pub enum RequestCategory {
     GetVolume,
     ProgressUpdate,
     IncreaseVolume, // TODO: generalize
-    PlayPauseStop,
+    PlayPause,
+    PlayStop,
 }
 
 // Custom debug due to size
@@ -288,10 +289,12 @@ impl AppRequest {
             AppRequest::Download(..) => RequestCategory::Download,
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             AppRequest::GetVolume => RequestCategory::GetVolume,
-            AppRequest::PlaySong(..) => RequestCategory::PlayPauseStop,
+            // Notionally, this could also be blocked by a Stop message.
+            AppRequest::PlaySong(..) => RequestCategory::PlayStop,
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
-            AppRequest::Stop(_) => RequestCategory::PlayPauseStop,
-            AppRequest::PausePlay(_) => RequestCategory::PlayPauseStop,
+            // Notionally, this could also be blocked by a PlaySong message.
+            AppRequest::Stop(_) => RequestCategory::PlayStop,
+            AppRequest::PausePlay(_) => RequestCategory::PlayPause,
             AppRequest::Seek(_) => RequestCategory::ProgressUpdate,
         }
     }
@@ -352,10 +355,10 @@ impl AppRequest {
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
             AppRequest::GetVolume => Some(RequestCategory::IncreaseVolume),
-            AppRequest::PlaySong(..) => Some(RequestCategory::PlayPauseStop),
+            AppRequest::PlaySong(..) => Some(RequestCategory::PlayPause),
             AppRequest::GetPlayProgress(_) => None,
-            AppRequest::Stop(_) => Some(RequestCategory::PlayPauseStop),
-            AppRequest::PausePlay(_) => Some(RequestCategory::PlayPauseStop),
+            AppRequest::Stop(_) => Some(RequestCategory::PlayPause),
+            AppRequest::PausePlay(_) => Some(RequestCategory::PlayPause),
             AppRequest::Seek(_) => None,
         }
     }
