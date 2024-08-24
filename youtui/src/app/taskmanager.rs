@@ -141,23 +141,22 @@ impl TaskManager {
         };
         let category = request.category();
         let tx = self.server_request_tx.clone();
-        match request.into_kind() {
+        let message = match request.into_kind() {
             TaskMessage::Killable(request) => {
                 let killable_task = self.add_killable_task(category);
-                send_or_error(
-                    tx,
-                    ServerRequest::Killable {
-                        killable_task,
-                        request,
-                    },
-                )
-                .await;
+                ServerRequest::Killable {
+                    killable_task,
+                    request,
+                }
             }
             TaskMessage::Unkillable(request) => {
                 let task_id = self.add_unkillable_task(category);
-                send_or_error(tx, ServerRequest::Unkillable { task_id, request }).await;
+
+                ServerRequest::Unkillable { task_id, request }
             }
         };
+        debug!("Sending {:?}", message);
+        send_or_error(tx, message).await;
     }
     fn add_killable_task(&mut self, category: RequestCategory) -> KillableTask {
         let id = self.get_next_id();

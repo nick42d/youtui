@@ -7,6 +7,7 @@ pub struct KillRequest;
 // Server request MUST be an enum, whilst it's tempting to use structs here to
 // take advantage of generics, every message sent to channel must be the same
 // size.
+#[derive(Debug)]
 pub enum ServerRequest {
     Killable {
         killable_task: KillableTask,
@@ -18,6 +19,7 @@ pub enum ServerRequest {
     },
 }
 
+#[derive(Debug)]
 pub enum KillableServerRequest {
     Api(api::KillableServerRequest),
     Player(player::KillableServerRequest),
@@ -27,6 +29,7 @@ pub enum KillableServerRequest {
 // Whilst not all fields are currently used, they're a key component of the
 // architecture and expected to be used in future.
 #[allow(unused)]
+#[derive(Debug)]
 pub enum UnkillableServerRequest {
     Api(api::UnkillableServerRequest),
     Player(player::UnkillableServerRequest),

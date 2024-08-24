@@ -4,7 +4,7 @@ use api::ConcurrentApi;
 use futures::{future::Shared, Future};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 pub use messages::*;
 
@@ -71,6 +71,7 @@ where
 {
     pub async fn run(&mut self) {
         while let Some(request) = self.request_rx.recv().await {
+            debug!("Received {:?}", request);
             let outcome = match request {
                 ServerRequest::Killable {
                     killable_task,

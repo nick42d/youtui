@@ -16,9 +16,11 @@ use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
+#[derive(Debug)]
 pub enum KillableServerRequest {
     DownloadSong(VideoID<'static>, ListSongID),
 }
+#[derive(Debug)]
 pub enum UnkillableServerRequest {}
 
 #[derive(Debug)]

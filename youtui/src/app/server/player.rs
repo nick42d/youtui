@@ -78,13 +78,35 @@ enum RodioMessage {
 impl std::fmt::Debug for RodioMessage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RodioMessage::PlaySong(_, _, _, _) => todo!(),
-            RodioMessage::GetPlayProgress(_, _) => todo!(),
-            RodioMessage::Stop(_, _) => todo!(),
-            RodioMessage::PausePlay(_, _) => todo!(),
-            RodioMessage::IncreaseVolume(_, _) => todo!(),
-            RodioMessage::Seek(_, _) => todo!(),
-            RodioMessage::GetVolume(_) => todo!(),
+            RodioMessage::PlaySong(_, b, _, _) => f
+                .debug_tuple("PlaySong")
+                .field(&"Arc<..>")
+                .field(b)
+                .field(&"Sender<..>")
+                .field(&"Sender<..>")
+                .finish(),
+            RodioMessage::GetPlayProgress(a, _) => f
+                .debug_tuple("GetPlayProgress")
+                .field(a)
+                .field(&"Sender<..>")
+                .finish(),
+            RodioMessage::Stop(a, _) => {
+                f.debug_tuple("Stop").field(a).field(&"Sender<..>").finish()
+            }
+            RodioMessage::PausePlay(a, _) => f
+                .debug_tuple("PausePlay")
+                .field(a)
+                .field(&"Sender<..>")
+                .finish(),
+            RodioMessage::IncreaseVolume(a, _) => f
+                .debug_tuple("IncreaseVolume")
+                .field(a)
+                .field(&"Sender<..>")
+                .finish(),
+            RodioMessage::Seek(a, _) => {
+                f.debug_tuple("Seek").field(a).field(&"Sender<..>").finish()
+            }
+            RodioMessage::GetVolume(_) => f.debug_tuple("GetVolume").field(&"Sender<..>").finish(),
         }
     }
 }
@@ -219,9 +241,6 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
             debug!("Rodio received {:?}", msg);
             match msg {
                 RodioMessage::PlaySong(song_pointer, song_id, tx, done_tx) => {
-                    // compile_error!("Remember to test the new song done functionality");
-                    // XXX: Perhaps should let the state know that we are playing.
-                    // TODO: remove allocation
                     let sp = DroppableSong {
                         song: song_pointer,
                         dropped_channel: Some(done_tx),

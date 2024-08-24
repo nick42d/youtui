@@ -21,11 +21,13 @@ use ytmapi_rs::{
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
+#[derive(Debug)]
 pub enum KillableServerRequest {
     GetSearchSuggestions(String),
     NewArtistSearch(String),
     SearchSelectedArtist(ChannelID<'static>),
 }
+#[derive(Debug)]
 pub enum UnkillableServerRequest {}
 
 pub enum Response {
