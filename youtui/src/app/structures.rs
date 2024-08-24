@@ -1,3 +1,4 @@
+use super::server::downloader::InMemSong;
 use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
@@ -46,7 +47,7 @@ pub enum DownloadStatus {
     None,
     Queued,
     Downloading(Percentage),
-    Downloaded(Arc<Vec<u8>>),
+    Downloaded(Arc<InMemSong>),
     Failed,
     Retrying { times_retried: usize },
 }

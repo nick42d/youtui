@@ -1,3 +1,4 @@
+use super::server::downloader::InMemSong;
 use super::server::messages::{KillableServerRequest, UnkillableServerRequest};
 use super::server::{api, downloader, player};
 use super::structures::ListSongID;
@@ -61,6 +62,7 @@ enum TaskMessage {
 // App request MUST be an enum, whilst it's tempting to use structs here to
 // take advantage of generics, every message sent to channel must be the same
 // size.
+#[derive(Debug)]
 pub enum AppRequest {
     SearchArtists(String),
     GetSearchSuggestions(String),
@@ -68,7 +70,7 @@ pub enum AppRequest {
     Download(VideoID<'static>, ListSongID),
     IncreaseVolume(i8),
     GetVolume,
-    PlaySong(Arc<Vec<u8>>, ListSongID),
+    PlaySong(Arc<InMemSong>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
@@ -86,31 +88,6 @@ pub enum RequestCategory {
     IncreaseVolume, // TODO: generalize
     PlayPause,
     PlayStop,
-}
-
-// Custom debug due to size
-impl std::fmt::Debug for AppRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AppRequest::SearchArtists(a) => f.debug_tuple("SearchArtists").field(a).finish(),
-            AppRequest::GetSearchSuggestions(a) => {
-                f.debug_tuple("GetSearchSuggestions").field(a).finish()
-            }
-            AppRequest::GetArtistSongs(a) => f.debug_tuple("GetArtistSongs").field(a).finish(),
-            AppRequest::Download(a, b) => f.debug_tuple("Download").field(a).field(b).finish(),
-            AppRequest::IncreaseVolume(a) => f.debug_tuple("IncreaseVolume").field(a).finish(),
-            AppRequest::GetVolume => f.debug_tuple("GetVolume").finish(),
-            AppRequest::PlaySong(_, b) => f
-                .debug_tuple("PlaySong")
-                .field(&"Arc<..>")
-                .field(b)
-                .finish(),
-            AppRequest::GetPlayProgress(a) => f.debug_tuple("GetPlayProgress").field(a).finish(),
-            AppRequest::Stop(a) => f.debug_tuple("Stop").field(a).finish(),
-            AppRequest::PausePlay(a) => f.debug_tuple("PausePlay").field(a).finish(),
-            AppRequest::Seek(a) => f.debug_tuple("Seek").field(a).finish(),
-        }
-    }
 }
 
 impl TaskManager {

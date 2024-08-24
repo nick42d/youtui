@@ -28,32 +28,26 @@ pub enum Response {
     DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID),
 }
 
+/// Representation of a song in memory - an array of bytes.
+/// Newtype pattern is used to provide a cleaner Debug display.
+pub struct InMemSong(pub Vec<u8>);
+
+// Custom derive - otherwise will be displaying 3MB array of bytes...
+impl std::fmt::Debug for InMemSong {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Song").field(&"Vec<..>").finish()
+    }
+}
+
+#[derive(Debug)]
 pub enum DownloadProgressUpdateType {
     Started,
     Downloading(Percentage),
-    Completed(Vec<u8>),
+    Completed(InMemSong),
     Error,
     Retrying { times_retried: usize },
 }
-// Custom derive due to complexity.
-impl std::fmt::Debug for DownloadProgressUpdateType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DownloadProgressUpdateType::Started => f.debug_struct("Started").finish(),
-            DownloadProgressUpdateType::Downloading(a) => {
-                f.debug_tuple("Downloading").field(a).finish()
-            }
-            DownloadProgressUpdateType::Completed(_) => {
-                f.debug_tuple("Completed").field(&"Vec<..>").finish()
-            }
-            DownloadProgressUpdateType::Error => f.debug_struct("Error").finish(),
-            DownloadProgressUpdateType::Retrying { times_retried } => f
-                .debug_struct("Retrying")
-                .field("times_retried", times_retried)
-                .finish(),
-        }
-    }
-}
+
 pub struct Downloader {
     /// Shared by tasks.
     options: Arc<VideoOptions>,
@@ -245,7 +239,7 @@ async fn download_song(
         ServerResponse::new_downloader(
             task_id,
             Response::DownloadProgressUpdate(
-                DownloadProgressUpdateType::Completed(songbuffer),
+                DownloadProgressUpdateType::Completed(InMemSong(songbuffer)),
                 song_playlist_id,
             ),
         ),

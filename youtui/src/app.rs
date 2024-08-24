@@ -8,6 +8,7 @@ use crossterm::{
 };
 use ratatui::widgets::{ListState, TableState};
 use ratatui::{backend::CrosstermBackend, Terminal};
+use server::downloader::InMemSong;
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::{ListSong, ListSongID};
@@ -77,7 +78,7 @@ pub enum AppCallback {
     GetArtistSongs(ChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
     AddSongsToPlaylistAndPlay(Vec<ListSong>),
-    PlaySong(Arc<Vec<u8>>, ListSongID),
+    PlaySong(Arc<InMemSong>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
     Seek(i8),
