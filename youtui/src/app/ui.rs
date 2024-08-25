@@ -365,13 +365,13 @@ impl YoutuiWindow {
     pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         self.playlist.handle_set_song_play_progress(d, id);
     }
-    pub async fn handle_set_song_download_progress(
+    pub async fn handle_song_download_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
         playlist_id: ListSongID,
     ) {
         self.playlist
-            .handle_song_progress_update(update, playlist_id)
+            .handle_song_download_progress_update(update, playlist_id)
             .await
     }
     pub async fn handle_replace_search_suggestions(

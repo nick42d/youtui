@@ -70,7 +70,6 @@ pub enum AppCallback {
     GetProgress(ListSongID),
     Quit,
     ChangeContext(WindowContext),
-    // Perhaps shiould not be here.
     IncreaseVolume(i8),
     SearchArtist(String),
     GetSearchSuggestions(String),
@@ -78,6 +77,7 @@ pub enum AppCallback {
     AddSongsToPlaylist(Vec<ListSong>),
     AddSongsToPlaylistAndPlay(Vec<ListSong>),
     PlaySong(Arc<InMemSong>, ListSongID),
+    QueueSong(Arc<InMemSong>, ListSongID),
     AutoplaySong(Arc<InMemSong>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
@@ -208,7 +208,16 @@ impl Youtui {
                         .send_spawn_request(AppRequest::PlaySong(song, id))
                         .await;
                 }
-
+                AppCallback::QueueSong(song, id) => {
+                    self.task_manager
+                        .send_spawn_request(AppRequest::QueueSong(song, id))
+                        .await;
+                }
+                AppCallback::AutoplaySong(song, id) => {
+                    self.task_manager
+                        .send_spawn_request(AppRequest::AutoplaySong(song, id))
+                        .await;
+                }
                 AppCallback::PausePlay(id) => {
                     self.task_manager
                         .send_spawn_request(AppRequest::PausePlay(id))

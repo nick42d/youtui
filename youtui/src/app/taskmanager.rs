@@ -70,6 +70,8 @@ pub enum AppRequest {
     Download(VideoID<'static>, ListSongID),
     IncreaseVolume(i8),
     PlaySong(Arc<InMemSong>, ListSongID),
+    AutoplaySong(Arc<InMemSong>, ListSongID),
+    Queueong(Arc<InMemSong>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
@@ -239,7 +241,7 @@ impl TaskManager {
         match msg {
             downloader::Response::DownloadProgressUpdate(update_type, song_id) => {
                 ui_state
-                    .handle_set_song_download_progress(update_type, song_id)
+                    .handle_song_download_progress_update(update_type, song_id)
                     .await;
             }
         }

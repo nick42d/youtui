@@ -11,7 +11,11 @@ use crate::core::oneshot_send_or_error;
 use crate::core::send_or_error;
 use crate::Result;
 use rodio::decoder::DecoderError;
+use rodio::source::PeriodicAccess;
+use rodio::source::TrackPosition;
+use rodio::Decoder;
 use rodio::Source;
+use std::io::Cursor;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -22,6 +26,7 @@ use tracing::info;
 use tracing::warn;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
+const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 
 #[derive(Debug)]
 pub struct SongTypeNew {
@@ -292,6 +297,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 }
                 RodioMessage::QueueSong(song_pointer, song_id, tx, done_tx) => {
                     // DUPLICATE FROM PLAYSONG
+                    // TEST CODE
                     let source = match try_decode(song_pointer, song_id, done_tx) {
                         Ok(source) => source,
                         Err(e) => {
@@ -423,8 +429,12 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
 fn try_decode(
     song: Arc<InMemSong>,
     song_id: ListSongID,
+    progress_stream_tx: mpsc::Sender<Duration>,
     done_tx: RodioOneshot<()>,
-) -> std::result::Result<rodio::Decoder<std::io::Cursor<DroppableSong>>, DecoderError> {
+) -> std::result::Result<
+    TrackPosition<PeriodicAccess<Decoder<Cursor<DroppableSong>>>, impl FnMut(Source)>,
+    DecoderError,
+> {
     // DUPLICATE FROM PLAYSONG
     let sp = DroppableSong {
         song,
@@ -432,7 +442,12 @@ fn try_decode(
         dropped_channel: Some(done_tx),
     };
     let cur = std::io::Cursor::new(sp);
-    rodio::Decoder::new(cur)
+    rodio::Decoder::new(cur).map(move |s| {
+        s.track_position()
+            .periodic_access(PROGRESS_UPDATE_DELAY, move |s| {
+                progress_stream_tx.clone().blocking_send(s.get_pos());
+            })
+    })
 }
 
 async fn autoplay_song(

@@ -23,6 +23,8 @@ use tracing::{error, info, warn};
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
+// How soon to trigger gapless playback
+const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
 
 pub struct Playlist {
     pub list: AlbumSongsList,
@@ -406,7 +408,7 @@ impl Playlist {
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
                     Some(id) => {
-                        self.play_song_id(id).await;
+                        self.autoplay_song_id(id).await;
                     }
                     None => {
                         info!("No next song - resetting play status");
@@ -463,6 +465,15 @@ impl Playlist {
             | PlayState::Buffering(id) => Some(id),
             PlayState::NotPlaying | PlayState::Stopped => None,
         }
+    }
+    pub fn get_cur_playing_song(&self) -> Option<&ListSong> {
+        self.get_cur_playing_id()
+            .and_then(|id| self.get_song_from_id(id))
+    }
+    pub fn get_next_song(&self) -> Option<&ListSong> {
+        self.get_cur_playing_id()
+            .and_then(|id| self.get_index_from_id(id))
+            .and_then(|idx| self.list.get_list_iter().nth(idx + 1))
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.get_list_iter().position(|s| s.id == id)
@@ -572,7 +583,7 @@ impl Playlist {
 // Server handlers
 impl Playlist {
     /// Handle song progress update from server.
-    pub async fn handle_song_progress_update(
+    pub async fn handle_song_download_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
         id: ListSongID,
@@ -635,6 +646,31 @@ impl Playlist {
             return;
         }
         self.cur_played_dur = Some(d);
+        // If less than the gapless playback threshold remaining, queue up the next
+        // song, if it's downloaded, and hasn't already been queued.
+        if let Some(duration_dif) = {
+            let cur_dur = self
+                .get_cur_playing_song()
+                .and_then(|song| song.actual_duration);
+            self.cur_played_dur
+                .as_ref()
+                .zip(cur_dur)
+                .map(|(d1, d2)| d2.saturating_sub(*d1))
+        } {
+            if duration_dif
+                .saturating_sub(GAPLESS_PLAYBACK_THRESHOLD)
+                .is_zero()
+                && !matches!(self.queue_status, QueueState::Queued(_))
+            {
+                if let Some(next_song) = self.get_next_song() {
+                    if let DownloadStatus::Downloaded(song) = &next_song.download_status {
+                        self.ui_tx
+                            .send(AppCallback::QueueSong(song.clone(), next_song.id));
+                        self.queue_status = QueueState::Queued(next_song.id)
+                    }
+                }
+            }
+        }
     }
     /// Handle set to paused message from server
     pub async fn handle_set_to_paused(&mut self, s_id: ListSongID) {
@@ -649,7 +685,7 @@ impl Playlist {
         if !self.check_id_is_cur(id) {
             return;
         }
-        self.play_next_or_set_stopped(id).await;
+        self.autoplay_next_or_stop(id).await;
     }
     /// Handle queued message from server
     pub fn handle_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
