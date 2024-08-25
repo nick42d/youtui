@@ -67,7 +67,6 @@ pub enum AppStatus {
 #[derive(Debug)]
 pub enum AppCallback {
     DownloadSong(VideoID<'static>, ListSongID),
-    GetVolume,
     GetProgress(ListSongID),
     Quit,
     ChangeContext(WindowContext),
@@ -79,6 +78,7 @@ pub enum AppCallback {
     AddSongsToPlaylist(Vec<ListSong>),
     AddSongsToPlaylistAndPlay(Vec<ListSong>),
     PlaySong(Arc<InMemSong>, ListSongID),
+    AutoplaySong(Arc<InMemSong>, ListSongID),
     PausePlay(ListSongID),
     Stop(ListSongID),
     Seek(i8),
@@ -217,11 +217,6 @@ impl Youtui {
                 AppCallback::Stop(id) => {
                     self.task_manager
                         .send_spawn_request(AppRequest::Stop(id))
-                        .await;
-                }
-                AppCallback::GetVolume => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::GetVolume)
                         .await;
                 }
                 AppCallback::GetProgress(id) => {

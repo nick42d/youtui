@@ -69,7 +69,6 @@ pub enum AppRequest {
     GetArtistSongs(ChannelID<'static>),
     Download(VideoID<'static>, ListSongID),
     IncreaseVolume(i8),
-    GetVolume,
     PlaySong(Arc<InMemSong>, ListSongID),
     GetPlayProgress(ListSongID),
     Stop(ListSongID),
@@ -249,13 +248,19 @@ impl TaskManager {
         match msg {
             player::Response::DonePlaying(song_id) => ui_state.handle_done_playing(song_id).await,
             player::Response::Paused(song_id) => ui_state.handle_set_to_paused(song_id).await,
-            player::Response::Playing(song_id) => ui_state.handle_set_to_playing(song_id).await,
-            player::Response::Stopped(song_id) => ui_state.handle_set_to_stopped(song_id).await,
+            player::Response::Playing(duration, song_id) => {
+                ui_state.handle_playing(duration, song_id).await
+            }
+            player::Response::Stopped(song_id) => ui_state.handle_stopped(song_id).await,
             player::Response::Error(song_id) => ui_state.handle_set_to_error(song_id).await,
             player::Response::ProgressUpdate(dur, song_id) => {
                 ui_state.handle_set_song_play_progress(dur, song_id)
             }
             player::Response::VolumeUpdate(vol) => ui_state.handle_set_volume(vol),
+            player::Response::Queued(duration, song_id) => {
+                ui_state.handle_song_queued(duration, song_id)
+            }
+            player::Response::Resumed(song_id) => ui_state.handle_song_resumed(song_id),
         }
     }
 }
@@ -268,7 +273,6 @@ impl AppRequest {
             AppRequest::GetArtistSongs(_) => RequestCategory::Get,
             AppRequest::Download(..) => RequestCategory::Download,
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
-            AppRequest::GetVolume => RequestCategory::GetVolume,
             // Notionally, this could also be blocked by a Stop message.
             AppRequest::PlaySong(..) => RequestCategory::PlayStop,
             AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
@@ -301,9 +305,6 @@ impl AppRequest {
                     player::UnkillableServerRequest::IncreaseVolume(vol_inc),
                 ))
             }
-            AppRequest::GetVolume => TaskMessage::Killable(KillableServerRequest::Player(
-                player::KillableServerRequest::GetVolume,
-            )),
             AppRequest::PlaySong(song_pointer, song_id) => {
                 TaskMessage::Unkillable(UnkillableServerRequest::Player(
                     player::UnkillableServerRequest::PlaySong(song_pointer, song_id),
@@ -334,7 +335,6 @@ impl AppRequest {
             AppRequest::GetArtistSongs(_) => None,
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
-            AppRequest::GetVolume => Some(RequestCategory::IncreaseVolume),
             AppRequest::PlaySong(..) => Some(RequestCategory::PlayPause),
             AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => Some(RequestCategory::PlayPause),
@@ -349,7 +349,6 @@ impl AppRequest {
             AppRequest::GetArtistSongs(_) => Some(RequestCategory::Get),
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
-            AppRequest::GetVolume => Some(RequestCategory::GetVolume),
             AppRequest::PlaySong(..) => None,
             AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => None,

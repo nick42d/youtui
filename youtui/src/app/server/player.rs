@@ -54,12 +54,15 @@ pub enum UnkillableServerRequest {
 }
 
 #[derive(Debug)]
-pub enum KillableServerRequest {
-    GetVolume,
-}
+pub enum KillableServerRequest {}
 
 /// Newtype for custom derive
 pub struct RodioOneshot<T>(oneshot::Sender<T>);
+
+fn rodio_channel<T>() -> (RodioOneshot<T>, oneshot::Receiver<T>) {
+    let (tx, rx) = oneshot::channel();
+    (RodioOneshot(tx), rx)
+}
 
 impl<T> std::fmt::Debug for RodioOneshot<T>
 where
@@ -70,9 +73,9 @@ where
     }
 }
 
-impl<T> std::borrow::Borrow<oneshot::Sender<T>> for RodioOneshot<T> {
-    fn borrow(&self) -> &oneshot::Sender<T> {
-        &self.0
+impl<T> From<RodioOneshot<T>> for oneshot::Sender<T> {
+    fn from(value: RodioOneshot<T>) -> Self {
+        value.0
     }
 }
 
@@ -82,7 +85,7 @@ enum RodioMessage {
         Arc<InMemSong>,
         ListSongID,
         // Where to send other updates
-        RodioOneshot<std::result::Result<(), DecoderError>>,
+        RodioOneshot<std::result::Result<Option<Duration>, DecoderError>>,
         // Where to send Done message
         RodioOneshot<()>,
     ),
@@ -90,7 +93,7 @@ enum RodioMessage {
         Arc<InMemSong>,
         ListSongID,
         // Where to send other updates
-        RodioOneshot<std::result::Result<(), DecoderError>>,
+        RodioOneshot<std::result::Result<Option<Duration>, DecoderError>>,
         // Where to send Done message
         RodioOneshot<()>,
     ),
@@ -98,7 +101,7 @@ enum RodioMessage {
         Arc<InMemSong>,
         ListSongID,
         // Where to send other updates
-        RodioOneshot<std::result::Result<(), DecoderError>>,
+        RodioOneshot<std::result::Result<Option<Duration>, DecoderError>>,
         // Where to send Done message
         RodioOneshot<()>,
     ),
@@ -106,7 +109,6 @@ enum RodioMessage {
     Stop(ListSongID, RodioOneshot<()>),
     PausePlay(ListSongID, RodioOneshot<PlayActionTaken>),
     IncreaseVolume(i8, RodioOneshot<Percentage>),
-    GetVolume(RodioOneshot<Percentage>),
     Seek(i8, RodioOneshot<(Duration, ListSongID)>),
 }
 
@@ -121,12 +123,11 @@ enum PlayActionTaken {
 pub enum Response {
     DonePlaying(ListSongID),
     Paused(ListSongID),
-    Playing(ListSongID),
-    Queued(ListSongID),
+    Resumed(ListSongID),
+    Playing(Option<Duration>, ListSongID),
+    Queued(Option<Duration>, ListSongID),
     Stopped(ListSongID),
     Error(ListSongID),
-    NewPlaylistUpdate(),
-    NewPlaylistUpdateError(),
     ProgressUpdate(Duration, ListSongID),
     VolumeUpdate(Percentage),
 }
@@ -156,14 +157,8 @@ impl ServerComponent for Player {
         request: Self::KillableRequestType,
         task: KillableTask,
     ) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        match request {
-            KillableServerRequest::GetVolume => spawn_run_or_kill(
-                get_volume(self.rodio_tx.clone(), id, self.response_tx.clone()),
-                kill_rx,
-            ),
-        }
-        Ok(())
+        let KillableTask { id: _, kill_rx: _ } = task;
+        match request {}
     }
     async fn handle_unkillable_request(
         &self,
@@ -206,6 +201,7 @@ impl ServerComponent for Player {
 /// has finished playing.
 struct DroppableSong {
     song: Arc<InMemSong>,
+    // Song ID is stored for debugging purposes only - the receiver already knows the Song ID.
     song_id: ListSongID,
     dropped_channel: Option<RodioOneshot<()>>,
 }
@@ -253,20 +249,20 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 RodioMessage::AutoplaySong(song_pointer, song_id, tx, done_tx) => {
                     if Some(song_id) == next_song_id {
                         info!(
-                            "Received autoplay for {:?}, it's already queued up, so doing nothing",
+                            "Received autoplay for {:?}, it's already queued up. It will play automatically.",
                             song_id
                         );
                         cur_song_id = Some(song_id);
                         next_song_id = None;
                     }
+                    if Some(song_id) == cur_song_id {
+                        error!(
+                            "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
+                            song_id
+                        );
+                    }
                     // DUPLICATE FROM PLAYSONG
-                    let sp = DroppableSong {
-                        song: song_pointer,
-                        song_id,
-                        dropped_channel: Some(done_tx),
-                    };
-                    let cur = std::io::Cursor::new(sp);
-                    let source = match rodio::Decoder::new(cur) {
+                    let source = match try_decode(song_pointer, song_id, done_tx) {
                         Ok(source) => source,
                         Err(e) => {
                             error!("Received error when trying to play song <{e}>");
@@ -289,20 +285,14 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     debug!("Now playing {:?}", song_id);
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
-                    oneshot_send_or_error(tx.0, Ok(()));
+                    oneshot_send_or_error(tx.0, Ok(cur_song_duration));
                     cur_song_id = Some(song_id);
                     next_song_id = None;
                     // END DUPLICATE
                 }
                 RodioMessage::QueueSong(song_pointer, song_id, tx, done_tx) => {
                     // DUPLICATE FROM PLAYSONG
-                    let sp = DroppableSong {
-                        song: song_pointer,
-                        song_id,
-                        dropped_channel: Some(done_tx),
-                    };
-                    let cur = std::io::Cursor::new(sp);
-                    let source = match rodio::Decoder::new(cur) {
+                    let source = match try_decode(song_pointer, song_id, done_tx) {
                         Ok(source) => source,
                         Err(e) => {
                             error!("Received error when trying to decode queued song <{e}>");
@@ -317,17 +307,13 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         error!("Tried to queue up a song, but sink was empty... Continuing anyway");
                     }
                     // END DUPLICATE
+                    let next_song_duration = source.total_duration();
+                    oneshot_send_or_error(tx.0, Ok(next_song_duration));
                     sink.append(source);
                     next_song_id = Some(song_id);
                 }
                 RodioMessage::PlaySong(song_pointer, song_id, tx, done_tx) => {
-                    let sp = DroppableSong {
-                        song: song_pointer,
-                        song_id,
-                        dropped_channel: Some(done_tx),
-                    };
-                    let cur = std::io::Cursor::new(sp);
-                    let source = match rodio::Decoder::new(cur) {
+                    let source = match try_decode(song_pointer, song_id, done_tx) {
                         Ok(source) => source,
                         Err(e) => {
                             error!("Received error when trying to play song <{e}>");
@@ -350,7 +336,7 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     debug!("Now playing {:?}", song_id);
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
-                    oneshot_send_or_error(tx.0, Ok(()));
+                    oneshot_send_or_error(tx.0, Ok(cur_song_duration));
                     cur_song_id = Some(song_id);
                     next_song_id = None;
                 }
@@ -398,11 +384,6 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         drop(tx)
                     }
                 }
-                // XXX: Should this just be IncreaseVolume(0)?
-                RodioMessage::GetVolume(tx) => {
-                    oneshot_send_or_error(tx.0, Percentage((sink.volume() * 100.0).round() as u8));
-                    info!("Rodio sent volume update");
-                }
                 RodioMessage::IncreaseVolume(vol_inc, tx) => {
                     sink.set_volume((sink.volume() + vol_inc as f32 / 100.0).clamp(0.0, 1.0));
                     oneshot_send_or_error(tx.0, Percentage((sink.volume() * 100.0).round() as u8));
@@ -439,6 +420,21 @@ fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
     });
 }
 
+fn try_decode(
+    song: Arc<InMemSong>,
+    song_id: ListSongID,
+    done_tx: RodioOneshot<()>,
+) -> std::result::Result<rodio::Decoder<std::io::Cursor<DroppableSong>>, DecoderError> {
+    // DUPLICATE FROM PLAYSONG
+    let sp = DroppableSong {
+        song,
+        song_id,
+        dropped_channel: Some(done_tx),
+    };
+    let cur = std::io::Cursor::new(sp);
+    rodio::Decoder::new(cur)
+}
+
 async fn autoplay_song(
     song_pointer: Arc<InMemSong>,
     song_id: ListSongID,
@@ -446,16 +442,11 @@ async fn autoplay_song(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    let (tx_done, rx_done) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
+    let (tx_done, rx_done) = rodio_channel();
     send_or_error(
         rodio_tx,
-        RodioMessage::PlaySong(
-            song_pointer,
-            song_id,
-            RodioOneshot(tx),
-            RodioOneshot(tx_done),
-        ),
+        RodioMessage::PlaySong(song_pointer, song_id, tx, tx_done),
     )
     .await;
     let Ok(play_song_outcome) = rx.await else {
@@ -467,9 +458,9 @@ async fn autoplay_song(
         return;
     };
     match play_song_outcome {
-        Ok(()) => send_or_error(
+        Ok(duration) => send_or_error(
             response_tx.clone(),
-            ServerResponse::new_player(id, Response::Playing(song_id)),
+            ServerResponse::new_player(id, Response::Playing(duration, song_id)),
         ),
         Err(_) => send_or_error(
             response_tx.clone(),
@@ -498,16 +489,11 @@ async fn queue_song(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    let (tx_done, rx_done) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
+    let (tx_done, rx_done) = rodio_channel();
     send_or_error(
         rodio_tx,
-        RodioMessage::PlaySong(
-            song_pointer,
-            song_id,
-            RodioOneshot(tx),
-            RodioOneshot(tx_done),
-        ),
+        RodioMessage::PlaySong(song_pointer, song_id, tx, tx_done),
     )
     .await;
     let Ok(play_song_outcome) = rx.await else {
@@ -519,9 +505,9 @@ async fn queue_song(
         return;
     };
     match play_song_outcome {
-        Ok(()) => send_or_error(
+        Ok(duration) => send_or_error(
             response_tx.clone(),
-            ServerResponse::new_player(id, Response::Playing(song_id)),
+            ServerResponse::new_player(id, Response::Playing(duration, song_id)),
         ),
         Err(_) => send_or_error(
             response_tx.clone(),
@@ -550,16 +536,11 @@ async fn play_song(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    let (tx_done, rx_done) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
+    let (tx_done, rx_done) = rodio_channel();
     send_or_error(
         rodio_tx,
-        RodioMessage::PlaySong(
-            song_pointer,
-            song_id,
-            RodioOneshot(tx),
-            RodioOneshot(tx_done),
-        ),
+        RodioMessage::PlaySong(song_pointer, song_id, tx, tx_done),
     )
     .await;
     let Ok(play_song_outcome) = rx.await else {
@@ -571,9 +552,9 @@ async fn play_song(
         return;
     };
     match play_song_outcome {
-        Ok(()) => send_or_error(
+        Ok(duration) => send_or_error(
             response_tx.clone(),
-            ServerResponse::new_player(id, Response::Playing(song_id)),
+            ServerResponse::new_player(id, Response::Playing(duration, song_id)),
         ),
         Err(_) => send_or_error(
             response_tx.clone(),
@@ -601,7 +582,7 @@ async fn get_play_progress(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
     send_or_error(rodio_tx, RodioMessage::GetPlayProgress(song_id, tx)).await;
     let Ok(current_duration) = rx.await else {
         // This happens intentionally - when a play update is requested for a song
@@ -624,7 +605,7 @@ async fn seek(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
     send_or_error(rodio_tx, RodioMessage::Seek(inc, tx)).await;
     let Ok((current_duration, song_id)) = rx.await else {
         // This happens intentionally - when a seek is requested for a song
@@ -645,7 +626,7 @@ async fn stop(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
     send_or_error(rodio_tx, RodioMessage::Stop(song_id, tx)).await;
     let Ok(_) = rx.await else {
         // This happens intentionally - when a stop is requested for a song
@@ -665,7 +646,7 @@ async fn pause_play(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
     send_or_error(rodio_tx, RodioMessage::PausePlay(song_id, tx)).await;
     let Ok(play_action_taken) = rx.await else {
         // This happens intentionally - when a pauseplay is requested for a song
@@ -687,7 +668,7 @@ async fn pause_play(
         PlayActionTaken::Played => {
             send_or_error(
                 response_tx,
-                ServerResponse::new_player(id, Response::Playing(song_id)),
+                ServerResponse::new_player(id, Response::Resumed(song_id)),
             )
             .await
         }
@@ -699,30 +680,8 @@ async fn increase_volume(
     id: TaskID,
     response_tx: mpsc::Sender<ServerResponse>,
 ) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
+    let (tx, rx) = rodio_channel();
     send_or_error(rodio_tx, RodioMessage::IncreaseVolume(vol_inc, tx)).await;
-    let Ok(current_volume) = rx.await else {
-        // Should never happen!
-        error!(
-            "The player has been dropped while I was waiting for a volume update for {:?}",
-            id
-        );
-        return;
-    };
-    send_or_error(
-        response_tx,
-        ServerResponse::new_player(id, Response::VolumeUpdate(current_volume)),
-    )
-    .await;
-}
-
-async fn get_volume(
-    rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    send_or_error(rodio_tx, RodioMessage::GetVolume(tx)).await;
     let Ok(current_volume) = rx.await else {
         // Should never happen!
         error!(

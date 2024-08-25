@@ -3,6 +3,7 @@ use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::time::Duration;
 use ytmapi_rs::parse::AlbumSong;
 
 pub trait SongListComponent {
@@ -29,6 +30,7 @@ pub struct ListSong {
     pub raw: AlbumSong,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
+    pub actual_duration: Option<Duration>,
     year: Rc<String>,
     artists: Vec<Rc<String>>,
     album: Rc<String>,
@@ -211,6 +213,7 @@ impl AlbumSongsList {
             year,
             artists: vec![artist],
             album,
+            actual_duration: None,
         });
         id
     }

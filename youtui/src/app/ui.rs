@@ -341,14 +341,20 @@ impl YoutuiWindow {
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
     }
+    pub fn handle_song_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
+        self.playlist.handle_queued(duration, id)
+    }
+    pub fn handle_song_resumed(&mut self, id: ListSongID) {
+        self.playlist.handle_resumed(id)
+    }
     pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_paused(id).await
     }
-    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_playing(id)
+    pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
+        self.playlist.handle_playing(duration, id)
     }
-    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_stopped(id)
+    pub async fn handle_stopped(&mut self, id: ListSongID) {
+        self.playlist.handle_stopped(id)
     }
     pub async fn handle_set_to_error(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_error(id)

@@ -28,10 +28,16 @@ pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
+    pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
+}
+
+enum QueueState {
+    NotQueued,
+    Queued(ListSongID),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -181,8 +187,10 @@ impl Playlist {
         // This could fail, made to try send to avoid needing to change function
         // signature to asynchronous. Should change.
         ui_tx
-            .try_send(AppCallback::GetVolume)
-            .unwrap_or_else(|e| error!("Error <{e}> received sending Get Volume message"));
+            // Since IncreaseVolume responds back with player volume after change, this is a neat
+            // hack.
+            .try_send(AppCallback::IncreaseVolume(0))
+            .unwrap_or_else(|e| error!("Error <{e}> received getting initial player volume."));
         Playlist {
             ui_tx,
             volume: Percentage(50),
@@ -191,6 +199,7 @@ impl Playlist {
             cur_played_dur: None,
             keybinds: playlist_keybinds(),
             cur_selected: 0,
+            queue_status: QueueState::NotQueued,
         }
     }
     /// Ask server for a song progress update.
@@ -221,6 +230,32 @@ impl Playlist {
                 send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
             } else {
+                self.play_status = PlayState::Buffering(id);
+            }
+        }
+    }
+    /// Drop downloads no longer relevant for ID, download new
+    /// relevant downloads, start playing song at ID, set PlayState.
+    pub async fn autoplay_song_id(&mut self, id: ListSongID) {
+        // Drop previous songs
+        self.drop_unscoped_from_id(id);
+        // Queue next downloads
+        self.download_upcoming_from_id(id).await;
+        // Reset duration
+        self.cur_played_dur = None;
+        if let Some(song_index) = self.get_index_from_id(id) {
+            if let DownloadStatus::Downloaded(pointer) = &self
+                .get_song_from_idx(song_index)
+                .expect("Checked previously")
+                .download_status
+            {
+                send_or_error(&self.ui_tx, AppCallback::AutoplaySong(pointer.clone(), id)).await;
+                self.play_status = PlayState::Playing(id);
+            } else {
+                // Stop current song, but only if next song is buffering.
+                if let Some(cur_id) = self.get_cur_playing_id() {
+                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                }
                 self.play_status = PlayState::Buffering(id);
             }
         }
@@ -347,10 +382,11 @@ impl Playlist {
             }
         }
     }
-    /// Play the next song in the list if it exists, otherwise, set to stopped.
-    /// The distinction exists, as if we receive this in response to the player
-    /// sending a 'finished' message, we don't need to ask it to stop.
-    pub async fn play_next_or_set_stopped(&mut self, prev_id: ListSongID) {
+    /// Autoplay the next song in the list if it exists, otherwise, set to
+    /// stopped. This is triggered when a song has finished playing. The
+    /// softer, Autoplay message, lets the Player use gapless playback if songs
+    /// are queued correctly.
+    pub async fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
@@ -615,16 +651,34 @@ impl Playlist {
         }
         self.play_next_or_set_stopped(id).await;
     }
-    /// Handle set to playing message from server
-    pub fn handle_set_to_playing(&mut self, id: ListSongID) {
+    /// Handle queued message from server
+    pub fn handle_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
+        if let Some(song) = self.get_mut_song_from_id(id) {
+            song.actual_duration = duration;
+        }
+    }
+    /// Handle resumed message from server
+    pub fn handle_resumed(&mut self, id: ListSongID) {
         if let PlayState::Paused(p_id) = self.play_status {
             if p_id == id {
                 self.play_status = PlayState::Playing(id)
             }
         }
     }
-    /// Handle set to stopped message from server
-    pub fn handle_set_to_stopped(&mut self, id: ListSongID) {
+    /// Handle playing message from server
+    pub fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
+        // NOTE: Happens twice, if song already was queued.
+        if let Some(song) = self.get_mut_song_from_id(id) {
+            song.actual_duration = duration;
+        }
+        if let PlayState::Paused(p_id) = self.play_status {
+            if p_id == id {
+                self.play_status = PlayState::Playing(id)
+            }
+        }
+    }
+    /// Handle stopped message from server
+    pub fn handle_stopped(&mut self, id: ListSongID) {
         info!("Received message to stop {:?}", id);
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
