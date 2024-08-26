@@ -11,6 +11,14 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
+/// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
+/// log an error with Tracing.
+pub fn blocking_send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
+    tx.borrow()
+        .blocking_send(msg)
+        .unwrap_or_else(|e| error!("Error {e} received when sending message"));
+}
+
 /// Send a message to the specified Tokio oneshot::Sender, and if sending fails,
 /// log an error with Tracing.
 pub fn oneshot_send_or_error<T: Debug, S: Into<oneshot::Sender<T>>>(tx: S, msg: T) {

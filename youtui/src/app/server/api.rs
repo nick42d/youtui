@@ -3,7 +3,7 @@ use crate::{
     api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
     error::Error, get_config_dir, Result, OAUTH_FILENAME,
 };
-use futures::{future::Shared, Future, FutureExt};
+use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, StreamExt};
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
@@ -17,7 +17,7 @@ use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ChannelID, SearchSuggestion},
     error::ErrorKind,
-    parse::{AlbumSong, GetArtistAlbums},
+    parse::{AlbumSong, GetAlbum, GetArtistAlbums},
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
@@ -376,38 +376,53 @@ async fn search_selected_artist_task(
         albums.into_iter().map(|a| a.browse_id).collect()
     };
     send_or_error(&tx, ServerResponse::new_api(id, Response::SongsFound)).await;
-    // Concurrently request all albums.
-    let futures = browse_id_list.into_iter().map(|b_id| {
-        let api = &api;
-        let tx = tx.clone();
-        // TODO: remove allocation
-        let artist_name = artist.name.clone();
-        async move {
-            tracing::info!("Spawning request for caller tracks for request ID {:?}", id);
-            let query = GetAlbumQuery::new(&b_id);
-            let album = match query_api_with_retry(api, query).await {
-                Ok(album) => album,
-                Err(e) => {
-                    error!("Error <{e}> getting album {:?}", b_id);
-                    return;
-                }
-            };
-            tracing::info!("Sending caller tracks for request ID {:?}", id);
-            send_or_error(
-                tx,
-                ServerResponse::new_api(
-                    id,
-                    Response::AppendSongList {
-                        song_list: album.tracks,
-                        album: album.title,
-                        year: album.year,
-                        artist: artist_name,
-                    },
-                ),
-            )
-            .await;
-        }
-    });
-    futures::future::join_all(futures).await;
+    // Request all albums, concurrently but retaining order.
+    // Future improvement: instead of using a FuturesOrdered, we could send
+    // willy-nilly but with an index, so the caller can insert songs in place.
+    let mut stream = browse_id_list
+        .into_iter()
+        .map(|b_id| {
+            let api = &api;
+            async move {
+                tracing::info!("Spawning request for caller tracks for request ID {:?}", id,);
+                let query = GetAlbumQuery::new(&b_id);
+                query_api_with_retry(api, query).await
+            }
+        })
+        .collect::<FuturesOrdered<_>>();
+    while let Some(maybe_album) = stream.next().await {
+        let album = match maybe_album {
+            Ok(album) => album,
+            Err(e) => {
+                error!("Error <{e}> getting album");
+                return;
+            }
+        };
+        let GetAlbum {
+            title,
+            artists,
+            year,
+            tracks,
+            ..
+        } = album;
+        tracing::info!("Sending caller tracks for request ID {:?}", id);
+        send_or_error(
+            &tx,
+            ServerResponse::new_api(
+                id,
+                Response::AppendSongList {
+                    song_list: tracks,
+                    album: title,
+                    year,
+                    artist: artists
+                        .into_iter()
+                        .next()
+                        .map(|a| a.name)
+                        .unwrap_or_default(),
+                },
+            ),
+        )
+        .await;
+    }
     send_or_error(tx, ServerResponse::new_api(id, Response::SongListLoaded)).await;
 }

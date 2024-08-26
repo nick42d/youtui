@@ -152,7 +152,6 @@ async fn autoplay_song(
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::Queued(_) => {
                 error!("Received queued message, but I wasn't queued... {:?}", id)
@@ -163,7 +162,6 @@ async fn autoplay_song(
                     ServerResponse::new_player(id, Response::Playing(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(
@@ -208,7 +206,6 @@ async fn queue_song(
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::StartedPlaying(_) => {
                 error!(
@@ -222,7 +219,6 @@ async fn queue_song(
                     ServerResponse::new_player(id, Response::Queued(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(
@@ -267,7 +263,6 @@ async fn play_song(
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::Queued(_) => {
                 error!("Received queued message, but I wasn't queued... {:?}", id)
@@ -278,7 +273,6 @@ async fn play_song(
                     ServerResponse::new_player(id, Response::Playing(duration, song_id)),
                 )
                 .await;
-                return;
             }
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(

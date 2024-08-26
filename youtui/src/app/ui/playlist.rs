@@ -39,6 +39,7 @@ pub struct Playlist {
 
 enum QueueState {
     NotQueued,
+    Buffering(ListSongID),
     Queued(ListSongID),
 }
 

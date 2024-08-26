@@ -1,6 +1,7 @@
 use crate::app::server::downloader::InMemSong;
 use crate::app::structures::ListSongID;
 use crate::app::structures::Percentage;
+use crate::core::blocking_send_or_error;
 use crate::core::oneshot_send_or_error;
 use crate::core::send_or_error;
 use rodio::decoder::DecoderError;
@@ -160,7 +161,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             if !sink.empty() {
                                 sink.stop()
                             }
-                            send_or_error(tx.0, PlaySongResponse::Error(e));
+                            blocking_send_or_error(tx.0, PlaySongResponse::Error(e));
                             continue;
                         }
                     };
@@ -176,7 +177,10 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     debug!("Now playing {:?}", song_id);
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
-                    send_or_error(tx.0, PlaySongResponse::StartedPlaying(cur_song_duration));
+                    blocking_send_or_error(
+                        tx.0,
+                        PlaySongResponse::StartedPlaying(cur_song_duration),
+                    );
                     cur_song_id = Some(song_id);
                     next_song_id = None;
                     // END DUPLICATE
@@ -190,7 +194,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             if !sink.empty() {
                                 sink.stop()
                             }
-                            send_or_error(&tx.0, PlaySongResponse::Error(e));
+                            blocking_send_or_error(&tx.0, PlaySongResponse::Error(e));
                             continue;
                         }
                     };
@@ -199,7 +203,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     }
                     // END DUPLICATE
                     let next_song_duration = source.total_duration();
-                    send_or_error(&tx.0, PlaySongResponse::Queued(next_song_duration));
+                    blocking_send_or_error(&tx.0, PlaySongResponse::Queued(next_song_duration));
                     sink.append(source);
                     next_song_id = Some(song_id);
                 }
@@ -211,7 +215,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             if !sink.empty() {
                                 sink.stop()
                             }
-                            send_or_error(&tx.0, PlaySongResponse::Error(e));
+                            blocking_send_or_error(&tx.0, PlaySongResponse::Error(e));
                             continue;
                         }
                     };
@@ -227,7 +231,10 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     debug!("Now playing {:?}", song_id);
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
-                    send_or_error(tx.0, PlaySongResponse::StartedPlaying(cur_song_duration));
+                    blocking_send_or_error(
+                        tx.0,
+                        PlaySongResponse::StartedPlaying(cur_song_duration),
+                    );
                     cur_song_id = Some(song_id);
                     next_song_id = None;
                 }
@@ -332,7 +339,7 @@ fn try_decode(
     rodio::Decoder::new(cur).map(move |s| {
         s.track_position()
             .periodic_access(PROGRESS_UPDATE_DELAY, move |s| {
-                tx.blocking_send(PlaySongResponse::ProgressUpdate(s.get_pos()));
+                blocking_send_or_error(&tx, PlaySongResponse::ProgressUpdate(s.get_pos()));
             })
     })
 }
