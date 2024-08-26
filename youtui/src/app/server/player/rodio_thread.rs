@@ -27,7 +27,6 @@ pub enum RodioMessage {
     PlaySong(Arc<InMemSong>, ListSongID, RodioMpsc<PlaySongResponse>),
     AutoplaySong(Arc<InMemSong>, ListSongID, RodioMpsc<PlaySongResponse>),
     QueueSong(Arc<InMemSong>, ListSongID, RodioMpsc<PlaySongResponse>),
-    GetPlayProgress(ListSongID, RodioOneshot<Duration>),
     Stop(ListSongID, RodioOneshot<()>),
     PausePlay(ListSongID, RodioOneshot<PlayActionTaken>),
     IncreaseVolume(i8, RodioOneshot<Percentage>),
@@ -39,6 +38,7 @@ pub enum PlaySongResponse {
     ProgressUpdate(Duration),
     StartedPlaying(Option<Duration>),
     Queued(Option<Duration>),
+    AutoplayingQueued,
     StoppedPlaying,
     Error(DecoderError),
 }
@@ -133,6 +133,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
         let sink = rodio::Sink::try_new(&stream_handle).expect("Expect music player not to error");
         // Hopefully someone else can't create a song with the same ID?!
         let mut cur_song_duration = None;
+        let mut next_song_duration = None;
         let mut cur_song_id = None;
         let mut next_song_id = None;
         while let Some(msg) = msg_rx.blocking_recv() {
@@ -146,13 +147,29 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         );
                         cur_song_id = Some(song_id);
                         next_song_id = None;
+                        cur_song_duration = next_song_duration;
+                        next_song_duration = None;
+                        blocking_send_or_error(
+                            tx.0,
+                            PlaySongResponse::StartedPlaying(cur_song_duration),
+                        );
+                        continue;
                     }
                     if Some(song_id) == cur_song_id {
                         error!(
                             "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
                             song_id
                         );
+                        blocking_send_or_error(
+                            tx.0,
+                            PlaySongResponse::StartedPlaying(cur_song_duration),
+                        );
+                        continue;
                     }
+                    info!(
+                        "Autoplaying a song that wasn't queued; clearing queue. Queued: {:?}",
+                        next_song_id
+                    );
                     // DUPLICATE FROM PLAYSONG
                     let source = match try_decode(song_pointer, song_id, tx.0.clone()) {
                         Ok(source) => source,
@@ -183,6 +200,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     );
                     cur_song_id = Some(song_id);
                     next_song_id = None;
+                    next_song_duration = None;
                     // END DUPLICATE
                 }
                 RodioMessage::QueueSong(song_pointer, song_id, tx) => {
@@ -198,11 +216,11 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             continue;
                         }
                     };
+                    // END DUPLICATE
                     if sink.empty() {
                         error!("Tried to queue up a song, but sink was empty... Continuing anyway");
                     }
-                    // END DUPLICATE
-                    let next_song_duration = source.total_duration();
+                    next_song_duration = source.total_duration();
                     blocking_send_or_error(&tx.0, PlaySongResponse::Queued(next_song_duration));
                     sink.append(source);
                     next_song_id = Some(song_id);
@@ -268,20 +286,6 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         oneshot_send_or_error(tx.0, PlayActionTaken::Paused);
                     }
                 }
-                // XXX: May be able to handle this by reporting progress updates when playing
-                // instead of needing to request/response here.
-                // Seems to go out of sync with Sink - I can send a request here after song is
-                // dropped and still get a progress update - why?
-                RodioMessage::GetPlayProgress(song_id, tx) => {
-                    info!("Got message to provide song progress update");
-                    if cur_song_id == Some(song_id) {
-                        oneshot_send_or_error(tx.0, sink.get_pos());
-                        info!("Rodio sent song progress update");
-                    } else {
-                        info!("Rodio didn't send song progress update, it was no longer playing");
-                        drop(tx)
-                    }
-                }
                 RodioMessage::IncreaseVolume(vol_inc, tx) => {
                     sink.set_volume((sink.volume() + vol_inc as f32 / 100.0).clamp(0.0, 1.0));
                     oneshot_send_or_error(tx.0, Percentage((sink.volume() * 100.0).round() as u8));
@@ -311,6 +315,9 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         warn!("Tried to seek, but no song loaded");
                         continue;
                     };
+                    // It seems that there is a race condition with seeking a paused track in rodio
+                    // itself. This delay is sufficient.
+                    std::thread::sleep(Duration::from_millis(5));
                     oneshot_send_or_error(tx.0, (sink.get_pos(), cur_song_id));
                 }
             }

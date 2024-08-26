@@ -58,12 +58,15 @@ pub enum KillableServerRequest {}
 
 #[derive(Debug)]
 pub enum Response {
+    // At this stage this difference between DonePlaying and Stopped is very thin. DonePlaying
+    // means that the song has been dropped by the player, whereas Stopped simply means that a
+    // Stop message to the player was succesful.
     DonePlaying(ListSongID),
+    Stopped(ListSongID),
     Paused(ListSongID),
     Resumed(ListSongID),
     Playing(Option<Duration>, ListSongID),
     Queued(Option<Duration>, ListSongID),
-    Stopped(ListSongID),
     Error(ListSongID),
     ProgressUpdate(Duration, ListSongID),
     VolumeUpdate(Percentage),
@@ -166,7 +169,7 @@ async fn autoplay_song(
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
-                    ServerResponse::new_player(id, Response::Stopped(song_id)),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
                 )
                 .await;
                 return;
@@ -223,7 +226,7 @@ async fn queue_song(
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
-                    ServerResponse::new_player(id, Response::Stopped(song_id)),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
                 )
                 .await;
                 return;
@@ -277,7 +280,7 @@ async fn play_song(
             rodio_thread::PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
-                    ServerResponse::new_player(id, Response::Stopped(song_id)),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
                 )
                 .await;
                 return;

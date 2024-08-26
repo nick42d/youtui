@@ -37,6 +37,7 @@ pub struct Playlist {
     cur_selected: usize,
 }
 
+#[derive(Clone, Debug, PartialEq)]
 enum QueueState {
     NotQueued,
     Buffering(ListSongID),
@@ -205,12 +206,10 @@ impl Playlist {
             queue_status: QueueState::NotQueued,
         }
     }
-    /// Stop playing, drop downloads no longer relevant for ID, download new
-    /// relevant downloads, start playing song at ID, set PlayState.
+    /// Drop downloads no longer relevant for ID, download new
+    /// relevant downloads, start playing song at ID, set PlayState. If the
+    /// selected song is buffering, stop playback until it's complete.
     pub async fn play_song_id(&mut self, id: ListSongID) {
-        if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
-        }
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
@@ -225,8 +224,14 @@ impl Playlist {
             {
                 send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
+                self.queue_status = QueueState::NotQueued;
             } else {
+                // Stop current song, but only if next song is buffering.
+                if let Some(cur_id) = self.get_cur_playing_id() {
+                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                }
                 self.play_status = PlayState::Buffering(id);
+                self.queue_status = QueueState::NotQueued;
             }
         }
     }
@@ -247,12 +252,14 @@ impl Playlist {
             {
                 send_or_error(&self.ui_tx, AppCallback::AutoplaySong(pointer.clone(), id)).await;
                 self.play_status = PlayState::Playing(id);
+                self.queue_status = QueueState::NotQueued;
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
                     send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
                 }
                 self.play_status = PlayState::Buffering(id);
+                self.queue_status = QueueState::NotQueued;
             }
         }
     }
@@ -680,6 +687,10 @@ impl Playlist {
     }
     /// Handle done playing message from server
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
+        if QueueState::Queued(id) == self.queue_status {
+            self.queue_status = QueueState::NotQueued;
+            return;
+        }
         if !self.check_id_is_cur(id) {
             return;
         }
@@ -713,7 +724,7 @@ impl Playlist {
     }
     /// Handle stopped message from server
     pub fn handle_stopped(&mut self, id: ListSongID) {
-        info!("Received message to stop {:?}", id);
+        info!("Received message that playback {:?} has been stopped", id);
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
