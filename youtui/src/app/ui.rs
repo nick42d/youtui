@@ -362,8 +362,8 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
-        self.playlist.handle_set_song_play_progress(d, id);
+    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+        self.playlist.handle_set_song_play_progress(d, id).await;
     }
     pub async fn handle_song_download_progress_update(
         &mut self,

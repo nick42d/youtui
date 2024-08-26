@@ -8,6 +8,7 @@ use rodio::source::PeriodicAccess;
 use rodio::source::TrackPosition;
 use rodio::Decoder;
 use rodio::Source;
+use std::borrow::Borrow;
 use std::io::Cursor;
 use std::sync::Arc;
 use std::time::Duration;
@@ -61,7 +62,7 @@ where
     T: std::fmt::Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!("")
+        write!(f, "Oneshot channel - {}", std::any::type_name::<T>())
     }
 }
 
@@ -78,7 +79,7 @@ where
     T: std::fmt::Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!("")
+        write!(f, "Mpsc channel - {}", std::any::type_name::<T>())
     }
 }
 
@@ -182,15 +183,14 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 }
                 RodioMessage::QueueSong(song_pointer, song_id, tx) => {
                     // DUPLICATE FROM PLAYSONG
-                    // TEST CODE
-                    let source = match try_decode(song_pointer, song_id, done_tx) {
+                    let source = match try_decode(song_pointer, song_id, tx.0.clone()) {
                         Ok(source) => source,
                         Err(e) => {
                             error!("Received error when trying to decode queued song <{e}>");
                             if !sink.empty() {
                                 sink.stop()
                             }
-                            oneshot_send_or_error(tx.0, Err(e));
+                            send_or_error(&tx.0, PlaySongResponse::Error(e));
                             continue;
                         }
                     };
@@ -199,19 +199,19 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     }
                     // END DUPLICATE
                     let next_song_duration = source.total_duration();
-                    oneshot_send_or_error(tx.0, Ok(next_song_duration));
+                    send_or_error(&tx.0, PlaySongResponse::Queued(next_song_duration));
                     sink.append(source);
                     next_song_id = Some(song_id);
                 }
                 RodioMessage::PlaySong(song_pointer, song_id, tx) => {
-                    let source = match try_decode(song_pointer, song_id, done_tx) {
+                    let source = match try_decode(song_pointer, song_id, tx.0.clone()) {
                         Ok(source) => source,
                         Err(e) => {
                             error!("Received error when trying to play song <{e}>");
                             if !sink.empty() {
                                 sink.stop()
                             }
-                            oneshot_send_or_error(tx.0, Err(e));
+                            send_or_error(&tx.0, PlaySongResponse::Error(e));
                             continue;
                         }
                     };
@@ -227,7 +227,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                     debug!("Now playing {:?}", song_id);
                     // Send the Now Playing message for good orders sake to avoid
                     // synchronization issues.
-                    oneshot_send_or_error(tx.0, Ok(cur_song_duration));
+                    send_or_error(tx.0, PlaySongResponse::StartedPlaying(cur_song_duration));
                     cur_song_id = Some(song_id);
                     next_song_id = None;
                 }

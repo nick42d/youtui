@@ -67,7 +67,6 @@ pub enum AppStatus {
 #[derive(Debug)]
 pub enum AppCallback {
     DownloadSong(VideoID<'static>, ListSongID),
-    GetProgress(ListSongID),
     Quit,
     ChangeContext(WindowContext),
     IncreaseVolume(i8),
@@ -226,11 +225,6 @@ impl Youtui {
                 AppCallback::Stop(id) => {
                     self.task_manager
                         .send_spawn_request(AppRequest::Stop(id))
-                        .await;
-                }
-                AppCallback::GetProgress(id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::GetPlayProgress(id))
                         .await;
                 }
                 AppCallback::Seek(inc) => {

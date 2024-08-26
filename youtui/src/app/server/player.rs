@@ -11,6 +11,7 @@ use crate::Result;
 use rodio_thread::rodio_mpsc_channel;
 use rodio_thread::rodio_oneshot_channel;
 use rodio_thread::spawn_rodio_thread;
+use rodio_thread::PlayActionTaken;
 use rodio_thread::RodioMessage;
 use std::sync::Arc;
 use std::time::Duration;
@@ -47,7 +48,6 @@ pub enum UnkillableServerRequest {
     AutoplaySong(Arc<InMemSong>, ListSongID),
     // Queue a song to play next.
     QueueSong(Arc<InMemSong>, ListSongID),
-    GetPlayProgress(ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
     Seek(i8),
@@ -117,9 +117,6 @@ impl ServerComponent for Player {
             UnkillableServerRequest::QueueSong(song_pointer, song_id) => spawn_unkillable(
                 queue_song(song_pointer, song_id, rodio_tx, task, response_tx),
             ),
-            UnkillableServerRequest::GetPlayProgress(song_id) => {
-                spawn_unkillable(get_play_progress(song_id, rodio_tx, task, response_tx))
-            }
             UnkillableServerRequest::Stop(song_id) => {
                 spawn_unkillable(stop(song_id, rodio_tx, task, response_tx))
             }
@@ -177,6 +174,7 @@ async fn autoplay_song(
                 return;
             }
             rodio_thread::PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Error(song_id)),
@@ -235,6 +233,7 @@ async fn queue_song(
                 return;
             }
             rodio_thread::PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Error(song_id)),
@@ -244,7 +243,7 @@ async fn queue_song(
             }
         }
     }
-    // Should never reach here! Player should send either Error, Stopped or Playing
+    // Should never reach here! Player should send either Error, Stopped or Queued
     // message first.
     error!(
         "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
@@ -290,6 +289,7 @@ async fn play_song(
                 return;
             }
             rodio_thread::PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Error(song_id)),
@@ -306,29 +306,7 @@ async fn play_song(
         id
     );
 }
-async fn get_play_progress(
-    song_id: ListSongID,
-    rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
-    let (tx, rx) = rodio_oneshot_channel();
-    send_or_error(rodio_tx, RodioMessage::GetPlayProgress(song_id, tx)).await;
-    let Ok(current_duration) = rx.await else {
-        // This happens intentionally - when a play update is requested for a song
-        // that's no longer playing, instead of sending a reply, rodio will drop sender.
-        info!(
-            "The player has been dropped while I was waiting for a volume update for {:?}",
-            id
-        );
-        return;
-    };
-    send_or_error(
-        response_tx,
-        ServerResponse::new_player(id, Response::ProgressUpdate(current_duration, song_id)),
-    )
-    .await;
-}
+
 async fn seek(
     inc: i8,
     rodio_tx: mpsc::Sender<RodioMessage>,

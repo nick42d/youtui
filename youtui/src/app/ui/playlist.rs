@@ -204,13 +204,6 @@ impl Playlist {
             queue_status: QueueState::NotQueued,
         }
     }
-    /// Ask server for a song progress update.
-    pub async fn check_song_progress(&mut self) {
-        if let PlayState::Playing(id) = self.play_status {
-            info!("Tick received - requesting song progress update");
-            send_or_error(&self.ui_tx, AppCallback::GetProgress(id)).await;
-        }
-    }
     /// Stop playing, drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
     pub async fn play_song_id(&mut self, id: ListSongID) {
@@ -309,7 +302,7 @@ impl Playlist {
         }
     }
     /// Play song at ID, if it was buffering.
-    pub async fn play_if_was_buffering(&mut self, id: ListSongID) {
+    pub async fn handle_song_downloaded(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
                 info!("Playing");
@@ -497,8 +490,8 @@ impl Playlist {
 }
 // Event handlers
 impl Playlist {
+    // Placeholder for future use
     pub async fn handle_tick(&mut self) {
-        self.check_song_progress().await;
         // XXX: Consider downloading upcoming songs here.
         // self.download_upcoming_songs().await;
     }
@@ -614,7 +607,7 @@ impl Playlist {
                         s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
                         s.id
                     })
-                    .map(|id| async move { self.play_if_was_buffering(id).await });
+                    .map(|id| async move { self.handle_song_downloaded(id).await });
                 if let Some(f) = fut {
                     f.await
                 }
@@ -641,7 +634,7 @@ impl Playlist {
         self.volume = p;
     }
     /// Handle song progress message from server
-    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         if !self.check_id_is_cur(id) {
             return;
         }
@@ -664,8 +657,12 @@ impl Playlist {
             {
                 if let Some(next_song) = self.get_next_song() {
                     if let DownloadStatus::Downloaded(song) = &next_song.download_status {
-                        self.ui_tx
-                            .send(AppCallback::QueueSong(song.clone(), next_song.id));
+                        info!("Queuing up song!");
+                        send_or_error(
+                            &self.ui_tx,
+                            AppCallback::QueueSong(song.clone(), next_song.id),
+                        )
+                        .await;
                         self.queue_status = QueueState::Queued(next_song.id)
                     }
                 }

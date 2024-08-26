@@ -71,8 +71,7 @@ pub enum AppRequest {
     IncreaseVolume(i8),
     PlaySong(Arc<InMemSong>, ListSongID),
     AutoplaySong(Arc<InMemSong>, ListSongID),
-    Queueong(Arc<InMemSong>, ListSongID),
-    GetPlayProgress(ListSongID),
+    QueueSong(Arc<InMemSong>, ListSongID),
     Stop(ListSongID),
     PausePlay(ListSongID),
     Seek(i8),
@@ -89,6 +88,8 @@ pub enum RequestCategory {
     IncreaseVolume, // TODO: generalize
     PlayPause,
     PlayStop,
+    #[deprecated]
+    Unknown,
 }
 
 impl TaskManager {
@@ -256,7 +257,7 @@ impl TaskManager {
             player::Response::Stopped(song_id) => ui_state.handle_stopped(song_id).await,
             player::Response::Error(song_id) => ui_state.handle_set_to_error(song_id).await,
             player::Response::ProgressUpdate(dur, song_id) => {
-                ui_state.handle_set_song_play_progress(dur, song_id)
+                ui_state.handle_set_song_play_progress(dur, song_id).await
             }
             player::Response::VolumeUpdate(vol) => ui_state.handle_set_volume(vol),
             player::Response::Queued(duration, song_id) => {
@@ -277,11 +278,12 @@ impl AppRequest {
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             // Notionally, this could also be blocked by a Stop message.
             AppRequest::PlaySong(..) => RequestCategory::PlayStop,
-            AppRequest::GetPlayProgress(_) => RequestCategory::ProgressUpdate,
             // Notionally, this could also be blocked by a PlaySong message.
             AppRequest::Stop(_) => RequestCategory::PlayStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPause,
             AppRequest::Seek(_) => RequestCategory::ProgressUpdate,
+            AppRequest::AutoplaySong(_, _) => RequestCategory::Unknown,
+            AppRequest::QueueSong(_, _) => RequestCategory::Unknown,
         }
     }
     fn into_kind(self) -> TaskMessage {
@@ -312,11 +314,6 @@ impl AppRequest {
                     player::UnkillableServerRequest::PlaySong(song_pointer, song_id),
                 ))
             }
-            AppRequest::GetPlayProgress(song_id) => {
-                TaskMessage::Unkillable(UnkillableServerRequest::Player(
-                    player::UnkillableServerRequest::GetPlayProgress(song_id),
-                ))
-            }
             AppRequest::Stop(song_id) => TaskMessage::Unkillable(UnkillableServerRequest::Player(
                 player::UnkillableServerRequest::Stop(song_id),
             )),
@@ -328,6 +325,16 @@ impl AppRequest {
             AppRequest::Seek(inc) => TaskMessage::Unkillable(UnkillableServerRequest::Player(
                 player::UnkillableServerRequest::Seek(inc),
             )),
+            AppRequest::AutoplaySong(song_pointer, song_id) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::AutoplaySong(song_pointer, song_id),
+                ))
+            }
+            AppRequest::QueueSong(song_pointer, song_id) => {
+                TaskMessage::Unkillable(UnkillableServerRequest::Player(
+                    player::UnkillableServerRequest::QueueSong(song_pointer, song_id),
+                ))
+            }
         }
     }
     fn block_category(&self) -> Option<RequestCategory> {
@@ -338,10 +345,11 @@ impl AppRequest {
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
             AppRequest::PlaySong(..) => Some(RequestCategory::PlayPause),
-            AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => Some(RequestCategory::PlayPause),
             AppRequest::PausePlay(_) => Some(RequestCategory::PlayPause),
             AppRequest::Seek(_) => None,
+            AppRequest::AutoplaySong(_, _) => None,
+            AppRequest::QueueSong(_, _) => None,
         }
     }
     fn kill_category(&self) -> Option<RequestCategory> {
@@ -352,10 +360,11 @@ impl AppRequest {
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
             AppRequest::PlaySong(..) => None,
-            AppRequest::GetPlayProgress(_) => None,
             AppRequest::Stop(_) => None,
             AppRequest::PausePlay(_) => None,
             AppRequest::Seek(_) => None,
+            AppRequest::AutoplaySong(_, _) => None,
+            AppRequest::QueueSong(_, _) => None,
         }
     }
 }
