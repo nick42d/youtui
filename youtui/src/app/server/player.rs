@@ -12,6 +12,7 @@ use rodio_thread::rodio_mpsc_channel;
 use rodio_thread::rodio_oneshot_channel;
 use rodio_thread::spawn_rodio_thread;
 use rodio_thread::PlayActionTaken;
+use rodio_thread::PlaySongResponse;
 use rodio_thread::RodioMessage;
 use std::sync::Arc;
 use std::time::Duration;
@@ -67,6 +68,7 @@ pub enum Response {
     Resumed(ListSongID),
     Playing(Option<Duration>, ListSongID),
     Queued(Option<Duration>, ListSongID),
+    AutoplayQueued(ListSongID),
     Error(ListSongID),
     ProgressUpdate(Duration, ListSongID),
     VolumeUpdate(Percentage),
@@ -149,24 +151,36 @@ async fn autoplay_song(
     .await;
     while let Some(msg) = rx.recv().await {
         match msg {
-            rodio_thread::PlaySongResponse::ProgressUpdate(duration) => {
+            PlaySongResponse::ProgressUpdate(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::Queued(_) => {
+            PlaySongResponse::Queued(_) => {
                 error!("Received queued message, but I wasn't queued... {:?}", id)
             }
-            rodio_thread::PlaySongResponse::StartedPlaying(duration) => {
+            // This is the case where the song we asked to play is already
+            // queued. In this case, this task can finish, as the task that
+            // added the song to the queue is responsible for the playback
+            // updates.
+            PlaySongResponse::AutoplayingQueued => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::AutoplayQueued(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::StartedPlaying(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Playing(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::StoppedPlaying => {
+            PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::DonePlaying(song_id)),
@@ -174,7 +188,7 @@ async fn autoplay_song(
                 .await;
                 return;
             }
-            rodio_thread::PlaySongResponse::Error(e) => {
+            PlaySongResponse::Error(e) => {
                 error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
@@ -203,27 +217,27 @@ async fn queue_song(
     send_or_error(rodio_tx, RodioMessage::QueueSong(song_pointer, song_id, tx)).await;
     while let Some(msg) = rx.recv().await {
         match msg {
-            rodio_thread::PlaySongResponse::ProgressUpdate(duration) => {
+            PlaySongResponse::ProgressUpdate(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::StartedPlaying(_) => {
+            PlaySongResponse::StartedPlaying(_) => {
                 error!(
                     "Received StartedPlaying message, but I asked to queue... {:?}",
                     id
                 )
             }
-            rodio_thread::PlaySongResponse::Queued(duration) => {
+            PlaySongResponse::Queued(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Queued(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::StoppedPlaying => {
+            PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::DonePlaying(song_id)),
@@ -231,7 +245,7 @@ async fn queue_song(
                 .await;
                 return;
             }
-            rodio_thread::PlaySongResponse::Error(e) => {
+            PlaySongResponse::Error(e) => {
                 error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
@@ -240,6 +254,10 @@ async fn queue_song(
                 .await;
                 return;
             }
+            PlaySongResponse::AutoplayingQueued => error!(
+                "Received AutoplayingQueued message, but I asked to queue... {:?}",
+                id
+            ),
         }
     }
     // Should never reach here! Player should send either Error, Stopped or Queued
@@ -260,24 +278,24 @@ async fn play_song(
     send_or_error(rodio_tx, RodioMessage::PlaySong(song_pointer, song_id, tx)).await;
     while let Some(msg) = rx.recv().await {
         match msg {
-            rodio_thread::PlaySongResponse::ProgressUpdate(duration) => {
+            PlaySongResponse::ProgressUpdate(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::Queued(_) => {
+            PlaySongResponse::Queued(_) => {
                 error!("Received queued message, but I wasn't queued... {:?}", id)
             }
-            rodio_thread::PlaySongResponse::StartedPlaying(duration) => {
+            PlaySongResponse::StartedPlaying(duration) => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::Playing(duration, song_id)),
                 )
                 .await;
             }
-            rodio_thread::PlaySongResponse::StoppedPlaying => {
+            PlaySongResponse::StoppedPlaying => {
                 send_or_error(
                     response_tx.clone(),
                     ServerResponse::new_player(id, Response::DonePlaying(song_id)),
@@ -285,7 +303,7 @@ async fn play_song(
                 .await;
                 return;
             }
-            rodio_thread::PlaySongResponse::Error(e) => {
+            PlaySongResponse::Error(e) => {
                 error!("Received error {e} when trying to decode song");
                 send_or_error(
                     response_tx.clone(),
@@ -294,6 +312,10 @@ async fn play_song(
                 .await;
                 return;
             }
+            PlaySongResponse::AutoplayingQueued => error!(
+                "Received AutoplayingQueued message, but I asked to play... {:?}",
+                id
+            ),
         }
     }
     // Should never reach here! Player should send either Error, Stopped or Playing

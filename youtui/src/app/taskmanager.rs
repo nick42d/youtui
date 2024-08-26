@@ -264,6 +264,9 @@ impl TaskManager {
                 ui_state.handle_song_queued(duration, song_id)
             }
             player::Response::Resumed(song_id) => ui_state.handle_song_resumed(song_id),
+            player::Response::AutoplayQueued(song_id) => {
+                ui_state.handle_song_autoplay_queued(song_id)
+            }
         }
     }
 }

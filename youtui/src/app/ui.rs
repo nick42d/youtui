@@ -344,6 +344,9 @@ impl YoutuiWindow {
     pub fn handle_song_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
         self.playlist.handle_queued(duration, id)
     }
+    pub fn handle_song_autoplay_queued(&mut self, id: ListSongID) {
+        self.playlist.handle_autoplay_queued(id)
+    }
     pub fn handle_song_resumed(&mut self, id: ListSongID) {
         self.playlist.handle_resumed(id)
     }

@@ -702,6 +702,26 @@ impl Playlist {
             song.actual_duration = duration;
         }
     }
+    /// Handle autoplay queued message from server.
+    /// This message means that the song that was queued up has played
+    /// successfully.
+    /// If this occurs, we can clear the queued track since we know that it's
+    /// playing.
+    pub fn handle_autoplay_queued(&mut self, id: ListSongID) {
+        match self.queue_status {
+            QueueState::NotQueued => (),
+            QueueState::Buffering(q_id) => {
+                if id == q_id {
+                    self.queue_status = QueueState::NotQueued
+                }
+            }
+            QueueState::Queued(q_id) => {
+                if id == q_id {
+                    self.queue_status = QueueState::NotQueued
+                }
+            }
+        }
+    }
     /// Handle resumed message from server
     pub fn handle_resumed(&mut self, id: ListSongID) {
         if let PlayState::Paused(p_id) = self.play_status {
