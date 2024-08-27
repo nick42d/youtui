@@ -87,6 +87,7 @@ pub enum RequestCategory {
     ProgressUpdate,
     IncreaseVolume, // TODO: generalize
     PlayPause,
+    PlayingSong,
     PlayStop,
     #[deprecated]
     Unknown,
@@ -280,13 +281,13 @@ impl AppRequest {
             AppRequest::Download(..) => RequestCategory::Download,
             AppRequest::IncreaseVolume(_) => RequestCategory::IncreaseVolume,
             // Notionally, this could also be blocked by a Stop message.
-            AppRequest::PlaySong(..) => RequestCategory::PlayStop,
+            AppRequest::PlaySong(..) => RequestCategory::PlayingSong,
             // Notionally, this could also be blocked by a PlaySong message.
             AppRequest::Stop(_) => RequestCategory::PlayStop,
             AppRequest::PausePlay(_) => RequestCategory::PlayPause,
             AppRequest::Seek(_) => RequestCategory::ProgressUpdate,
-            AppRequest::AutoplaySong(_, _) => RequestCategory::Unknown,
-            AppRequest::QueueSong(_, _) => RequestCategory::Unknown,
+            AppRequest::AutoplaySong(_, _) => RequestCategory::PlayingSong,
+            AppRequest::QueueSong(_, _) => RequestCategory::PlayingSong,
         }
     }
     fn into_kind(self) -> TaskMessage {
@@ -347,7 +348,7 @@ impl AppRequest {
             AppRequest::GetArtistSongs(_) => None,
             AppRequest::Download(..) => None,
             AppRequest::IncreaseVolume(_) => Some(RequestCategory::IncreaseVolume),
-            AppRequest::PlaySong(..) => Some(RequestCategory::PlayPause),
+            AppRequest::PlaySong(..) => Some(RequestCategory::PlayingSong),
             AppRequest::Stop(_) => Some(RequestCategory::PlayPause),
             AppRequest::PausePlay(_) => Some(RequestCategory::PlayPause),
             AppRequest::Seek(_) => None,

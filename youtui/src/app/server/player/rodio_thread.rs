@@ -129,6 +129,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                 return;
             }
         };
+        // NOTE: the OutputStream is not Send, hence why this requires a blocking task.
         let (_stream, stream_handle) =
             rodio::OutputStream::try_default().expect("Expect to get a handle to output stream");
         let sink = rodio::Sink::try_new(&stream_handle).expect("Expect music player not to error");
