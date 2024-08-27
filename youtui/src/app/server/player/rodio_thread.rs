@@ -6,6 +6,7 @@ use crate::core::oneshot_send_or_error;
 use crate::core::send_or_error;
 use rodio::decoder::DecoderError;
 use rodio::source::PeriodicAccess;
+use rodio::source::SkipDuration;
 use rodio::source::TrackPosition;
 use rodio::Decoder;
 use rodio::Source;
@@ -330,9 +331,11 @@ fn try_decode(
     song_id: ListSongID,
     tx: mpsc::Sender<PlaySongResponse>,
 ) -> std::result::Result<
-    PeriodicAccess<
-        TrackPosition<Decoder<Cursor<DroppableSong>>>,
-        impl FnMut(&mut TrackPosition<Decoder<Cursor<DroppableSong>>>),
+    SkipDuration<
+        PeriodicAccess<
+            TrackPosition<Decoder<Cursor<DroppableSong>>>,
+            impl FnMut(&mut TrackPosition<Decoder<Cursor<DroppableSong>>>),
+        >,
     >,
     DecoderError,
 > {
@@ -348,5 +351,6 @@ fn try_decode(
             .periodic_access(PROGRESS_UPDATE_DELAY, move |s| {
                 blocking_send_or_error(&tx, PlaySongResponse::ProgressUpdate(s.get_pos()));
             })
+            .skip_duration(Duration::from_millis(120))
     })
 }
