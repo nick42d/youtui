@@ -331,11 +331,9 @@ fn try_decode(
     song_id: ListSongID,
     tx: mpsc::Sender<PlaySongResponse>,
 ) -> std::result::Result<
-    SkipDuration<
-        PeriodicAccess<
-            TrackPosition<Decoder<Cursor<DroppableSong>>>,
-            impl FnMut(&mut TrackPosition<Decoder<Cursor<DroppableSong>>>),
-        >,
+    PeriodicAccess<
+        TrackPosition<Decoder<Cursor<DroppableSong>>>,
+        impl FnMut(&mut TrackPosition<Decoder<Cursor<DroppableSong>>>),
     >,
     DecoderError,
 > {
@@ -351,6 +349,5 @@ fn try_decode(
             .periodic_access(PROGRESS_UPDATE_DELAY, move |s| {
                 blocking_send_or_error(&tx, PlaySongResponse::ProgressUpdate(s.get_pos()));
             })
-            .skip_duration(Duration::from_millis(120))
     })
 }
