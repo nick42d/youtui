@@ -125,7 +125,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .split(song_vol[0]);
     let progress_bar_row = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Max(2), Constraint::Min(1), Constraint::Max(2)])
+        .constraints([Constraint::Max(4), Constraint::Min(1), Constraint::Max(4)])
         .split(vertical_layout[1]);
     let bar = Gauge::default()
         .label(bar_str)
@@ -137,7 +137,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .ratio(play_ratio);
     let left_arrow = Paragraph::new(Line::from(vec![
         Span::styled(
-            "<",
+            "< [",
             Style::new()
                 .fg(BUTTON_FG_COLOUR)
                 .bg(BUTTON_BG_COLOUR)
@@ -148,7 +148,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let right_arrow = Paragraph::new(Line::from(vec![
         Span::raw(" "),
         Span::styled(
-            ">",
+            "] >",
             Style::new()
                 .fg(BUTTON_FG_COLOUR)
                 .bg(BUTTON_BG_COLOUR)

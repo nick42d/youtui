@@ -250,8 +250,8 @@ impl Action for UIAction {
             UIAction::ViewLogs => "View Logs".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => "Seek Forward".into(),
-            UIAction::StepSeekBack => "Seek Back".into(),
+            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT_SECS).into(),
+            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT_SECS).into(),
         }
     }
 }
@@ -548,8 +548,8 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
         KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
         KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
         KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
-        KeyCommand::new_from_code(KeyCode::Char('{'), UIAction::StepSeekBack),
-        KeyCommand::new_from_code(KeyCode::Char('}'), UIAction::StepSeekForward),
+        KeyCommand::new_from_code(KeyCode::Char('['), UIAction::StepSeekBack),
+        KeyCommand::new_from_code(KeyCode::Char(']'), UIAction::StepSeekForward),
         KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
         KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
