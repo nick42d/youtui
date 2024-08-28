@@ -67,8 +67,8 @@ Chrome example (Select manually and paste):
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [x] OAuth authentication including automatic refresh of tokens
 - [x] Seeking
-- [ ] Logging to a file
-- [ ] Gapless playback
+- [ ] Logging to a file (basic version implemented - use `-d` flag)
+- [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Dbus support for media keys
 - [ ] Mouse support
 - [ ] Offline cache
