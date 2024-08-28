@@ -15,7 +15,6 @@ use structures::{ListSong, ListSongID};
 use taskmanager::{AppRequest, TaskManager};
 use tokio::sync::mpsc;
 use tracing::info;
-use tracing::level_filters::LevelFilter;
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;

@@ -26,18 +26,6 @@ const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 
 #[derive(Debug)]
-pub struct SongTypeNew {
-    status: SongStatus,
-    id: ListSongID,
-}
-
-#[derive(Debug)]
-enum SongStatus {
-    Downloaded(Arc<InMemSong>),
-    Buffering,
-}
-
-#[derive(Debug)]
 // NOTE: I considered giving player more control of the playback than playlist,
 // and increasing message size. However this seems to be more combinatorially
 // difficult without a well defined data structure.

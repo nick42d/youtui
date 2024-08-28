@@ -38,9 +38,8 @@ pub struct Playlist {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum QueueState {
+pub enum QueueState {
     NotQueued,
-    Buffering(ListSongID),
     Queued(ListSongID),
 }
 
@@ -714,11 +713,6 @@ impl Playlist {
     pub fn handle_autoplay_queued(&mut self, id: ListSongID) {
         match self.queue_status {
             QueueState::NotQueued => (),
-            QueueState::Buffering(q_id) => {
-                if id == q_id {
-                    self.queue_status = QueueState::NotQueued
-                }
-            }
             QueueState::Queued(q_id) => {
                 if id == q_id {
                     self.queue_status = QueueState::NotQueued

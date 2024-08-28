@@ -19,6 +19,9 @@ pub enum ServerRequest {
     },
 }
 
+// Whilst not all fields are currently used, they're a key component of the
+// architecture and expected to be used in future.
+#[allow(unused)]
 #[derive(Debug)]
 pub enum KillableServerRequest {
     Api(api::KillableServerRequest),
