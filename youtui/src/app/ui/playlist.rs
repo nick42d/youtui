@@ -379,6 +379,7 @@ impl Playlist {
                     }
                     None => {
                         info!("No next song - finishing playback");
+                        self.queue_status = QueueState::NotQueued;
                         send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
                     }
                 }
@@ -413,7 +414,10 @@ impl Playlist {
                     }
                     None => {
                         info!("No next song - resetting play status");
-                        self.play_status = PlayState::Stopped;
+                        self.queue_status = QueueState::NotQueued;
+                        // As a neat hack I only need to ask the player to stop current ID - even if
+                        // it's playing the queued track, it doesn't know about it.
+                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
                     }
                 }
             }

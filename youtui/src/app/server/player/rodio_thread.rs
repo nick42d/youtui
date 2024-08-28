@@ -151,10 +151,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                         next_song_id = None;
                         cur_song_duration = next_song_duration;
                         next_song_duration = None;
-                        blocking_send_or_error(
-                            tx.0,
-                            PlaySongResponse::StartedPlaying(cur_song_duration),
-                        );
+                        blocking_send_or_error(tx.0, PlaySongResponse::AutoplayingQueued);
                         continue;
                     }
                     if Some(song_id) == cur_song_id {
@@ -162,10 +159,7 @@ pub fn spawn_rodio_thread(mut msg_rx: mpsc::Receiver<RodioMessage>) {
                             "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
                             song_id
                         );
-                        blocking_send_or_error(
-                            tx.0,
-                            PlaySongResponse::StartedPlaying(cur_song_duration),
-                        );
+                        blocking_send_or_error(tx.0, PlaySongResponse::AutoplayingQueued);
                         continue;
                     }
                     info!(
