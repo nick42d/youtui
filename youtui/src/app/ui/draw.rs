@@ -16,7 +16,7 @@ use ratatui::widgets::{
 };
 use ratatui::{
     layout::{Constraint, Direction, Layout},
-    terminal::Frame,
+    Frame,
 };
 use std::borrow::Cow;
 
@@ -33,7 +33,7 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
             ]
             .as_ref(),
         )
-        .split(f.size());
+        .split(f.area());
     header::draw_header(f, w, base_layout[0]);
     let context_selected = !w.help.shown && !w.key_pending();
     match w.context {
@@ -192,7 +192,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
     state.select(Some(cur));
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
-    let headings_iter = headings.iter().map(|h| *h);
+    let headings_iter = headings.iter().copied();
     let table_widget = Table::new(table_items, layout)
         .highlight_style(highlight_style())
         .header(

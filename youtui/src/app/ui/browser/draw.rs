@@ -63,10 +63,10 @@ pub fn draw_browser(
             artistselected,
             artist_list_state,
         );
-        draw_search_box(f, &browser, s[0]);
+        draw_search_box(f, browser, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
-            draw_search_suggestions(f, &browser, s[0], layout[0])
+            draw_search_suggestions(f, browser, s[0], layout[0])
         }
     }
     draw_sortable_table(
@@ -146,10 +146,10 @@ fn draw_text_box<S: AsRef<str>>(f: &mut Frame, title: S, contents: S, cur: usize
             .title(title.as_ref()),
     );
     f.render_widget(search_widget, chunk);
-    f.set_cursor(
+    f.set_cursor_position((
         (chunk.x + cur as u16 + 1).min(chunk.right().saturating_sub(2)),
         chunk.y + 1,
-    );
+    ));
 }
 fn draw_search_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
     draw_text_box(

@@ -1,3 +1,6 @@
+// Clippy project config
+#![warn(clippy::unwrap_used)]
+
 use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
@@ -190,7 +193,7 @@ enum Command {
 }
 
 pub struct RuntimeInfo {
-    _debug: bool,
+    debug: bool,
     config: Config,
     api_key: ApiKey,
 }
@@ -239,7 +242,7 @@ async fn try_main() -> Result<()> {
     // TODO: Remove delay, should be handled inside app instead.
     let api_key = load_api_key(&config).await?;
     let rt = RuntimeInfo {
-        _debug: debug,
+        debug,
         config,
         api_key,
     };
@@ -292,7 +295,7 @@ pub fn get_data_dir() -> Result<PathBuf> {
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.data_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNameError);
+        return Err(Error::DirectoryName);
     };
     Ok(directory)
 }
@@ -304,7 +307,7 @@ pub fn get_config_dir() -> Result<PathBuf> {
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.config_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryNameError);
+        return Err(Error::DirectoryName);
     };
     Ok(directory)
 }

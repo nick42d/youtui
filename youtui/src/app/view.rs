@@ -197,7 +197,7 @@ pub trait Drawable {
     // Helper function to draw.
     fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
     fn draw(&self, f: &mut Frame, selected: bool) {
-        self.draw_chunk(f, f.size(), selected);
+        self.draw_chunk(f, f.area(), selected);
     }
 }
 // A drawable part of the application that mutates its state on draw.
@@ -212,7 +212,7 @@ pub trait DrawableMut {
         selected: bool,
     );
     fn draw_mut(&self, f: &mut Frame, mutable_state: &mut YoutuiMutableState, selected: bool) {
-        self.draw_mut_chunk(f, f.size(), mutable_state, selected);
+        self.draw_mut_chunk(f, f.area(), mutable_state, selected);
     }
 }
 // A part of the application that can be in a Loading state.

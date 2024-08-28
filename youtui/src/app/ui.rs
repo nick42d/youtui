@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ActionHandler,
@@ -11,7 +13,6 @@ use super::view::Scrollable;
 use super::AppCallback;
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
-use crate::error::Error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use tokio::sync::mpsc;
 use ytmapi_rs::common::SearchSuggestion;
@@ -25,6 +26,7 @@ mod logger;
 mod playlist;
 
 const VOL_TICK: i8 = 5;
+const SEEK_AMOUNT_SECS: i8 = 5;
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -46,6 +48,8 @@ pub enum UIAction {
     Pause,
     StepVolUp,
     StepVolDown,
+    StepSeekForward,
+    StepSeekBack,
     ToggleHelp,
     HelpUp,
     HelpDown,
@@ -106,7 +110,7 @@ impl DominantKeyRouter for YoutuiWindow {
     }
 }
 
-// We can't implemnent KeyRouter, as it would require us to have a single Action
+// We can't implement KeyRouter, as it would require us to have a single Action
 // type for the whole application.
 impl KeyDisplayer for YoutuiWindow {
     // XXX: Can turn these boxed iterators into types.
@@ -207,6 +211,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
+            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT_SECS).await,
+            UIAction::StepSeekBack => self.handle_seek(-SEEK_AMOUNT_SECS).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -228,6 +234,8 @@ impl Action for UIAction {
             UIAction::Pause => "Global".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
+            UIAction::StepSeekForward => "Global".into(),
+            UIAction::StepSeekBack => "Global".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -242,6 +250,8 @@ impl Action for UIAction {
             UIAction::ViewLogs => "View Logs".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
+            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT_SECS).into(),
+            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT_SECS).into(),
         }
     }
 }
@@ -320,26 +330,34 @@ impl YoutuiWindow {
     fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
     }
-    // XXX: Should not be here, but required for now due to callback routing.
-    pub async fn handle_api_error(&mut self, e: Error) {
-        send_or_error(&self.callback_tx, AppCallback::HandleApiError(e)).await;
-    }
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
         send_or_error(&self.callback_tx, AppCallback::IncreaseVolume(inc)).await;
     }
+    pub async fn handle_seek(&mut self, inc: i8) {
+        self.playlist.handle_seek(inc).await
+    }
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
+    }
+    pub fn handle_song_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
+        self.playlist.handle_queued(duration, id)
+    }
+    pub fn handle_song_autoplay_queued(&mut self, id: ListSongID) {
+        self.playlist.handle_autoplay_queued(id)
+    }
+    pub fn handle_song_resumed(&mut self, id: ListSongID) {
+        self.playlist.handle_resumed(id)
     }
     pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_paused(id).await
     }
-    pub async fn handle_set_to_playing(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_playing(id)
+    pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
+        self.playlist.handle_playing(duration, id)
     }
-    pub async fn handle_set_to_stopped(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_stopped(id)
+    pub async fn handle_stopped(&mut self, id: ListSongID) {
+        self.playlist.handle_stopped(id)
     }
     pub async fn handle_set_to_error(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_error(id)
@@ -347,16 +365,16 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, p: Percentage) {
         self.playlist.handle_set_volume(p)
     }
-    pub fn handle_set_song_play_progress(&mut self, f: f64, id: ListSongID) {
-        self.playlist.handle_set_song_play_progress(f, id);
+    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+        self.playlist.handle_set_song_play_progress(d, id).await;
     }
-    pub async fn handle_set_song_download_progress(
+    pub async fn handle_song_download_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
         playlist_id: ListSongID,
     ) {
         self.playlist
-            .handle_song_progress_update(update, playlist_id)
+            .handle_song_download_progress_update(update, playlist_id)
             .await
     }
     pub async fn handle_replace_search_suggestions(
@@ -447,9 +465,8 @@ impl YoutuiWindow {
             }
         } {
             return;
-        } else {
-            self.key_stack.clear()
         }
+        self.key_stack.clear()
     }
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
@@ -481,50 +498,43 @@ impl YoutuiWindow {
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_displayable_mode<'a>(&'a self) -> Option<DisplayableMode<'a>> {
-        if let Some(map) = get_key_subset(self.get_this_keybinds(), &self.key_stack) {
-            if let Keymap::Mode(mode) = map {
-                return Some(DisplayableMode {
-                    displayable_commands: mode.as_displayable_iter(),
-                    description: mode.describe(),
-                });
-            }
+    fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
+        if let Some(Keymap::Mode(mode)) = get_key_subset(self.get_this_keybinds(), &self.key_stack)
+        {
+            return Some(DisplayableMode {
+                displayable_commands: mode.as_displayable_iter(),
+                description: mode.describe(),
+            });
         }
         match self.context {
             WindowContext::Browser => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.browser.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
             WindowContext::Playlist => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.playlist.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
             WindowContext::Logs => {
-                if let Some(map) =
+                if let Some(Keymap::Mode(mode)) =
                     get_key_subset(self.logger.get_routed_keybinds(), &self.key_stack)
                 {
-                    if let Keymap::Mode(mode) = map {
-                        return Some(DisplayableMode {
-                            displayable_commands: mode.as_displayable_iter(),
-                            description: mode.describe(),
-                        });
-                    }
+                    return Some(DisplayableMode {
+                        displayable_commands: mode.as_displayable_iter(),
+                        description: mode.describe(),
+                    });
                 }
             }
         }
@@ -538,6 +548,8 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
         KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
         KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
         KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
+        KeyCommand::new_from_code(KeyCode::Char('['), UIAction::StepSeekBack),
+        KeyCommand::new_from_code(KeyCode::Char(']'), UIAction::StepSeekForward),
         KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
         KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
         KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),

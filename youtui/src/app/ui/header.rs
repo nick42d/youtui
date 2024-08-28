@@ -5,9 +5,9 @@ use crate::{
 use ratatui::{
     layout::Rect,
     style::Style,
-    terminal::Frame,
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
+    Frame,
 };
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {

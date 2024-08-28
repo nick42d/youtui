@@ -56,7 +56,6 @@ Chrome example (Select manually and paste):
 
 ## Limitations
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
-- Song progress updates are currently emulated with a ticker and may be slightly out.
 
 ## Roadmap
 ### Application
@@ -64,24 +63,25 @@ Chrome example (Select manually and paste):
 - [x] Configuration folder support (target for 0.0.1)
 - [x] Implement improved download speed
 - [x] Filtering (target for 0.0.3)
-- [ ] Logging to a file
 - [x] Release to AUR (target for 0.0.4)
 - [x] Remove reliance on rust nightly (target for 0.0.4)
+- [x] OAuth authentication including automatic refresh of tokens
+- [x] Seeking
+- [ ] Logging to a file (basic version implemented - use `-d` flag)
+- [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Dbus support for media keys
-- [ ] Seeking
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks
-- [x] OAuth authentication including automatic refresh of tokens
 - [ ] Display lyrics and album cover (pixel art)
 - [ ] Theming
 - [ ] Configurable key bindings
 ### API
 - [x] Document public API
+- [x] OAuth authentication
+- [ ] Implement all endpoints
 - [ ] Automatically update User Agent using a library
 - [ ] Implement endpoint continuations
-- [ ] Implement all endpoints
-- [x] OAuth authentication
 - [ ] i18n
 
 Feature parity with `ytmusicapi`

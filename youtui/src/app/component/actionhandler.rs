@@ -144,7 +144,7 @@ pub fn get_key_subset<'a, A: Action>(
     binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
     key_stack: &[KeyEvent],
 ) -> Option<&'a Keymap<A>> {
-    let first = index_keybinds(binds, key_stack.get(0)?)?;
+    let first = index_keybinds(binds, key_stack.first()?)?;
     index_keymap(first, key_stack.get(1..)?)
 }
 /// Check if key stack will result in an action for binds.
@@ -156,7 +156,7 @@ pub fn handle_key_stack<'a, A>(
 where
     A: Action + Clone,
 {
-    if let Some(subset) = get_key_subset(binds, &*key_stack) {
+    if let Some(subset) = get_key_subset(binds, &key_stack) {
         match &subset {
             Keymap::Action(a) => {
                 // As Action is simply a message that is being passed around
@@ -180,7 +180,7 @@ where
     A: Action + Clone,
     B: KeyRouter<A> + ActionHandler<A>,
 {
-    if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &*key_stack) {
+    if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &key_stack) {
         match &subset {
             Keymap::Action(a) => {
                 // As Action is simply a message that is being passed around
@@ -268,8 +268,8 @@ mod tests {
         ];
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::SHIFT);
-        let key_stack = vec![ks1, ks2];
-        let first = index_keybinds(Box::new(kb.iter()), key_stack.get(0).unwrap()).unwrap();
+        let key_stack = [ks1, ks2];
+        let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
         let act = index_keymap(first, key_stack.get(1..).unwrap());
         let Some(Keymap::Action(a)) = act else {
             panic!();
@@ -298,8 +298,8 @@ mod tests {
         ];
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::empty());
-        let key_stack = vec![ks1, ks2];
-        let first = index_keybinds(Box::new(kb.iter()), key_stack.get(0).unwrap()).unwrap();
+        let key_stack = [ks1, ks2];
+        let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
         let act = index_keymap(first, key_stack.get(1..).unwrap());
         let Some(Keymap::Action(a)) = act else {
             panic!();

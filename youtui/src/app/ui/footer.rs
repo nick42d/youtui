@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::{
     app::structures::PlayState,
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR},
@@ -6,9 +8,9 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     prelude::Alignment,
     style::{Modifier, Style},
-    terminal::Frame,
     text::{Line, Span},
     widgets::{block::Title, Block, Borders, Gauge, Paragraph},
+    Frame,
 };
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
@@ -35,7 +37,7 @@ pub fn secs_to_time_string(secs: usize) -> String {
 pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let cur = &w.playlist.play_status;
     let mut duration = 0;
-    let mut progress = 0.0;
+    let mut progress = Duration::default();
     let play_ratio = match cur {
         PlayState::Playing(id) | PlayState::Paused(id) => {
             duration = w
@@ -44,12 +46,12 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
                 .map(|s| &s.raw.duration)
                 .map(parse_simple_time_to_secs)
                 .unwrap_or(0);
-            progress = w.playlist.cur_played_secs.unwrap_or(0.0);
-            (progress / duration as f64).clamp(0.0, 1.0)
+            progress = w.playlist.cur_played_dur.unwrap_or_default();
+            (progress.as_secs_f64() / duration as f64).clamp(0.0, 1.0)
         }
         _ => 0.0,
     };
-    let progress_str = secs_to_time_string(progress as usize);
+    let progress_str = secs_to_time_string(progress.as_secs() as usize);
     let duration_str = secs_to_time_string(duration);
     let bar_str = format!("{}/{}", progress_str, duration_str);
     let song_title = match w.playlist.play_status {
@@ -88,7 +90,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             .map(|s| {
                 s.get_artists()
                     .clone()
-                    .get(0)
+                    .first()
                     .map(|a| a.to_string())
                     .unwrap_or_default()
             })
@@ -123,7 +125,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .split(song_vol[0]);
     let progress_bar_row = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Max(2), Constraint::Min(1), Constraint::Max(2)])
+        .constraints([Constraint::Max(4), Constraint::Min(1), Constraint::Max(4)])
         .split(vertical_layout[1]);
     let bar = Gauge::default()
         .label(bar_str)
@@ -135,7 +137,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .ratio(play_ratio);
     let left_arrow = Paragraph::new(Line::from(vec![
         Span::styled(
-            "<",
+            "< [",
             Style::new()
                 .fg(BUTTON_FG_COLOUR)
                 .bg(BUTTON_BG_COLOUR)
@@ -146,7 +148,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let right_arrow = Paragraph::new(Line::from(vec![
         Span::raw(" "),
         Span::styled(
-            ">",
+            "] >",
             Style::new()
                 .fg(BUTTON_FG_COLOUR)
                 .bg(BUTTON_BG_COLOUR)

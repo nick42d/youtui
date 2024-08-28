@@ -1,13 +1,12 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
 use common::{LikeStatus, VideoID};
-use parse::{GetArtistAlbumsAlbum, Lyrics, WatchPlaylist};
+use parse::{GetArtistAlbumsAlbum, Lyrics};
 use std::time::Duration;
 use ytmapi_rs::common::{
     ApiOutcome, ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-    SearchSuggestion,
 };
-use ytmapi_rs::common::{LyricsID, PlaylistID, TextRun, YoutubeID};
+use ytmapi_rs::common::{LyricsID, PlaylistID, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
 use ytmapi_rs::query::*;

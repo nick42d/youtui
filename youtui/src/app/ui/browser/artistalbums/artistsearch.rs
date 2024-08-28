@@ -159,7 +159,7 @@ impl Suggestable for ArtistSearchPanel {
         self.search.search_suggestions.as_slice()
     }
     fn has_search_suggestions(&self) -> bool {
-        self.search.search_suggestions.len() > 0
+        !self.search.search_suggestions.is_empty()
     }
 }
 

@@ -7,29 +7,30 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug)]
 pub enum Error {
     Communication,
-    UnknownAPIError,
-    DirectoryNameError,
-    IoError(std::io::Error),
-    JoinError(JoinError),
+    UnknownAPI,
+    DirectoryName,
+    Io(std::io::Error),
+    Join(JoinError),
     // TODO: More advanced error conversions
-    ApiError(ytmapi_rs::Error),
-    JsonError(serde_json::Error),
-    TomlDeserializationError(toml::de::Error),
+    Api(ytmapi_rs::Error),
+    ApiErrorCloned(String),
+    Json(serde_json::Error),
+    TomlDeserialization(toml::de::Error),
     WrongAuthType {
         current_authtype: AuthType,
         expected_authtype: AuthType,
         query_type: &'static str,
     },
-    AuthTokenError {
+    AuthToken {
         token_type: AuthType,
         token_location: PathBuf,
         io_error: std::io::Error,
     },
-    AuthTokenParseError {
+    AuthTokenParse {
         token_type: AuthType,
         token_location: PathBuf,
     },
-    ErrorCreatingDirectory {
+    CreatingDirectory {
         directory: PathBuf,
         io_error: std::io::Error,
     },
@@ -37,6 +38,9 @@ pub enum Error {
     Other(String),
 }
 impl Error {
+    pub fn new_api_error_cloned(e: &Error) -> Self {
+        Self::ApiErrorCloned(format!("{:?}", e))
+    }
     pub fn new_wrong_auth_token_error_browser<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::Browser;
         let query_type = std::any::type_name::<Q>();
@@ -61,7 +65,7 @@ impl Error {
         token_location: PathBuf,
         io_error: std::io::Error,
     ) -> Self {
-        Self::AuthTokenError {
+        Self::AuthToken {
             token_type,
             token_location,
             io_error,
@@ -69,13 +73,13 @@ impl Error {
     }
     // Consider taking into pathbuf.
     pub fn new_auth_token_parse_error(token_type: AuthType, token_location: PathBuf) -> Self {
-        Self::AuthTokenParseError {
+        Self::AuthTokenParse {
             token_type,
             token_location,
         }
     }
     pub fn new_error_creating_directory(directory: PathBuf, io_error: std::io::Error) -> Self {
-        Self::ErrorCreatingDirectory {
+        Self::CreatingDirectory {
             directory,
             io_error,
         }
@@ -85,20 +89,21 @@ impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Communication => write!(f, "Error sending message to channel"),
-            Error::DirectoryNameError => write!(f, "Error generating application directory for your host system. See README.md for more information about application directories."),
-            Error::UnknownAPIError => write!(f, "Unknown API error."),
+            Error::DirectoryName => write!(f, "Error generating application directory for your host system. See README.md for more information about application directories."),
+            Error::UnknownAPI => write!(f, "Unknown API error."),
             Error::Other(s) => write!(f, "Unknown error with message \"{s}\""),
-            Error::IoError(e) => write!(f, "Standard io error <{e}>"),
-            Error::JoinError(e) => write!(f, "Join error <{e}>"),
-            Error::ApiError(e) => write!(f, "Api error <{e}>"),
-            Error::JsonError(e) => write!(f, "Json error <{e}>"),
-            Error::TomlDeserializationError(e) => write!(f, "Toml deserialization error:\n{e}"),
+            Error::Io(e) => write!(f, "Standard io error <{e}>"),
+            Error::Join(e) => write!(f, "Join error <{e}>"),
+            Error::Api(e) => write!(f, "Api error <{e}>"),
+            Error::Json(e) => write!(f, "Json error <{e}>"),
+            Error::TomlDeserialization(e) => write!(f, "Toml deserialization error:\n{e}"),
             // TODO: Better display format for token_type.
             // XXX: Consider displaying the io error.
-            Error::AuthTokenError { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
-            Error::AuthTokenParseError { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
-            Error::ErrorCreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
+            Error::AuthToken { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
+            Error::AuthTokenParse { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
+            Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
             Error::WrongAuthType { current_authtype, expected_authtype, query_type } => write!(f, "Query <{query_type}> not supported on auth type {:?}. Expected auth type: {:?}",current_authtype, expected_authtype),
+            Error::ApiErrorCloned(s) => write!(f, "{s}"),
         }
     }
 }
@@ -114,26 +119,26 @@ impl From<mpsc::error::TryRecvError> for Error {
 }
 impl From<std::io::Error> for Error {
     fn from(value: std::io::Error) -> Self {
-        Error::IoError(value)
+        Error::Io(value)
     }
 }
 impl From<JoinError> for Error {
     fn from(value: JoinError) -> Self {
-        Error::JoinError(value)
+        Error::Join(value)
     }
 }
 impl From<serde_json::Error> for Error {
     fn from(value: serde_json::Error) -> Self {
-        Error::JsonError(value)
+        Error::Json(value)
     }
 }
 impl From<toml::de::Error> for Error {
     fn from(value: toml::de::Error) -> Self {
-        Error::TomlDeserializationError(value)
+        Error::TomlDeserialization(value)
     }
 }
 impl From<ytmapi_rs::Error> for Error {
     fn from(value: ytmapi_rs::Error) -> Self {
-        Error::ApiError(value)
+        Error::Api(value)
     }
 }

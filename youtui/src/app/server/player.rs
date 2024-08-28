@@ -1,237 +1,413 @@
+use super::downloader::InMemSong;
+use super::messages::ServerResponse;
+use super::spawn_unkillable;
 use super::KillableTask;
+use super::ServerComponent;
 use crate::app::structures::ListSongID;
 use crate::app::structures::Percentage;
 use crate::app::taskmanager::TaskID;
-use crate::core::blocking_send_or_error;
+use crate::core::send_or_error;
 use crate::Result;
+use rodio_thread::rodio_mpsc_channel;
+use rodio_thread::rodio_oneshot_channel;
+use rodio_thread::spawn_rodio_thread;
+use rodio_thread::PlayActionTaken;
+use rodio_thread::PlaySongResponse;
+use rodio_thread::RodioMessage;
 use std::sync::Arc;
-use std::thread::JoinHandle;
 use std::time::Duration;
 use tokio::sync::mpsc;
-use tracing::debug;
 use tracing::error;
 use tracing::info;
-use tracing::trace;
-use tracing::warn;
 
-const EVENT_POLL_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(10);
-const PROGRESS_UPDATE_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_millis(100);
+mod rodio_thread;
+
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
+const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 
 #[derive(Debug)]
-pub enum Request {
-    GetVolume(KillableTask),
-    IncreaseVolume(i8, TaskID),
-    PlaySong(Arc<Vec<u8>>, ListSongID, TaskID),
-    GetPlayProgress(ListSongID, TaskID),
-    Stop(ListSongID, TaskID),
-    PausePlay(ListSongID, TaskID),
+// NOTE: I considered giving player more control of the playback than playlist,
+// and increasing message size. However this seems to be more combinatorially
+// difficult without a well defined data structure.
+pub enum UnkillableServerRequest {
+    IncreaseVolume(i8),
+    // Play a song, starting from the start, regardless what's queued.
+    PlaySong(Arc<InMemSong>, ListSongID),
+    // Play a song, unless it's already queued.
+    AutoplaySong(Arc<InMemSong>, ListSongID),
+    // Queue a song to play next.
+    QueueSong(Arc<InMemSong>, ListSongID),
+    Stop(ListSongID),
+    PausePlay(ListSongID),
+    Seek(i8),
 }
+
+#[derive(Debug)]
+pub enum KillableServerRequest {}
 
 #[derive(Debug)]
 pub enum Response {
+    // At this stage this difference between DonePlaying and Stopped is very thin. DonePlaying
+    // means that the song has been dropped by the player, whereas Stopped simply means that a
+    // Stop message to the player was succesful.
     DonePlaying(ListSongID),
-    Paused(ListSongID, TaskID),
-    Playing(ListSongID, TaskID),
-    Stopped(ListSongID, TaskID),
-    Error(ListSongID, TaskID),
-    ProgressUpdate(f64, ListSongID, TaskID),
-    VolumeUpdate(Percentage, TaskID),
+    Stopped(ListSongID),
+    Paused(ListSongID),
+    Resumed(ListSongID),
+    Playing(Option<Duration>, ListSongID),
+    Queued(Option<Duration>, ListSongID),
+    AutoplayQueued(ListSongID),
+    Error(ListSongID),
+    ProgressUpdate(Duration, ListSongID),
+    VolumeUpdate(Percentage),
 }
 
-pub struct PlayerManager {
-    _response_tx: mpsc::Sender<super::Response>,
-    _rodio: JoinHandle<()>,
-    msg_tx: mpsc::Sender<Request>,
+pub struct Player {
+    response_tx: mpsc::Sender<ServerResponse>,
+    rodio_tx: mpsc::Sender<RodioMessage>,
 }
 
 // Consider if this can be managed by Server.
-impl PlayerManager {
-    pub fn new(response_tx: mpsc::Sender<super::Response>) -> Result<Self> {
+impl Player {
+    pub fn new(response_tx: mpsc::Sender<ServerResponse>) -> Self {
         let (msg_tx, msg_rx) = mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
-        let response_tx_clone = response_tx.clone();
-        let rodio = spawn_rodio_thread(msg_rx, response_tx_clone);
-        Ok(Self {
-            _response_tx: response_tx,
-            msg_tx,
-            _rodio: rodio,
-        })
-    }
-    pub async fn handle_request(&self, request: Request) -> Result<()> {
-        Ok(self.msg_tx.send(request).await?)
+        spawn_rodio_thread(msg_rx);
+        Self {
+            response_tx,
+            rodio_tx: msg_tx,
+        }
     }
 }
 
-pub fn spawn_rodio_thread(
-    mut msg_rx: mpsc::Receiver<Request>,
-    response_tx: mpsc::Sender<super::Response>,
-) -> JoinHandle<()> {
-    std::thread::spawn(move || {
-        // Rodio can produce output to stderr when we don't want it to, so we use Gag to
-        // suppress stdout/stderr. The downside is that even though this runs in
-        // a seperate thread all stderr for the whole app may be gagged.
-        // Also seems to spew out characters?
-        // TODO: also handle the errors from Rodio, or write to a file.
-        let _gag = match gag::Gag::stderr() {
-            Ok(gag) => gag,
-            Err(e) => {
-                warn!("Error <{e}> gagging stderr output");
-                return;
+impl ServerComponent for Player {
+    type KillableRequestType = KillableServerRequest;
+    type UnkillableRequestType = UnkillableServerRequest;
+    async fn handle_killable_request(
+        &self,
+        request: Self::KillableRequestType,
+        task: KillableTask,
+    ) -> Result<()> {
+        let KillableTask { id: _, kill_rx: _ } = task;
+        match request {}
+    }
+    async fn handle_unkillable_request(
+        &self,
+        request: Self::UnkillableRequestType,
+        task: TaskID,
+    ) -> Result<()> {
+        let rodio_tx = self.rodio_tx.clone();
+        let response_tx = self.response_tx.clone();
+        match request {
+            UnkillableServerRequest::IncreaseVolume(vol_inc) => {
+                spawn_unkillable(increase_volume(vol_inc, rodio_tx, task, response_tx))
             }
-        };
-        let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
-        let sink = rodio::Sink::try_new(&stream_handle).unwrap();
-        let mut last_tick_time;
-        let mut cur_song_elapsed = std::time::Duration::default();
-        // Hopefully someone else can't create a song with the same ID?!
-        let mut cur_song_id = ListSongID::default();
-        let mut thinks_is_playing = false;
-        loop {
-            while let Ok(msg) = msg_rx.try_recv() {
-                match msg {
-                    Request::PlaySong(song_pointer, song_id, id) => {
-                        // XXX: Perhaps should let the state know that we are playing.
-                        info!("Got message to play song {:?}", id);
-                        // TODO: remove allocation
-                        let owned_song =
-                            Arc::try_unwrap(song_pointer).unwrap_or_else(|arc| (*arc).clone());
-                        let cur = std::io::Cursor::new(owned_song);
-                        let source = match rodio::Decoder::new(cur) {
-                            Ok(source) => source,
-                            Err(e) => {
-                                error!("Received error when trying to play song <{e}>");
-                                if !sink.empty() {
-                                    sink.stop()
-                                }
-                                blocking_send_or_error(
-                                    &response_tx,
-                                    super::Response::Player(Response::Error(song_id, id)),
-                                );
-                                thinks_is_playing = false;
-                                continue;
-                            }
-                        };
-                        if !sink.empty() {
-                            sink.stop()
-                        }
-                        sink.append(source);
-                        // Handle case were we've received a play message but queue was paused.
-                        if sink.is_paused() {
-                            sink.play();
-                        }
-                        debug!("Now playing {:?}", id);
-                        // Send the Now Playing message for good orders sake to avoid
-                        // synchronization issues.
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::Playing(song_id, id)),
-                        );
-                        cur_song_elapsed = Duration::default();
-                        cur_song_id = song_id;
-                        thinks_is_playing = true;
-                    }
-                    Request::Stop(song_id, id) => {
-                        info!("Got message to stop playing {:?}", song_id);
-                        if cur_song_id != song_id {
-                            continue;
-                        }
-                        if !sink.empty() {
-                            sink.stop()
-                        }
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::Stopped(song_id, id)),
-                        );
-                        thinks_is_playing = false;
-                    }
-                    Request::PausePlay(song_id, id) => {
-                        info!("Got message to pause / play {:?}", id);
-                        if cur_song_id != song_id {
-                            continue;
-                        }
-                        if sink.is_paused() {
-                            sink.play();
-                            info!("Sending Play message {:?}", id);
-                            blocking_send_or_error(
-                                &response_tx,
-                                super::Response::Player(Response::Playing(song_id, id)),
-                            );
-                        // We don't want to pause if sink is empty (but case
-                        // could be handled in Playlist also)
-                        } else if !sink.is_paused() && !sink.empty() {
-                            sink.pause();
-                            info!("Sending Pause message {:?}", id);
-                            blocking_send_or_error(
-                                &response_tx,
-                                super::Response::Player(Response::Paused(song_id, id)),
-                            );
-                        }
-                    }
-                    // XXX: May be able to handle this by reporting progress updates when playing
-                    // instead of needing to request/response here.
-                    Request::GetPlayProgress(song_id, id) => {
-                        debug!("Got message to provide song progress update");
-                        if cur_song_id == song_id {
-                            blocking_send_or_error(
-                                &response_tx,
-                                super::Response::Player(Response::ProgressUpdate(
-                                    cur_song_elapsed.as_secs_f64(),
-                                    song_id,
-                                    id,
-                                )),
-                            );
-                            debug!("Sending song progress update");
-                        }
-                    }
-                    // XXX: Should this just be IncreaseVolume(0)?
-                    Request::GetVolume(task) => {
-                        // TODO: Implment ability to kill this task using kill_rx.
-                        let KillableTask { id, .. } = task;
-                        info!("Received get volume message");
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::VolumeUpdate(
-                                Percentage((sink.volume() * 100.0).round() as u8),
-                                id,
-                            )),
-                        );
-                        info!("Sending volume update");
-                    }
-                    Request::IncreaseVolume(vol_inc, id) => {
-                        info!("Received {:?}", msg);
-                        sink.set_volume((sink.volume() + vol_inc as f32 / 100.0).clamp(0.0, 1.0));
-                        blocking_send_or_error(
-                            &response_tx,
-                            super::Response::Player(Response::VolumeUpdate(
-                                Percentage((sink.volume() * 100.0).round() as u8),
-                                id,
-                            )),
-                        );
-                        info!("Sending volume update");
-                    }
-                }
+            UnkillableServerRequest::PlaySong(song_pointer, song_id) => spawn_unkillable(
+                play_song(song_pointer, song_id, rodio_tx, task, response_tx),
+            ),
+            UnkillableServerRequest::AutoplaySong(song_pointer, song_id) => spawn_unkillable(
+                autoplay_song(song_pointer, song_id, rodio_tx, task, response_tx),
+            ),
+            UnkillableServerRequest::QueueSong(song_pointer, song_id) => spawn_unkillable(
+                queue_song(song_pointer, song_id, rodio_tx, task, response_tx),
+            ),
+            UnkillableServerRequest::Stop(song_id) => {
+                spawn_unkillable(stop(song_id, rodio_tx, task, response_tx))
             }
-            // Avoid empty infinite loop, but still poll more frequently than when sending
-            // progress updates for responsiveness. TODO: Maintain the
-            // responsiveness whilst still sending progress updates.
-            // TODO: Better architecture for this component in general.
-            last_tick_time = std::time::Instant::now();
-            std::thread::sleep(EVENT_POLL_INTERVAL);
-            if !sink.empty() && !sink.is_paused() {
-                std::thread::sleep(PROGRESS_UPDATE_INTERVAL.saturating_sub(EVENT_POLL_INTERVAL));
-                let passed = std::time::Instant::now() - last_tick_time;
-                cur_song_elapsed += passed;
+            UnkillableServerRequest::PausePlay(song_id) => {
+                spawn_unkillable(pause_play(song_id, rodio_tx, task, response_tx))
             }
-            if sink.empty() && thinks_is_playing {
-                // NOTE: This simple model won't work if we have multiple songs in the sink.
-                // Instead we should keep track of number of songs and use sink.len().
-                trace!("Finished playing {:?}", cur_song_id);
-                thinks_is_playing = false;
-                blocking_send_or_error(
-                    &response_tx,
-                    super::Response::Player(Response::DonePlaying(cur_song_id)),
-                );
+            UnkillableServerRequest::Seek(inc) => {
+                spawn_unkillable(seek(inc, rodio_tx, task, response_tx))
             }
         }
-    })
+        Ok(())
+    }
+}
+
+async fn autoplay_song(
+    song_pointer: Arc<InMemSong>,
+    song_id: ListSongID,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+    send_or_error(
+        rodio_tx,
+        RodioMessage::AutoplaySong(song_pointer, song_id, tx),
+    )
+    .await;
+    while let Some(msg) = rx.recv().await {
+        match msg {
+            PlaySongResponse::ProgressUpdate(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::Queued(_) => {
+                error!("Received queued message, but I wasn't queued... {:?}", id)
+            }
+            // This is the case where the song we asked to play is already
+            // queued. In this case, this task can finish, as the task that
+            // added the song to the queue is responsible for the playback
+            // updates.
+            PlaySongResponse::AutoplayingQueued => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::AutoplayQueued(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::StartedPlaying(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Playing(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::StoppedPlaying => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Error(song_id)),
+                )
+                .await;
+                return;
+            }
+        }
+    }
+    // Should never reach here! Player should send either Error, Stopped or Playing
+    // message first.
+    error!(
+        "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+        id
+    );
+}
+async fn queue_song(
+    song_pointer: Arc<InMemSong>,
+    song_id: ListSongID,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+    send_or_error(rodio_tx, RodioMessage::QueueSong(song_pointer, song_id, tx)).await;
+    while let Some(msg) = rx.recv().await {
+        match msg {
+            PlaySongResponse::ProgressUpdate(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::StartedPlaying(_) => {
+                error!(
+                    "Received StartedPlaying message, but I asked to queue... {:?}",
+                    id
+                )
+            }
+            PlaySongResponse::Queued(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Queued(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::StoppedPlaying => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Error(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::AutoplayingQueued => error!(
+                "Received AutoplayingQueued message, but I asked to queue... {:?}",
+                id
+            ),
+        }
+    }
+    // Should never reach here! Player should send either Error, Stopped or Queued
+    // message first.
+    error!(
+        "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+        id
+    );
+}
+async fn play_song(
+    song_pointer: Arc<InMemSong>,
+    song_id: ListSongID,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+    send_or_error(rodio_tx, RodioMessage::PlaySong(song_pointer, song_id, tx)).await;
+    while let Some(msg) = rx.recv().await {
+        match msg {
+            PlaySongResponse::ProgressUpdate(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::ProgressUpdate(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::Queued(_) => {
+                error!("Received queued message, but I wasn't queued... {:?}", id)
+            }
+            PlaySongResponse::StartedPlaying(duration) => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Playing(duration, song_id)),
+                )
+                .await;
+            }
+            PlaySongResponse::StoppedPlaying => {
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::DonePlaying(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::Error(e) => {
+                error!("Received error {e} when trying to decode song");
+                send_or_error(
+                    response_tx.clone(),
+                    ServerResponse::new_player(id, Response::Error(song_id)),
+                )
+                .await;
+                return;
+            }
+            PlaySongResponse::AutoplayingQueued => error!(
+                "Received AutoplayingQueued message, but I asked to play... {:?}",
+                id
+            ),
+        }
+    }
+    // Should never reach here! Player should send either Error, Stopped or Playing
+    // message first.
+    error!(
+        "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+        id
+    );
+}
+
+async fn seek(
+    inc: i8,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, rx) = rodio_oneshot_channel();
+    send_or_error(rodio_tx, RodioMessage::Seek(inc, tx)).await;
+    let Ok((current_duration, song_id)) = rx.await else {
+        // This happens intentionally - when a seek is requested for a song
+        // but all songs have finished, instead of sending a reply, rodio will drop
+        // sender.
+        info!("The song I tried to seek is no longer playing {:?}", id);
+        return;
+    };
+    send_or_error(
+        response_tx,
+        ServerResponse::new_player(id, Response::ProgressUpdate(current_duration, song_id)),
+    )
+    .await;
+}
+async fn stop(
+    song_id: ListSongID,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, rx) = rodio_oneshot_channel();
+    send_or_error(rodio_tx, RodioMessage::Stop(song_id, tx)).await;
+    let Ok(_) = rx.await else {
+        // This happens intentionally - when a stop is requested for a song
+        // that's no longer playing, instead of sending a reply, rodio will drop sender.
+        info!("The song I tried to stop is no longer playing {:?}", id);
+        return;
+    };
+    send_or_error(
+        response_tx,
+        ServerResponse::new_player(id, Response::Stopped(song_id)),
+    )
+    .await;
+}
+async fn pause_play(
+    song_id: ListSongID,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, rx) = rodio_oneshot_channel();
+    send_or_error(rodio_tx, RodioMessage::PausePlay(song_id, tx)).await;
+    let Ok(play_action_taken) = rx.await else {
+        // This happens intentionally - when a pauseplay is requested for a song
+        // that's no longer playing, instead of sending a reply, rodio will drop sender.
+        info!(
+            "The song I tried to pause/play was no longer selected {:?}",
+            id
+        );
+        return;
+    };
+    match play_action_taken {
+        PlayActionTaken::Paused => {
+            send_or_error(
+                response_tx,
+                ServerResponse::new_player(id, Response::Paused(song_id)),
+            )
+            .await
+        }
+        PlayActionTaken::Played => {
+            send_or_error(
+                response_tx,
+                ServerResponse::new_player(id, Response::Resumed(song_id)),
+            )
+            .await
+        }
+    }
+}
+async fn increase_volume(
+    vol_inc: i8,
+    rodio_tx: mpsc::Sender<RodioMessage>,
+    id: TaskID,
+    response_tx: mpsc::Sender<ServerResponse>,
+) {
+    let (tx, rx) = rodio_oneshot_channel();
+    send_or_error(rodio_tx, RodioMessage::IncreaseVolume(vol_inc, tx)).await;
+    let Ok(current_volume) = rx.await else {
+        // Should never happen!
+        error!(
+            "The player has been dropped while I was waiting for a volume update for {:?}",
+            id
+        );
+        return;
+    };
+    send_or_error(
+        response_tx,
+        ServerResponse::new_player(id, Response::VolumeUpdate(current_volume)),
+    )
+    .await;
 }

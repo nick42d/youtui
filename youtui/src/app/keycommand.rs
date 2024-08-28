@@ -1,12 +1,9 @@
-use std::{borrow::Cow, fmt::Display};
-
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-/// KeyCommand and Keybind model.
-/// A KeyCommand is a pairing of Keybinds to an Action or a Mode.
-/// A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
-use itertools::Itertools;
-
+//! KeyCommand and Keybind model.
+//! A KeyCommand is a pairing of Keybinds to an Action or a Mode.
+//! A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
 use super::component::actionhandler::Action;
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use std::{borrow::Cow, fmt::Display};
 
 // Should another type be GlobalHidden?
 #[derive(PartialEq, Debug, Clone)]
@@ -83,12 +80,15 @@ impl Keybind {
 
 impl<A: Action> Display for KeyCommand<A> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let w: String = self
-            .keybinds
-            .iter()
-            .map(|kb| Cow::from(kb.to_string()))
+        let w: String = 
             // NOTE: Replace with standard library method once stabilised.
-            .intersperse(" / ".into())
+            itertools::Itertools::intersperse(
+                self
+                    .keybinds
+                    .iter()
+                    .map(|kb| Cow::from(kb.to_string()))
+                ," / ".into()
+            )
             .collect();
         write!(f, "{w}")
     }
@@ -125,7 +125,7 @@ impl Display for Keybind {
 impl<A: Action> Mode<A> {
     pub fn context(&self) -> Cow<str> {
         self.commands
-            .get(0)
+            .first()
             .map(|kb| kb.context())
             .unwrap_or_default()
     }

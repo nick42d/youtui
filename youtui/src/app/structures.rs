@@ -1,7 +1,9 @@
+use super::server::downloader::InMemSong;
 use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::time::Duration;
 use ytmapi_rs::parse::AlbumSong;
 
 pub trait SongListComponent {
@@ -28,6 +30,7 @@ pub struct ListSong {
     pub raw: AlbumSong,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
+    pub actual_duration: Option<Duration>,
     year: Rc<String>,
     artists: Vec<Rc<String>>,
     album: Rc<String>,
@@ -46,7 +49,7 @@ pub enum DownloadStatus {
     None,
     Queued,
     Downloading(Percentage),
-    Downloaded(Arc<Vec<u8>>),
+    Downloaded(Arc<InMemSong>),
     Failed,
     Retrying { times_retried: usize },
 }
@@ -210,13 +213,16 @@ impl AlbumSongsList {
             year,
             artists: vec![artist],
             album,
+            actual_duration: None,
         });
         id
     }
     // Returns the ID of the first song added.
     pub fn push_song_list(&mut self, mut song_list: Vec<ListSong>) -> ListSongID {
         let first_id = self.create_next_id();
-        song_list.first_mut().map(|song| song.id = first_id);
+        if let Some(song) = song_list.first_mut() {
+            song.id = first_id;
+        };
         // XXX: Below panics - consider a better option.
         self.list.push(song_list.remove(0));
         for mut song in song_list {

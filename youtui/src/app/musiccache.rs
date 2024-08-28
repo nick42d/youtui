@@ -24,7 +24,7 @@ impl _MusicCache {
             let mut p = PathBuf::new();
             p.push(_MUSIC_DIR);
             p.push(&path);
-            return std::fs::read(p).map(|v| Some(v));
+            return std::fs::read(p).map(Some);
         }
         Ok(None)
     }

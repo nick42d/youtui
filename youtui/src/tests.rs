@@ -1,6 +1,5 @@
 //! Tests for key components, to allow for automated checking of 3rd party api
 //! changes.
-use futures::StreamExt;
 use rusty_ytdl::{Video, VideoOptions};
 use std::{env, path::Path};
 use tokio::sync::OnceCell;

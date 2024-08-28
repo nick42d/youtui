@@ -1,70 +1,188 @@
-use super::spawn_run_or_kill;
-use super::KillableTask;
-use crate::api::DynamicYtMusic;
-use crate::app::taskmanager::TaskID;
-use crate::config::ApiKey;
-use crate::error::Error;
-use crate::get_config_dir;
-use crate::Result;
-use crate::OAUTH_FILENAME;
-use std::borrow::Borrow;
-use std::sync::Arc;
-use tokio::io::AsyncWriteExt;
-use tokio::sync::mpsc;
-use tokio::sync::mpsc::Sender;
-use tokio::sync::Notify;
-use tokio::sync::OnceCell;
-use tokio::sync::RwLock;
+use super::{messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent};
+use crate::{
+    api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
+    error::Error, get_config_dir, Result, OAUTH_FILENAME,
+};
+use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, StreamExt};
+use std::{borrow::Borrow, sync::Arc};
+use tokio::{
+    io::AsyncWriteExt,
+    sync::{
+        mpsc::{self, Sender},
+        RwLock,
+    },
+};
 use tracing::{error, info};
-use ytmapi_rs::auth::BrowserToken;
-use ytmapi_rs::auth::OAuthToken;
-use ytmapi_rs::common::AlbumID;
-use ytmapi_rs::common::ChannelID;
-use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::parse::AlbumSong;
-use ytmapi_rs::parse::GetArtistAlbums;
-use ytmapi_rs::query::GetAlbumQuery;
-use ytmapi_rs::query::GetArtistAlbumsQuery;
+use ytmapi_rs::{
+    auth::{BrowserToken, OAuthToken},
+    common::{AlbumID, ChannelID, SearchSuggestion},
+    error::ErrorKind,
+    parse::{AlbumSong, GetAlbum, GetArtistAlbums},
+    query::{GetAlbumQuery, GetArtistAlbumsQuery},
+};
 
-pub enum Request {
-    GetSearchSuggestions(String, KillableTask),
-    NewArtistSearch(String, KillableTask),
-    SearchSelectedArtist(ChannelID<'static>, KillableTask),
+#[derive(Debug)]
+pub enum KillableServerRequest {
+    GetSearchSuggestions(String),
+    NewArtistSearch(String),
+    SearchSelectedArtist(ChannelID<'static>),
 }
 #[derive(Debug)]
+pub enum UnkillableServerRequest {}
+
 pub enum Response {
-    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>, TaskID),
-    SearchArtistError(TaskID),
-    ReplaceSearchSuggestions(Vec<SearchSuggestion>, TaskID, String),
-    SongListLoading(TaskID),
-    SongListLoaded(TaskID),
-    NoSongsFound(TaskID),
-    SongsFound(TaskID),
+    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
+    SearchArtistError,
+    ReplaceSearchSuggestions(Vec<SearchSuggestion>, String),
+    SongListLoading,
+    SongListLoaded,
+    NoSongsFound,
+    SongsFound,
     AppendSongList {
         song_list: Vec<AlbumSong>,
         album: String,
         year: String,
         artist: String,
-        id: TaskID,
     },
-    ApiError(Error),
 }
-pub struct Api {
-    // Do I want to keep track of tasks here in a joinhandle?
-    api: Arc<OnceCell<Result<ConcurrentApi>>>,
-    notify: Arc<Notify>,
-    _api_init: tokio::task::JoinHandle<()>,
-    response_tx: mpsc::Sender<super::Response>,
+
+// Custom debug due to size of vec params.
+impl std::fmt::Debug for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Response::ReplaceArtistList(_) => f
+                .debug_tuple("ReplaceArtistList")
+                .field(&"Vec<..>")
+                .finish(),
+            Response::SearchArtistError => f.debug_tuple("SearchArtistError").finish(),
+            Response::ReplaceSearchSuggestions(_, b) => f
+                .debug_tuple("ReplaceSearchSuggestions")
+                .field(&"Vec<..>")
+                .field(b)
+                .finish(),
+            Response::SongListLoading => f.debug_tuple("SongListLoading").finish(),
+            Response::SongListLoaded => f.debug_tuple("SongListLoaded").finish(),
+            Response::NoSongsFound => f.debug_tuple("NoSongsFound").finish(),
+            Response::SongsFound => f.debug_tuple("SongsFound").finish(),
+            Response::AppendSongList {
+                song_list: _,
+                album,
+                year,
+                artist,
+            } => f
+                .debug_struct("AppendSongList")
+                .field("song_list", &"Vec<..>")
+                .field("album", album)
+                .field("year", year)
+                .field("artist", artist)
+                .finish(),
+        }
+    }
 }
-type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
+
+pub struct Api<T> {
+    api: T,
+    response_tx: mpsc::Sender<ServerResponse>,
+}
+pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
+
+async fn get_concrete_type(
+    j: tokio::task::JoinHandle<Result<ConcurrentApi>>,
+) -> Arc<Result<ConcurrentApi>> {
+    Arc::new(j.await.expect("Create new API task should never panic"))
+}
+
+impl Api<()> {
+    pub fn new(
+        api_key: ApiKey,
+        response_tx: mpsc::Sender<ServerResponse>,
+    ) -> Api<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
+        let api_handle = tokio::spawn(async {
+            DynamicYtMusic::new(api_key)
+                .await
+                .map(|api| Arc::new(RwLock::new(api)))
+                .map_err(Into::into)
+        });
+        let api = get_concrete_type(api_handle).shared();
+        Api { api, response_tx }
+    }
+}
+
+impl<T> Api<Shared<T>>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
+    pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
+        self.api.clone().await
+    }
+}
+
+impl<T> ServerComponent for Api<Shared<T>>
+where
+    T: Future<Output = Arc<Result<ConcurrentApi>>>,
+{
+    type KillableRequestType = KillableServerRequest;
+    type UnkillableRequestType = UnkillableServerRequest;
+
+    async fn handle_killable_request(
+        &self,
+        request: Self::KillableRequestType,
+        task: KillableTask,
+    ) -> Result<()> {
+        let KillableTask { id, kill_rx } = task;
+        let tx = self.response_tx.clone();
+        // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
+        // internally.
+        let api = (*self.get_api().await)
+            .as_ref()
+            .map_err(Error::new_api_error_cloned)?
+            .clone();
+        match request {
+            KillableServerRequest::NewArtistSearch(artist) => {
+                spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx)
+            }
+            KillableServerRequest::GetSearchSuggestions(text) => {
+                spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx)
+            }
+            KillableServerRequest::SearchSelectedArtist(browse_id) => {
+                spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx);
+            }
+        };
+        Ok(())
+    }
+    async fn handle_unkillable_request(
+        &self,
+        request: Self::UnkillableRequestType,
+        _: TaskID,
+    ) -> Result<()> {
+        match request {};
+    }
+}
+
+/// Update the local oauth token file.
+async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
+    let mut file_path = get_config_dir()?;
+    file_path.push(OAUTH_FILENAME);
+    let mut tmpfile_path = file_path.clone();
+    tmpfile_path.set_extension("json.tmp");
+    let out = serde_json::to_string_pretty(&token)?;
+    info!("Updating oauth token at: {:?}", &file_path);
+    let mut file = tokio::fs::File::create_new(&tmpfile_path).await?;
+    file.write_all(out.as_bytes()).await?;
+    tokio::fs::rename(tmpfile_path, &file_path).await?;
+    info!("Updated oauth token at: {:?}", file_path);
+    Ok(())
+}
 
 /// Run a query. If the oauth token is expired, take the lock and refresh
 /// it (single retry only). If another error occurs, try a single retry too.
 // NOTE: Determine how to handle if multiple queries in progress when we lock.
 // TODO: Refresh the oauth file also. (send message to server - filemanager -
 // component)
-async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> crate::Result<O>
+pub async fn query_api_with_retry<Q, O>(
+    api: &ConcurrentApi,
+    query: impl Borrow<Q>,
+) -> crate::Result<O>
 where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
     Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
@@ -72,7 +190,7 @@ where
     let res = api.read().await.query::<Q, O>(query.borrow()).await;
     match res {
         Ok(r) => Ok(r),
-        Err(Error::ApiError(e)) => {
+        Err(Error::Api(e)) => {
             info!("Got error {e} from api");
             match e.into_kind() {
                 ErrorKind::OAuthTokenExpired { token_hash } => {
@@ -113,145 +231,12 @@ where
     }
 }
 
-async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
-    let mut file_path = get_config_dir()?;
-    file_path.push(OAUTH_FILENAME);
-    let mut tmpfile_path = file_path.clone();
-    tmpfile_path.set_extension("json.tmp");
-    let out = serde_json::to_string_pretty(&token)?;
-    info!("Updating oauth token at: {:?}", &file_path);
-    let mut file = tokio::fs::File::create_new(&tmpfile_path).await?;
-    file.write_all(out.as_bytes()).await?;
-    tokio::fs::rename(tmpfile_path, &file_path).await?;
-    info!("Updated oauth token at: {:?}", file_path);
-    Ok(())
-}
-
-impl Api {
-    pub fn new(api_key: ApiKey, response_tx: mpsc::Sender<super::Response>) -> Self {
-        let api = Arc::new(OnceCell::new());
-        let notify = Arc::new(Notify::new());
-        let api_clone = api.clone();
-        let notify_clone = notify.clone();
-        let _api_init = tokio::spawn(async move {
-            info!("Initialising API");
-            // TODO: Error handling
-            let api_gen = DynamicYtMusic::new(api_key)
-                .await
-                .map(|api| Arc::new(RwLock::new(api)))
-                .map_err(Into::into);
-            api_clone
-                .set(api_gen)
-                .expect("First time initializing api should always succeed");
-            notify_clone.notify_one();
-            info!("API initialised");
-        });
-        Self {
-            api,
-            response_tx,
-            notify,
-            _api_init,
-        }
-    }
-    async fn get_api(&self) -> Result<&ConcurrentApi> {
-        match self.api.get() {
-            // Wait for initialisation to complete if it hasn't already.
-            None => self.notify.notified().await,
-            // TODO: Better error - hack to turn &E into E
-            Some(api) => return api.as_ref().map_err(|_| Error::UnknownAPIError),
-        }
-        match self.api.get() {
-            // If we got here a second time, something has gone wrong.
-            None => Err(Error::UnknownAPIError),
-            // TODO: Better error - hack to turn &E into E
-            Some(api) => api.as_ref().map_err(|_| Error::UnknownAPIError),
-        }
-    }
-    pub async fn handle_request(&self, request: Request) -> Result<()> {
-        match request {
-            Request::NewArtistSearch(a, task) => self.handle_new_artist_search(a, task).await,
-            Request::GetSearchSuggestions(text, task) => {
-                self.handle_get_search_suggestions(text, task).await
-            }
-            Request::SearchSelectedArtist(browse_id, task) => {
-                self.handle_search_selected_artist(browse_id, task).await
-            }
-        }
-    }
-    async fn handle_get_search_suggestions(&self, text: String, task: KillableTask) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        // Give the task a clone of the API. Not ideal but works.
-        // The largest part of the API is Reqwest::Client which contains an Arc
-        // internally and so I believe clones efficiently.
-        // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
-        // Create a stream of tasks, map with a reference to API.
-        let tx = self.response_tx.clone();
-        let api = match self.get_api().await {
-            Ok(api) => api,
-            Err(e) => {
-                error!("Error {e} connecting to API");
-                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await?;
-                return Ok(());
-            }
-        }
-        .clone();
-        spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx).await;
-        Ok(())
-    }
-
-    async fn handle_new_artist_search(&self, artist: String, task: KillableTask) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        // Give the task a clone of the API. Not ideal but works.
-        // The largest part of the API is Reqwest::Client which contains an Arc
-        // internally and so I believe clones efficiently.
-        // Possible alternative: https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
-        // Create a stream of tasks, map with a reference to API.
-        let tx = self.response_tx.clone();
-        let api = match self.get_api().await {
-            Ok(api) => api,
-            Err(e) => {
-                error!("Error {e} connecting to API");
-                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await?;
-                return Ok(());
-            }
-        }
-        .clone();
-        spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx).await;
-        Ok(())
-    }
-    async fn handle_search_selected_artist(
-        &self,
-        browse_id: ChannelID<'static>,
-        task: KillableTask,
-    ) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        // See above note
-        let tx = self.response_tx.clone();
-        let api = match self.get_api().await {
-            Ok(api) => api,
-            Err(e) => {
-                error!("Error {e} connecting to API");
-                tx.send(crate::app::server::Response::Api(Response::ApiError(e)))
-                    .await?;
-                return Ok(());
-            }
-        }
-        .clone();
-        spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx).await;
-        Ok(())
-    }
-}
-
 async fn handle_new_artist_search_task(
     api: ConcurrentApi,
     artist: String,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
-    //            let api = crate::app::api::APIHandler::new();
-    //            let search_res = api.search_artists(&self.search_contents, 20);
     tracing::info!("Running search query");
     let search_res = match query_api_with_retry(
         &api,
@@ -264,27 +249,24 @@ async fn handle_new_artist_search_task(
         Ok(t) => t,
         Err(e) => {
             error!("Received error on search artist query \"{}\"", e);
-            tx.send(super::Response::Api(Response::SearchArtistError(id)))
-                .await
-                .unwrap_or_else(|_| error!("Error sending response"));
+            send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
             return;
         }
     };
     let artist_list = search_res.into_iter().collect();
     tracing::info!("Requesting caller to replace artist list");
-    let _ = tx
-        .send(super::Response::Api(Response::ReplaceArtistList(
-            artist_list,
-            id,
-        )))
-        .await;
+    send_or_error(
+        tx,
+        ServerResponse::new_api(id, Response::ReplaceArtistList(artist_list)),
+    )
+    .await;
 }
 
 async fn get_search_suggestions_task(
     api: ConcurrentApi,
     text: String,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
     tracing::info!("Getting search suggestions for {text}");
     let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
@@ -296,25 +278,24 @@ async fn get_search_suggestions_task(
         }
     };
     tracing::info!("Requesting caller to replace search suggestions");
-    let _ = tx
-        .send(super::Response::Api(Response::ReplaceSearchSuggestions(
-            search_suggestions,
+    send_or_error(
+        tx,
+        ServerResponse::new_api(
             id,
-            text,
-        )))
-        .await;
+            Response::ReplaceSearchSuggestions(search_suggestions, text),
+        ),
+    )
+    .await;
 }
 
 async fn search_selected_artist_task(
     api: ConcurrentApi,
     browse_id: ChannelID<'static>,
     id: TaskID,
-    tx: Sender<super::Response>,
+    tx: Sender<ServerResponse>,
 ) {
     let tx = tx.clone();
-    let _ = tx
-        .send(super::Response::Api(Response::SongListLoading(id)))
-        .await;
+    send_or_error(&tx, ServerResponse::new_api(id, Response::SongListLoading)).await;
     tracing::info!("Running songs query");
     // Should this be a ChannelID or BrowseID? Should take a trait?.
     // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
@@ -324,41 +305,34 @@ async fn search_selected_artist_task(
     let artist = match artist {
         Ok(a) => a,
         Err(e) => {
-            let Error::ApiError(e) = e else {
+            let Error::Api(e) = e else {
                 error!("API error received <{e}>");
                 info!("Telling caller no songs found (error)");
-                let _ = tx
-                    .send(super::Response::Api(Response::NoSongsFound(id)))
-                    .await;
+                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
                 return;
             };
             let e = e.into_kind();
             let ErrorKind::JsonParsing(e) = e else {
                 error!("API error received <{}>", e);
                 info!("Telling caller no songs found (error)");
-                let _ = tx
-                    .send(super::Response::Api(Response::NoSongsFound(id)))
-                    .await;
+                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
                 return;
             };
             let (json, key) = e.get_json_and_key();
             // TODO: Bring loggable json errors into their own function.
             error!("API error recieved at key {:?}", key);
+            // compile_error!("Remove shitty logging");
             let path = std::path::Path::new("test.json");
             std::fs::write(path, json).unwrap_or_else(|e| error!("Error <{e}> writing json log"));
             info!("Wrote json to {:?}", path);
             tracing::info!("Telling caller no songs found (error)");
-            let _ = tx
-                .send(super::Response::Api(Response::NoSongsFound(id)))
-                .await;
+            send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
             return;
         }
     };
     let Some(albums) = artist.top_releases.albums else {
         tracing::info!("Telling caller no songs found (no params)");
-        let _ = tx
-            .send(super::Response::Api(Response::NoSongsFound(id)))
-            .await;
+        send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
         return;
     };
 
@@ -379,9 +353,7 @@ async fn search_selected_artist_task(
             .collect()
     } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
         tracing::info!("Telling caller no songs found (no params or browse_id)");
-        let _ = tx
-            .send(super::Response::Api(Response::NoSongsFound(id)))
-            .await;
+        send_or_error(&tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
         return;
     } else {
         // Must have params and browse_id
@@ -396,49 +368,61 @@ async fn search_selected_artist_task(
             Ok(r) => r,
             Err(e) => {
                 error!("Received error on get_artist_albums query \"{}\"", e);
-
                 // TODO: Better Error type
-                tx.send(super::Response::Api(Response::SearchArtistError(id)))
-                    .await
-                    .unwrap_or_else(|_| error!("Error sending response"));
+                send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
                 return;
             }
         };
         albums.into_iter().map(|a| a.browse_id).collect()
     };
-    let _ = tx
-        .send(super::Response::Api(Response::SongsFound(id)))
+    send_or_error(&tx, ServerResponse::new_api(id, Response::SongsFound)).await;
+    // Request all albums, concurrently but retaining order.
+    // Future improvement: instead of using a FuturesOrdered, we could send
+    // willy-nilly but with an index, so the caller can insert songs in place.
+    let mut stream = browse_id_list
+        .into_iter()
+        .map(|b_id| {
+            let api = &api;
+            async move {
+                tracing::info!("Spawning request for caller tracks for request ID {:?}", id,);
+                let query = GetAlbumQuery::new(&b_id);
+                query_api_with_retry(api, query).await
+            }
+        })
+        .collect::<FuturesOrdered<_>>();
+    while let Some(maybe_album) = stream.next().await {
+        let album = match maybe_album {
+            Ok(album) => album,
+            Err(e) => {
+                error!("Error <{e}> getting album");
+                return;
+            }
+        };
+        let GetAlbum {
+            title,
+            artists,
+            year,
+            tracks,
+            ..
+        } = album;
+        tracing::info!("Sending caller tracks for request ID {:?}", id);
+        send_or_error(
+            &tx,
+            ServerResponse::new_api(
+                id,
+                Response::AppendSongList {
+                    song_list: tracks,
+                    album: title,
+                    year,
+                    artist: artists
+                        .into_iter()
+                        .next()
+                        .map(|a| a.name)
+                        .unwrap_or_default(),
+                },
+            ),
+        )
         .await;
-    // Concurrently request all albums.
-    let futures = browse_id_list.into_iter().map(|b_id| {
-        let api = &api;
-        let tx = tx.clone();
-        // TODO: remove allocation
-        let artist_name = artist.name.clone();
-        async move {
-            tracing::info!("Spawning request for caller tracks for request ID {:?}", id);
-            let query = GetAlbumQuery::new(&b_id);
-            let album = match query_api_with_retry(api, query).await {
-                Ok(album) => album,
-                Err(e) => {
-                    error!("Error <{e}> getting album {:?}", b_id);
-                    return;
-                }
-            };
-            tracing::info!("Sending caller tracks for request ID {:?}", id);
-            let _ = tx
-                .send(super::Response::Api(Response::AppendSongList {
-                    song_list: album.tracks,
-                    album: album.title,
-                    year: album.year,
-                    artist: artist_name,
-                    id,
-                }))
-                .await;
-        }
-    });
-    let _ = futures::future::join_all(futures).await;
-    let _ = tx
-        .send(super::Response::Api(Response::SongListLoaded(id)))
-        .await;
+    }
+    send_or_error(tx, ServerResponse::new_api(id, Response::SongListLoaded)).await;
 }
