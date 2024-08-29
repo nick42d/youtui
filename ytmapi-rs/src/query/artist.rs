@@ -18,13 +18,21 @@ pub struct GetArtistAlbumsQuery<'a> {
     params: BrowseParams<'a>,
 }
 impl<'a> GetArtistQuery<'a> {
-    pub fn new(channel_id: ChannelID<'a>) -> GetArtistQuery<'a> {
-        GetArtistQuery { channel_id }
+    pub fn new(channel_id: impl Into<ChannelID<'a>>) -> GetArtistQuery<'a> {
+        GetArtistQuery {
+            channel_id: channel_id.into(),
+        }
     }
 }
 impl<'a> GetArtistAlbumsQuery<'a> {
     pub fn new(channel_id: ChannelID<'a>, params: BrowseParams<'a>) -> GetArtistAlbumsQuery<'a> {
         GetArtistAlbumsQuery { channel_id, params }
+    }
+}
+
+impl<'a, T: Into<ChannelID<'a>>> From<T> for GetArtistQuery<'a> {
+    fn from(channel_id: T) -> Self {
+        GetArtistQuery::new(channel_id.into())
     }
 }
 

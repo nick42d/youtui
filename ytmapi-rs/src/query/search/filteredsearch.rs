@@ -34,24 +34,34 @@ pub trait FilteredSearchType: Default {
 pub struct FilteredSearch<F: FilteredSearchType> {
     pub filter: F,
 }
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct SongsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct VideosFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct AlbumsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct ArtistsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct PlaylistsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct CommunityPlaylistsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct FeaturedPlaylistsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct EpisodesFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct PodcastsFilter;
+/// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct ProfilesFilter;
 
