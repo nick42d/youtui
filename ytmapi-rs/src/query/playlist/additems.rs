@@ -22,11 +22,13 @@ pub struct AddPlaylistItemsQuery<'a, T: SpecialisedQuery> {
     id: PlaylistID<'a>,
     query_type: T,
 }
+/// Helper struct for AddPlaylistItemsQuery
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct AddVideosToPlaylist<'a> {
     video_ids: Vec<VideoID<'a>>,
     duplicate_handling_mode: DuplicateHandlingMode,
 }
+/// Helper struct for AddPlaylistItemsQuery
 #[derive(Debug, Clone, PartialEq)]
 pub struct AddPlaylistToPlaylist<'a> {
     source_playlist: PlaylistID<'a>,

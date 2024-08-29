@@ -30,9 +30,10 @@ pub trait FilteredSearchType: Default {
         "EgWKAQ".into()
     }
 }
+/// Helper struct for SearchQuery
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FilteredSearch<F: FilteredSearchType> {
-    pub filter: F,
+    pub(crate) filter: F,
 }
 /// Helper struct for FilteredSearch type state pattern.
 #[derive(Default, PartialEq, Debug, Clone)]
