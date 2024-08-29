@@ -149,7 +149,12 @@ impl TableView for Playlist {
     }
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
         Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
-            Box::new(iter::once((i + 1).to_string().into()).chain(ls.get_fields_iter()))
+            let first_field = if Some(i) == self.get_cur_playing_index() {
+                ">>>".to_string()
+            } else {
+                (i + 1).to_string()
+            };
+            Box::new(iter::once(first_field.to_string().into()).chain(ls.get_fields_iter()))
                 as Box<dyn Iterator<Item = Cow<str>>>
         }))
     }
