@@ -432,6 +432,10 @@ impl TableView for AlbumSongsPanel {
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
+
+    fn get_highlighted_row(&self) -> Option<usize> {
+        None
+    }
 }
 impl SortableTableView for AlbumSongsPanel {
     fn get_sortable_columns(&self) -> &[usize] {

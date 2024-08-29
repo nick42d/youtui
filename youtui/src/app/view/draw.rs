@@ -10,7 +10,7 @@ use crate::{
 };
 use ratatui::{
     prelude::{Margin, Rect},
-    style::{Modifier, Style},
+    style::{Modifier, Style, Stylize},
     symbols::{block, line},
     text::Line,
     widgets::{
@@ -108,8 +108,15 @@ where
 {
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
+    let cur_highlighted = table.get_highlighted_row();
     // TODO: theming
-    let table_items = table.get_items().map(Row::new);
+    let table_items = table.get_items().enumerate().map(|(idx, items)| {
+        if Some(idx) == cur_highlighted {
+            Row::new(items).bold().italic()
+        } else {
+            Row::new(items)
+        }
+    });
     let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
