@@ -175,6 +175,8 @@ fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rec
     );
 }
 
+// At this stage, this is the most efficient way to call this function.
+#[allow(clippy::too_many_arguments)]
 fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
     f: &mut Frame,
     table_items: T,

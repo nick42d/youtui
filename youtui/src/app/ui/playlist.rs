@@ -150,7 +150,14 @@ impl TableView for Playlist {
     fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
         Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
             let first_field = if Some(i) == self.get_cur_playing_index() {
-                ">>>".to_string()
+                match self.play_status {
+                    PlayState::NotPlaying => ">>>".to_string(),
+                    PlayState::Playing(_) => "".to_string(),
+                    PlayState::Paused(_) => "".to_string(),
+                    PlayState::Stopped => ">>>".to_string(),
+                    PlayState::Error(_) => ">>>".to_string(),
+                    PlayState::Buffering(_) => "".to_string(),
+                }
             } else {
                 (i + 1).to_string()
             };
@@ -165,6 +172,9 @@ impl TableView for Playlist {
             ]
             .into_iter(),
         )
+    }
+    fn get_highlighted_row(&self) -> Option<usize> {
+        self.get_cur_playing_index()
     }
 }
 
