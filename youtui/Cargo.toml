@@ -14,13 +14,13 @@ categories = ["multimedia::audio"]
 rust-version = "1.79"
 
 [dependencies]
-clap = { version = "4.5.7", features = ["derive"] }
+clap = { version = "4.5.16", features = ["derive"] }
 crossterm = { version = "0.28.1", features = ["event-stream"] }
 futures = "0.3.30"
 ratatui = { version = "0.28.0", features = ["all-widgets"] }
-serde = "1.0.203"
-serde_json = "1.0.117"
-tokio = "1.38.0"
+serde = "1.0.209"
+serde_json = "1.0.127"
+tokio = "1.39.3"
 ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.12", default-features = false, features = [
   "rustls-tls",
   "simplified-queries",
@@ -32,7 +32,7 @@ tui-logger = { version = "0.12.0", features = [
 ] }
 directories = "5.0.1"
 gag = "1.0.0"
-toml = "0.8.14"
+toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
