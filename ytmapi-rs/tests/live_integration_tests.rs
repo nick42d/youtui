@@ -129,6 +129,10 @@ generate_query_test!(
     SearchQuery::new("Chasing scratch")
 );
 generate_query_test!(
+    test_basic_search_alternate_query_3_genre,
+    SearchQuery::new("Metal")
+);
+generate_query_test!(
     test_basic_search_alternate_query_no_results,
     SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
 );

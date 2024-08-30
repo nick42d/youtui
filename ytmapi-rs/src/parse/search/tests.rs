@@ -22,6 +22,18 @@ async fn test_search_basic_top_result_no_type() {
     );
 }
 #[tokio::test]
+async fn test_search_basic_radio() {
+    // Case where topmost result is a special 'radio' playlist. Doesn't contain a
+    // type and only has a single subtitle. Seems to show up when searching for
+    // genres like classical and metal.
+    parse_test!(
+        "./test_json/search_basic_radio_20240830.json",
+        "./test_json/search_basic_radio_20240830_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_basic_top_result_card() {
     // Case where there is only a 'card' top result, with no children.
     parse_test!(
