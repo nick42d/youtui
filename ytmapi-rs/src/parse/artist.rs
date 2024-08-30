@@ -166,7 +166,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                     };
                     top_releases.albums = Some(albums);
                 }
-                ArtistTopReleaseCategory::Playlists => todo!(),
+                ArtistTopReleaseCategory::Playlists => (),
                 ArtistTopReleaseCategory::None => (),
             }
         }
