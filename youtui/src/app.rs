@@ -29,6 +29,12 @@ mod taskmanager;
 mod ui;
 mod view;
 
+// We need this thread_local to ensure we know which is the main thread. Panic
+// hook that destructs terminal should only run on the main thread.
+thread_local! {
+    static IS_MAIN_THREAD: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
 const CALLBACK_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
@@ -93,10 +99,13 @@ impl Youtui {
         let mut stdout = io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
         // Ensure clean return to shell if panic.
+        IS_MAIN_THREAD.with(|flag| flag.set(true));
         std::panic::set_hook(Box::new(|panic_info| {
-            // If we fail to destruct terminal, ignore the error as panicking anyway.
-            let _ = destruct_terminal();
-            println!("{}", panic_info);
+            if IS_MAIN_THREAD.with(|flag| flag.get()) {
+                // If we fail to destruct terminal, ignore the error as panicking anyway.
+                let _ = destruct_terminal();
+                println!("{}", panic_info);
+            }
         }));
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
