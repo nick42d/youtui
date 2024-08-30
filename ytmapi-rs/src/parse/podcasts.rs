@@ -9,7 +9,7 @@ impl ParseFrom<GetChannelQuery> for () {
         todo!()
     }
 }
-impl ParseFrom<GetChannelEpisodesQuery> for () {
+impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for () {
     fn parse_from(p: crate::ProcessedResult<GetChannelEpisodesQuery>) -> crate::Result<Self> {
         todo!()
     }
@@ -32,7 +32,13 @@ impl ParseFrom<GetEpisodesPlaylistQuery> for () {
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::BrowserToken;
+    use crate::{
+        auth::BrowserToken,
+        query::{
+            GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetEpisodesPlaylistQuery,
+            GetPodcastQuery,
+        },
+    };
 
     #[tokio::test]
     async fn test_get_channel() {

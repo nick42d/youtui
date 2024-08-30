@@ -143,6 +143,8 @@ pub struct FeedbackTokenAddToLibrary<'a>(Cow<'a, str>);
 pub struct FeedbackTokenRemoveFromLibrary<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct PodcastChannelParams<'a>(Cow<'a, str>);
 // TODO: Add parsing - PlaylistID begining with VL should fail.
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PlaylistID<'a>(Cow<'a, str>);
@@ -187,6 +189,7 @@ impl_youtube_id!(PlaylistID<'a>);
 impl_youtube_id!(ChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
 impl_youtube_id!(BrowseParams<'a>);
+impl_youtube_id!(PodcastChannelParams<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
 impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);
