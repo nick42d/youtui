@@ -1,6 +1,6 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use common::{LikeStatus, VideoID};
+use common::{LikeStatus, PodcastID, VideoID};
 use parse::{GetArtistAlbumsAlbum, Lyrics};
 use std::time::Duration;
 use ytmapi_rs::common::{
@@ -97,6 +97,14 @@ generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // recommendations.
 generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
 generate_query_test!(test_get_history, GetHistoryQuery);
+generate_query_test!(test_get_channel, GetChannelQuery::new());
+generate_query_test!(test_get_channel_episodes, GetChannelEpisodesQuery::new());
+generate_query_test!(
+    test_get_podcast,
+    GetPodcastQuery::new(PodcastID::from_raw(""))
+);
+generate_query_test!(test_get_episode, GetEpisodeQuery::new());
+generate_query_test!(test_get_episodes_playlist, GetEpisodesPlaylistQuery::new());
 generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))

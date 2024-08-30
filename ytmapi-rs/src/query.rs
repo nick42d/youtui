@@ -37,12 +37,14 @@ use crate::{RawResult, Result};
 use std::borrow::Cow;
 use std::future::Future;
 
+use private::Sealed;
+
 pub use album::*;
 pub use artist::*;
 pub use history::*;
 pub use library::*;
 pub use playlist::*;
-use private::Sealed;
+pub use podcasts::*;
 pub use recommendations::*;
 pub use search::*;
 pub use upload::*;
@@ -51,6 +53,7 @@ mod artist;
 mod history;
 mod library;
 mod playlist;
+mod podcasts;
 mod recommendations;
 mod search;
 mod upload;
