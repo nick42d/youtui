@@ -21,12 +21,15 @@ pub struct CreatePlaylistQuery<'a, C: CreatePlaylistType> {
     query_type: C,
 }
 
+/// Helper struct for CreatePlaylistQuery
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct BasicCreatePlaylist {}
+/// Helper struct for CreatePlaylistQuery
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct CreatePlaylistFromVideos<'a> {
     video_ids: Vec<VideoID<'a>>,
 }
+/// Helper struct for CreatePlaylistQuery
 #[derive(Debug, Clone, PartialEq)]
 pub struct CreatePlaylistFromPlaylist<'a> {
     source_playlist: PlaylistID<'a>,

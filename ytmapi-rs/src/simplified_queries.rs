@@ -205,12 +205,11 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.search_artists("Beatles").await.unwrap();
     /// yt.get_artist(&results[0].browse_id).await
     /// # };
-    pub async fn get_artist<'a, T: Into<ChannelID<'a>>>(
+    pub async fn get_artist<'a>(
         &self,
-        channel_id: T,
+        query: impl Into<GetArtistQuery<'a>>,
     ) -> Result<ArtistParams> {
-        let query = GetArtistQuery::new(channel_id.into());
-        self.query(query).await
+        self.query(query.into()).await
     }
     /// Gets a full list albums for an artist.
     /// ```no_run

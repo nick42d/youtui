@@ -41,10 +41,13 @@ pub enum SpellingMode {
     WithSuggestions,
 }
 
+/// Helper struct for SearchQuery type state pattern.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct BasicSearch;
+/// Helper struct for SearchQuery type state pattern.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct LibrarySearch;
+/// Helper struct for SearchQuery type state pattern.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct UploadSearch;
 
