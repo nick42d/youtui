@@ -41,8 +41,9 @@ use crate::query::{
     RemovePlaylistItemsQuery, SearchQuery,
 };
 use crate::query::{
-    AddHistoryItemQuery, DuplicateHandlingMode, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
-    GetTasteProfileQuery, SetTasteProfileQuery,
+    AddHistoryItemQuery, DuplicateHandlingMode, GetChannelEpisodesQuery, GetChannelQuery,
+    GetEpisodeQuery, GetEpisodesPlaylistQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetPodcastQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Result, YtMusic};
@@ -780,5 +781,49 @@ impl<A: AuthToken> YtMusic<A> {
         song_url: T,
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_channel(&self) -> Result<<GetChannelQuery as Query<A>>::Output> {
+        self.query(GetChannelQuery).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_channel_episodes(
+        &self,
+    ) -> Result<<GetChannelEpisodesQuery as Query<A>>::Output> {
+        self.query(GetChannelEpisodesQuery).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_podcast(&self) -> Result<<GetPodcastQuery as Query<A>>::Output> {
+        self.query(GetPodcastQuery).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_episode(&self) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
+        self.query(GetEpisodeQuery).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_episodes_playlist(
+        &self,
+    ) -> Result<<GetEpisodesPlaylistQuery as Query<A>>::Output> {
+        self.query(GetEpisodesPlaylistQuery).await
     }
 }
