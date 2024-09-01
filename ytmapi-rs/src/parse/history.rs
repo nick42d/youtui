@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     common::{
-        ApiOutcome, ChannelID, Explicit, FeedbackTokenRemoveFromHistory, LibraryManager,
+        ApiOutcome, ArtistChannelID, Explicit, FeedbackTokenRemoveFromHistory, LibraryManager,
         LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
     },
     nav_consts::{
@@ -70,7 +70,7 @@ pub struct HistoryItemVideo {
     pub title: String,
     // Could be 'ParsedVideoChannel'
     pub channel_name: String,
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
     pub thumbnails: Vec<super::Thumbnail>,

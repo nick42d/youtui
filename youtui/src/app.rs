@@ -18,7 +18,7 @@ use tracing::info;
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;
-use ytmapi_rs::common::{ChannelID, VideoID};
+use ytmapi_rs::common::{ArtistChannelID, VideoID};
 
 mod component;
 mod keycommand;
@@ -77,7 +77,7 @@ pub enum AppCallback {
     IncreaseVolume(i8),
     SearchArtist(String),
     GetSearchSuggestions(String),
-    GetArtistSongs(ChannelID<'static>),
+    GetArtistSongs(ArtistChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
     AddSongsToPlaylistAndPlay(Vec<ListSong>),
     PlaySong(Arc<InMemSong>, ListSongID),

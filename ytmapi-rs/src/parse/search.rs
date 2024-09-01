@@ -2,8 +2,8 @@ use super::{
     parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY, RESPONSIVE_HEADER,
 };
 use crate::common::{
-    AlbumID, AlbumType, ChannelID, Explicit, PlaylistID, PodcastID, ProfileID, SearchSuggestion,
-    SuggestionType, TextRun, Thumbnail, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, Explicit, PlaylistID, PodcastID, ProfileID,
+    SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
 };
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -100,7 +100,7 @@ pub struct SearchResultArtist {
     pub artist: String,
     /// An artist with no subscribers won't contain this field.
     pub subscribers: Option<String>,
-    pub browse_id: ChannelID<'static>,
+    pub browse_id: ArtistChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

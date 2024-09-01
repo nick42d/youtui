@@ -15,7 +15,7 @@ use tokio::{
 use tracing::{error, info};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
-    common::{AlbumID, ChannelID, SearchSuggestion},
+    common::{AlbumID, ArtistChannelID, SearchSuggestion},
     error::ErrorKind,
     parse::{AlbumSong, GetAlbum, GetArtistAlbums},
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
@@ -25,7 +25,7 @@ use ytmapi_rs::{
 pub enum KillableServerRequest {
     GetSearchSuggestions(String),
     NewArtistSearch(String),
-    SearchSelectedArtist(ChannelID<'static>),
+    SearchSelectedArtist(ArtistChannelID<'static>),
 }
 #[derive(Debug)]
 pub enum UnkillableServerRequest {}
@@ -290,7 +290,7 @@ async fn get_search_suggestions_task(
 
 async fn search_selected_artist_task(
     api: ConcurrentApi,
-    browse_id: ChannelID<'static>,
+    browse_id: ArtistChannelID<'static>,
     id: TaskID,
     tx: Sender<ServerResponse>,
 ) {

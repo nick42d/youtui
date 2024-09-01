@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 use tracing::{debug, info, warn};
-use ytmapi_rs::common::{ChannelID, VideoID};
+use ytmapi_rs::common::{ArtistChannelID, VideoID};
 
 const MESSAGE_QUEUE_LENGTH: usize = 256;
 
@@ -66,7 +66,7 @@ enum TaskMessage {
 pub enum AppRequest {
     SearchArtists(String),
     GetSearchSuggestions(String),
-    GetArtistSongs(ChannelID<'static>),
+    GetArtistSongs(ArtistChannelID<'static>),
     Download(VideoID<'static>, ListSongID),
     IncreaseVolume(i8),
     PlaySong(Arc<InMemSong>, ListSongID),

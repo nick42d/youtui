@@ -7,8 +7,8 @@
 //! by default)
 use crate::auth::AuthToken;
 use crate::common::{
-    AlbumID, ApiOutcome, BrowseParams, ChannelID, LyricsID, MoodCategoryParams, SetVideoID,
-    SongTrackingUrl, VideoID,
+    AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, LyricsID, MoodCategoryParams,
+    PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, VideoID,
 };
 use crate::common::{
     FeedbackTokenRemoveFromHistory, PlaylistID, SearchSuggestion, UploadAlbumID, UploadArtistID,
@@ -42,7 +42,7 @@ use crate::query::{
 };
 use crate::query::{
     AddHistoryItemQuery, DuplicateHandlingMode, GetChannelEpisodesQuery, GetChannelQuery,
-    GetEpisodeQuery, GetEpisodesPlaylistQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetEpisodeQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
     GetPodcastQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
@@ -223,7 +223,7 @@ impl<A: AuthToken> YtMusic<A> {
     ///     artist_top_albums.params.unwrap(),
     /// ).await
     /// # };
-    pub async fn get_artist_albums<'a, T: Into<ChannelID<'a>>, U: Into<BrowseParams<'a>>>(
+    pub async fn get_artist_albums<'a, T: Into<ArtistChannelID<'a>>, U: Into<BrowseParams<'a>>>(
         &self,
         channel_id: T,
         browse_params: U,
@@ -787,43 +787,56 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// todo
     /// # };
-    pub async fn get_channel(&self) -> Result<<GetChannelQuery as Query<A>>::Output> {
-        self.query(GetChannelQuery).await
+    pub async fn get_channel(
+        &self,
+        channel_id: impl Into<PodcastChannelID<'_>>,
+    ) -> Result<<GetChannelQuery as Query<A>>::Output> {
+        self.query(GetChannelQuery::new(channel_id)).await
     }
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// todo
     /// # };
-    pub async fn get_channel_episodes(
+    pub async fn get_channel_episodes<'a>(
         &self,
+        channel_id: impl Into<PodcastChannelID<'a>>,
+        podcast_channel_params: impl Into<PodcastChannelParams<'a>>,
     ) -> Result<<GetChannelEpisodesQuery as Query<A>>::Output> {
-        self.query(GetChannelEpisodesQuery).await
+        self.query(GetChannelEpisodesQuery::new(
+            channel_id,
+            podcast_channel_params,
+        ))
+        .await
     }
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// todo
     /// # };
-    pub async fn get_podcast(&self) -> Result<<GetPodcastQuery as Query<A>>::Output> {
-        self.query(GetPodcastQuery).await
-    }
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
-    /// # };
-    pub async fn get_episode(&self) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
-        self.query(GetEpisodeQuery).await
-    }
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
-    /// # };
-    pub async fn get_episodes_playlist(
+    pub async fn get_podcast(
         &self,
-    ) -> Result<<GetEpisodesPlaylistQuery as Query<A>>::Output> {
-        self.query(GetEpisodesPlaylistQuery).await
+        podcast_id: impl Into<PodcastID<'_>>,
+    ) -> Result<<GetPodcastQuery as Query<A>>::Output> {
+        self.query(GetPodcastQuery::new(podcast_id)).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_episode(
+        &self,
+        video_id: impl Into<VideoID<'_>>,
+    ) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
+        self.query(GetEpisodeQuery::new(video_id)).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// todo
+    /// # };
+    pub async fn get_new_episodes(&self) -> Result<<GetNewEpisodesQuery as Query<A>>::Output> {
+        self.query(GetNewEpisodesQuery).await
     }
 }

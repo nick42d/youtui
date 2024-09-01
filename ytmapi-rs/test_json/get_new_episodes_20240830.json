@@ -1,0 +1,3102 @@
+{
+  "contents": {
+    "twoColumnBrowseResultsRenderer": {
+      "secondaryContents": {
+        "sectionListRenderer": {
+          "contents": [
+            {
+              "musicShelfRenderer": {
+                "contents": [
+                  {
+                    "musicMultiRowListItemRenderer": {
+                      "trackingParams": "CFMQ3-AIGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+                                "width": 60,
+                                "height": 60
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+                                "width": 120,
+                                "height": 120
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+                                "width": 226,
+                                "height": 226
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+                                "width": 544,
+                                "height": 544
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                          "trackingParams": "CGIQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "overlay": {
+                        "musicItemThumbnailOverlayRenderer": {
+                          "background": {
+                            "verticalGradient": {
+                              "gradientLayerColors": [
+                                "3422552064",
+                                "3422552064"
+                              ]
+                            }
+                          },
+                          "content": {
+                            "musicPlayButtonRenderer": {
+                              "playNavigationEndpoint": {
+                                "clickTrackingParams": "CGEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                                "watchEndpoint": {
+                                  "videoId": "2i5poDoWjFU",
+                                  "playlistId": "RDPN",
+                                  "params": "8gEDmAEI",
+                                  "playerParams": "ygYQNTZCNDRGNkQxMDU1N0NDNg%3D%3D",
+                                  "playlistSetVideoId": "56B44F6D10557CC6",
+                                  "loggingContext": {
+                                    "vssLoggingContext": {
+                                      "serializedContextData": "GgRSRFBO"
+                                    }
+                                  },
+                                  "watchEndpointMusicSupportedConfigs": {
+                                    "watchEndpointMusicConfig": {
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                    }
+                                  }
+                                }
+                              },
+                              "trackingParams": "CGEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                              "playIcon": {
+                                "iconType": "PLAY_ARROW"
+                              },
+                              "pauseIcon": {
+                                "iconType": "PAUSE"
+                              },
+                              "iconColor": 4294967295,
+                              "backgroundColor": 0,
+                              "activeBackgroundColor": 0,
+                              "loadingIndicatorColor": 4294901760,
+                              "playingIcon": {
+                                "iconType": "VOLUME_UP"
+                              },
+                              "iconLoadingColor": 0,
+                              "activeScaleFactor": 1,
+                              "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                              "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                              "accessibilityPlayData": {
+                                "accessibilityData": {
+                                  "label": "Play S7 Ep 21: The Invisible Cap - Chasing Scratch - 1 hour, 25 minutes, 29 seconds"
+                                }
+                              },
+                              "accessibilityPauseData": {
+                                "accessibilityData": {
+                                  "label": "Pause S7 Ep 21: The Invisible Cap - Chasing Scratch - 1 hour, 25 minutes, 29 seconds"
+                                }
+                              }
+                            }
+                          },
+                          "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                          "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                        }
+                      },
+                      "onTap": {
+                        "clickTrackingParams": "CFMQ3-AIGAAiEwixzOOg96KIAxU6jtgFHWj_AUhI1Zja0IO0mpfaAQ==",
+                        "watchEndpoint": {
+                          "videoId": "2i5poDoWjFU",
+                          "playlistId": "RDPN",
+                          "params": "8gEDmAEI",
+                          "playerParams": "ygYQNTZCNDRGNkQxMDU1N0NDNg%3D%3D",
+                          "playlistSetVideoId": "56B44F6D10557CC6",
+                          "loggingContext": {
+                            "vssLoggingContext": {
+                              "serializedContextData": "GgRSRFBO"
+                            }
+                          },
+                          "watchEndpointMusicSupportedConfigs": {
+                            "watchEndpointMusicConfig": {
+                              "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                            }
+                          }
+                        }
+                      },
+                      "menu": {
+                        "menuRenderer": {
+                          "items": [
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Save episode for later"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "BOOKMARK_BORDER"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CGAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "addedVideoId": "2i5poDoWjFU",
+                                        "action": "ACTION_ADD_VIDEO",
+                                        "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                      }
+                                    ],
+                                    "params": "YAE%3D"
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Remove from "
+                                    },
+                                    {
+                                      "text": "Episodes for later"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "BOOKMARK"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CGAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                        "removedVideoId": "2i5poDoWjFU"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CGAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as played"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "CHECK"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpICND5l6msrDa_DviSfm1-8kWMDPPnhkf5txOR2Cj9ti2BVHn1ekxjg3ZvWAG-PuKvX_QJjUuHtY6Z9taJyNdjrZGB8-g",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as played"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CF8QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "clickTrackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "hideEnclosingAction": {
+                                          "hack": true
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as unplayed"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "ARROW_UNDO"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpIUI5DXIH49W7JvZ3B5pZsgK0CN_m_Ple2Rnre8Vd9RvCSDV_r5RjZ7ZkjuZBVFb6QhOGH55Lzteg0dlI2e2WOcyYdbYQ",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as unplayed"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CF4QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CF0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Play next"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "QUEUE_PLAY_NEXT"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CFsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "2i5poDoWjFU",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CFsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "2i5poDoWjFU"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CFsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode will play next"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CFwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CFsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Add to queue"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_REMOTE_QUEUE"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CFkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "2i5poDoWjFU",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CFkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "2i5poDoWjFU"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AT_END",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CFkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode added to queue"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CFoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CFkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemDownloadRenderer": {
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CFgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "offlineVideoEndpoint": {
+                                    "videoId": "2i5poDoWjFU",
+                                    "onAddCommand": {
+                                      "clickTrackingParams": "CFgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                      "getDownloadActionCommand": {
+                                        "videoId": "2i5poDoWjFU",
+                                        "params": "CAI%3D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CFgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Save to playlist"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_PLAYLIST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CFcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "addToPlaylistEndpoint": {
+                                    "videoId": "2i5poDoWjFU"
+                                  }
+                                },
+                                "trackingParams": "CFcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Go to podcast"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "BROADCAST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CFYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "browseEndpoint": {
+                                    "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                    "params": "2ggECAIQAQ%3D%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CFYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            }
+                          ],
+                          "trackingParams": "CFUQpzsiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "Action menu"
+                            }
+                          }
+                        }
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "3 days ago"
+                          }
+                        ]
+                      },
+                      "playbackProgress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr 25 mins"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpICND5l6msrDa_DviSfm1-8kWMDPPnhkf5txOR2Cj9ti2BVHn1ekxjg3ZvWAG-PuKvX_QJjUuHtY6Z9taJyNdjrZGB8-g",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr 25 mins"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "S7 Ep 21: The Invisible Cap",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CFMQ3-AIGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPED2i5poDoWjFU",
+                                "params": "ggMJmgEGCgRSRFBO",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "secondTitle": {
+                        "runs": [
+                          {
+                            "text": "Chasing Scratch: A Golf Podcast",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CFMQ3-AIGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                "params": "2ggECAIQAQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "description": {
+                        "runs": [
+                          {
+                            "text": "Eli schedules surgery, Mike tries to move his index in the right direction, and we talk with Mindset & Performance Coach Adrienne Carter about hypnosis. \n \n\nMike's Titleist GT fitting YouTube Video: https://youtu.be/HwiAGVumVC4?si=f6zM1rpxoE7uaRAO \n \n\nMore Info on our guest Adrienne:\n \n\nAdrienne Carter is a Mindset & Performance Coach and a voice on the Primed Mind app. Her clients include Olympic Medalists, high-stakes poker players, executives, professional athletes, and world-class professional service providers.\n \n\nTo work with Adrienne, or another member of the Primed Mind coaching team, visit:\n \n\nAdrienne Carter Mindset Coaching https://primedmind.com/adriennecarter/  \n \n\nPrimed Mind Coaching Team (https://primedmind.com/mindset-coaching/  \n \n\nChasing Scratch listeners are eligible to get a 60% discount on the Primed Mind app, which includes golf specific Primers and hundreds of other mindset focused audios designed to help you perform your best when it matters the most. Claim you discount here:\n \n\nhttps://primedmind.com/scratch \n \n\nMUSIC CREDITS:\n \n\n\"My Town Yo Town\" is by Doug Maxwell\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC"
+                          }
+                        ]
+                      },
+                      "displayStyle": "MUSIC_MULTI_ROW_LIST_ITEM_DISPLAY_STYLE_DETAILED",
+                      "secondaryBadges": [
+                        {
+                          "musicInlineBadgeRenderer": {
+                            "trackingParams": "CFQQoe0CGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "icon": {
+                              "iconType": "RSS"
+                            },
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "This podcast was added via an RSS feed"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "musicMultiRowListItemRenderer": {
+                      "trackingParams": "CEMQ3-AIGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+                                "width": 60,
+                                "height": 60
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+                                "width": 120,
+                                "height": 120
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+                                "width": 226,
+                                "height": 226
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+                                "width": 544,
+                                "height": 544
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                          "trackingParams": "CFIQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "overlay": {
+                        "musicItemThumbnailOverlayRenderer": {
+                          "background": {
+                            "verticalGradient": {
+                              "gradientLayerColors": [
+                                "3422552064",
+                                "3422552064"
+                              ]
+                            }
+                          },
+                          "content": {
+                            "musicPlayButtonRenderer": {
+                              "playNavigationEndpoint": {
+                                "clickTrackingParams": "CFEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                                "watchEndpoint": {
+                                  "videoId": "zBSvGuWBlwA",
+                                  "playlistId": "RDPN",
+                                  "params": "8gEDmAEI",
+                                  "playerParams": "ygYQMjg5RjRBNDZERjBBMzBEMg%3D%3D",
+                                  "playlistSetVideoId": "289F4A46DF0A30D2",
+                                  "loggingContext": {
+                                    "vssLoggingContext": {
+                                      "serializedContextData": "GgRSRFBO"
+                                    }
+                                  },
+                                  "watchEndpointMusicSupportedConfigs": {
+                                    "watchEndpointMusicConfig": {
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                    }
+                                  }
+                                }
+                              },
+                              "trackingParams": "CFEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                              "playIcon": {
+                                "iconType": "PLAY_ARROW"
+                              },
+                              "pauseIcon": {
+                                "iconType": "PAUSE"
+                              },
+                              "iconColor": 4294967295,
+                              "backgroundColor": 0,
+                              "activeBackgroundColor": 0,
+                              "loadingIndicatorColor": 4294901760,
+                              "playingIcon": {
+                                "iconType": "VOLUME_UP"
+                              },
+                              "iconLoadingColor": 0,
+                              "activeScaleFactor": 1,
+                              "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                              "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                              "accessibilityPlayData": {
+                                "accessibilityData": {
+                                  "label": "Play S7 Ep 20: Late Summer Running - Chasing Scratch - 1 hour, 13 minutes, 13 seconds"
+                                }
+                              },
+                              "accessibilityPauseData": {
+                                "accessibilityData": {
+                                  "label": "Pause S7 Ep 20: Late Summer Running - Chasing Scratch - 1 hour, 13 minutes, 13 seconds"
+                                }
+                              }
+                            }
+                          },
+                          "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                          "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                        }
+                      },
+                      "onTap": {
+                        "clickTrackingParams": "CEMQ3-AIGAEiEwixzOOg96KIAxU6jtgFHWj_AUhIgK6GrK7jq4rMAQ==",
+                        "watchEndpoint": {
+                          "videoId": "zBSvGuWBlwA",
+                          "playlistId": "RDPN",
+                          "params": "8gEDmAEI",
+                          "playerParams": "ygYQMjg5RjRBNDZERjBBMzBEMg%3D%3D",
+                          "playlistSetVideoId": "289F4A46DF0A30D2",
+                          "loggingContext": {
+                            "vssLoggingContext": {
+                              "serializedContextData": "GgRSRFBO"
+                            }
+                          },
+                          "watchEndpointMusicSupportedConfigs": {
+                            "watchEndpointMusicConfig": {
+                              "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                            }
+                          }
+                        }
+                      },
+                      "menu": {
+                        "menuRenderer": {
+                          "items": [
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Save episode for later"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "BOOKMARK_BORDER"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CFAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "addedVideoId": "zBSvGuWBlwA",
+                                        "action": "ACTION_ADD_VIDEO",
+                                        "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                      }
+                                    ],
+                                    "params": "YAE%3D"
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Remove from "
+                                    },
+                                    {
+                                      "text": "Episodes for later"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "BOOKMARK"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CFAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                        "removedVideoId": "zBSvGuWBlwA"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CFAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as played"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "CHECK"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpLnW3zK6L9L82NIhHQnBAg3s1pZm54q_o-krFgnwJ7N8RqJ0LGPe02fV7hMt2Q0LeF1hkmG4pLWahWrcLF8iiNhWT9lpQ",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as played"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CE8QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "clickTrackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "hideEnclosingAction": {
+                                          "hack": true
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as unplayed"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "ARROW_UNDO"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpLn_dlvB_W4dvksgKQdqWgSy_6PZuNbnFR68pOSmabJdYUidf5r37qHkN3gI4RdR9cQrcQTppZP3BMwKzj5DIGck__aTw",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as unplayed"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CE4QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CE0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Play next"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "QUEUE_PLAY_NEXT"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CEsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "zBSvGuWBlwA",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CEsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "zBSvGuWBlwA"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CEsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode will play next"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CEwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CEsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Add to queue"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_REMOTE_QUEUE"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CEkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "zBSvGuWBlwA",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CEkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "zBSvGuWBlwA"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AT_END",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CEkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode added to queue"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CEoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CEkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemDownloadRenderer": {
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CEgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "offlineVideoEndpoint": {
+                                    "videoId": "zBSvGuWBlwA",
+                                    "onAddCommand": {
+                                      "clickTrackingParams": "CEgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                      "getDownloadActionCommand": {
+                                        "videoId": "zBSvGuWBlwA",
+                                        "params": "CAI%3D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CEgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Save to playlist"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_PLAYLIST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CEcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "addToPlaylistEndpoint": {
+                                    "videoId": "zBSvGuWBlwA"
+                                  }
+                                },
+                                "trackingParams": "CEcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Go to podcast"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "BROADCAST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CEYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "browseEndpoint": {
+                                    "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                    "params": "2ggECAIQAQ%3D%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CEYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            }
+                          ],
+                          "trackingParams": "CEUQpzsiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "Action menu"
+                            }
+                          }
+                        }
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "22 Aug"
+                          }
+                        ]
+                      },
+                      "playbackProgress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr 13 mins"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpLnW3zK6L9L82NIhHQnBAg3s1pZm54q_o-krFgnwJ7N8RqJ0LGPe02fV7hMt2Q0LeF1hkmG4pLWahWrcLF8iiNhWT9lpQ",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr 13 mins"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "S7 Ep 20: Late Summer Running",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CEMQ3-AIGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPEDzBSvGuWBlwA",
+                                "params": "ggMJmgEGCgRSRFBO",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "secondTitle": {
+                        "runs": [
+                          {
+                            "text": "Chasing Scratch: A Golf Podcast",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CEMQ3-AIGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                "params": "2ggECAIQAQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "description": {
+                        "runs": [
+                          {
+                            "text": "Let it bang, Lenny. The Late Summer Run is back. Eli gets a definitive answer on his hip; Mike comes with a detailed response to a listener question and kicks off his LSR with 3 rounds at The Cardinal. \n \n\nWant bonus content including our weekly Tuesday podcast? Join the Velcro here: patreon.com/chasingscratch (https://patreon.com/chasingscratch)  \n \n\nChasing Scratch merch store: chasingscratch.store (https://chasingscratch.store/)   \n \n\nChasing Scratch YouTube: https://www.youtube.com/channel/UCyMh34EM2cKpZeaNVu2fkAg \n \n\nMUSIC CREDITS:\n \n\n\"My Town Yo Town\" is by Doug Maxwell\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"Mars from the Planets Suite\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC"
+                          }
+                        ]
+                      },
+                      "displayStyle": "MUSIC_MULTI_ROW_LIST_ITEM_DISPLAY_STYLE_DETAILED",
+                      "secondaryBadges": [
+                        {
+                          "musicInlineBadgeRenderer": {
+                            "trackingParams": "CEQQoe0CGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "icon": {
+                              "iconType": "RSS"
+                            },
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "This podcast was added via an RSS feed"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "musicMultiRowListItemRenderer": {
+                      "trackingParams": "CDMQ3-AIGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+                                "width": 60,
+                                "height": 60
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+                                "width": 120,
+                                "height": 120
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+                                "width": 226,
+                                "height": 226
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+                                "width": 544,
+                                "height": 544
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                          "trackingParams": "CEIQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "overlay": {
+                        "musicItemThumbnailOverlayRenderer": {
+                          "background": {
+                            "verticalGradient": {
+                              "gradientLayerColors": [
+                                "3422552064",
+                                "3422552064"
+                              ]
+                            }
+                          },
+                          "content": {
+                            "musicPlayButtonRenderer": {
+                              "playNavigationEndpoint": {
+                                "clickTrackingParams": "CEEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                                "watchEndpoint": {
+                                  "videoId": "T8_-DEWWvTc",
+                                  "playlistId": "RDPN",
+                                  "params": "8gEDmAEI",
+                                  "playerParams": "ygYQMDE3MjA4RkFBODUyMzNGOQ%3D%3D",
+                                  "playlistSetVideoId": "017208FAA85233F9",
+                                  "loggingContext": {
+                                    "vssLoggingContext": {
+                                      "serializedContextData": "GgRSRFBO"
+                                    }
+                                  },
+                                  "watchEndpointMusicSupportedConfigs": {
+                                    "watchEndpointMusicConfig": {
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                    }
+                                  }
+                                }
+                              },
+                              "trackingParams": "CEEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                              "playIcon": {
+                                "iconType": "PLAY_ARROW"
+                              },
+                              "pauseIcon": {
+                                "iconType": "PAUSE"
+                              },
+                              "iconColor": 4294967295,
+                              "backgroundColor": 0,
+                              "activeBackgroundColor": 0,
+                              "loadingIndicatorColor": 4294901760,
+                              "playingIcon": {
+                                "iconType": "VOLUME_UP"
+                              },
+                              "iconLoadingColor": 0,
+                              "activeScaleFactor": 1,
+                              "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                              "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                              "accessibilityPlayData": {
+                                "accessibilityData": {
+                                  "label": "Play BONUS: Convalescence - Chasing Scratch - 51 minutes, 45 seconds"
+                                }
+                              },
+                              "accessibilityPauseData": {
+                                "accessibilityData": {
+                                  "label": "Pause BONUS: Convalescence - Chasing Scratch - 51 minutes, 45 seconds"
+                                }
+                              }
+                            }
+                          },
+                          "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                          "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                        }
+                      },
+                      "onTap": {
+                        "clickTrackingParams": "CDMQ3-AIGAIiEwixzOOg96KIAxU6jtgFHWj_AUhIt_rarMTB_-dP",
+                        "watchEndpoint": {
+                          "videoId": "T8_-DEWWvTc",
+                          "playlistId": "RDPN",
+                          "params": "8gEDmAEI",
+                          "playerParams": "ygYQMDE3MjA4RkFBODUyMzNGOQ%3D%3D",
+                          "playlistSetVideoId": "017208FAA85233F9",
+                          "loggingContext": {
+                            "vssLoggingContext": {
+                              "serializedContextData": "GgRSRFBO"
+                            }
+                          },
+                          "watchEndpointMusicSupportedConfigs": {
+                            "watchEndpointMusicConfig": {
+                              "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                            }
+                          }
+                        }
+                      },
+                      "menu": {
+                        "menuRenderer": {
+                          "items": [
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Save episode for later"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "BOOKMARK_BORDER"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CEAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "addedVideoId": "T8_-DEWWvTc",
+                                        "action": "ACTION_ADD_VIDEO",
+                                        "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                      }
+                                    ],
+                                    "params": "YAE%3D"
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Remove from "
+                                    },
+                                    {
+                                      "text": "Episodes for later"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "BOOKMARK"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CEAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                        "removedVideoId": "T8_-DEWWvTc"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CEAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as played"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "CHECK"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpK76GOaPDLHOKEMgcvlaDoKH302yM2cE2jawRKpV61KW-q0wdJI5sugXZQYB3wvOEMmKXs9N9IknFQxEhD6QWIBf2tQBQ",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as played"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CD8QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "clickTrackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "hideEnclosingAction": {
+                                          "hack": true
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as unplayed"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "ARROW_UNDO"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpLhLkUJRpKCFYZfFGOx6BQS90EOHafA1Mbglg2xnUycFUH6BWUFxpos_mdCjlMBtN5O5C5GyXzpQw98ug4q0thLYoiCGw",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as unplayed"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CD4QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CD0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Play next"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "QUEUE_PLAY_NEXT"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CDsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "T8_-DEWWvTc",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CDsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "T8_-DEWWvTc"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CDsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode will play next"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CDwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CDsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Add to queue"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_REMOTE_QUEUE"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CDkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "T8_-DEWWvTc",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CDkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "T8_-DEWWvTc"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AT_END",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CDkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode added to queue"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CDoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CDkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemDownloadRenderer": {
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CDgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "offlineVideoEndpoint": {
+                                    "videoId": "T8_-DEWWvTc",
+                                    "onAddCommand": {
+                                      "clickTrackingParams": "CDgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                      "getDownloadActionCommand": {
+                                        "videoId": "T8_-DEWWvTc",
+                                        "params": "CAI%3D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CDgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Save to playlist"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_PLAYLIST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CDcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "addToPlaylistEndpoint": {
+                                    "videoId": "T8_-DEWWvTc"
+                                  }
+                                },
+                                "trackingParams": "CDcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Go to podcast"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "BROADCAST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CDYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "browseEndpoint": {
+                                    "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                    "params": "2ggECAIQAQ%3D%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CDYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            }
+                          ],
+                          "trackingParams": "CDUQpzsiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "Action menu"
+                            }
+                          }
+                        }
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "16 Aug"
+                          }
+                        ]
+                      },
+                      "playbackProgress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "51 mins"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpK76GOaPDLHOKEMgcvlaDoKH302yM2cE2jawRKpV61KW-q0wdJI5sugXZQYB3wvOEMmKXs9N9IknFQxEhD6QWIBf2tQBQ",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "51 mins"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "BONUS: Convalescence",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CDMQ3-AIGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPEDT8_-DEWWvTc",
+                                "params": "ggMJmgEGCgRSRFBO",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "secondTitle": {
+                        "runs": [
+                          {
+                            "text": "Chasing Scratch: A Golf Podcast",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CDMQ3-AIGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                "params": "2ggECAIQAQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "description": {
+                        "runs": [
+                          {
+                            "text": "In an unplanned bonus release, Mike and Eli play this week's Tuesday Has No Feel podcast with about 20 minutes of added commentary ahead of Eli's critical doctor appointments this week.\n \n\nTopics include: Mike uses a word incorrectly (0:40), Eli's move (4:40), The Story of The Rob (6:42), Closet contraband (9:03), Last Episode (11:32), The Pivotal Week for Eli (12:21), The Late Summer Run/Knife (16:01), The 4th Annual Velcren Invitational (17:44), What is good news? (22:16), 2 things we're rooting for (27:00), the drop dead date (32:40), 90's Album Bracket Battles (37:36), Jayden Daniels' Canton Watch (42:45), New Segment: Shark Tank with Eli (44:40). \n \n\nWant bonus content including our weekly Tuesday podcast? Join the Velcro here: patreon.com/chasingscratch (https://patreon.com/chasingscratch)  \n \n\nChasing Scratch merch store: chasingscratch.store (https://chasingscratch.store/)   \n \n\nChasing Scratch YouTube: https://www.youtube.com/channel/UCyMh34EM2cKpZeaNVu2fkAg \n \n\nMUSIC CREDITS:\n \n\nOlympic Theme via https://www.youtube.com/watch?v=MCqUESCoB1w \n \n\n“Dangerous” by Kevin MacLeod is licensed under a Creative Commons Attribution license (creativecommons.org/licenses/by/4.0/)\nSource: incompetech.com/music/royalty-fre…isrc=USUAN1100414\nArtist: incompetech.com/\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"Mars from the Planets Suite\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC"
+                          }
+                        ]
+                      },
+                      "displayStyle": "MUSIC_MULTI_ROW_LIST_ITEM_DISPLAY_STYLE_DETAILED",
+                      "secondaryBadges": [
+                        {
+                          "musicInlineBadgeRenderer": {
+                            "trackingParams": "CDQQoe0CGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "icon": {
+                              "iconType": "RSS"
+                            },
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "This podcast was added via an RSS feed"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "musicMultiRowListItemRenderer": {
+                      "trackingParams": "CCMQ3-AIGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+                                "width": 60,
+                                "height": 60
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+                                "width": 120,
+                                "height": 120
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+                                "width": 226,
+                                "height": 226
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+                                "width": 544,
+                                "height": 544
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                          "trackingParams": "CDIQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "overlay": {
+                        "musicItemThumbnailOverlayRenderer": {
+                          "background": {
+                            "verticalGradient": {
+                              "gradientLayerColors": [
+                                "3422552064",
+                                "3422552064"
+                              ]
+                            }
+                          },
+                          "content": {
+                            "musicPlayButtonRenderer": {
+                              "playNavigationEndpoint": {
+                                "clickTrackingParams": "CDEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                                "watchEndpoint": {
+                                  "videoId": "Uua2XZ91UBM",
+                                  "playlistId": "RDPN",
+                                  "params": "8gEDmAEI",
+                                  "playerParams": "ygYQNTIxNTJCNDk0NkMyRjczRg%3D%3D",
+                                  "playlistSetVideoId": "52152B4946C2F73F",
+                                  "loggingContext": {
+                                    "vssLoggingContext": {
+                                      "serializedContextData": "GgRSRFBO"
+                                    }
+                                  },
+                                  "watchEndpointMusicSupportedConfigs": {
+                                    "watchEndpointMusicConfig": {
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                    }
+                                  }
+                                }
+                              },
+                              "trackingParams": "CDEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                              "playIcon": {
+                                "iconType": "PLAY_ARROW"
+                              },
+                              "pauseIcon": {
+                                "iconType": "PAUSE"
+                              },
+                              "iconColor": 4294967295,
+                              "backgroundColor": 0,
+                              "activeBackgroundColor": 0,
+                              "loadingIndicatorColor": 4294901760,
+                              "playingIcon": {
+                                "iconType": "VOLUME_UP"
+                              },
+                              "iconLoadingColor": 0,
+                              "activeScaleFactor": 1,
+                              "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                              "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                              "accessibilityPlayData": {
+                                "accessibilityData": {
+                                  "label": "Play S7 Ep 19: LIVE from Ireland, Pt. 3 - Chasing Scratch - 51 minutes, 47 seconds"
+                                }
+                              },
+                              "accessibilityPauseData": {
+                                "accessibilityData": {
+                                  "label": "Pause S7 Ep 19: LIVE from Ireland, Pt. 3 - Chasing Scratch - 51 minutes, 47 seconds"
+                                }
+                              }
+                            }
+                          },
+                          "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                          "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                        }
+                      },
+                      "onTap": {
+                        "clickTrackingParams": "CCMQ3-AIGAMiEwixzOOg96KIAxU6jtgFHWj_AUhIk6DV-9nLrfNS",
+                        "watchEndpoint": {
+                          "videoId": "Uua2XZ91UBM",
+                          "playlistId": "RDPN",
+                          "params": "8gEDmAEI",
+                          "playerParams": "ygYQNTIxNTJCNDk0NkMyRjczRg%3D%3D",
+                          "playlistSetVideoId": "52152B4946C2F73F",
+                          "loggingContext": {
+                            "vssLoggingContext": {
+                              "serializedContextData": "GgRSRFBO"
+                            }
+                          },
+                          "watchEndpointMusicSupportedConfigs": {
+                            "watchEndpointMusicConfig": {
+                              "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                            }
+                          }
+                        }
+                      },
+                      "menu": {
+                        "menuRenderer": {
+                          "items": [
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Save episode for later"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "BOOKMARK_BORDER"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CDAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "addedVideoId": "Uua2XZ91UBM",
+                                        "action": "ACTION_ADD_VIDEO",
+                                        "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                      }
+                                    ],
+                                    "params": "YAE%3D"
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Remove from "
+                                    },
+                                    {
+                                      "text": "Episodes for later"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "BOOKMARK"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CDAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                        "removedVideoId": "Uua2XZ91UBM"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CDAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as played"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "CHECK"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpK6W9iiXI4K1ilX2kUwNreMsiPAMhbUh3e6vzvKFFRrxeIpXYgWjiISY6IrYaetsyTDM0V071OkWEC50Fcb4Babtp2bfg",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as played"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CC8QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "clickTrackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "hideEnclosingAction": {
+                                          "hack": true
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as unplayed"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "ARROW_UNDO"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpLvmThW6XrsgwI3_kwCJINbXiVmCdrbpu4PBWEob5FSaPNAMTzxZU79PObq7c0Q34B_Ncp7iQiZ700mrWNuhsb0VUrV2w",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as unplayed"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CC4QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CC0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Play next"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "QUEUE_PLAY_NEXT"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CCsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "Uua2XZ91UBM",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CCsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "Uua2XZ91UBM"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CCsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode will play next"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CCwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CCsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Add to queue"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_REMOTE_QUEUE"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CCkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "Uua2XZ91UBM",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CCkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "Uua2XZ91UBM"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AT_END",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CCkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode added to queue"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CCoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CCkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemDownloadRenderer": {
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CCgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "offlineVideoEndpoint": {
+                                    "videoId": "Uua2XZ91UBM",
+                                    "onAddCommand": {
+                                      "clickTrackingParams": "CCgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                      "getDownloadActionCommand": {
+                                        "videoId": "Uua2XZ91UBM",
+                                        "params": "CAI%3D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CCgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Save to playlist"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_PLAYLIST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CCcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "addToPlaylistEndpoint": {
+                                    "videoId": "Uua2XZ91UBM"
+                                  }
+                                },
+                                "trackingParams": "CCcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Go to podcast"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "BROADCAST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CCYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "browseEndpoint": {
+                                    "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                    "params": "2ggECAIQAQ%3D%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CCYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            }
+                          ],
+                          "trackingParams": "CCUQpzsiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "Action menu"
+                            }
+                          }
+                        }
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "9 Aug"
+                          }
+                        ]
+                      },
+                      "playbackProgress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "51 mins"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpK6W9iiXI4K1ilX2kUwNreMsiPAMhbUh3e6vzvKFFRrxeIpXYgWjiISY6IrYaetsyTDM0V071OkWEC50Fcb4Babtp2bfg",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "51 mins"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "S7 Ep 19: LIVE from Ireland, Pt. 3",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CCMQ3-AIGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPEDUua2XZ91UBM",
+                                "params": "ggMJmgEGCgRSRFBO",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "secondTitle": {
+                        "runs": [
+                          {
+                            "text": "Chasing Scratch: A Golf Podcast",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CCMQ3-AIGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                "params": "2ggECAIQAQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "description": {
+                        "runs": [
+                          {
+                            "text": "The final round drama in Ireland; Mike updates on his current handicap index; Eli gets brutally honest about this season. \n \n\nKudos to Fairways & Fundays: https://www.fairwaysandfundays.com/ (https://www.fairwaysandfundays.com/chasingscratch) \n \n\nKudos to Shot Pattern: https://shotpattern.app/ "
+                          }
+                        ]
+                      },
+                      "displayStyle": "MUSIC_MULTI_ROW_LIST_ITEM_DISPLAY_STYLE_DETAILED",
+                      "secondaryBadges": [
+                        {
+                          "musicInlineBadgeRenderer": {
+                            "trackingParams": "CCQQoe0CGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "icon": {
+                              "iconType": "RSS"
+                            },
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "This podcast was added via an RSS feed"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "musicMultiRowListItemRenderer": {
+                      "trackingParams": "CBMQ3-AIGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+                                "width": 60,
+                                "height": 60
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+                                "width": 120,
+                                "height": 120
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+                                "width": 226,
+                                "height": 226
+                              },
+                              {
+                                "url": "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+                                "width": 544,
+                                "height": 544
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                          "trackingParams": "CCIQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "overlay": {
+                        "musicItemThumbnailOverlayRenderer": {
+                          "background": {
+                            "verticalGradient": {
+                              "gradientLayerColors": [
+                                "3422552064",
+                                "3422552064"
+                              ]
+                            }
+                          },
+                          "content": {
+                            "musicPlayButtonRenderer": {
+                              "playNavigationEndpoint": {
+                                "clickTrackingParams": "CCEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                                "watchEndpoint": {
+                                  "videoId": "bgQ18-oqs_s",
+                                  "playlistId": "RDPN",
+                                  "params": "8gEDmAEI",
+                                  "playerParams": "ygYQMDkwNzk2QTc1RDE1MzkzMg%3D%3D",
+                                  "playlistSetVideoId": "090796A75D153932",
+                                  "loggingContext": {
+                                    "vssLoggingContext": {
+                                      "serializedContextData": "GgRSRFBO"
+                                    }
+                                  },
+                                  "watchEndpointMusicSupportedConfigs": {
+                                    "watchEndpointMusicConfig": {
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                    }
+                                  }
+                                }
+                              },
+                              "trackingParams": "CCEQyN4CIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                              "playIcon": {
+                                "iconType": "PLAY_ARROW"
+                              },
+                              "pauseIcon": {
+                                "iconType": "PAUSE"
+                              },
+                              "iconColor": 4294967295,
+                              "backgroundColor": 0,
+                              "activeBackgroundColor": 0,
+                              "loadingIndicatorColor": 4294901760,
+                              "playingIcon": {
+                                "iconType": "VOLUME_UP"
+                              },
+                              "iconLoadingColor": 0,
+                              "activeScaleFactor": 1,
+                              "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                              "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF",
+                              "accessibilityPlayData": {
+                                "accessibilityData": {
+                                  "label": "Play S7 Ep 18: LIVE from Ireland, Pt. 2 - Chasing Scratch - 29 minutes, 28 seconds"
+                                }
+                              },
+                              "accessibilityPauseData": {
+                                "accessibilityData": {
+                                  "label": "Pause S7 Ep 18: LIVE from Ireland, Pt. 2 - Chasing Scratch - 29 minutes, 28 seconds"
+                                }
+                              }
+                            }
+                          },
+                          "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                          "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                        }
+                      },
+                      "onTap": {
+                        "clickTrackingParams": "CBMQ3-AIGAQiEwixzOOg96KIAxU6jtgFHWj_AUhI--eq0b6-jYJu",
+                        "watchEndpoint": {
+                          "videoId": "bgQ18-oqs_s",
+                          "playlistId": "RDPN",
+                          "params": "8gEDmAEI",
+                          "playerParams": "ygYQMDkwNzk2QTc1RDE1MzkzMg%3D%3D",
+                          "playlistSetVideoId": "090796A75D153932",
+                          "loggingContext": {
+                            "vssLoggingContext": {
+                              "serializedContextData": "GgRSRFBO"
+                            }
+                          },
+                          "watchEndpointMusicSupportedConfigs": {
+                            "watchEndpointMusicConfig": {
+                              "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                            }
+                          }
+                        }
+                      },
+                      "menu": {
+                        "menuRenderer": {
+                          "items": [
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Save episode for later"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "BOOKMARK_BORDER"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CCAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "addedVideoId": "bgQ18-oqs_s",
+                                        "action": "ACTION_ADD_VIDEO",
+                                        "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                      }
+                                    ],
+                                    "params": "YAE%3D"
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Remove from "
+                                    },
+                                    {
+                                      "text": "Episodes for later"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "BOOKMARK"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CCAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "playlistEditEndpoint": {
+                                    "playlistId": "SE",
+                                    "actions": [
+                                      {
+                                        "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                        "removedVideoId": "bgQ18-oqs_s"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CCAQ9dAKGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "toggleMenuServiceItemRenderer": {
+                                "defaultText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as played"
+                                    }
+                                  ]
+                                },
+                                "defaultIcon": {
+                                  "iconType": "CHECK"
+                                },
+                                "defaultServiceEndpoint": {
+                                  "clickTrackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpJuNvfpNFMwFxrobHLnYlV-E08ZmQme_bsZL_wjHqOtVmBq-mmyqNPj6Nuf-eUMcAaOsbX6UWZeu71br0YPdVWwOzpgyw",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as played"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CB8QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "clickTrackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "hideEnclosingAction": {
+                                          "hack": true
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "toggledText": {
+                                  "runs": [
+                                    {
+                                      "text": "Mark as unplayed"
+                                    }
+                                  ]
+                                },
+                                "toggledIcon": {
+                                  "iconType": "ARROW_UNDO"
+                                },
+                                "toggledServiceEndpoint": {
+                                  "clickTrackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "feedbackEndpoint": {
+                                    "feedbackToken": "AB9zfpKJukN7kuju8KfhcNm4znD7bCW8xHRukawx1H6ilQd3jdEriHVs1ObRTHz_cr3L-xu4oG12Erx5mFzcRZNBe50pGL54Bw",
+                                    "actions": [
+                                      {
+                                        "clickTrackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationActionRenderer": {
+                                              "responseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode marked as unplayed"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CB4QuWoiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CB0Q7L8LGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                "isToggled": false
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Play next"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "QUEUE_PLAY_NEXT"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CBsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "bgQ18-oqs_s",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CBsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "bgQ18-oqs_s"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CBsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode will play next"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CBwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CBsQvu4FGAIiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Add to queue"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_REMOTE_QUEUE"
+                                },
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CBkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "queueAddEndpoint": {
+                                    "queueTarget": {
+                                      "videoId": "bgQ18-oqs_s",
+                                      "onEmptyQueue": {
+                                        "clickTrackingParams": "CBkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "watchEndpoint": {
+                                          "videoId": "bgQ18-oqs_s"
+                                        }
+                                      }
+                                    },
+                                    "queueInsertPosition": "INSERT_AT_END",
+                                    "commands": [
+                                      {
+                                        "clickTrackingParams": "CBkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                        "addToToastAction": {
+                                          "item": {
+                                            "notificationTextRenderer": {
+                                              "successResponseText": {
+                                                "runs": [
+                                                  {
+                                                    "text": "Episode added to queue"
+                                                  }
+                                                ]
+                                              },
+                                              "trackingParams": "CBoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "trackingParams": "CBkQ--8FGAMiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuServiceItemDownloadRenderer": {
+                                "serviceEndpoint": {
+                                  "clickTrackingParams": "CBgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "offlineVideoEndpoint": {
+                                    "videoId": "bgQ18-oqs_s",
+                                    "onAddCommand": {
+                                      "clickTrackingParams": "CBgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                      "getDownloadActionCommand": {
+                                        "videoId": "bgQ18-oqs_s",
+                                        "params": "CAI%3D"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CBgQ0aoFGAQiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Save to playlist"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "ADD_TO_PLAYLIST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CBcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "addToPlaylistEndpoint": {
+                                    "videoId": "bgQ18-oqs_s"
+                                  }
+                                },
+                                "trackingParams": "CBcQw5QGGAUiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            },
+                            {
+                              "menuNavigationItemRenderer": {
+                                "text": {
+                                  "runs": [
+                                    {
+                                      "text": "Go to podcast"
+                                    }
+                                  ]
+                                },
+                                "icon": {
+                                  "iconType": "BROADCAST"
+                                },
+                                "navigationEndpoint": {
+                                  "clickTrackingParams": "CBYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "browseEndpoint": {
+                                    "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                    "params": "2ggECAIQAQ%3D%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "trackingParams": "CBYQgqIJGAYiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                              }
+                            }
+                          ],
+                          "trackingParams": "CBUQpzsiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "Action menu"
+                            }
+                          }
+                        }
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "5 Aug"
+                          }
+                        ]
+                      },
+                      "playbackProgress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "29 mins"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpJuNvfpNFMwFxrobHLnYlV-E08ZmQme_bsZL_wjHqOtVmBq-mmyqNPj6Nuf-eUMcAaOsbX6UWZeu71br0YPdVWwOzpgyw",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "29 mins"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "S7 Ep 18: LIVE from Ireland, Pt. 2",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CBMQ3-AIGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPEDbgQ18-oqs_s",
+                                "params": "ggMJmgEGCgRSRFBO",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "secondTitle": {
+                        "runs": [
+                          {
+                            "text": "Chasing Scratch: A Golf Podcast",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CBMQ3-AIGAQiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+                                "params": "2ggECAIQAQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "description": {
+                        "runs": [
+                          {
+                            "text": "Recorded the night before the final round, Mike and Charlie call Eli to catch him up on the happenings in Ireland. Eli educates everyone on how to act while driving thru a tunnel and updates on his rehab progress. \n \n\nPart 3 coming later this week. \n \n\nKudos to Fairways & Fundays: https://www.fairwaysandfundays.com/ (https://www.fairwaysandfundays.com/chasingscratch) \n \n\nKudos to Shot Pattern: https://shotpattern.app/ \n \n\nKudos to LMNT: DrinkLMNT.com/chasingscratch \n \n\n "
+                          }
+                        ]
+                      },
+                      "displayStyle": "MUSIC_MULTI_ROW_LIST_ITEM_DISPLAY_STYLE_DETAILED",
+                      "secondaryBadges": [
+                        {
+                          "musicInlineBadgeRenderer": {
+                            "trackingParams": "CBQQoe0CGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "icon": {
+                              "iconType": "RSS"
+                            },
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "This podcast was added via an RSS feed"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "trackingParams": "CBIQ-V4YACITCLHM46D3oogDFTqO2AUdaP8BSA==",
+                "shelfDivider": {
+                  "musicShelfDividerRenderer": {
+                    "hidden": true
+                  }
+                }
+              }
+            }
+          ],
+          "trackingParams": "CBEQui8iEwixzOOg96KIAxU6jtgFHWj_AUg="
+        }
+      },
+      "tabs": [
+        {
+          "tabRenderer": {
+            "content": {
+              "sectionListRenderer": {
+                "contents": [
+                  {
+                    "musicResponsiveHeaderRenderer": {
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@192.png",
+                                "width": 192,
+                                "height": 192
+                              },
+                              {
+                                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@576.png",
+                                "width": 576,
+                                "height": 576
+                              },
+                              {
+                                "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@1200.png",
+                                "width": 1200,
+                                "height": 1200
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_UNSPECIFIED",
+                          "trackingParams": "CBAQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "buttons": [
+                        {
+                          "downloadButtonRenderer": {
+                            "trackingParams": "CA4Q0aoFGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "style": "STYLE_DEFAULT",
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "Download"
+                              }
+                            },
+                            "targetId": "playlist-download-button",
+                            "command": {
+                              "clickTrackingParams": "CA4Q0aoFGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "offlinePlaylistEndpoint": {
+                                "playlistId": "RDPN",
+                                "action": "ACTION_ADD",
+                                "offlineability": {
+                                  "offlineabilityRenderer": {
+                                    "offlineable": true,
+                                    "clickTrackingParams": "CA8QxzciEwixzOOg96KIAxU6jtgFHWj_AUgyC29mZmxpbmVsaXN0"
+                                  }
+                                },
+                                "onAddCommand": {
+                                  "clickTrackingParams": "CA4Q0aoFGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                  "getDownloadActionCommand": {
+                                    "playlistId": "RDPN",
+                                    "params": "CAI%3D"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicPlayButtonRenderer": {
+                            "playNavigationEndpoint": {
+                              "clickTrackingParams": "CA0QyN4CGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "watchEndpoint": {
+                                "videoId": "2i5poDoWjFU",
+                                "playlistId": "RDPN",
+                                "params": "8gEDmAEI",
+                                "loggingContext": {
+                                  "vssLoggingContext": {
+                                    "serializedContextData": "GgRSRFBO"
+                                  }
+                                },
+                                "watchEndpointMusicSupportedConfigs": {
+                                  "watchEndpointMusicConfig": {
+                                    "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                  }
+                                }
+                              }
+                            },
+                            "trackingParams": "CA0QyN4CGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                            "playIcon": {
+                              "iconType": "PLAY_ARROW"
+                            },
+                            "pauseIcon": {
+                              "iconType": "PAUSE"
+                            },
+                            "iconColor": 4294967295,
+                            "backgroundColor": 0,
+                            "activeBackgroundColor": 0,
+                            "loadingIndicatorColor": 4294901760,
+                            "playingIcon": {
+                              "iconType": "PAUSE"
+                            },
+                            "iconLoadingColor": 0,
+                            "activeScaleFactor": 1,
+                            "accessibilityPlayData": {
+                              "accessibilityData": {
+                                "label": "Play New episodes"
+                              }
+                            },
+                            "accessibilityPauseData": {
+                              "accessibilityData": {
+                                "label": "Pause New episodes"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "menuRenderer": {
+                            "items": [
+                              {
+                                "menuServiceItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Play next"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "QUEUE_PLAY_NEXT"
+                                  },
+                                  "serviceEndpoint": {
+                                    "clickTrackingParams": "CAsQvu4FGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                    "queueAddEndpoint": {
+                                      "queueTarget": {
+                                        "playlistId": "RDPN",
+                                        "onEmptyQueue": {
+                                          "clickTrackingParams": "CAsQvu4FGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                          "watchEndpoint": {
+                                            "playlistId": "RDPN"
+                                          }
+                                        }
+                                      },
+                                      "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                      "commands": [
+                                        {
+                                          "clickTrackingParams": "CAsQvu4FGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationTextRenderer": {
+                                                "successResponseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Playlist will play next"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CAwQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CAsQvu4FGAAiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                }
+                              },
+                              {
+                                "menuServiceItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Add to queue"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "ADD_TO_REMOTE_QUEUE"
+                                  },
+                                  "serviceEndpoint": {
+                                    "clickTrackingParams": "CAkQ--8FGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                    "queueAddEndpoint": {
+                                      "queueTarget": {
+                                        "playlistId": "RDPN",
+                                        "onEmptyQueue": {
+                                          "clickTrackingParams": "CAkQ--8FGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                          "watchEndpoint": {
+                                            "playlistId": "RDPN"
+                                          }
+                                        }
+                                      },
+                                      "queueInsertPosition": "INSERT_AT_END",
+                                      "commands": [
+                                        {
+                                          "clickTrackingParams": "CAkQ--8FGAEiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationTextRenderer": {
+                                                "successResponseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Playlist added to queue"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CAoQyscDIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CAkQ--8FGAEiEwixzOOg96KIAxU6jtgFHWj_AUg="
+                                }
+                              }
+                            ],
+                            "trackingParams": "CAgQpzsYAiITCLHM46D3oogDFTqO2AUdaP8BSA==",
+                            "accessibility": {
+                              "accessibilityData": {
+                                "label": "Action menu"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "New episodes"
+                          }
+                        ]
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "Auto playlist"
+                          },
+                          {
+                            "text": " • "
+                          },
+                          {
+                            "text": "2024"
+                          }
+                        ]
+                      },
+                      "trackingParams": "CAQQneEIGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                      "straplineTextOne": {
+                        "runs": [
+                          {
+                            "text": "Nick Dowsett",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CAQQneEIGAAiEwixzOOg96KIAxU6jtgFHWj_AUg=",
+                              "browseEndpoint": {
+                                "browseId": "UCcwGhcqEQMfCJWaLwtB_tnQ",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "straplineThumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://yt3.ggpht.com/ytc/AIdro_nAxy8ai22_vftsGEITvLxNGrrvp0bZpfuCk_jlEDevcAs=s48-c-k-c0x00000000-no-cc-rj-rp",
+                                "width": 48,
+                                "height": 48
+                              },
+                              {
+                                "url": "https://yt3.ggpht.com/ytc/AIdro_nAxy8ai22_vftsGEITvLxNGrrvp0bZpfuCk_jlEDevcAs=s96-c-k-c0x00000000-no-cc-rj-rp",
+                                "width": 96,
+                                "height": 96
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_UNSPECIFIED",
+                          "trackingParams": "CAcQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+                        }
+                      },
+                      "description": {
+                        "musicDescriptionShelfRenderer": {
+                          "description": {
+                            "runs": [
+                              {
+                                "text": "The newest episodes from all your saved podcasts"
+                              }
+                            ]
+                          },
+                          "moreButton": {
+                            "toggleButtonRenderer": {
+                              "isToggled": false,
+                              "isDisabled": false,
+                              "defaultIcon": {
+                                "iconType": "EXPAND"
+                              },
+                              "defaultText": {
+                                "runs": [
+                                  {
+                                    "text": "More"
+                                  }
+                                ]
+                              },
+                              "toggledIcon": {
+                                "iconType": "COLLAPSE"
+                              },
+                              "toggledText": {
+                                "runs": [
+                                  {
+                                    "text": "Less"
+                                  }
+                                ]
+                              },
+                              "trackingParams": "CAYQmE0iEwixzOOg96KIAxU6jtgFHWj_AUg="
+                            }
+                          },
+                          "trackingParams": "CAUQiPgDIhMIsczjoPeiiAMVOo7YBR1o_wFI",
+                          "shelfStyle": "MUSIC_SHELF_STYLE_OPEN_DIALOG_ON_CLICK"
+                        }
+                      },
+                      "secondSubtitle": {
+                        "runs": [
+                          {
+                            "text": "5 episodes"
+                          },
+                          {
+                            "text": " • "
+                          },
+                          {
+                            "text": "4 hours, 51 minutes"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "trackingParams": "CAMQui8iEwixzOOg96KIAxU6jtgFHWj_AUg="
+              }
+            },
+            "trackingParams": "CAIQ8JMBGAAiEwixzOOg96KIAxU6jtgFHWj_AUg="
+          }
+        }
+      ]
+    }
+  },
+  "trackingParams": "CAAQhGciEwixzOOg96KIAxU6jtgFHWj_AUg=",
+  "background": {
+    "musicThumbnailRenderer": {
+      "thumbnail": {
+        "thumbnails": [
+          {
+            "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@192.png",
+            "width": 192,
+            "height": 192
+          },
+          {
+            "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@576.png",
+            "width": 576,
+            "height": 576
+          },
+          {
+            "url": "https://www.gstatic.com/youtube/media/ytm/images/pbg/new-episodes-@1200.png",
+            "width": 1200,
+            "height": 1200
+          }
+        ]
+      },
+      "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+      "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_UNSPECIFIED",
+      "trackingParams": "CAEQhL8CIhMIsczjoPeiiAMVOo7YBR1o_wFI"
+    }
+  }
+}
+

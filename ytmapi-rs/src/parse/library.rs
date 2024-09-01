@@ -3,7 +3,7 @@ use super::{
     SearchResultAlbum, TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
     SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
-use crate::common::{ApiOutcome, ChannelID, Explicit, PlaylistID, Thumbnail};
+use crate::common::{ApiOutcome, ArtistChannelID, Explicit, PlaylistID, Thumbnail};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 pub struct GetLibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 
@@ -42,7 +42,7 @@ pub struct LibraryPlaylist {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct LibraryArtist {
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     pub artist: String,
     pub byline: String, // e.g 16 songs or 17.8k subscribers
 }

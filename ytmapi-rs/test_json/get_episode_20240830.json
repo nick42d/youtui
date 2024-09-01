@@ -1,0 +1,896 @@
+{
+  "contents": {
+    "twoColumnBrowseResultsRenderer": {
+      "secondaryContents": {
+        "sectionListRenderer": {
+          "contents": [
+            {
+              "musicDescriptionShelfRenderer": {
+                "description": {
+                  "runs": [
+                    {
+                      "text": "Allen Wyma talks with Andrew Lamb ("
+                    },
+                    {
+                      "text": "http://andrew.nerdnetworks.org/",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "http://andrew.nerdnetworks.org/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ")  about InfluxDB’s rewrite ("
+                    },
+                    {
+                      "text": "https://www.influxdata.com/blog/fligh...",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://www.influxdata.com/blog/flight-datafusion-arrow-parquet-fdap-architecture-influxdb/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") . InfluxDB is an open-source time series database.\n\n\n\n\nAs a Staff Engineer at InfluxData, he works on InfluxDB 3.0, a new time series database written in Rust, focusing on query processing and the Apache Arrow DataFusion and Apache Arrow ecosystems. In that capacity, he is a member and past chair of the Apache Arrow PMC and actively contributes to Apache Arrow DataFusion and the Apache Rust implementation query engine.\n\n\n\n\nAndrew was a professional C/C++ programmer for 10 years before switching to Rust. His experience ranges from startups to large multinational corporations and distributed open source projects, and has paid leadership dues as an architect and manager/VP. He holds an SB and MEng from MIT in Electrical Engineering and Computer Science.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm ("
+                    },
+                    {
+                      "text": "https://twitter.com/rustaceanfm",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/rustaceanfm",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  Discord: Rustacean Station ("
+                    },
+                    {
+                      "text": "https://discord.gg/cHc3Gyc",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://discord.gg/cHc3Gyc",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  Github: @rustacean-station ("
+                    },
+                    {
+                      "text": "https://github.com/rustacean-station/",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://github.com/rustacean-station/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "0:52",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 52
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Meet Andrew Lamb, Staff Engineer at InfluxData, working on InfluxDB IOx\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "2:57",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 177
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Transitioning from C++ to Rust: Andrew’s story\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "11:24",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 684
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - InfluxDB rewrite and its use cases\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "22:13",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 1333
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Compatibility of InfluxDB\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "26:58",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 1618
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Downsides of using Rust and other languages\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "32:40",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 1960
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Plans for the 3.0 alpha/beta release and different versions\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "34:54",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 2094
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Unique use of the async runtime Tokio\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "55:28",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 3328
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Rust as a tool for recruitment\n     \n       \n  •  [@"
+                    },
+                    {
+                      "text": "58:16",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                        "watchEndpoint": {
+                          "videoId": "H65miGsCFps",
+                          "continuePlayback": true,
+                          "startTimeSeconds": 3496
+                        }
+                      }
+                    },
+                    {
+                      "text": "] - Closing discussion\n     \n     \n\nOther links\n\n\n     \n       \n  •  Andrew’s X Account ("
+                    },
+                    {
+                      "text": "https://twitter.com/andrewlamb1111",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/andrewlamb1111",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  Using Rustlang’s Async Tokio Runtime for CPU-Bound Tasks ("
+                    },
+                    {
+                      "text": "https://thenewstack.io/using-rustlang...",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://thenewstack.io/using-rustlangs-async-tokio-runtime-for-cpu-bound-tasks/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  Using the FDAP Architecture to build InfluxDB 3.0 ("
+                    },
+                    {
+                      "text": "https://www.influxdata.com/blog/fligh...",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://www.influxdata.com/blog/flight-datafusion-arrow-parquet-fdap-architecture-influxdb/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n       \n  •  RustASIA Conf 2025 ("
+                    },
+                    {
+                      "text": "https://www.rustasiaconf.com/",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://www.rustasiaconf.com/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity ("
+                    },
+                    {
+                      "text": "https://twitter.com/AerocityMusic",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/AerocityMusic",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n\n\n\n\nAudio Editing: Plangora ("
+                    },
+                    {
+                      "text": "https://twitter.com/plangora",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/plangora",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n\n\n\n\nHosting Infrastructure: Jon Gjengset ("
+                    },
+                    {
+                      "text": "https://twitter.com/jonhoo/",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/jonhoo/",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n\n\n\n\nShow Notes: Plangora ("
+                    },
+                    {
+                      "text": "https://twitter.com/plangora",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/plangora",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ") \n\n\n\n\nHosts: Allen Wyma ("
+                    },
+                    {
+                      "text": "https://twitter.com/allenwyma",
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcZIm62I2IbRmdcf",
+                        "urlEndpoint": {
+                          "url": "https://twitter.com/allenwyma",
+                          "target": "TARGET_NEW_WINDOW"
+                        }
+                      }
+                    },
+                    {
+                      "text": ")"
+                    }
+                  ]
+                },
+                "trackingParams": "CBYQiPgDGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                "maxCollapsedLines": 0,
+                "maxExpandedLines": 0
+              }
+            }
+          ],
+          "trackingParams": "CBUQui8iEwjg_7bs9qKIAxV71HMBHYiKEcY="
+        }
+      },
+      "tabs": [
+        {
+          "tabRenderer": {
+            "content": {
+              "sectionListRenderer": {
+                "contents": [
+                  {
+                    "musicResponsiveHeaderRenderer": {
+                      "thumbnail": {
+                        "musicThumbnailRenderer": {
+                          "thumbnail": {
+                            "thumbnails": [
+                              {
+                                "url": "https://i.ytimg.com/vi/H65miGsCFps/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3kswjsaI1CZU4ikH6XmPYfHcHR4Zg",
+                                "width": 640,
+                                "height": 360
+                              },
+                              {
+                                "url": "https://i.ytimg.com/vi/H65miGsCFps/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3nVIZWoaKrn-KsNMxxSUm1pQi75FA",
+                                "width": 1280,
+                                "height": 720
+                              }
+                            ]
+                          },
+                          "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                          "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_UNSPECIFIED",
+                          "trackingParams": "CBQQhL8CIhMI4P-27PaiiAMVe9RzAR2IihHG"
+                        }
+                      },
+                      "buttons": [
+                        {
+                          "toggleButtonRenderer": {
+                            "isToggled": false,
+                            "defaultIcon": {
+                              "iconType": "BOOKMARK_BORDER"
+                            },
+                            "defaultServiceEndpoint": {
+                              "clickTrackingParams": "CBMQ9NAKGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                              "playlistEditEndpoint": {
+                                "playlistId": "SE",
+                                "actions": [
+                                  {
+                                    "addedVideoId": "H65miGsCFps",
+                                    "action": "ACTION_ADD_VIDEO",
+                                    "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                  }
+                                ],
+                                "params": "YAE%3D"
+                              }
+                            },
+                            "toggledIcon": {
+                              "iconType": "BOOKMARK"
+                            },
+                            "toggledServiceEndpoint": {
+                              "clickTrackingParams": "CBMQ9NAKGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                              "playlistEditEndpoint": {
+                                "playlistId": "SE",
+                                "actions": [
+                                  {
+                                    "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                    "removedVideoId": "H65miGsCFps"
+                                  }
+                                ]
+                              }
+                            },
+                            "accessibility": {
+                              "label": "Save episode for later"
+                            },
+                            "trackingParams": "CBMQ9NAKGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                            "defaultTooltip": "Save episode for later",
+                            "toggledTooltip": "Remove from Episodes for later",
+                            "accessibilityData": {
+                              "accessibilityData": {
+                                "label": "Remove from Episodes for later"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicPlayButtonRenderer": {
+                            "playNavigationEndpoint": {
+                              "clickTrackingParams": "CBIQyN4CGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                              "watchEndpoint": {
+                                "videoId": "H65miGsCFps",
+                                "index": 0,
+                                "params": "8gEDmAEI",
+                                "watchEndpointMusicSupportedConfigs": {
+                                  "watchEndpointMusicConfig": {
+                                    "musicVideoType": "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
+                                  }
+                                }
+                              }
+                            },
+                            "trackingParams": "CBIQyN4CGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                            "playIcon": {
+                              "iconType": "PLAY_ARROW"
+                            },
+                            "pauseIcon": {
+                              "iconType": "PAUSE"
+                            },
+                            "iconColor": 4294967295,
+                            "backgroundColor": 0,
+                            "activeBackgroundColor": 0,
+                            "loadingIndicatorColor": 4294901760,
+                            "playingIcon": {
+                              "iconType": "PAUSE"
+                            },
+                            "iconLoadingColor": 0,
+                            "activeScaleFactor": 1,
+                            "accessibilityPlayData": {
+                              "accessibilityData": {
+                                "label": "Play Rebuilding InfluxDB with Rust with Andrew Lamb - Rustacean Station"
+                              }
+                            },
+                            "accessibilityPauseData": {
+                              "accessibilityData": {
+                                "label": "Pause Rebuilding InfluxDB with Rust with Andrew Lamb - Rustacean Station"
+                              }
+                            },
+                            "playbackIdMatchers": [
+                              {
+                                "videoId": "H65miGsCFps"
+                              },
+                              {
+                                "playlistId": ""
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "menuRenderer": {
+                            "items": [
+                              {
+                                "toggleMenuServiceItemRenderer": {
+                                  "defaultText": {
+                                    "runs": [
+                                      {
+                                        "text": "Save episode for later"
+                                      }
+                                    ]
+                                  },
+                                  "defaultIcon": {
+                                    "iconType": "BOOKMARK_BORDER"
+                                  },
+                                  "defaultServiceEndpoint": {
+                                    "clickTrackingParams": "CBEQ-0sYACITCOD_tuz2oogDFXvUcwEdiIoRxg==",
+                                    "playlistEditEndpoint": {
+                                      "playlistId": "SE",
+                                      "actions": [
+                                        {
+                                          "addedVideoId": "H65miGsCFps",
+                                          "action": "ACTION_ADD_VIDEO",
+                                          "dedupeOption": "DEDUPE_OPTION_CHECK"
+                                        }
+                                      ],
+                                      "params": "YAE%3D"
+                                    }
+                                  },
+                                  "toggledText": {
+                                    "runs": [
+                                      {
+                                        "text": "Remove from "
+                                      },
+                                      {
+                                        "text": "Episodes for later"
+                                      }
+                                    ]
+                                  },
+                                  "toggledIcon": {
+                                    "iconType": "BOOKMARK"
+                                  },
+                                  "toggledServiceEndpoint": {
+                                    "clickTrackingParams": "CBEQ-0sYACITCOD_tuz2oogDFXvUcwEdiIoRxg==",
+                                    "playlistEditEndpoint": {
+                                      "playlistId": "SE",
+                                      "actions": [
+                                        {
+                                          "action": "ACTION_REMOVE_VIDEO_BY_VIDEO_ID",
+                                          "removedVideoId": "H65miGsCFps"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CBEQ-0sYACITCOD_tuz2oogDFXvUcwEdiIoRxg==",
+                                  "isToggled": false
+                                }
+                              },
+                              {
+                                "toggleMenuServiceItemRenderer": {
+                                  "defaultText": {
+                                    "runs": [
+                                      {
+                                        "text": "Mark as played"
+                                      }
+                                    ]
+                                  },
+                                  "defaultIcon": {
+                                    "iconType": "CHECK"
+                                  },
+                                  "defaultServiceEndpoint": {
+                                    "clickTrackingParams": "CA4Q7L8LGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "feedbackEndpoint": {
+                                      "feedbackToken": "AB9zfpJjEuFbW3fdUJrabzluE3aEVz6kjbtG25xJ3LLOBo9LixdZyJfIAK4u44L3DZNEh5f3xKFz1ejkaGGoEVg4K1L2XMqn9g",
+                                      "actions": [
+                                        {
+                                          "clickTrackingParams": "CA4Q7L8LGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationActionRenderer": {
+                                                "responseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Episode marked as played"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CBAQuWoiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "toggledText": {
+                                    "runs": [
+                                      {
+                                        "text": "Mark as unplayed"
+                                      }
+                                    ]
+                                  },
+                                  "toggledIcon": {
+                                    "iconType": "ARROW_UNDO"
+                                  },
+                                  "toggledServiceEndpoint": {
+                                    "clickTrackingParams": "CA4Q7L8LGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "feedbackEndpoint": {
+                                      "feedbackToken": "AB9zfpJ8MFzRDmq40PV_5105RF3tY4HRYFIimUgOrolPcqvKbbD-INbI5wBk3PDa4VFJUu3r2Ark6iSjpXEbQH_7T7ri9MxH8A",
+                                      "actions": [
+                                        {
+                                          "clickTrackingParams": "CA4Q7L8LGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationActionRenderer": {
+                                                "responseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Episode marked as unplayed"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CA8QuWoiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CA4Q7L8LGAEiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                  "isToggled": false
+                                }
+                              },
+                              {
+                                "menuServiceItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Play next"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "QUEUE_PLAY_NEXT"
+                                  },
+                                  "serviceEndpoint": {
+                                    "clickTrackingParams": "CAwQvu4FGAIiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "queueAddEndpoint": {
+                                      "queueTarget": {
+                                        "videoId": "H65miGsCFps",
+                                        "onEmptyQueue": {
+                                          "clickTrackingParams": "CAwQvu4FGAIiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "watchEndpoint": {
+                                            "videoId": "H65miGsCFps"
+                                          }
+                                        }
+                                      },
+                                      "queueInsertPosition": "INSERT_AFTER_CURRENT_VIDEO",
+                                      "commands": [
+                                        {
+                                          "clickTrackingParams": "CAwQvu4FGAIiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationTextRenderer": {
+                                                "successResponseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Episode will play next"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CA0QyscDIhMI4P-27PaiiAMVe9RzAR2IihHG"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CAwQvu4FGAIiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              },
+                              {
+                                "menuServiceItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Add to queue"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "ADD_TO_REMOTE_QUEUE"
+                                  },
+                                  "serviceEndpoint": {
+                                    "clickTrackingParams": "CAoQ--8FGAMiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "queueAddEndpoint": {
+                                      "queueTarget": {
+                                        "videoId": "H65miGsCFps",
+                                        "onEmptyQueue": {
+                                          "clickTrackingParams": "CAoQ--8FGAMiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "watchEndpoint": {
+                                            "videoId": "H65miGsCFps"
+                                          }
+                                        }
+                                      },
+                                      "queueInsertPosition": "INSERT_AT_END",
+                                      "commands": [
+                                        {
+                                          "clickTrackingParams": "CAoQ--8FGAMiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                          "addToToastAction": {
+                                            "item": {
+                                              "notificationTextRenderer": {
+                                                "successResponseText": {
+                                                  "runs": [
+                                                    {
+                                                      "text": "Episode added to queue"
+                                                    }
+                                                  ]
+                                                },
+                                                "trackingParams": "CAsQyscDIhMI4P-27PaiiAMVe9RzAR2IihHG"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "trackingParams": "CAoQ--8FGAMiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              },
+                              {
+                                "menuServiceItemDownloadRenderer": {
+                                  "serviceEndpoint": {
+                                    "clickTrackingParams": "CAkQ0aoFGAQiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "offlineVideoEndpoint": {
+                                      "videoId": "H65miGsCFps",
+                                      "onAddCommand": {
+                                        "clickTrackingParams": "CAkQ0aoFGAQiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                        "getDownloadActionCommand": {
+                                          "videoId": "H65miGsCFps",
+                                          "params": "CAI%3D"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "trackingParams": "CAkQ0aoFGAQiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              },
+                              {
+                                "menuNavigationItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Save to playlist"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "ADD_TO_PLAYLIST"
+                                  },
+                                  "navigationEndpoint": {
+                                    "clickTrackingParams": "CAgQw5QGGAUiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "addToPlaylistEndpoint": {
+                                      "videoId": "H65miGsCFps"
+                                    }
+                                  },
+                                  "trackingParams": "CAgQw5QGGAUiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              },
+                              {
+                                "menuNavigationItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Go to podcast"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "BROADCAST"
+                                  },
+                                  "navigationEndpoint": {
+                                    "clickTrackingParams": "CAcQgqIJGAYiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "browseEndpoint": {
+                                      "browseId": "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "trackingParams": "CAcQgqIJGAYiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              },
+                              {
+                                "menuNavigationItemRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Share"
+                                      }
+                                    ]
+                                  },
+                                  "icon": {
+                                    "iconType": "SHARE"
+                                  },
+                                  "navigationEndpoint": {
+                                    "clickTrackingParams": "CAYQkfsFGAciEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                                    "shareEntityEndpoint": {
+                                      "serializedShareEntity": "CgtINjVtaUdzQ0Zwcw%3D%3D",
+                                      "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                                    }
+                                  },
+                                  "trackingParams": "CAYQkfsFGAciEwjg_7bs9qKIAxV71HMBHYiKEcY="
+                                }
+                              }
+                            ],
+                            "trackingParams": "CAUQpzsYAiITCOD_tuz2oogDFXvUcwEdiIoRxg==",
+                            "accessibility": {
+                              "accessibilityData": {
+                                "label": "Action menu"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "Rebuilding InfluxDB with Rust with Andrew Lamb"
+                          }
+                        ]
+                      },
+                      "subtitle": {
+                        "runs": [
+                          {
+                            "text": "1 day ago"
+                          }
+                        ]
+                      },
+                      "progress": {
+                        "musicPlaybackProgressRenderer": {
+                          "playbackProgressPercentage": 0,
+                          "playbackProgressText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr"
+                              }
+                            ]
+                          },
+                          "videoPlaybackPositionFeedbackToken": "AB9zfpJjEuFbW3fdUJrabzluE3aEVz6kjbtG25xJ3LLOBo9LixdZyJfIAK4u44L3DZNEh5f3xKFz1ejkaGGoEVg4K1L2XMqn9g",
+                          "durationText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "1 hr"
+                              }
+                            ]
+                          },
+                          "playedText": {
+                            "runs": [
+                              {
+                                "text": " • "
+                              },
+                              {
+                                "text": "Played",
+                                "textColor": 4294921797
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "trackingParams": "CAQQneEIGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                      "straplineTextOne": {
+                        "runs": [
+                          {
+                            "text": "Rustacean Station",
+                            "navigationEndpoint": {
+                              "clickTrackingParams": "CAQQneEIGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+                              "browseEndpoint": {
+                                "browseId": "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "trackingParams": "CAMQui8iEwjg_7bs9qKIAxV71HMBHYiKEcY="
+              }
+            },
+            "trackingParams": "CAIQ8JMBGAAiEwjg_7bs9qKIAxV71HMBHYiKEcY="
+          }
+        }
+      ]
+    }
+  },
+  "trackingParams": "CAAQhGciEwjg_7bs9qKIAxV71HMBHYiKEcY=",
+  "background": {
+    "musicThumbnailRenderer": {
+      "thumbnail": {
+        "thumbnails": [
+          {
+            "url": "https://i.ytimg.com/vi/H65miGsCFps/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3kswjsaI1CZU4ikH6XmPYfHcHR4Zg",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "url": "https://i.ytimg.com/vi/H65miGsCFps/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3nVIZWoaKrn-KsNMxxSUm1pQi75FA",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+      "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_UNSPECIFIED",
+      "trackingParams": "CAEQhL8CIhMI4P-27PaiiAMVe9RzAR2IihHG"
+    }
+  }
+}
+
