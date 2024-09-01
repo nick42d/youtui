@@ -128,11 +128,12 @@ Feature parity with `ytmusicapi`
 |DeletePlaylist|[x]||
 |AddPlaylistItems|[x]||
 |RemovePlaylistItems|[x]||
-|GetChannel|[ ]||
-|GetChannelEpisodes|[ ]||
-|GetPodcast|[ ]|[ ]|
-|GetEpisode|[ ]||
-|GetEpisodesPlaylist|[ ]||
+|GetChannel|[*]||
+|GetChannelEpisodes|[*]||
+|GetPodcast|[*]|[ ]|
+|GetEpisode|[*]||
+|GetEpisodesPlaylist|Not Planned*||
+|Original: GetNewEpisodes|[*]||
 |GetLibraryUploadSongs|[x]|[ ]|
 |GetLibraryUploadArtists|[x]|[ ]|
 |GetLibraryUploadAlbums|[x]|[ ]|
@@ -150,6 +151,8 @@ Feature parity with `ytmusicapi`
 \* Only the tracking url from GetSong is implemented - as GetSongTrackingUrl. Any additional features for GetSong are not currently planned - recommend taking a look at `rusty_ytdl` library for these features.
 
 \* Note, significantly dynamic pages, such as Get Home are not currently planned.
+
+\* GetEpisodesPlaylist is not implemented - it seems the only use case is to get the New Episodes playlist, which has been implemented instead as GetNewEpisodes.
 
 ## Developer notes
 See the wiki for additional information

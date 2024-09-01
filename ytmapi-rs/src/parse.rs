@@ -22,7 +22,7 @@
 //! `From<ProcessedResult> for JsonCrawlerOwned` implementation.
 use crate::{
     auth::AuthToken,
-    common::{AlbumID, ChannelID, Thumbnail},
+    common::{AlbumID, ArtistChannelID, Thumbnail},
     error,
     json::Json,
     nav_consts::*,
@@ -83,7 +83,7 @@ pub enum EpisodeDuration {
 // Intentionally not marked non_exhaustive - not expecting this to change.
 pub struct ParsedSongArtist {
     pub name: String,
-    pub id: Option<ChannelID<'static>>,
+    pub id: Option<ArtistChannelID<'static>>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 // Intentionally not marked non_exhaustive - not expecting this to change.

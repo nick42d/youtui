@@ -3,34 +3,37 @@ use serde_json::json;
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{BrowseParams, ChannelID, YoutubeID},
+    common::{ArtistChannelID, BrowseParams, YoutubeID},
     parse::{ArtistParams, GetArtistAlbumsAlbum},
 };
 use std::borrow::Cow;
 
 #[derive(Debug, Clone)]
 pub struct GetArtistQuery<'a> {
-    channel_id: ChannelID<'a>,
+    channel_id: ArtistChannelID<'a>,
 }
 #[derive(Debug, Clone)]
 pub struct GetArtistAlbumsQuery<'a> {
-    channel_id: ChannelID<'a>,
+    channel_id: ArtistChannelID<'a>,
     params: BrowseParams<'a>,
 }
 impl<'a> GetArtistQuery<'a> {
-    pub fn new(channel_id: impl Into<ChannelID<'a>>) -> GetArtistQuery<'a> {
+    pub fn new(channel_id: impl Into<ArtistChannelID<'a>>) -> GetArtistQuery<'a> {
         GetArtistQuery {
             channel_id: channel_id.into(),
         }
     }
 }
 impl<'a> GetArtistAlbumsQuery<'a> {
-    pub fn new(channel_id: ChannelID<'a>, params: BrowseParams<'a>) -> GetArtistAlbumsQuery<'a> {
+    pub fn new(
+        channel_id: ArtistChannelID<'a>,
+        params: BrowseParams<'a>,
+    ) -> GetArtistAlbumsQuery<'a> {
         GetArtistAlbumsQuery { channel_id, params }
     }
 }
 
-impl<'a, T: Into<ChannelID<'a>>> From<T> for GetArtistQuery<'a> {
+impl<'a, T: Into<ArtistChannelID<'a>>> From<T> for GetArtistQuery<'a> {
     fn from(channel_id: T) -> Self {
         GetArtistQuery::new(channel_id.into())
     }

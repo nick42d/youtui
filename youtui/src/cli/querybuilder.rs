@@ -4,7 +4,7 @@ use crate::{api::DynamicYtMusic, Command};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
-        AlbumID, BrowseParams, ChannelID, FeedbackTokenAddToLibrary,
+        AlbumID, ArtistChannelID, BrowseParams, FeedbackTokenAddToLibrary,
         FeedbackTokenRemoveFromHistory, LikeStatus, MoodCategoryParams, PlaylistID, SetVideoID,
         SongTrackingUrl, TasteToken, TasteTokenImpression, TasteTokenSelection, UploadAlbumID,
         UploadArtistID, UploadEntityID, VideoID, YoutubeID,
@@ -50,7 +50,7 @@ pub async fn command_to_query(
         Command::GetArtist { channel_id } => {
             get_string_output_of_query(
                 yt,
-                GetArtistQuery::new(ChannelID::from_raw(channel_id)),
+                GetArtistQuery::new(ArtistChannelID::from_raw(channel_id)),
                 cli_query,
             )
             .await
@@ -70,7 +70,7 @@ pub async fn command_to_query(
             get_string_output_of_query(
                 yt,
                 GetArtistAlbumsQuery::new(
-                    ChannelID::from_raw(channel_id),
+                    ArtistChannelID::from_raw(channel_id),
                     BrowseParams::from_raw(browse_params),
                 ),
                 cli_query,

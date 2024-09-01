@@ -1,15 +1,15 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{PodcastChannelParams, PodcastID, VideoID},
+    common::{PodcastChannelID, PodcastChannelParams, PodcastID, VideoID},
 };
 use serde_json::json;
 
-pub struct GetChannelQuery {
-    channel_id: (),
+pub struct GetChannelQuery<'a> {
+    channel_id: PodcastChannelID<'a>,
 }
 pub struct GetChannelEpisodesQuery<'a> {
-    channel_id: (),
+    channel_id: PodcastChannelID<'a>,
     podcast_channel_params: PodcastChannelParams<'a>,
 }
 pub struct GetPodcastQuery<'a> {
@@ -18,10 +18,12 @@ pub struct GetPodcastQuery<'a> {
 pub struct GetEpisodeQuery<'a> {
     video_id: VideoID<'a>,
 }
-pub struct GetEpisodesPlaylistQuery;
+pub struct GetNewEpisodesQuery;
 
-impl GetChannelQuery {
-    pub fn new(channel_id: impl Into<()>) -> Self {
+// NOTE: This is technically the same page as the GetArtist page. It's possible
+// this could be generalised.
+impl<'a> GetChannelQuery<'a> {
+    pub fn new(channel_id: impl Into<PodcastChannelID<'a>>) -> Self {
         Self {
             channel_id: channel_id.into(),
         }
@@ -29,7 +31,7 @@ impl GetChannelQuery {
 }
 impl<'a> GetChannelEpisodesQuery<'a> {
     pub fn new(
-        channel_id: impl Into<()>,
+        channel_id: impl Into<PodcastChannelID<'a>>,
         podcast_channel_params: impl Into<PodcastChannelParams<'a>>,
     ) -> GetChannelEpisodesQuery<'a> {
         GetChannelEpisodesQuery {
@@ -53,7 +55,7 @@ impl<'a> GetEpisodeQuery<'a> {
     }
 }
 
-impl<A: AuthToken> Query<A> for GetChannelQuery {
+impl<'a, A: AuthToken> Query<A> for GetChannelQuery<'a> {
     type Output = ();
     type Method = PostMethod;
 }
@@ -65,16 +67,16 @@ impl<'a, A: AuthToken> Query<A> for GetPodcastQuery<'a> {
     type Output = ();
     type Method = PostMethod;
 }
-impl<A: AuthToken> Query<A> for GetEpisodeQuery {
+impl<'a, A: AuthToken> Query<A> for GetEpisodeQuery<'a> {
     type Output = ();
     type Method = PostMethod;
 }
-impl<A: AuthToken> Query<A> for GetEpisodesPlaylistQuery {
+impl<A: AuthToken> Query<A> for GetNewEpisodesQuery {
     type Output = ();
     type Method = PostMethod;
 }
 
-impl PostQuery for GetChannelQuery {
+impl<'a> PostQuery for GetChannelQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([("browseId".into(), json!(self.channel_id))])
     }
@@ -124,17 +126,16 @@ impl<'a> PostQuery for GetEpisodeQuery<'a> {
         "browse"
     }
 }
-// Gets all episodes in a playlist of episodes.
-// The only playlist like this seems to be the New Episodes auto-playlist, so
-// it's possible that this is not worth implementing.
-impl<'a> PostQuery for GetEpisodesPlaylistQuery<'a> {
+// Gets the NewEpisodes auto-playlist. In future there could be other similar
+// playlists, we can instead re-implement this as GetEpisodesPlaylist.
+impl PostQuery for GetNewEpisodesQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        todo!()
+        FromIterator::from_iter([("browseId".into(), json!("VLRDPN"))])
     }
     fn params(&self) -> Option<std::borrow::Cow<str>> {
-        todo!()
+        None
     }
     fn path(&self) -> &str {
-        todo!()
+        "browse"
     }
 }

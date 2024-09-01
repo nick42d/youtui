@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     common::{
-        AlbumID, AlbumType, BrowseParams, ChannelID, Explicit, LibraryManager, LibraryStatus,
+        AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
         LikeStatus, PlaylistID, UploadEntityID, VideoID,
     },
     nav_consts::*,
@@ -138,7 +138,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
             let category = r.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
             // Likely optional, need to confirm.
             // XXX: Errors here
-            let browse_id: Option<ChannelID> = r
+            let browse_id: Option<ArtistChannelID> = r
                 .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
                 .ok();
             // XXX should only be mandatory for albums, singles, playlists
@@ -265,13 +265,13 @@ pub struct GetArtistVideos {
 pub struct GetArtistAlbums {
     pub results: Vec<AlbumResult>,
     // XXX: Unsure if AlbumID is correct here.
-    pub browse_id: Option<ChannelID<'static>>,
+    pub browse_id: Option<ArtistChannelID<'static>>,
     pub params: Option<BrowseParams<'static>>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
 pub struct RelatedResult {
-    pub browse_id: ChannelID<'static>,
+    pub browse_id: ArtistChannelID<'static>,
     pub title: String,
     pub subscribers: String,
 }
@@ -319,7 +319,7 @@ pub struct PlaylistVideo {
     pub title: String,
     // Could be 'ParsedVideoChannel'
     pub channel_name: String,
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
     pub thumbnails: Vec<Thumbnail>,
@@ -723,7 +723,7 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<GetArtistAlbumsAlbum> {
 }
 #[cfg(test)]
 mod tests {
-    use crate::common::ChannelID;
+    use crate::common::ArtistChannelID;
     use crate::{
         auth::BrowserToken,
         common::{BrowseParams, YoutubeID},
@@ -736,7 +736,7 @@ mod tests {
             // Radiohead's albums.
             "./test_json/browse_artist_albums.json",
             "./test_json/browse_artist_albums_output.txt",
-            GetArtistAlbumsQuery::new(ChannelID::from_raw(""), BrowseParams::from_raw("")),
+            GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(""), BrowseParams::from_raw("")),
             BrowserToken
         );
     }
@@ -746,7 +746,7 @@ mod tests {
         parse_test!(
             "./test_json/get_artist_20240705.json",
             "./test_json/get_artist_20240705_output.txt",
-            crate::query::GetArtistQuery::new(ChannelID::from_raw("")),
+            crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
             BrowserToken
         );
     }

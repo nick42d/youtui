@@ -151,7 +151,9 @@ pub struct PlaylistID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct AlbumID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct ChannelID<'a>(Cow<'a, str>);
+pub struct ArtistChannelID<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct PodcastChannelID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct ProfileID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -186,7 +188,8 @@ impl_youtube_id!(ProfileID<'a>);
 impl_youtube_id!(PodcastID<'a>);
 impl_youtube_id!(VideoID<'a>);
 impl_youtube_id!(PlaylistID<'a>);
-impl_youtube_id!(ChannelID<'a>);
+impl_youtube_id!(ArtistChannelID<'a>);
+impl_youtube_id!(PodcastChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
 impl_youtube_id!(BrowseParams<'a>);
 impl_youtube_id!(PodcastChannelParams<'a>);
