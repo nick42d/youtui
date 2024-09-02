@@ -1,24 +1,27 @@
-use const_format::concatcp;
-use json_crawler::{JsonCrawler, JsonCrawlerOwned};
-use serde::{Deserialize, Serialize};
-
 use super::{ParseFrom, THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER};
 use crate::{
     common::{PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID},
-    nav_consts::{SECTION_LIST, SINGLE_COLUMN_TAB},
+    nav_consts::{
+        CAROUSEL, CAROUSEL_TITLE, MMRLIR, MTRIR, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
+        SECTION_LIST, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS,
+    },
     query::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
         GetPodcastQuery,
     },
-    Result,
+    utils, Result,
 };
+use const_format::concatcp;
+use json_crawler::{JsonCrawler, JsonCrawlerOwned};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct PodcastChannel {
     title: String,
     thumbnails: Vec<Thumbnail>,
-    episode_params: PodcastChannelParams<'static>,
+    episode_params: Option<PodcastChannelParams<'static>>,
     episodes: Vec<PodcastChannelEpisode>,
     podcasts: Vec<PodcastChannelPodcast>,
 }
@@ -44,13 +47,20 @@ pub struct PodcastChannelPodcast {
 // Intentionally not marked non_exhaustive - not expected to change.
 pub struct ParsedPodcastChannel {
     name: String,
-    id: PodcastChannelID<'static>,
+    id: Option<PodcastChannelID<'static>>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Intentionally not marked non_exhaustive - not expected to change.
 pub enum IsSaved {
     Saved,
     NotSaved,
+}
+#[derive(Eq, PartialEq, Debug, Clone, Deserialize, Serialize, Hash)]
+// Intentionally not marked non_exhaustive - not expected to change.
+pub enum PodcastChannelTopResult {
+    #[serde(rename = "Latest episodes")]
+    Episodes,
+    Podcasts,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -77,16 +87,72 @@ pub struct GetEpisode {
 // this could be generalised.
 impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
     fn parse_from(p: crate::ProcessedResult<GetChannelQuery>) -> Result<Self> {
-        fn parse_podcast(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
+        fn parse_podcast(crawler: impl JsonCrawler) -> Result<PodcastChannelPodcast> {
+            let mut podcast = crawler.navigate_pointer(MTRIR)?;
+            let title = podcast.take_value_pointer(TITLE_TEXT)?;
+            let channel = parse_podcast_channel(
+                &mut podcast.navigate_pointer(concatcp!(SUBTITLE_RUNS, "/0"))?,
+            )?;
+            let podcast_id = podcast.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let thumbnails = podcast.take_value_pointer(THUMBNAIL_RENDERER)?;
+            Ok(PodcastChannelPodcast {
+                title,
+                channel,
+                podcast_id,
+                thumbnails,
+            })
+        }
+        fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
             todo!()
         }
-        let json_crawler = JsonCrawlerOwned::from(p);
-        let header = json_crawler.borrow_pointer(VISUAL_HEADER)?;
+        let mut json_crawler = JsonCrawlerOwned::from(p);
+        let mut header = json_crawler.borrow_pointer(VISUAL_HEADER)?;
         let title = header.take_value_pointer(TITLE_TEXT)?;
         let thumbnails = header.take_value_pointer(THUMBNAILS)?;
-        let contents = json_crawler
+        // Less imperative approach, but requires allocation. Is there a functional,
+        // non-allocating solution?
+        let mut carousels = json_crawler
             .borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
-            .try_into_iter()?;
+            .try_into_iter()?
+            .map(|item| {
+                let mut carousel = item.navigate_pointer(CAROUSEL)?;
+                Ok((
+                    carousel.take_value_pointer::<PodcastChannelTopResult>(concatcp!(
+                        CAROUSEL_TITLE,
+                        "/text"
+                    ))?,
+                    carousel,
+                ))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
+        let mut episode_carousel = carousels.remove(&PodcastChannelTopResult::Episodes);
+        let episode_params = episode_carousel
+            .as_mut()
+            .map(|item| {
+                item.take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE, "/params"))
+            })
+            .transpose()?;
+        let episodes_iter = episode_carousel.into_iter().map(|item| -> Result<_> {
+            Ok(item
+                .navigate_pointer("/contents")?
+                .try_into_iter()?
+                .map(parse_episode))
+        });
+        let episodes = utils::process_results::process_results(episodes_iter, |i| {
+            i.flatten().collect::<Result<_>>()
+        })??;
+        let podcasts_iter = carousels
+            .remove(&PodcastChannelTopResult::Podcasts)
+            .into_iter()
+            .map(|item| -> Result<_> {
+                Ok(item
+                    .navigate_pointer("/contents")?
+                    .try_into_iter()?
+                    .map(parse_podcast))
+            });
+        let podcasts = utils::process_results::process_results(podcasts_iter, |i| {
+            i.flatten().collect::<Result<_>>()
+        })??;
         Ok(PodcastChannel {
             title,
             thumbnails,
@@ -134,6 +200,13 @@ impl ParseFrom<GetNewEpisodesQuery> for Podcast {
             episodes: todo!(),
         })
     }
+}
+
+fn parse_podcast_channel(data: &mut impl JsonCrawler) -> Result<ParsedPodcastChannel> {
+    Ok(ParsedPodcastChannel {
+        name: data.take_value_pointer("/text")?,
+        id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
+    })
 }
 
 #[cfg(test)]

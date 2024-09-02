@@ -76,7 +76,7 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
                     .map(get_taste_profile_artist))
             });
         utils::process_results::process_results(nested_iter, |i| {
-            i.flatten().collect::<Result<Vec<TasteProfileArtist>>>()
+            i.flatten().collect::<Result<_>>()
         })?
     }
 }
