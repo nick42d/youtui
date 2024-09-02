@@ -36,6 +36,7 @@ pub const BADGE_PATH: &str =
 pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibilityData/label";
 pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
+pub const MMRLIR: &str = "/musicMultiRowListItemRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
 pub const TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
