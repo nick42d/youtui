@@ -45,6 +45,7 @@ pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impression
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
+pub const VISUAL_HEADER: &str = "/header/musicVisualHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
 pub const DESCRIPTION_SHELF_RUNS: &str =
     "/description/musicDescriptionShelfRenderer/description/runs";

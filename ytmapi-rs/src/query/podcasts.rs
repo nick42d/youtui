@@ -2,6 +2,7 @@ use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{PodcastChannelID, PodcastChannelParams, PodcastID, VideoID},
+    parse::{GetEpisode, Podcast, PodcastChannel, PodcastChannelEpisode},
 };
 use serde_json::json;
 
@@ -56,23 +57,23 @@ impl<'a> GetEpisodeQuery<'a> {
 }
 
 impl<'a, A: AuthToken> Query<A> for GetChannelQuery<'a> {
-    type Output = ();
+    type Output = PodcastChannel;
     type Method = PostMethod;
 }
 impl<'a, A: AuthToken> Query<A> for GetChannelEpisodesQuery<'a> {
-    type Output = ();
+    type Output = Vec<PodcastChannelEpisode>;
     type Method = PostMethod;
 }
 impl<'a, A: AuthToken> Query<A> for GetPodcastQuery<'a> {
-    type Output = ();
+    type Output = Podcast;
     type Method = PostMethod;
 }
 impl<'a, A: AuthToken> Query<A> for GetEpisodeQuery<'a> {
-    type Output = ();
+    type Output = GetEpisode;
     type Method = PostMethod;
 }
 impl<A: AuthToken> Query<A> for GetNewEpisodesQuery {
-    type Output = ();
+    type Output = Podcast;
     type Method = PostMethod;
 }
 
