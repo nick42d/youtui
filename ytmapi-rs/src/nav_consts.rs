@@ -56,6 +56,10 @@ pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/muta
 pub const INDEX_TEXT: &str = "/index/runs/0/text";
 pub const RESPONSIVE_HEADER: &str = "/musicResponsiveHeaderRenderer";
 pub const DISPLAY_POLICY: &str = "/musicItemRendererDisplayPolicy";
+pub const PLAYBACK_DURATION_TEXT: &str =
+    "/playbackProgress/musicPlaybackProgressRenderer/durationText/runs/1/text";
+pub const PLAYBACK_PROGRESS_TEXT: &str =
+    "/playbackProgress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text";
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);
@@ -92,7 +96,7 @@ pub const MENU_PLAYLIST_ID: &str = concatcp!(
     NAVIGATION_WATCH_PLAYLIST_ID
 );
 pub const DESCRIPTION: &str = concatcp!("/description", RUN_TEXT);
-pub const _CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
+pub const CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
