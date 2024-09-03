@@ -1,0 +1,287 @@
+PodcastChannel {
+    title: "Rustacean Station",
+    thumbnails: [
+        Thumbnail {
+            height: 225,
+            width: 540,
+            url: "https://yt3.googleusercontent.com/DTfp2aGjBZs5AP_VW8IjLDgTDHWpVQTT3zcXaQcsyM3IxPtb5-MNIdDIk4BzkBzrx5aev27qkA=w540-h225-p-l90-rj",
+        },
+        Thumbnail {
+            height: 340,
+            width: 816,
+            url: "https://yt3.googleusercontent.com/DTfp2aGjBZs5AP_VW8IjLDgTDHWpVQTT3zcXaQcsyM3IxPtb5-MNIdDIk4BzkBzrx5aev27qkA=w816-h340-p-l90-rj",
+        },
+        Thumbnail {
+            height: 600,
+            width: 1440,
+            url: "https://yt3.googleusercontent.com/DTfp2aGjBZs5AP_VW8IjLDgTDHWpVQTT3zcXaQcsyM3IxPtb5-MNIdDIk4BzkBzrx5aev27qkA=w1440-h600-p-l90-rj",
+        },
+        Thumbnail {
+            height: 800,
+            width: 1920,
+            url: "https://yt3.googleusercontent.com/DTfp2aGjBZs5AP_VW8IjLDgTDHWpVQTT3zcXaQcsyM3IxPtb5-MNIdDIk4BzkBzrx5aev27qkA=w1920-h800-p-l90-rj",
+        },
+        Thumbnail {
+            height: 1200,
+            width: 2880,
+            url: "https://yt3.googleusercontent.com/DTfp2aGjBZs5AP_VW8IjLDgTDHWpVQTT3zcXaQcsyM3IxPtb5-MNIdDIk4BzkBzrx5aev27qkA=w2880-h1200-p-l90-rj",
+        },
+    ],
+    episode_params: Some(
+        PodcastChannelParams(
+            "6gPmAUdxa0JXcGtCQ3BZQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xWVnhVRjlIYUdzYVRRQUFaVzR0UjBJQUFVRlZBQUZCVlFBQkFFWkZiWFZ6YVdOZlpHVjBZV2xzWDJGeWRHbHpkQUFCQVVNQUFBRUFBQUVCQUZWRGVsbE1iM00wY1dNeWIwTTBjakJGWm1RdGRGTjFkd0FCOHRxenFnb0hRQUJJQUZDYkFR",
+        ),
+    ),
+    episodes: [
+        PodcastChannelEpisode {
+            title: "Rebuilding InfluxDB with Rust with Andrew Lamb",
+            description: "Allen Wyma talks with Andrew Lamb (http://andrew.nerdnetworks.org/)  about InfluxDB’s rewrite (https://www.influxdata.com/blog/flight-datafusion-arrow-parquet-fdap-architecture-influxdb/) . InfluxDB is an open-source time series database.\n\n\n\n\nAs a Staff Engineer at InfluxData, he works on InfluxDB 3.0, a new time series database written in Rust, focusing on query processing and the Apache Arrow DataFusion and Apache Arrow ecosystems. In that capacity, he is a member and past chair of the Apache Arrow PMC and actively contributes to Apache Arrow DataFusion and the Apache Rust implementation query engine.\n\n\n\n\nAndrew was a professional C/C++ programmer for 10 years before switching to Rust. His experience ranges from startups to large multinational corporations and distributed open source projects, and has paid leadership dues as an architect and manager/VP. He holds an SB and MEng from MIT in Electrical Engineering and Computer Science.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@0:52]\u{a0}- Meet Andrew Lamb, Staff Engineer at InfluxData, working on InfluxDB IOx\n     \n       \n  •  [@2:57]\u{a0}- Transitioning from C++ to Rust: Andrew’s story\n     \n       \n  •  [@11:24]\u{a0}- InfluxDB rewrite and its use cases\n     \n       \n  •  [@22:13]\u{a0}- Compatibility of InfluxDB\n     \n       \n  •  [@26:58]\u{a0}- Downsides of using Rust and other languages\n     \n       \n  •  [@32:40]\u{a0}- Plans for the 3.0 alpha/beta release and different versions\n     \n       \n  •  [@34:54]\u{a0}- Unique use of the async runtime Tokio\n     \n       \n  •  [@55:28]\u{a0}- Rust as a tool for recruitment\n     \n       \n  •  [@58:16]\u{a0}- Closing discussion\n     \n     \n\nOther links\n\n\n     \n       \n  •  Andrew’s X Account (https://twitter.com/andrewlamb1111) \n     \n       \n  •  Using Rustlang’s Async Tokio Runtime for CPU-Bound Tasks (https://thenewstack.io/using-rustlangs-async-tokio-runtime-for-cpu-bound-tasks/) \n     \n       \n  •  Using the FDAP Architecture to build InfluxDB 3.0 (https://www.influxdata.com/blog/flight-datafusion-arrow-parquet-fdap-architecture-influxdb/) \n     \n       \n  •  RustASIA Conf 2025 (https://www.rustasiaconf.com/) \n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "1 hr",
+            remaining_duration: "1 hr",
+            date: "1 day ago",
+            video_id: VideoID(
+                "MPEDH65miGsCFps",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/H65miGsCFps/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3kswjsaI1CZU4ikH6XmPYfHcHR4Zg",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/H65miGsCFps/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3nVIZWoaKrn-KsNMxxSUm1pQi75FA",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Exploring Fiberplane's 3-Year Rust Journey, with Benno van den Berg",
+            description: "Benno van der Berg (https://www.linkedin.com/in/bennovandenberg/) , Principal Software Engineer at Fiberplane (https://fiberplane.com/) , \nsits down with Luca Palmieri.\n\n\n\n\nThey discuss Fiberplane’s 3-years long journey with Rust, building an interactive observability notebook.\n\nThey touch on Benno’s experience switching from .NET to Rust and share insights on using Rust for a commercial product, \nincluding the reasons behind Fiberplane’s Rust adoption. They then dive into the challenges of maintaining Fiberplane’s \ncodebase and conclude with a few tips for developers looking for Rust jobs.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps & referenced resources\n\n\n\n     \n       \n  •  [@00:00] - Introduction\n         \n          \n                \n       •  Video recording of the interview (https://mainmatter.com/blog/2024/04/11/fiberplanes-three-year-rust-journey/) \n          \n              \n       \n     \n       \n  •  [@00:33] - Start of the interview\n     \n       \n  •  [@01:17] - Benno’s journey as a Software Engineer\n     \n       \n  •  [@04:29] - Fiberplane’s products\n     \n       \n  •  [@07:05] - Building an observability product in Rust\n     \n       \n  •  [@09:25] - Uses for Rust at Fiberplane\n     \n       \n  •  [@13:30] - WASM and front end\n     \n       \n  •  [@22:04] - Fiberplane’s 3-year experience with Rust\n     \n       \n  •  [@32:43] - Benno’s advice for developers seeking Rust jobs\n     \n       \n  •  [@35:28] - Conclusion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Mainmatter (https://mainmatter.com/rust-consulting/) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Mainmatter (https://mainmatter.com/rust-consulting/) \n\n\n\n\nHosts: Luca Palmieri (https://lpalmieri.com/)",
+            total_duration: "47 mins",
+            remaining_duration: "47 mins",
+            date: "12 Aug",
+            video_id: VideoID(
+                "MPEDZovfCsVyNVY",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/ZovfCsVyNVY/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDg&rs=AMzJL3nk5GHg3hLDdsChM_tDQ2dNSjzFIw",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/ZovfCsVyNVY/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA4&rs=AMzJL3nVh-RqRX61N0NQabYVl9-E-UpWxg",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Rama with Glen De Cauwsemaecker",
+            description: "Allen Wyma talks with Glen De Cauwsemaecker (https://www.glendc.com/)  about Rama (https://ramaproxy.org/) , a modular and customizable proxy built in Rust.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Introducing Glen De Cauwsemaecker\n     \n       \n  •  [@01:26] - Rama functionality & use cases\n     \n       \n  •  [@14:38] - Discussing the development story leading up to Rama’s upcoming release\n     \n       \n  •  [@36:19] - Rama architecture, Glen’s background in game development\n     \n       \n  •  [@48:06] - Closing discussion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "49 mins",
+            remaining_duration: "49 mins",
+            date: "20 May",
+            video_id: VideoID(
+                "MPEDnlblyD34qjs",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/nlblyD34qjs/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3llHxIqETroFefDQGgBVhGTraYJ2A",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/nlblyD34qjs/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3kB87FkChAAvftcdAQIBb6yAK-MAw",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Ratatui with Orhun Parmaksiz",
+            description: "Allen Wyma talks with Orhun Parmaksiz (https://blog.orhun.dev/)  about Ratatui (https://ratatui.rs/) , a TUI library for Rust to create beautiful console-based applications in Rust.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Meet Orhun Parmaksiz\n     \n       \n  •  [@01:21] - Origins of the project and overview of TUIs\n     \n       \n  •  [@09:32] - Rebranding from tui-rs and continuing previous work\n     \n       \n  •  [@14:50] - Documentation of Ratatui\n     \n       \n  •  [@16:18] - Collecting community feedback\n     \n       \n  •  [@22:00] - Custom designs in Ratatui (ratatui-splash-screen)\n     \n       \n  •  [@22:19] - Other terminal UI projects\n     \n       \n  •  [@25:32] - Status and upcoming directions for Ratatui\n     \n       \n  •  [@27:55] - Closing discussion\n     \n     \n\nOther Resources\n\n\n     \n       \n  •  Orhun’s Github (https://github.com/orhun) \n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "31 mins",
+            remaining_duration: "31 mins",
+            date: "26 Apr",
+            video_id: VideoID(
+                "MPEDEEMkSKDtxe4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/EEMkSKDtxe4/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3nlk1B7bPPZd3ChnVVdaINuNWB3qg",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/EEMkSKDtxe4/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3kMxpvysdfoR3nifSEB3Apjz3vmGw",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Isograph with Robert Balicki",
+            description: "Allen Wyma talks with Robert Balicki (https://www.robertbalicki.com/)  about Isograph (https://isograph.dev/) , a framework powered by Rust to speed up your React app development.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@10:48] - GraphQL (https://graphql.org/)  basics\n     \n       \n  •  [@21:20] - The role of Rust within the project\n     \n       \n  •  [@32:24] - Isograph installation\n     \n       \n  •  [@37:16] - Isograph development\n     \n       \n  •  [@45:46] - Upcoming features\n     \n       \n  •  [@01:00:01] - Closing discussion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "1 hr 2 mins",
+            remaining_duration: "1 hr 2 mins",
+            date: "20 Apr",
+            video_id: VideoID(
+                "MPEDjra_dQuBaeg",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/jra_dQuBaeg/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3kSNh2wZaLyW3ChWfAhp-V4v6nJzw",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/jra_dQuBaeg/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3k_Mbz9GyKeKdiEgNZePFyQnzRi5A",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "release-plz with Marco Ieni",
+            description: "Allen Wyma talks with Marco Ieni (https://www.marcoieni.com/)  about release-plz (https://release-plz.ieni.dev/) , a CLI-based tool that helps you to release your Rust crates by generating changelogs and bumping the version of your crates.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Meet Marco Ieni, software engineer at Prisma (https://www.prisma.io/) , creator of release-plz\n     \n       \n  •  [@01:17] - Release-plz creation & features\n     \n       \n  •  [@08:50] - Conventional commit standard\n     \n       \n  •  [@17:41] - Potential upcoming features\n     \n       \n  •  [@21:25] - Gitea, Gitlab, Github integration\n     \n       \n  •  [@28:14] - Release-plz development\n     \n       \n  •  [@31:24] - Windows support\n     \n       \n  •  [@36:22] - Message from Marco\n     \n       \n  •  [@37:07] - Marco’s Rust podcast RustShip (https://www.marcoieni.com/2023/08/rustship-a-new-rust-podcast/) \n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "40 mins",
+            remaining_duration: "40 mins",
+            date: "12 Apr",
+            video_id: VideoID(
+                "MPEDgU0SSIXleZQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/gU0SSIXleZQ/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDg&rs=AMzJL3m9MQbh8JjDcyfOQE_wkmejPSgInw",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/gU0SSIXleZQ/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA4&rs=AMzJL3mEusQ07mmeTbVbK4wijI6J2c1dDQ",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Pavex with Luca Palmieri",
+            description: "Allen Wyma talks with Luca Palmieri (https://www.lpalmieri.com/)  about Pavex (https://pavex.dev/) , a new API-focused web framework for Rust.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Meet Luca Palmieri, software engineer, author of Zero To Production In Rust (https://www.zero2prod.com/) , open source maintainer & contributor\n     \n       \n  •  [@02:04] - Luca’s working experience, discussing time at AWS and moving to Mainmatter\n         \n          \n                \n       •  Smithy (https://smithy.io/2.0/index.html) \n          \n                \n       •  smithy-rs (https://github.com/smithy-lang/smithy-rs) \n          \n              \n       \n     \n       \n  •  [@09:01] - Pavex: a Rust framework for professionals\n         \n          \n                \n       •  Pavex: re-imaging API development in Rust (RustNationUK 2024) (https://youtu.be/cMea6IMRk2s) \n          \n              \n       \n     \n       \n  •  [@22:57] - Rustdoc JSON & the f\u{a0}macro\n         \n          \n                \n       •  Reasoning about Rust: an introduction to Rustdoc’s JSON format (EuroRust 2023) (https://youtu.be/OxQYyg_v3rw) \n          \n                \n       •  cargo-semver-checks (https://github.com/obi1kenobi/cargo-semver-checks) \n          \n              \n       \n     \n       \n  •  [@37:19] - Lessons from maintaining open-source projects like rocket.rs\n         \n          \n                \n       •  Building a Better Foundation for Rocket’s Future (https://rocket.rs/news/2023-11-17-rwf2-prelaunch/) \n          \n                \n       •  The Economics of Programming Languages (Strange Loop 2023) (https://www.youtube.com/watch?v=XZ3w_jec1v8) \n          \n              \n       \n     \n       \n  •  [@52:17] - Pavex’s closed beta stage\n     \n       \n  •  [@56:43] - Plans for production readiness\n     \n       \n  •  [@01:10:43] - Potential pricing models\n     \n       \n  •  [@01:12:39] - Closing discussion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "1 hr 18 mins",
+            remaining_duration: "1 hr 18 mins",
+            date: "9 Apr",
+            video_id: VideoID(
+                "MPEDDVKOVdigrQA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/DVKOVdigrQA/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDg&rs=AMzJL3kwQpEFxarsYH6dNYf6tSd6sUtC9Q",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/DVKOVdigrQA/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA4&rs=AMzJL3mlZl47Uw-hmnNCEhPlmb1-JmvS6A",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Launching RustRover: JetBrains' Investment in Rust",
+            description: "Vitaly Bragilevsky (https://bravit.pro/) , Developer Advocate at JetBrains (https://www.jetbrains.com/)  and author of \nHaskell in depth (https://www.manning.com/books/haskell-in-depth) , sits down with Luca Palmieri.\n\n\n\n\nVitaly explains what led JetBrains to launch a Rust-specific product, RustRover (https://www.jetbrains.com/rust/) .\nHe covers, in particular, why it is a good time to invest further in Rust, touching as well on the state of the Rust ecosystem. \nLuca and Vitaly also touch on the status quo of Rust developer tooling, including debuggers, profilers (or the lack thereof!),\nand framework-specific extensions.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps & referenced resources\n\n\n\n     \n       \n  •  [@00:00] - Introduction\n         \n          \n                \n       •  Video recording of the interview (https://mainmatter.com/blog/2024/02/29/launching-rustrover/) \n          \n              \n       \n     \n       \n  •  [@01:07] - Becoming a Developer Advocate for Rust at JetBrains\n     \n       \n  •  [@04:34] - Vitaly’s transition from Haskell to Rust\n         \n          \n                \n       •  Haskell in depth (https://www.manning.com/books/haskell-in-depth) \n          \n              \n       \n     \n       \n  •  [@08:13] - Introducing JetBrains’ RustRover (https://www.jetbrains.com/rust/) \n     \n       \n  •  [@18:56] - Usage and status quo of Rust developer tooling\n     \n       \n  •  [@25:12] - Vitaly’s outlook on Rust’s future\n     \n       \n  •  [@31:47] - New use cases for Rust adoption\n     \n       \n  •  [@35:07] - Compiler and IDE suggestions\n     \n       \n  •  [@38:08] - JetBrains’ role and future as a Rust tooling provider\n     \n       \n  •  [@39:59] - Reasoning behind Rust’s increasing popularity\n     \n       \n  •  [@46:18] - Conclusion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Mainmatter (https://mainmatter.com/rust-consulting/) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Mainmatter (https://mainmatter.com/rust-consulting/) \n\n\n\n\nHosts: Luca Palmieri (https://lpalmieri.com/)",
+            total_duration: "47 mins",
+            remaining_duration: "47 mins",
+            date: "4 Apr",
+            video_id: VideoID(
+                "MPEDiffbeOInSyY",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/iffbeOInSyY/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3kkrHg8m8FJ4faDDBVOONDggAcvnA",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/iffbeOInSyY/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3kGOarIf-V8UjZkZdlxQJzCrgSOzQ",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "cargo-semver-checks with Predrag Gruevski",
+            description: "Allen Wyma talks with Predrag Gruevski (https://predr.ag/)  about cargo-semver-checks (https://crates.io/crates/cargo-semver-checks) , a linter that checks your crate’s API for any semver (https://semver.org/)  violations.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Meet Predrag Gruevski - creator & maintainer of cargo-semver-checks\n     \n       \n  •  [@00:35] - Exploring cargo-semver-checks, a linter for preventing breaking changes and ensuring semantic versioning\n     \n       \n  •  [@05:00] - What is Semantic versioning (semver)\n     \n       \n  •  [@08:17] - Determining major version bumps\n     \n       \n  •  [@10:48] - Background of the project\n     \n       \n  •  [@18:25] - Functionality, use cases, and project details of cargo-semver-checks\n     \n       \n  •  [@38:51] - Future plans and upcoming features\n     \n       \n  •  [@47:28] - Closing discussion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "1 hr 41 mins",
+            remaining_duration: "1 hr 41 mins",
+            date: "30 Mar",
+            video_id: VideoID(
+                "MPEDuOwEiEBl2u8",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/uOwEiEBl2u8/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDg&rs=AMzJL3kOMLgXYirIfeFNtk7HN17uwkuxXg",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/uOwEiEBl2u8/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA4&rs=AMzJL3mxHaeDsBHKLwiqyyKjXqOBq3kuzQ",
+                },
+            ],
+        },
+        PodcastChannelEpisode {
+            title: "Hyper 1.0 with Sean McArthur",
+            description: "Allen Wyma talks with Sean McArthur (https://seanmonstar.com/)  about the 1.0 release (https://seanmonstar.com/blog/hyper-v1/)  of Hyper (https://hyper.rs/) , the well-known Rust HTTP library.\n\n\nContributing to Rustacean Station\n\n\n\n\nRustacean Station is a community project; get in touch with us if you’d like to suggest an idea for an episode or offer your services as a host or audio editor!\n\n\n\n     \n       \n  •  Twitter: @rustaceanfm (https://twitter.com/rustaceanfm) \n     \n       \n  •  Discord: Rustacean Station (https://discord.gg/cHc3Gyc) \n     \n       \n  •  Github: @rustacean-station (https://github.com/rustacean-station/) \n     \n       \n  •  Email: hello@rustacean-station.org (mailto:hello@rustacean-station.org) \n     \n     \n\nTimestamps\n\n\n\n     \n       \n  •  [@00:00] - Meet open-source engineer Sean McArthur\n     \n       \n  •  [@01:20] - Reasons for the 9-year journey to release hyper 1.0\n     \n       \n  •  [@05:34] - Addressing async fragmentation\n     \n       \n  •  [@07:38] - Sean’s transition to freelance maintenance\n     \n       \n  •  [@10:12] - Freelancing and finding clients while working on open source\n     \n       \n  •  [@16:56] - Hyper’s maturity and future plans\n     \n       \n  •  [@22:16] - Stages of hyper’s development, releases, and post-release issues.\n     \n       \n  •  [@36:14] - Closing discussion\n     \n     \n\nCredits\n\n\n\n\nIntro Theme: Aerocity (https://twitter.com/AerocityMusic) \n\n\n\n\nAudio Editing: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosting Infrastructure: Jon Gjengset (https://twitter.com/jonhoo/) \n\n\n\n\nShow Notes: Plangora (https://twitter.com/plangora) \n\n\n\n\nHosts: Allen Wyma (https://twitter.com/allenwyma)",
+            total_duration: "38 mins",
+            remaining_duration: "38 mins",
+            date: "23 Mar",
+            video_id: VideoID(
+                "MPEDmqDiy1G1dTI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 360,
+                    width: 640,
+                    url: "https://i.ytimg.com/vi/mqDiy1G1dTI/sddefault.jpg?sqp=-oaymwElCIAFEOgCIAQqCghQELAEGAAg4ANIWvKriqkDCZoCBggzEBwYDQ&rs=AMzJL3ni-5kgAN5y6fODFDIjmdG7Fa3lIQ",
+                },
+                Thumbnail {
+                    height: 720,
+                    width: 1280,
+                    url: "https://i.ytimg.com/vi/mqDiy1G1dTI/hq720.jpg?sqp=-oaymwEmCIAKENAFIAQqCwiYAhDoBxgAINAFSFryq4qpAwmaAgYIMxAcGA0&rs=AMzJL3k10wVMasDMVwwSoAHw1vECfMkrdA",
+                },
+            ],
+        },
+    ],
+    podcasts: [
+        PodcastChannelPodcast {
+            title: "Rustacean Station",
+            channels: [
+                ParsedPodcastChannel {
+                    name: "Rustacean Station",
+                    id: Some(
+                        PodcastChannelID(
+                            "UCzYLos4qc2oC4r0Efd-tSuw",
+                        ),
+                    ),
+                },
+            ],
+            podcast_id: PodcastID(
+                "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://i.ytimg.com/podcasts_artwork/PLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct/rss_feed_ingested.jpg?sqp=CPj407YG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3kE0UIhi2ahe5m4XZWv52BOUuAqew",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://i.ytimg.com/podcasts_artwork/PLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct/rss_feed_ingested.jpg?sqp=CPj407YG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mxn15jkzYdBskxc477k6pTt59_Kg",
+                },
+            ],
+        },
+    ],
+}

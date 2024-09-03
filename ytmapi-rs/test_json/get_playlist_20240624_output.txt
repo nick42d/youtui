@@ -56,7 +56,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Beatles",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC2XdaAVUannpujzv32jcouQ",
                             ),
                         ),
@@ -111,7 +111,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Kyuss",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCd8AMfxIQBvKgPVNvyybWZg",
                             ),
                         ),
@@ -166,7 +166,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Kyuss",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCd8AMfxIQBvKgPVNvyybWZg",
                             ),
                         ),

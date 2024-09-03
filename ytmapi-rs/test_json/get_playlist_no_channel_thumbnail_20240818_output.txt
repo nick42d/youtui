@@ -45,7 +45,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Cyndi Lauper",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC9I3hbllzsS4QZqNekPE76g",
                             ),
                         ),
@@ -100,7 +100,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Police",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCbsRGw640UF_F7AIwHW-zmg",
                             ),
                         ),
@@ -155,7 +155,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "George Michael",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCgNivrx0yqbFoAEgf2AsRXg",
                             ),
                         ),
@@ -210,7 +210,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "a-ha",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCx00XxqRCfPS6zaTzRm3H2A",
                             ),
                         ),
@@ -265,7 +265,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Michael Jackson",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCoIOOL7QKuBhQHVKL8y7BEQ",
                             ),
                         ),
@@ -320,7 +320,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Survivor",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC52srG5obKLJ16vRsTqZyZQ",
                             ),
                         ),
@@ -375,7 +375,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Toto",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCewH1MBbYlEZMWx3ZUNywyg",
                             ),
                         ),
@@ -430,7 +430,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Guns N' Roses",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCSLbbBoUqpin6BE34whSOvA",
                             ),
                         ),
@@ -485,7 +485,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bon Jovi",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCCL-yoaPLR-7bxZM1xlcQcQ",
                             ),
                         ),
@@ -540,7 +540,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Eurythmics",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCQiH3xAP0i48o74BK6EBkMw",
                             ),
                         ),
@@ -595,7 +595,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Rick Astley",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCwZEU0wAwIyZb4x5G_KJp2w",
                             ),
                         ),
@@ -650,7 +650,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Tears For Fears",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCcozhiTOkGB1HCOgdBlEFPA",
                             ),
                         ),
@@ -705,7 +705,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Kim Carnes",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCUci9NVUThEaPjwXVdDimAQ",
                             ),
                         ),
@@ -760,7 +760,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Whitney Houston",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCcoxwwIh_afLwJHVBEQw62Q",
                             ),
                         ),
@@ -815,7 +815,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Journey",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCPKnuPciHDB8qw-wyBVQo9A",
                             ),
                         ),
@@ -870,7 +870,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Cutting Crew",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC7CYIif6lYnbE9ouq9XNFRQ",
                             ),
                         ),
@@ -925,7 +925,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Culture Club",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UChva71IdUXvTn8uHGtJkB_w",
                             ),
                         ),
@@ -980,7 +980,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Daryl Hall & John Oates",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC8zbYR5i0gecEZ3iPgm-i9g",
                             ),
                         ),
@@ -1035,7 +1035,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bruce Springsteen",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCyFqJ_5TyAeTD7rHpLikbKQ",
                             ),
                         ),
@@ -1090,7 +1090,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Heart",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCTY6y0k715s7bJ2Tl-ju3xw",
                             ),
                         ),
@@ -1145,7 +1145,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Stevie Wonder",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCR83RRXHzXrEQbu_ZQmPMSg",
                             ),
                         ),
@@ -1200,7 +1200,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Simple Minds",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCE_svhtO1EX9jG8KV2-njfA",
                             ),
                         ),
@@ -1255,7 +1255,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Belinda Carlisle",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCXPAj48W0yCbTjOquiFNhLQ",
                             ),
                         ),
@@ -1310,7 +1310,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "U2",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCqIQRxCUGi7hyJisyzv9zYQ",
                             ),
                         ),
@@ -1365,7 +1365,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Phil Collins",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCzt9gB3XNQYs_2UHvolUZog",
                             ),
                         ),
@@ -1420,7 +1420,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Billy Ocean",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC7yYP0Cq2zcwURQrklwkiPw",
                             ),
                         ),
@@ -1455,7 +1455,7 @@ GetPlaylist {
                 duration: "4:02",
                 title: "Jump",
                 channel_name: "Van Halen",
-                channel_id: ChannelID(
+                channel_id: ArtistChannelID(
                     "UCPi7wU0ppI6ad7EEpHs7lHg",
                 ),
                 like_status: Indifferent,
@@ -1501,7 +1501,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bobby McFerrin",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCWAcp25JvlBNb4016lus18g",
                             ),
                         ),
@@ -1556,7 +1556,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Paul Young",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCB3qJDg2Dtzw7_cTGKn8dqw",
                             ),
                         ),
@@ -1611,7 +1611,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Def Leppard",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UChn30LXbAZKSIQqPJ2iezng",
                             ),
                         ),
@@ -1666,7 +1666,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Madonna",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCo4CrqhIV_tSOGdDWfVyCsg",
                             ),
                         ),
@@ -1721,7 +1721,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Pet Shop Boys",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCQR2QtBlTT2GTPWt9NCRyKw",
                             ),
                         ),
@@ -1776,7 +1776,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Billy Joel",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCGEfxrwIPBuRqxeh-3JUSkg",
                             ),
                         ),
@@ -1831,7 +1831,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Queen",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCEPMVbUzImPl4p8k4LkGevA",
                             ),
                         ),
@@ -1886,7 +1886,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Outfield",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC5TJtEuZGgv1Ci7cGF8gfCw",
                             ),
                         ),
@@ -1941,7 +1941,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Human League",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCrg2H-AeXXcZg_TZ8QBRTKw",
                             ),
                         ),
@@ -1996,7 +1996,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Irene Cara",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCyiXsKGKbYWQTkg919MyrNQ",
                             ),
                         ),
@@ -2051,7 +2051,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Christopher Cross",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCQQse6hLcxzNx1p-Giw6sOA",
                             ),
                         ),
@@ -2106,7 +2106,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Bangles",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCbDhmIEDPG3_mLHfkfolSaA",
                             ),
                         ),
@@ -2161,7 +2161,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Peter Cetera",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCwBhzgrtKKGnU8ZYvd6Lnuw",
                             ),
                         ),
@@ -2216,7 +2216,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Phil Collins",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCzt9gB3XNQYs_2UHvolUZog",
                             ),
                         ),
@@ -2271,7 +2271,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Starship",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCx5EhC862RMB7_dOLBUCjAg",
                             ),
                         ),
@@ -2326,7 +2326,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Joan Jett & the Blackhearts",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCV2f_8wytj9jP-01V4f83lw",
                             ),
                         ),
@@ -2381,7 +2381,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bon Jovi",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCCL-yoaPLR-7bxZM1xlcQcQ",
                             ),
                         ),
@@ -2436,7 +2436,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bob Seger & The Silver Bullet Band",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC1ogcUuxsz76nYV5bZaItSw",
                             ),
                         ),
@@ -2491,7 +2491,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Michael Jackson",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCoIOOL7QKuBhQHVKL8y7BEQ",
                             ),
                         ),
@@ -2546,7 +2546,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Kenny Loggins",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCF-DjS6Y9CKZThQf01SYe7w",
                             ),
                         ),
@@ -2601,7 +2601,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Queen",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCEPMVbUzImPl4p8k4LkGevA",
                             ),
                         ),
@@ -2656,7 +2656,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Foreigner",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UClWBvmriAFpqxngoC7DPhJg",
                             ),
                         ),
@@ -2711,7 +2711,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Alphaville",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC-GWJZkyivsS-0yMjKMH0AA",
                             ),
                         ),
@@ -2766,7 +2766,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Cyndi Lauper",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC9I3hbllzsS4QZqNekPE76g",
                             ),
                         ),
@@ -2821,7 +2821,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "ZZ Top",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC_Us2Zqt4ovGtdXKmws60mw",
                             ),
                         ),
@@ -2876,7 +2876,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "John Mellencamp",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCmlelS5UQVygg4mLuJSf6pw",
                             ),
                         ),
@@ -2931,7 +2931,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Richard Marx",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC7_uP7b1jjNWMynJGYCUlIg",
                             ),
                         ),
@@ -2986,7 +2986,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Men At Work",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCX1qTEuhbyV7Ie4T8TZsX_Q",
                             ),
                         ),
@@ -3041,7 +3041,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Blondie",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCF6I8FH_f6NBEsngIfkZY6g",
                             ),
                         ),
@@ -3096,7 +3096,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Starship",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCx5EhC862RMB7_dOLBUCjAg",
                             ),
                         ),
@@ -3151,7 +3151,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Poison",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC14hqQj0-hBS8awJBdAOOWA",
                             ),
                         ),
@@ -3206,7 +3206,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Stevie Wonder",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCR83RRXHzXrEQbu_ZQmPMSg",
                             ),
                         ),
@@ -3261,7 +3261,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Daryl Hall & John Oates",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC8zbYR5i0gecEZ3iPgm-i9g",
                             ),
                         ),
@@ -3316,7 +3316,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "John Mellencamp",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCmlelS5UQVygg4mLuJSf6pw",
                             ),
                         ),
@@ -3371,7 +3371,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bill Medley",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCnjM_-rXanU5gMHN83CEDzA",
                             ),
                         ),
@@ -3379,7 +3379,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Jennifer Warnes",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC6k-MDqZCmOzzgYzBt5mAmg",
                             ),
                         ),
@@ -3434,7 +3434,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Tina Turner",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC3XcDooUnwiaiTPlICV6-ig",
                             ),
                         ),
@@ -3489,7 +3489,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Foreigner",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UClWBvmriAFpqxngoC7DPhJg",
                             ),
                         ),
@@ -3544,7 +3544,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "George Harrison",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCGVnHHo1u7Xfyht_psktcUQ",
                             ),
                         ),
@@ -3599,7 +3599,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bonnie Tyler",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC0BdKEjWDC0hw4Bex9fTnMA",
                             ),
                         ),
@@ -3654,7 +3654,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Dire Straits",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCA37MBUzQgLbUHoUQgl-p0g",
                             ),
                         ),
@@ -3689,7 +3689,7 @@ GetPlaylist {
                 duration: "3:19",
                 title: "Pink Floyd - Another Brick In The Wall, Part Two (Official Music Video)",
                 channel_name: "Pink Floyd",
-                channel_id: ChannelID(
+                channel_id: ArtistChannelID(
                     "UCO6LS_5W7vqG9mALDNzSFug",
                 ),
                 like_status: Indifferent,
@@ -3735,7 +3735,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Def Leppard",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UChn30LXbAZKSIQqPJ2iezng",
                             ),
                         ),
@@ -3790,7 +3790,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Tina Turner",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC3XcDooUnwiaiTPlICV6-ig",
                             ),
                         ),
@@ -3845,7 +3845,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Laura Branigan",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UChUr6-Fbc5f5FH9f0YNWLfQ",
                             ),
                         ),
@@ -3900,7 +3900,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "U.S.A. For Africa",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCIqV4oQCTE31jM7R-sDt9Fw",
                             ),
                         ),
@@ -3955,7 +3955,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Billy Joel",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCGEfxrwIPBuRqxeh-3JUSkg",
                             ),
                         ),
@@ -4010,7 +4010,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Dexys Midnight Runners",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCph7j0pts6_eqx46iMCC-yA",
                             ),
                         ),
@@ -4018,7 +4018,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Kevin Rowland",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCMEVihZxcDZ-QOottum2WeQ",
                             ),
                         ),
@@ -4073,7 +4073,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Simply Red",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC1VJavwj-780ZpZCXgzGscA",
                             ),
                         ),
@@ -4128,7 +4128,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Michael Jackson",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCoIOOL7QKuBhQHVKL8y7BEQ",
                             ),
                         ),
@@ -4183,7 +4183,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bon Jovi",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCCL-yoaPLR-7bxZM1xlcQcQ",
                             ),
                         ),
@@ -4238,7 +4238,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Madonna",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCo4CrqhIV_tSOGdDWfVyCsg",
                             ),
                         ),
@@ -4293,7 +4293,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Chicago",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC8vVfqDySe2dz-wCNcy6jew",
                             ),
                         ),
@@ -4348,7 +4348,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Mr. Mister",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCsd2mz2HxTWGiHkfqozmw8w",
                             ),
                         ),
@@ -4403,7 +4403,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Yes",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCtwW_44fofodl7K_12nXOEg",
                             ),
                         ),
@@ -4458,7 +4458,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "U2",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCqIQRxCUGi7hyJisyzv9zYQ",
                             ),
                         ),
@@ -4513,7 +4513,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bobby Brown",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCtxGVt-hp9UEmyAwfPuAC5w",
                             ),
                         ),
@@ -4568,7 +4568,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Michael Jackson",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCoIOOL7QKuBhQHVKL8y7BEQ",
                             ),
                         ),
@@ -4623,7 +4623,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Diana Ross",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCVR2VvYRNXGjByS4VvkOYOQ",
                             ),
                         ),
@@ -4678,7 +4678,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Wham!",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCpVKXA1YEpLtD_keJogkCwg",
                             ),
                         ),
@@ -4733,7 +4733,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "George Michael",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCgNivrx0yqbFoAEgf2AsRXg",
                             ),
                         ),
@@ -4788,7 +4788,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Lionel Richie",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCqBNd0XhYrv8OFlyr4fufdA",
                             ),
                         ),
@@ -4843,7 +4843,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Peter Gabriel",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UC7dI7qJoDsMd388DTtcwIZg",
                             ),
                         ),
@@ -4898,7 +4898,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Phil Collins",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCzt9gB3XNQYs_2UHvolUZog",
                             ),
                         ),
@@ -4953,7 +4953,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Steve Miller Band",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCDlFd5kiM4QbD_NRGwgGu1w",
                             ),
                         ),
@@ -5008,7 +5008,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "George Michael",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCgNivrx0yqbFoAEgf2AsRXg",
                             ),
                         ),
@@ -5063,7 +5063,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "REO Speedwagon",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCfAldYkhLRUDcWJPE-xrNqQ",
                             ),
                         ),
@@ -5118,7 +5118,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The Police",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCbsRGw640UF_F7AIwHW-zmg",
                             ),
                         ),
@@ -5173,7 +5173,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bruce Hornsby & The Range",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCiwLXd-mXNArd1LLq-ri9Kw",
                             ),
                         ),
@@ -5228,7 +5228,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "The J. Geils Band",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCnN6DcaWfcDPXuTNG1TPxPw",
                             ),
                         ),
@@ -5283,7 +5283,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Boston",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCwU_WvSAvmLZnvqRF0lg7Iw",
                             ),
                         ),
@@ -5338,7 +5338,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bruce Springsteen",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCyFqJ_5TyAeTD7rHpLikbKQ",
                             ),
                         ),
@@ -5393,7 +5393,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Roxette",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCm8Brkkx9u_4J7DALxg0n1w",
                             ),
                         ),
@@ -5448,7 +5448,7 @@ GetPlaylist {
                     ParsedSongArtist {
                         name: "Bananarama",
                         id: Some(
-                            ChannelID(
+                            ArtistChannelID(
                                 "UCby1_syIoXAn08evtGbX0zQ",
                             ),
                         ),
