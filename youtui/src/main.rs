@@ -190,6 +190,20 @@ enum Command {
     GetSongTrackingUrl {
         video_id: String,
     },
+    GetChannel {
+        channel_id: String,
+    },
+    GetChannelEpisodes {
+        channel_id: String,
+        podcast_channel_params: String,
+    },
+    GetPodcast {
+        podcast_id: String,
+    },
+    GetEpisode {
+        video_id: String,
+    },
+    GetNewEpisodes,
 }
 
 pub struct RuntimeInfo {

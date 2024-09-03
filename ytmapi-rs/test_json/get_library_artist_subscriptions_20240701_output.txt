@@ -2,7 +2,7 @@
     GetLibraryArtistSubscription {
         name: "Calibre",
         subscribers: "19.2K subscribers",
-        channel_id: ChannelID(
+        channel_id: ArtistChannelID(
             "UC48r7vjqthkREf6NdoNEzww",
         ),
         thumbnails: [
@@ -21,7 +21,7 @@
     GetLibraryArtistSubscription {
         name: "Have a Nice Life",
         subscribers: "22.3K subscribers",
-        channel_id: ChannelID(
+        channel_id: ArtistChannelID(
             "UCmc-p5a2CHyCNpyAiI47Mzg",
         ),
         thumbnails: [
@@ -40,7 +40,7 @@
     GetLibraryArtistSubscription {
         name: "The Smile",
         subscribers: "152K subscribers",
-        channel_id: ChannelID(
+        channel_id: ArtistChannelID(
             "UChy8y7EpURH4K_LXIHENROA",
         ),
         thumbnails: [

@@ -100,7 +100,7 @@ generate_query_test!(test_get_history, GetHistoryQuery);
 generate_query_test!(
     test_get_channel,
     // Rustacean Station
-    GetChannelQuery::new(PodcastChannelID::from_raw("MPED2i5poDoWjFU"),)
+    GetChannelQuery::new(PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),)
 );
 generate_query_test!(
     test_get_channel_episodes,

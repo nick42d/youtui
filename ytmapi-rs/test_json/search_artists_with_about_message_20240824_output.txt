@@ -4,7 +4,7 @@
         subscribers: Some(
             "8.42M subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UC2XdaAVUannpujzv32jcouQ",
         ),
         thumbnails: [
@@ -25,7 +25,7 @@
         subscribers: Some(
             "2.19M subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCcSL2nYSJp_IgdzH0xBBdcg",
         ),
         thumbnails: [
@@ -46,7 +46,7 @@
         subscribers: Some(
             "973K subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCGVnHHo1u7Xfyht_psktcUQ",
         ),
         thumbnails: [
@@ -67,7 +67,7 @@
         subscribers: Some(
             "1.32M subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UC0guXwTSf4hAOvCSgmViojw",
         ),
         thumbnails: [
@@ -88,7 +88,7 @@
         subscribers: Some(
             "2.05K subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCJkVRAwjqPle_ghndYQsQfA",
         ),
         thumbnails: [
@@ -109,7 +109,7 @@
         subscribers: Some(
             "67 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCQvOCzaZN-mCiJKSzaNZA5w",
         ),
         thumbnails: [
@@ -130,7 +130,7 @@
         subscribers: Some(
             "593 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCV_-_pF4QSBQQV2ittXJbfw",
         ),
         thumbnails: [
@@ -151,7 +151,7 @@
         subscribers: Some(
             "407 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCZ7iuaNx1k8t-UvsFpK_HEw",
         ),
         thumbnails: [
@@ -172,7 +172,7 @@
         subscribers: Some(
             "1.98K subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UC2D06idn3O0W9UBlCXDn5ww",
         ),
         thumbnails: [
@@ -193,7 +193,7 @@
         subscribers: Some(
             "566 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCBvdNiSaSQ5dXnvEZlj5NQQ",
         ),
         thumbnails: [
@@ -214,7 +214,7 @@
         subscribers: Some(
             "164 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCEqcGGyUQP7NppfDQcTzuYw",
         ),
         thumbnails: [
@@ -235,7 +235,7 @@
         subscribers: Some(
             "283 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCcQ5kRw2dVM-iWHt9xEKs7w",
         ),
         thumbnails: [
@@ -256,7 +256,7 @@
         subscribers: Some(
             "4 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UC2wzKMnms-U3S5hDiy5_BuQ",
         ),
         thumbnails: [
@@ -277,7 +277,7 @@
         subscribers: Some(
             "5 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCotD8hNd59g4wd1k52Cd4oQ",
         ),
         thumbnails: [
@@ -298,7 +298,7 @@
         subscribers: Some(
             "47 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCwMzxvcq8VmfclCG6QUTm7g",
         ),
         thumbnails: [
@@ -319,7 +319,7 @@
         subscribers: Some(
             "6 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCLj-ZrYnUZBmTJLm1gue9_A",
         ),
         thumbnails: [
@@ -340,7 +340,7 @@
         subscribers: Some(
             "14 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCVffdhnMS1W4VLcpCzNbmvQ",
         ),
         thumbnails: [
@@ -361,7 +361,7 @@
         subscribers: Some(
             "158 subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCPkJoPLDXkQQeE1Pd1ruQNA",
         ),
         thumbnails: [
@@ -382,7 +382,7 @@
         subscribers: Some(
             "4.23K subscribers",
         ),
-        browse_id: ChannelID(
+        browse_id: ArtistChannelID(
             "UCRYdAI0iN-PJY69Sz0_7IJA",
         ),
         thumbnails: [

@@ -30,7 +30,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -87,7 +87,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -144,7 +144,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -201,7 +201,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -258,7 +258,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -315,7 +315,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -372,7 +372,7 @@
                         ParsedSongArtist {
                             name: "Between The Buried And Me",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWvCuWRcjKYPjGPOz0XKfmA",
                                 ),
                             ),
@@ -478,7 +478,7 @@
                         ParsedSongArtist {
                             name: "Earth",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC4zvHfwE70g64S1X6Nd9Gcg",
                                 ),
                             ),
@@ -535,7 +535,7 @@
                         ParsedSongArtist {
                             name: "The Decemberists",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UChXpxUt8xbeBBP1gUb2JD1g",
                                 ),
                             ),
@@ -592,7 +592,7 @@
                         ParsedSongArtist {
                             name: "Red Fang",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UChb04c1oiOco3K6lX3bk2fw",
                                 ),
                             ),
@@ -649,7 +649,7 @@
                         ParsedSongArtist {
                             name: "Greenleaf",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCsojdvOqqJ7q92KYoTRdI2Q",
                                 ),
                             ),
@@ -706,7 +706,7 @@
                         ParsedSongArtist {
                             name: "Sleep",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWBYenygd5SMBbBPQbS77JQ",
                                 ),
                             ),
@@ -763,7 +763,7 @@
                         ParsedSongArtist {
                             name: "Kyuss",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCd8AMfxIQBvKgPVNvyybWZg",
                                 ),
                             ),
@@ -820,7 +820,7 @@
                         ParsedSongArtist {
                             name: "1000mods",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCVVGJw2X6B_zx32dJEcg6qQ",
                                 ),
                             ),
@@ -877,7 +877,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -934,7 +934,7 @@
                         ParsedSongArtist {
                             name: "Godspeed You! Black Emperor",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCDhKhucVT-9sNQExgHPcabg",
                                 ),
                             ),
@@ -991,7 +991,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1048,7 +1048,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -1105,7 +1105,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1167,7 +1167,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1224,7 +1224,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1281,7 +1281,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1338,7 +1338,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1395,7 +1395,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1452,7 +1452,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1509,7 +1509,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1566,7 +1566,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -1623,7 +1623,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -1680,7 +1680,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -1737,7 +1737,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -1794,7 +1794,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -1851,7 +1851,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -1908,7 +1908,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -1965,7 +1965,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2022,7 +2022,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2079,7 +2079,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2136,7 +2136,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2193,7 +2193,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2250,7 +2250,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2307,7 +2307,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2364,7 +2364,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -2421,7 +2421,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2478,7 +2478,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2535,7 +2535,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2592,7 +2592,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2649,7 +2649,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2706,7 +2706,7 @@
                         ParsedSongArtist {
                             name: "Russian Circles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCqLOZtEdRzXDzF-1CyJFc2Q",
                                 ),
                             ),
@@ -2763,7 +2763,7 @@
                         ParsedSongArtist {
                             name: "flyingfish",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCbSIgBO5ZCFenEp3BnOKPng",
                                 ),
                             ),
@@ -2820,7 +2820,7 @@
                         ParsedSongArtist {
                             name: "Valley of the Sun",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCDsYL17ZGGpGLY4i8tJ6Puw",
                                 ),
                             ),
@@ -2877,7 +2877,7 @@
                         ParsedSongArtist {
                             name: "Agalloch",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO9bHbL-dJY1XUAq_yNicTw",
                                 ),
                             ),
@@ -2934,7 +2934,7 @@
                         ParsedSongArtist {
                             name: "If These Trees Could Talk",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCWZKHLLvdlj2fuRPSc6fsWw",
                                 ),
                             ),
@@ -2991,7 +2991,7 @@
                         ParsedSongArtist {
                             name: "Tides From Nebula",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC5fYEJSWv_IQ8AHA-0mRYQg",
                                 ),
                             ),
@@ -3048,7 +3048,7 @@
                         ParsedSongArtist {
                             name: "Beck",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC8fxkahdLdfHk8pF1fRYD-w",
                                 ),
                             ),
@@ -3105,7 +3105,7 @@
                         ParsedSongArtist {
                             name: "Marisa Anderson",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtXxO4nM-cK_tR5VHmUi3pg",
                                 ),
                             ),
@@ -3113,7 +3113,7 @@
                         ParsedSongArtist {
                             name: "William Tyler",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCudxpaDej61PiRfc7CV-A5A",
                                 ),
                             ),
@@ -3170,7 +3170,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -3227,7 +3227,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -3284,7 +3284,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -3341,7 +3341,7 @@
                         ParsedSongArtist {
                             name: "Dua Lipa",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCzVb0SIXp9q9PeKCcFjsBtA",
                                 ),
                             ),
@@ -3398,7 +3398,7 @@
                         ParsedSongArtist {
                             name: "PUNIST",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCdvFTFUAOmFg6CBa2fvIQ6Q",
                                 ),
                             ),
@@ -3406,7 +3406,7 @@
                         ParsedSongArtist {
                             name: "GZA",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC--gj3l4eBnO_hxJsalqIFg",
                                 ),
                             ),
@@ -3414,7 +3414,7 @@
                         ParsedSongArtist {
                             name: "BEVST KIID",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCBc6AUV8W3DCIl_LYwEq97A",
                                 ),
                             ),
@@ -3471,7 +3471,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -3528,7 +3528,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -3585,7 +3585,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -3642,7 +3642,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -3699,7 +3699,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -3809,7 +3809,7 @@
                         ParsedSongArtist {
                             name: "DOPE LEMON",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC3mpxFnXufqm11HRJ_nFiQA",
                                 ),
                             ),
@@ -3866,7 +3866,7 @@
                         ParsedSongArtist {
                             name: "Khruangbin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCW2SLxltqPa553qretr4KzQ",
                                 ),
                             ),
@@ -3923,7 +3923,7 @@
                         ParsedSongArtist {
                             name: "Broken Bells",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCHEURKSdC-GByFdgBGtNDfQ",
                                 ),
                             ),
@@ -3980,7 +3980,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -4037,7 +4037,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -4094,7 +4094,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -4151,7 +4151,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -4208,7 +4208,7 @@
                         ParsedSongArtist {
                             name: "m_a_",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCXXb0iiihoVH_EF2galg7Og",
                                 ),
                             ),
@@ -4265,7 +4265,7 @@
                         ParsedSongArtist {
                             name: "Emapea",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCbaPGz2367Bjt0s2UXZ0A8g",
                                 ),
                             ),
@@ -4322,7 +4322,7 @@
                         ParsedSongArtist {
                             name: "Gorillaz",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCNIV5B_aJnLrKDSnW_MOmcQ",
                                 ),
                             ),
@@ -4379,7 +4379,7 @@
                         ParsedSongArtist {
                             name: "deadmau5",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCL44WZGVf-BU5N0ymCXrpBg",
                                 ),
                             ),
@@ -4387,7 +4387,7 @@
                         ParsedSongArtist {
                             name: "Kaskade",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UChpyo_FdUl3eqy_OM2lk7bQ",
                                 ),
                             ),
@@ -4444,7 +4444,7 @@
                         ParsedSongArtist {
                             name: "Khruangbin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCW2SLxltqPa553qretr4KzQ",
                                 ),
                             ),
@@ -4452,7 +4452,7 @@
                         ParsedSongArtist {
                             name: "Leon Bridges",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCnqQ2w8U9bqdEkGKSiBVkRA",
                                 ),
                             ),
@@ -4509,7 +4509,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4517,7 +4517,7 @@
                         ParsedSongArtist {
                             name: "Thundercat",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCUl7CLMqbyYVb62zJ7nbLfA",
                                 ),
                             ),
@@ -4574,7 +4574,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4582,7 +4582,7 @@
                         ParsedSongArtist {
                             name: "Miguel",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCKskshF_wMq6fCRsQY60kSg",
                                 ),
                             ),
@@ -4639,7 +4639,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4696,7 +4696,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4733,7 +4733,7 @@
                     duration: "9:21",
                     title: "Toccata and Fugue in D Minor (Best Version Ever)",
                     channel_name: "MovieMongerHZ",
-                    channel_id: ChannelID(
+                    channel_id: ArtistChannelID(
                         "UC34UEanXVzwLauDJwXjuntQ",
                     ),
                     like_status: Indifferent,
@@ -4781,7 +4781,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4789,7 +4789,7 @@
                         ParsedSongArtist {
                             name: "Connan Mockasin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC5l6nJsuOYfRKrRmVsOHRKA",
                                 ),
                             ),
@@ -4846,7 +4846,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4903,7 +4903,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -4911,7 +4911,7 @@
                         ParsedSongArtist {
                             name: "The Flints",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCUtTlWaLvUBVecABlL5y53A",
                                 ),
                             ),
@@ -4968,7 +4968,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5025,7 +5025,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5087,7 +5087,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5095,7 +5095,7 @@
                         ParsedSongArtist {
                             name: "Tame Impala",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGz-eguN8tcic5kUG4s1ZgA",
                                 ),
                             ),
@@ -5152,7 +5152,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5160,7 +5160,7 @@
                         ParsedSongArtist {
                             name: "RIMON",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC77OZkRi2u9FMkkVe5HM5pA",
                                 ),
                             ),
@@ -5217,7 +5217,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5274,7 +5274,7 @@
                         ParsedSongArtist {
                             name: "Justice",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCcJLC91v0A0iD-CMUWdZkig",
                                 ),
                             ),
@@ -5282,7 +5282,7 @@
                         ParsedSongArtist {
                             name: "Tame Impala",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGz-eguN8tcic5kUG4s1ZgA",
                                 ),
                             ),
@@ -5339,7 +5339,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5396,7 +5396,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5453,7 +5453,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5510,7 +5510,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5567,7 +5567,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5624,7 +5624,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5681,7 +5681,7 @@
                         ParsedSongArtist {
                             name: "Metallica",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCGexNm_Kw4rdQjLxmpb2EKw",
                                 ),
                             ),
@@ -5738,7 +5738,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -5795,7 +5795,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -5852,7 +5852,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -5909,7 +5909,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -5966,7 +5966,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -6023,7 +6023,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -6080,7 +6080,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -6137,7 +6137,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -6194,7 +6194,7 @@
                         ParsedSongArtist {
                             name: "Yes",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtwW_44fofodl7K_12nXOEg",
                                 ),
                             ),
@@ -6251,7 +6251,7 @@
                         ParsedSongArtist {
                             name: "Jethro Tull",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC7sFWdsZTzfR507dbonTlyQ",
                                 ),
                             ),
@@ -6308,7 +6308,7 @@
                         ParsedSongArtist {
                             name: "Led Zeppelin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCYtap7ujIPaxTS2iCDoMi3g",
                                 ),
                             ),
@@ -6365,7 +6365,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -6422,7 +6422,7 @@
                         ParsedSongArtist {
                             name: "The Rolling Stones",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCNYhhkQqeFLUc-YEDcLpSYQ",
                                 ),
                             ),
@@ -6479,7 +6479,7 @@
                         ParsedSongArtist {
                             name: "The Who",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCpxn_sVrLQWNGFK1eulpYgw",
                                 ),
                             ),
@@ -6536,7 +6536,7 @@
                         ParsedSongArtist {
                             name: "The Doors",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCdx4iSJpg33jNmd9auQT04Q",
                                 ),
                             ),
@@ -6593,7 +6593,7 @@
                         ParsedSongArtist {
                             name: "Black Sabbath",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCLCELUuoHbkUxZ9EMHTYebg",
                                 ),
                             ),
@@ -6650,7 +6650,7 @@
                         ParsedSongArtist {
                             name: "The Jimi Hendrix Experience",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC5NwXf8hOgZgInaYiOCZmUg",
                                 ),
                             ),
@@ -6707,7 +6707,7 @@
                         ParsedSongArtist {
                             name: "Rush",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCDCgtKZG6r7C9n87FMxR5ow",
                                 ),
                             ),
@@ -6764,7 +6764,7 @@
                         ParsedSongArtist {
                             name: "The Beatles",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC2XdaAVUannpujzv32jcouQ",
                                 ),
                             ),
@@ -6821,7 +6821,7 @@
                         ParsedSongArtist {
                             name: "Cream",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC_oKib7DXJ7JE5erWrFUbEQ",
                                 ),
                             ),
@@ -6878,7 +6878,7 @@
                         ParsedSongArtist {
                             name: "Jethro Tull",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC7sFWdsZTzfR507dbonTlyQ",
                                 ),
                             ),
@@ -6935,7 +6935,7 @@
                         ParsedSongArtist {
                             name: "Neil Young",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC6JhadLTf6g6f-ZdeEaAqBQ",
                                 ),
                             ),
@@ -6992,7 +6992,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7049,7 +7049,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7106,7 +7106,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7163,7 +7163,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7220,7 +7220,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7277,7 +7277,7 @@
                         ParsedSongArtist {
                             name: "Pink Floyd",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO6LS_5W7vqG9mALDNzSFug",
                                 ),
                             ),
@@ -7334,7 +7334,7 @@
                         ParsedSongArtist {
                             name: "Boards of Canada",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCidyEq0ZC6rcqZmwKt_g_2g",
                                 ),
                             ),
@@ -7391,7 +7391,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7448,7 +7448,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7505,7 +7505,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7562,7 +7562,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7619,7 +7619,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7676,7 +7676,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7733,7 +7733,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7790,7 +7790,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7847,7 +7847,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -7904,7 +7904,7 @@
                         ParsedSongArtist {
                             name: "Neurosis",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCObiEsLgHY9dbcf5XxkQn2Q",
                                 ),
                             ),
@@ -7961,7 +7961,7 @@
                         ParsedSongArtist {
                             name: "Elephant Tree",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCFGC552eps3sGHIVXW3xPdA",
                                 ),
                             ),
@@ -8018,7 +8018,7 @@
                         ParsedSongArtist {
                             name: "Agalloch",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCO9bHbL-dJY1XUAq_yNicTw",
                                 ),
                             ),
@@ -8075,7 +8075,7 @@
                         ParsedSongArtist {
                             name: "Black Hill",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCnWdsh3ODFRy2elYZ-3aAaQ",
                                 ),
                             ),
@@ -8132,7 +8132,7 @@
                         ParsedSongArtist {
                             name: "Kyuss",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCd8AMfxIQBvKgPVNvyybWZg",
                                 ),
                             ),
@@ -8189,7 +8189,7 @@
                         ParsedSongArtist {
                             name: "Pelican",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCTWUa-nIZgN8rlN1qxgZBew",
                                 ),
                             ),
@@ -8246,7 +8246,7 @@
                         ParsedSongArtist {
                             name: "Green Carnation",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC_ybYPHwTuP28LxfwISwetQ",
                                 ),
                             ),
@@ -8303,7 +8303,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -8360,7 +8360,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -8417,7 +8417,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -8474,7 +8474,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -8531,7 +8531,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8588,7 +8588,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8645,7 +8645,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8702,7 +8702,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8759,7 +8759,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8816,7 +8816,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8873,7 +8873,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8930,7 +8930,7 @@
                         ParsedSongArtist {
                             name: "Mogwai",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCSx5h9nKekcNNzOSPbHJx2Q",
                                 ),
                             ),
@@ -8992,7 +8992,7 @@
                         ParsedSongArtist {
                             name: "Erik Satie",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCUROzjdfvV996Ow-GqUGsUw",
                                 ),
                             ),
@@ -9049,7 +9049,7 @@
                         ParsedSongArtist {
                             name: "Claude Debussy",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCDBe28OI2PycHdECfoaIWtA",
                                 ),
                             ),
@@ -9106,7 +9106,7 @@
                         ParsedSongArtist {
                             name: "Joshua Bell",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCnrkwCyTD_lDHWhFYpmGKzg",
                                 ),
                             ),
@@ -9114,7 +9114,7 @@
                         ParsedSongArtist {
                             name: "Academy of St Martin in the Fields",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCE2aX7TxU1Rse2c2nZd_3mA",
                                 ),
                             ),
@@ -9122,7 +9122,7 @@
                         ParsedSongArtist {
                             name: "Johann Sebastian Bach",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCFtSXTlIMFFkyJbHO3V5b7A",
                                 ),
                             ),
@@ -9179,7 +9179,7 @@
                         ParsedSongArtist {
                             name: "Wladyslaw Szpilman",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCAPQMIlB7WUtiOL48SYklhg",
                                 ),
                             ),
@@ -9187,7 +9187,7 @@
                         ParsedSongArtist {
                             name: "Frédéric Chopin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCyTnUReB5s38R-ZKlb2wyVg",
                                 ),
                             ),
@@ -9244,7 +9244,7 @@
                         ParsedSongArtist {
                             name: "François Chaplin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCgbrwtZ2lsqroHOWIyZaGPw",
                                 ),
                             ),
@@ -9252,7 +9252,7 @@
                         ParsedSongArtist {
                             name: "Frédéric Chopin",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCyTnUReB5s38R-ZKlb2wyVg",
                                 ),
                             ),
@@ -9309,7 +9309,7 @@
                         ParsedSongArtist {
                             name: "Ólafur Arnalds",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCDQlvsMEM5j0k5cqmfHBzVA",
                                 ),
                             ),
@@ -9366,7 +9366,7 @@
                         ParsedSongArtist {
                             name: "Charles Curtis",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCffImFmlxtYIjvjkEbkLc2A",
                                 ),
                             ),
@@ -9423,7 +9423,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9480,7 +9480,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9537,7 +9537,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9594,7 +9594,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9651,7 +9651,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9708,7 +9708,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9765,7 +9765,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9822,7 +9822,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9879,7 +9879,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9936,7 +9936,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -9993,7 +9993,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10050,7 +10050,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10107,7 +10107,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10164,7 +10164,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10221,7 +10221,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10278,7 +10278,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10335,7 +10335,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10392,7 +10392,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10449,7 +10449,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10506,7 +10506,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10563,7 +10563,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10620,7 +10620,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10677,7 +10677,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10734,7 +10734,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10791,7 +10791,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10848,7 +10848,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10905,7 +10905,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -10962,7 +10962,7 @@
                         ParsedSongArtist {
                             name: "DJ Shadow",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UCtTuSKgCdeTyxBGPCD3TgxQ",
                                 ),
                             ),
@@ -11019,7 +11019,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11076,7 +11076,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11133,7 +11133,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11190,7 +11190,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11247,7 +11247,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11304,7 +11304,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11361,7 +11361,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11418,7 +11418,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
@@ -11475,7 +11475,7 @@
                         ParsedSongArtist {
                             name: "M83",
                             id: Some(
-                                ChannelID(
+                                ArtistChannelID(
                                     "UC0UUzwcmD3s1S7NYAxHfs1w",
                                 ),
                             ),
