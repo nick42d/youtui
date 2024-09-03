@@ -2,9 +2,11 @@ use super::{ParseFrom, THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER
 use crate::{
     common::{PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID},
     nav_consts::{
-        CAROUSEL, CAROUSEL_TITLE, MMRLIR, MTRIR, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
-        SECTION_LIST, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS,
+        CAROUSEL, CAROUSEL_CONTENTS, CAROUSEL_TITLE, DESCRIPTION, MMRLIR, MTRIR, NAVIGATION_BROWSE,
+        NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT, PLAYBACK_PROGRESS_TEXT, SECTION_LIST,
+        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE,
     },
+    parse::podcasts,
     query::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
         GetPodcastQuery,
@@ -30,7 +32,8 @@ pub struct PodcastChannel {
 pub struct PodcastChannelEpisode {
     title: String,
     description: String,
-    duration: String,
+    total_duration: String,
+    remaining_duration: String,
     date: String,
     video_id: VideoID<'static>,
     thumbnails: Vec<Thumbnail>,
@@ -39,7 +42,7 @@ pub struct PodcastChannelEpisode {
 #[non_exhaustive]
 pub struct PodcastChannelPodcast {
     title: String,
-    channel: Vec<ParsedPodcastChannel>,
+    channels: Vec<ParsedPodcastChannel>,
     podcast_id: PodcastID<'static>,
     thumbnails: Vec<Thumbnail>,
 }
@@ -90,69 +93,81 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
         fn parse_podcast(crawler: impl JsonCrawler) -> Result<PodcastChannelPodcast> {
             let mut podcast = crawler.navigate_pointer(MTRIR)?;
             let title = podcast.take_value_pointer(TITLE_TEXT)?;
-            let channel = parse_podcast_channel(
-                &mut podcast.navigate_pointer(concatcp!(SUBTITLE_RUNS, "/0"))?,
-            )?;
             let podcast_id = podcast.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let thumbnails = podcast.take_value_pointer(THUMBNAIL_RENDERER)?;
+            let channels = podcast
+                .navigate_pointer(SUBTITLE_RUNS)?
+                .try_into_iter()?
+                .map(parse_podcast_channel)
+                .collect::<Result<Vec<_>>>()?;
             Ok(PodcastChannelPodcast {
                 title,
-                channel,
+                channels,
                 podcast_id,
                 thumbnails,
             })
         }
         fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
-            todo!()
+            let mut episode = crawler.navigate_pointer(MMRLIR)?;
+            let description = episode.take_value_pointer(DESCRIPTION)?;
+            let total_duration = episode.take_value_pointer(PLAYBACK_DURATION_TEXT)?;
+            let remaining_duration = episode.take_value_pointer(PLAYBACK_PROGRESS_TEXT)?;
+            let date = episode.take_value_pointer(SUBTITLE)?;
+            let thumbnails = episode.take_value_pointer(THUMBNAILS)?;
+            let mut title_run = episode.navigate_pointer(TITLE)?;
+            let title = title_run.take_value_pointer("/text")?;
+            let video_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            Ok(PodcastChannelEpisode {
+                title,
+                description,
+                total_duration,
+                remaining_duration,
+                date,
+                video_id,
+                thumbnails,
+            })
         }
         let mut json_crawler = JsonCrawlerOwned::from(p);
         let mut header = json_crawler.borrow_pointer(VISUAL_HEADER)?;
         let title = header.take_value_pointer(TITLE_TEXT)?;
         let thumbnails = header.take_value_pointer(THUMBNAILS)?;
-        // Less imperative approach, but requires allocation. Is there a functional,
-        // non-allocating solution?
-        let mut carousels = json_crawler
+        let mut podcasts = Vec::new();
+        let mut episodes = Vec::new();
+        let mut episode_params = None;
+        // I spent a good few hours trying to make this declarative. It this stage this
+        // seems to be more readable and more efficient. The best declarative approach I
+        // could find used a collect into a HashMap and the process_results()
+        // function...
+        for carousel in json_crawler
             .borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
             .try_into_iter()?
-            .map(|item| {
-                let mut carousel = item.navigate_pointer(CAROUSEL)?;
-                Ok((
-                    carousel.take_value_pointer::<PodcastChannelTopResult>(concatcp!(
+            .map(|item| item.navigate_pointer(CAROUSEL))
+        {
+            let mut carousel = carousel?;
+            match carousel
+                .take_value_pointer::<PodcastChannelTopResult>(concatcp!(CAROUSEL_TITLE, "/text"))?
+            {
+                PodcastChannelTopResult::Episodes => {
+                    episode_params = carousel.take_value_pointer(concatcp!(
                         CAROUSEL_TITLE,
-                        "/text"
-                    ))?,
-                    carousel,
-                ))
-            })
-            .collect::<Result<HashMap<_, _>>>()?;
-        let mut episode_carousel = carousels.remove(&PodcastChannelTopResult::Episodes);
-        let episode_params = episode_carousel
-            .as_mut()
-            .map(|item| {
-                item.take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE, "/params"))
-            })
-            .transpose()?;
-        let episodes_iter = episode_carousel.into_iter().map(|item| -> Result<_> {
-            Ok(item
-                .navigate_pointer("/contents")?
-                .try_into_iter()?
-                .map(parse_episode))
-        });
-        let episodes = utils::process_results::process_results(episodes_iter, |i| {
-            i.flatten().collect::<Result<_>>()
-        })??;
-        let podcasts_iter = carousels
-            .remove(&PodcastChannelTopResult::Podcasts)
-            .into_iter()
-            .map(|item| -> Result<_> {
-                Ok(item
-                    .navigate_pointer("/contents")?
-                    .try_into_iter()?
-                    .map(parse_podcast))
-            });
-        let podcasts = utils::process_results::process_results(podcasts_iter, |i| {
-            i.flatten().collect::<Result<_>>()
-        })??;
+                        NAVIGATION_BROWSE,
+                        "/params"
+                    ))?;
+                    episodes = carousel
+                        .navigate_pointer("/contents")?
+                        .try_into_iter()?
+                        .map(parse_episode)
+                        .collect::<Result<_>>()?;
+                }
+                PodcastChannelTopResult::Podcasts => {
+                    podcasts = carousel
+                        .navigate_pointer("/contents")?
+                        .try_into_iter()?
+                        .map(parse_podcast)
+                        .collect::<Result<_>>()?;
+                }
+            }
+        }
         Ok(PodcastChannel {
             title,
             thumbnails,
@@ -202,7 +217,7 @@ impl ParseFrom<GetNewEpisodesQuery> for Podcast {
     }
 }
 
-fn parse_podcast_channel(data: &mut impl JsonCrawler) -> Result<ParsedPodcastChannel> {
+fn parse_podcast_channel(mut data: impl JsonCrawler) -> Result<ParsedPodcastChannel> {
     Ok(ParsedPodcastChannel {
         name: data.take_value_pointer("/text")?,
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
