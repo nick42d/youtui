@@ -101,4 +101,5 @@ pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeade
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
 pub const STRAPLINE_TEXT: &str = concatcp!("/straplineTextOne", RUN_TEXT);
+pub const STRAPLINE_RUNS: &str = "/straplineTextOne/runs";
 pub const DELETION_ENTITY_ID: &str = "/menuNavigationItemRenderer/navigationEndpoint/confirmDialogEndpoint/content/confirmDialogRenderer/confirmButton/buttonRenderer/command/musicDeletePrivatelyOwnedEntityCommand/entityId";

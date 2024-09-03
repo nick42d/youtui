@@ -1,10 +1,14 @@
-use super::{ParseFrom, THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER};
+use super::{
+    ParseFrom, RUN_TEXT, STRAPLINE_RUNS, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, TAB_CONTENT,
+    THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
+};
 use crate::{
     common::{PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID},
     nav_consts::{
-        CAROUSEL, CAROUSEL_CONTENTS, CAROUSEL_TITLE, DESCRIPTION, MMRLIR, MTRIR, NAVIGATION_BROWSE,
-        NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT, PLAYBACK_PROGRESS_TEXT, SECTION_LIST,
-        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE,
+        CAROUSEL, CAROUSEL_CONTENTS, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS,
+        HEADER_DETAIL, MMRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
+        PLAYBACK_DURATION_TEXT, PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST,
+        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
     },
     parse::podcasts,
     query::{
@@ -69,7 +73,7 @@ pub enum PodcastChannelTopResult {
 #[non_exhaustive]
 pub struct Podcast {
     // There can be multiple of these - put these into an array
-    channel: Vec<ParsedPodcastChannel>,
+    channels: Vec<ParsedPodcastChannel>,
     title: String,
     description: String,
     saved: IsSaved,
@@ -104,26 +108,6 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
                 title,
                 channels,
                 podcast_id,
-                thumbnails,
-            })
-        }
-        fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
-            let mut episode = crawler.navigate_pointer(MMRLIR)?;
-            let description = episode.take_value_pointer(DESCRIPTION)?;
-            let total_duration = episode.take_value_pointer(PLAYBACK_DURATION_TEXT)?;
-            let remaining_duration = episode.take_value_pointer(PLAYBACK_PROGRESS_TEXT)?;
-            let date = episode.take_value_pointer(SUBTITLE)?;
-            let thumbnails = episode.take_value_pointer(THUMBNAILS)?;
-            let mut title_run = episode.navigate_pointer(TITLE)?;
-            let title = title_run.take_value_pointer("/text")?;
-            let video_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-            Ok(PodcastChannelEpisode {
-                title,
-                description,
-                total_duration,
-                remaining_duration,
-                date,
-                video_id,
                 thumbnails,
             })
         }
@@ -179,36 +163,81 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
 }
 impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<PodcastChannelEpisode> {
     fn parse_from(p: crate::ProcessedResult<GetChannelEpisodesQuery>) -> Result<Self> {
-        todo!()
+        let json_crawler = JsonCrawlerOwned::from(p);
+        json_crawler
+            .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID_ITEMS))?
+            .try_into_iter()?
+            .map(parse_episode)
+            .collect()
     }
 }
 impl<'a> ParseFrom<GetPodcastQuery<'a>> for Podcast {
     fn parse_from(p: crate::ProcessedResult<GetPodcastQuery>) -> Result<Self> {
+        let json_crawler = JsonCrawlerOwned::from(p);
+        let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;
+        let episodes = two_column
+            .borrow_pointer(concatcp!(
+                "/secondaryContents",
+                SECTION_LIST_ITEM,
+                MUSIC_SHELF,
+                "/contents"
+            ))?
+            .try_into_iter()?
+            .map(parse_episode)
+            .collect::<Result<_>>()?;
+        let mut responsive_header = two_column.navigate_pointer(concatcp!(
+            TAB_CONTENT,
+            SECTION_LIST_ITEM,
+            RESPONSIVE_HEADER,
+        ))?;
+        let saved = match responsive_header
+            .take_value_pointer::<bool>("/buttons/1/toggleButtonRenderer/isToggled")?
+        {
+            true => IsSaved::Saved,
+            false => IsSaved::NotSaved,
+        };
+        let channels = responsive_header
+            .borrow_pointer(STRAPLINE_RUNS)?
+            .try_into_iter()?
+            .map(parse_podcast_channel)
+            .collect::<Result<_>>()?;
+        let mut description_shelf =
+            responsive_header.navigate_pointer(concatcp!("/description", DESCRIPTION_SHELF))?;
+        let description = description_shelf.take_value_pointer(DESCRIPTION)?;
+        let title = description_shelf.take_value_pointer(concatcp!("/header", RUN_TEXT))?;
         Ok(Podcast {
-            channel: todo!(),
-            title: todo!(),
-            description: todo!(),
-            saved: todo!(),
-            episodes: todo!(),
+            channels,
+            title,
+            description,
+            saved,
+            episodes,
         })
     }
 }
 impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
     fn parse_from(p: crate::ProcessedResult<GetEpisodeQuery>) -> Result<Self> {
+        let json_crawler = JsonCrawlerOwned::from(p);
+        let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;
+        let title = two_column.take_value_pointer(TITLE_TEXT)?;
+        let mut responsive_header = two_column.navigate_pointer(concatcp!(
+            TAB_CONTENT,
+            SECTION_LIST_ITEM,
+            RESPONSIVE_HEADER,
+        ))?;
         Ok(GetEpisode {
-            channel: todo!(),
-            title: todo!(),
-            date: todo!(),
-            duration: todo!(),
-            saved: todo!(),
-            description: todo!(),
+            channel,
+            title,
+            date,
+            duration,
+            saved,
+            description,
         })
     }
 }
 impl ParseFrom<GetNewEpisodesQuery> for Podcast {
     fn parse_from(p: crate::ProcessedResult<GetNewEpisodesQuery>) -> Result<Self> {
         Ok(Podcast {
-            channel: todo!(),
+            channels: todo!(),
             title: todo!(),
             description: todo!(),
             saved: todo!(),
@@ -221,6 +250,27 @@ fn parse_podcast_channel(mut data: impl JsonCrawler) -> Result<ParsedPodcastChan
     Ok(ParsedPodcastChannel {
         name: data.take_value_pointer("/text")?,
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),
+    })
+}
+
+fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
+    let mut episode = crawler.navigate_pointer(MMRLIR)?;
+    let description = episode.take_value_pointer(DESCRIPTION)?;
+    let total_duration = episode.take_value_pointer(PLAYBACK_DURATION_TEXT)?;
+    let remaining_duration = episode.take_value_pointer(PLAYBACK_PROGRESS_TEXT)?;
+    let date = episode.take_value_pointer(SUBTITLE)?;
+    let thumbnails = episode.take_value_pointer(THUMBNAILS)?;
+    let mut title_run = episode.navigate_pointer(TITLE)?;
+    let title = title_run.take_value_pointer("/text")?;
+    let video_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    Ok(PodcastChannelEpisode {
+        title,
+        description,
+        total_duration,
+        remaining_duration,
+        date,
+        video_id,
+        thumbnails,
     })
 }
 
