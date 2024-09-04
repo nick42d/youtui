@@ -43,7 +43,7 @@ SearchResults {
             subscribers: Some(
                 "144K subscribers",
             ),
-            browse_id: ChannelID(
+            browse_id: ArtistChannelID(
                 "UCFtSXTlIMFFkyJbHO3V5b7A",
             ),
             thumbnails: [
@@ -64,7 +64,7 @@ SearchResults {
             subscribers: Some(
                 "57.2K subscribers",
             ),
-            browse_id: ChannelID(
+            browse_id: ArtistChannelID(
                 "UC6UJm5ElaATOPzXxNkuLDJg",
             ),
             thumbnails: [
@@ -85,7 +85,7 @@ SearchResults {
             subscribers: Some(
                 "53.1K subscribers",
             ),
-            browse_id: ChannelID(
+            browse_id: ArtistChannelID(
                 "UCDBe28OI2PycHdECfoaIWtA",
             ),
             thumbnails: [
