@@ -7,7 +7,7 @@
 //! by default)
 use crate::auth::AuthToken;
 use crate::common::{
-    AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, LyricsID, MoodCategoryParams,
+    AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, EpisodeID, LyricsID, MoodCategoryParams,
     PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, VideoID,
 };
 use crate::common::{
@@ -782,10 +782,13 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
     }
+    /// Gets information about a Channel of Podcasts.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
+    /// yt.get_channel(podcast.channels[0].id.as_ref().unwrap()).await
     /// # };
     pub async fn get_channel(
         &self,
@@ -793,10 +796,20 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<<GetChannelQuery as Query<A>>::Output> {
         self.query(GetChannelQuery::new(channel_id)).await
     }
+    /// Gets a list of all Episodes for a Channel. Note, if GetPodcastChannel
+    /// doesn't contain `episode_params`, you can be sure that all episodes are
+    /// already included at `episodes` key.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
+    /// let channel_id = podcast.channels[0].id.as_ref().unwrap();
+    /// let channel = yt.get_channel(channel_id).await.unwrap();
+    /// match channel.episode_params {
+    ///     Some(p) => yt.get_channel_episodes(channel_id, p).await,
+    ///     None => Ok(channel.episodes),
+    /// }
     /// # };
     pub async fn get_channel_episodes<'a>(
         &self,
@@ -809,10 +822,12 @@ impl<A: AuthToken> YtMusic<A> {
         ))
         .await
     }
+    /// Gets information about a Podcast, including Episodes.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// yt.get_podcast(&podcasts[0].podcast_id).await
     /// # };
     pub async fn get_podcast(
         &self,
@@ -823,18 +838,20 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
+    /// let episodes = yt.search_episodes("Ratatui").await.unwrap();
+    /// yt.get_episode(&episodes[0].episode_id).await
     /// # };
     pub async fn get_episode(
         &self,
-        video_id: impl Into<VideoID<'_>>,
+        episode_id: impl Into<EpisodeID<'_>>,
     ) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
-        self.query(GetEpisodeQuery::new(video_id)).await
+        self.query(GetEpisodeQuery::new(episode_id)).await
     }
+    /// Gets the special 'New Episodes' playlist.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// todo
+    /// yt.get_new_episodes().await
     /// # };
     pub async fn get_new_episodes(&self) -> Result<<GetNewEpisodesQuery as Query<A>>::Output> {
         self.query(GetNewEpisodesQuery).await

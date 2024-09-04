@@ -5,7 +5,7 @@
             date: "10 Sept 2023",
         },
         channel_name: "Rock Band ",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "5dixjIRIbdo",
         ),
         thumbnails: [
@@ -22,7 +22,7 @@
             date: "7 May 2023",
         },
         channel_name: "Juan & Naudo",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "1sXXRM5zOS0",
         ),
         thumbnails: [
@@ -39,7 +39,7 @@
             date: "2 Dec 2023",
         },
         channel_name: "PTPOP A Mind Revolution",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "3UmB2drmam8",
         ),
         thumbnails: [
@@ -56,7 +56,7 @@
             date: "7 Dec 2019",
         },
         channel_name: "Doctor Mix",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "dIzX5gDur3w",
         ),
         thumbnails: [
@@ -73,7 +73,7 @@
             date: "26 Apr 2022",
         },
         channel_name: "Juan & Naudo",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "_GrJ_FEskbE",
         ),
         thumbnails: [
@@ -90,7 +90,7 @@
             date: "18 Sept 2020",
         },
         channel_name: "Beatles Bass Tabs Lesions",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "yAArIO-aMEk",
         ),
         thumbnails: [
@@ -107,7 +107,7 @@
             date: "7 Mar 2018",
         },
         channel_name: "Need to Know",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "sLxjeBNQATI",
         ),
         thumbnails: [
@@ -124,7 +124,7 @@
             date: "18 Nov 2023",
         },
         channel_name: "Podcast Davidecult TV Reaction And Emotion",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "RQrqIGx9S-A",
         ),
         thumbnails: [
@@ -141,7 +141,7 @@
             date: "25 Dec 2023",
         },
         channel_name: "The Age of Pop",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "DUxFkcyk0EI",
         ),
         thumbnails: [
@@ -158,7 +158,7 @@
             date: "30 Apr 2022",
         },
         channel_name: "Juan & Naudo",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "_JMnEHxLL6s",
         ),
         thumbnails: [
@@ -175,7 +175,7 @@
             date: "24 Jun 2023",
         },
         channel_name: "Musica_Rock",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "GR_K3yhIB68",
         ),
         thumbnails: [
@@ -192,7 +192,7 @@
             date: "27 May 2021",
         },
         channel_name: "Chamis Bass",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "YNmUKyGAWLE",
         ),
         thumbnails: [
@@ -209,7 +209,7 @@
             date: "29 Mar 2023",
         },
         channel_name: "Reactions",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "ggIBjv23p_c",
         ),
         thumbnails: [
@@ -226,7 +226,7 @@
             date: "6 Jun 2023",
         },
         channel_name: "Juan & Naudo",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "7c3HnQwfW_U",
         ),
         thumbnails: [
@@ -243,7 +243,7 @@
             date: "24 Feb 2021",
         },
         channel_name: "Beatles Bass Tabs Lesions",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "IYB9jX97_uE",
         ),
         thumbnails: [
@@ -260,7 +260,7 @@
             date: "20 Dec 2023",
         },
         channel_name: "The Beatles Greatest Hits Full Album - Best Beatles Songs Collection",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "nj1wIiYv_Us",
         ),
         thumbnails: [
@@ -277,7 +277,7 @@
             date: "2 Sept 2021",
         },
         channel_name: "My Favorites",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "J9IgDnsqarY",
         ),
         thumbnails: [
@@ -294,7 +294,7 @@
             date: "22 Aug 2022",
         },
         channel_name: "Need to Know - Our Favorite Content by Date",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "QhXvradQkQg",
         ),
         thumbnails: [
@@ -311,7 +311,7 @@
             date: "20 Jul 2018",
         },
         channel_name: "Mark Kermode Reviews - Classic Film Picks | BFI Player",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "4OVqM12GG1A",
         ),
         thumbnails: [
@@ -328,7 +328,7 @@
             date: "20 Mar 2021",
         },
         channel_name: "Chamis Bass",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "bZ9uNuUfQRQ",
         ),
         thumbnails: [

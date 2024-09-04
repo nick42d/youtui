@@ -6,8 +6,8 @@ use super::{
 };
 use crate::{
     common::{
-        AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
-        LikeStatus, PlaylistID, UploadEntityID, VideoID,
+        AlbumID, AlbumType, ArtistChannelID, BrowseParams, EpisodeID, Explicit, LibraryManager,
+        LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
     },
     nav_consts::*,
     process::{fixed_column_item_pointer, flex_column_item_pointer},
@@ -331,7 +331,7 @@ pub struct PlaylistVideo {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct PlaylistEpisode {
-    pub video_id: VideoID<'static>,
+    pub episode_id: EpisodeID<'static>,
     pub track_no: usize,
     pub date: EpisodeDate,
     pub duration: EpisodeDuration,
@@ -590,7 +590,7 @@ pub(crate) fn parse_playlist_episode(
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
     Ok(PlaylistEpisode {
-        video_id,
+        episode_id: video_id,
         duration,
         title,
         like_status,

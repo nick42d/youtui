@@ -1,6 +1,6 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use common::{LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
+use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
 use parse::{GetArtistAlbumsAlbum, Lyrics};
 use std::time::Duration;
 use ytmapi_rs::common::{
@@ -120,7 +120,7 @@ generate_query_test!(
 generate_query_test!(
     test_get_episode,
     // Chasing scratch S7E21
-    GetEpisodeQuery::new(VideoID::from_raw("MPED2i5poDoWjFU"))
+    GetEpisodeQuery::new(EpisodeID::from_raw("MPED2i5poDoWjFU"))
 );
 generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
 generate_query_test!(

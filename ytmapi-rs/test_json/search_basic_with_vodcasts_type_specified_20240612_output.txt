@@ -545,7 +545,7 @@ SearchResults {
                 date: "31 May",
             },
             channel_name: "Rock Melody",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "SVK_hDGgddM",
             ),
             thumbnails: [
@@ -670,7 +670,7 @@ SearchResults {
                 date: "Episode",
             },
             channel_name: "30 Oct 2022",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "KiR1Ptot8tI",
             ),
             thumbnails: [
@@ -687,7 +687,7 @@ SearchResults {
                 date: "Episode",
             },
             channel_name: "18 Nov 2023",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "RQrqIGx9S-A",
             ),
             thumbnails: [
@@ -704,7 +704,7 @@ SearchResults {
                 date: "Episode",
             },
             channel_name: "4 Dec 2021",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "JIIl40z7OC8",
             ),
             thumbnails: [

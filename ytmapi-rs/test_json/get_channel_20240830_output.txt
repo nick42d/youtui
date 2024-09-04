@@ -39,7 +39,7 @@ GetPodcastChannel {
             total_duration: "1 hr",
             remaining_duration: "1 hr",
             date: "1 day ago",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDH65miGsCFps",
             ),
             thumbnails: [
@@ -61,7 +61,7 @@ GetPodcastChannel {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "12 Aug",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDZovfCsVyNVY",
             ),
             thumbnails: [
@@ -83,7 +83,7 @@ GetPodcastChannel {
             total_duration: "49 mins",
             remaining_duration: "49 mins",
             date: "20 May",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDnlblyD34qjs",
             ),
             thumbnails: [
@@ -105,7 +105,7 @@ GetPodcastChannel {
             total_duration: "31 mins",
             remaining_duration: "31 mins",
             date: "26 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDEEMkSKDtxe4",
             ),
             thumbnails: [
@@ -127,7 +127,7 @@ GetPodcastChannel {
             total_duration: "1 hr 2 mins",
             remaining_duration: "1 hr 2 mins",
             date: "20 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDjra_dQuBaeg",
             ),
             thumbnails: [
@@ -149,7 +149,7 @@ GetPodcastChannel {
             total_duration: "40 mins",
             remaining_duration: "40 mins",
             date: "12 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDgU0SSIXleZQ",
             ),
             thumbnails: [
@@ -171,7 +171,7 @@ GetPodcastChannel {
             total_duration: "1 hr 18 mins",
             remaining_duration: "1 hr 18 mins",
             date: "9 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDDVKOVdigrQA",
             ),
             thumbnails: [
@@ -193,7 +193,7 @@ GetPodcastChannel {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "4 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDiffbeOInSyY",
             ),
             thumbnails: [
@@ -215,7 +215,7 @@ GetPodcastChannel {
             total_duration: "1 hr 41 mins",
             remaining_duration: "1 hr 41 mins",
             date: "30 Mar",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDuOwEiEBl2u8",
             ),
             thumbnails: [
@@ -237,7 +237,7 @@ GetPodcastChannel {
             total_duration: "38 mins",
             remaining_duration: "38 mins",
             date: "23 Mar",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDmqDiy1G1dTI",
             ),
             thumbnails: [

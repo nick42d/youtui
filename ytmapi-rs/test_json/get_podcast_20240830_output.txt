@@ -19,7 +19,7 @@ GetPodcast {
             total_duration: "1 hr",
             remaining_duration: "1 hr",
             date: "1 day ago",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDH65miGsCFps",
             ),
             thumbnails: [
@@ -41,7 +41,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "12 Aug",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDZovfCsVyNVY",
             ),
             thumbnails: [
@@ -63,7 +63,7 @@ GetPodcast {
             total_duration: "49 mins",
             remaining_duration: "49 mins",
             date: "20 May",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDnlblyD34qjs",
             ),
             thumbnails: [
@@ -85,7 +85,7 @@ GetPodcast {
             total_duration: "31 mins",
             remaining_duration: "31 mins",
             date: "26 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDEEMkSKDtxe4",
             ),
             thumbnails: [
@@ -107,7 +107,7 @@ GetPodcast {
             total_duration: "1 hr 2 mins",
             remaining_duration: "1 hr 2 mins",
             date: "20 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDjra_dQuBaeg",
             ),
             thumbnails: [
@@ -129,7 +129,7 @@ GetPodcast {
             total_duration: "40 mins",
             remaining_duration: "40 mins",
             date: "12 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDgU0SSIXleZQ",
             ),
             thumbnails: [
@@ -151,7 +151,7 @@ GetPodcast {
             total_duration: "1 hr 18 mins",
             remaining_duration: "1 hr 18 mins",
             date: "9 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDDVKOVdigrQA",
             ),
             thumbnails: [
@@ -173,7 +173,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "4 Apr",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDiffbeOInSyY",
             ),
             thumbnails: [
@@ -195,7 +195,7 @@ GetPodcast {
             total_duration: "1 hr 41 mins",
             remaining_duration: "1 hr 41 mins",
             date: "30 Mar",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDuOwEiEBl2u8",
             ),
             thumbnails: [
@@ -217,7 +217,7 @@ GetPodcast {
             total_duration: "38 mins",
             remaining_duration: "38 mins",
             date: "23 Mar",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDmqDiy1G1dTI",
             ),
             thumbnails: [
@@ -239,7 +239,7 @@ GetPodcast {
             total_duration: "50 mins",
             remaining_duration: "50 mins",
             date: "17 Mar",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED7jnLMt630OE",
             ),
             thumbnails: [
@@ -261,7 +261,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDxp2Vr8AkHts",
             ),
             thumbnails: [
@@ -283,7 +283,7 @@ GetPodcast {
             total_duration: "1 hr 3 mins",
             remaining_duration: "1 hr 3 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDmUy_fnQJQlQ",
             ),
             thumbnails: [
@@ -305,7 +305,7 @@ GetPodcast {
             total_duration: "40 mins",
             remaining_duration: "40 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDIGFk_tzI8UY",
             ),
             thumbnails: [
@@ -327,7 +327,7 @@ GetPodcast {
             total_duration: "43 mins",
             remaining_duration: "43 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDwOwPGU2K0lM",
             ),
             thumbnails: [
@@ -349,7 +349,7 @@ GetPodcast {
             total_duration: "40 mins",
             remaining_duration: "40 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDAf1TIrPIfAo",
             ),
             thumbnails: [
@@ -371,7 +371,7 @@ GetPodcast {
             total_duration: "53 mins",
             remaining_duration: "53 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDVcAz7cvy0Ug",
             ),
             thumbnails: [
@@ -393,7 +393,7 @@ GetPodcast {
             total_duration: "44 mins",
             remaining_duration: "44 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDHChati5ypww",
             ),
             thumbnails: [
@@ -415,7 +415,7 @@ GetPodcast {
             total_duration: "32 mins",
             remaining_duration: "32 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED5eFB6i9l2ps",
             ),
             thumbnails: [
@@ -437,7 +437,7 @@ GetPodcast {
             total_duration: "57 mins",
             remaining_duration: "57 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED7URTQp-eOY8",
             ),
             thumbnails: [
@@ -459,7 +459,7 @@ GetPodcast {
             total_duration: "50 mins",
             remaining_duration: "50 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED9WUCIoc7tK8",
             ),
             thumbnails: [
@@ -481,7 +481,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED6EHe7ymDaEc",
             ),
             thumbnails: [
@@ -503,7 +503,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDrcttTCEGF98",
             ),
             thumbnails: [
@@ -525,7 +525,7 @@ GetPodcast {
             total_duration: "41 mins",
             remaining_duration: "41 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDE1w8SJrhPdY",
             ),
             thumbnails: [
@@ -547,7 +547,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED7NHNwOBuZ9I",
             ),
             thumbnails: [
@@ -569,7 +569,7 @@ GetPodcast {
             total_duration: "1 hr 3 mins",
             remaining_duration: "1 hr 3 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED_EHjBsGvE2U",
             ),
             thumbnails: [
@@ -591,7 +591,7 @@ GetPodcast {
             total_duration: "33 mins",
             remaining_duration: "33 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDU8CmYdgKIIg",
             ),
             thumbnails: [
@@ -613,7 +613,7 @@ GetPodcast {
             total_duration: "38 mins",
             remaining_duration: "38 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDbTBrrMtGBCw",
             ),
             thumbnails: [
@@ -635,7 +635,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDGoZeCoNQqnE",
             ),
             thumbnails: [
@@ -657,7 +657,7 @@ GetPodcast {
             total_duration: "1 hr 3 mins",
             remaining_duration: "1 hr 3 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDfT2k4cMORP0",
             ),
             thumbnails: [
@@ -679,7 +679,7 @@ GetPodcast {
             total_duration: "49 mins",
             remaining_duration: "49 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDPlbtXr0E3I4",
             ),
             thumbnails: [
@@ -701,7 +701,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDArvAb2XRpRg",
             ),
             thumbnails: [
@@ -723,7 +723,7 @@ GetPodcast {
             total_duration: "55 mins",
             remaining_duration: "55 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDxI1gxegXJaI",
             ),
             thumbnails: [
@@ -745,7 +745,7 @@ GetPodcast {
             total_duration: "1 hr 2 mins",
             remaining_duration: "1 hr 2 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED2bpp30JBrUc",
             ),
             thumbnails: [
@@ -767,7 +767,7 @@ GetPodcast {
             total_duration: "1 hr 5 mins",
             remaining_duration: "1 hr 5 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDa1uY6lvoOI8",
             ),
             thumbnails: [
@@ -789,7 +789,7 @@ GetPodcast {
             total_duration: "1 hr 14 mins",
             remaining_duration: "1 hr 14 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDgo4B5LAybP4",
             ),
             thumbnails: [
@@ -811,7 +811,7 @@ GetPodcast {
             total_duration: "1 hr 3 mins",
             remaining_duration: "1 hr 3 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDCTR5diZDMlw",
             ),
             thumbnails: [
@@ -833,7 +833,7 @@ GetPodcast {
             total_duration: "32 mins",
             remaining_duration: "32 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDPGWfB8K7Ad4",
             ),
             thumbnails: [
@@ -855,7 +855,7 @@ GetPodcast {
             total_duration: "59 mins",
             remaining_duration: "59 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDk7SUnJ2dUgk",
             ),
             thumbnails: [
@@ -877,7 +877,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED_gwDJObv7Cg",
             ),
             thumbnails: [
@@ -899,7 +899,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDyRlK0Rqi07M",
             ),
             thumbnails: [
@@ -921,7 +921,7 @@ GetPodcast {
             total_duration: "55 mins",
             remaining_duration: "55 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDqiwafO25QZ8",
             ),
             thumbnails: [
@@ -943,7 +943,7 @@ GetPodcast {
             total_duration: "26 mins",
             remaining_duration: "26 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDLyiy9mMF6OQ",
             ),
             thumbnails: [
@@ -965,7 +965,7 @@ GetPodcast {
             total_duration: "45 mins",
             remaining_duration: "45 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDjy9HXpmbwYE",
             ),
             thumbnails: [
@@ -987,7 +987,7 @@ GetPodcast {
             total_duration: "48 mins",
             remaining_duration: "48 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDZlZ-AwboeD4",
             ),
             thumbnails: [
@@ -1009,7 +1009,7 @@ GetPodcast {
             total_duration: "42 mins",
             remaining_duration: "42 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED6-vnc0PlTwA",
             ),
             thumbnails: [
@@ -1031,7 +1031,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDfwOy1yo151A",
             ),
             thumbnails: [
@@ -1053,7 +1053,7 @@ GetPodcast {
             total_duration: "1 hr 25 mins",
             remaining_duration: "1 hr 25 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDZ-hdndu4g1A",
             ),
             thumbnails: [
@@ -1075,7 +1075,7 @@ GetPodcast {
             total_duration: "42 mins",
             remaining_duration: "42 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDEClEx4QyWro",
             ),
             thumbnails: [
@@ -1097,7 +1097,7 @@ GetPodcast {
             total_duration: "1 hr 6 mins",
             remaining_duration: "1 hr 6 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDCA-LwdkFuK0",
             ),
             thumbnails: [
@@ -1119,7 +1119,7 @@ GetPodcast {
             total_duration: "46 mins",
             remaining_duration: "46 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDthSQ_956c5M",
             ),
             thumbnails: [
@@ -1141,7 +1141,7 @@ GetPodcast {
             total_duration: "28 mins",
             remaining_duration: "28 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDjoddrUWyUvk",
             ),
             thumbnails: [
@@ -1163,7 +1163,7 @@ GetPodcast {
             total_duration: "52 mins",
             remaining_duration: "52 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDVvod274eCBA",
             ),
             thumbnails: [
@@ -1185,7 +1185,7 @@ GetPodcast {
             total_duration: "54 mins",
             remaining_duration: "54 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDuBkQjQ1Fn24",
             ),
             thumbnails: [
@@ -1207,7 +1207,7 @@ GetPodcast {
             total_duration: "55 mins",
             remaining_duration: "55 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED2HiLxAnuGvc",
             ),
             thumbnails: [
@@ -1229,7 +1229,7 @@ GetPodcast {
             total_duration: "43 mins",
             remaining_duration: "43 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDC2kbBRZ-AZA",
             ),
             thumbnails: [
@@ -1251,7 +1251,7 @@ GetPodcast {
             total_duration: "1 hr 11 mins",
             remaining_duration: "1 hr 11 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDcOX-bGn67ls",
             ),
             thumbnails: [
@@ -1273,7 +1273,7 @@ GetPodcast {
             total_duration: "1 hr 16 mins",
             remaining_duration: "1 hr 16 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDV2Y1E0XPW7g",
             ),
             thumbnails: [
@@ -1295,7 +1295,7 @@ GetPodcast {
             total_duration: "21 mins",
             remaining_duration: "21 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDhsWEe93_aaE",
             ),
             thumbnails: [
@@ -1317,7 +1317,7 @@ GetPodcast {
             total_duration: "1 hr 4 mins",
             remaining_duration: "1 hr 4 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDwMvNuA_vabk",
             ),
             thumbnails: [
@@ -1339,7 +1339,7 @@ GetPodcast {
             total_duration: "42 mins",
             remaining_duration: "42 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED7n1yuwszW9Y",
             ),
             thumbnails: [
@@ -1361,7 +1361,7 @@ GetPodcast {
             total_duration: "44 mins",
             remaining_duration: "44 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDejqL7Y2TPN0",
             ),
             thumbnails: [
@@ -1383,7 +1383,7 @@ GetPodcast {
             total_duration: "1 hr 31 mins",
             remaining_duration: "1 hr 31 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED-cfDoLt_wdc",
             ),
             thumbnails: [
@@ -1405,7 +1405,7 @@ GetPodcast {
             total_duration: "44 mins",
             remaining_duration: "44 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED1YAHcRNf1EU",
             ),
             thumbnails: [
@@ -1427,7 +1427,7 @@ GetPodcast {
             total_duration: "49 mins",
             remaining_duration: "49 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDOaBpgn14WBI",
             ),
             thumbnails: [
@@ -1449,7 +1449,7 @@ GetPodcast {
             total_duration: "51 mins",
             remaining_duration: "51 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDvyOLD7hLfkI",
             ),
             thumbnails: [
@@ -1471,7 +1471,7 @@ GetPodcast {
             total_duration: "34 mins",
             remaining_duration: "34 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDdlub6wXfA0M",
             ),
             thumbnails: [
@@ -1493,7 +1493,7 @@ GetPodcast {
             total_duration: "44 mins",
             remaining_duration: "44 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDcMxvM1dCgMg",
             ),
             thumbnails: [
@@ -1515,7 +1515,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED2teSp_JnujE",
             ),
             thumbnails: [
@@ -1537,7 +1537,7 @@ GetPodcast {
             total_duration: "58 mins",
             remaining_duration: "58 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDOWCX1UzIQzA",
             ),
             thumbnails: [
@@ -1559,7 +1559,7 @@ GetPodcast {
             total_duration: "1 hr 11 mins",
             remaining_duration: "1 hr 11 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDPeJsWxPeZi4",
             ),
             thumbnails: [
@@ -1581,7 +1581,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDYIUDz6pKSJ8",
             ),
             thumbnails: [
@@ -1603,7 +1603,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDrKXsZno9ijw",
             ),
             thumbnails: [
@@ -1625,7 +1625,7 @@ GetPodcast {
             total_duration: "1 hr 15 mins",
             remaining_duration: "1 hr 15 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDy5aRQlSQ8vo",
             ),
             thumbnails: [
@@ -1647,7 +1647,7 @@ GetPodcast {
             total_duration: "31 mins",
             remaining_duration: "31 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDDHThQe3Aogo",
             ),
             thumbnails: [
@@ -1669,7 +1669,7 @@ GetPodcast {
             total_duration: "42 mins",
             remaining_duration: "42 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDb3Gv6Z8zn7E",
             ),
             thumbnails: [
@@ -1691,7 +1691,7 @@ GetPodcast {
             total_duration: "56 mins",
             remaining_duration: "56 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDFVBroqO0z_8",
             ),
             thumbnails: [
@@ -1713,7 +1713,7 @@ GetPodcast {
             total_duration: "58 mins",
             remaining_duration: "58 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDkVW-NJAcZLY",
             ),
             thumbnails: [
@@ -1735,7 +1735,7 @@ GetPodcast {
             total_duration: "1 hr 1 min",
             remaining_duration: "1 hr 1 min",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED6YzGGta_J1I",
             ),
             thumbnails: [
@@ -1757,7 +1757,7 @@ GetPodcast {
             total_duration: "1 hr 1 min",
             remaining_duration: "1 hr 1 min",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDH1YCeYD4MpA",
             ),
             thumbnails: [
@@ -1779,7 +1779,7 @@ GetPodcast {
             total_duration: "1 hr 1 min",
             remaining_duration: "1 hr 1 min",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDEQxchDx4W_I",
             ),
             thumbnails: [
@@ -1801,7 +1801,7 @@ GetPodcast {
             total_duration: "58 mins",
             remaining_duration: "58 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDK14kosNyQmU",
             ),
             thumbnails: [
@@ -1823,7 +1823,7 @@ GetPodcast {
             total_duration: "42 mins",
             remaining_duration: "42 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED9tehvRyKR1U",
             ),
             thumbnails: [
@@ -1845,7 +1845,7 @@ GetPodcast {
             total_duration: "35 mins",
             remaining_duration: "35 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED0DU5uGDNUQs",
             ),
             thumbnails: [
@@ -1867,7 +1867,7 @@ GetPodcast {
             total_duration: "40 mins",
             remaining_duration: "40 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDVNfeXpCo17w",
             ),
             thumbnails: [
@@ -1889,7 +1889,7 @@ GetPodcast {
             total_duration: "50 mins",
             remaining_duration: "50 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDz4vg7K0_3PU",
             ),
             thumbnails: [
@@ -1911,7 +1911,7 @@ GetPodcast {
             total_duration: "52 mins",
             remaining_duration: "52 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDfXKj3b6Y1aE",
             ),
             thumbnails: [
@@ -1933,7 +1933,7 @@ GetPodcast {
             total_duration: "1 hr 10 mins",
             remaining_duration: "1 hr 10 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDt9UHkWqIWb4",
             ),
             thumbnails: [
@@ -1955,7 +1955,7 @@ GetPodcast {
             total_duration: "1 hr 9 mins",
             remaining_duration: "1 hr 9 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPED2qBUaiui-jw",
             ),
             thumbnails: [
@@ -1977,7 +1977,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDTWMFoCreeAM",
             ),
             thumbnails: [
@@ -1999,7 +1999,7 @@ GetPodcast {
             total_duration: "58 mins",
             remaining_duration: "58 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDBlEl163yT2k",
             ),
             thumbnails: [
@@ -2021,7 +2021,7 @@ GetPodcast {
             total_duration: "1 hr 12 mins",
             remaining_duration: "1 hr 12 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDA7kUTf0C9PY",
             ),
             thumbnails: [
@@ -2043,7 +2043,7 @@ GetPodcast {
             total_duration: "33 mins",
             remaining_duration: "33 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDGBW_e_-IpCw",
             ),
             thumbnails: [
@@ -2065,7 +2065,7 @@ GetPodcast {
             total_duration: "39 mins",
             remaining_duration: "39 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDUGbWc_SkhnQ",
             ),
             thumbnails: [
@@ -2087,7 +2087,7 @@ GetPodcast {
             total_duration: "1 hr 13 mins",
             remaining_duration: "1 hr 13 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDtT5ghFUdEcU",
             ),
             thumbnails: [
@@ -2109,7 +2109,7 @@ GetPodcast {
             total_duration: "1 hr 7 mins",
             remaining_duration: "1 hr 7 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDeFyHHgCIUw4",
             ),
             thumbnails: [
@@ -2131,7 +2131,7 @@ GetPodcast {
             total_duration: "50 mins",
             remaining_duration: "50 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDkHn_xhOTCq0",
             ),
             thumbnails: [
@@ -2153,7 +2153,7 @@ GetPodcast {
             total_duration: "55 mins",
             remaining_duration: "55 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDlvS9he8cmgk",
             ),
             thumbnails: [
@@ -2175,7 +2175,7 @@ GetPodcast {
             total_duration: "1 hr 13 mins",
             remaining_duration: "1 hr 13 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDYVXzDiZWW7Y",
             ),
             thumbnails: [
@@ -2197,7 +2197,7 @@ GetPodcast {
             total_duration: "47 mins",
             remaining_duration: "47 mins",
             date: "7 Feb",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "MPEDHBpO4P4Rizg",
             ),
             thumbnails: [

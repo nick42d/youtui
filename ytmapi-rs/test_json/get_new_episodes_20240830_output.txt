@@ -5,7 +5,7 @@
         total_duration: "1 hr 25 mins",
         remaining_duration: "1 hr 25 mins",
         date: "3 days ago",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "MPED2i5poDoWjFU",
         ),
         thumbnails: [
@@ -37,7 +37,7 @@
         total_duration: "1 hr 13 mins",
         remaining_duration: "1 hr 13 mins",
         date: "22 Aug",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "MPEDzBSvGuWBlwA",
         ),
         thumbnails: [
@@ -69,7 +69,7 @@
         total_duration: "51 mins",
         remaining_duration: "51 mins",
         date: "16 Aug",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "MPEDT8_-DEWWvTc",
         ),
         thumbnails: [
@@ -101,7 +101,7 @@
         total_duration: "51 mins",
         remaining_duration: "51 mins",
         date: "9 Aug",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "MPEDUua2XZ91UBM",
         ),
         thumbnails: [
@@ -133,7 +133,7 @@
         total_duration: "29 mins",
         remaining_duration: "29 mins",
         date: "5 Aug",
-        video_id: VideoID(
+        episode_id: EpisodeID(
             "MPEDbgQ18-oqs_s",
         ),
         thumbnails: [

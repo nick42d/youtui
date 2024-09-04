@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{PodcastChannelID, PodcastChannelParams, PodcastID, VideoID},
+    common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID},
     parse::{Episode, GetEpisode, GetPodcast, GetPodcastChannel},
 };
 use serde_json::json;
@@ -17,7 +17,7 @@ pub struct GetPodcastQuery<'a> {
     podcast_id: PodcastID<'a>,
 }
 pub struct GetEpisodeQuery<'a> {
-    video_id: VideoID<'a>,
+    episode_id: EpisodeID<'a>,
 }
 pub struct GetNewEpisodesQuery;
 
@@ -49,9 +49,9 @@ impl<'a> GetPodcastQuery<'a> {
     }
 }
 impl<'a> GetEpisodeQuery<'a> {
-    pub fn new(video_id: impl Into<VideoID<'a>>) -> Self {
+    pub fn new(episode_id: impl Into<EpisodeID<'a>>) -> Self {
         Self {
-            video_id: video_id.into(),
+            episode_id: episode_id.into(),
         }
     }
 }
@@ -118,7 +118,7 @@ impl<'a> PostQuery for GetPodcastQuery<'a> {
 impl<'a> PostQuery for GetEpisodeQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if any parsing required
-        FromIterator::from_iter([("browseId".into(), json!(self.video_id))])
+        FromIterator::from_iter([("browseId".into(), json!(self.episode_id))])
     }
     fn params(&self) -> Option<std::borrow::Cow<str>> {
         None
