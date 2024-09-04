@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     common::{
-        LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID,
+        EpisodeID, LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail,
     },
     nav_consts::{
         CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
@@ -25,36 +25,36 @@ use serde::{Deserialize, Serialize};
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct GetPodcastChannel {
-    title: String,
-    thumbnails: Vec<Thumbnail>,
-    episode_params: Option<PodcastChannelParams<'static>>,
-    episodes: Vec<Episode>,
-    podcasts: Vec<GetPodcastChannelPodcast>,
+    pub title: String,
+    pub thumbnails: Vec<Thumbnail>,
+    pub episode_params: Option<PodcastChannelParams<'static>>,
+    pub episodes: Vec<Episode>,
+    pub podcasts: Vec<GetPodcastChannelPodcast>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct Episode {
-    title: String,
-    description: String,
-    total_duration: String,
-    remaining_duration: String,
-    date: String,
-    video_id: VideoID<'static>,
-    thumbnails: Vec<Thumbnail>,
+    pub title: String,
+    pub description: String,
+    pub total_duration: String,
+    pub remaining_duration: String,
+    pub date: String,
+    pub episode_id: EpisodeID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct GetPodcastChannelPodcast {
-    title: String,
-    channels: Vec<ParsedPodcastChannel>,
-    podcast_id: PodcastID<'static>,
-    thumbnails: Vec<Thumbnail>,
+    pub title: String,
+    pub channels: Vec<ParsedPodcastChannel>,
+    pub podcast_id: PodcastID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Intentionally not marked non_exhaustive - not expected to change.
 pub struct ParsedPodcastChannel {
-    name: String,
-    id: Option<PodcastChannelID<'static>>,
+    pub name: String,
+    pub id: Option<PodcastChannelID<'static>>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Intentionally not marked non_exhaustive - not expected to change.
@@ -72,24 +72,24 @@ pub enum PodcastChannelTopResult {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct GetPodcast {
-    channels: Vec<ParsedPodcastChannel>,
-    title: String,
-    description: String,
+    pub channels: Vec<ParsedPodcastChannel>,
+    pub title: String,
+    pub description: String,
     // TODO: How to add a podcast to library?
-    library_status: LibraryStatus,
-    episodes: Vec<Episode>,
+    pub library_status: LibraryStatus,
+    pub episodes: Vec<Episode>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct GetEpisode {
-    podcast_name: String,
-    podcast_id: PodcastID<'static>,
-    title: String,
-    date: String,
-    total_duration: String,
-    remaining_duration: String,
-    saved: IsSaved,
-    description: String,
+    pub podcast_name: String,
+    pub podcast_id: PodcastID<'static>,
+    pub title: String,
+    pub date: String,
+    pub total_duration: String,
+    pub remaining_duration: String,
+    pub saved: IsSaved,
+    pub description: String,
 }
 
 // NOTE: This is technically the same page as the GetArtist page. It's possible
@@ -297,14 +297,14 @@ fn parse_episode(crawler: impl JsonCrawler) -> Result<Episode> {
     let thumbnails = episode.take_value_pointer(THUMBNAILS)?;
     let mut title_run = episode.navigate_pointer(TITLE)?;
     let title = title_run.take_value_pointer("/text")?;
-    let video_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let episode_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     Ok(Episode {
         title,
         description,
         total_duration,
         remaining_duration,
         date,
-        video_id,
+        episode_id,
         thumbnails,
     })
 }
@@ -313,7 +313,9 @@ fn parse_episode(crawler: impl JsonCrawler) -> Result<Episode> {
 mod tests {
     use crate::{
         auth::BrowserToken,
-        common::{PodcastChannelID, PodcastChannelParams, PodcastID, VideoID, YoutubeID},
+        common::{
+            EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID, YoutubeID,
+        },
         query::{
             GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
             GetPodcastQuery,
@@ -355,7 +357,7 @@ mod tests {
         parse_test!(
             "./test_json/get_episode_20240830.json",
             "./test_json/get_episode_20240830_output.txt",
-            GetEpisodeQuery::new(VideoID::from_raw("")),
+            GetEpisodeQuery::new(EpisodeID::from_raw("")),
             BrowserToken
         );
     }

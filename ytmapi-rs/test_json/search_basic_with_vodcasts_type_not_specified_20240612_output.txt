@@ -537,7 +537,7 @@ SearchResults {
                 date: "May 31",
             },
             channel_name: "Rock Melody",
-            video_id: VideoID(
+            episode_id: EpisodeID(
                 "SVK_hDGgddM",
             ),
             thumbnails: [

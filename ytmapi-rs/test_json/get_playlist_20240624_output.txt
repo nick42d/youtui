@@ -236,7 +236,7 @@ GetPlaylist {
         ),
         Episode(
             PlaylistEpisode {
-                video_id: VideoID(
+                episode_id: EpisodeID(
                     "WLKZz6vA0QQ",
                 ),
                 track_no: 5,

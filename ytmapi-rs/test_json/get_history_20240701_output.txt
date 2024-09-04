@@ -9486,7 +9486,7 @@
             ),
             Episode(
                 HistoryItemEpisode {
-                    video_id: VideoID(
+                    episode_id: EpisodeID(
                         "j7D5JI8mSCY",
                     ),
                     date: Recorded {
@@ -9516,7 +9516,7 @@
             ),
             Episode(
                 HistoryItemEpisode {
-                    video_id: VideoID(
+                    episode_id: EpisodeID(
                         "0YrXgBgdabc",
                     ),
                     date: Recorded {
