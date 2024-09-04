@@ -1,19 +1,17 @@
 use super::{
-    ParseFrom, DESCRIPTION_SHELF_RUNS, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS,
-    STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, TAB_CONTENT, THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT,
-    VISUAL_HEADER,
+    ParseFrom, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS, TAB_CONTENT, THUMBNAILS,
+    THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
 };
 use crate::{
     common::{
         LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID,
     },
     nav_consts::{
-        CAROUSEL, CAROUSEL_CONTENTS, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS,
-        HEADER_DETAIL, MMRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
-        PLAYBACK_DURATION_TEXT, PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST,
-        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
+        CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
+        MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
+        PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM,
+        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
     },
-    parse::podcasts,
     query::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
         GetPodcastQuery,
@@ -23,7 +21,6 @@ use crate::{
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -267,15 +264,20 @@ impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
         })
     }
 }
-impl ParseFrom<GetNewEpisodesQuery> for Podcast {
+impl ParseFrom<GetNewEpisodesQuery> for Vec<PodcastChannelEpisode> {
     fn parse_from(p: crate::ProcessedResult<GetNewEpisodesQuery>) -> Result<Self> {
-        Ok(Podcast {
-            channels: todo!(),
-            title: todo!(),
-            description: todo!(),
-            library_status: todo!(),
-            episodes: todo!(),
-        })
+        let json_crawler = JsonCrawlerOwned::from(p);
+        json_crawler
+            .navigate_pointer(concatcp!(
+                TWO_COLUMN,
+                "/secondaryContents",
+                SECTION_LIST_ITEM,
+                MUSIC_SHELF,
+                "/contents"
+            ))?
+            .try_into_iter()?
+            .map(parse_episode)
+            .collect()
     }
 }
 

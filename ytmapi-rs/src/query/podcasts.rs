@@ -73,7 +73,7 @@ impl<'a, A: AuthToken> Query<A> for GetEpisodeQuery<'a> {
     type Method = PostMethod;
 }
 impl<A: AuthToken> Query<A> for GetNewEpisodesQuery {
-    type Output = Podcast;
+    type Output = Vec<PodcastChannelEpisode>;
     type Method = PostMethod;
 }
 

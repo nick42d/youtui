@@ -106,7 +106,7 @@ generate_query_test!(
     test_get_channel_episodes,
     // Rustacean Station
     GetChannelEpisodesQuery::new(
-        PodcastChannelID::from_raw("MPED2i5poDoWjFU"),
+        PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),
         PodcastChannelParams::from_raw("6gPmAUdxa0JXcGtCQ3BZQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS1R6UXllbDlIYUdzYVRRQUFaVzR0UjBJQUFVRlZBQUZCVlFBQkFFWkZiWFZ6YVdOZlpHVjBZV2xzWDJGeWRHbHpkQUFCQVVNQUFBRUFBQUVCQUZWRGVsbE1iM00wY1dNeWIwTTBjakJGWm1RdGRGTjFkd0FCOHRxenFnb0hRQUJJQUZDYkFR")
     )
 );
