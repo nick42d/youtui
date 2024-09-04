@@ -36,6 +36,7 @@ pub const BADGE_PATH: &str =
 pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibilityData/label";
 pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
+pub const MMRLIR: &str = "/musicMultiRowListItemRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
 pub const TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
@@ -45,6 +46,7 @@ pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impression
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
+pub const VISUAL_HEADER: &str = "/header/musicVisualHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
 pub const DESCRIPTION_SHELF_RUNS: &str =
     "/description/musicDescriptionShelfRenderer/description/runs";
@@ -54,6 +56,10 @@ pub const _FRAMEWORK_MUTATIONS: &str = "/frameworkUpdates/entityBatchUpdate/muta
 pub const INDEX_TEXT: &str = "/index/runs/0/text";
 pub const RESPONSIVE_HEADER: &str = "/musicResponsiveHeaderRenderer";
 pub const DISPLAY_POLICY: &str = "/musicItemRendererDisplayPolicy";
+pub const PLAYBACK_DURATION_TEXT: &str =
+    "/playbackProgress/musicPlaybackProgressRenderer/durationText/runs/1/text";
+pub const PLAYBACK_PROGRESS_TEXT: &str =
+    "/playbackProgress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text";
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);
@@ -61,6 +67,7 @@ pub const _NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VI
 pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
 pub const SINGLE_COLUMN_TAB: &str = concatcp!(SINGLE_COLUMN, TAB_CONTENT);
 pub const SECTION_LIST_ITEM: &str = concatcp!("/sectionListRenderer", CONTENT);
+pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!("/secondaryContents", SECTION_LIST_ITEM);
 pub const ITEM_SECTION: &str = concatcp!("/itemSectionRenderer", CONTENT);
 pub const GRID_ITEMS: &str = concatcp!(GRID, "/items");
 pub const MENU_ITEMS: &str = concatcp!(MENU, "/items");
@@ -95,4 +102,5 @@ pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeade
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
 pub const STRAPLINE_TEXT: &str = concatcp!("/straplineTextOne", RUN_TEXT);
+pub const STRAPLINE_RUNS: &str = "/straplineTextOne/runs";
 pub const DELETION_ENTITY_ID: &str = "/menuNavigationItemRenderer/navigationEndpoint/confirmDialogEndpoint/content/confirmDialogRenderer/confirmButton/buttonRenderer/command/musicDeletePrivatelyOwnedEntityCommand/entityId";

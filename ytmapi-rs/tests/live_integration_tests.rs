@@ -1,10 +1,10 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use common::{LikeStatus, VideoID};
+use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
 use parse::{GetArtistAlbumsAlbum, Lyrics};
 use std::time::Duration;
 use ytmapi_rs::common::{
-    ApiOutcome, ChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
+    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
 };
 use ytmapi_rs::common::{LyricsID, PlaylistID, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
@@ -97,6 +97,32 @@ generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // recommendations.
 generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
 generate_query_test!(test_get_history, GetHistoryQuery);
+generate_query_test!(
+    test_get_channel,
+    // Rustacean Station
+    GetChannelQuery::new(PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),)
+);
+generate_query_test!(
+    test_get_channel_episodes,
+    // Rustacean Station
+    GetChannelEpisodesQuery::new(
+        PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),
+        PodcastChannelParams::from_raw("6gPmAUdxa0JXcGtCQ3BZQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS1R6UXllbDlIYUdzYVRRQUFaVzR0UjBJQUFVRlZBQUZCVlFBQkFFWkZiWFZ6YVdOZlpHVjBZV2xzWDJGeWRHbHpkQUFCQVVNQUFBRUFBQUVCQUZWRGVsbE1iM00wY1dNeWIwTTBjakJGWm1RdGRGTjFkd0FCOHRxenFnb0hRQUJJQUZDYkFR")
+    )
+);
+generate_query_test!(
+    test_get_podcast,
+    // Rustacean Station
+    GetPodcastQuery::new(PodcastID::from_raw(
+        "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct"
+    ))
+);
+generate_query_test!(
+    test_get_episode,
+    // Chasing scratch S7E21
+    GetEpisodeQuery::new(EpisodeID::from_raw("MPED2i5poDoWjFU"))
+);
+generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
 generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
@@ -553,7 +579,7 @@ async fn test_get_lyrics() {
 async fn test_get_artist() {
     let api = new_standard_api().await.unwrap();
     let _ = api
-        .query(GetArtistQuery::new(ChannelID::from_raw(
+        .query(GetArtistQuery::new(ArtistChannelID::from_raw(
             "UC2XdaAVUannpujzv32jcouQ",
         )))
         .await
@@ -565,7 +591,7 @@ async fn test_get_artist_albums() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ChannelID::from_raw(
+    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
@@ -590,7 +616,7 @@ async fn test_get_artist_album_songs() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ChannelID::from_raw(
+    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
@@ -607,7 +633,7 @@ async fn test_get_artist_album_songs() {
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     let channel_id = &albums.browse_id.unwrap();
-    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
+    let q = GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(channel_id.get_raw()), params);
     let res = api.raw_query(&q).await.unwrap();
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();

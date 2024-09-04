@@ -1,0 +1,162 @@
+[
+    Episode {
+        title: "S7 Ep 21: The Invisible Cap",
+        description: "Eli schedules surgery, Mike tries to move his index in the right direction, and we talk with Mindset & Performance Coach Adrienne Carter about hypnosis.\u{a0}\n \n\nMike's Titleist GT fitting YouTube Video: https://youtu.be/HwiAGVumVC4?si=f6zM1rpxoE7uaRAO\u{a0}\n \n\nMore Info on our guest Adrienne:\n \n\nAdrienne Carter is a Mindset & Performance Coach and a voice on the Primed Mind app. Her clients include Olympic Medalists, high-stakes poker players, executives, professional athletes, and world-class professional service providers.\n \n\nTo work with Adrienne, or another member of the Primed Mind coaching team, visit:\n \n\nAdrienne Carter Mindset Coaching\u{a0}https://primedmind.com/adriennecarter/ \u{a0}\n \n\nPrimed Mind Coaching Team (https://primedmind.com/mindset-coaching/ \u{a0}\n \n\nChasing Scratch listeners are eligible to get a 60% discount on the Primed Mind app, which includes golf specific Primers and hundreds of other mindset focused audios designed to help you perform your best when it matters the most. Claim you discount here:\n \n\nhttps://primedmind.com/scratch\u{a0}\n \n\nMUSIC CREDITS:\n \n\n\"My Town Yo Town\" is by Doug Maxwell\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC",
+        total_duration: "1 hr 25 mins",
+        remaining_duration: "1 hr 25 mins",
+        date: "3 days ago",
+        episode_id: EpisodeID(
+            "MPED2i5poDoWjFU",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+            },
+        ],
+    },
+    Episode {
+        title: "S7 Ep 20: Late Summer Running",
+        description: "Let it bang, Lenny. The Late Summer Run is back. Eli gets a definitive answer on his hip; Mike comes with a detailed response to a listener question and kicks off his LSR with 3 rounds at The Cardinal.\u{a0}\n \n\nWant bonus content including our weekly Tuesday podcast? Join the Velcro here:\u{a0}patreon.com/chasingscratch (https://patreon.com/chasingscratch) \u{a0}\n \n\nChasing Scratch merch store:\u{a0}chasingscratch.store (https://chasingscratch.store/) \u{a0}\u{a0}\n \n\nChasing Scratch YouTube:\u{a0}https://www.youtube.com/channel/UCyMh34EM2cKpZeaNVu2fkAg\u{a0}\n \n\nMUSIC CREDITS:\n \n\n\"My Town Yo Town\" is by Doug Maxwell\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"Mars from the Planets Suite\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC",
+        total_duration: "1 hr 13 mins",
+        remaining_duration: "1 hr 13 mins",
+        date: "22 Aug",
+        episode_id: EpisodeID(
+            "MPEDzBSvGuWBlwA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+            },
+        ],
+    },
+    Episode {
+        title: "BONUS: Convalescence",
+        description: "In an unplanned bonus release, Mike and Eli play this week's Tuesday Has No Feel podcast with about 20 minutes of added commentary ahead of Eli's critical doctor appointments this week.\n \n\nTopics include: Mike uses a word incorrectly (0:40), Eli's move (4:40), The Story of The Rob (6:42), Closet contraband (9:03), Last Episode (11:32), The Pivotal Week for Eli (12:21), The Late Summer Run/Knife (16:01), The 4th Annual Velcren Invitational (17:44), What is good news? (22:16), 2 things we're rooting for (27:00), the drop dead date (32:40), 90's Album Bracket Battles (37:36), Jayden Daniels' Canton Watch (42:45), New Segment: Shark Tank with Eli (44:40).\u{a0}\n \n\nWant bonus content including our weekly Tuesday podcast? Join the Velcro here:\u{a0}patreon.com/chasingscratch (https://patreon.com/chasingscratch) \u{a0}\n \n\nChasing Scratch merch store:\u{a0}chasingscratch.store (https://chasingscratch.store/) \u{a0}\u{a0}\n \n\nChasing Scratch YouTube:\u{a0}https://www.youtube.com/channel/UCyMh34EM2cKpZeaNVu2fkAg\u{a0}\n \n\nMUSIC CREDITS:\n \n\nOlympic Theme via\u{a0}https://www.youtube.com/watch?v=MCqUESCoB1w\u{a0}\n \n\n“Dangerous” by Kevin MacLeod is licensed under a Creative Commons Attribution license (creativecommons.org/licenses/by/4.0/)\nSource: incompetech.com/music/royalty-fre…isrc=USUAN1100414\nArtist: incompetech.com/\n \n\n\"C Major Prelude\" is by Bach\n \n\n\"Edge of Eternity\" is by Norma Rockwell\n \n\n\"Forever Yours\" is by Wayne Jones\n \n\n\"Documentary Story\" purchased via PremiumBeat.com\n \n\n\"The First Act\" purchased via PremiumBeat.com\n \n\n\"The Latest Scandal\" purchased via PremiumBeat.com\n \n\n\"Mars from the Planets Suite\" purchased via PremiumBeat.com\n \n\n\"The Right Spot\" by Adieu Adieu purchased via PremiumBeat.com\n \n\n\"Philosophy\" by Eskimotion purchased via PremiumBeat.com\n \n\n\"Insurmountable\" by Taizo Audio purchased via PremiumBeat.com\n \n\n\"Allure\" by Little Red Church purchased via PremiumBeat.com\n \n\nMixed by Lenny Sterner\n \n\nCopyright © Drupelets Media LLC",
+        total_duration: "51 mins",
+        remaining_duration: "51 mins",
+        date: "16 Aug",
+        episode_id: EpisodeID(
+            "MPEDT8_-DEWWvTc",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+            },
+        ],
+    },
+    Episode {
+        title: "S7 Ep 19: LIVE from Ireland, Pt. 3",
+        description: "The final round drama in Ireland; Mike updates on his current handicap index; Eli gets brutally honest about this season.\u{a0}\n \n\nKudos to Fairways & Fundays:\u{a0}https://www.fairwaysandfundays.com/ (https://www.fairwaysandfundays.com/chasingscratch) \n \n\nKudos to Shot Pattern:\u{a0}https://shotpattern.app/\u{a0}",
+        total_duration: "51 mins",
+        remaining_duration: "51 mins",
+        date: "9 Aug",
+        episode_id: EpisodeID(
+            "MPEDUua2XZ91UBM",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+            },
+        ],
+    },
+    Episode {
+        title: "S7 Ep 18: LIVE from Ireland, Pt. 2",
+        description: "Recorded the night before the final round, Mike and Charlie call Eli to catch him up on the happenings in Ireland. Eli educates everyone on how to act while driving thru a tunnel and updates on his rehab progress.\u{a0}\n \n\nPart 3 coming later this week.\u{a0}\n \n\nKudos to Fairways & Fundays:\u{a0}https://www.fairwaysandfundays.com/ (https://www.fairwaysandfundays.com/chasingscratch) \n \n\nKudos to Shot Pattern:\u{a0}https://shotpattern.app/\u{a0}\n \n\nKudos to LMNT: DrinkLMNT.com/chasingscratch\u{a0}\n \n\n\u{a0}",
+        total_duration: "29 mins",
+        remaining_duration: "29 mins",
+        date: "5 Aug",
+        episode_id: EpisodeID(
+            "MPEDbgQ18-oqs_s",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/AKnSAYa8UkCC0xNjkbxak_LdZt4c0044NbLCTjjbubPVvJHdVPo-8Z1qf-No01DY46TtDEsMew5MsEOt8dlpNjWk3YVoHGmmAMIrXtTKYvzgG9r5ZdwaHQbAvdlrl9CMfz-GBelnR6O6DYlAclNufIBGqjmo6YFz68Oi5G9DqR-NtSfmStFj=w544-h544-l90-rj",
+            },
+        ],
+    },
+]

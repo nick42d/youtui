@@ -30,7 +30,7 @@ GetAlbum {
         ParsedSongArtist {
             name: "¥$",
             id: Some(
-                ChannelID(
+                ArtistChannelID(
                     "UCI-4sezWoZmtJXoW7E5k7Zw",
                 ),
             ),

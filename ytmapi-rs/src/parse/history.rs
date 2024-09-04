@@ -6,8 +6,8 @@ use super::{
 };
 use crate::{
     common::{
-        ApiOutcome, ChannelID, Explicit, FeedbackTokenRemoveFromHistory, LibraryManager,
-        LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
+        ApiOutcome, ArtistChannelID, EpisodeID, Explicit, FeedbackTokenRemoveFromHistory,
+        LibraryManager, LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
     },
     nav_consts::{
         FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID,
@@ -70,7 +70,7 @@ pub struct HistoryItemVideo {
     pub title: String,
     // Could be 'ParsedVideoChannel'
     pub channel_name: String,
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
     pub thumbnails: Vec<super::Thumbnail>,
@@ -83,7 +83,7 @@ pub struct HistoryItemVideo {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct HistoryItemEpisode {
-    pub video_id: VideoID<'static>,
+    pub episode_id: EpisodeID<'static>,
     // May be live or non-live...
     pub date: EpisodeDate,
     pub duration: EpisodeDuration,
@@ -236,7 +236,7 @@ fn parse_history_item_episode(
         .try_last()?
         .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
     Ok(HistoryItemEpisode {
-        video_id,
+        episode_id: video_id,
         duration,
         title,
         like_status,

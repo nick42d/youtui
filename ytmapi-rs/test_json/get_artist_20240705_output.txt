@@ -29,7 +29,7 @@ ArtistParams {
                             ParsedSongArtist {
                                 name: "John Lennon",
                                 id: Some(
-                                    ChannelID(
+                                    ArtistChannelID(
                                         "UCcSL2nYSJp_IgdzH0xBBdcg",
                                     ),
                                 ),
@@ -55,7 +55,7 @@ ArtistParams {
                             ParsedSongArtist {
                                 name: "John Lennon",
                                 id: Some(
-                                    ChannelID(
+                                    ArtistChannelID(
                                         "UCcSL2nYSJp_IgdzH0xBBdcg",
                                     ),
                                 ),
@@ -91,7 +91,7 @@ ArtistParams {
                             ParsedSongArtist {
                                 name: "John Lennon",
                                 id: Some(
-                                    ChannelID(
+                                    ArtistChannelID(
                                         "UCcSL2nYSJp_IgdzH0xBBdcg",
                                     ),
                                 ),
@@ -127,7 +127,7 @@ ArtistParams {
                             ParsedSongArtist {
                                 name: "John Lennon",
                                 id: Some(
-                                    ChannelID(
+                                    ArtistChannelID(
                                         "UCcSL2nYSJp_IgdzH0xBBdcg",
                                     ),
                                 ),
@@ -163,7 +163,7 @@ ArtistParams {
                             ParsedSongArtist {
                                 name: "John Lennon",
                                 id: Some(
-                                    ChannelID(
+                                    ArtistChannelID(
                                         "UCcSL2nYSJp_IgdzH0xBBdcg",
                                     ),
                                 ),
@@ -415,7 +415,7 @@ ArtistParams {
                     },
                 ],
                 browse_id: Some(
-                    ChannelID(
+                    ArtistChannelID(
                         "MPADUCcSL2nYSJp_IgdzH0xBBdcg",
                     ),
                 ),

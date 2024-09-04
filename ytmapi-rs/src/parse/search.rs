@@ -2,8 +2,8 @@ use super::{
     parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY, RESPONSIVE_HEADER,
 };
 use crate::common::{
-    AlbumID, AlbumType, ChannelID, Explicit, PlaylistID, PodcastID, ProfileID, SearchSuggestion,
-    SuggestionType, TextRun, Thumbnail, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
+    SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
 };
 use crate::nav_consts::{
     BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
@@ -100,7 +100,7 @@ pub struct SearchResultArtist {
     pub artist: String,
     /// An artist with no subscribers won't contain this field.
     pub subscribers: Option<String>,
-    pub browse_id: ChannelID<'static>,
+    pub browse_id: ArtistChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -119,7 +119,7 @@ pub struct SearchResultEpisode {
     pub title: String,
     pub date: EpisodeDate,
     pub channel_name: String,
-    pub video_id: VideoID<'static>,
+    pub episode_id: EpisodeID<'static>,
     // Potentially can include link to channel.
     pub thumbnails: Vec<Thumbnail>,
 }
@@ -143,7 +143,7 @@ pub enum SearchResultVideo {
         title: String,
         date: EpisodeDate,
         channel_name: String,
-        video_id: VideoID<'static>,
+        episode_id: EpisodeID<'static>,
         // Potentially can include link to channel.
         thumbnails: Vec<Thumbnail>,
     },
@@ -595,7 +595,7 @@ fn parse_video_search_result_from_music_shelf_contents(
                 channel_name,
                 date,
                 thumbnails,
-                video_id,
+                episode_id: video_id,
             }))
         }
         _ => {
@@ -624,7 +624,7 @@ fn parse_video_search_result_from_music_shelf_contents(
                         //TODO: Handle live episode
                             date: EpisodeDate::Recorded { date: first_field },
                             thumbnails,
-                            video_id,
+                            episode_id: video_id,
                         }))
             }
         }
@@ -670,7 +670,7 @@ fn parse_episode_search_result_from_music_shelf_contents(
     Ok(SearchResultEpisode {
         title,
         date,
-        video_id,
+        episode_id: video_id,
         channel_name,
         thumbnails,
     })
