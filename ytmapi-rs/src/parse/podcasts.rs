@@ -1,9 +1,12 @@
 use super::{
-    ParseFrom, RUN_TEXT, STRAPLINE_RUNS, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, TAB_CONTENT,
-    THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
+    ParseFrom, DESCRIPTION_SHELF_RUNS, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS,
+    STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, TAB_CONTENT, THUMBNAILS, THUMBNAIL_RENDERER, TITLE_TEXT,
+    VISUAL_HEADER,
 };
 use crate::{
-    common::{PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID},
+    common::{
+        LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail, VideoID,
+    },
     nav_consts::{
         CAROUSEL, CAROUSEL_CONTENTS, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS,
         HEADER_DETAIL, MMRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
@@ -72,20 +75,22 @@ pub enum PodcastChannelTopResult {
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct Podcast {
-    // There can be multiple of these - put these into an array
     channels: Vec<ParsedPodcastChannel>,
     title: String,
     description: String,
-    saved: IsSaved,
+    // TODO: How to add a podcast to library?
+    library_status: LibraryStatus,
     episodes: Vec<PodcastChannelEpisode>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct GetEpisode {
-    channel: Vec<ParsedPodcastChannel>,
+    podcast_name: String,
+    podcast_id: PodcastID<'static>,
     title: String,
     date: String,
-    duration: String,
+    total_duration: String,
+    remaining_duration: String,
     saved: IsSaved,
     description: String,
 }
@@ -190,11 +195,11 @@ impl<'a> ParseFrom<GetPodcastQuery<'a>> for Podcast {
             SECTION_LIST_ITEM,
             RESPONSIVE_HEADER,
         ))?;
-        let saved = match responsive_header
+        let library_status = match responsive_header
             .take_value_pointer::<bool>("/buttons/1/toggleButtonRenderer/isToggled")?
         {
-            true => IsSaved::Saved,
-            false => IsSaved::NotSaved,
+            true => LibraryStatus::InLibrary,
+            false => LibraryStatus::NotInLibrary,
         };
         let channels = responsive_header
             .borrow_pointer(STRAPLINE_RUNS)?
@@ -209,7 +214,7 @@ impl<'a> ParseFrom<GetPodcastQuery<'a>> for Podcast {
             channels,
             title,
             description,
-            saved,
+            library_status,
             episodes,
         })
     }
@@ -218,19 +223,47 @@ impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
     fn parse_from(p: crate::ProcessedResult<GetEpisodeQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;
-        let title = two_column.take_value_pointer(TITLE_TEXT)?;
-        let mut responsive_header = two_column.navigate_pointer(concatcp!(
+        let mut responsive_header = two_column.borrow_pointer(concatcp!(
             TAB_CONTENT,
             SECTION_LIST_ITEM,
             RESPONSIVE_HEADER,
         ))?;
+        let title = responsive_header.take_value_pointer(TITLE_TEXT)?;
+        let date = responsive_header.take_value_pointer(SUBTITLE)?;
+        let total_duration = responsive_header.take_value_pointer(
+            "/progress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text",
+        )?;
+        let remaining_duration = responsive_header.take_value_pointer(
+            "/progress/musicPlaybackProgressRenderer/durationText/runs/1/text",
+        )?;
+        let saved = match responsive_header
+            .take_value_pointer::<bool>("/buttons/0/toggleButtonRenderer/isToggled")?
+        {
+            true => IsSaved::Saved,
+            false => IsSaved::NotSaved,
+        };
+        let mut strapline = responsive_header.navigate_pointer(concatcp!(STRAPLINE_RUNS, "/0"))?;
+        let podcast_name = strapline.take_value_pointer("/text")?;
+        let podcast_id = strapline.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+        let description_iter = two_column
+            .navigate_pointer(concatcp!(
+                SECONDARY_SECTION_LIST_ITEM,
+                DESCRIPTION_SHELF,
+                "/description/runs"
+            ))?
+            .try_into_iter()?
+            .map(|mut item| item.take_value_pointer::<String>("/text"));
+        let description =
+            utils::process_results::process_results(description_iter, |iter| iter.collect())?;
         Ok(GetEpisode {
-            channel,
             title,
             date,
-            duration,
+            total_duration,
+            remaining_duration,
             saved,
             description,
+            podcast_name,
+            podcast_id,
         })
     }
 }
@@ -240,7 +273,7 @@ impl ParseFrom<GetNewEpisodesQuery> for Podcast {
             channels: todo!(),
             title: todo!(),
             description: todo!(),
-            saved: todo!(),
+            library_status: todo!(),
             episodes: todo!(),
         })
     }

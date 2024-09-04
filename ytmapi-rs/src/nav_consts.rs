@@ -67,6 +67,7 @@ pub const _NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VI
 pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
 pub const SINGLE_COLUMN_TAB: &str = concatcp!(SINGLE_COLUMN, TAB_CONTENT);
 pub const SECTION_LIST_ITEM: &str = concatcp!("/sectionListRenderer", CONTENT);
+pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!("/secondaryContents", SECTION_LIST_ITEM);
 pub const ITEM_SECTION: &str = concatcp!("/itemSectionRenderer", CONTENT);
 pub const GRID_ITEMS: &str = concatcp!(GRID, "/items");
 pub const MENU_ITEMS: &str = concatcp!(MENU, "/items");
