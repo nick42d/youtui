@@ -24,16 +24,16 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct PodcastChannel {
+pub struct GetPodcastChannel {
     title: String,
     thumbnails: Vec<Thumbnail>,
     episode_params: Option<PodcastChannelParams<'static>>,
-    episodes: Vec<PodcastChannelEpisode>,
-    podcasts: Vec<PodcastChannelPodcast>,
+    episodes: Vec<Episode>,
+    podcasts: Vec<GetPodcastChannelPodcast>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct PodcastChannelEpisode {
+pub struct Episode {
     title: String,
     description: String,
     total_duration: String,
@@ -44,7 +44,7 @@ pub struct PodcastChannelEpisode {
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct PodcastChannelPodcast {
+pub struct GetPodcastChannelPodcast {
     title: String,
     channels: Vec<ParsedPodcastChannel>,
     podcast_id: PodcastID<'static>,
@@ -71,13 +71,13 @@ pub enum PodcastChannelTopResult {
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct Podcast {
+pub struct GetPodcast {
     channels: Vec<ParsedPodcastChannel>,
     title: String,
     description: String,
     // TODO: How to add a podcast to library?
     library_status: LibraryStatus,
-    episodes: Vec<PodcastChannelEpisode>,
+    episodes: Vec<Episode>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -94,9 +94,9 @@ pub struct GetEpisode {
 
 // NOTE: This is technically the same page as the GetArtist page. It's possible
 // this could be generalised.
-impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
+impl<'a> ParseFrom<GetChannelQuery<'a>> for GetPodcastChannel {
     fn parse_from(p: crate::ProcessedResult<GetChannelQuery>) -> Result<Self> {
-        fn parse_podcast(crawler: impl JsonCrawler) -> Result<PodcastChannelPodcast> {
+        fn parse_podcast(crawler: impl JsonCrawler) -> Result<GetPodcastChannelPodcast> {
             let mut podcast = crawler.navigate_pointer(MTRIR)?;
             let title = podcast.take_value_pointer(TITLE_TEXT)?;
             let podcast_id = podcast.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -106,7 +106,7 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
                 .try_into_iter()?
                 .map(parse_podcast_channel)
                 .collect::<Result<Vec<_>>>()?;
-            Ok(PodcastChannelPodcast {
+            Ok(GetPodcastChannelPodcast {
                 title,
                 channels,
                 podcast_id,
@@ -154,7 +154,7 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
                 }
             }
         }
-        Ok(PodcastChannel {
+        Ok(GetPodcastChannel {
             title,
             thumbnails,
             episode_params,
@@ -163,7 +163,7 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for PodcastChannel {
         })
     }
 }
-impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<PodcastChannelEpisode> {
+impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<Episode> {
     fn parse_from(p: crate::ProcessedResult<GetChannelEpisodesQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
@@ -173,7 +173,7 @@ impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<PodcastChannelEpisode> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetPodcastQuery<'a>> for Podcast {
+impl<'a> ParseFrom<GetPodcastQuery<'a>> for GetPodcast {
     fn parse_from(p: crate::ProcessedResult<GetPodcastQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;
@@ -207,7 +207,7 @@ impl<'a> ParseFrom<GetPodcastQuery<'a>> for Podcast {
             responsive_header.navigate_pointer(concatcp!("/description", DESCRIPTION_SHELF))?;
         let description = description_shelf.take_value_pointer(DESCRIPTION)?;
         let title = description_shelf.take_value_pointer(concatcp!("/header", RUN_TEXT))?;
-        Ok(Podcast {
+        Ok(GetPodcast {
             channels,
             title,
             description,
@@ -264,7 +264,7 @@ impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
         })
     }
 }
-impl ParseFrom<GetNewEpisodesQuery> for Vec<PodcastChannelEpisode> {
+impl ParseFrom<GetNewEpisodesQuery> for Vec<Episode> {
     fn parse_from(p: crate::ProcessedResult<GetNewEpisodesQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
@@ -288,7 +288,7 @@ fn parse_podcast_channel(mut data: impl JsonCrawler) -> Result<ParsedPodcastChan
     })
 }
 
-fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
+fn parse_episode(crawler: impl JsonCrawler) -> Result<Episode> {
     let mut episode = crawler.navigate_pointer(MMRLIR)?;
     let description = episode.take_value_pointer(DESCRIPTION)?;
     let total_duration = episode.take_value_pointer(PLAYBACK_DURATION_TEXT)?;
@@ -298,7 +298,7 @@ fn parse_episode(crawler: impl JsonCrawler) -> Result<PodcastChannelEpisode> {
     let mut title_run = episode.navigate_pointer(TITLE)?;
     let title = title_run.take_value_pointer("/text")?;
     let video_id = title_run.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-    Ok(PodcastChannelEpisode {
+    Ok(Episode {
         title,
         description,
         total_duration,
