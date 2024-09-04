@@ -97,7 +97,7 @@ pub const MENU_PLAYLIST_ID: &str = concatcp!(
     NAVIGATION_WATCH_PLAYLIST_ID
 );
 pub const DESCRIPTION: &str = concatcp!("/description", RUN_TEXT);
-pub const CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
+pub const _CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
