@@ -19,6 +19,9 @@ SearchResults {
             ),
             plays: None,
             publisher: None,
+            byline: Some(
+                "Mother's Cake",
+            ),
         },
     ],
     artists: [

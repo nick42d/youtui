@@ -19,6 +19,9 @@ SearchResults {
             ),
             plays: None,
             publisher: None,
+            byline: Some(
+                "nzoz1982",
+            ),
         },
         TopResult {
             result_name: "We Can't Be Beaten",
@@ -48,6 +51,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "We Can't Be Beaten (Live)",
@@ -77,6 +81,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "We Can't Be Beaten (Live at Wax Museum)",
@@ -106,6 +111,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
     ],
     artists: [

@@ -1,4 +1,6 @@
-use super::{parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY};
+use super::{
+    parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY, RESPONSIVE_HEADER,
+};
 use crate::common::{
     AlbumID, AlbumType, ChannelID, Explicit, PlaylistID, PodcastID, ProfileID, SearchSuggestion,
     SuggestionType, TextRun, Thumbnail, VideoID,
@@ -74,6 +76,7 @@ enum SearchResultType {
 /// Dynamically defined top result.
 /// Some fields are optional as they are not defined for all result types.
 // In future, may be possible to make this type safe.
+// TODO: Add endpoint id.
 pub struct TopResult {
     pub result_name: String,
     /// Both Videos and Songs can have this left out.
@@ -87,7 +90,8 @@ pub struct TopResult {
     pub plays: Option<String>,
     /// Podcast publisher.
     pub publisher: Option<String>,
-    // TODO: Add endpoint id.
+    /// Generic tagline that can appear on top results
+    pub byline: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -326,17 +330,27 @@ fn parse_basic_search_result_from_section_list_contents(
         profiles,
     })
 }
+
 fn parse_top_results_from_music_card_shelf_contents(
     mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<Vec<TopResult>> {
     let mut results = Vec::new();
     // Begin - first result parsing
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
-    let result_type = music_shelf_contents
-        .take_value_pointer::<TopResultType>(SUBTITLE)
-        .ok();
+    let subtitle: String = music_shelf_contents.take_value_pointer(SUBTITLE)?;
+    let subtitle_2: Option<String> = music_shelf_contents.take_value_pointer(SUBTITLE2).ok();
+    // Deserialize without taking ownership of subtitle - not possible with
+    // JsonCrawler::take_value_pointer().
+    // TODO: add methods like borrow_value_pointer() to JsonCrawler.
+    let result_type_result: std::result::Result<_, serde::de::value::Error> =
+        TopResultType::deserialize(subtitle.as_str().into_deserializer());
+    let result_type = result_type_result.ok();
     // Possibly artists only.
-    let subscribers = music_shelf_contents.take_value_pointer(SUBTITLE2)?;
+    let subscribers = subtitle_2;
+    let byline = match result_type {
+        Some(_) => None,
+        None => Some(subtitle),
+    };
     // Imperative solution, may be able to make more functional.
     let publisher = None;
     let artist = None;
@@ -357,6 +371,7 @@ fn parse_top_results_from_music_card_shelf_contents(
         duration,
         year,
         plays,
+        byline,
     };
     // End - first result parsing.
     results.push(first_result);
@@ -442,6 +457,7 @@ fn parse_top_result_from_music_shelf_contents(
         duration,
         year,
         plays,
+        byline: None,
     }))
 }
 // TODO: Type safety

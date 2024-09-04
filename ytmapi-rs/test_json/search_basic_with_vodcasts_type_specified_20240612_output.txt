@@ -26,6 +26,7 @@ SearchResults {
             ),
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Come Together (Remastered 2009)",
@@ -57,6 +58,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Norwegian Wood (This Bird Has Flown) (Remastered 2009)",
@@ -88,6 +90,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Get Back (Rooftop Performance)",
@@ -129,6 +132,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
     ],
     artists: [
