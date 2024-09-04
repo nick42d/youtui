@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - _generics removed from get_artist_query simplified query (changed to impl trait)_ 
 - Refactor server, implement seek, reduce playback gaps, apply clippy suggestions, update ratatui, implement file logging, make song results order repeatable. ([#151](https://github.com/nick42d/youtui/pull/151))
 - [**breaking**] Mark public structs non-exhaustive - Closes [#135](https://github.com/nick42d/youtui/pull/135) ([#145](https://github.com/nick42d/youtui/pull/145))
-- _This is a significant breaking change, primarily due to  marking many structs non_exhaustive. This breakage now will save breakage in the future. In addition, significant refactoring between modules was undertaken to better organise the project.  Further to this, a small number of structs were renamed to better indicate their purpose._ 
+- _This is a significant breaking change, primarily due to marking many structs non_exhaustive. This breakage now will save breakage in the future. In addition, significant refactoring between modules was undertaken to better organise the project. Further to this, a small number of structs were renamed to better indicate their purpose._ 
+- [**breaking**] Implement podcast queries ([#159](https://github.com/nick42d/youtui/pull/159))
+- _ChannelID is renamed to ArtistChannelID - allows for new PodcastChannelID also. In additional, video_id field replaced with episode_id field on SearchResultVideo::VideoEpisode, PlaylistEpisode, SearchResultEpisode, HistoryItemEpisode_
 
 ### Fixed
 - Handle case where top search result is a 'radio' playlist with only 1 subtitle. ([#163](https://github.com/nick42d/youtui/pull/163))
@@ -22,11 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make the channel/artist thumbnail on playlists/albums optional ([#147](https://github.com/nick42d/youtui/pull/147))
 
 ### Other
-- Implement podcast queries ([#159](https://github.com/nick42d/youtui/pull/159))
 - Update dependencies ([#155](https://github.com/nick42d/youtui/pull/155))
-
-
-
 
 ## [0.0.12](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.11...ytmapi-rs/v0.0.12) - 2024-08-17
 
