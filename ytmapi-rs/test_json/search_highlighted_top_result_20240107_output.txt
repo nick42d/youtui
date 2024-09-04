@@ -26,6 +26,7 @@ SearchResults {
             ),
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Now And Then",
@@ -55,6 +56,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Let It Be (Remastered 2009)",
@@ -84,6 +86,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
         TopResult {
             result_name: "Now And Then",
@@ -125,6 +128,7 @@ SearchResults {
             subscribers: None,
             plays: None,
             publisher: None,
+            byline: None,
         },
     ],
     artists: [

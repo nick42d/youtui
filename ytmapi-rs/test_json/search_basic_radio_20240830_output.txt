@@ -1,0 +1,486 @@
+SearchResults {
+    top_results: [
+        TopResult {
+            result_name: "Classical Radio",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 200,
+                    width: 200,
+                    url: "https://music.youtube.com/image/radioart?r=CisKCC9tLzAyeHA5CggvbS8wM19mMAoJL20vMDExemYyCgovbS8wajdqZ3cxEMgBGMgB",
+                },
+                Thumbnail {
+                    height: 600,
+                    width: 600,
+                    url: "https://music.youtube.com/image/radioart?r=CisKCC9tLzAyeHA5CggvbS8wM19mMAoJL20vMDExemYyCgovbS8wajdqZ3cxENgEGNgE",
+                },
+                Thumbnail {
+                    height: 800,
+                    width: 800,
+                    url: "https://music.youtube.com/image/radioart?r=CisKCC9tLzAyeHA5CggvbS8wM19mMAoJL20vMDExemYyCgovbS8wajdqZ3cxEKAGGKAG",
+                },
+                Thumbnail {
+                    height: 1000,
+                    width: 1000,
+                    url: "https://music.youtube.com/image/radioart?r=CisKCC9tLzAyeHA5CggvbS8wM19mMAoJL20vMDExemYyCgovbS8wajdqZ3cxEOgHGOgH",
+                },
+            ],
+            artist: None,
+            album: None,
+            duration: None,
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+            byline: Some(
+                "Frédéric Chopin, Johann Sebastian Bach, Yo-Yo Ma, and more",
+            ),
+        },
+    ],
+    artists: [
+        SearchResultArtist {
+            artist: "Johann Sebastian Bach",
+            subscribers: Some(
+                "144K subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCFtSXTlIMFFkyJbHO3V5b7A",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/C5hLBPYdwgyQEKjwZXfOM-0MCgn619Ja_WgljDeIO-fjNHi-SsYzGr_c5piG46OaRj_ROZqhuCYhucmf=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/C5hLBPYdwgyQEKjwZXfOM-0MCgn619Ja_WgljDeIO-fjNHi-SsYzGr_c5piG46OaRj_ROZqhuCYhucmf=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Pyotr Ilyich Tchaikovsky",
+            subscribers: Some(
+                "57.2K subscribers",
+            ),
+            browse_id: ChannelID(
+                "UC6UJm5ElaATOPzXxNkuLDJg",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3_9M4-XhFrLHVLLf-v6OPkWf-Ai2S1mwN91lLbxcZriVjmy80c011gc5O0nOQoi2O-IC50oCjUloRSRu=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3_9M4-XhFrLHVLLf-v6OPkWf-Ai2S1mwN91lLbxcZriVjmy80c011gc5O0nOQoi2O-IC50oCjUloRSRu=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Claude Debussy",
+            subscribers: Some(
+                "53.1K subscribers",
+            ),
+            browse_id: ChannelID(
+                "UCDBe28OI2PycHdECfoaIWtA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/GtlibpMRuI_NuSzSy_N-KGKXgr4OZg4TnVaX7VeGn5suKliSWH41BNZ34MGqQ9-FEarQCYLGwQtqhvE=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/GtlibpMRuI_NuSzSy_N-KGKXgr4OZg4TnVaX7VeGn5suKliSWH41BNZ34MGqQ9-FEarQCYLGwQtqhvE=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+    ],
+    albums: [
+        SearchResultAlbum {
+            title: "Classical Music For Relaxation",
+            artist: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
+            year: "Relaxing Classical Music",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_waBHly97VR1",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/XZF6zi3riatRmf0mAdtBbHdvIwxWJBInDbp2PfugO3vtgkNoMMNtaJnhnMDqqpzRQAiswrUTJ_TRnQw8=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/XZF6zi3riatRmf0mAdtBbHdvIwxWJBInDbp2PfugO3vtgkNoMMNtaJnhnMDqqpzRQAiswrUTJ_TRnQw8=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/XZF6zi3riatRmf0mAdtBbHdvIwxWJBInDbp2PfugO3vtgkNoMMNtaJnhnMDqqpzRQAiswrUTJ_TRnQw8=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/XZF6zi3riatRmf0mAdtBbHdvIwxWJBInDbp2PfugO3vtgkNoMMNtaJnhnMDqqpzRQAiswrUTJ_TRnQw8=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "Silvano Frontalini",
+            artist: "Vivaldi - Classical Music for Relaxation",
+            year: "Giuseppe Lanzetta",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_t3RRcQYIlyB",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/1cUNn7O2T8dHCIgn2BPos-QjPbEgNmycXO5TbQJvHwF-4XLtHrvkwiJczMD1FpwnRUGDYwEeGhcftlNe=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/1cUNn7O2T8dHCIgn2BPos-QjPbEgNmycXO5TbQJvHwF-4XLtHrvkwiJczMD1FpwnRUGDYwEeGhcftlNe=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/1cUNn7O2T8dHCIgn2BPos-QjPbEgNmycXO5TbQJvHwF-4XLtHrvkwiJczMD1FpwnRUGDYwEeGhcftlNe=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/1cUNn7O2T8dHCIgn2BPos-QjPbEgNmycXO5TbQJvHwF-4XLtHrvkwiJczMD1FpwnRUGDYwEeGhcftlNe=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "Crazy Monkey",
+            artist: "classical music but it's lofi 30 (Bach)",
+            year: "Classical Music But",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_MgMDqnhK9cm",
+            ),
+            album_type: EP,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/VFxtZwkKoKX_t2CGUwVfAI1irgTdR15mlX6vs9Iao8-QQ-lQdXHlNCFyF-LyTpqLo_nsvKVa1dzjeyeR=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/VFxtZwkKoKX_t2CGUwVfAI1irgTdR15mlX6vs9Iao8-QQ-lQdXHlNCFyF-LyTpqLo_nsvKVa1dzjeyeR=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/VFxtZwkKoKX_t2CGUwVfAI1irgTdR15mlX6vs9Iao8-QQ-lQdXHlNCFyF-LyTpqLo_nsvKVa1dzjeyeR=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/VFxtZwkKoKX_t2CGUwVfAI1irgTdR15mlX6vs9Iao8-QQ-lQdXHlNCFyF-LyTpqLo_nsvKVa1dzjeyeR=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    featured_playlists: [
+        SearchResultFeaturedPlaylist {
+            title: "Classical Calm",
+            author: "YouTube Music",
+            songs: "58 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_nBOvRANXhyfsK6oGe_wTHNwOW-0kSMB8w",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/D8mw4OfckbnyW2cu0nUHBmrDROUF1Iq7DNdDPHO8xNBGVxA0XbONCeeW5DLVs4sfT2o10EpoY66g8NM=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/D8mw4OfckbnyW2cu0nUHBmrDROUF1Iq7DNdDPHO8xNBGVxA0XbONCeeW5DLVs4sfT2o10EpoY66g8NM=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/D8mw4OfckbnyW2cu0nUHBmrDROUF1Iq7DNdDPHO8xNBGVxA0XbONCeeW5DLVs4sfT2o10EpoY66g8NM=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/D8mw4OfckbnyW2cu0nUHBmrDROUF1Iq7DNdDPHO8xNBGVxA0XbONCeeW5DLVs4sfT2o10EpoY66g8NM=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Classical Focus",
+            author: "YouTube Music",
+            songs: "82 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_n9hGvSNdO2TpX8jJuiThvnfrfIi1qNRnY",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Jx8ayDHUoBH0ZDj87d2Jibuvd0nXxeVf3RAbYUAf3f2o3Sr9vWkMVVGfgMLjjAuFBXcp7Wl-JW3pVzw=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Jx8ayDHUoBH0ZDj87d2Jibuvd0nXxeVf3RAbYUAf3f2o3Sr9vWkMVVGfgMLjjAuFBXcp7Wl-JW3pVzw=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/Jx8ayDHUoBH0ZDj87d2Jibuvd0nXxeVf3RAbYUAf3f2o3Sr9vWkMVVGfgMLjjAuFBXcp7Wl-JW3pVzw=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/Jx8ayDHUoBH0ZDj87d2Jibuvd0nXxeVf3RAbYUAf3f2o3Sr9vWkMVVGfgMLjjAuFBXcp7Wl-JW3pVzw=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Classical for Reading",
+            author: "YouTube Music",
+            songs: "66 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_kVXmNQjiBEKjCGifBWc3eTMg8Fwjc6K8M",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/6UkqmV45RBMOHzExO4xE2kNPr44n8OBeBdBd1TUMWblxhLm5QuZrWPXtN9Z1VXxFBs_FPvl6dKu6p9aL=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/6UkqmV45RBMOHzExO4xE2kNPr44n8OBeBdBd1TUMWblxhLm5QuZrWPXtN9Z1VXxFBs_FPvl6dKu6p9aL=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/6UkqmV45RBMOHzExO4xE2kNPr44n8OBeBdBd1TUMWblxhLm5QuZrWPXtN9Z1VXxFBs_FPvl6dKu6p9aL=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/6UkqmV45RBMOHzExO4xE2kNPr44n8OBeBdBd1TUMWblxhLm5QuZrWPXtN9Z1VXxFBs_FPvl6dKu6p9aL=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    community_playlists: [
+        SearchResultCommunityPlaylist {
+            title: "Best-of Classical Music Playlist",
+            author: "TheFbiFilesRepeat",
+            views: "12M views",
+            playlist_id: PlaylistID(
+                "VLPL2788304DC59DBEB4",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 180,
+                    width: 320,
+                    url: "https://i.ytimg.com/vi/P2l0lbn5TVg/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3n_ia3RsfOiCmdx-7R-8V-l03-3lA",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "Best of Australian Classical Music",
+            author: "ABC Classic",
+            views: "16K views",
+            playlist_id: PlaylistID(
+                "VLPL9D9IMBZdc9h8cn_yzTQ35SkK2wSQnBZF",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s1200",
+                },
+            ],
+        },
+        SearchResultCommunityPlaylist {
+            title: "Classical Music Covers of Pop Songs",
+            author: "NessaxTelemmaite",
+            views: "2.2M views",
+            playlist_id: PlaylistID(
+                "VLPLgiflqPy_ePaeVc71NfFsWbVNhAiCN6UW",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s1200",
+                },
+            ],
+        },
+    ],
+    songs: [
+        SearchResultSong {
+            title: "J.S. Bach: Orchestral Suite No. 3 in D Major, BWV 1068: II. Air",
+            artist: "Academy of St Martin in the Fields",
+            album: "Sir Neville Marriner",
+            duration: "Johann Sebastian Bach",
+            plays: "1.6M plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "XO6Zcrnopgw",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/1BdYjdWRV8lk8K0_CCSxZtuX1vlET7bafZttFNxcRe9UqOhkVSRNMOabzeV4OTSGSias3q39qT6wLsPvMQ=w60-h60-s-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/1BdYjdWRV8lk8K0_CCSxZtuX1vlET7bafZttFNxcRe9UqOhkVSRNMOabzeV4OTSGSias3q39qT6wLsPvMQ=w120-h120-s-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Violin Concerto in A Minor, BWV 1041: I. Allegro",
+            artist: "Joshua Bell",
+            album: "Academy of St Martin in the Fields",
+            duration: "Johann Sebastian Bach",
+            plays: "2.1M plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "d0e3vAgVydA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/17MQ5mgN5kxRMinQow0liEDP6HPyDxqafsl9iLP9ZMjBynMhrLbIoZfOcsTlaIdKzfiWfgb24YyBF5yaNg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/17MQ5mgN5kxRMinQow0liEDP6HPyDxqafsl9iLP9ZMjBynMhrLbIoZfOcsTlaIdKzfiWfgb24YyBF5yaNg=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Deep Sleep Music: Deeper Relaxation",
+            artist: "Jason Stephenson",
+            album: "Deep Sleep Music: Deeper Relaxation",
+            duration: "3:00:16",
+            plays: "17M plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "yGi1MePEN-k",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/izy-xwSTCCdIGhhIC-zIbatYKoQaIqf_lTHzscee2mvj5INnAPCEoqkPGBgcLjs4WSATb75kS8nECSv_=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/izy-xwSTCCdIGhhIC-zIbatYKoQaIqf_lTHzscee2mvj5INnAPCEoqkPGBgcLjs4WSATb75kS8nECSv_=w120-h120-l90-rj",
+                },
+            ],
+        },
+    ],
+    videos: [
+        Video {
+            title: "50 Most Beautiful Classical Music Pieces",
+            channel_name: "HALIDONMUSIC",
+            video_id: VideoID(
+                "WQhFl7RdBh8",
+            ),
+            views: "585K views",
+            length: "3:43:55",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/WQhFl7RdBh8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mLmhk7ZdQYIQLC0Qo323D5557gNQ",
+                },
+            ],
+        },
+        Video {
+            title: "Peaceful Classical Music | Bach, Mozart, Vivaldi...",
+            channel_name: "HALIDONMUSIC",
+            video_id: VideoID(
+                "ElWSdcg67RY",
+            ),
+            views: "1.2M views",
+            length: "2:37:56",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/ElWSdcg67RY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l8eAlNc88sG0fz_5Mz38YdMk-Cig",
+                },
+            ],
+        },
+        Video {
+            title: "The Best of Classical Music that You Should Listen to Once In Your Life🎻Mozart, Beethoven, Vivaldi..",
+            channel_name: "Classical Symphony Music",
+            video_id: VideoID(
+                "u420qsrNTRQ",
+            ),
+            views: "941K views",
+            length: "3:41:17",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/u420qsrNTRQ/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nPQgQDlzx87o1aT_eecWMA4WjOyQ",
+                },
+            ],
+        },
+    ],
+    podcasts: [],
+    episodes: [],
+    profiles: [],
+}
