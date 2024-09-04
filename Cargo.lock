@@ -1681,7 +1681,7 @@ dependencies = [
 
 [[package]]
 name = "json-crawler"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -4257,7 +4257,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.13"
+version = "0.0.14"
 dependencies = [
  "clap",
  "crossterm",
@@ -4294,7 +4294,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.0.12"
+version = "0.0.13"
 dependencies = [
  "async-stream",
  "chrono",
