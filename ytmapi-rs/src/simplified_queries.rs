@@ -347,7 +347,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_songs().await;
     /// # };
-    pub async fn get_library_songs(&self) -> Result<Vec<TableListSong>> {
+    pub async fn get_library_songs(&self) -> Result<<GetLibrarySongsQuery as Query<A>>::Output> {
         let query = GetLibrarySongsQuery::default();
         self.query(query).await
     }

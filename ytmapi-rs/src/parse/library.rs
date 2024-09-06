@@ -1,9 +1,11 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
-    SearchResultAlbum, TableListSong, BADGE_LABEL, MENU_LIKE_STATUS, SUBTITLE, SUBTITLE2,
-    SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, MENU_LIKE_STATUS, SUBTITLE,
+    SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS, _SECTION_LIST_CONTINUATION,
 };
-use crate::common::{ApiOutcome, ArtistChannelID, Explicit, PlaylistID, Thumbnail};
+use crate::common::{
+    ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
+};
 use crate::nav_consts::{
     GRID, GRID_ITEMS, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
@@ -11,8 +13,9 @@ use crate::nav_consts::{
 };
 use crate::process::fixed_column_item_pointer;
 use crate::query::{
-    EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
-    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+    Continuable, EditSongLibraryStatusQuery, GetLibraryAlbumsQuery,
+    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
+    GetLibrarySongsQuery,
 };
 use crate::Result;
 use const_format::concatcp;
@@ -27,6 +30,19 @@ pub struct GetLibraryArtistSubscription {
     pub subscribers: String,
     pub channel_id: ArtistChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Very similar to LibraryArtist struct
+pub struct GetLibrarySongs {
+    pub songs: Vec<TableListSong>,
+    continuation_params: Option<ContinuationParams<'static>>,
+}
+
+impl Continuable for GetLibrarySongs {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -63,7 +79,7 @@ impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
     }
 }
 
-impl ParseFrom<GetLibrarySongsQuery> for Vec<TableListSong> {
+impl ParseFrom<GetLibrarySongsQuery> for GetLibrarySongs {
     fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> crate::Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
@@ -122,14 +138,15 @@ fn parse_library_albums(
 }
 fn parse_library_songs(
     json_crawler: JsonCrawlerOwned,
-) -> std::prelude::v1::Result<Vec<TableListSong>, crate::Error> {
-    let contents = json_crawler.navigate_pointer(concatcp!(
+) -> std::prelude::v1::Result<GetLibrarySongs, crate::Error> {
+    let mut music_shelf = json_crawler.navigate_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
         MUSIC_SHELF,
-        "/contents"
     ))?;
-    contents
+    let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let songs = music_shelf
+        .navigate_pointer("/contents")?
         .try_into_iter()?
         .map(|mut item| {
             let Ok(mut data) = item.borrow_pointer(MRLIR) else {
@@ -142,7 +159,11 @@ fn parse_library_songs(
             Ok(Some(parse_table_list_song(title, data)?))
         })
         .filter_map(Result::transpose)
-        .collect()
+        .collect::<Result<_>>()?;
+    Ok(GetLibrarySongs {
+        songs,
+        continuation_params,
+    })
 }
 fn parse_library_artist_subscriptions(
     json_crawler: JsonCrawlerOwned,

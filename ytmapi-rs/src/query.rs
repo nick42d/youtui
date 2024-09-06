@@ -82,66 +82,10 @@ pub trait Query<A: AuthToken>: Sized {
     }
 }
 
-pub trait QueryTwo: Sized {
-    type Output: ParseFrom<Self>;
-    type Method: QueryMethodTwo<Self>;
-}
-
-pub trait QueryMethodTwo<Q>: Sealed {
-    fn test();
-}
-
-impl<Q> QueryMethodTwo<Q> for GetMethod
-where
-    Q: GetQuery,
-{
-    fn test() {}
-}
-
-impl GetQuery for String {
-    fn url(&self) -> &str {
-        todo!()
-    }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
-        todo!()
-    }
-}
-
-impl QueryTwo for String {
-    type Output = ();
-    type Method = GetMethod;
-}
-
-impl ParseFrom<String> for () {
-    fn parse_from(p: crate::ProcessedResult<String>) -> crate::Result<Self> {
-        todo!()
-    }
-}
-
-// pub trait CallableQuery {
-//     fn call<Q, A: AuthToken>(
-//         query: &Q,
-//         tok: &A,
-//         client: &Client,
-//     ) -> impl Fn(&A, &Client, &Q) -> impl Future<Output = Result<RawResult<Q,
-// A>>>; }
-
-// struct TestQuery;
-
-// impl CallableQuery for TestQuery {
-//     fn call<Q, A: AuthToken>(
-//         query: &Q,
-//         tok: &A,
-//         client: &Client,
-//     ) -> impl Fn(&A, &Client, &Q) -> impl Future<Output = Result<RawResult<Q,
-// A>>> {         |tok, client, query| tok.raw_query_post(client, query)
-//     }
-// }
-
 /// Represents a plain POST query that can be sent to Innertube.
 pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
-    fn params(&self) -> Option<Cow<str>>;
+    fn params(&self) -> Vec<(&str, Cow<str>)>;
     fn path(&self) -> &str;
 }
 /// Represents a plain GET query that can be sent to Innertube.

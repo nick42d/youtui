@@ -61,12 +61,14 @@ use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
 use parse::ParseFrom;
-use query::{Query, QueryMethod};
+use query::{Continuable, Query, QueryMethod, StreamingQuery};
 use std::{
     borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
+    pin::pin,
 };
+use tokio_stream::Stream;
 
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
@@ -267,6 +269,18 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
         Q::Output::parse_from(self.processed_query(query.borrow()).await?)
+    }
+    // Stream is tied to the lifetime of self, since it's self's client that will
+    // emit the results. It's also tied to the lifetime of query, but ideally it
+    // could take either owned or borrowed query.
+    pub fn stream<'a, Q: StreamingQuery<A>>(
+        &'a self,
+        query: &'a Q,
+    ) -> impl Stream<Item = Result<Q::Output>> + 'a
+    where
+        Q::Output: Continuable,
+    {
+        query.stream(&self.client, &self.token)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
