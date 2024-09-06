@@ -1,59 +1,50 @@
 use super::{BasicSearch, GetQuery, PostMethod, PostQuery, Query, QueryMethod, SearchQuery};
 use crate::{
     auth::{AuthToken, BrowserToken},
-    parse::{ParseFrom, ProcessedResult},
-    Result,
+    parse::{self, ParseFrom, ProcessedResult},
+    RawResult, Result,
 };
 use async_stream::{stream, try_stream};
-use std::{borrow::Cow, fmt::Debug};
+use std::{borrow::Cow, fmt::Debug, future::Future};
 use tokio_stream::Stream;
 
-trait Continuable {
+pub trait Continuable {
     fn get_continuation_params(&self) -> Option<String>;
 }
-// trait StreamingQuery<A: AuthToken>: Query<A>
-// where
-//     Self::Output: Continuable,
-// {
-//     fn stream(
-//         &self,
-//         client: &crate::client::Client,
-//         tok: &A,
-//     ) -> impl Stream<Item = Result<Self::Output>> {
-//         try_stream! {
-//             let first_res: Self::Output = Self::Method::call(self, client,
-// tok).await?.process()?.parse_into()?;             let first_cont_pars =
-// Continuable::get_continuation_params(&first_res);             yield
-// first_res;             if let Some(first_cont_pars) = first_cont_pars {
-//                 let query = GetContinuationsQuery {
-//                     continuation_params: first_cont_pars,
-//                     query: self
-//                 };
-//                 let next = <GetContinuationsQuery<'_, _> as
-// Query<A>>::Method::call(&query, client, tok).await?.process()?.parse_into()?;
-//             }
-//         }
-//     }
-// }
 
-fn stream<'a, Q: Query<BrowserToken>>(
-    query: Q,
-    client: &crate::client::Client,
-    tok: &BrowserToken,
-) -> impl Stream<Item = Result<Q::Output>>
+impl<A: AuthToken> StreamingQuery<A> for super::GetLibraryUploadSongsQuery {}
+
+impl Continuable for Vec<parse::TableListUploadSong> {
+    fn get_continuation_params(&self) -> Option<String> {
+        todo!()
+    }
+}
+
+trait StreamingQuery<A: AuthToken>: Query<A>
 where
-    Q::Output: Continuable,
+    Self::Output: Continuable,
 {
-    try_stream! {
-        let first_res: Q::Output = Q::Method::call(&query, client, tok).await?.process()?.parse_into()?;
-        let first_cont_pars = first_res.get_continuation_params();
-        yield first_res;
-        if let Some(first_cont_pars) = first_cont_pars {
-            let query = GetContinuationsQuery {
-                continuation_params: first_cont_pars,
-                query: &query
+    async fn stream(
+        &self,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Stream<Item = Result<Self::Output>> {
+        try_stream! {
+            let first_res: Self::Output = Self::Method::call(self, client, tok)
+                .await?
+                .process()?
+                .parse_into()?;
+            let mut maybe_next_query = GetContinuationsQuery::new(&first_res, self);
+            yield first_res;
+            while let Some(next_query) = maybe_next_query {
+                let next = next_query
+                    .call_this(client, tok)
+                    .await?
+                    .process()?
+                    .parse_into()?;
+                maybe_next_query = GetContinuationsQuery::new(&next, self);
+                yield next;
             };
-            let next = <GetContinuationsQuery<'_, _> as Query<BrowserToken>>::Method::call(&query, client, tok).await?.process()?.parse_into()?;
         }
     }
 }
@@ -68,34 +59,38 @@ pub struct GetContinuationsQuery<'a, Q> {
     continuation_params: String,
     query: &'a Q,
 }
-// TODO: Output type
-impl<'a, Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'a, Q>
-// where
-//     Q::Output: ParseFrom<Self>,
-//     Q::Method: QueryMethod<Self, A, <Q as Query<A>>::Output>,
-{
+
+impl<'a, Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'a, Q> {
     type Output = Q::Output;
-    type Method = Q::Method;
+    type Method = SpecialMethod;
 }
-// impl<'a> PostQuery for GetContinuationsQuery<SearchQuery<'a, BasicSearch>>
-// where
-//     SearchQuery<'a, BasicSearch>: PostQuery,
-// {
-//     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-//         self.query.header()
-//     }
-//     fn path(&self) -> &str {
-//         self.query.path()
-//     }
-//     fn params(&self) -> Option<Cow<str>> {
-//         Some(Cow::Borrowed(&self.continuation_params))
-//     }
-// }
+
+pub struct SpecialMethod;
+
+impl super::private::Sealed for SpecialMethod {}
+
+impl<Q, A, O> QueryMethod<Q, A, O> for SpecialMethod
+where
+    Q: Query<A, Output = O>,
+    A: AuthToken,
+{
+    async fn call<'a>(
+        query: &'a Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> Result<RawResult<'a, Q, A>> {
+        todo!()
+    }
+}
 impl<'a, Q> GetContinuationsQuery<'a, Q> {
-    pub fn new(c_params: String, query: &'a Q) -> GetContinuationsQuery<'a, Q> {
-        GetContinuationsQuery {
-            continuation_params: c_params,
+    pub fn new<I: ParseFrom<Q> + Continuable>(
+        res: &'_ I,
+        query: &'a Q,
+    ) -> Option<GetContinuationsQuery<'a, Q>> {
+        let continuation_params = res.get_continuation_params()?;
+        Some(GetContinuationsQuery {
+            continuation_params,
             query,
-        }
+        })
     }
 }

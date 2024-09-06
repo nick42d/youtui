@@ -33,7 +33,7 @@
 //! ```
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
-use crate::{RawResult, Result};
+use crate::{Client, RawResult, Result};
 use std::borrow::Cow;
 use std::future::Future;
 
@@ -70,7 +70,73 @@ mod private {
 pub trait Query<A: AuthToken>: Sized {
     type Output: ParseFrom<Self>;
     type Method: QueryMethod<Self, A, Self::Output>;
+    fn call_this<'a>(
+        &'a self,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Future<Output = Result<RawResult<'a, Self, A>>>
+    where
+        Self: Sized,
+    {
+        Self::Method::call(self, client, tok)
+    }
 }
+
+pub trait QueryTwo: Sized {
+    type Output: ParseFrom<Self>;
+    type Method: QueryMethodTwo<Self>;
+}
+
+pub trait QueryMethodTwo<Q>: Sealed {
+    fn test();
+}
+
+impl<Q> QueryMethodTwo<Q> for GetMethod
+where
+    Q: GetQuery,
+{
+    fn test() {}
+}
+
+impl GetQuery for String {
+    fn url(&self) -> &str {
+        todo!()
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        todo!()
+    }
+}
+
+impl QueryTwo for String {
+    type Output = ();
+    type Method = GetMethod;
+}
+
+impl ParseFrom<String> for () {
+    fn parse_from(p: crate::ProcessedResult<String>) -> crate::Result<Self> {
+        todo!()
+    }
+}
+
+// pub trait CallableQuery {
+//     fn call<Q, A: AuthToken>(
+//         query: &Q,
+//         tok: &A,
+//         client: &Client,
+//     ) -> impl Fn(&A, &Client, &Q) -> impl Future<Output = Result<RawResult<Q,
+// A>>>; }
+
+// struct TestQuery;
+
+// impl CallableQuery for TestQuery {
+//     fn call<Q, A: AuthToken>(
+//         query: &Q,
+//         tok: &A,
+//         client: &Client,
+//     ) -> impl Fn(&A, &Client, &Q) -> impl Future<Output = Result<RawResult<Q,
+// A>>> {         |tok, client, query| tok.raw_query_post(client, query)
+//     }
+// }
 
 /// Represents a plain POST query that can be sent to Innertube.
 pub trait PostQuery {
