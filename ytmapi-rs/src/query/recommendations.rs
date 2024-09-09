@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use serde_json::{json, Value};
 
 use super::{PostMethod, PostQuery, Query};
@@ -50,8 +52,8 @@ impl PostQuery for GetTasteProfileQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_tastebuilder"))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -87,8 +89,8 @@ where
             ),
         ])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -103,8 +105,8 @@ impl PostQuery for GetMoodCategoriesQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_moods_and_genres"))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -125,8 +127,8 @@ impl<'a> PostQuery for GetMoodPlaylistsQuery<'a> {
             ("params".to_string(), json!(self.params)),
         ])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"

@@ -1,7 +1,8 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
-    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, MENU_LIKE_STATUS, SUBTITLE,
-    SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS, _SECTION_LIST_CONTINUATION,
+    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, MENU_LIKE_STATUS,
+    MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    _SECTION_LIST_CONTINUATION,
 };
 use crate::common::{
     ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
@@ -13,7 +14,7 @@ use crate::nav_consts::{
 };
 use crate::process::fixed_column_item_pointer;
 use crate::query::{
-    Continuable, EditSongLibraryStatusQuery, GetLibraryAlbumsQuery,
+    Continuable, EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery,
 };
@@ -64,7 +65,7 @@ pub struct LibraryArtist {
 }
 
 impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
-    fn parse_from(p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>) -> crate::Result<Self> {
+    fn parse_from(p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>) -> Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artist_subscriptions(json_crawler)
@@ -72,7 +73,7 @@ impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubsc
 }
 
 impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
-    fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> crate::Result<Self> {
+    fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_albums(json_crawler)
@@ -80,15 +81,43 @@ impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
 }
 
 impl ParseFrom<GetLibrarySongsQuery> for GetLibrarySongs {
-    fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> crate::Result<Self> {
-        // TODO: Continuations
+    fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> Result<Self> {
         let json_crawler = p.into();
         parse_library_songs(json_crawler)
     }
 }
 
+impl<'a> ParseFrom<GetContinuationsQuery<'a, GetLibrarySongsQuery>> for GetLibrarySongs {
+    fn parse_from(
+        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let mut music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let songs = music_shelf
+            .navigate_pointer("/contents")?
+            .try_into_iter()?
+            .map(|mut item| {
+                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
+                    return Ok(None);
+                };
+                let title = super::parse_flex_column_item(&mut data, 0, 0)?;
+                if title == "Shuffle all" {
+                    return Ok(None);
+                }
+                Ok(Some(parse_table_list_song(title, data)?))
+            })
+            .filter_map(Result::transpose)
+            .collect::<Result<_>>()?;
+        Ok(GetLibrarySongs {
+            songs,
+            continuation_params,
+        })
+    }
+}
+
 impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
-    fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> crate::Result<Self> {
+    fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> Result<Self> {
         // TODO: Continuations
         let json_crawler = p.into();
         parse_library_artists(json_crawler)
@@ -96,7 +125,7 @@ impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
 }
 
 impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
-    fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> crate::Result<Self> {
+    fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
             .navigate_pointer("/feedbackResponses")?
@@ -118,7 +147,7 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
 }
 
 impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
-    fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> crate::Result<Self> {
+    fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> Result<Self> {
         // TODO: Continuations
         // TODO: Implement count and author fields
         let json_crawler = p.into();

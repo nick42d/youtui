@@ -61,7 +61,7 @@ use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
 use parse::ParseFrom;
-use query::{Continuable, Query, QueryMethod, StreamingQuery};
+use query::{Continuable, GetContinuationsQuery, Query, QueryMethod, StreamingQuery};
 use std::{
     borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
@@ -273,12 +273,14 @@ impl<A: AuthToken> YtMusic<A> {
     // Stream is tied to the lifetime of self, since it's self's client that will
     // emit the results. It's also tied to the lifetime of query, but ideally it
     // could take either owned or borrowed query.
-    pub fn stream<'a, Q: StreamingQuery<A>>(
+    pub fn stream<'a, Q: StreamingQuery<'a, A>>(
         &'a self,
         query: &'a Q,
     ) -> impl Stream<Item = Result<Q::Output>> + 'a
     where
         Q::Output: Continuable,
+        // May be able to be encoded in StreamingQuery itself
+        Q::Output: ParseFrom<GetContinuationsQuery<'a, Q>>,
     {
         query.stream(&self.client, &self.token)
     }

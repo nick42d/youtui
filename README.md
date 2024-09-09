@@ -106,7 +106,7 @@ Feature parity with `ytmusicapi`
 |GetCharts|Not Planned*||
 |GetWatchPlaylist|[x]\*|[ ]|
 |GetLibraryPlaylists|[x]|[ ]|
-|GetLibrarySongs|[x]|[ ]|
+|GetLibrarySongs|[x]|[x]|
 |GetLibraryAlbums|[x]|[ ]|
 |GetLibraryArtists|[x]|[ ]|
 |GetLibrarySubscriptions|[x]|[ ]|

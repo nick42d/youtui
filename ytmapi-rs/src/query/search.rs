@@ -88,8 +88,8 @@ impl<'a, S: UnfilteredSearchType> PostQuery for SearchQuery<'a, S> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 
@@ -233,8 +233,8 @@ impl<'a> PostQuery for GetSearchSuggestionsQuery<'a> {
     fn path(&self) -> &str {
         "music/get_search_suggestions"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 
@@ -242,7 +242,15 @@ fn search_query_header<S: SearchType>(
     query: &SearchQuery<S>,
 ) -> serde_json::Map<String, serde_json::Value> {
     let value = query.query.as_ref().into();
-    serde_json::Map::from_iter([("query".to_string(), value)])
+    let params = search_query_params(query);
+    if let Some(params) = params {
+        serde_json::Map::from_iter([
+            ("query".to_string(), value),
+            ("params".to_string(), params.into()),
+        ])
+    } else {
+        serde_json::Map::from_iter([("query".to_string(), value)])
+    }
 }
 fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<str>> {
     query.search_type.specialised_params(&query.spelling_mode)

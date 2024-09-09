@@ -110,7 +110,7 @@ impl<'a, T: SpecialisedQuery> PostQuery for AddPlaylistItemsQuery<'a, T> {
     fn path(&self) -> &str {
         "browse/edit_playlist"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }

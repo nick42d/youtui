@@ -41,9 +41,6 @@ impl AuthToken for BrowserToken {
         });
         if let Some(body) = body.as_object_mut() {
             body.append(&mut query.header());
-            if let Some(q) = query.params() {
-                body.insert("params".into(), q.into());
-            }
         } else {
             unreachable!("Body created in this function as an object")
         };
@@ -54,7 +51,9 @@ impl AuthToken for BrowserToken {
             ("Authorization", format!("SAPISIDHASH {hash}").into()),
             ("Cookie", self.cookies.as_str().into()),
         ];
-        let result = client.post_query(url, headers, &body).await?;
+        let result = client
+            .post_query(url, headers, &body, &query.params())
+            .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }

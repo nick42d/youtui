@@ -6,7 +6,7 @@ use crate::{
     RawResult, Result,
 };
 use async_stream::{stream, try_stream};
-use std::{borrow::Cow, fmt::Debug, future::Future, marker::PhantomData, pin::pin};
+use std::{borrow::Cow, fmt::Debug, future::Future, marker::PhantomData, pin::pin, vec::Vec};
 use tokio::stream;
 use tokio_stream::Stream;
 
@@ -14,16 +14,18 @@ pub trait Continuable {
     fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>>;
 }
 
-impl<A: AuthToken> StreamingQuery<A> for super::GetLibrarySongsQuery {}
+impl<'a, A: AuthToken> StreamingQuery<'a, A> for super::GetLibrarySongsQuery {}
 
 // NOTE: StreamingQuery only implemented for Self: PostQuery - only post queries
 // have continuations.
-pub trait StreamingQuery<A: AuthToken>: Query<A>
+pub trait StreamingQuery<'a, A: AuthToken>: Query<A>
 where
+    Self: 'a,
     Self::Output: Continuable,
     Self: PostQuery,
+    Self::Output: ParseFrom<GetContinuationsQuery<'a, Self>>,
 {
-    fn stream<'a>(
+    fn stream(
         &'a self,
         client: &'a crate::client::Client,
         tok: &'a A,
@@ -33,7 +35,7 @@ where
                 .await?
                 .process()?
                 .parse_into()?;
-            let mut maybe_next_query = GetContinuationsQuery::new(&mut first_res, self);
+            let mut maybe_next_query = GetContinuationsQuery::<Self>::new(&mut first_res, self);
             yield first_res;
             while let Some(next_query) = maybe_next_query {
                 let mut next = next_query
@@ -41,10 +43,35 @@ where
                     .await?
                     .process()?
                     .parse_into()?;
-                maybe_next_query = GetContinuationsQuery::new(&mut next, self);
+                maybe_next_query = GetContinuationsQuery::<Self>::new(&mut next, self);
                 yield next;
             };
         }
+    }
+}
+
+impl<'a, Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'a, Q>
+where
+    Q: PostQuery,
+    Q::Output: ParseFrom<Self>,
+{
+    type Output = Q::Output;
+    type Method = PostMethod;
+}
+
+impl<'a, Q> PostQuery for GetContinuationsQuery<'a, Q>
+where
+    Q: PostQuery,
+{
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        self.query.header()
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        let params = self.continuation_params.get_raw();
+        vec![("ctoken", params.into()), ("continuation", params.into())]
+    }
+    fn path(&self) -> &str {
+        self.query.path()
     }
 }
 
@@ -93,52 +120,9 @@ where
 //     }
 // }
 
-impl<'a, Q, T: Debug> ParseFrom<GetContinuationsQuery<'a, Q>> for T
-where
-    T: ParseFrom<Q>,
-{
-    fn parse_from(p: ProcessedResult<GetContinuationsQuery<'a, Q>>) -> crate::Result<Self> {
-        let ProcessedResult {
-            query,
-            source,
-            json,
-        } = p;
-        let q2 = query.query;
-        let p = ProcessedResult {
-            query: q2,
-            source,
-            json,
-        };
-        ParseFrom::parse_from(p)
-    }
-}
-
 pub struct GetContinuationsQuery<'a, Q> {
     query: &'a Q,
     continuation_params: ContinuationParams<'static>,
-}
-
-impl<'a, Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'a, Q>
-where
-    Q: PostQuery,
-{
-    type Output = Q::Output;
-    type Method = PostMethod;
-}
-
-impl<'a, Q> PostQuery for GetContinuationsQuery<'a, Q>
-where
-    Q: PostQuery,
-{
-    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        self.query.header()
-    }
-    fn params(&self) -> Option<Cow<str>> {
-        Some(Cow::Borrowed(&self.continuation_params.get_raw()))
-    }
-    fn path(&self) -> &str {
-        self.query.path()
-    }
 }
 
 impl<'a, Q> GetContinuationsQuery<'a, Q> {

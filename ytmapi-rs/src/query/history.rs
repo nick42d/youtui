@@ -38,8 +38,8 @@ impl PostQuery for GetHistoryQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_history"))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -55,8 +55,8 @@ impl<'a> PostQuery for RemoveHistoryItemsQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(self.feedback_tokens))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "feedback"

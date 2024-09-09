@@ -183,8 +183,8 @@ pub mod album {
         fn path(&self) -> &str {
             "browse"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+            vec![]
         }
     }
     impl<'a> GetAlbumQuery<'_> {
@@ -225,8 +225,8 @@ pub mod lyrics {
         fn path(&self) -> &str {
             "browse"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+            vec![]
         }
     }
     impl<'a> GetLyricsQuery<'a> {
@@ -307,8 +307,8 @@ pub mod watch {
         fn path(&self) -> &str {
             "next"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
     }
     impl<'a> GetWatchPlaylistQuery<VideoID<'a>> {
@@ -348,6 +348,8 @@ pub mod watch {
 }
 
 pub mod rate {
+    use std::borrow::Cow;
+
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
@@ -389,8 +391,8 @@ pub mod rate {
                 json!({"videoId" : self.video_id.get_raw()} ),
             )])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             like_endpoint(&self.rating)
@@ -410,8 +412,8 @@ pub mod rate {
                 json!({"playlistId" : self.playlist_id.get_raw()} ),
             )])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             like_endpoint(&self.rating)
@@ -433,6 +435,7 @@ pub mod song {
     use crate::common::VideoID;
     use crate::{auth::AuthToken, common::SongTrackingUrl, Result};
     use serde_json::json;
+    use std::borrow::Cow;
     use std::time::SystemTime;
 
     pub struct GetSongTrackingUrlQuery<'a> {
@@ -474,8 +477,8 @@ pub mod song {
                 ("video_id".to_string(), json!(self.video_id)),
             ])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             "player"
