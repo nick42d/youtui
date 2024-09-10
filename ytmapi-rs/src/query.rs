@@ -23,8 +23,8 @@
 //!     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
 //!         serde_json::Map::from_iter([("get_date".to_string(), serde_json::json!("YYYYMMDD"))])
 //!     }
-//!     fn params(&self) -> Option<std::borrow::Cow<str>> {
-//!         None
+//!     fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+//!         vec![]
 //!     }
 //!     fn path(&self) -> &str {
 //!         "date"
