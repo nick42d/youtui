@@ -1109,25 +1109,3 @@ impl<'a> ParseFrom<GetSearchSuggestionsQuery<'a>> for Vec<SearchSuggestion> {
         Ok(results)
     }
 }
-
-fn get_reloadable_continuation_params(json: &mut JsonCrawlerBorrowed) -> Result<String> {
-    let ctoken = json.take_value_pointer("/continuations/0/reloadContinuationData/continuation")?;
-    Ok(get_continuation_string(ctoken))
-}
-
-fn get_continuation_params(
-    json: &mut JsonCrawlerBorrowed,
-    ctoken_path: Option<&str>,
-) -> Result<String> {
-    let ctoken = if let Some(ctoken_path) = ctoken_path {
-        let key = format!("/continuations/0/next{ctoken_path}/ContinuationData/continuation");
-        json.take_value_pointer(key)?
-    } else {
-        json.take_value_pointer("/continuations/0/next/ContinuationData/continuation")?
-    };
-    Ok(get_continuation_string(ctoken))
-}
-
-fn get_continuation_string(ctoken: String) -> String {
-    format!("&ctoken={0}&continuation={0}", ctoken)
-}
