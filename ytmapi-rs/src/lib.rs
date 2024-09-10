@@ -60,15 +60,15 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
-use parse::ParseFrom;
-use query::{Continuable, GetContinuationsQuery, Query, QueryMethod, StreamingQuery};
+use futures::Stream;
+use parse::{Continuable, ParseFrom};
+use query::{GetContinuationsQuery, PostQuery, Query, QueryMethod};
 use std::{
     borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
     pin::pin,
 };
-use tokio_stream::Stream;
 
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
@@ -270,19 +270,35 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
         Q::Output::parse_from(self.processed_query(query.borrow()).await?)
     }
-    // Stream is tied to the lifetime of self, since it's self's client that will
-    // emit the results. It's also tied to the lifetime of query, but ideally it
-    // could take either owned or borrowed query.
-    pub fn stream<'a, Q: StreamingQuery<'a, A>>(
-        &'a self,
-        query: &'a Q,
-    ) -> impl Stream<Item = Result<Q::Output>> + 'a
+    /// Stream a query that has 'continuations', i.e can continue to stream
+    /// results. This function has quite complicated trait bounds. To step
+    /// through them;
+    /// - query must meet the standard trait bounds for a query - Q: Query<A:
+    ///   AuthToken>.
+    /// - only PostQuery queries can be streamed - therefore we add the trait
+    ///   bound Q: PostQuery - this simplifies code within this function.
+    /// - a query can only be streamed if the output is Continuable - therefore
+    ///   we specify Q::Output: Continuable<Q>.
+    /// # Return type lifetime notes
+    /// Stream is tied to the lifetime of self, since it's self's client that
+    /// will emit the results. It's also tied to the lifetime of query, but
+    /// ideally it could take either owned or borrowed query.
+    /// # Usage
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
+    /// let query = ytmapi_rs::query::GetLibrarySongsQuery;
+    /// let results = yt.stream(query).collect::<Vec<_>>().await;
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub fn stream<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<Q::Output>> + 'a
     where
-        Q::Output: Continuable,
-        // May be able to be encoded in StreamingQuery itself
-        Q::Output: ParseFrom<GetContinuationsQuery<'a, Q>>,
+        Q: Query<A>,
+        Q: PostQuery,
+        Q::Output: Continuable<Q>,
     {
-        query.stream(&self.client, &self.token)
+        query::stream(query, &self.client, &self.token)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for

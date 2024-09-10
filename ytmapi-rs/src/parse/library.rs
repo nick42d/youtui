@@ -1,8 +1,8 @@
 use super::{
-    parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
-    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, MENU_LIKE_STATUS,
-    MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
-    _SECTION_LIST_CONTINUATION,
+    parse_flex_column_item, parse_library_management_items_from_menu, Continuable, ParseFrom,
+    ProcessedResult, SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS,
+    MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
+    SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::{
     ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
@@ -14,7 +14,7 @@ use crate::nav_consts::{
 };
 use crate::process::fixed_column_item_pointer;
 use crate::query::{
-    Continuable, EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
+    EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery,
 };
@@ -35,15 +35,10 @@ pub struct GetLibraryArtistSubscription {
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Very similar to LibraryArtist struct
+// Intentionally not marked non_exhaustive - not expected to change.
 pub struct GetLibrarySongs {
     pub songs: Vec<TableListSong>,
-    continuation_params: Option<ContinuationParams<'static>>,
-}
-
-impl Continuable for GetLibrarySongs {
-    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
-        self.continuation_params.take()
-    }
+    pub continuation_params: Option<ContinuationParams<'static>>,
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -87,35 +82,6 @@ impl ParseFrom<GetLibrarySongsQuery> for GetLibrarySongs {
     }
 }
 
-impl<'a> ParseFrom<GetContinuationsQuery<'a, GetLibrarySongsQuery>> for GetLibrarySongs {
-    fn parse_from(
-        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
-    ) -> Result<Self> {
-        let json_crawler: JsonCrawlerOwned = p.into();
-        let mut music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
-        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
-        let songs = music_shelf
-            .navigate_pointer("/contents")?
-            .try_into_iter()?
-            .map(|mut item| {
-                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
-                    return Ok(None);
-                };
-                let title = super::parse_flex_column_item(&mut data, 0, 0)?;
-                if title == "Shuffle all" {
-                    return Ok(None);
-                }
-                Ok(Some(parse_table_list_song(title, data)?))
-            })
-            .filter_map(Result::transpose)
-            .collect::<Result<_>>()?;
-        Ok(GetLibrarySongs {
-            songs,
-            continuation_params,
-        })
-    }
-}
-
 impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
     fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> Result<Self> {
         // TODO: Continuations
@@ -152,6 +118,38 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
         // TODO: Implement count and author fields
         let json_crawler = p.into();
         parse_library_playlist_query(json_crawler)
+    }
+}
+
+impl Continuable<GetLibrarySongsQuery> for GetLibrarySongs {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation<'a>(
+        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let mut music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let songs = music_shelf
+            .navigate_pointer("/contents")?
+            .try_into_iter()?
+            .map(|mut item| {
+                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
+                    return Ok(None);
+                };
+                let title = super::parse_flex_column_item(&mut data, 0, 0)?;
+                if title == "Shuffle all" {
+                    return Ok(None);
+                }
+                Ok(Some(parse_table_list_song(title, data)?))
+            })
+            .filter_map(Result::transpose)
+            .collect::<Result<_>>()?;
+        Ok(GetLibrarySongs {
+            songs,
+            continuation_params,
+        })
     }
 }
 
