@@ -1,11 +1,10 @@
-use super::{PostMethod, PostQuery, Query, QueryMethod};
+use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ContinuationParams, YoutubeID},
-    parse::{Continuable, ParseFrom},
-    Result,
+    continuations::Continuable,
+    parse::ParseFrom,
 };
-use futures::Stream;
 use std::{borrow::Cow, vec::Vec};
 
 pub struct GetContinuationsQuery<'a, Q> {
@@ -14,7 +13,7 @@ pub struct GetContinuationsQuery<'a, Q> {
 }
 
 impl<'a, Q> GetContinuationsQuery<'a, Q> {
-    pub fn new<T: crate::parse::Continuable<Q>>(
+    pub fn new<T: Continuable<Q>>(
         res: &'_ mut T,
         query: &'a Q,
     ) -> Option<GetContinuationsQuery<'a, Q>> {
@@ -49,61 +48,4 @@ where
     fn path(&self) -> &str {
         self.query.path()
     }
-}
-
-/// Stream a query that can be streamed.
-/// This function has quite complicated trait bounds. To step through them;
-/// - query must meet the standard trait bounds for a query - Q: Query<A:
-///   AuthToken>.
-/// - only PostQuery queries can be streamed - therefore we add the trait bound
-///   Q: PostQuery - this simplifies code within this function.
-/// - since queries may capture a lifetime (e.g a RateSongQuery<'a>), we specify
-///   the captured lifetime as Q: 'a - TBC
-/// - a query can only be streamed if the output is Continuable - therefore we
-///   specify Q::Output: Continuable<Q>.
-pub(crate) fn stream<'a, Q, A>(
-    query: &'a Q,
-    client: &'a crate::client::Client,
-    tok: &'a A,
-) -> impl Stream<Item = Result<Q::Output>> + 'a
-where
-    A: AuthToken,
-    Q: Query<A>,
-    Q: PostQuery,
-    Q::Output: Continuable<Q>,
-{
-    futures::stream::unfold(
-        (false, None::<GetContinuationsQuery<Q>>),
-        move |(first, maybe_next_query)| async move {
-            if !first {
-                let first_res: Result<Q::Output> = Q::Method::call(query, client, tok)
-                    .await
-                    .and_then(|res| res.process())
-                    .and_then(|res| res.parse_into());
-                match first_res {
-                    Ok(mut first) => {
-                        let maybe_next_query = GetContinuationsQuery::<Q>::new(&mut first, query);
-                        return Some((Ok(first), (true, maybe_next_query)));
-                    }
-                    Err(e) => return Some((Err(e), (true, None))),
-                }
-            }
-            if let Some(next_query) = maybe_next_query {
-                let next = next_query
-                    .call_this(client, tok)
-                    .await
-                    .and_then(|res| res.process())
-                    .and_then(|res| res.parse_into());
-
-                match next {
-                    Ok(mut next) => {
-                        let maybe_next_query = GetContinuationsQuery::<Q>::new(&mut next, query);
-                        return Some((Ok(next), (true, maybe_next_query)));
-                    }
-                    Err(e) => return Some((Err(e), (true, None))),
-                }
-            }
-            None
-        },
-    )
 }

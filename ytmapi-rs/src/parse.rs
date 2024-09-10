@@ -37,7 +37,6 @@ use std::fmt::Debug;
 
 pub use album::*;
 pub use artist::*;
-pub use continuations::*;
 pub use history::*;
 pub use library::*;
 pub use lyrics::*;
@@ -50,7 +49,6 @@ pub use watch::*;
 
 mod album;
 mod artist;
-mod continuations;
 mod history;
 mod library;
 mod playlists;

@@ -70,16 +70,6 @@ mod private {
 pub trait Query<A: AuthToken>: Sized {
     type Output: ParseFrom<Self>;
     type Method: QueryMethod<Self, A, Self::Output>;
-    fn call_this<'a>(
-        &'a self,
-        client: &crate::client::Client,
-        tok: &A,
-    ) -> impl Future<Output = Result<RawResult<'a, Self, A>>>
-    where
-        Self: Sized,
-    {
-        Self::Method::call(self, client, tok)
-    }
 }
 
 /// Represents a plain POST query that can be sent to Innertube.

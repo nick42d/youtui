@@ -60,14 +60,14 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
+use continuations::Continuable;
 use futures::Stream;
-use parse::{Continuable, ParseFrom};
-use query::{GetContinuationsQuery, PostQuery, Query, QueryMethod};
+use parse::ParseFrom;
+use query::{PostQuery, Query, QueryMethod};
 use std::{
     borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
-    pin::pin,
 };
 
 #[doc(inline)]
@@ -91,6 +91,7 @@ pub mod auth;
 pub mod builder;
 pub mod client;
 pub mod common;
+pub mod continuations;
 pub mod error;
 pub mod json;
 pub mod parse;
@@ -298,7 +299,7 @@ impl<A: AuthToken> YtMusic<A> {
         Q: PostQuery,
         Q::Output: Continuable<Q>,
     {
-        query::stream(query, &self.client, &self.token)
+        continuations::stream(query, &self.client, &self.token)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
