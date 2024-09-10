@@ -272,24 +272,19 @@ impl<A: AuthToken> YtMusic<A> {
         Q::Output::parse_from(self.processed_query(query.borrow()).await?)
     }
     /// Stream a query that has 'continuations', i.e can continue to stream
-    /// results. This function has quite complicated trait bounds. To step
-    /// through them;
-    /// - query must meet the standard trait bounds for a query - Q: Query<A:
-    ///   AuthToken>.
-    /// - only PostQuery queries can be streamed - therefore we add the trait
-    ///   bound Q: PostQuery - this simplifies code within this function.
-    /// - a query can only be streamed if the output is Continuable - therefore
-    ///   we specify Q::Output: Continuable<Q>.
+    /// results.
     /// # Return type lifetime notes
-    /// Stream is tied to the lifetime of self, since it's self's client that
-    /// will emit the results. It's also tied to the lifetime of query, but
-    /// ideally it could take either owned or borrowed query.
+    /// The returned Impl Stream is tied to the lifetime of self, since it's
+    /// self's client that will emit the results. It's also tied to the
+    /// lifetime of query, but ideally it could take either owned or
+    /// borrowed query.
     /// # Usage
     /// ```no_run
+    /// use futures::stream::StreamExt;
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
-    /// let query = ytmapi_rs::query::GetLibrarySongsQuery;
-    /// let results = yt.stream(query).collect::<Vec<_>>().await;
+    /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
+    /// let results = yt.stream(&query).collect::<Vec<_>>().await;
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
