@@ -1,6 +1,7 @@
-use std::{env, path::Path};
+use std::{cell::RefCell, collections::VecDeque, env, path::Path, rc::Rc};
 use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken}, Result, YtMusic,
+    auth::{AuthToken, BrowserToken, OAuthToken},
+    ProcessedResult, RawResult, Result, YtMusic,
 };
 
 pub const COOKIE_PATH: &str = "cookie.txt";
@@ -63,6 +64,42 @@ macro_rules! generate_query_test {
                 api.query($query)
                     .await
                     .expect("Expected query to run succesfully under browser auth");
+            };
+            tokio::join!(oauth_future, browser_auth_future);
+        }
+    };
+}
+
+/// Macro to generate both oauth and browser tests for provided query.
+/// May not really need a macro for this, could use a function.
+// TODO: generalise
+macro_rules! generate_stream_test {
+    ($fname:ident,$query:expr) => {
+        #[tokio::test]
+        async fn $fname() {
+            use futures::stream::TryStreamExt;
+            let oauth_future = async {
+                let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+                // Don't stuff around trying the keep the local OAuth secret up to date, just
+                // refresh it each time.
+                api.refresh_token().await.unwrap();
+                let query = $query;
+                let stream = api.stream(&query);
+                tokio::pin!(stream);
+                stream
+                    .try_collect::<Vec<_>>()
+                    .await
+                    .expect("Expected all results from oauth stream to suceed");
+            };
+            let browser_auth_future = async {
+                let api = crate::utils::new_standard_api().await.unwrap();
+                let query = $query;
+                let stream = api.stream(&query);
+                tokio::pin!(stream);
+                stream
+                    .try_collect::<Vec<_>>()
+                    .await
+                    .expect("Expected all results from oauth stream to suceed");
             };
             tokio::join!(oauth_future, browser_auth_future);
         }

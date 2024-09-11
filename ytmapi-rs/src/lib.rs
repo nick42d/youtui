@@ -280,11 +280,11 @@ impl<A: AuthToken> YtMusic<A> {
     /// borrowed query.
     /// # Usage
     /// ```no_run
-    /// use futures::stream::StreamExt;
+    /// use futures::stream::TryStreamExt;
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
     /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
-    /// let results = yt.stream(&query).collect::<Vec<_>>().await;
+    /// let results = yt.stream(&query).try_collect::<Vec<_>>().await?;
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```

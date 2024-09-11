@@ -46,6 +46,7 @@ pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impression
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
 pub const MUSIC_SHELF_CONTINUATION: &str = "/continuationContents/musicShelfContinuation";
+pub const GRID_CONTINUATION: &str = "/continuationContents/gridContinuation";
 pub const CONTINUATION_PARAMS: &str = "/continuations/0/nextContinuationData/continuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const VISUAL_HEADER: &str = "/header/musicVisualHeaderRenderer";

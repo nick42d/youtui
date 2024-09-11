@@ -3,7 +3,7 @@ use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
     parse::{
-        GetLibraryArtistSubscription, GetLibrarySongs, LibraryArtist, LibraryPlaylist,
+        GetLibrarySongs, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist,
         SearchResultAlbum, TableListSong,
     },
 };
@@ -192,7 +192,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
-    type Output = Vec<GetLibraryArtistSubscription>;
+    type Output = Vec<LibraryArtistSubscription>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistSubscriptionsQuery {

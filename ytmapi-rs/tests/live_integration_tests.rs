@@ -88,10 +88,29 @@ async fn test_new() {
     new_standard_api().await.unwrap();
     new_standard_oauth_api().await.unwrap();
 }
+//// BASIC STREAM TESTS
+generate_stream_test!(
+    test_stream_get_library_songs,
+    GetLibrarySongsQuery::default()
+);
+generate_stream_test!(
+    test_stream_get_library_artist_subscriptions,
+    GetLibraryArtistSubscriptionsQuery::default()
+);
+generate_stream_test!(test_stream_get_library_playlists, GetLibraryPlaylistsQuery);
+generate_stream_test!(
+    test_stream_get_library_albums,
+    GetLibraryAlbumsQuery::default()
+);
+generate_stream_test!(
+    test_stream_get_library_artists,
+    GetLibraryArtistsQuery::default()
+);
 generate_query_test!(
     test_search_suggestions,
     GetSearchSuggestionsQuery::new("faded")
 );
+
 generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
@@ -126,6 +145,10 @@ generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
 generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+);
+generate_query_test!(
+    test_get_artist,
+    GetArtistQuery::new(ChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
 generate_query_test!(
     test_get_library_upload_songs,
@@ -202,6 +225,156 @@ generate_query_test!(
     test_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
+
+//// MULTISTAGE TESTS
+
+#[tokio::test]
+async fn test_get_mood_playlists() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_mood_playlist = browser_api
+        .query(GetMoodCategoriesQuery)
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .unwrap()
+        .mood_categories
+        .into_iter()
+        .next()
+        .unwrap();
+    let query = GetMoodPlaylistsQuery::new(first_mood_playlist.params);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to
+        //date, just refresh it each time.
+        api.refresh_token().await.unwrap();
+        api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
+
+#[tokio::test]
+async fn test_get_library_upload_artist() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_artist = browser_api
+        .query(GetLibraryUploadArtistsQuery::default())
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .expect("To run this test, you will need to upload songs from at least one artist");
+    let query = GetLibraryUploadArtistQuery::new(first_artist.artist_id);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to date, just
+        // refresh it each time.
+        api.refresh_token().await.unwrap();
+        let _ = api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
+#[tokio::test]
+async fn test_get_library_upload_album() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let first_album = browser_api
+        .query(GetLibraryUploadAlbumsQuery::default())
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .expect("To run this test, you will need to upload songs from at least one album");
+    let query = GetLibraryUploadAlbumQuery::new(first_album.album_id);
+    let oauth_fut = async {
+        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+        // Don't stuff around trying the keep the local OAuth secret up to date, just
+        // refresh it each time.
+        api.refresh_token().await.unwrap();
+        let _ = api.query(query.clone()).await.unwrap();
+    };
+    let browser_fut = async {
+        browser_api.query(query.clone()).await.unwrap();
+    };
+    tokio::join!(oauth_fut, browser_fut);
+}
+
+#[tokio::test]
+async fn test_get_artist_albums() {
+    let now = std::time::Instant::now();
+    let api = new_standard_api().await.unwrap();
+    println!("API took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let q = GetArtistQuery::new(ChannelID::from_raw(
+        // Metallica
+        "UCGexNm_Kw4rdQjLxmpb2EKw",
+    ));
+    let res = api.raw_query(&q).await.unwrap();
+    println!("Get artist took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let res = res.process().unwrap();
+    let res: ArtistParams = ParseFrom::parse_from(res).unwrap();
+    println!("Parse artist took {} ms", now.elapsed().as_millis());
+    let _now = std::time::Instant::now();
+    let albums = res.top_releases.albums.unwrap();
+    let params = albums.params.unwrap();
+    let channel_id = albums.browse_id.unwrap();
+    api.get_artist_albums(channel_id, params).await.unwrap();
+    let now = std::time::Instant::now();
+    println!("Get albums took {} ms", now.elapsed().as_millis());
+}
+
+#[tokio::test]
+async fn test_get_artist_album_songs() {
+    let now = std::time::Instant::now();
+    let api = new_standard_api().await.unwrap();
+    println!("API took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let q = GetArtistQuery::new(ChannelID::from_raw(
+        // Metallica
+        "UCGexNm_Kw4rdQjLxmpb2EKw",
+    ));
+    let res = api.raw_query(&q).await.unwrap();
+    println!("Get artist took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    // TODO: fix temporary value dropped while borrowed error.
+    // This won't compile:
+    // let res = res.process().unwrap().parse().unwrap();
+    let res = res.process().unwrap();
+    let res = ArtistParams::parse_from(res).unwrap();
+    println!("Parse artist took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let albums = res.top_releases.albums.unwrap();
+    let params = albums.params.unwrap();
+    let channel_id = &albums.browse_id.unwrap();
+    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
+    let res = api.raw_query(&q).await.unwrap();
+    println!("Get albums took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let res = res.process().unwrap();
+    let res: Vec<GetArtistAlbumsAlbum> = ParseFrom::parse_from(res).unwrap();
+    println!("Process albums took {} ms", now.elapsed().as_millis());
+    let now = std::time::Instant::now();
+    let browse_id = &res[0].browse_id;
+    let q = GetAlbumQuery::new(browse_id.clone());
+    let res = api.raw_query(&q).await.unwrap();
+    println!(
+        "Get album {} took {} ms",
+        browse_id.get_raw(),
+        now.elapsed().as_millis()
+    );
+    let now = std::time::Instant::now();
+    let res = res.process().unwrap();
+    let _ = GetAlbum::parse_from(res).unwrap();
+    println!("Process album took {} ms", now.elapsed().as_millis());
+}
+
+//// STATEFUL TESTS
+
 #[tokio::test]
 async fn test_add_remove_history_items() {
     // Timeout to avoid flaky test
@@ -255,79 +428,7 @@ async fn test_add_remove_history_items() {
         (song.title.as_str(), first_history_item_period_new)
     );
 }
-#[tokio::test]
-async fn test_get_mood_playlists() {
-    let browser_api = crate::utils::new_standard_api().await.unwrap();
-    let first_mood_playlist = browser_api
-        .query(GetMoodCategoriesQuery)
-        .await
-        .unwrap()
-        .into_iter()
-        .next()
-        .unwrap()
-        .mood_categories
-        .into_iter()
-        .next()
-        .unwrap();
-    let query = GetMoodPlaylistsQuery::new(first_mood_playlist.params);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to
-        //date, just refresh it each time.
-        api.refresh_token().await.unwrap();
-        api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
-}
-#[tokio::test]
-async fn test_get_library_upload_artist() {
-    let browser_api = crate::utils::new_standard_api().await.unwrap();
-    let first_artist = browser_api
-        .query(GetLibraryUploadArtistsQuery::default())
-        .await
-        .unwrap()
-        .into_iter()
-        .next()
-        .expect("To run this test, you will need to upload songs from at least one artist");
-    let query = GetLibraryUploadArtistQuery::new(first_artist.artist_id);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to date, just
-        // refresh it each time.
-        api.refresh_token().await.unwrap();
-        let _ = api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
-}
-#[tokio::test]
-async fn test_get_library_upload_album() {
-    let browser_api = crate::utils::new_standard_api().await.unwrap();
-    let first_album = browser_api
-        .query(GetLibraryUploadAlbumsQuery::default())
-        .await
-        .unwrap()
-        .into_iter()
-        .next()
-        .expect("To run this test, you will need to upload songs from at least one album");
-    let query = GetLibraryUploadAlbumQuery::new(first_album.album_id);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to date, just
-        // refresh it each time.
-        api.refresh_token().await.unwrap();
-        let _ = api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
-}
+
 #[tokio::test]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
@@ -515,6 +616,9 @@ async fn test_edit_playlist() {
     );
     api.delete_playlist(id).await.unwrap();
 }
+
+//// BASIC TESTS WITH ADDITIONAL ASSERTIONS
+
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
@@ -574,83 +678,4 @@ async fn test_get_lyrics() {
     });
     let example: Lyrics = serde_json::from_value(example).unwrap();
     assert_eq!(res, example)
-}
-#[tokio::test]
-async fn test_get_artist() {
-    let api = new_standard_api().await.unwrap();
-    let _ = api
-        .query(GetArtistQuery::new(ArtistChannelID::from_raw(
-            "UC2XdaAVUannpujzv32jcouQ",
-        )))
-        .await
-        .unwrap();
-}
-#[tokio::test]
-async fn test_get_artist_albums() {
-    let now = std::time::Instant::now();
-    let api = new_standard_api().await.unwrap();
-    println!("API took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
-        // Metallica
-        "UCGexNm_Kw4rdQjLxmpb2EKw",
-    ));
-    let res = api.raw_query(&q).await.unwrap();
-    println!("Get artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let res: ArtistParams = ParseFrom::parse_from(res).unwrap();
-    println!("Parse artist took {} ms", now.elapsed().as_millis());
-    let _now = std::time::Instant::now();
-    let albums = res.top_releases.albums.unwrap();
-    let params = albums.params.unwrap();
-    let channel_id = albums.browse_id.unwrap();
-    api.get_artist_albums(channel_id, params).await.unwrap();
-    let now = std::time::Instant::now();
-    println!("Get albums took {} ms", now.elapsed().as_millis());
-}
-
-#[tokio::test]
-async fn test_get_artist_album_songs() {
-    let now = std::time::Instant::now();
-    let api = new_standard_api().await.unwrap();
-    println!("API took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
-        // Metallica
-        "UCGexNm_Kw4rdQjLxmpb2EKw",
-    ));
-    let res = api.raw_query(&q).await.unwrap();
-    println!("Get artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    // TODO: fix temporary value dropped while borrowed error.
-    // This won't compile:
-    // let res = res.process().unwrap().parse().unwrap();
-    let res = res.process().unwrap();
-    let res = ArtistParams::parse_from(res).unwrap();
-    println!("Parse artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let albums = res.top_releases.albums.unwrap();
-    let params = albums.params.unwrap();
-    let channel_id = &albums.browse_id.unwrap();
-    let q = GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(channel_id.get_raw()), params);
-    let res = api.raw_query(&q).await.unwrap();
-    println!("Get albums took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let res: Vec<GetArtistAlbumsAlbum> = ParseFrom::parse_from(res).unwrap();
-    println!("Process albums took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let browse_id = &res[0].browse_id;
-    let q = GetAlbumQuery::new(browse_id.clone());
-    let res = api.raw_query(&q).await.unwrap();
-    println!(
-        "Get album {} took {} ms",
-        browse_id.get_raw(),
-        now.elapsed().as_millis()
-    );
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let _ = GetAlbum::parse_from(res).unwrap();
-    println!("Process album took {} ms", now.elapsed().as_millis());
 }

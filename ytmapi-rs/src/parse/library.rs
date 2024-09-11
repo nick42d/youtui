@@ -1,7 +1,8 @@
 use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
-    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, MENU_LIKE_STATUS,
-    MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, GRID_CONTINUATION,
+    MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
+    SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::{
     ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
@@ -42,6 +43,44 @@ pub struct GetLibrarySongs {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Intentionally not marked non_exhaustive - not expected to change.
+pub struct GetLibraryArtistSubscriptions {
+    pub subscriptions: Vec<LibraryArtistSubscription>,
+    pub continuation_params: Option<ContinuationParams<'static>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Intentionally not marked non_exhaustive - not expected to change.
+pub struct GetLibraryPlaylists {
+    pub playlists: Vec<LibraryPlaylist>,
+    pub continuation_params: Option<ContinuationParams<'static>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Intentionally not marked non_exhaustive - not expected to change.
+pub struct GetLibraryArtists {
+    pub artists: Vec<LibraryArtist>,
+    pub continuation_params: Option<ContinuationParams<'static>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+// Intentionally not marked non_exhaustive - not expected to change.
+pub struct GetLibraryAlbums {
+    pub albums: Vec<SearchResultAlbum>,
+    pub continuation_params: Option<ContinuationParams<'static>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+// Very similar to LibraryArtist struct
+pub struct LibraryArtistSubscription {
+    pub name: String,
+    pub subscribers: String,
+    pub channel_id: ChannelID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct LibraryPlaylist {
     pub playlist_id: PlaylistID<'static>,
@@ -59,34 +98,121 @@ pub struct LibraryArtist {
     pub byline: String, // e.g 16 songs or 17.8k subscribers
 }
 
-impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for Vec<GetLibraryArtistSubscription> {
+impl ParseFrom<GetLibraryArtistSubscriptionsQuery> for GetLibraryArtistSubscriptions {
     fn parse_from(p: ProcessedResult<GetLibraryArtistSubscriptionsQuery>) -> Result<Self> {
-        // TODO: Continuations
-        let json_crawler = p.into();
-        parse_library_artist_subscriptions(json_crawler)
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let music_shelf = json_crawler.navigate_pointer(concatcp!(
+            SINGLE_COLUMN_TAB,
+            SECTION_LIST_ITEM,
+            MUSIC_SHELF,
+        ))?;
+        parse_library_artist_subscriptions(music_shelf)
+    }
+}
+impl Continuable<GetLibraryArtistSubscriptionsQuery> for GetLibraryArtistSubscriptions {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryArtistSubscriptionsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        parse_library_artist_subscriptions(music_shelf)
     }
 }
 
-impl ParseFrom<GetLibraryAlbumsQuery> for Vec<SearchResultAlbum> {
+impl ParseFrom<GetLibraryAlbumsQuery> for GetLibraryAlbums {
     fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> Result<Self> {
-        // TODO: Continuations
-        let json_crawler = p.into();
-        parse_library_albums(json_crawler)
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let grid_items = json_crawler.navigate_pointer(concatcp!(
+            SINGLE_COLUMN_TAB,
+            SECTION_LIST_ITEM,
+            GRID_ITEMS
+        ))?;
+        parse_library_albums(grid_items)
+    }
+}
+impl Continuable<GetLibraryAlbumsQuery> for GetLibraryAlbums {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryAlbumsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let grid_items = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
+        parse_library_albums(grid_items)
     }
 }
 
 impl ParseFrom<GetLibrarySongsQuery> for GetLibrarySongs {
     fn parse_from(p: ProcessedResult<GetLibrarySongsQuery>) -> Result<Self> {
-        let json_crawler = p.into();
-        parse_library_songs(json_crawler)
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let music_shelf = json_crawler.navigate_pointer(concatcp!(
+            SINGLE_COLUMN_TAB,
+            SECTION_LIST_ITEM,
+            MUSIC_SHELF,
+        ))?;
+        parse_library_songs(music_shelf)
     }
 }
 
-impl ParseFrom<GetLibraryArtistsQuery> for Vec<LibraryArtist> {
+impl Continuable<GetLibrarySongsQuery> for GetLibrarySongs {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation<'a>(
+        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        parse_library_songs(music_shelf)
+    }
+}
+
+impl ParseFrom<GetLibraryArtistsQuery> for GetLibraryArtists {
     fn parse_from(p: ProcessedResult<GetLibraryArtistsQuery>) -> Result<Self> {
-        // TODO: Continuations
         let json_crawler = p.into();
-        parse_library_artists(json_crawler)
+        let maybe_music_shelf = process_library_contents_music_shelf(json_crawler);
+        if let Some(music_shelf) = maybe_music_shelf {
+            parse_content_list_artists(music_shelf)
+        } else {
+            Ok(GetLibraryArtists {
+                artists: Vec::new(),
+                continuation_params: None,
+            })
+        }
+    }
+}
+impl Continuable<GetLibraryArtistsQuery> for GetLibraryArtists {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryArtistsQuery>>,
+    ) -> Result<Self> {
+        let json_crawler = JsonCrawlerOwned::from(p);
+        let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        parse_content_list_artists(music_shelf)
+    }
+}
+
+impl ParseFrom<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
+    fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> Result<Self> {
+        // TODO: Implement count and author fields
+        let json_crawler = p.into();
+        parse_library_playlist_query(json_crawler)
+    }
+}
+impl Continuable<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
+    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
+        self.continuation_params.take()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPlaylistsQuery>>,
+    ) -> Result<Self> {
+        todo!()
     }
 }
 
@@ -112,65 +238,20 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 
-impl ParseFrom<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
-    fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> Result<Self> {
-        // TODO: Continuations
-        // TODO: Implement count and author fields
-        let json_crawler = p.into();
-        parse_library_playlist_query(json_crawler)
-    }
-}
-
-impl Continuable<GetLibrarySongsQuery> for GetLibrarySongs {
-    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
-        self.continuation_params.take()
-    }
-    fn parse_continuation<'a>(
-        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
-    ) -> Result<Self> {
-        let json_crawler: JsonCrawlerOwned = p.into();
-        let mut music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
-        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
-        let songs = music_shelf
-            .navigate_pointer("/contents")?
-            .try_into_iter()?
-            .map(|mut item| {
-                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
-                    return Ok(None);
-                };
-                let title = super::parse_flex_column_item(&mut data, 0, 0)?;
-                if title == "Shuffle all" {
-                    return Ok(None);
-                }
-                Ok(Some(parse_table_list_song(title, data)?))
-            })
-            .filter_map(Result::transpose)
-            .collect::<Result<_>>()?;
-        Ok(GetLibrarySongs {
-            songs,
-            continuation_params,
-        })
-    }
-}
-
-fn parse_library_albums(
-    json_crawler: JsonCrawlerOwned,
-) -> std::prelude::v1::Result<Vec<SearchResultAlbum>, crate::Error> {
-    let items = json_crawler.navigate_pointer(concatcp!(
-        SINGLE_COLUMN_TAB,
-        SECTION_LIST_ITEM,
-        GRID_ITEMS
-    ))?;
-    items.try_into_iter()?.map(parse_item_list_album).collect()
+fn parse_library_albums(mut grid_items: JsonCrawlerOwned) -> Result<GetLibraryAlbums> {
+    let continuation_params = grid_items.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let songs = grid_items
+        .try_into_iter()?
+        .map(parse_item_list_album)
+        .collect::<Result<_>>()?;
+    Ok(GetLibraryAlbums {
+        albums: songs,
+        continuation_params,
+    })
 }
 fn parse_library_songs(
-    json_crawler: JsonCrawlerOwned,
+    mut music_shelf: JsonCrawlerOwned,
 ) -> std::prelude::v1::Result<GetLibrarySongs, crate::Error> {
-    let mut music_shelf = json_crawler.navigate_pointer(concatcp!(
-        SINGLE_COLUMN_TAB,
-        SECTION_LIST_ITEM,
-        MUSIC_SHELF,
-    ))?;
     let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
     let songs = music_shelf
         .navigate_pointer("/contents")?
@@ -193,29 +274,21 @@ fn parse_library_songs(
     })
 }
 fn parse_library_artist_subscriptions(
-    json_crawler: JsonCrawlerOwned,
-) -> std::prelude::v1::Result<Vec<GetLibraryArtistSubscription>, crate::Error> {
-    let contents = json_crawler.navigate_pointer(concatcp!(
-        SINGLE_COLUMN_TAB,
-        SECTION_LIST_ITEM,
-        MUSIC_SHELF,
-        "/contents"
-    ))?;
-    contents
+    mut music_shelf: JsonCrawlerOwned,
+) -> Result<GetLibraryArtistSubscriptions> {
+    let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS)?;
+    let songs = music_shelf
+        .navigate_pointer("/contents")?
         .try_into_iter()?
         .map(parse_content_list_artist_subscription)
-        .collect()
+        .collect::<Result<_>>()?;
+    Ok(GetLibraryArtistSubscriptions {
+        subscriptions: songs,
+        continuation_params,
+    })
 }
 
-fn parse_library_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryArtist>> {
-    if let Some(contents) = process_library_contents_music_shelf(json_crawler) {
-        parse_content_list_artists(contents)
-    } else {
-        Ok(Vec::new())
-    }
-}
-
-fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
+fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<GetLibraryPlaylists> {
     if let Some(contents) = process_library_contents_grid(json_crawler) {
         parse_content_list_playlist(contents)
     } else {
@@ -290,13 +363,13 @@ fn parse_item_list_album(mut json_crawler: JsonCrawlerOwned) -> Result<SearchRes
 
 fn parse_content_list_artist_subscription(
     mut json_crawler: JsonCrawlerOwned,
-) -> Result<GetLibraryArtistSubscription> {
+) -> Result<LibraryArtistSubscription> {
     let mut data = json_crawler.borrow_pointer(MRLIR)?;
     let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
     let name = parse_flex_column_item(&mut data, 0, 0)?;
     let subscribers = parse_flex_column_item(&mut data, 1, 0)?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
-    Ok(GetLibraryArtistSubscription {
+    Ok(LibraryArtistSubscription {
         name,
         subscribers,
         channel_id,
@@ -304,20 +377,27 @@ fn parse_content_list_artist_subscription(
     })
 }
 
-fn parse_content_list_artists(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryArtist>> {
-    let mut results = Vec::new();
-    for result in json_crawler.navigate_pointer("/contents")?.try_iter_mut()? {
-        let mut data = result.navigate_pointer(MRLIR)?;
-        let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-        let artist = parse_flex_column_item(&mut data, 0, 0)?;
-        let byline = parse_flex_column_item(&mut data, 1, 0)?;
-        results.push(LibraryArtist {
-            channel_id,
-            artist,
-            byline,
+fn parse_content_list_artists(mut json_crawler: JsonCrawlerOwned) -> Result<GetLibraryArtists> {
+    let continuation_params = json_crawler.take_value_pointer(CONTINUATION_PARAMS)?;
+    let songs = json_crawler
+        .navigate_pointer("/contents")?
+        .try_iter_mut()?
+        .map(|item| {
+            let mut data = item.navigate_pointer(MRLIR)?;
+            let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let artist = parse_flex_column_item(&mut data, 0, 0)?;
+            let byline = parse_flex_column_item(&mut data, 1, 0)?;
+            Ok(LibraryArtist {
+                channel_id,
+                artist,
+                byline,
+            })
         })
-    }
-    Ok(results)
+        .collect::<Result<_>>()?;
+    Ok(GetLibraryArtists {
+        artists: songs,
+        continuation_params,
+    })
 }
 
 fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result<TableListSong> {
@@ -410,7 +490,11 @@ fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<Lib
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::BrowserToken;
+    use crate::{
+        auth::BrowserToken,
+        common::{ContinuationParams, YoutubeID},
+        parse::GetLibrarySongs,
+    };
 
     // Consider if the parse function itself should be removed from impl.
     #[tokio::test]
@@ -418,6 +502,15 @@ mod tests {
         parse_test!(
             "./test_json/get_library_playlists.json",
             "./test_json/get_library_playlists_output.txt",
+            crate::query::GetLibraryPlaylistsQuery,
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_playlists_continuation() {
+        parse_continuations_test!(
+            "./test_json/get_library_playlists_continuation_20240910.json",
+            "./test_json/get_library_playlists_continuation_20240910_output.txt",
             crate::query::GetLibraryPlaylistsQuery,
             BrowserToken
         );
@@ -432,10 +525,28 @@ mod tests {
         );
     }
     #[tokio::test]
+    async fn test_get_library_artists_continuation() {
+        parse_continuations_test!(
+            "./test_json/get_library_artists_continuation_20240910.json",
+            "./test_json/get_library_artists_continuation_20240910_output.txt",
+            crate::query::GetLibraryArtistsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
     async fn test_get_library_albums() {
         parse_test!(
             "./test_json/get_library_albums_20240701.json",
             "./test_json/get_library_albums_20240701_output.txt",
+            crate::query::GetLibraryAlbumsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_albums_continuation() {
+        parse_continuations_test!(
+            "./test_json/get_library_albums_continuation_20240910.json",
+            "./test_json/get_library_albums_continuation_20240910_output.txt",
             crate::query::GetLibraryAlbumsQuery::default(),
             BrowserToken
         );
@@ -450,10 +561,28 @@ mod tests {
         );
     }
     #[tokio::test]
+    async fn test_get_library_songs_continuation() {
+        parse_continuations_test!(
+            "./test_json/get_library_songs_continuation_20240910.json",
+            "./test_json/get_library_songs_continuation_20240910_output.txt",
+            crate::query::GetLibrarySongsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
     async fn test_get_library_artist_subscriptions() {
         parse_test!(
             "./test_json/get_library_artist_subscriptions_20240701.json",
             "./test_json/get_library_artist_subscriptions_20240701_output.txt",
+            crate::query::GetLibraryArtistSubscriptionsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_artist_subscriptions_continuation() {
+        parse_continuations_test!(
+            "./test_json/get_library_artist_subscriptions_continuation_20240910.json",
+            "./test_json/get_library_artist_subscriptions_continuation_20240910_output.txt",
             crate::query::GetLibraryArtistSubscriptionsQuery::default(),
             BrowserToken
         );

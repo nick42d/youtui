@@ -15,8 +15,8 @@ use crate::common::{
 };
 use crate::common::{LikeStatus, TasteToken};
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryArtistSubscription,
-    GetPlaylist, HistoryPeriod, LibraryArtist, LibraryPlaylist, Lyrics, SearchResultAlbum,
+    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylist, HistoryPeriod,
+    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, SearchResultAlbum,
     SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
     TableListSong, WatchPlaylist,
@@ -381,9 +381,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_artist_subscriptions().await;
     /// # };
-    pub async fn get_library_artist_subscriptions(
-        &self,
-    ) -> Result<Vec<GetLibraryArtistSubscription>> {
+    pub async fn get_library_artist_subscriptions(&self) -> Result<Vec<LibraryArtistSubscription>> {
         let query = GetLibraryArtistSubscriptionsQuery::default();
         self.query(query).await
     }

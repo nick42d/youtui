@@ -29,7 +29,8 @@ sha1 = "0.10.6"
 const_format = "0.2.32"
 chrono = "0.4.38"
 rand = "0.8.5"
-futures = "0.3.30"
+# Futures `executor` feature is not required.
+futures = { version = "0.3.30", features = ["async-await", "std"] }
 
 [features]
 default = ["default-tls", "simplified-queries"]

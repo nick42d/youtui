@@ -14,6 +14,8 @@ use std::fmt::Debug;
 /// It will contain continuation params, and a parsing function for its
 /// continuations.
 // TODO: Implementation example.
+// TODO: Documement _why_ we need to take_continuation_params and we can't just
+// use a reference.
 pub trait Continuable<Q>: Sized {
     fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>>;
     fn parse_continuation(p: ProcessedResult<GetContinuationsQuery<'_, Q>>) -> Result<Self>;

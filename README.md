@@ -79,9 +79,9 @@ Chrome example (Select manually and paste):
 ### API
 - [x] Document public API
 - [x] OAuth authentication
+- [x] Implement endpoint continuations
 - [ ] Implement all endpoints
 - [ ] Automatically update User Agent using a library
-- [ ] Implement endpoint continuations
 - [ ] i18n
 
 Feature parity with `ytmusicapi`
@@ -105,11 +105,11 @@ Feature parity with `ytmusicapi`
 |GetMoodPlaylists|[x]||
 |GetCharts|Not Planned*||
 |GetWatchPlaylist|[x]\*|[ ]|
-|GetLibraryPlaylists|[x]|[ ]|
+|GetLibraryPlaylists|[x]|[x]|
 |GetLibrarySongs|[x]|[x]|
-|GetLibraryAlbums|[x]|[ ]|
-|GetLibraryArtists|[x]|[ ]|
-|GetLibrarySubscriptions|[x]|[ ]|
+|GetLibraryAlbums|[x]|[x]|
+|GetLibraryArtists|[x]|[x]|
+|GetLibrarySubscriptions|[x]|[x]|
 |GetLibraryPodcasts|[ ]|[ ]|
 |GetLibraryChannels|[ ]|[ ]|
 |GetLikedSongs|[ ]|[ ]|
