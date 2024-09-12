@@ -125,12 +125,9 @@ impl Continuable<GetLibraryArtistSubscriptionsQuery> for GetLibraryArtistSubscri
 impl ParseFrom<GetLibraryAlbumsQuery> for GetLibraryAlbums {
     fn parse_from(p: ProcessedResult<GetLibraryAlbumsQuery>) -> Result<Self> {
         let json_crawler: JsonCrawlerOwned = p.into();
-        let grid_items = json_crawler.navigate_pointer(concatcp!(
-            SINGLE_COLUMN_TAB,
-            SECTION_LIST_ITEM,
-            GRID_ITEMS
-        ))?;
-        parse_library_albums(grid_items)
+        let grid_renderer =
+            json_crawler.navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID))?;
+        parse_library_albums(grid_renderer)
     }
 }
 impl Continuable<GetLibraryAlbumsQuery> for GetLibraryAlbums {
@@ -162,8 +159,8 @@ impl Continuable<GetLibrarySongsQuery> for GetLibrarySongs {
     fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>> {
         self.continuation_params.take()
     }
-    fn parse_continuation<'a>(
-        p: ProcessedResult<GetContinuationsQuery<'a, GetLibrarySongsQuery>>,
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<GetLibrarySongsQuery>>,
     ) -> Result<Self> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
@@ -202,9 +199,9 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
     fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> Result<Self> {
         // TODO: Implement count and author fields
         let json_crawler = p.into();
-        let maybe_grid_items = process_library_contents_grid(json_crawler);
-        if let Some(grid_items) = maybe_grid_items {
-            parse_library_playlists(grid_items)
+        let maybe_grid_renderer = process_library_contents_grid(json_crawler);
+        if let Some(grid_renderer) = maybe_grid_renderer {
+            parse_library_playlists(grid_renderer)
         } else {
             Ok(GetLibraryPlaylists {
                 playlists: vec![],
@@ -221,8 +218,8 @@ impl Continuable<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
         p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPlaylistsQuery>>,
     ) -> Result<Self> {
         let json_crawler: JsonCrawlerOwned = p.into();
-        let grid_items = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
-        parse_library_playlists(grid_items)
+        let grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
+        parse_library_playlists(grid_renderer)
     }
 }
 
@@ -248,9 +245,10 @@ impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
     }
 }
 
-fn parse_library_albums(mut grid_items: JsonCrawlerOwned) -> Result<GetLibraryAlbums> {
-    let continuation_params = grid_items.take_value_pointer(CONTINUATION_PARAMS).ok();
-    let songs = grid_items
+fn parse_library_albums(mut grid_renderer: JsonCrawlerOwned) -> Result<GetLibraryAlbums> {
+    let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let songs = grid_renderer
+        .navigate_pointer("/items")?
         .try_into_iter()?
         .map(parse_item_list_album)
         .collect::<Result<_>>()?;
@@ -298,9 +296,9 @@ fn parse_library_artist_subscriptions(
     })
 }
 
-fn parse_library_playlists(mut grid_items: JsonCrawlerOwned) -> Result<GetLibraryPlaylists> {
-    let continuation_params = grid_items.take_value_pointer(CONTINUATION_PARAMS).ok();
-    let playlists = grid_items
+fn parse_library_playlists(mut grid_renderer: JsonCrawlerOwned) -> Result<GetLibraryPlaylists> {
+    let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let playlists = grid_renderer
         .navigate_pointer("/items")?
         .try_into_iter()?
         // First result is just a link to create a new playlist.
@@ -511,8 +509,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_playlists_continuation() {
         parse_continuations_test!(
-            "./test_json/get_library_playlists_continuation_20240910.json",
-            "./test_json/get_library_playlists_continuation_20240910_output.txt",
+            "./test_json/get_library_playlists_continuation_mock.json",
+            "./test_json/get_library_playlists_output.txt",
             crate::query::GetLibraryPlaylistsQuery,
             BrowserToken
         );
@@ -529,8 +527,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_artists_continuation() {
         parse_continuations_test!(
-            "./test_json/get_library_artists_continuation_20240910.json",
-            "./test_json/get_library_artists_continuation_20240910_output.txt",
+            "./test_json/get_library_artists_continuation_mock.json",
+            "./test_json/get_library_artists_output.txt",
             crate::query::GetLibraryArtistsQuery::default(),
             BrowserToken
         );
@@ -547,8 +545,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_albums_continuation() {
         parse_continuations_test!(
-            "./test_json/get_library_albums_continuation_20240910.json",
-            "./test_json/get_library_albums_continuation_20240910_output.txt",
+            "./test_json/get_library_albums_continuation_mock.json",
+            "./test_json/get_library_albums_20240701_output.txt",
             crate::query::GetLibraryAlbumsQuery::default(),
             BrowserToken
         );
@@ -583,8 +581,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_artist_subscriptions_continuation() {
         parse_continuations_test!(
-            "./test_json/get_library_artist_subscriptions_continuation_20240910.json",
-            "./test_json/get_library_artist_subscriptions_continuation_20240910_output.txt",
+            "./test_json/get_library_artist_subscriptions_continuation_mock.json",
+            "./test_json/get_library_artist_subscriptions_20240701_output.txt",
             crate::query::GetLibraryArtistSubscriptionsQuery::default(),
             BrowserToken
         );

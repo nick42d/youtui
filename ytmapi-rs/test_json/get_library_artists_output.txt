@@ -1,23 +1,26 @@
-[
-    LibraryArtist {
-        channel_id: ArtistChannelID(
-            "MPLAUCprAFmT0C6O4X0ToEXpeFTQ",
-        ),
-        artist: "Kendrick Lamar",
-        byline: "16 songs",
-    },
-    LibraryArtist {
-        channel_id: ArtistChannelID(
-            "MPLAUC_yH_GaGHZk9ewo5ghQA75w",
-        ),
-        artist: "Dream Theater",
-        byline: "1 song",
-    },
-    LibraryArtist {
-        channel_id: ArtistChannelID(
-            "MPLAUCHUlZT-VoVWIID4xcJZ5s6g",
-        ),
-        artist: "Nils Frahm",
-        byline: "1 song",
-    },
-]
+GetLibraryArtists {
+    artists: [
+        LibraryArtist {
+            channel_id: ArtistChannelID(
+                "MPLAUCprAFmT0C6O4X0ToEXpeFTQ",
+            ),
+            artist: "Kendrick Lamar",
+            byline: "16 songs",
+        },
+        LibraryArtist {
+            channel_id: ArtistChannelID(
+                "MPLAUC_yH_GaGHZk9ewo5ghQA75w",
+            ),
+            artist: "Dream Theater",
+            byline: "1 song",
+        },
+        LibraryArtist {
+            channel_id: ArtistChannelID(
+                "MPLAUCHUlZT-VoVWIID4xcJZ5s6g",
+            ),
+            artist: "Nils Frahm",
+            byline: "1 song",
+        },
+    ],
+    continuation_params: None,
+}

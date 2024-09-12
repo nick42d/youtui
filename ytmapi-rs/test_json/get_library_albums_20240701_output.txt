@@ -1,68 +1,71 @@
-[
-    SearchResultAlbum {
-        title: "KID A MNESIA",
-        artist: "Radiohead",
-        year: "2021",
-        explicit: NotExplicit,
-        album_id: AlbumID(
-            "MPREb_E7NpKw54NIT",
-        ),
-        album_type: Album,
-        thumbnails: [
-            Thumbnail {
-                height: 226,
-                width: 226,
-                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w226-h226-l90-rj",
-            },
-            Thumbnail {
-                height: 544,
-                width: 544,
-                url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w544-h544-l90-rj",
-            },
-        ],
-    },
-    SearchResultAlbum {
-        title: "I'll Come Back",
-        artist: "Aj Lee & Blue Summit",
-        year: "2021",
-        explicit: NotExplicit,
-        album_id: AlbumID(
-            "MPREb_tlzBJv4t1DX",
-        ),
-        album_type: Album,
-        thumbnails: [
-            Thumbnail {
-                height: 226,
-                width: 226,
-                url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w226-h226-l90-rj",
-            },
-            Thumbnail {
-                height: 544,
-                width: 544,
-                url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w544-h544-l90-rj",
-            },
-        ],
-    },
-    SearchResultAlbum {
-        title: "To Pimp A Butterfly",
-        artist: "Kendrick Lamar",
-        year: "2015",
-        explicit: IsExplicit,
-        album_id: AlbumID(
-            "MPREb_3jGuGO44ziy",
-        ),
-        album_type: Album,
-        thumbnails: [
-            Thumbnail {
-                height: 226,
-                width: 226,
-                url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w226-h226-l90-rj",
-            },
-            Thumbnail {
-                height: 544,
-                width: 544,
-                url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w544-h544-l90-rj",
-            },
-        ],
-    },
-]
+GetLibraryAlbums {
+    albums: [
+        SearchResultAlbum {
+            title: "KID A MNESIA",
+            artist: "Radiohead",
+            year: "2021",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_E7NpKw54NIT",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "I'll Come Back",
+            artist: "Aj Lee & Blue Summit",
+            year: "2021",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_tlzBJv4t1DX",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "To Pimp A Butterfly",
+            artist: "Kendrick Lamar",
+            year: "2015",
+            explicit: IsExplicit,
+            album_id: AlbumID(
+                "MPREb_3jGuGO44ziy",
+            ),
+            album_type: Album,
+            thumbnails: [
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    continuation_params: None,
+}
