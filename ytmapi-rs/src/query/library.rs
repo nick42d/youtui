@@ -3,6 +3,7 @@ use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
     parse::{
+        GetLibraryAlbums, GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists,
         GetLibrarySongs, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist,
         SearchResultAlbum, TableListSong,
     },
@@ -104,7 +105,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
-    type Output = Vec<LibraryPlaylist>;
+    type Output = GetLibraryPlaylists;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryPlaylistsQuery {
@@ -119,7 +120,7 @@ impl PostQuery for GetLibraryPlaylistsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
-    type Output = Vec<LibraryArtist>;
+    type Output = GetLibraryArtists;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistsQuery {
@@ -170,7 +171,7 @@ impl PostQuery for GetLibrarySongsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
-    type Output = Vec<SearchResultAlbum>;
+    type Output = GetLibraryAlbums;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryAlbumsQuery {
@@ -192,7 +193,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
-    type Output = Vec<LibraryArtistSubscription>;
+    type Output = GetLibraryArtistSubscriptions;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistSubscriptionsQuery {

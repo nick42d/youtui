@@ -202,7 +202,15 @@ impl ParseFrom<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
     fn parse_from(p: ProcessedResult<GetLibraryPlaylistsQuery>) -> Result<Self> {
         // TODO: Implement count and author fields
         let json_crawler = p.into();
-        parse_library_playlist_query(json_crawler)
+        let maybe_grid_items = process_library_contents_grid(json_crawler);
+        if let Some(grid_items) = maybe_grid_items {
+            parse_library_playlists(grid_items)
+        } else {
+            Ok(GetLibraryPlaylists {
+                playlists: vec![],
+                continuation_params: None,
+            })
+        }
     }
 }
 impl Continuable<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
@@ -212,7 +220,9 @@ impl Continuable<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
     fn parse_continuation(
         p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPlaylistsQuery>>,
     ) -> Result<Self> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let grid_items = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
+        parse_library_playlists(grid_items)
     }
 }
 
@@ -276,24 +286,31 @@ fn parse_library_songs(
 fn parse_library_artist_subscriptions(
     mut music_shelf: JsonCrawlerOwned,
 ) -> Result<GetLibraryArtistSubscriptions> {
-    let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS)?;
-    let songs = music_shelf
+    let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let subscriptions = music_shelf
         .navigate_pointer("/contents")?
         .try_into_iter()?
         .map(parse_content_list_artist_subscription)
         .collect::<Result<_>>()?;
     Ok(GetLibraryArtistSubscriptions {
-        subscriptions: songs,
+        subscriptions,
         continuation_params,
     })
 }
 
-fn parse_library_playlist_query(json_crawler: JsonCrawlerOwned) -> Result<GetLibraryPlaylists> {
-    if let Some(contents) = process_library_contents_grid(json_crawler) {
-        parse_content_list_playlist(contents)
-    } else {
-        Ok(Vec::new())
-    }
+fn parse_library_playlists(mut grid_items: JsonCrawlerOwned) -> Result<GetLibraryPlaylists> {
+    let continuation_params = grid_items.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let playlists = grid_items
+        .navigate_pointer("/items")?
+        .try_into_iter()?
+        // First result is just a link to create a new playlist.
+        .skip(1)
+        .map(parse_content_list_playlist)
+        .collect::<Result<_>>()?;
+    Ok(GetLibraryPlaylists {
+        playlists,
+        continuation_params,
+    })
 }
 
 // Consider returning ProcessedLibraryContents
@@ -378,7 +395,7 @@ fn parse_content_list_artist_subscription(
 }
 
 fn parse_content_list_artists(mut json_crawler: JsonCrawlerOwned) -> Result<GetLibraryArtists> {
-    let continuation_params = json_crawler.take_value_pointer(CONTINUATION_PARAMS)?;
+    let continuation_params = json_crawler.take_value_pointer(CONTINUATION_PARAMS).ok();
     let songs = json_crawler
         .navigate_pointer("/contents")?
         .try_iter_mut()?
@@ -445,56 +462,41 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })
 }
 
-fn parse_content_list_playlist(json_crawler: JsonCrawlerOwned) -> Result<Vec<LibraryPlaylist>> {
+fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<LibraryPlaylist> {
     // TODO: Implement count and author fields
-    let mut results = Vec::new();
-    for result in json_crawler
-        .navigate_pointer("/items")?
-        .try_iter_mut()?
-        // First result is just a link to create a new playlist.
-        .skip(1)
-        .map(|c| c.navigate_pointer(MTRIR))
-    {
-        let mut result = result?;
-        let title = result.take_value_pointer(TITLE_TEXT)?;
-        let playlist_id: PlaylistID = result
-            .borrow_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?
-            // ytmusicapi uses range index [2:] here but doesn't seem to be required.
-            // Revisit later if we crash.
-            .take_value()?;
-        let thumbnails: Vec<Thumbnail> = result.take_value_pointer(THUMBNAIL_RENDERER)?;
-        let mut description = None;
-        let count = None;
-        let author = None;
-        if let Ok(mut subtitle) = result.borrow_pointer("/subtitle") {
-            let runs = subtitle.borrow_pointer("/runs")?.try_into_iter()?;
-            // Extract description from runs.
-            // Collect the iterator of Result<String> into a single Result<String>
-            description = Some(
-                runs.map(|mut c| c.take_value_pointer::<String>("/text"))
-                    .collect::<std::result::Result<String, _>>()?,
-            );
-        }
-        let playlist = LibraryPlaylist {
-            description,
-            author,
-            playlist_id,
-            title,
-            thumbnails,
-            count,
-        };
-        results.push(playlist)
+    let mut mtrir = item.navigate_pointer(MTRIR)?;
+    let title = mtrir.take_value_pointer(TITLE_TEXT)?;
+    let playlist_id: PlaylistID = mtrir
+        .borrow_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?
+        // ytmusicapi uses range index [2:] here but doesn't seem to be required.
+        // Revisit later if we crash.
+        .take_value()?;
+    let thumbnails: Vec<Thumbnail> = mtrir.take_value_pointer(THUMBNAIL_RENDERER)?;
+    let mut description = None;
+    let count = None;
+    let author = None;
+    if let Ok(mut subtitle) = mtrir.borrow_pointer("/subtitle") {
+        let runs = subtitle.borrow_pointer("/runs")?.try_into_iter()?;
+        // Extract description from runs.
+        // Collect the iterator of Result<String> into a single Result<String>
+        description = Some(
+            runs.map(|mut c| c.take_value_pointer::<String>("/text"))
+                .collect::<std::result::Result<String, _>>()?,
+        );
     }
-    Ok(results)
+    Ok(LibraryPlaylist {
+        description,
+        author,
+        playlist_id,
+        title,
+        thumbnails,
+        count,
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{ContinuationParams, YoutubeID},
-        parse::GetLibrarySongs,
-    };
+    use crate::auth::BrowserToken;
 
     // Consider if the parse function itself should be removed from impl.
     #[tokio::test]

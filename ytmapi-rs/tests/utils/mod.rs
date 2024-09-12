@@ -77,7 +77,7 @@ macro_rules! generate_stream_test {
     ($fname:ident,$query:expr) => {
         #[tokio::test]
         async fn $fname() {
-            use futures::stream::TryStreamExt;
+            use futures::stream::{StreamExt, TryStreamExt};
             let oauth_future = async {
                 let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
                 // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -97,6 +97,8 @@ macro_rules! generate_stream_test {
                 let stream = api.stream(&query);
                 tokio::pin!(stream);
                 stream
+                    // limit test to 5 results to avoid overload
+                    .take(5)
                     .try_collect::<Vec<_>>()
                     .await
                     .expect("Expected all results from oauth stream to suceed");
