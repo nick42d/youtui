@@ -76,7 +76,7 @@ pub struct GetLibraryAlbums {
 pub struct LibraryArtistSubscription {
     pub name: String,
     pub subscribers: String,
-    pub channel_id: ChannelID<'static>,
+    pub channel_id: ArtistChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 

@@ -81,8 +81,8 @@ impl<'a> PostQuery for GetChannelQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([("browseId".into(), json!(self.channel_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -95,8 +95,8 @@ impl<'a> PostQuery for GetChannelEpisodesQuery<'a> {
             ("params".into(), json!(self.podcast_channel_params)),
         ])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -108,8 +108,8 @@ impl<'a> PostQuery for GetPodcastQuery<'a> {
         // TODO: Confirm if any parsing required
         FromIterator::from_iter([("browseId".into(), json!(self.podcast_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -120,8 +120,8 @@ impl<'a> PostQuery for GetEpisodeQuery<'a> {
         // TODO: Confirm if any parsing required
         FromIterator::from_iter([("browseId".into(), json!(self.episode_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -133,8 +133,8 @@ impl PostQuery for GetNewEpisodesQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([("browseId".into(), json!("VLRDPN"))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
