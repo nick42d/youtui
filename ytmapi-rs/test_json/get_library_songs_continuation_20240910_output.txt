@@ -17,7 +17,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -59,7 +59,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -101,7 +101,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -143,7 +143,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -185,7 +185,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -227,7 +227,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -269,7 +269,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -311,7 +311,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -353,7 +353,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -405,7 +405,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Dream Theater",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UC_yH_GaGHZk9ewo5ghQA75w",
                         ),
                     ),
@@ -447,7 +447,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -489,7 +489,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -531,7 +531,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -573,7 +573,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -615,7 +615,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -657,7 +657,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -699,7 +699,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -741,7 +741,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -783,7 +783,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -825,7 +825,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -867,7 +867,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -909,7 +909,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Elder",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCMZUhx9HFUY_OjhcMvJ4pOQ",
                         ),
                     ),
@@ -951,7 +951,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -993,7 +993,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -1035,7 +1035,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1077,7 +1077,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1119,7 +1119,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -1161,7 +1161,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1213,7 +1213,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Tony Sheridan",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UC3zG71a_GbDfpblpiuFCL9A",
                         ),
                     ),
@@ -1221,7 +1221,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Beatles",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UC2XdaAVUannpujzv32jcouQ",
                         ),
                     ),
@@ -1229,7 +1229,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Beat Brothers",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCiyi1SRMOyP5mh8zFHj0dIA",
                         ),
                     ),
@@ -1281,7 +1281,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Pelican",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCTWUa-nIZgN8rlN1qxgZBew",
                         ),
                     ),
@@ -1323,7 +1323,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -1365,7 +1365,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1407,7 +1407,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1449,7 +1449,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1491,7 +1491,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1533,7 +1533,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -1575,7 +1575,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1617,7 +1617,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -1659,7 +1659,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -1701,7 +1701,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -1753,7 +1753,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Nils Frahm",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCHUlZT-VoVWIID4xcJZ5s6g",
                         ),
                     ),
@@ -1795,7 +1795,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Aj Lee & Blue Summit",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCcITGjmLwFVNgwAG2_1VDuw",
                         ),
                     ),
@@ -1847,7 +1847,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Neil Young",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UC6JhadLTf6g6f-ZdeEaAqBQ",
                         ),
                     ),
@@ -1855,7 +1855,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Crazy Horse",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCUR77ItI_Iiz0wd7lsCsZaw",
                         ),
                     ),
@@ -1897,7 +1897,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Kendrick Lamar",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCprAFmT0C6O4X0ToEXpeFTQ",
                         ),
                     ),
@@ -1939,7 +1939,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -1981,7 +1981,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -2023,7 +2023,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Radiohead",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCr_iyUANcn9OX_yy9piYoLw",
                         ),
                     ),
@@ -2065,7 +2065,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Elder",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCMZUhx9HFUY_OjhcMvJ4pOQ",
                         ),
                     ),
@@ -2107,7 +2107,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "The Doors",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCdx4iSJpg33jNmd9auQT04Q",
                         ),
                     ),
@@ -2159,7 +2159,7 @@ GetLibrarySongs {
                 ParsedSongArtist {
                     name: "Katatonia",
                     id: Some(
-                        ChannelID(
+                        ArtistChannelID(
                             "UCO1Ue7PBwGgYjTVgA_yrtHQ",
                         ),
                     ),

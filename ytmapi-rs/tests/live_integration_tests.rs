@@ -148,7 +148,7 @@ generate_query_test!(
 );
 generate_query_test!(
     test_get_artist,
-    GetArtistQuery::new(ChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
+    GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
 generate_query_test!(
     test_get_library_upload_songs,
@@ -309,7 +309,7 @@ async fn test_get_artist_albums() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ChannelID::from_raw(
+    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
@@ -334,7 +334,7 @@ async fn test_get_artist_album_songs() {
     let api = new_standard_api().await.unwrap();
     println!("API took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
-    let q = GetArtistQuery::new(ChannelID::from_raw(
+    let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
@@ -351,7 +351,7 @@ async fn test_get_artist_album_songs() {
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     let channel_id = &albums.browse_id.unwrap();
-    let q = GetArtistAlbumsQuery::new(ChannelID::from_raw(channel_id.get_raw()), params);
+    let q = GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(channel_id.get_raw()), params);
     let res = api.raw_query(&q).await.unwrap();
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
