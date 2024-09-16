@@ -101,7 +101,7 @@ macro_rules! generate_stream_test {
                     .take(5)
                     .try_collect::<Vec<_>>()
                     .await
-                    .expect("Expected all results from oauth stream to suceed");
+                    .expect("Expected all results from browser stream to suceed");
             };
             tokio::join!(oauth_future, browser_auth_future);
         }
