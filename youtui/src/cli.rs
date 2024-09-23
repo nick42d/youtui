@@ -4,6 +4,7 @@ use crate::Cli;
 use crate::Result;
 use crate::RuntimeInfo;
 use crate::OAUTH_FILENAME;
+use futures::future::try_join_all;
 use querybuilder::command_to_query;
 use querybuilder::CliQuery;
 use querybuilder::QueryType;
@@ -33,12 +34,15 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
         } => println!("No command provided"),
         Cli {
             command: Some(command),
-            input_json: Some(input_json),
+            input_json: Some(input_array),
             show_source,
         } => {
-            let source = tokio::fs::read_to_string(input_json).await?;
+            let source_futures = input_array
+                .into_iter()
+                .map(|path| tokio::fs::read_to_string(path));
+            let sources = try_join_all(source_futures).await?;
             let cli_query = CliQuery {
-                query_type: QueryType::FromSourceFile(source),
+                query_type: QueryType::FromSourceFiles(sources),
                 show_source,
             };
             let api = get_api(&config).await?;

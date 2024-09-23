@@ -23,8 +23,9 @@ impl<'a, Q> GetContinuationsQuery<'a, Q> {
             query,
         })
     }
-    #[cfg(test)]
-    pub(crate) fn new_mock_unchecked(query: &'a Q) -> GetContinuationsQuery<'a, Q> {
+    /// Create a GetContinuationsQuery with dummy continuation params - for
+    /// testing purposes.
+    pub fn new_mock_unchecked(query: &'a Q) -> GetContinuationsQuery<'a, Q> {
         GetContinuationsQuery {
             query,
             continuation_params: ContinuationParams::from_raw(""),
