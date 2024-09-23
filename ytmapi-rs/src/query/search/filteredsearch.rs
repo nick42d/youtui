@@ -1,5 +1,5 @@
 use super::{
-    search_query_header, search_query_params, AuthToken, PostMethod, PostQuery, Query, SearchQuery,
+    search_query_header, AuthToken, PostMethod, PostQuery, Query, SearchQuery,
     SearchType, SpellingMode, SEARCH_QUERY_PATH, SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
     SPECIALIZED_PLAYLIST_PREFIX_PARAMS, SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
 };
@@ -174,8 +174,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<SongsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
@@ -189,8 +189,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<PlaylistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>> {
@@ -204,8 +204,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
@@ -219,8 +219,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<AlbumsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
@@ -234,8 +234,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<ArtistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> {
@@ -249,8 +249,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>> 
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
@@ -264,8 +264,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<EpisodesFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
@@ -279,8 +279,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<PodcastsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<VideosFilter>> {
@@ -294,8 +294,8 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<VideosFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a, A: AuthToken> Query<A> for SearchQuery<'a, FilteredSearch<ProfilesFilter>> {
@@ -309,7 +309,7 @@ impl<'a> PostQuery for SearchQuery<'a, FilteredSearch<ProfilesFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Option<Cow<str>> {
-        search_query_params(self)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }

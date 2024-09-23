@@ -1,0 +1,2193 @@
+GetLibrarySongs {
+    songs: [
+        TableListSong {
+            video_id: VideoID(
+                "ZtdW3HTUQqo",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "2:02",
+            library_management: None,
+            title: "Hunting Bears",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMZtdW3HTUQqo",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "Aeh_cU0pmR8",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "3:11",
+            library_management: None,
+            title: "Hyacinth House",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMAeh_cU0pmR8",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "tt2-GsPA9kk",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "5:37",
+            library_management: None,
+            title: "i",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMtt2-GsPA9kk",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "OYe7gqwrkro",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:54",
+            library_management: None,
+            title: "I Might Be Wrong",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMOYe7gqwrkro",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "3mvGkjHf0NA",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "4:45",
+            library_management: None,
+            title: "I'll Come Back",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM3mvGkjHf0NA",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "LyVB_52G4pg",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "5:10",
+            library_management: None,
+            title: "Idioteque",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMLyVB_52G4pg",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "GcIyKK8m4qo",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:21",
+            library_management: None,
+            title: "If You Say the Word",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMGcIyKK8m4qo",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "wCM_udPMVYQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "3:31",
+            library_management: None,
+            title: "In Limbo",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMwCM_udPMVYQ",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "7L1POXocFIQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "4:32",
+            library_management: None,
+            title: "Institutionalized (feat. Bilal, Anna Wise & Snoop Dogg)",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM7L1POXocFIQ",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "mNOpJKOBv04",
+            ),
+            album: ParsedSongAlbum {
+                name: "Invisible Monster",
+                id: AlbumID(
+                    "MPREb_QaOhupQ8888",
+                ),
+            },
+            duration: "6:31",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpLepO0DQspBIJqpOxcuOo4sRf2q5ahV8M5CrT7VZTouc3XVS29xKz1rPxYyv6looQgaqOd-PrilfO4sUwIGvorhoweczA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpJc11Kufv43R7yFHcBgQN39vvz43zz3oRXI10S2gtlPcgr72u2xOQ1y1JzZHczPu7uVg4I3JCS3i9Zo4bSpyQh3bB2nMw",
+                    ),
+                },
+            ),
+            title: "Invisible Monster",
+            artists: [
+                ParsedSongArtist {
+                    name: "Dream Theater",
+                    id: Some(
+                        ArtistChannelID(
+                            "UC_yH_GaGHZk9ewo5ghQA75w",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/PesJ0TkgdrNZMcojfN_YpoVV0N8sclt-TLiSQdhmM0U5cBw_OED9mGzGLoi6qsLHbk_YeAt0AlgLDsYx=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/PesJ0TkgdrNZMcojfN_YpoVV0N8sclt-TLiSQdhmM0U5cBw_OED9mGzGLoi6qsLHbk_YeAt0AlgLDsYx=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMmNOpJKOBv04",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "TOfU3wVpwZQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:45",
+            library_management: None,
+            title: "Kid A",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMTOfU3wVpwZQ",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "g0NVaX8DRN4",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "3:55",
+            library_management: None,
+            title: "King Kunta",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMg0NVaX8DRN4",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "yiNEJsyowdQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:15",
+            library_management: None,
+            title: "Knives Out",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMyiNEJsyowdQ",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "vHXjcdNIN-Q",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "7:52",
+            library_management: None,
+            title: "L.A. Woman",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMvHXjcdNIN-Q",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "-JhkJjQwD-0",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "4:35",
+            library_management: None,
+            title: "L'America",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM-JhkJjQwD-0",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "xn3K2ukfrVg",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "4:20",
+            library_management: None,
+            title: "Lemons and Tangerines",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMxn3K2ukfrVg",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "vfDvGbBCq7s",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:37",
+            library_management: None,
+            title: "Life In a Glasshouse",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMvfDvGbBCq7s",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "SKUdDojvq4E",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "3:58",
+            library_management: None,
+            title: "Like Spinning Plates",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMSKUdDojvq4E",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "QhHMJkeF8zo",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "5:05",
+            library_management: None,
+            title: "Like Spinning Plates ('Why Us?' Version)",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMQhHMJkeF8zo",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "5iqfXaGliq8",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "3:19",
+            library_management: None,
+            title: "Love Her Madly",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM5iqfXaGliq8",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "nwV1vsKk2yQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "3:11",
+            library_management: None,
+            title: "Magdalene",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMnwV1vsKk2yQ",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "WXR-mXEDRMc",
+            ),
+            album: ParsedSongAlbum {
+                name: "Innate Passage",
+                id: AlbumID(
+                    "MPREb_FqK76ioY6A7",
+                ),
+            },
+            duration: "14:44",
+            library_management: None,
+            title: "Merged In Dreams - Ne Plus Ultra",
+            artists: [
+                ParsedSongArtist {
+                    name: "Elder",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCMZUhx9HFUY_OjhcMvJ4pOQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/ZpYQQsieMTzcQ0UGWJa2XKZbrC51rHyxRZIMvqggrdeT_WMl10RKsrRz2Vv52WY5N-zwn-2l2hWLcgzO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/ZpYQQsieMTzcQ0UGWJa2XKZbrC51rHyxRZIMvqggrdeT_WMl10RKsrRz2Vv52WY5N-zwn-2l2hWLcgzO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMWXR-mXEDRMc",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "q1AOP6NtGuc",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "4:44",
+            library_management: None,
+            title: "Momma",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMq1AOP6NtGuc",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "XnNgD-3Smh4",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "3:52",
+            library_management: None,
+            title: "Monongah Mine",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMXnNgD-3Smh4",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "1pTnps5RQeE",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:36",
+            library_management: None,
+            title: "Morning Bell",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM1pTnps5RQeE",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "DWoL_N4zXUI",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "3:15",
+            library_management: None,
+            title: "Morning Bell/Amnesiac",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMDWoL_N4zXUI",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "axwpgn3GRMs",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "12:08",
+            library_management: None,
+            title: "Mortal Man",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMaxwpgn3GRMs",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "Gy9sQ_7bMk8",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "3:21",
+            library_management: None,
+            title: "Motion Picture Soundtrack",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMGy9sQ_7bMk8",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "j4N8rpPu2ik",
+            ),
+            album: ParsedSongAlbum {
+                name: "Let's Dance",
+                id: AlbumID(
+                    "MPREb_YxNHZGrIQKb",
+                ),
+            },
+            duration: "2:45",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpLB51rZMvGDAK3Thn4ffKg7TkxsIwC_jsAdB1K1Bib5ZYXjjwyd5Si5dmO-3gcihyas28aGJEhdx-36gUFCl3UMw6KwMg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIJQ5gGxuUVUtZoK5QIvh0NLc-Nh9f5Qw_4rDjWmSn0eQ1AYl_BJclocEZsh6qyzcILma34Jswj1o0aOY3mfnmTO5H4dg",
+                    ),
+                },
+            ),
+            title: "My Bonnie",
+            artists: [
+                ParsedSongArtist {
+                    name: "Tony Sheridan",
+                    id: Some(
+                        ArtistChannelID(
+                            "UC3zG71a_GbDfpblpiuFCL9A",
+                        ),
+                    ),
+                },
+                ParsedSongArtist {
+                    name: "The Beatles",
+                    id: Some(
+                        ArtistChannelID(
+                            "UC2XdaAVUannpujzv32jcouQ",
+                        ),
+                    ),
+                },
+                ParsedSongArtist {
+                    name: "The Beat Brothers",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCiyi1SRMOyP5mh8zFHj0dIA",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Disliked,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/c5GRNdgr01TU-C8cvc-3k3OJ1FEAeh5_CWj1Ry5M5iJppp7l321D28JA-jVMupTVyR9MR1l3JGwYqblf=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/c5GRNdgr01TU-C8cvc-3k3OJ1FEAeh5_CWj1Ry5M5iJppp7l321D28JA-jVMupTVyR9MR1l3JGwYqblf=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMj4N8rpPu2ik",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "Z7CIQ_OJZdg",
+            ),
+            album: ParsedSongAlbum {
+                name: "Australasia",
+                id: AlbumID(
+                    "MPREb_tqrE6uLCRnO",
+                ),
+            },
+            duration: "11:15",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIpMZcGt0Np5ows8BqScm3Z5MIPP7nLsAZ3b8Slx2VlMb6Mj-ptKo5Az0NrbcpjF8GEkU37OSA9fwzmEo0_BUqa7OV6AA",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpJjEVhkcTRb-J70C2tmgiXQq8B5s-onMmXhs2ac_dOGHlIvnf6TmbVRxrjT0au-VEt6kyzmhIfl3Grdd2iZe2Y8_q4F8g",
+                    ),
+                },
+            ),
+            title: "Nightendday",
+            artists: [
+                ParsedSongArtist {
+                    name: "Pelican",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCTWUa-nIZgN8rlN1qxgZBew",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/gMrMe3e1PWZ-XvrRW4H2hOpjkRRxRUrxh79vNe7yeKfkz97gLSJpLScssiWNtRLPHkzW5PY1AR91QdE=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/gMrMe3e1PWZ-XvrRW4H2hOpjkRRxRUrxh79vNe7yeKfkz97gLSJpLScssiWNtRLPHkzW5PY1AR91QdE=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMZ7CIQ_OJZdg",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "8liqoAIwokY",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "3:10",
+            library_management: None,
+            title: "Not Gonna Cry over You",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM8liqoAIwokY",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "hv_RZsGDbpM",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "5:16",
+            library_management: None,
+            title: "Optimistic",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMhv_RZsGDbpM",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "JFMq6lCJdHA",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:01",
+            library_management: None,
+            title: "Packt Like Sardines In a Crushd Tin Box",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMJFMq6lCJdHA",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "cDQ7raytW0M",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "2:47",
+            library_management: None,
+            title: "Pulk/Pull (True Love Waits Version)",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMcDQ7raytW0M",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "Ps6txeTlzkg",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:08",
+            library_management: None,
+            title: "Pulk/Pull Revolving Doors",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMPs6txeTlzkg",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "SfCPYJ2CuLA",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "2:50",
+            library_management: None,
+            title: "Put Your Head Down",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMSfCPYJ2CuLA",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "qZGrXKYbcQs",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "4:49",
+            library_management: None,
+            title: "Pyramid Song",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMqZGrXKYbcQs",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "-7avE0GKZrA",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "1:19",
+            library_management: None,
+            title: "Pyramid Strings",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM-7avE0GKZrA",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "lJZTgynPGT8",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "7:15",
+            library_management: None,
+            title: "Riders on the Storm",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMlJZTgynPGT8",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "8LgWWhgrcnI",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "4:23",
+            library_management: None,
+            title: "Rodney Dangerfield",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM8LgWWhgrcnI",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "luXZuPTJ3f8",
+            ),
+            album: ParsedSongAlbum {
+                name: "Spaces",
+                id: AlbumID(
+                    "MPREb_00DnPWqG6G4",
+                ),
+            },
+            duration: "8:18",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpJlsLkiVcv7Uz6AsZJM_s_kLsMCV89iFek0mmCwspBvBd8eHtKPJIQtHCPqLri23HuTrkDwFBZE5cOsiWpgppuYYr0oPg",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIoHH3B7nNlY6GxaaenpSxSiU9vAB6-TXz5rIHAH-1xzOWWSYEqG_skiwnrpsNcq2lThJt7NCsiF-g8s2EMDGvu8NZJXA",
+                    ),
+                },
+            ),
+            title: "Says",
+            artists: [
+                ParsedSongArtist {
+                    name: "Nils Frahm",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCHUlZT-VoVWIID4xcJZ5s6g",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Liked,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/bam52i4qNZMQKjg96soNZpQ0lTLg2sNtyGXbmQf5vsdoMB2Muya9qoz5oqpmMfe3XLb_pbxJYBjO520y=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/bam52i4qNZMQKjg96soNZpQ0lTLg2sNtyGXbmQf5vsdoMB2Muya9qoz5oqpmMfe3XLb_pbxJYBjO520y=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMluXZuPTJ3f8",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "Edt4AdolAS0",
+            ),
+            album: ParsedSongAlbum {
+                name: "I'll Come Back",
+                id: AlbumID(
+                    "MPREb_tlzBJv4t1DX",
+                ),
+            },
+            duration: "3:50",
+            library_management: None,
+            title: "Something Special",
+            artists: [
+                ParsedSongArtist {
+                    name: "Aj Lee & Blue Summit",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCcITGjmLwFVNgwAG2_1VDuw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/tYtZXhkW4vgvVZNhGX_0WulTu-YDXd_olELKV5li8l1Mk63Ptm9CUxuvuiOtD3O_GVsE1sFgcsguaaD4=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMEdt4AdolAS0",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "8G44lWMlGUI",
+            ),
+            album: ParsedSongAlbum {
+                name: "Barn",
+                id: AlbumID(
+                    "MPREb_zWJwHbUGfRm",
+                ),
+            },
+            duration: "6:05",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpIYNZ4Z5jm5SaPvkNG462B2OtFx0eXlZLlgOKO6IYZ8rLA8GQQpsaTJOZNt9QJWL6By8_gIIaADh_0dduc9wNJYDM1nDw",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpIUTXm5GU_KpaYc081BSrVSr2toOTY1BIG0lQMYXsgNjPtnzMcSYT-HYr52b7IdvIKD4fQ-MEwngraq55RXUFLw8Q6jGA",
+                    ),
+                },
+            ),
+            title: "Song Of The Seasons",
+            artists: [
+                ParsedSongArtist {
+                    name: "Neil Young",
+                    id: Some(
+                        ArtistChannelID(
+                            "UC6JhadLTf6g6f-ZdeEaAqBQ",
+                        ),
+                    ),
+                },
+                ParsedSongArtist {
+                    name: "Crazy Horse",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCUR77ItI_Iiz0wd7lsCsZaw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Liked,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/I_j4zaIt7rWpxdOiW3ybWhOcpW2Ncrqg2qkGOfZsUJ5mrwosGz1HkNNcV6FfDx2MoDsBxBTPUibIQZBeMg=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/I_j4zaIt7rWpxdOiW3ybWhOcpW2Ncrqg2qkGOfZsUJ5mrwosGz1HkNNcV6FfDx2MoDsBxBTPUibIQZBeMg=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM8G44lWMlGUI",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "VdPtVZDspIY",
+            ),
+            album: ParsedSongAlbum {
+                name: "To Pimp A Butterfly",
+                id: AlbumID(
+                    "MPREb_3jGuGO44ziy",
+                ),
+            },
+            duration: "5:29",
+            library_management: None,
+            title: "The Blacker The Berry",
+            artists: [
+                ParsedSongArtist {
+                    name: "Kendrick Lamar",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCprAFmT0C6O4X0ToEXpeFTQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/L1iBW0CcjEQaXLP1coivJbjf7zSUncQ65_GpKHakOaRI81kS5pRV498PSg3VSmQg7LRMB0cJ6d-HzooO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMVdPtVZDspIY",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "JpHJcwnZY34",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "4:20",
+            library_management: None,
+            title: "The Changeling",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMJpHJcwnZY34",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "tvHSh21qeDE",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "2:01",
+            library_management: None,
+            title: "The Morning Bell (In the Dark Version)",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMtvHSh21qeDE",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "kr-44Vmjc4I",
+            ),
+            album: ParsedSongAlbum {
+                name: "KID A MNESIA",
+                id: AlbumID(
+                    "MPREb_E7NpKw54NIT",
+                ),
+            },
+            duration: "5:52",
+            library_management: None,
+            title: "The National Anthem",
+            artists: [
+                ParsedSongArtist {
+                    name: "Radiohead",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCr_iyUANcn9OX_yy9piYoLw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/xKX7vViVFA060KCM-JtJSpGBI3o-pt45fL1Nrl1WaOr0GVfdlcEeDyyAKnHF3-Urh0T36n0bx50_Woc=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMkr-44Vmjc4I",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "8ibAS3dXd-E",
+            ),
+            album: ParsedSongAlbum {
+                name: "Innate Passage",
+                id: AlbumID(
+                    "MPREb_FqK76ioY6A7",
+                ),
+            },
+            duration: "8:38",
+            library_management: None,
+            title: "The Purpose",
+            artists: [
+                ParsedSongArtist {
+                    name: "Elder",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCMZUhx9HFUY_OjhcMvJ4pOQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/ZpYQQsieMTzcQ0UGWJa2XKZbrC51rHyxRZIMvqggrdeT_WMl10RKsrRz2Vv52WY5N-zwn-2l2hWLcgzO=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/ZpYQQsieMTzcQ0UGWJa2XKZbrC51rHyxRZIMvqggrdeT_WMl10RKsrRz2Vv52WY5N-zwn-2l2hWLcgzO=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM8ibAS3dXd-E",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "5bdC7k2Nu4s",
+            ),
+            album: ParsedSongAlbum {
+                name: "L.A. Woman",
+                id: AlbumID(
+                    "MPREb_2kpSbS0hp4L",
+                ),
+            },
+            duration: "4:14",
+            library_management: None,
+            title: "The WASP (Texas Radio and the Big Beat)",
+            artists: [
+                ParsedSongArtist {
+                    name: "The Doors",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCdx4iSJpg33jNmd9auQT04Q",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/W__wjWducAJ7BmNoEGnch6jvYlf1yZ1spN9qh5T4-vUmD3-dRqOPUHwjs8iq1Ilson8WzCwqFNRkZKZr=w120-h120-l90-rj",
+                },
+            ],
+            explicit: NotExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM5bdC7k2Nu4s",
+            ),
+        },
+        TableListSong {
+            video_id: VideoID(
+                "0Toq8VrbLTQ",
+            ),
+            album: ParsedSongAlbum {
+                name: "City Burials",
+                id: AlbumID(
+                    "MPREb_6SxVm1I0tl9",
+                ),
+            },
+            duration: "3:19",
+            library_management: Some(
+                LibraryManager {
+                    status: InLibrary,
+                    add_to_library_token: FeedbackTokenAddToLibrary(
+                        "AB9zfpKjNQfq-WxmEyh2YG117zLGU_5N4GoI23D_9S6cSaILndJ8PJdoJCTfHsQHfwC3NlLHr9WV01qOy7Y3WwP72KettVShYw",
+                    ),
+                    remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                        "AB9zfpKJUouJOGRjM-iAm7pn3wMIEwCA18k87jiSDBtuH1Fr0A3qDIFrGaxTzQz9hiGLbqTGMqXyeKFNypMEEcAauBwQ2q0Xpw",
+                    ),
+                },
+            ),
+            title: "The Winter of Our Passing",
+            artists: [
+                ParsedSongArtist {
+                    name: "Katatonia",
+                    id: Some(
+                        ArtistChannelID(
+                            "UCO1Ue7PBwGgYjTVgA_yrtHQ",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Liked,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8_5wtd1RFFiVSrps7PcqY2rMdzI3I00WK6ATtBK6c3oIEzLVp0eg6kFprjEJfXqay8hFPJIE0o5OJYLt=w120-h120-l90-rj",
+                },
+            ],
+            explicit: IsExplicit,
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVM0Toq8VrbLTQ",
+            ),
+        },
+    ],
+    continuation_params: Some(
+        ContinuationParams(
+            "4qmFsgJcEhRGRW11c2ljX2xpa2VkX3ZpZGVvcxpEQ0V4NktrTkZjMUZOYUc5TVEwRkpVVUZTYjBaYVZ6UjBVakJKYVVSQmFXWjNTVTh6UW1oRU1uUjBVemxCVVElM0QlM0Q%3D",
+        ),
+    ),
+}

@@ -4,10 +4,12 @@ use crate::{
     error::Error,
     Result,
 };
+use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
-    query::Query,
+    continuations::Continuable,
+    query::{PostQuery, Query},
     YtMusic, YtMusicBuilder,
 };
 
@@ -57,7 +59,29 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
     }
-    pub async fn browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
+    pub async fn stream<Q, O>(&self, query: impl Borrow<Q>, max_pages: usize) -> Result<Vec<O>>
+    where
+        Q: Query<BrowserToken, Output = O>,
+        Q: Query<OAuthToken, Output = O>,
+        O: Continuable<Q>,
+        Q: PostQuery,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => {
+                yt.stream(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::OAuth(yt) => {
+                yt.stream(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+        })
+    }
+    pub async fn _browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<BrowserToken>,
     {
@@ -71,7 +95,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
+    pub async fn _oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<OAuthToken>,
     {
@@ -97,7 +121,16 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })
     }
-    pub async fn browser_query_source<Q>(&self, query: &Q) -> Result<String>
+    pub async fn stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
+    where
+        Q: Query<BrowserToken, Output = O>,
+        Q: Query<OAuthToken, Output = O>,
+        Q: PostQuery,
+        O: Continuable<Q>,
+    {
+        Err(Error::Other("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string()))
+    }
+    pub async fn _browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<BrowserToken>,
     {
@@ -113,7 +146,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query_source<Q>(&self, query: &Q) -> Result<String>
+    pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<OAuthToken>,
     {

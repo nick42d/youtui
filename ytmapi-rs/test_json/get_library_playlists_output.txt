@@ -1,94 +1,97 @@
-[
-    LibraryPlaylist {
-        playlist_id: PlaylistID(
-            "VLLM",
-        ),
-        title: "Liked Music",
-        thumbnails: [
-            Thumbnail {
-                height: 192,
-                width: 192,
-                url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@192.png",
-            },
-            Thumbnail {
-                height: 576,
-                width: 576,
-                url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@576.png",
-            },
-        ],
-        count: None,
-        description: Some(
-            "Auto playlist",
-        ),
-        author: None,
-    },
-    LibraryPlaylist {
-        playlist_id: PlaylistID(
-            "VLPLCZQcydUIP07hMOwAXIag92l76d3z3Thv",
-        ),
-        title: "Listen later",
-        thumbnails: [
-            Thumbnail {
-                height: 192,
-                width: 192,
-                url: "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s192",
-            },
-            Thumbnail {
-                height: 576,
-                width: 576,
-                url: "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s576",
-            },
-        ],
-        count: None,
-        description: Some(
-            "Nick Dowsett • 20 tracks",
-        ),
-        author: None,
-    },
-    LibraryPlaylist {
-        playlist_id: PlaylistID(
-            "VLRDCLAK5uy_lRzD6ZcGWU_ef3r4y7ifNYLiGmCCX_jIk",
-        ),
-        title: "Deadly Hotlist",
-        thumbnails: [
-            Thumbnail {
-                height: 226,
-                width: 226,
-                url: "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w226-h226-l90-rj",
-            },
-            Thumbnail {
-                height: 544,
-                width: 544,
-                url: "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w544-h544-l90-rj",
-            },
-        ],
-        count: None,
-        description: Some(
-            "YouTube Music • 50 songs",
-        ),
-        author: None,
-    },
-    LibraryPlaylist {
-        playlist_id: PlaylistID(
-            "VLSE",
-        ),
-        title: "Episodes for Later",
-        thumbnails: [
-            Thumbnail {
-                height: 192,
-                width: 192,
-                url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@192.png",
-            },
-            Thumbnail {
-                height: 576,
-                width: 576,
-                url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@576.png",
-            },
-        ],
-        count: None,
-        description: Some(
-            "Episodes you save for later",
-        ),
-        author: None,
-    },
-]
+GetLibraryPlaylists {
+    playlists: [
+        LibraryPlaylist {
+            playlist_id: PlaylistID(
+                "VLLM",
+            ),
+            title: "Liked Music",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@192.png",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/liked-music-@576.png",
+                },
+            ],
+            count: None,
+            description: Some(
+                "Auto playlist",
+            ),
+            author: None,
+        },
+        LibraryPlaylist {
+            playlist_id: PlaylistID(
+                "VLPLCZQcydUIP07hMOwAXIag92l76d3z3Thv",
+            ),
+            title: "Listen later",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/oGdMcu3X8XKqSc9QMRqV3rqznKuPScNylHcqmKiBfLE1TZ7gkqFJRwQX2rAiWyAOuLPM614fSDo=s576",
+                },
+            ],
+            count: None,
+            description: Some(
+                "Nick Dowsett • 20 tracks",
+            ),
+            author: None,
+        },
+        LibraryPlaylist {
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_lRzD6ZcGWU_ef3r4y7ifNYLiGmCCX_jIk",
+            ),
+            title: "Deadly Hotlist",
+            thumbnails: [
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/HJoX79I4ngSCHXjzEWHwWpvwlK2cMhbezyKN8I-lH06APDbjIAUymVCI1VmeB5EcrNwglLAB0Edlt1KL=w544-h544-l90-rj",
+                },
+            ],
+            count: None,
+            description: Some(
+                "YouTube Music • 50 songs",
+            ),
+            author: None,
+        },
+        LibraryPlaylist {
+            playlist_id: PlaylistID(
+                "VLSE",
+            ),
+            title: "Episodes for Later",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@192.png",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/saved-episodes-@576.png",
+                },
+            ],
+            count: None,
+            description: Some(
+                "Episodes you save for later",
+            ),
+            author: None,
+        },
+    ],
+    continuation_params: None,
+}

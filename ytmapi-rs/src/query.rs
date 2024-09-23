@@ -23,8 +23,8 @@
 //!     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
 //!         serde_json::Map::from_iter([("get_date".to_string(), serde_json::json!("YYYYMMDD"))])
 //!     }
-//!     fn params(&self) -> Option<std::borrow::Cow<str>> {
-//!         None
+//!     fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+//!         vec![]
 //!     }
 //!     fn path(&self) -> &str {
 //!         "date"
@@ -41,6 +41,7 @@ use private::Sealed;
 
 pub use album::*;
 pub use artist::*;
+pub use continuations::*;
 pub use history::*;
 pub use library::*;
 pub use playlist::*;
@@ -50,6 +51,7 @@ pub use search::*;
 pub use upload::*;
 
 mod artist;
+mod continuations;
 mod history;
 mod library;
 mod playlist;
@@ -73,7 +75,7 @@ pub trait Query<A: AuthToken>: Sized {
 /// Represents a plain POST query that can be sent to Innertube.
 pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
-    fn params(&self) -> Option<Cow<str>>;
+    fn params(&self) -> Vec<(&str, Cow<str>)>;
     fn path(&self) -> &str;
 }
 /// Represents a plain GET query that can be sent to Innertube.
@@ -149,7 +151,7 @@ pub mod album {
         parse::GetAlbum,
     };
     use serde_json::json;
-    use std::borrow::Cow;
+    
 
     #[derive(Clone)]
     pub struct GetAlbumQuery<'a> {
@@ -171,67 +173,14 @@ pub mod album {
         fn path(&self) -> &str {
             "browse"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+            vec![]
         }
     }
     impl<'a> GetAlbumQuery<'_> {
         pub fn new<T: Into<AlbumID<'a>>>(browse_id: T) -> GetAlbumQuery<'a> {
             GetAlbumQuery {
                 browse_id: browse_id.into(),
-            }
-        }
-    }
-}
-
-// For future use.
-pub mod continuations {
-    use crate::{
-        auth::AuthToken,
-        parse::{ParseFrom, ProcessedResult},
-    };
-
-    use super::{BasicSearch, PostMethod, PostQuery, Query, SearchQuery};
-    use std::borrow::Cow;
-
-    pub struct GetContinuationsQuery<Q> {
-        continuation_params: String,
-        query: Q,
-    }
-    impl<'a> ParseFrom<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>> for () {
-        fn parse_from(
-            _: ProcessedResult<GetContinuationsQuery<SearchQuery<'a, BasicSearch>>>,
-        ) -> crate::Result<Self> {
-            todo!()
-        }
-    }
-    // TODO: Output type
-    impl<'a, A: AuthToken> Query<A> for GetContinuationsQuery<SearchQuery<'a, BasicSearch>>
-    where
-        SearchQuery<'a, BasicSearch>: Query<A>,
-    {
-        type Output = ();
-        type Method = PostMethod;
-    }
-    impl<'a> PostQuery for GetContinuationsQuery<SearchQuery<'a, BasicSearch>>
-    where
-        SearchQuery<'a, BasicSearch>: PostQuery,
-    {
-        fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-            self.query.header()
-        }
-        fn path(&self) -> &str {
-            self.query.path()
-        }
-        fn params(&self) -> Option<Cow<str>> {
-            Some(Cow::Borrowed(&self.continuation_params))
-        }
-    }
-    impl<Q> GetContinuationsQuery<Q> {
-        pub fn new(c_params: String, query: Q) -> GetContinuationsQuery<Q> {
-            GetContinuationsQuery {
-                continuation_params: c_params,
-                query,
             }
         }
     }
@@ -245,7 +194,7 @@ pub mod lyrics {
         parse::Lyrics,
     };
     use serde_json::json;
-    use std::borrow::Cow;
+    
 
     pub struct GetLyricsQuery<'a> {
         id: LyricsID<'a>,
@@ -266,8 +215,8 @@ pub mod lyrics {
         fn path(&self) -> &str {
             "browse"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+            vec![]
         }
     }
     impl<'a> GetLyricsQuery<'a> {
@@ -348,8 +297,8 @@ pub mod watch {
         fn path(&self) -> &str {
             "next"
         }
-        fn params(&self) -> Option<Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
     }
     impl<'a> GetWatchPlaylistQuery<VideoID<'a>> {
@@ -389,6 +338,8 @@ pub mod watch {
 }
 
 pub mod rate {
+    use std::borrow::Cow;
+
     use super::{PostMethod, PostQuery, Query};
     use crate::{
         auth::AuthToken,
@@ -430,8 +381,8 @@ pub mod rate {
                 json!({"videoId" : self.video_id.get_raw()} ),
             )])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             like_endpoint(&self.rating)
@@ -451,8 +402,8 @@ pub mod rate {
                 json!({"playlistId" : self.playlist_id.get_raw()} ),
             )])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             like_endpoint(&self.rating)
@@ -474,6 +425,7 @@ pub mod song {
     use crate::common::VideoID;
     use crate::{auth::AuthToken, common::SongTrackingUrl, Result};
     use serde_json::json;
+    use std::borrow::Cow;
     use std::time::SystemTime;
 
     pub struct GetSongTrackingUrlQuery<'a> {
@@ -515,8 +467,8 @@ pub mod song {
                 ("video_id".to_string(), json!(self.video_id)),
             ])
         }
-        fn params(&self) -> Option<std::borrow::Cow<str>> {
-            None
+        fn params(&self) -> Vec<(&str, Cow<str>)> {
+            vec![]
         }
         fn path(&self) -> &str {
             "player"

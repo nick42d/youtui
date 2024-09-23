@@ -90,8 +90,8 @@ impl<'a> PostQuery for GetPlaylistQuery<'a> {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 
@@ -112,8 +112,8 @@ impl<'a> PostQuery for DeletePlaylistQuery<'a> {
     fn path(&self) -> &str {
         "playlist/delete"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
@@ -150,7 +150,7 @@ impl<'a> PostQuery for RemovePlaylistItemsQuery<'a> {
     fn path(&self) -> &str {
         "browse/edit_playlist"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }

@@ -15,11 +15,11 @@ use crate::common::{
 };
 use crate::common::{LikeStatus, TasteToken};
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryArtistSubscription,
-    GetPlaylist, HistoryPeriod, LibraryArtist, LibraryPlaylist, Lyrics, SearchResultAlbum,
-    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
-    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
-    TableListSong, WatchPlaylist,
+    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryAlbums,
+    GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists, GetPlaylist,
+    HistoryPeriod, Lyrics, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
+    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
+    SearchResultSong, SearchResultVideo, SearchResults, WatchPlaylist,
 };
 use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
@@ -313,7 +313,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.get_library_playlists().await;
     /// # };
-    pub async fn get_library_playlists(&self) -> Result<Vec<LibraryPlaylist>> {
+    pub async fn get_library_playlists(&self) -> Result<GetLibraryPlaylists> {
         let query = GetLibraryPlaylistsQuery;
         self.query(query).await
     }
@@ -330,7 +330,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_artists().await;
     /// # };
-    pub async fn get_library_artists(&self) -> Result<Vec<LibraryArtist>> {
+    pub async fn get_library_artists(&self) -> Result<GetLibraryArtists> {
         let query = GetLibraryArtistsQuery::default();
         self.query(query).await
     }
@@ -347,7 +347,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_songs().await;
     /// # };
-    pub async fn get_library_songs(&self) -> Result<Vec<TableListSong>> {
+    pub async fn get_library_songs(&self) -> Result<<GetLibrarySongsQuery as Query<A>>::Output> {
         let query = GetLibrarySongsQuery::default();
         self.query(query).await
     }
@@ -364,7 +364,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_albums().await;
     /// # };
-    pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
+    pub async fn get_library_albums(&self) -> Result<GetLibraryAlbums> {
         let query = GetLibraryAlbumsQuery::default();
         self.query(query).await
     }
@@ -381,9 +381,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_artist_subscriptions().await;
     /// # };
-    pub async fn get_library_artist_subscriptions(
-        &self,
-    ) -> Result<Vec<GetLibraryArtistSubscription>> {
+    pub async fn get_library_artist_subscriptions(&self) -> Result<GetLibraryArtistSubscriptions> {
         let query = GetLibraryArtistSubscriptionsQuery::default();
         self.query(query).await
     }
@@ -467,7 +465,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_playlists().await.unwrap();
-    /// yt.delete_playlist(&results[0].playlist_id).await
+    /// yt.delete_playlist(&results.playlists[0].playlist_id).await
     /// # };
     pub async fn delete_playlist<'a, T: Into<PlaylistID<'a>>>(&self, playlist_id: T) -> Result<()> {
         let query = DeletePlaylistQuery::new(playlist_id.into());
@@ -499,7 +497,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
     /// let songs = yt.search_songs("Master of puppets").await.unwrap();
     /// yt.add_video_items_to_playlist(
     ///     playlist_id,
@@ -523,7 +521,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
     ///     .unwrap();
@@ -548,7 +546,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
     ///     .unwrap();
@@ -575,7 +573,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let playlists = yt.get_library_playlists()
     ///     .await
-    ///     .unwrap();
+    ///     .unwrap()
+    ///     .playlists;
     /// let query = ytmapi_rs::query::EditPlaylistQuery::new_title(
     ///     &playlists[0].playlist_id,
     ///     "Better playlist title",

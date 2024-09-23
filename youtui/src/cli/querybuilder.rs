@@ -1,6 +1,5 @@
-use std::borrow::Borrow;
-
 use crate::{api::DynamicYtMusic, Command};
+use std::borrow::Borrow;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
@@ -10,6 +9,7 @@ use ytmapi_rs::{
         TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
         VideoID, YoutubeID,
     },
+    continuations::Continuable,
     parse::ParseFrom,
     process_json,
     query::{
@@ -19,15 +19,15 @@ use ytmapi_rs::{
         CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery,
         DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, EpisodesFilter,
         FeaturedPlaylistsFilter, GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery,
-        GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetHistoryQuery,
-        GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
-        GetLibraryPlaylistsQuery, GetLibrarySongsQuery, GetLibraryUploadAlbumQuery,
-        GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
-        GetLibraryUploadSongsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
-        GetNewEpisodesQuery, GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
-        GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter, ProfilesFilter, Query,
-        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
-        SongsFilter, VideosFilter,
+        GetChannelEpisodesQuery, GetChannelQuery, GetContinuationsQuery, GetEpisodeQuery,
+        GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+        GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+        GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
+        GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetMoodCategoriesQuery,
+        GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetPlaylistQuery, GetPodcastQuery,
+        GetSearchSuggestionsQuery, GetTasteProfileQuery, PlaylistsFilter, PodcastsFilter,
+        PostQuery, ProfilesFilter, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+        SearchQuery, SetTasteProfileQuery, SongsFilter, VideosFilter,
     },
 };
 
@@ -37,7 +37,7 @@ pub struct CliQuery {
 }
 
 pub enum QueryType {
-    FromSourceFile(String),
+    FromSourceFiles(Vec<String>),
     FromApi,
 }
 
@@ -79,12 +79,6 @@ pub async fn command_to_query(
                 cli_query,
             )
             .await
-        }
-        Command::GetLibraryPlaylists => {
-            get_string_output_of_query(yt, GetLibraryPlaylistsQuery, cli_query).await
-        }
-        Command::GetLibraryArtists => {
-            get_string_output_of_query(yt, GetLibraryArtistsQuery::default(), cli_query).await
         }
         Command::Search { query } => {
             get_string_output_of_query(yt, SearchQuery::new(query), cli_query).await
@@ -251,15 +245,45 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetLibrarySongs => {
-            get_string_output_of_query(yt, GetLibrarySongsQuery::default(), cli_query).await
-        }
-        Command::GetLibraryAlbums => {
-            get_string_output_of_query(yt, GetLibraryAlbumsQuery::default(), cli_query).await
-        }
-        Command::GetLibraryArtistSubscriptions => {
-            get_string_output_of_query(yt, GetLibraryArtistSubscriptionsQuery::default(), cli_query)
+        Command::GetLibraryPlaylists { max_pages } => {
+            get_string_output_of_streaming_query(yt, GetLibraryPlaylistsQuery, cli_query, max_pages)
                 .await
+        }
+        Command::GetLibraryArtists { max_pages } => {
+            get_string_output_of_streaming_query(
+                yt,
+                GetLibraryArtistsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
+        }
+        Command::GetLibrarySongs { max_pages } => {
+            get_string_output_of_streaming_query(
+                yt,
+                GetLibrarySongsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
+        }
+        Command::GetLibraryAlbums { max_pages } => {
+            get_string_output_of_streaming_query(
+                yt,
+                GetLibraryAlbumsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
+        }
+        Command::GetLibraryArtistSubscriptions { max_pages } => {
+            get_string_output_of_streaming_query(
+                yt,
+                GetLibraryArtistSubscriptionsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
         }
         Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery, cli_query).await,
         Command::RemoveHistoryItems { feedback_tokens } => {
@@ -475,24 +499,100 @@ where
             show_source: false,
         } => yt.query(q).await.map(|r| format!("{:#?}", r)),
         CliQuery {
-            query_type: QueryType::FromSourceFile(source),
+            query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
-        } => Ok(source),
+        } => Ok(sources.into_iter().next().unwrap_or_default()),
         CliQuery {
-            query_type: QueryType::FromSourceFile(source),
+            query_type: QueryType::FromSourceFiles(sources),
             show_source: false,
         } => {
-            // Neat hack to ensure process_json utilises the same AuthType as was set in
-            // config. This works as the config step sets the variant of
-            // DynamicYtMusic.
-            match yt {
-                DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, q)
-                    .map(|r| format!("{:#?}", r))
-                    .map_err(|e| e.into()),
-                DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, q)
-                    .map(|r| format!("{:#?}", r))
-                    .map_err(|e| e.into()),
+            // Note - if multiple sources are provided, only the first is processed - the
+            // rest are ignored.
+            if let Some(first_source) = sources.into_iter().next() {
+                process_json_based_on_dyn_api(&yt, first_source, q)
+            } else {
+                Ok(String::new())
             }
         }
+    }
+}
+
+async fn get_string_output_of_streaming_query<Q, O>(
+    yt: DynamicYtMusic,
+    q: impl Borrow<Q>,
+    cli_query: CliQuery,
+    max_pages: usize,
+) -> crate::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    Q: PostQuery,
+    O: ParseFrom<Q> + Continuable<Q>,
+{
+    match cli_query {
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: true,
+        } => yt.stream_source(q.borrow(), max_pages).await,
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: false,
+        } => yt.stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: true,
+        } => {
+            Ok(
+                // Replace with standard library method once stabilised.
+                itertools::intersperse(sources.into_iter().take(max_pages), "\n".to_string())
+                    .collect(),
+            )
+        }
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: false,
+        } => {
+            let mut output_arr = vec![];
+            let mut sources_iter = sources.into_iter().take(max_pages);
+            if let Some(first_source) = sources_iter.next() {
+                output_arr.push(process_json_based_on_dyn_api::<Q, O>(
+                    &yt,
+                    first_source,
+                    q.borrow(),
+                )?)
+            }
+            for source in sources_iter {
+                let continuation_query = GetContinuationsQuery::new_mock_unchecked(q.borrow());
+                output_arr.push(process_json_based_on_dyn_api(
+                    &yt,
+                    source,
+                    continuation_query,
+                )?)
+            }
+            Ok(output_arr.join("\n"))
+        }
+    }
+}
+
+fn process_json_based_on_dyn_api<Q, O>(
+    yt: &DynamicYtMusic,
+    source: String,
+    query: impl Borrow<Q>,
+) -> crate::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
+    // The matching on yt is a neat hack to ensure process_json utilises the same
+    // AuthType as was set in config. This works as the config step sets
+    // the variant of DynamicYtMusic.
+    match yt {
+        DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
+        DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
     }
 }

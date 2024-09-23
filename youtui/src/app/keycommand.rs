@@ -82,7 +82,7 @@ impl<A: Action> Display for KeyCommand<A> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let w: String = 
             // NOTE: Replace with standard library method once stabilised.
-            itertools::Itertools::intersperse(
+            itertools::intersperse(
                 self
                     .keybinds
                     .iter()

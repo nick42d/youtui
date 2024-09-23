@@ -102,3 +102,27 @@ macro_rules! parse_test_value {
         pretty_assertions::assert_eq!(parsed, $out);
     };
 }
+
+/// Macro to generate a parsing test for continuations based on the following
+/// values: May not really need a macro for this, could use a function.
+/// Input file, output file, query, token
+/// Note, this is async due to use of tokio::fs
+#[cfg(test)]
+macro_rules! parse_continuations_test {
+    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+        let source_path = std::path::Path::new($in);
+        let expected_path = std::path::Path::new($out);
+        let source = tokio::fs::read_to_string(source_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let query = $query;
+        let continuations_query = crate::query::GetContinuationsQuery::new_mock_unchecked(&query);
+        let output = crate::process_json::<_, $token>(source, continuations_query).unwrap();
+        let output = format!("{:#?}", output);
+        pretty_assertions::assert_eq!(expected, output);
+    };
+}

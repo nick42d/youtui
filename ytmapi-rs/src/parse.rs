@@ -49,7 +49,6 @@ pub use watch::*;
 
 mod album;
 mod artist;
-mod continuations;
 mod history;
 mod library;
 mod playlists;

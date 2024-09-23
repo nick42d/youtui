@@ -1,12 +1,10 @@
-use serde_json::json;
-
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
     common::{ArtistChannelID, BrowseParams, YoutubeID},
     parse::{ArtistParams, GetArtistAlbumsAlbum},
 };
-use std::borrow::Cow;
+use serde_json::json;
 
 #[derive(Debug, Clone)]
 pub struct GetArtistQuery<'a> {
@@ -59,8 +57,8 @@ impl<'a> PostQuery for GetArtistQuery<'a> {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
 }
 // TODO: Check if the MPLA strip is correct for both of these.
@@ -73,17 +71,15 @@ impl<'a> PostQuery for GetArtistAlbumsQuery<'a> {
         // XXX: should do in new
         // XXX: Think I could remove allocation here
         let value = self.channel_id.get_raw().replacen("MPLA", "", 1);
-        let serde_json::Value::Object(map) = json!({
-            "browseId" : value,
-        }) else {
-            unreachable!()
-        };
-        map
+        FromIterator::from_iter([
+            ("browseId".to_string(), json!(value)),
+            ("params".to_string(), json!(self.params)),
+        ])
     }
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        Some(self.params.get_raw().into())
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
     }
 }

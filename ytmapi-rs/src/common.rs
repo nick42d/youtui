@@ -155,6 +155,8 @@ pub struct ArtistChannelID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PodcastChannelID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct ContinuationParams<'a>(Cow<'a, str>);
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct ProfileID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct PodcastID<'a>(Cow<'a, str>);
@@ -196,6 +198,7 @@ impl_youtube_id!(PodcastChannelID<'a>);
 impl_youtube_id!(LyricsID<'a>);
 impl_youtube_id!(BrowseParams<'a>);
 impl_youtube_id!(PodcastChannelParams<'a>);
+impl_youtube_id!(ContinuationParams<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromHistory<'a>);
 impl_youtube_id!(FeedbackTokenRemoveFromLibrary<'a>);
 impl_youtube_id!(FeedbackTokenAddToLibrary<'a>);

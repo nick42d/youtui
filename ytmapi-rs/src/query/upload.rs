@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use super::{get_sort_order_params, GetLibrarySortOrder, PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
@@ -70,8 +72,8 @@ impl<'a> PostQuery for GetLibraryUploadAlbumQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_album_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -86,8 +88,8 @@ impl<'a> PostQuery for GetLibraryUploadArtistQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_artist_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -100,13 +102,24 @@ impl<A: AuthToken> Query<A> for GetLibraryUploadSongsQuery {
 }
 impl PostQuery for GetLibraryUploadSongsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([(
-            "browseId".to_string(),
-            json!("FEmusic_library_privately_owned_tracks"),
-        )])
+        let params = get_sort_order_params(&self.sort_order);
+        if let Some(params) = params {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_privately_owned_tracks"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_privately_owned_tracks"),
+            )])
+        }
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(Into::into)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -119,13 +132,24 @@ impl<A: AuthToken> Query<A> for GetLibraryUploadAlbumsQuery {
 }
 impl PostQuery for GetLibraryUploadAlbumsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([(
-            "browseId".to_string(),
-            json!("FEmusic_library_privately_owned_releases"),
-        )])
+        let params = get_sort_order_params(&self.sort_order);
+        if let Some(params) = params {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_privately_owned_releases"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_privately_owned_releases"),
+            )])
+        }
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(Into::into)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -138,13 +162,24 @@ impl<A: AuthToken> Query<A> for GetLibraryUploadArtistsQuery {
 }
 impl PostQuery for GetLibraryUploadArtistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([(
-            "browseId".to_string(),
-            json!("FEmusic_library_privately_owned_artists"),
-        )])
+        let params = get_sort_order_params(&self.sort_order);
+        if let Some(params) = params {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_privately_owned_artists"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_privately_owned_artists"),
+            )])
+        }
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(Into::into)
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -159,8 +194,8 @@ impl<'a> PostQuery for DeleteUploadEntityQuery<'a> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("entityId".to_string(), json!(self.upload_entity_id))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "music/delete_privately_owned_entity"

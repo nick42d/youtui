@@ -3,8 +3,8 @@ use crate::{
     auth::AuthToken,
     common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
     parse::{
-        GetLibraryArtistSubscription, LibraryArtist, LibraryPlaylist, SearchResultAlbum,
-        TableListSong,
+        GetLibraryAlbums, GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists,
+        GetLibrarySongs,
     },
 };
 use serde_json::json;
@@ -104,89 +104,116 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
-    type Output = Vec<LibraryPlaylist>;
+    type Output = GetLibraryPlaylists;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryPlaylistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        let serde_json::Value::Object(map) = json!({
-             "browseId" : "FEmusic_liked_playlists"
-        }) else {
-            unreachable!("Created a map");
-        };
-        map
+        FromIterator::from_iter([("browseId".to_string(), json!("FEmusic_liked_playlists"))])
     }
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
-    type Output = Vec<LibraryArtist>;
+    type Output = GetLibraryArtists;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        let serde_json::Value::Object(map) = json!({
-             "browseId" : "FEmusic_library_corpus_track_artists"
-        }) else {
-            unreachable!("Created a map");
-        };
-        map
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            FromIterator::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_corpus_track_artists"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            FromIterator::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_corpus_track_artists"),
+            )])
+        }
     }
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Option<Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 
 impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
-    type Output = Vec<TableListSong>;
+    type Output = GetLibrarySongs;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibrarySongsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_videos"))])
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            serde_json::Map::from_iter([
+                ("browseId".to_string(), json!("FEmusic_liked_videos")),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_videos"))])
+        }
     }
-    fn params(&self) -> Option<Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
-    type Output = Vec<SearchResultAlbum>;
+    type Output = GetLibraryAlbums;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryAlbumsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_albums"))])
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            serde_json::Map::from_iter([
+                ("browseId".to_string(), json!("FEmusic_liked_albums")),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_albums"))])
+        }
     }
-    fn params(&self) -> Option<Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
     }
 }
 impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
-    type Output = Vec<GetLibraryArtistSubscription>;
+    type Output = GetLibraryArtistSubscriptions;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistSubscriptionsQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        serde_json::Map::from_iter([(
-            "browseId".to_string(),
-            json!("FEmusic_library_corpus_artists"),
-        )])
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_corpus_artists"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_corpus_artists"),
+            )])
+        }
     }
-    fn params(&self) -> Option<Cow<str>> {
-        get_sort_order_params(&self.sort_order).map(|s| s.into())
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "browse"
@@ -212,8 +239,8 @@ impl<'a> PostQuery for EditSongLibraryStatusQuery<'a> {
             .collect::<Vec<_>>();
         serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(feedback_tokens))])
     }
-    fn params(&self) -> Option<std::borrow::Cow<str>> {
-        None
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
     fn path(&self) -> &str {
         "feedback"

@@ -132,9 +132,6 @@ impl AuthToken for OAuthToken {
         });
         if let Some(body) = body.as_object_mut() {
             body.append(&mut query.header());
-            if let Some(q) = query.params() {
-                body.insert("params".into(), q.into());
-            }
         } else {
             unreachable!("Body created in this function as an object")
         };
@@ -155,7 +152,9 @@ impl AuthToken for OAuthToken {
             ),
             ("X-Goog-Request-Time", request_time_unix.to_string().into()),
         ];
-        let result = client.post_query(url, headers, &body).await?;
+        let result = client
+            .post_query(url, headers, &body, &query.params())
+            .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
@@ -220,7 +219,9 @@ impl OAuthToken {
             "client_id" : OAUTH_CLIENT_ID
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client.post_query(OAUTH_TOKEN_URL, headers, &body).await?;
+        let result = client
+            .post_query(OAUTH_TOKEN_URL, headers, &body, &())
+            .await?;
         let google_token: GoogleOAuthToken =
             serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
         Ok(OAuthToken::from_google_token(
@@ -236,7 +237,9 @@ impl OAuthToken {
             "client_id" : OAUTH_CLIENT_ID,
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client.post_query(OAUTH_TOKEN_URL, headers, &body).await?;
+        let result = client
+            .post_query(OAUTH_TOKEN_URL, headers, &body, &())
+            .await?;
         let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result)
             .map_err(|e| Error::unable_to_serialize_oauth(&result, e))?;
         Ok(OAuthToken::from_google_refresh_token(
@@ -255,7 +258,9 @@ impl OAuthTokenGenerator {
             "client_id" : OAUTH_CLIENT_ID
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client.post_query(OAUTH_CODE_URL, headers, &body).await?;
+        let result = client
+            .post_query(OAUTH_CODE_URL, headers, &body, &())
+            .await?;
         serde_json::from_str(&result).map_err(|_| Error::response(&result))
     }
 }

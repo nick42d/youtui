@@ -60,8 +60,10 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
     browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
 };
+use continuations::Continuable;
+use futures::Stream;
 use parse::ParseFrom;
-use query::{Query, QueryMethod};
+use query::{PostQuery, Query, QueryMethod};
 use std::{
     borrow::Borrow,
     hash::{DefaultHasher, Hash, Hasher},
@@ -89,6 +91,7 @@ pub mod auth;
 pub mod builder;
 pub mod client;
 pub mod common;
+pub mod continuations;
 pub mod error;
 pub mod json;
 pub mod parse;
@@ -267,6 +270,31 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
         Q::Output::parse_from(self.processed_query(query.borrow()).await?)
+    }
+    /// Stream a query that has 'continuations', i.e can continue to stream
+    /// results.
+    /// # Return type lifetime notes
+    /// The returned Impl Stream is tied to the lifetime of self, since it's
+    /// self's client that will emit the results. It's also tied to the
+    /// lifetime of query, but ideally it could take either owned or
+    /// borrowed query.
+    /// # Usage
+    /// ```no_run
+    /// use futures::stream::TryStreamExt;
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
+    /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
+    /// let results = yt.stream(&query).try_collect::<Vec<_>>().await?;
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub fn stream<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<Q::Output>> + 'a
+    where
+        Q: Query<A>,
+        Q: PostQuery,
+        Q::Output: Continuable<Q>,
+    {
+        continuations::stream(query, &self.client, &self.token)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for

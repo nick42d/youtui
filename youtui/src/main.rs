@@ -46,9 +46,13 @@ struct Cli {
     /// processed value.
     #[arg(short, long, default_value_t = false)]
     show_source: bool,
-    /// Process the passed Json file as if it were received from YouTube Music.
+    /// Process the passed Json file(s) as if received from YouTube Music. This
+    /// parameter can be passed multiple times, processing multiple files if
+    /// the endpoint supports continuations. If multiple files are
+    /// passed but the endpoint doesn't support continuations, only the
+    /// first one is processed.
     #[arg(short, long)]
-    input_json: Option<PathBuf>,
+    input_json: Option<Vec<PathBuf>>,
     #[command(subcommand)]
     command: Option<Command>,
 }
@@ -82,11 +86,30 @@ enum Command {
     GetPlaylist {
         playlist_id: String,
     },
-    GetLibraryPlaylists,
-    GetLibraryArtists,             //TODO: Allow sorting
-    GetLibrarySongs,               //TODO: Allow sorting
-    GetLibraryAlbums,              //TODO: Allow sorting
-    GetLibraryArtistSubscriptions, //TODO: Allow sorting
+    GetLibraryPlaylists {
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
+    },
+    //TODO: Allow sorting
+    GetLibraryArtists {
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
+    },
+    //TODO: Allow sorting
+    GetLibrarySongs {
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
+    },
+    //TODO: Allow sorting
+    GetLibraryAlbums {
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
+    },
+    //TODO: Allow sorting
+    GetLibraryArtistSubscriptions {
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
+    },
     Search {
         query: String,
     },

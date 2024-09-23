@@ -313,9 +313,7 @@ fn parse_episode(crawler: impl JsonCrawler) -> Result<Episode> {
 mod tests {
     use crate::{
         auth::BrowserToken,
-        common::{
-            EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID, YoutubeID,
-        },
+        common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, YoutubeID},
         query::{
             GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
             GetPodcastQuery,

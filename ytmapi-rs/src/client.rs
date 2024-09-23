@@ -38,11 +38,12 @@ impl Client {
         url: impl AsRef<str>,
         headers: impl IntoIterator<IntoIter = I>,
         body_json: &(impl Serialize + ?Sized),
+        params: &(impl Serialize + ?Sized),
     ) -> Result<String>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
-        let mut request_builder = self.inner.post(url.as_ref()).json(body_json);
+        let mut request_builder = self.inner.post(url.as_ref()).json(body_json).query(params);
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }
