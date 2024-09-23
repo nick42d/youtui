@@ -1,7 +1,6 @@
-use std::{cell::RefCell, collections::VecDeque, env, path::Path, rc::Rc};
+use std::{env, path::Path};
 use ytmapi_rs::{
-    auth::{AuthToken, BrowserToken, OAuthToken},
-    ProcessedResult, RawResult, Result, YtMusic,
+    auth::{BrowserToken, OAuthToken}, Result, YtMusic,
 };
 
 pub const COOKIE_PATH: &str = "cookie.txt";

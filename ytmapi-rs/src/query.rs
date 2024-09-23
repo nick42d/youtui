@@ -151,7 +151,7 @@ pub mod album {
         parse::GetAlbum,
     };
     use serde_json::json;
-    use std::borrow::Cow;
+    
 
     #[derive(Clone)]
     pub struct GetAlbumQuery<'a> {
@@ -194,7 +194,7 @@ pub mod lyrics {
         parse::Lyrics,
     };
     use serde_json::json;
-    use std::borrow::Cow;
+    
 
     pub struct GetLyricsQuery<'a> {
         id: LyricsID<'a>,

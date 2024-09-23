@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
     auth::AuthToken,
-    common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID},
+    common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID},
     parse::{Episode, GetEpisode, GetPodcast, GetPodcastChannel},
 };
 use serde_json::json;
