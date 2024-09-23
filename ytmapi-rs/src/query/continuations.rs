@@ -7,6 +7,8 @@ use crate::{
 };
 use std::{borrow::Cow, vec::Vec};
 
+/// Query that will get continuations for a query that returned paginated
+/// results.
 pub struct GetContinuationsQuery<'a, Q> {
     query: &'a Q,
     continuation_params: ContinuationParams<'static>,
