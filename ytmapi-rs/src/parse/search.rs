@@ -1,6 +1,4 @@
-use super::{
-    parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY, RESPONSIVE_HEADER,
-};
+use super::{parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY};
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,

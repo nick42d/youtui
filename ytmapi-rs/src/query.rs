@@ -33,7 +33,7 @@
 //! ```
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
-use crate::{Client, RawResult, Result};
+use crate::{RawResult, Result};
 use std::borrow::Cow;
 use std::future::Future;
 

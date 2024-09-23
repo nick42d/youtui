@@ -81,7 +81,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
+    pub async fn _browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<BrowserToken>,
     {
@@ -95,7 +95,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
+    pub async fn _oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
     where
         Q: Query<OAuthToken>,
     {
@@ -121,7 +121,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })
     }
-    pub async fn stream_source<Q, O>(&self, query: &Q, max_pages: usize) -> Result<String>
+    pub async fn stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -130,7 +130,7 @@ impl DynamicYtMusic {
     {
         Err(Error::Other("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string()))
     }
-    pub async fn browser_query_source<Q>(&self, query: &Q) -> Result<String>
+    pub async fn _browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<BrowserToken>,
     {
@@ -146,7 +146,7 @@ impl DynamicYtMusic {
             }
         })
     }
-    pub async fn oauth_query_source<Q>(&self, query: &Q) -> Result<String>
+    pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
     where
         Q: Query<OAuthToken>,
     {
