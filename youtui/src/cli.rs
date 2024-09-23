@@ -37,9 +37,7 @@ pub async fn handle_cli_command(cli: Cli, rt: RuntimeInfo) -> Result<()> {
             input_json: Some(input_array),
             show_source,
         } => {
-            let source_futures = input_array
-                .into_iter()
-                .map(|path| tokio::fs::read_to_string(path));
+            let source_futures = input_array.into_iter().map(tokio::fs::read_to_string);
             let sources = try_join_all(source_futures).await?;
             let cli_query = CliQuery {
                 query_type: QueryType::FromSourceFiles(sources),

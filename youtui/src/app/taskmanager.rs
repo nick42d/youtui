@@ -83,14 +83,11 @@ pub enum RequestCategory {
     Get,
     Download,
     GetSearchSuggestions,
-    GetVolume,
     ProgressUpdate,
-    IncreaseVolume, // TODO: generalize
+    IncreaseVolume,
     PlayPause,
     PlayingSong,
     PlayStop,
-    #[deprecated]
-    Unknown,
 }
 
 impl TaskManager {

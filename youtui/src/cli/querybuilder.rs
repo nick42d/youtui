@@ -1,5 +1,4 @@
 use crate::{api::DynamicYtMusic, Command};
-use itertools::Itertools;
 use std::borrow::Borrow;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
@@ -542,12 +541,13 @@ where
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
-        } => Ok(sources
-            .into_iter()
-            .take(max_pages)
-            // Replace with standard library method once stabilised.
-            .intersperse("\n".to_string())
-            .collect()),
+        } => {
+            Ok(
+                // Replace with standard library method once stabilised.
+                itertools::intersperse(sources.into_iter().take(max_pages), "\n".to_string())
+                    .collect(),
+            )
+        }
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: false,

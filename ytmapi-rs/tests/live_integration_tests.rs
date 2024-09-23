@@ -226,7 +226,7 @@ generate_query_test!(
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
 
-//// MULTISTAGE TESTS
+// # MULTISTAGE TESTS
 
 #[tokio::test]
 async fn test_get_mood_playlists() {
@@ -373,7 +373,7 @@ async fn test_get_artist_album_songs() {
     println!("Process album took {} ms", now.elapsed().as_millis());
 }
 
-//// STATEFUL TESTS
+// # STATEFUL TESTS
 
 #[tokio::test]
 async fn test_add_remove_history_items() {
@@ -617,7 +617,7 @@ async fn test_edit_playlist() {
     api.delete_playlist(id).await.unwrap();
 }
 
-//// BASIC TESTS WITH ADDITIONAL ASSERTIONS
+// # BASIC TESTS WITH ADDITIONAL ASSERTIONS
 
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
