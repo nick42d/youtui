@@ -94,11 +94,17 @@ generate_stream_test!(
     GetLibrarySongsQuery::default()
 );
 generate_stream_test!(
+    #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
-generate_stream_test!(test_stream_get_library_playlists, GetLibraryPlaylistsQuery);
 generate_stream_test!(
+    #[ignore = "Ignored by default due to quota"]
+    test_stream_get_library_playlists,
+    GetLibraryPlaylistsQuery
+);
+generate_stream_test!(
+    #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_albums,
     GetLibraryAlbumsQuery::default()
 );
@@ -121,6 +127,7 @@ generate_query_test!(
     // Rustacean Station
     GetChannelQuery::new(PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),)
 );
+// NOTE: Can be flaky - visiting this page on the website seems to reset it.
 generate_query_test!(
     test_get_channel_episodes,
     // Rustacean Station
@@ -151,18 +158,25 @@ generate_query_test!(
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
 generate_query_test!(
+    #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_songs,
     GetLibraryUploadSongsQuery::default()
 );
 generate_query_test!(
+    #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_albums,
     GetLibraryUploadAlbumsQuery::default()
 );
 generate_query_test!(
+    #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_artists,
     GetLibraryUploadArtistsQuery::default()
 );
-generate_query_test!(test_get_library_songs, GetLibrarySongsQuery::default());
+generate_query_test!(
+    #[ignore = "Ignored by default due to quota"]
+    test_get_library_songs,
+    GetLibrarySongsQuery::default()
+);
 generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
 generate_query_test!(
     test_get_library_artist_subscriptions,
@@ -256,6 +270,7 @@ async fn test_get_mood_playlists() {
     tokio::join!(oauth_fut, browser_fut);
 }
 
+#[ignore = "Ignored by default due to quota"]
 #[tokio::test]
 async fn test_get_library_upload_artist() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
@@ -279,6 +294,8 @@ async fn test_get_library_upload_artist() {
     };
     tokio::join!(oauth_fut, browser_fut);
 }
+
+#[ignore = "Ignored by default due to quota"]
 #[tokio::test]
 async fn test_get_library_upload_album() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
@@ -430,6 +447,7 @@ async fn test_add_remove_history_items() {
 }
 
 #[tokio::test]
+#[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -446,6 +464,7 @@ async fn test_delete_create_playlist_oauth() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
+#[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
@@ -552,6 +571,7 @@ async fn test_rate_playlists() {
     .unwrap();
 }
 #[tokio::test]
+#[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist_complex() {
     // TODO: Add siginficantly more queries.
     // TODO: Oauth.
@@ -574,6 +594,7 @@ async fn test_delete_create_playlist_complex() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
+#[ignore = "Ignored by default due to quota"]
 async fn test_add_remove_playlist_items() {
     // TODO: Oauth.
     let api = new_standard_api().await.unwrap();
@@ -596,6 +617,7 @@ async fn test_add_remove_playlist_items() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
+#[ignore = "Ignored by default due to quota"]
 async fn test_edit_playlist() {
     // TODO: Add siginficantly more queries.
     // TODO: Oauth.

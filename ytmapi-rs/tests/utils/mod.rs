@@ -1,6 +1,7 @@
 use std::{env, path::Path};
 use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken}, Result, YtMusic,
+    auth::{BrowserToken, OAuthToken},
+    Result, YtMusic,
 };
 
 pub const COOKIE_PATH: &str = "cookie.txt";
@@ -34,6 +35,9 @@ pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
 }
 // It may be possible to put these inside a static, but last time I tried I kept
 // getting web errors.
+// The cause of the web errors is that each tokio::test has its own runtime.
+// To resolve this, we'll need a shared runtime as well as a static containing
+// the API.
 pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
     if let Ok(cookie) = env::var("youtui_test_cookie") {
         YtMusic::from_cookie(cookie).await
@@ -44,9 +48,11 @@ pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
 
 /// Macro to generate both oauth and browser tests for provided query.
 /// May not really need a macro for this, could use a function.
+/// Attributes like #[ignore] can be passed.
 // TODO: generalise
 macro_rules! generate_query_test {
-    ($fname:ident,$query:expr) => {
+    ($(#[$m:meta])*
+    $fname:ident,$query:expr) => {
         #[tokio::test]
         async fn $fname() {
             let oauth_future = async {
@@ -69,11 +75,13 @@ macro_rules! generate_query_test {
     };
 }
 
-/// Macro to generate both oauth and browser tests for provided query.
+/// Macro to generate both oauth and browser tests for provided stream.
 /// May not really need a macro for this, could use a function.
+/// Attributes like #[ignore] can be passed.
 // TODO: generalise
 macro_rules! generate_stream_test {
-    ($fname:ident,$query:expr) => {
+    ($(#[$m:meta])*
+    $fname:ident,$query:expr) => {
         #[tokio::test]
         async fn $fname() {
             use futures::stream::{StreamExt, TryStreamExt};

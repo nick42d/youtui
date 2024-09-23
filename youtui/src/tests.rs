@@ -51,7 +51,7 @@ fn get_video_options() -> VideoOptions {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "Ignored by default due to cost"]
 async fn test_downloads() {
     let songs = get_api().await.search_songs("Beatles").await.unwrap();
     futures::future::join_all(songs.into_iter().take(5).map(|s| async move {
