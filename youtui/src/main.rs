@@ -46,10 +46,11 @@ struct Cli {
     /// processed value.
     #[arg(short, long, default_value_t = false)]
     show_source: bool,
-    /// Process the passed Json file(s) as if it were received from YouTube
-    /// Music. Multiple files can be passed if the endpoint supports
-    /// continuations. If multiple files are passed but the endpoint doesn't
-    /// support continuations, only the first one is processed.
+    /// Process the passed Json file(s) as if received from YouTube Music. This
+    /// parameter can be passed multiple times, processing multiple files if
+    /// the endpoint supports continuations. If multiple files are
+    /// passed but the endpoint doesn't support continuations, only the
+    /// first one is processed.
     #[arg(short, long)]
     input_json: Option<Vec<PathBuf>>,
     #[command(subcommand)]
