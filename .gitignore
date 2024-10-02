@@ -15,3 +15,6 @@
 *.webm
 /ytmapi-rs/Cargo.lock
 /ytmapi-rs/target
+/async-callback-manager/Cargo.lock
+/async-callback-manager/target/
+/async-callback-manager/target/*

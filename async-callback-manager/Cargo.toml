@@ -1,0 +1,20 @@
+[package]
+name = "async-callback-manager"
+version = "0.0.1"
+edition = "2021"
+authors = ["nick42d"]
+license = "MIT"
+description = "Library that provides an interface to create and manage asynchronous callbacks in Rust. Dependency of `youtui` music player."
+homepage = "https://github.com/nick42d/youtui"
+repository = "https://github.com/nick42d/youtui"
+readme = "README.md"
+
+[dependencies]
+futures = "0.3.30"
+reqwest = "0.12.7"
+tokio = { version = "1.40.0", default-features = false }
+
+[dev-dependencies]
+tokio-stream = "0.1.16"
+tokio = { version = "1.40.0", features = ["full"] }
+
