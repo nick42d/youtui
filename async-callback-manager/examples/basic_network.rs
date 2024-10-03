@@ -109,9 +109,7 @@ async fn main() {
                 .unwrap();
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
-        for action in state.sender.get_messages().await {
-            action(&mut state)
-        }
+        state.sender.get_messages().await.apply(&mut state);
         println!("str1: {}, str2: {}", state.text_1, state.text_2)
     }
 }

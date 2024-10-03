@@ -18,13 +18,25 @@ pub struct CallbackSender<Bkend, Frntend> {
     pub(crate) runner_sender: Sender<TaskFromFrontend<Bkend>>,
 }
 
+/// A set of state mutations, that can be applied to a Frntend.
+pub struct StateMutationBundle<Frntend> {
+    mutation_list: Vec<DynCallbackFn<Frntend>>,
+}
+impl<Frntend> StateMutationBundle<Frntend> {
+    pub fn apply(self, frontend: &mut Frntend) {
+        self.mutation_list
+            .into_iter()
+            .for_each(|mutation| mutation(frontend));
+    }
+}
+
 impl<Bkend, Frntend> CallbackSender<Bkend, Frntend> {
-    pub async fn get_messages(&mut self) -> Vec<Box<dyn FnOnce(&mut Frntend) + Send>> {
-        let mut buffer = Vec::new();
-        while let Ok(message) = self.this_receiver.try_recv() {
-            buffer.push(message);
+    pub async fn get_messages(&mut self) -> StateMutationBundle<Frntend> {
+        let mut mutation_list = Vec::new();
+        while let Ok(mutation) = self.this_receiver.try_recv() {
+            mutation_list.push(mutation);
         }
-        buffer
+        StateMutationBundle { mutation_list }
     }
     pub async fn add_stream_callback<R>(
         &self,
