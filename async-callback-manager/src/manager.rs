@@ -75,12 +75,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             self.tasks_list.len()
         );
     }
-    pub fn handle_constraint(
-        &mut self,
-        constraint: Constraint,
-        type_id: TypeId,
-        sender_id: SenderId,
-    ) {
+    fn handle_constraint(&mut self, constraint: Constraint, type_id: TypeId, sender_id: SenderId) {
         // Assuming here that kill implies block also.
         let task_doesnt_match_constraint =
             |task: &Task| (task.type_id != type_id) || (task.sender_id != sender_id);
@@ -97,7 +92,9 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             }),
         }
     }
-    pub fn check_tasks(&mut self) {
+    // TODO: the receivers just get a message to forward on. No need to spawn a task
+    // for each one, instead we can await.
+    fn check_tasks(&mut self) {
         self.tasks_list.retain_mut(|Task { receiver, .. }| {
             match receiver {
                 TaskReceiver::Future(receiver) => {
@@ -122,5 +119,41 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             }
             true
         });
+    }
+    // Should be test only?
+    // The problem with this is that now I'm testing this path instead of the
+    // standard path.
+    /// Waits for all tasks to complete, consuming self.
+    pub async fn drain(mut self, backend: Bkend) {
+        let mut buffer = vec![];
+        // TODO: Size
+        self.this_receiver.recv_many(&mut buffer, 999).await;
+        for task in buffer {
+            println!("Got a task");
+            if let Some(constraint) = task.constraint {
+                println!("Task had a constraint: {:?}", constraint);
+                self.handle_constraint(constraint, task.type_id, task.sender_id);
+            }
+            self.tasks_list.push(Task::new(
+                task.type_id,
+                task.receiver,
+                task.sender_id,
+                TaskId(self.next_task_id),
+                task.kill_handle,
+            ));
+            self.next_sender_id += 1;
+            let fut = (task.task)(backend.clone());
+            tokio::spawn(fut);
+        }
+        for Task { receiver, .. } in self.tasks_list {
+            match receiver {
+                TaskReceiver::Future(receiver) => receiver.await.unwrap().await.unwrap(),
+                TaskReceiver::Stream(mut receiver) => {
+                    while let Some(msg) = receiver.recv().await {
+                        msg.await.unwrap()
+                    }
+                }
+            }
+        }
     }
 }
