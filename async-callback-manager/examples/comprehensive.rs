@@ -94,9 +94,7 @@ impl Root {
 
 impl Browser {
     async fn try_handle(&mut self) {
-        for action in self.callback_handler.get_messages().await {
-            action(self)
-        }
+        self.callback_handler.get_messages().await.apply(self);
     }
     fn new(runner: &mut AsyncCallbackManager<Arc<Requester>>) -> Self {
         let callback_handler = runner.new_sender(50);
@@ -119,11 +117,7 @@ impl Browser {
 
 impl Playlist {
     async fn try_handle(&mut self) {
-        let messages = self.callback_handler.get_messages().await;
-        println!("Playlist is processing {} messages", messages.len());
-        for action in messages {
-            action(self)
-        }
+        self.callback_handler.get_messages().await.apply(self);
     }
     fn new(runner: &mut AsyncCallbackManager<Arc<Requester>>) -> Self {
         let callback_handler = runner.new_sender(50);
@@ -190,7 +184,7 @@ impl BackendStreamingTask<Arc<Requester>> for StreamNumsRequest {
             while i < self.max_nums {
                 i += self.step;
                 tokio::time::sleep(std::time::Duration::from_millis(self.sleep_ms as u64)).await;
-                let _ = tx.send(i).await.unwrap();
+                tx.send(i).await.unwrap();
             }
         });
         ReceiverStream::new(rx).boxed()
