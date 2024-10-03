@@ -2,11 +2,7 @@ use futures::Future;
 use futures::FutureExt;
 use futures::Stream;
 use std::any::Any;
-use std::future::IntoFuture;
-use tokio::pin;
-use tokio::sync::broadcast;
 use tokio::sync::oneshot;
-use tokio::sync::watch;
 
 mod error;
 mod manager;

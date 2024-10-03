@@ -172,7 +172,7 @@ where
 {
     let output = tokio::select! {
         output = request.into_future(backend) => output,
-        kill_res = kill_signal => return kill_res,
+        Ok(()) = kill_signal => return Ok(()),
     };
     let callback = |frontend: &mut Frntend| handler(frontend, output);
     let forward_message_task = forward_message_task(callback, sender).boxed();
