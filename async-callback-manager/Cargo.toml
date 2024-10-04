@@ -13,9 +13,19 @@ readme = "README.md"
 futures = "0.3.30"
 reqwest = "0.12.7"
 tokio = { version = "1.40.0", default-features = false }
+tokio-stream = "0.1.16"
 tracing = "0.1.40"
 
 [dev-dependencies]
 tokio-stream = "0.1.16"
 tokio = { version = "1.40.0", features = ["full"] }
+ratatui = "0.28.1"
+crossterm = { version = "0.28.1", features = ["event-stream"] }
+reqwest = { version = "0.12.7", features = [
+  "json",
+  "http2",
+  "charset",
+  "rustls-tls"
+], default-features = false }
+anyhow = "1.0.89"
 

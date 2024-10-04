@@ -133,28 +133,41 @@ where
     Bkend: Send + 'static,
     Frntend: 'static,
 {
-    let mut stream = request.into_stream(backend);
+    let future_stream_tasks = request
+        .into_stream(backend)
+        .then(move |output| {
+            process_stream_item(output, handler.clone(), sender.clone(), forwarder.clone())
+        })
+        .collect::<Vec<_>>();
     tokio::select! {
-        output = async move {
-            // Consider using Stream combinators like .then() here.
-            while let Some(output) = stream.next().await {
-                let handler = handler.clone();
-                let sender = sender.clone();
-                let callback = move |frontend: &mut Frntend| handler(frontend, output);
-                let forward_message_task = forward_message_task(callback, sender).boxed();
-                if forwarder
-                    .send(Box::new(forward_message_task))
-                    .await
-                    .is_err()
-                {
-                    // Consider if we actually want to return early if Task is dropped.
-                    return Err(Error::ErrorSending);
-                }
-            };
-            Ok(())
-        } => output,
+        _ = future_stream_tasks => Ok(()),
         Ok(()) = kill_signal => Ok(()),
     }
+}
+
+async fn process_stream_item<O, Frntend, H>(
+    output: O,
+    handler: H,
+    sender: mpsc::Sender<DynCallbackFn<Frntend>>,
+    forwarder: mpsc::Sender<DynFallibleFuture>,
+) -> Result<()>
+where
+    O: Send + 'static,
+    H: FnOnce(&mut Frntend, O) + Send + Clone + 'static,
+    Frntend: 'static,
+{
+    let handler = handler.clone();
+    let sender = sender.clone();
+    let callback = move |frontend: &mut Frntend| handler(frontend, output);
+    let forward_message_task = forward_message_task(callback, sender).boxed();
+    if forwarder
+        .send(Box::new(forward_message_task))
+        .await
+        .is_err()
+    {
+        return Err(Error::ErrorSending);
+    }
+    Ok(())
 }
 
 async fn request_func<R, Bkend, Frntend, H>(
