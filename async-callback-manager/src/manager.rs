@@ -1,5 +1,4 @@
 use crate::{
-    kill_channel,
     task::{Constraint, ConstraitType, Task, TaskFromFrontend, TaskReceiver},
     utils::{mpsc_try_recv_many, TryRecvManyOutcome},
     CallbackSender,
@@ -44,14 +43,34 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
         }
     }
     pub fn process_messages(&mut self, backend: Bkend) {
-        let buffer = match mpsc_try_recv_many(&mut self.this_receiver) {
+        let tasks = match mpsc_try_recv_many(&mut self.this_receiver) {
             TryRecvManyOutcome::Finished(vec) => vec,
             TryRecvManyOutcome::NotFinished(vec) => vec,
         };
-        for task in buffer {
-            println!("Got a task");
+        self.spawn_tasks(backend, tasks);
+        self.check_tasks();
+    }
+    // Should be test only?
+    /// Waits for all tasks to complete.
+    pub async fn drain(mut self, backend: Bkend) {
+        let mut buffer = vec![];
+        // TODO: Size
+        self.this_receiver.recv_many(&mut buffer, 999).await;
+        self.spawn_tasks(backend, buffer);
+        for Task { receiver, .. } in self.tasks_list {
+            match receiver {
+                TaskReceiver::Future(receiver) => receiver.await.unwrap().await.unwrap(),
+                TaskReceiver::Stream(mut receiver) => {
+                    while let Some(msg) = receiver.recv().await {
+                        msg.await.unwrap()
+                    }
+                }
+            }
+        }
+    }
+    fn spawn_tasks(&mut self, backend: Bkend, tasks: Vec<TaskFromFrontend<Bkend>>) {
+        for task in tasks {
             if let Some(constraint) = task.constraint {
-                println!("Task had a constraint: {:?}", constraint);
                 self.handle_constraint(constraint, task.type_id, task.sender_id);
             }
             self.tasks_list.push(Task::new(
@@ -65,15 +84,6 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             let fut = (task.task)(backend.clone());
             tokio::spawn(fut);
         }
-        println!(
-            "Constraints list is {} long before checking receivers",
-            self.tasks_list.len()
-        );
-        self.check_tasks();
-        println!(
-            "Constraints list is {} long after checking receivers",
-            self.tasks_list.len()
-        );
     }
     fn handle_constraint(&mut self, constraint: Constraint, type_id: TypeId, sender_id: SenderId) {
         // Assuming here that kill implies block also.
@@ -119,41 +129,5 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             }
             true
         });
-    }
-    // Should be test only?
-    // The problem with this is that now I'm testing this path instead of the
-    // standard path.
-    /// Waits for all tasks to complete, consuming self.
-    pub async fn drain(mut self, backend: Bkend) {
-        let mut buffer = vec![];
-        // TODO: Size
-        self.this_receiver.recv_many(&mut buffer, 999).await;
-        for task in buffer {
-            println!("Got a task");
-            if let Some(constraint) = task.constraint {
-                println!("Task had a constraint: {:?}", constraint);
-                self.handle_constraint(constraint, task.type_id, task.sender_id);
-            }
-            self.tasks_list.push(Task::new(
-                task.type_id,
-                task.receiver,
-                task.sender_id,
-                TaskId(self.next_task_id),
-                task.kill_handle,
-            ));
-            self.next_sender_id += 1;
-            let fut = (task.task)(backend.clone());
-            tokio::spawn(fut);
-        }
-        for Task { receiver, .. } in self.tasks_list {
-            match receiver {
-                TaskReceiver::Future(receiver) => receiver.await.unwrap().await.unwrap(),
-                TaskReceiver::Stream(mut receiver) => {
-                    while let Some(msg) = receiver.recv().await {
-                        msg.await.unwrap()
-                    }
-                }
-            }
-        }
     }
 }
