@@ -147,6 +147,7 @@ where
                     .await
                     .is_err()
                 {
+                    // Consider if we actually want to return early if Task is dropped.
                     return Err(Error::ErrorSending);
                 }
             };
