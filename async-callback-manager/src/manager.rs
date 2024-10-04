@@ -3,7 +3,8 @@ use crate::{
     utils::{mpsc_try_recv_many, TryRecvManyOutcome},
     CallbackSender,
 };
-use std::any::TypeId;
+use futures::{stream::FuturesUnordered, StreamExt, TryStreamExt};
+use std::{any::TypeId, convert::identity, mem};
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -42,31 +43,13 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             runner_sender: task_function_sender,
         }
     }
-    pub fn process_messages(&mut self, backend: Bkend) {
+    pub async fn process_messages(&mut self, backend: Bkend) {
         let tasks = match mpsc_try_recv_many(&mut self.this_receiver) {
             TryRecvManyOutcome::Finished(vec) => vec,
             TryRecvManyOutcome::NotFinished(vec) => vec,
         };
         self.spawn_tasks(backend, tasks);
-        self.check_tasks();
-    }
-    // Should be test only?
-    /// Waits for all tasks to complete.
-    pub async fn drain(mut self, backend: Bkend) {
-        let mut buffer = vec![];
-        // TODO: Size
-        self.this_receiver.recv_many(&mut buffer, 999).await;
-        self.spawn_tasks(backend, buffer);
-        for Task { receiver, .. } in self.tasks_list {
-            match receiver {
-                TaskReceiver::Future(receiver) => receiver.await.unwrap().await.unwrap(),
-                TaskReceiver::Stream(mut receiver) => {
-                    while let Some(msg) = receiver.recv().await {
-                        msg.await.unwrap()
-                    }
-                }
-            }
-        }
+        self.check_tasks().await;
     }
     fn spawn_tasks(&mut self, backend: Bkend, tasks: Vec<TaskFromFrontend<Bkend>>) {
         for task in tasks {
@@ -104,30 +87,74 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
     }
     // TODO: the receivers just get a message to forward on. No need to spawn a task
     // for each one, instead we can await.
-    fn check_tasks(&mut self) {
-        self.tasks_list.retain_mut(|Task { receiver, .. }| {
-            match receiver {
-                TaskReceiver::Future(receiver) => {
-                    if let Ok(rx) = receiver.try_recv() {
-                        tokio::spawn(rx);
-                        return false;
+    async fn check_tasks(&mut self) {
+        let tasks_list = mem::take(&mut self.tasks_list);
+        let new_tasks_list = tokio_stream::StreamExt::filter_map(
+            tasks_list
+                .into_iter()
+                .map(|mut task| async {
+                    match task.receiver {
+                        TaskReceiver::Future(ref mut receiver) => {
+                            if let Ok(rx) = receiver.try_recv() {
+                                rx.await;
+                                return None;
+                            }
+                            Some(task)
+                        }
+                        TaskReceiver::Stream(ref mut receiver) => {
+                            match mpsc_try_recv_many(receiver) {
+                                TryRecvManyOutcome::Finished(tasks) => {
+                                    tasks
+                                        .into_iter()
+                                        .collect::<FuturesUnordered<_>>()
+                                        .try_collect::<Vec<_>>()
+                                        .await;
+                                    None
+                                }
+                                TryRecvManyOutcome::NotFinished(tasks) => {
+                                    tasks
+                                        .into_iter()
+                                        .collect::<FuturesUnordered<_>>()
+                                        .try_collect::<Vec<_>>()
+                                        .await;
+                                    Some(task)
+                                }
+                            }
+                        }
+                    }
+                })
+                .collect::<FuturesUnordered<_>>(),
+            identity,
+        )
+        .collect::<Vec<_>>()
+        .await;
+        self.tasks_list = new_tasks_list;
+    }
+    // Should be test only?
+    /// Waits for all tasks to complete.
+    pub async fn drain(mut self, backend: Bkend) {
+        let mut buffer = vec![];
+        // TODO: Size
+        self.this_receiver.recv_many(&mut buffer, 999).await;
+        self.spawn_tasks(backend, buffer);
+        self.tasks_list
+            .into_iter()
+            .map(|Task { receiver, .. }| async {
+                match receiver {
+                    TaskReceiver::Future(receiver) => {
+                        if let Ok(rx) = receiver.await {
+                            rx.await;
+                        }
+                    }
+                    TaskReceiver::Stream(mut receiver) => {
+                        while let Some(msg) = receiver.recv().await {
+                            msg.await.unwrap();
+                        }
                     }
                 }
-                TaskReceiver::Stream(receiver) => match mpsc_try_recv_many(receiver) {
-                    TryRecvManyOutcome::Finished(tasks) => {
-                        tasks.into_iter().for_each(|task| {
-                            tokio::spawn(task);
-                        });
-                        return false;
-                    }
-                    TryRecvManyOutcome::NotFinished(tasks) => {
-                        tasks.into_iter().for_each(|task| {
-                            tokio::spawn(task);
-                        });
-                    }
-                },
-            }
-            true
-        });
+            })
+            .collect::<FuturesUnordered<_>>()
+            .collect::<Vec<_>>()
+            .await;
     }
 }
