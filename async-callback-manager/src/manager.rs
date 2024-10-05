@@ -1,10 +1,7 @@
 use crate::{
-    task::{Constraint, ConstraitType, Task, TaskFromFrontend, TaskReceiver},
-    utils::{mpsc_try_recv_many, TryRecvManyOutcome},
-    CallbackSender,
+    task::{Task, TaskFromFrontend, TaskList},
+    AsyncCallbackSender,
 };
-use futures::{stream::FuturesUnordered, StreamExt, TryStreamExt};
-use std::{any::TypeId, convert::identity, mem};
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -17,10 +14,12 @@ pub struct AsyncCallbackManager<Bkend> {
     next_task_id: usize,
     this_sender: Sender<TaskFromFrontend<Bkend>>,
     this_receiver: Receiver<TaskFromFrontend<Bkend>>,
-    tasks_list: Vec<Task>,
+    tasks_list: TaskList,
 }
 
 impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
+    /// Get a new AsyncCallbackManager. Channel size refers to number of
+    /// messages that can be buffered from senders.
     pub fn new(channel_size: usize) -> Self {
         let (tx, rx) = mpsc::channel(channel_size);
         AsyncCallbackManager {
@@ -28,133 +27,69 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             next_task_id: 0,
             this_receiver: rx,
             this_sender: tx,
-            tasks_list: Vec::new(),
+            tasks_list: Default::default(),
         }
     }
-    pub fn new_sender<Frntend>(&mut self, channel_size: usize) -> CallbackSender<Bkend, Frntend> {
+    /// Creates a new AsyncCallbackSender that sends to this Manager.
+    /// Channel size refers to number of number of state mutations that can be
+    /// buffered from tasks.
+    pub fn new_sender<Frntend>(
+        &mut self,
+        channel_size: usize,
+    ) -> AsyncCallbackSender<Bkend, Frntend> {
         let (tx, rx) = mpsc::channel(channel_size);
         let task_function_sender = self.this_sender.clone();
         let id = SenderId(self.next_sender_id);
-        self.next_sender_id += 1;
-        CallbackSender {
+        let (new_id, overflowed) = self.next_sender_id.overflowing_add(1);
+        self.next_sender_id = new_id;
+        AsyncCallbackSender {
             id,
             this_sender: tx,
             this_receiver: rx,
             runner_sender: task_function_sender,
         }
     }
-    pub async fn process_messages(&mut self, backend: Bkend) {
-        let tasks = match mpsc_try_recv_many(&mut self.this_receiver) {
-            TryRecvManyOutcome::Finished(vec) => vec,
-            TryRecvManyOutcome::NotFinished(vec) => vec,
-        };
-        self.spawn_tasks(backend, tasks);
-        self.check_tasks().await;
-    }
-    fn spawn_tasks(&mut self, backend: Bkend, tasks: Vec<TaskFromFrontend<Bkend>>) {
-        for task in tasks {
-            if let Some(constraint) = task.constraint {
-                self.handle_constraint(constraint, task.type_id, task.sender_id);
-            }
-            self.tasks_list.push(Task::new(
-                task.type_id,
-                task.receiver,
-                task.sender_id,
-                TaskId(self.next_task_id),
-                task.kill_handle,
-            ));
-            self.next_sender_id += 1;
-            let fut = (task.task)(backend.clone());
-            tokio::spawn(fut);
+    /// Manage the next event in the queue.
+    /// Combination of spawn_next_task and process_next_response.
+    /// Returns Some(()), if something was processed.
+    /// Returns None, if no senders or tasks exist.
+    pub async fn manage_next_event(&mut self, backend: Bkend) -> Option<()> {
+        tokio::select! {
+            Some(task) = self.this_receiver.recv() => self.spawn_task(backend, task),
+            Some(_) = self.tasks_list.process_next_task() => (),
+            else => return None
         }
+        Some(())
     }
-    fn handle_constraint(&mut self, constraint: Constraint, type_id: TypeId, sender_id: SenderId) {
-        // Assuming here that kill implies block also.
-        let task_doesnt_match_constraint =
-            |task: &Task| (task.type_id != type_id) || (task.sender_id != sender_id);
-        match constraint.constraint_type {
-            ConstraitType::BlockSameType => {
-                self.tasks_list.retain(task_doesnt_match_constraint);
-            }
-            ConstraitType::KillSameType => self.tasks_list.retain_mut(|task| {
-                if !task_doesnt_match_constraint(task) {
-                    task.kill_handle.kill().unwrap();
-                    return false;
-                }
-                true
-            }),
+    /// Spawns the next incoming task from a sender.
+    /// Returns Some(()), if a task was spawned.
+    /// Returns None, if no senders.
+    pub async fn spawn_next_task(&mut self, backend: Bkend) -> Option<()> {
+        let task = self.this_receiver.recv().await?;
+        self.spawn_task(backend, task);
+        Some(())
+    }
+    /// Spawns the next incoming task from a sender.
+    /// Returns Some(()), if a task was spawned.
+    /// Returns None, if no senders.
+    pub async fn process_next_response(&mut self) -> Option<()> {
+        self.tasks_list.process_next_task().await
+    }
+    fn spawn_task(&mut self, backend: Bkend, task: TaskFromFrontend<Bkend>) {
+        if let Some(constraint) = task.constraint {
+            self.tasks_list
+                .handle_constraint(constraint, task.type_id, task.sender_id);
         }
-    }
-    // TODO: the receivers just get a message to forward on. No need to spawn a task
-    // for each one, instead we can await.
-    async fn check_tasks(&mut self) {
-        let tasks_list = mem::take(&mut self.tasks_list);
-        let new_tasks_list = tokio_stream::StreamExt::filter_map(
-            tasks_list
-                .into_iter()
-                .map(|mut task| async {
-                    match task.receiver {
-                        TaskReceiver::Future(ref mut receiver) => {
-                            if let Ok(rx) = receiver.try_recv() {
-                                rx.await;
-                                return None;
-                            }
-                            Some(task)
-                        }
-                        TaskReceiver::Stream(ref mut receiver) => {
-                            match mpsc_try_recv_many(receiver) {
-                                TryRecvManyOutcome::Finished(tasks) => {
-                                    tasks
-                                        .into_iter()
-                                        .collect::<FuturesUnordered<_>>()
-                                        .try_collect::<Vec<_>>()
-                                        .await;
-                                    None
-                                }
-                                TryRecvManyOutcome::NotFinished(tasks) => {
-                                    tasks
-                                        .into_iter()
-                                        .collect::<FuturesUnordered<_>>()
-                                        .try_collect::<Vec<_>>()
-                                        .await;
-                                    Some(task)
-                                }
-                            }
-                        }
-                    }
-                })
-                .collect::<FuturesUnordered<_>>(),
-            identity,
-        )
-        .collect::<Vec<_>>()
-        .await;
-        self.tasks_list = new_tasks_list;
-    }
-    // Should be test only?
-    /// Waits for all tasks to complete.
-    pub async fn drain(mut self, backend: Bkend) {
-        let mut buffer = vec![];
-        // TODO: Size
-        self.this_receiver.recv_many(&mut buffer, 999).await;
-        self.spawn_tasks(backend, buffer);
-        self.tasks_list
-            .into_iter()
-            .map(|Task { receiver, .. }| async {
-                match receiver {
-                    TaskReceiver::Future(receiver) => {
-                        if let Ok(rx) = receiver.await {
-                            rx.await;
-                        }
-                    }
-                    TaskReceiver::Stream(mut receiver) => {
-                        while let Some(msg) = receiver.recv().await {
-                            msg.await.unwrap();
-                        }
-                    }
-                }
-            })
-            .collect::<FuturesUnordered<_>>()
-            .collect::<Vec<_>>()
-            .await;
+        self.tasks_list.push(Task::new(
+            task.type_id,
+            task.receiver,
+            task.sender_id,
+            TaskId(self.next_task_id),
+            task.kill_handle,
+        ));
+        let (new_id, overflowed) = self.next_task_id.overflowing_add(1);
+        self.next_task_id = new_id;
+        let fut = (task.task)(backend);
+        tokio::spawn(fut);
     }
 }

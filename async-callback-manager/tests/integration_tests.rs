@@ -1,7 +1,7 @@
 //! Integration tests for async-callback-manager.
 
 use async_callback_manager::{
-    AsyncCallbackManager, BackendStreamingTask, BackendTask, CallbackSender, Constraint,
+    AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask, Constraint,
 };
 use futures::StreamExt;
 use std::{sync::Arc, time::Duration};
@@ -62,16 +62,27 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
     }
 }
 
-fn init<Bkend: Clone, Frntend>() -> (AsyncCallbackManager<Bkend>, CallbackSender<Bkend, Frntend>) {
+fn init<Bkend: Clone, Frntend>() -> (
+    AsyncCallbackManager<Bkend>,
+    AsyncCallbackSender<Bkend, Frntend>,
+) {
     let mut manager = async_callback_manager::AsyncCallbackManager::new(DEFAULT_CHANNEL_SIZE);
     let sender = manager.new_sender(DEFAULT_CHANNEL_SIZE);
     (manager, sender)
 }
 
+async fn drain_manager<Bkend: Clone>(mut manager: AsyncCallbackManager<Bkend>, backend: Bkend) {
+    loop {
+        if manager.process_next_response().await.is_none() {
+            return;
+        }
+    }
+}
+
 #[tokio::test]
 async fn test_mutate_once() {
     let mut state = String::new();
-    let (manager, mut state_receiver) = init();
+    let (mut manager, mut state_receiver) = init();
     state_receiver
         .add_callback(
             TextTask("Hello from the future".to_string()),
@@ -80,15 +91,19 @@ async fn test_mutate_once() {
         )
         .await
         .unwrap();
-    manager.drain(()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(()).await;
+    drain_manager(manager, ()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     assert_eq!(state, "Hello from the future".to_string());
 }
 
 #[tokio::test]
 async fn test_mutate_twice() {
     let mut state = Vec::new();
-    let (manager, mut state_receiver) = init();
+    let (mut manager, mut state_receiver) = init();
     state_receiver
         .add_callback(
             TextTask("Message 1".to_string()),
@@ -97,6 +112,7 @@ async fn test_mutate_twice() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(()).await;
     state_receiver
         .add_callback(
             TextTask("Message 2".to_string()),
@@ -105,8 +121,12 @@ async fn test_mutate_twice() {
         )
         .await
         .unwrap();
-    manager.drain(()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(()).await;
+    drain_manager(manager, ()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     assert_eq!(
         state,
         vec!["Message 1".to_string(), "Message 2".to_string()]
@@ -116,7 +136,7 @@ async fn test_mutate_twice() {
 #[tokio::test]
 async fn test_mutate_stream() {
     let mut state = Vec::new();
-    let (manager, mut state_receiver) = init();
+    let (mut manager, mut state_receiver) = init();
     state_receiver
         .add_stream_callback(
             StreamingCounterTask(10),
@@ -125,8 +145,12 @@ async fn test_mutate_stream() {
         )
         .await
         .unwrap();
-    manager.drain(()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(()).await;
+    drain_manager(manager, ()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     assert_eq!(state, (0..10).collect::<Vec<_>>());
 }
 
@@ -134,7 +158,7 @@ async fn test_mutate_stream() {
 async fn test_mutate_stream_twice() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = Vec::new();
-    let (manager, mut state_receiver) = init();
+    let (mut manager, mut state_receiver) = init();
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -143,6 +167,7 @@ async fn test_mutate_stream_twice() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(backend.clone()).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -151,8 +176,12 @@ async fn test_mutate_stream_twice() {
         )
         .await
         .unwrap();
-    manager.drain(backend).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(backend.clone()).await;
+    drain_manager(manager, backend).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     // Streams should be interleaved
     assert_ne!(state, vec![0, 1, 2, 3, 4, 0, 1, 2, 3, 4]);
     // And should contain all values
@@ -164,7 +193,7 @@ async fn test_mutate_stream_twice() {
 async fn test_block_constraint() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
-    let (manager, mut state_receiver) = init::<_, Vec<_>>();
+    let (mut manager, mut state_receiver) = init::<_, Vec<_>>();
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("This message should get blocked!".to_string()),
@@ -173,6 +202,7 @@ async fn test_block_constraint() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(backend.clone()).await;
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("Message 2".to_string()),
@@ -181,8 +211,12 @@ async fn test_block_constraint() {
         )
         .await
         .unwrap();
-    manager.drain(backend.clone()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(backend.clone()).await;
+    drain_manager(manager, backend.clone()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 2)
@@ -192,7 +226,7 @@ async fn test_block_constraint() {
 async fn test_kill_constraint() {
     let mut state = vec![];
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
-    let (manager, mut state_receiver) = init::<_, Vec<_>>();
+    let (mut manager, mut state_receiver) = init::<_, Vec<_>>();
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("This message should get killed!".to_string()),
@@ -201,6 +235,7 @@ async fn test_kill_constraint() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(backend.clone()).await;
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("Message 2".to_string()),
@@ -209,8 +244,12 @@ async fn test_kill_constraint() {
         )
         .await
         .unwrap();
-    manager.drain(backend.clone()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(backend.clone()).await;
+    drain_manager(manager, backend.clone()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 1)
@@ -220,7 +259,7 @@ async fn test_kill_constraint() {
 async fn test_block_constraint_stream() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
-    let (manager, mut state_receiver) = init::<_, Vec<_>>();
+    let (mut manager, mut state_receiver) = init::<_, Vec<_>>();
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -229,6 +268,7 @@ async fn test_block_constraint_stream() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(backend.clone()).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -237,8 +277,12 @@ async fn test_block_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.drain(backend.clone()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(backend.clone()).await;
+    drain_manager(manager, backend.clone()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 10)
@@ -248,7 +292,7 @@ async fn test_block_constraint_stream() {
 async fn test_kill_constraint_stream() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
-    let (manager, mut state_receiver) = init::<_, Vec<_>>();
+    let (mut manager, mut state_receiver) = init::<_, Vec<_>>();
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -257,6 +301,7 @@ async fn test_kill_constraint_stream() {
         )
         .await
         .unwrap();
+    manager.spawn_next_task(backend.clone()).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -265,8 +310,12 @@ async fn test_kill_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.drain(backend.clone()).await;
-    state_receiver.get_messages().await.apply(&mut state);
+    manager.spawn_next_task(backend.clone()).await;
+    drain_manager(manager, backend.clone()).await;
+    state_receiver
+        .get_next_mutations(50)
+        .await
+        .apply(&mut state);
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 5)

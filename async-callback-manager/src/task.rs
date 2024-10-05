@@ -1,6 +1,12 @@
 use crate::{DynBackendTask, DynFallibleFuture, KillHandle, SenderId, TaskId};
+use futures::{stream::FuturesUnordered, StreamExt, TryStreamExt};
 use std::any::TypeId;
 use tokio::sync::{mpsc, oneshot};
+
+#[derive(Default)]
+pub(crate) struct TaskList {
+    inner: Vec<Task>,
+}
 
 pub(crate) struct TaskFromFrontend<Bkend> {
     pub(crate) type_id: TypeId,
@@ -42,6 +48,68 @@ impl From<oneshot::Receiver<DynFallibleFuture>> for TaskReceiver {
 impl From<mpsc::Receiver<DynFallibleFuture>> for TaskReceiver {
     fn from(value: mpsc::Receiver<DynFallibleFuture>) -> Self {
         Self::Stream(value)
+    }
+}
+
+impl TaskList {
+    /// Returns Some(()) if a task existed in the list, and it was processed.
+    /// Returns None, if no tasks were in the list.
+    pub(crate) async fn process_next_task(&mut self) -> Option<()> {
+        let task_completed = self
+            .inner
+            .iter_mut()
+            .enumerate()
+            .map(|(idx, task)| async move {
+                match task.receiver {
+                    TaskReceiver::Future(ref mut receiver) => {
+                        if let Ok(forwarder) = receiver.await {
+                            let _ = forwarder.await;
+                            return Some(idx);
+                        }
+                        None
+                    }
+                    TaskReceiver::Stream(ref mut receiver) => {
+                        if let Some(forwarder) = receiver.recv().await {
+                            let _ = forwarder.await;
+                            return None;
+                        }
+                        Some(idx)
+                    }
+                }
+            })
+            .collect::<FuturesUnordered<_>>()
+            .next()
+            .await;
+        if let Some(Some(task_completed)) = task_completed {
+            // Safe - this value is in range as produced from enumerate on original list.
+            self.inner.swap_remove(task_completed);
+        }
+        task_completed.map(|_| ())
+    }
+    pub(crate) fn push(&mut self, task: Task) {
+        self.inner.push(task)
+    }
+    pub(crate) fn handle_constraint(
+        &mut self,
+        constraint: Constraint,
+        type_id: TypeId,
+        sender_id: SenderId,
+    ) {
+        // Assuming here that kill implies block also.
+        let task_doesnt_match_constraint =
+            |task: &Task| (task.type_id != type_id) || (task.sender_id != sender_id);
+        match constraint.constraint_type {
+            ConstraitType::BlockSameType => {
+                self.inner.retain(task_doesnt_match_constraint);
+            }
+            ConstraitType::KillSameType => self.inner.retain_mut(|task| {
+                if !task_doesnt_match_constraint(task) {
+                    task.kill_handle.kill().unwrap();
+                    return false;
+                }
+                true
+            }),
+        }
     }
 }
 
