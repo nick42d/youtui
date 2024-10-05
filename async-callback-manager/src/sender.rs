@@ -182,9 +182,9 @@ where
     Ok(())
 }
 
-fn request_func<'a, R, Bkend, Frntend, H>(
+fn request_func<R, Bkend, Frntend, H>(
     request: R,
-    backend: &'a Bkend,
+    backend: &Bkend,
     handler: H,
     sender: mpsc::Sender<DynCallbackFn<Frntend>>,
     forwarder: oneshot::Sender<DynFallibleFuture>,
