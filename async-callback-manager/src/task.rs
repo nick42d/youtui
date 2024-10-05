@@ -116,7 +116,7 @@ impl TaskList {
 impl<Bkend> TaskFromFrontend<Bkend> {
     pub(crate) fn new(
         type_id: TypeId,
-        task: impl FnOnce(Bkend) -> DynFallibleFuture + 'static,
+        task: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
         receiver: impl Into<TaskReceiver>,
         sender_id: SenderId,
         constraint: Option<Constraint>,

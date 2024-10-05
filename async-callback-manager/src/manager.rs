@@ -89,7 +89,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
         ));
         let (new_id, overflowed) = self.next_task_id.overflowing_add(1);
         self.next_task_id = new_id;
-        let fut = (task.task)(backend);
+        let fut = (task.task)(&backend);
         tokio::spawn(fut);
     }
 }
