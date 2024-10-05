@@ -11,7 +11,7 @@ use tokio::sync::{
     oneshot,
 };
 
-pub struct CallbackSender<Bkend, Frntend> {
+pub struct AsyncCallbackSender<Bkend, Frntend> {
     pub(crate) id: SenderId,
     pub(crate) this_sender: Sender<DynCallbackFn<Frntend>>,
     pub(crate) this_receiver: Receiver<DynCallbackFn<Frntend>>,
@@ -30,12 +30,15 @@ impl<Frntend> StateMutationBundle<Frntend> {
     }
 }
 
-impl<Bkend, Frntend> CallbackSender<Bkend, Frntend> {
-    pub async fn get_messages(&mut self) -> StateMutationBundle<Frntend> {
+impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
+    pub async fn get_next_mutations(
+        &mut self,
+        max_mutations: usize,
+    ) -> StateMutationBundle<Frntend> {
         let mut mutation_list = Vec::new();
-        while let Ok(mutation) = self.this_receiver.try_recv() {
-            mutation_list.push(mutation);
-        }
+        self.this_receiver
+            .recv_many(&mut mutation_list, max_mutations)
+            .await;
         StateMutationBundle { mutation_list }
     }
     pub async fn add_stream_callback<R>(
