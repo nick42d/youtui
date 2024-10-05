@@ -5,10 +5,16 @@ use crate::{
     KillSignal, Result, SenderId,
 };
 use futures::{FutureExt, StreamExt};
-use std::any::{Any, TypeId};
-use tokio::sync::{
-    mpsc::{self, Receiver, Sender},
-    oneshot,
+use std::{
+    any::{Any, TypeId},
+    future::Future,
+};
+use tokio::{
+    pin,
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        oneshot,
+    },
 };
 
 pub struct AsyncCallbackSender<Bkend, Frntend> {
@@ -57,7 +63,7 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
         let (tx, rx) = mpsc::channel(50);
         let (kill_tx, kill_rx) = kill_channel();
         let completed_task_sender = self.this_sender.clone();
-        let func = move |backend: Bkend| {
+        let func = move |backend: &Bkend| {
             Box::new(
                 stream_request_func(
                     request,
@@ -86,7 +92,7 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
         let (tx, rx) = oneshot::channel();
         let (kill_tx, kill_rx) = kill_channel();
         let completed_task_sender = self.this_sender.clone();
-        let func = move |backend: Bkend| {
+        let func = move |backend: &Bkend| {
             Box::new(
                 request_func(
                     request,
@@ -103,7 +109,7 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
     }
     async fn send_task<R: Any + 'static>(
         &self,
-        func: impl FnOnce(Bkend) -> DynFallibleFuture + 'static,
+        func: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
         rx: impl Into<TaskReceiver>,
         constraint: Option<Constraint>,
         kill_handle: KillHandle,
@@ -122,14 +128,14 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
     }
 }
 
-async fn stream_request_func<R, Bkend, Frntend, H>(
+fn stream_request_func<R, Bkend, Frntend, H>(
     request: R,
-    backend: Bkend,
+    backend: &Bkend,
     handler: H,
     sender: mpsc::Sender<DynCallbackFn<Frntend>>,
     forwarder: mpsc::Sender<DynFallibleFuture>,
     kill_signal: KillSignal,
-) -> Result<()>
+) -> impl Future<Output = Result<()>>
 where
     H: FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
     R: BackendStreamingTask<Bkend> + 'static,
@@ -142,10 +148,13 @@ where
             process_stream_item(output, handler.clone(), sender.clone(), forwarder.clone())
         })
         .collect::<Vec<_>>();
-    tokio::select! {
-        _ = future_stream_tasks => Ok(()),
-        Ok(()) = kill_signal => Ok(()),
+    async move {
+        tokio::select! {
+            _ = future_stream_tasks => Ok(()),
+            Ok(()) = kill_signal => Ok(()),
+        }
     }
+    .boxed()
 }
 
 async fn process_stream_item<O, Frntend, H>(
@@ -173,29 +182,33 @@ where
     Ok(())
 }
 
-async fn request_func<R, Bkend, Frntend, H>(
+fn request_func<'a, R, Bkend, Frntend, H>(
     request: R,
-    backend: Bkend,
+    backend: &'a Bkend,
     handler: H,
     sender: mpsc::Sender<DynCallbackFn<Frntend>>,
     forwarder: oneshot::Sender<DynFallibleFuture>,
     kill_signal: KillSignal,
-) -> Result<()>
+) -> impl Future<Output = Result<()>> + Send + 'static
 where
     H: FnOnce(&mut Frntend, R::Output) + Send + 'static,
     R: BackendTask<Bkend> + 'static,
     Bkend: Send + 'static,
     Frntend: 'static,
 {
-    let output = tokio::select! {
-        output = request.into_future(backend) => output,
-        Ok(()) = kill_signal => return Ok(()),
-    };
-    let callback = |frontend: &mut Frntend| handler(frontend, output);
-    let forward_message_task = forward_message_task(callback, sender).boxed();
-    forwarder
-        .send(Box::new(forward_message_task))
-        .map_err(|_| Error::ErrorSending)
+    let fut = request.into_future(backend);
+    async move {
+        let output = tokio::select! {
+            output = fut => output,
+            Ok(()) = kill_signal => return Ok(()),
+        };
+        let callback = |frontend: &mut Frntend| handler(frontend, output);
+        let forward_message_task = forward_message_task(callback, sender).boxed();
+        forwarder
+            .send(Box::new(forward_message_task))
+            .map_err(|_| Error::ErrorSending)
+    }
+    .boxed()
 }
 
 async fn forward_message_task<Frntend>(

@@ -20,7 +20,7 @@ pub use task::Constraint;
 /// TypeId is used as part of the task management process.
 pub trait BackendTask<Bkend>: Send + Any {
     type Output: Send;
-    fn into_future(self, backend: Bkend) -> impl Future<Output = Self::Output> + Send;
+    fn into_future(self, backend: &Bkend) -> impl Future<Output = Self::Output> + Send + 'static;
 }
 
 /// A task of kind T that can be run on a backend, returning a stream of outputs
@@ -28,7 +28,10 @@ pub trait BackendTask<Bkend>: Send + Any {
 /// task management process.
 pub trait BackendStreamingTask<Bkend>: Send + Any {
     type Output: Send;
-    fn into_stream(self, backend: Bkend) -> impl Stream<Item = Self::Output> + Send + Unpin;
+    fn into_stream(
+        self,
+        backend: &Bkend,
+    ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static;
 }
 
 struct KillHandle(Option<oneshot::Sender<()>>);
@@ -58,4 +61,4 @@ fn kill_channel() -> (KillHandle, KillSignal) {
 
 type DynFallibleFuture = Box<dyn Future<Output = Result<()>> + Unpin + Send>;
 type DynCallbackFn<Frntend> = Box<dyn FnOnce(&mut Frntend) + Send>;
-type DynBackendTask<Bkend> = Box<dyn FnOnce(Bkend) -> DynFallibleFuture>;
+type DynBackendTask<Bkend> = Box<dyn FnOnce(&Bkend) -> DynFallibleFuture>;

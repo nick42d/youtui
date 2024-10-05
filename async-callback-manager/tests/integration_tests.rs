@@ -3,8 +3,8 @@
 use async_callback_manager::{
     AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask, Constraint,
 };
-use futures::StreamExt;
-use std::{sync::Arc, time::Duration};
+use futures::{FutureExt, StreamExt};
+use std::{future::Future, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
 const DEFAULT_CHANNEL_SIZE: usize = 10;
@@ -20,22 +20,34 @@ struct MockMutatingBackend {
 
 impl BackendTask<Arc<Mutex<MockMutatingBackend>>> for DelayedBackendMutatingRequest {
     type Output = String;
-    async fn into_future(self, backend: Arc<Mutex<MockMutatingBackend>>) -> Self::Output {
-        tokio::time::sleep(Duration::from_millis(500)).await;
-        let mut lock = backend.lock().await;
-        lock.msgs_recvd += 1;
-        self.0
+    fn into_future(
+        self,
+        backend: &Arc<Mutex<MockMutatingBackend>>,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move {
+            tokio::time::sleep(Duration::from_millis(500)).await;
+            let mut lock = backend.lock().await;
+            lock.msgs_recvd += 1;
+            self.0
+        }
+        .boxed()
     }
 }
 impl<T: Send> BackendTask<T> for TextTask {
     type Output = String;
-    async fn into_future(self, _: T) -> Self::Output {
-        self.0
+    // Manual async function required due to bounds.
+    #[allow(clippy::manual_async_fn)]
+    fn into_future(self, _: &T) -> impl Future<Output = Self::Output> + Send + 'static {
+        async { self.0 }
     }
 }
 impl<T> BackendStreamingTask<T> for StreamingCounterTask {
     type Output = usize;
-    fn into_stream(self, _: T) -> impl futures::Stream<Item = Self::Output> + Send + Unpin {
+    fn into_stream(
+        self,
+        _: &T,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         futures::stream::iter(0..self.0)
     }
 }
@@ -45,8 +57,9 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
     type Output = usize;
     fn into_stream(
         self,
-        backend: Arc<Mutex<MockMutatingBackend>>,
-    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin {
+        backend: &Arc<Mutex<MockMutatingBackend>>,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        let backend = backend.clone();
         futures::stream::iter(0..self.0)
             .then(move |num| {
                 let backend = backend.clone();

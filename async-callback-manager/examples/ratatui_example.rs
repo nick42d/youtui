@@ -19,7 +19,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
     Terminal,
 };
-use std::{io, time::Duration};
+use std::{future::Future, io, time::Duration};
 use tokio_stream::StreamExt;
 
 struct State {
@@ -88,22 +88,25 @@ async fn main() -> Result<()> {
 struct GetBirdRequest;
 impl BackendTask<reqwest::Client> for GetBirdRequest {
     type Output = String;
-    async fn into_future(self, backend: reqwest::Client) -> Self::Output {
-        backend
-            .get("https://random-word-api.herokuapp.com/word")
-            .send()
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap()
+    fn into_future(self, backend: &reqwest::Client) -> impl Future<Output = Self::Output> + Send +'static{
+        let backend = backend.clone();
+        async move {
+            backend
+                .get("https://random-word-api.herokuapp.com/word")
+                .send()
+                .await
+                .unwrap()
+                .text()
+                .await
+                .unwrap()
+        }
     }
 }
 
 struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;
-    fn into_stream(self, backend: T) -> impl futures::Stream<Item = Self::Output> + Send + Unpin {
+    fn into_stream(self, backend: &T) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         stream::iter(1..11).map(|x| x.to_string()).then(|x| {
             tokio::time::sleep(Duration::from_millis(500))
                 .map(|_| x)
