@@ -9,12 +9,9 @@ use std::{
     any::{Any, TypeId},
     future::Future,
 };
-use tokio::{
-    pin,
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        oneshot,
-    },
+use tokio::sync::{
+    mpsc::{self, Receiver, Sender},
+    oneshot,
 };
 
 pub struct AsyncCallbackSender<Bkend, Frntend> {

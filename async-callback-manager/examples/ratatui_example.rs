@@ -14,7 +14,7 @@ use crossterm::{
 };
 use futures::{stream, FutureExt};
 use ratatui::{
-    layout::{self, Constraint, Layout},
+    layout::{Constraint, Layout},
     prelude::CrosstermBackend,
     widgets::{Block, Paragraph},
     Terminal,
@@ -106,7 +106,7 @@ impl BackendTask<reqwest::Client> for GetBirdRequest {
 struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;
-    fn into_stream(self, backend: &T) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+    fn into_stream(self, _: &T) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         stream::iter(1..11).map(|x| x.to_string()).then(|x| {
             tokio::time::sleep(Duration::from_millis(500))
                 .map(|_| x)

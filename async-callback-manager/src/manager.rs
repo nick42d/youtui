@@ -1,7 +1,8 @@
 use crate::{
-    task::{Task, TaskFromFrontend, TaskList},
-    AsyncCallbackSender,
+    task::{ResponseInformation, Task, TaskFromFrontend, TaskList},
+    AsyncCallbackSender, Constraint,
 };
+use std::any::TypeId;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -9,12 +10,32 @@ pub struct SenderId(usize);
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(usize);
 
+type DynTaskReceivedCallback = dyn FnMut((TypeId, SenderId, &Option<Constraint>));
+type DynResponseReceivedCallback = dyn FnMut(ResponseInformation);
+
 pub struct AsyncCallbackManager<Bkend> {
     next_sender_id: usize,
     next_task_id: usize,
     this_sender: Sender<TaskFromFrontend<Bkend>>,
     this_receiver: Receiver<TaskFromFrontend<Bkend>>,
     tasks_list: TaskList,
+    // TODO: Make generic instead of dynamic.
+    on_task_received: Box<DynTaskReceivedCallback>,
+    on_response_received: Box<DynResponseReceivedCallback>,
+}
+
+#[derive(Eq, PartialEq, Clone, Copy, Debug)]
+pub enum ManagedEventType {
+    SpawnedTask,
+    ReceivedResponse,
+}
+impl ManagedEventType {
+    pub fn is_spawned_task(&self) -> bool {
+        self == &ManagedEventType::SpawnedTask
+    }
+    pub fn is_received_response(&self) -> bool {
+        self == &ManagedEventType::ReceivedResponse
+    }
 }
 
 impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
@@ -28,7 +49,23 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             this_receiver: rx,
             this_sender: tx,
             tasks_list: Default::default(),
+            on_task_received: Box::new(|_| {}),
+            on_response_received: Box::new(|_| {}),
         }
+    }
+    pub fn with_on_task_received_callback(
+        mut self,
+        cb: impl FnMut((TypeId, SenderId, &Option<Constraint>)) + 'static,
+    ) -> Self {
+        self.on_task_received = Box::new(cb);
+        self
+    }
+    pub fn with_on_response_received_callback(
+        mut self,
+        cb: impl FnMut(ResponseInformation) + 'static,
+    ) -> Self {
+        self.on_response_received = Box::new(cb);
+        self
     }
     /// Creates a new AsyncCallbackSender that sends to this Manager.
     /// Channel size refers to number of number of state mutations that can be
@@ -41,6 +78,9 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
         let task_function_sender = self.this_sender.clone();
         let id = SenderId(self.next_sender_id);
         let (new_id, overflowed) = self.next_sender_id.overflowing_add(1);
+        if overflowed {
+            eprintln!("WARN: SenderID has overflowed");
+        }
         self.next_sender_id = new_id;
         AsyncCallbackSender {
             id,
@@ -51,15 +91,20 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
     }
     /// Manage the next event in the queue.
     /// Combination of spawn_next_task and process_next_response.
-    /// Returns Some(()), if something was processed.
+    /// Returns Some(ManagedEventType), if something was processed.
     /// Returns None, if no senders or tasks exist.
-    pub async fn manage_next_event(&mut self, backend: Bkend) -> Option<()> {
+    pub async fn manage_next_event(&mut self, backend: Bkend) -> Option<ManagedEventType> {
         tokio::select! {
-            Some(task) = self.this_receiver.recv() => self.spawn_task(backend, task),
-            Some(_) = self.tasks_list.process_next_task() => (),
-            else => return None
+            Some(task) = self.this_receiver.recv() => {
+                self.spawn_task(backend, task);
+                Some(ManagedEventType::SpawnedTask)
+            },
+            Some(response) = self.tasks_list.process_next_response() => {
+                (self.on_response_received)(response);
+                Some(ManagedEventType::ReceivedResponse)
+            }
+            else => None
         }
-        Some(())
     }
     /// Spawns the next incoming task from a sender.
     /// Returns Some(()), if a task was spawned.
@@ -70,12 +115,14 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
         Some(())
     }
     /// Spawns the next incoming task from a sender.
-    /// Returns Some(()), if a task was spawned.
+    /// Returns Some(ResponseInformation), if a task was spawned.
     /// Returns None, if no senders.
-    pub async fn process_next_response(&mut self) -> Option<()> {
-        self.tasks_list.process_next_task().await
+    /// Note that the 'on_next_response' callback is not called!
+    pub async fn process_next_response(&mut self) -> Option<ResponseInformation> {
+        self.tasks_list.process_next_response().await
     }
     fn spawn_task(&mut self, backend: Bkend, task: TaskFromFrontend<Bkend>) {
+        (self.on_task_received)((task.type_id, task.sender_id, &task.constraint));
         if let Some(constraint) = task.constraint {
             self.tasks_list
                 .handle_constraint(constraint, task.type_id, task.sender_id);
@@ -88,6 +135,9 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             task.kill_handle,
         ));
         let (new_id, overflowed) = self.next_task_id.overflowing_add(1);
+        if overflowed {
+            eprintln!("WARN: TaskID has overflowed");
+        }
         self.next_task_id = new_id;
         let fut = (task.task)(&backend);
         tokio::spawn(fut);

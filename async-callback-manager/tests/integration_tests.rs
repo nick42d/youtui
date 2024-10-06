@@ -4,7 +4,7 @@ use async_callback_manager::{
     AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask, Constraint,
 };
 use futures::{FutureExt, StreamExt};
-use std::{future::Future, sync::Arc, time::Duration};
+use std::{future::Future, ops::Deref, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
 const DEFAULT_CHANNEL_SIZE: usize = 10;
@@ -84,7 +84,7 @@ fn init<Bkend: Clone, Frntend>() -> (
     (manager, sender)
 }
 
-async fn drain_manager<Bkend: Clone>(mut manager: AsyncCallbackManager<Bkend>, backend: Bkend) {
+async fn drain_manager<Bkend: Clone>(mut manager: AsyncCallbackManager<Bkend>, _: Bkend) {
     loop {
         if manager.process_next_response().await.is_none() {
             return;
@@ -332,4 +332,51 @@ async fn test_kill_constraint_stream() {
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 5)
+}
+
+#[tokio::test]
+async fn test_task_received_callback() {
+    let (manager, state_receiver) = init::<(), ()>();
+    let task_received = Arc::new(std::sync::Mutex::new(false));
+    let task_received_clone = task_received.clone();
+    let mut manager = manager.with_on_task_received_callback(move |resp| {
+        eprintln!("Response {:?} received", resp);
+        *task_received_clone.lock().unwrap() = true;
+    });
+    state_receiver
+        .add_callback(
+            TextTask("Hello from the future".to_string()),
+            |_, _| {},
+            None,
+        )
+        .await
+        .unwrap();
+    manager.manage_next_event(()).await.unwrap();
+    assert!(*task_received.lock().unwrap());
+}
+
+#[tokio::test]
+async fn test_response_received_callback() {
+    let (manager, state_receiver) = init::<(), ()>();
+    let response_received = Arc::new(std::sync::Mutex::new(false));
+    let response_received_clone = response_received.clone();
+    let task_is_now_finished = Arc::new(std::sync::Mutex::new(false));
+    let task_is_now_finished_clone = task_is_now_finished.clone();
+    let mut manager = manager.with_on_response_received_callback(move |resp| {
+        eprintln!("Response {:?} received", resp);
+        *response_received_clone.lock().unwrap() = true;
+        *task_is_now_finished_clone.lock().unwrap() = resp.task_is_now_finished;
+    });
+    state_receiver
+        .add_callback(
+            TextTask("Hello from the future".to_string()),
+            |_, _| {},
+            None,
+        )
+        .await
+        .unwrap();
+    manager.manage_next_event(()).await.unwrap();
+    manager.manage_next_event(()).await.unwrap();
+    assert!(*response_received.lock().unwrap());
+    assert!(*task_is_now_finished.lock().unwrap());
 }
