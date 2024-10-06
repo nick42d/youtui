@@ -8,7 +8,6 @@ mod error;
 mod manager;
 mod sender;
 mod task;
-mod utils;
 
 pub use error::*;
 pub use manager::*;

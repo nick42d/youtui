@@ -1,11 +1,19 @@
 use crate::{DynBackendTask, DynFallibleFuture, KillHandle, SenderId, TaskId};
-use futures::{stream::FuturesUnordered, StreamExt, TryStreamExt};
+use futures::{stream::FuturesUnordered, StreamExt};
 use std::any::TypeId;
 use tokio::sync::{mpsc, oneshot};
 
 #[derive(Default)]
 pub(crate) struct TaskList {
-    inner: Vec<Task>,
+    pub inner: Vec<Task>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ResponseInformation {
+    pub type_id: TypeId,
+    pub sender_id: SenderId,
+    pub task_id: TaskId,
+    pub task_is_now_finished: bool,
 }
 
 pub(crate) struct TaskFromFrontend<Bkend> {
@@ -52,9 +60,9 @@ impl From<mpsc::Receiver<DynFallibleFuture>> for TaskReceiver {
 }
 
 impl TaskList {
-    /// Returns Some(()) if a task existed in the list, and it was processed.
-    /// Returns None, if no tasks were in the list.
-    pub(crate) async fn process_next_task(&mut self) -> Option<()> {
+    /// Returns Some(ResponseInformation) if a task existed in the list, and it
+    /// was processed. Returns None, if no tasks were in the list.
+    pub(crate) async fn process_next_response(&mut self) -> Option<ResponseInformation> {
         let task_completed = self
             .inner
             .iter_mut()
@@ -64,27 +72,34 @@ impl TaskList {
                     TaskReceiver::Future(ref mut receiver) => {
                         if let Ok(forwarder) = receiver.await {
                             let _ = forwarder.await;
-                            return Some(idx);
+                            return (Some(idx), task.type_id, task.sender_id, task.task_id);
                         }
-                        None
+                        (None, task.type_id, task.sender_id, task.task_id)
                     }
                     TaskReceiver::Stream(ref mut receiver) => {
                         if let Some(forwarder) = receiver.recv().await {
                             let _ = forwarder.await;
-                            return None;
+                            return (None, task.type_id, task.sender_id, task.task_id);
                         }
-                        Some(idx)
+                        (Some(idx), task.type_id, task.sender_id, task.task_id)
                     }
                 }
             })
             .collect::<FuturesUnordered<_>>()
             .next()
             .await;
-        if let Some(Some(task_completed)) = task_completed {
+        if let Some((Some(task_completed), ..)) = task_completed {
             // Safe - this value is in range as produced from enumerate on original list.
             self.inner.swap_remove(task_completed);
         }
-        task_completed.map(|_| ())
+        task_completed.map(
+            |(maybe_idx, type_id, sender_id, task_id)| ResponseInformation {
+                type_id,
+                sender_id,
+                task_id,
+                task_is_now_finished: maybe_idx.is_some(),
+            },
+        )
     }
     pub(crate) fn push(&mut self, task: Task) {
         self.inner.push(task)
