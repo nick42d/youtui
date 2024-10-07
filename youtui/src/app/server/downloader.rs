@@ -51,10 +51,9 @@ pub enum DownloadProgressUpdateType {
 pub struct Downloader {
     /// Shared by tasks.
     options: Arc<VideoOptions>,
-    response_tx: mpsc::Sender<ServerResponse>,
 }
 impl Downloader {
-    pub fn new(response_tx: mpsc::Sender<ServerResponse>) -> Self {
+    pub fn new() -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
@@ -71,10 +70,7 @@ impl Downloader {
                 ..Default::default()
             },
         });
-        Self {
-            options,
-            response_tx,
-        }
+        Self { options }
     }
 }
 

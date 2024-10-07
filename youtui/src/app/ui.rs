@@ -8,9 +8,9 @@ use super::component::actionhandler::{
 use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
-use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
+use super::{server, structures::*};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
@@ -68,6 +68,14 @@ pub struct YoutuiWindow {
     help: HelpMenu,
 }
 
+impl YoutuiWindow {
+    pub async fn async_update(&mut self) {
+        tokio::select! {
+            _ = async {todo!()} /*self.browser.async_update()*/ => (),
+            _ = async {todo!()} /*self.playlist.async_update()*/ => (),
+        }
+    }
+}
 pub struct HelpMenu {
     shown: bool,
     cur: usize,
@@ -295,7 +303,10 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(callback_tx: mpsc::Sender<AppCallback>) -> YoutuiWindow {
+    pub fn new(
+        callback_tx: mpsc::Sender<AppCallback>,
+        callback_manager: &mut async_callback_manager::AsyncCallbackManager<server::Server>,
+    ) -> YoutuiWindow {
         // TODO: derive default
         YoutuiWindow {
             context: WindowContext::Browser,

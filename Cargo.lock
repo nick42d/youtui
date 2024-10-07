@@ -4272,6 +4272,7 @@ dependencies = [
 name = "youtui"
 version = "0.0.14"
 dependencies = [
+ "async-callback-manager",
  "clap",
  "crossterm",
  "directories",

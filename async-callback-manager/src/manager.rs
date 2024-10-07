@@ -38,7 +38,7 @@ impl ManagedEventType {
     }
 }
 
-impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
+impl<Bkend> AsyncCallbackManager<Bkend> {
     /// Get a new AsyncCallbackManager. Channel size refers to number of
     /// messages that can be buffered from senders.
     pub fn new(channel_size: usize) -> Self {
@@ -93,7 +93,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
     /// Combination of spawn_next_task and process_next_response.
     /// Returns Some(ManagedEventType), if something was processed.
     /// Returns None, if no senders or tasks exist.
-    pub async fn manage_next_event(&mut self, backend: Bkend) -> Option<ManagedEventType> {
+    pub async fn manage_next_event(&mut self, backend: &Bkend) -> Option<ManagedEventType> {
         tokio::select! {
             Some(task) = self.this_receiver.recv() => {
                 self.spawn_task(backend, task);
@@ -109,7 +109,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
     /// Spawns the next incoming task from a sender.
     /// Returns Some(()), if a task was spawned.
     /// Returns None, if no senders.
-    pub async fn spawn_next_task(&mut self, backend: Bkend) -> Option<()> {
+    pub async fn spawn_next_task(&mut self, backend: &Bkend) -> Option<()> {
         let task = self.this_receiver.recv().await?;
         self.spawn_task(backend, task);
         Some(())
@@ -121,7 +121,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
     pub async fn process_next_response(&mut self) -> Option<ResponseInformation> {
         self.tasks_list.process_next_response().await
     }
-    fn spawn_task(&mut self, backend: Bkend, task: TaskFromFrontend<Bkend>) {
+    fn spawn_task(&mut self, backend: &Bkend, task: TaskFromFrontend<Bkend>) {
         (self.on_task_received)((task.type_id, task.sender_id, &task.constraint));
         if let Some(constraint) = task.constraint {
             self.tasks_list
@@ -139,7 +139,7 @@ impl<Bkend: Clone> AsyncCallbackManager<Bkend> {
             eprintln!("WARN: TaskID has overflowed");
         }
         self.next_task_id = new_id;
-        let fut = (task.task)(&backend);
+        let fut = (task.task)(backend);
         tokio::spawn(fut);
     }
 }

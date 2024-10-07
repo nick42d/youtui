@@ -1,6 +1,7 @@
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
 use crate::{get_data_dir, RuntimeInfo};
+use async_callback_manager::AsyncCallbackManager;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -9,6 +10,7 @@ use crossterm::{
 use ratatui::widgets::{ListState, TableState};
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::downloader::InMemSong;
+use server::Server;
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::{ListSong, ListSongID};
@@ -36,6 +38,8 @@ thread_local! {
 }
 
 const CALLBACK_CHANNEL_SIZE: usize = 64;
+const ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE: usize = 64;
+const ASYNC_CALLBACK_SENDER_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
 
@@ -44,7 +48,8 @@ pub struct Youtui {
     event_handler: EventHandler,
     window_state: YoutuiWindow,
     window_mutable_state: YoutuiMutableState,
-    task_manager: TaskManager,
+    task_manager: AsyncCallbackManager<Server>,
+    server: Server,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
 }
@@ -109,38 +114,69 @@ impl Youtui {
         }));
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
-        let task_manager = taskmanager::TaskManager::new(api_key);
+        let mut task_manager =
+            async_callback_manager::AsyncCallbackManager::new(ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE)
+                .with_on_task_received_callback(|(type_id, sender_id, constraint)| {
+                    info!(
+                        "Received a task - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
+                        type_id, sender_id, constraint
+                    )
+                })
+                .with_on_response_received_callback(|response| {
+                    info!(
+                        "Received a response - type_id: {:?}, sender_id: {:?}, task_id: {:?}",
+                        response.type_id, response.sender_id, response.task_id
+                    )
+                });
+        let server = server::Server::new(api_key);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx);
+        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager);
         Ok(Youtui {
             status: AppStatus::Running,
-            terminal,
             event_handler,
             window_state,
             window_mutable_state: Default::default(),
             task_manager,
+            server,
             callback_rx,
+            terminal,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
+        let mut redraw = true;
         loop {
             match &self.status {
                 AppStatus::Running => {
-                    // Get the next event from the event_handler and process it.
-                    self.handle_next_event().await;
-                    // Process any callbacks in the queue.
-                    self.process_callbacks().await;
-                    // Get the state update events from the task manager and apply them to the
-                    // window state.
-                    self.synchronize_state().await;
                     // Write to terminal, using UI state as the input
                     // We draw after handling the event, as the event could be a keypress we want to
                     // instantly react to.
-                    self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &self.window_state, &mut self.window_mutable_state);
-                    })?;
+                    // Draw occurs before the first event, to ensure up loads immediately.
+                    if redraw {
+                        self.terminal.draw(|f| {
+                            ui::draw::draw_app(
+                                f,
+                                &self.window_state,
+                                &mut self.window_mutable_state,
+                            );
+                        })?;
+                    };
+                    redraw = true;
+                    // When running, the app is event based, and will block until one of the
+                    // following 4 message types is received.
+                    tokio::select! {
+                        // Get the next event from the event_handler and process it.
+                        Some(event) = self.event_handler.next() => self.handle_event(event).await,
+                        // Process any top-level callbacks in the queue.
+                        Some(callback) = self.callback_rx.recv() => self.handle_callback(callback).await,
+                        // Process the next manager event.
+                        // If all the manager has done is spawn tasks, there's no need to draw.
+                        Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
+                            redraw = false;
+                        },
+                        mutations = self.window_state.async_update() => (),
+                    }
                 }
                 AppStatus::Exiting(s) => {
                     // Once we're done running, destruct the terminal and print the exit message.
@@ -152,95 +188,26 @@ impl Youtui {
         }
         Ok(())
     }
-    async fn synchronize_state(&mut self) {
-        self.task_manager
-            .action_messages(&mut self.window_state)
-            .await;
-    }
-    async fn handle_next_event(&mut self) {
-        let msg = self.event_handler.next().await;
-        // TODO: Handle closed channel better
-        match msg {
-            Some(AppEvent::QuitSignal) => {
-                self.status = AppStatus::Exiting("Quit signal received".into())
-            }
-            Some(AppEvent::Crossterm(e)) => self.window_state.handle_event(e).await,
-            // XXX: Should be try_poll or similar? Poll the Future but don't await it?
-            Some(AppEvent::Tick) => self.window_state.handle_tick().await,
-            None => panic!("Channel closed"),
+    async fn handle_event(&mut self, event: AppEvent) {
+        match event {
+            AppEvent::Tick => self.window_state.handle_tick().await,
+            AppEvent::Crossterm(e) => self.window_state.handle_event(e).await,
+            AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
-    pub async fn process_callbacks(&mut self) {
-        while let Ok(msg) = self.callback_rx.try_recv() {
-            match msg {
-                AppCallback::DownloadSong(video_id, playlist_id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::Download(video_id, playlist_id))
-                        .await;
-                }
-                AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
-                AppCallback::ChangeContext(context) => {
-                    self.window_state.handle_change_context(context)
-                }
-                AppCallback::IncreaseVolume(i) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::IncreaseVolume(i))
-                        .await;
-                }
-                AppCallback::GetSearchSuggestions(text) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::GetSearchSuggestions(text))
-                        .await;
-                }
-                AppCallback::SearchArtist(artist) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::SearchArtists(artist))
-                        .await;
-                }
-                AppCallback::GetArtistSongs(id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::GetArtistSongs(id))
-                        .await;
-                }
-                AppCallback::AddSongsToPlaylist(song_list) => {
-                    self.window_state.handle_add_songs_to_playlist(song_list);
-                }
-                AppCallback::AddSongsToPlaylistAndPlay(song_list) => {
-                    self.window_state
-                        .handle_add_songs_to_playlist_and_play(song_list)
-                        .await
-                }
-                AppCallback::PlaySong(song, id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::PlaySong(song, id))
-                        .await;
-                }
-                AppCallback::QueueSong(song, id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::QueueSong(song, id))
-                        .await;
-                }
-                AppCallback::AutoplaySong(song, id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::AutoplaySong(song, id))
-                        .await;
-                }
-                AppCallback::PausePlay(id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::PausePlay(id))
-                        .await;
-                }
-                AppCallback::Stop(id) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::Stop(id))
-                        .await;
-                }
-                AppCallback::Seek(inc) => {
-                    self.task_manager
-                        .send_spawn_request(AppRequest::Seek(inc))
-                        .await;
-                }
+    pub async fn handle_callback(&mut self, callback: AppCallback) {
+        match callback {
+            AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
+            AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
+            AppCallback::AddSongsToPlaylist(song_list) => {
+                self.window_state.handle_add_songs_to_playlist(song_list);
             }
+            AppCallback::AddSongsToPlaylistAndPlay(song_list) => {
+                self.window_state
+                    .handle_add_songs_to_playlist_and_play(song_list)
+                    .await
+            }
+            _ => todo!(),
         }
     }
 }
