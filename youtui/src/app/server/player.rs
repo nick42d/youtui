@@ -63,19 +63,15 @@ pub enum Response {
 }
 
 pub struct Player {
-    response_tx: mpsc::Sender<ServerResponse>,
     rodio_tx: mpsc::Sender<RodioMessage>,
 }
 
 // Consider if this can be managed by Server.
 impl Player {
-    pub fn new(response_tx: mpsc::Sender<ServerResponse>) -> Self {
+    pub fn new() -> Self {
         let (msg_tx, msg_rx) = mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         spawn_rodio_thread(msg_rx);
-        Self {
-            response_tx,
-            rodio_tx: msg_tx,
-        }
+        Self { rodio_tx: msg_tx }
     }
 }
 

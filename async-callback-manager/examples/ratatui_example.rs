@@ -107,8 +107,8 @@ async fn main() {
         callback_handle: manager.new_sender(50),
         mode: Default::default(),
     };
-    terminal.draw(|f| state.draw(f)).unwrap();
     loop {
+        terminal.draw(|f| state.draw(f)).unwrap();
         tokio::select! {
             Some(action) = events.next() => match action {
                 Action::Quit => break,
@@ -116,12 +116,11 @@ async fn main() {
                 Action::StartCounter => state.handle_start_counter().await,
                 Action::ToggleMode => state.handle_toggle_mode(),
             },
-            Some(manager_event) = manager.manage_next_event(backend.clone()) => if manager_event.is_spawned_task() {
+            Some(manager_event) = manager.manage_next_event(&backend) => if manager_event.is_spawned_task() {
                 continue
             },
             mutations = state.callback_handle.get_next_mutations(10) => mutations.apply(&mut state),
         };
-        terminal.draw(|f| state.draw(f)).unwrap();
     }
     ratatui::restore();
 }

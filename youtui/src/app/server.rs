@@ -40,36 +40,26 @@ trait ServerComponent {
 /// to requests. Tasks each receive a handle to respond back to the caller.
 /// Generic across 'T' - 'T' is a future but we need to use generics to allow
 /// use of concrete type.
-pub struct Server<T> {
-    api: api::Api<T>,
+pub struct Server {
+    api: api::Api,
     player: player::Player,
     downloader: downloader::Downloader,
-    request_rx: mpsc::Receiver<ServerRequest>,
 }
 
-impl Server<()> {
-    pub fn new(
-        api_key: ApiKey,
-        po_token: Option<String>,
-        response_tx: mpsc::Sender<ServerResponse>,
-        request_rx: mpsc::Receiver<ServerRequest>,
-    ) -> Server<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
-        let api = api::Api::new(api_key, response_tx.clone());
-        let player = player::Player::new(response_tx.clone());
-        let downloader = downloader::Downloader::new(po_token, response_tx.clone());
+impl Server {
+    pub fn new(api_key: ApiKey, po_token: Option<String>) -> Server {
+        let api = api::Api::new(api_key);
+        let player = player::Player::new();
+        let downloader = downloader::Downloader::new(po_token);
         Server {
             api,
             player,
             downloader,
-            request_rx,
         }
     }
 }
 
-impl<T> Server<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl Server {
     pub async fn run(&mut self) {
         while let Some(request) = self.request_rx.recv().await {
             debug!("Received {:?}", request);
@@ -89,10 +79,7 @@ where
     }
 }
 
-impl<T> ServerComponent for Server<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl ServerComponent for Server {
     type KillableRequestType = KillableServerRequest;
     type UnkillableRequestType = UnkillableServerRequest;
     async fn handle_killable_request(

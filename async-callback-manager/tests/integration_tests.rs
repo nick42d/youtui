@@ -4,7 +4,7 @@ use async_callback_manager::{
     AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask, Constraint,
 };
 use futures::{FutureExt, StreamExt};
-use std::{future::Future, ops::Deref, sync::Arc, time::Duration};
+use std::{future::Future, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
 const DEFAULT_CHANNEL_SIZE: usize = 10;
@@ -104,7 +104,7 @@ async fn test_mutate_once() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(()).await;
+    manager.spawn_next_task(&()).await;
     drain_manager(manager, ()).await;
     state_receiver
         .get_next_mutations(50)
@@ -125,7 +125,7 @@ async fn test_mutate_twice() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(()).await;
+    manager.spawn_next_task(&()).await;
     state_receiver
         .add_callback(
             TextTask("Message 2".to_string()),
@@ -134,7 +134,7 @@ async fn test_mutate_twice() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(()).await;
+    manager.spawn_next_task(&()).await;
     drain_manager(manager, ()).await;
     state_receiver
         .get_next_mutations(50)
@@ -158,7 +158,7 @@ async fn test_mutate_stream() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(()).await;
+    manager.spawn_next_task(&()).await;
     drain_manager(manager, ()).await;
     state_receiver
         .get_next_mutations(50)
@@ -180,7 +180,7 @@ async fn test_mutate_stream_twice() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -189,7 +189,7 @@ async fn test_mutate_stream_twice() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     drain_manager(manager, backend).await;
     state_receiver
         .get_next_mutations(50)
@@ -215,7 +215,7 @@ async fn test_block_constraint() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("Message 2".to_string()),
@@ -224,7 +224,7 @@ async fn test_block_constraint() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     drain_manager(manager, backend.clone()).await;
     state_receiver
         .get_next_mutations(50)
@@ -248,7 +248,7 @@ async fn test_kill_constraint() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     state_receiver
         .add_callback(
             DelayedBackendMutatingRequest("Message 2".to_string()),
@@ -257,7 +257,7 @@ async fn test_kill_constraint() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     drain_manager(manager, backend.clone()).await;
     state_receiver
         .get_next_mutations(50)
@@ -281,7 +281,7 @@ async fn test_block_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -290,7 +290,7 @@ async fn test_block_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     drain_manager(manager, backend.clone()).await;
     state_receiver
         .get_next_mutations(50)
@@ -314,7 +314,7 @@ async fn test_kill_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     state_receiver
         .add_stream_callback(
             DelayedBackendMutatingStreamingCounterTask(5),
@@ -323,7 +323,7 @@ async fn test_kill_constraint_stream() {
         )
         .await
         .unwrap();
-    manager.spawn_next_task(backend.clone()).await;
+    manager.spawn_next_task(&backend).await;
     drain_manager(manager, backend.clone()).await;
     state_receiver
         .get_next_mutations(50)
@@ -351,7 +351,7 @@ async fn test_task_received_callback() {
         )
         .await
         .unwrap();
-    manager.manage_next_event(()).await.unwrap();
+    manager.manage_next_event(&()).await.unwrap();
     assert!(*task_received.lock().unwrap());
 }
 
@@ -375,8 +375,8 @@ async fn test_response_received_callback() {
         )
         .await
         .unwrap();
-    manager.manage_next_event(()).await.unwrap();
-    manager.manage_next_event(()).await.unwrap();
+    manager.manage_next_event(&()).await.unwrap();
+    manager.manage_next_event(&()).await.unwrap();
     assert!(*response_received.lock().unwrap());
     assert!(*task_is_now_finished.lock().unwrap());
 }

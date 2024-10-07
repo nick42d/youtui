@@ -80,9 +80,9 @@ impl std::fmt::Debug for Response {
     }
 }
 
-pub struct Api<T> {
-    api: T,
-    response_tx: mpsc::Sender<ServerResponse>,
+pub struct Api {
+    #[deprecated = "TODO: remove box dyn"]
+    api: Box<dyn Future<Output = Arc<Result<ConcurrentApi>>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -92,35 +92,26 @@ async fn get_concrete_type(
     Arc::new(j.await.expect("Create new API task should never panic"))
 }
 
-impl Api<()> {
-    pub fn new(
-        api_key: ApiKey,
-        response_tx: mpsc::Sender<ServerResponse>,
-    ) -> Api<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
+impl Api {
+    pub fn new(api_key: ApiKey) -> Api {
         let api_handle = tokio::spawn(async {
             DynamicYtMusic::new(api_key)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)))
                 .map_err(Into::into)
         });
-        let api = get_concrete_type(api_handle).shared();
-        Api { api, response_tx }
+        let api = Box::new(get_concrete_type(api_handle).shared());
+        Api { api }
     }
 }
 
-impl<T> Api<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl Api {
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
     }
 }
 
-impl<T> ServerComponent for Api<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
+impl ServerComponent for Api {
     type KillableRequestType = KillableServerRequest;
     type UnkillableRequestType = UnkillableServerRequest;
 

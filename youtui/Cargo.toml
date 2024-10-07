@@ -25,11 +25,10 @@ ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.13", default-features = fals
   "rustls-tls",
   "simplified-queries",
 ] }
+async-callback-manager = { path = "../async-callback-manager", version = "0.0.1" }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-tui-logger = { version = "0.12.0", features = [
-  "tracing-support",
-] }
+tui-logger = { version = "0.12.0", features = ["tracing-support"] }
 directories = "5.0.1"
 gag = "1.0.0"
 toml = "0.8.19"
@@ -50,7 +49,4 @@ features = ["symphonia-all"]
 version = "0.7.4-youtui-vendored.1"
 package = "youtui-vendored-rusty_ytdl"
 default-features = false
-features = [
-  "live",
-  "rustls-tls",
-]
+features = ["live", "rustls-tls"]
