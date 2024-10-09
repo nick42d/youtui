@@ -3,13 +3,13 @@ use crate::{
     app::{
         server::MAX_RETRIES,
         structures::{ListSongID, Percentage},
-        taskmanager::TaskID,
     },
     core::send_or_error,
 };
+use futures::Stream;
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use std::sync::Arc;
-use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
@@ -65,134 +65,121 @@ impl Downloader {
     }
 }
 
-async fn download_song(
+pub fn download_song(
     options: Arc<VideoOptions>,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
-    task_id: TaskID,
-    tx: mpsc::Sender<ServerResponse>,
-) {
-    tracing::info!("Running download");
-    send_or_error(
-        &tx,
-        ServerResponse::new_downloader(
-            task_id,
-            Response::DownloadProgressUpdate(DownloadProgressUpdateType::Started, song_playlist_id),
-        ),
-    )
-    .await;
-    let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
-        error!("Error received finding song");
+) -> impl Stream<Item = DownloadProgressUpdate> {
+    // TODO: CHANNEL SIZE
+    let (tx, rx) = tokio::sync::mpsc::channel(50);
+    tokio::spawn(async move {
+        tracing::info!("Running download");
         send_or_error(
             &tx,
-            ServerResponse::new_downloader(
-                task_id,
-                Response::DownloadProgressUpdate(
-                    DownloadProgressUpdateType::Error,
-                    song_playlist_id,
-                ),
-            ),
+            DownloadProgressUpdate {
+                kind: DownloadProgressUpdateType::Started,
+                id: song_playlist_id,
+            },
         )
         .await;
-        return;
-    };
-    let mut retries = 0;
-    let mut download_succeeded = false;
-    let mut songbuffer = Vec::new();
-    while retries <= MAX_RETRIES && !download_succeeded {
-        // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
-        let stream = match video.stream().await {
-            Ok(s) => s,
-            Err(e) => {
-                error!("Error <{e}> received converting song to stream");
-                send_or_error(
-                    &tx,
-                    ServerResponse::new_downloader(
-                        task_id,
-                        Response::DownloadProgressUpdate(
-                            DownloadProgressUpdateType::Error,
-                            song_playlist_id,
-                        ),
-                    ),
-                )
-                .await;
-                return;
-            }
+        let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
+            error!("Error received finding song");
+            send_or_error(
+                &tx,
+                DownloadProgressUpdate {
+                    kind: DownloadProgressUpdateType::Error,
+                    id: song_playlist_id,
+                },
+            )
+            .await;
+            return;
         };
-        let mut i = 0;
-        songbuffer.clear();
-        loop {
-            match stream.chunk().await {
-                Ok(Some(chunk)) => {
-                    i += 1;
-                    songbuffer.append(&mut chunk.into());
-                    let progress =
-                        (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
-                    info!("Sending song progress update");
+        let mut retries = 0;
+        let mut download_succeeded = false;
+        let mut songbuffer = Vec::new();
+        while retries <= MAX_RETRIES && !download_succeeded {
+            // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
+            let stream = match video.stream().await {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("Error <{e}> received converting song to stream");
                     send_or_error(
                         &tx,
-                        ServerResponse::new_downloader(
-                            task_id,
-                            Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
-                                song_playlist_id,
-                            ),
-                        ),
+                        DownloadProgressUpdate {
+                            kind: DownloadProgressUpdateType::Error,
+                            id: song_playlist_id,
+                        },
                     )
                     .await;
+                    return;
                 }
-                // SUCCESS
-                Ok(None) => {
-                    download_succeeded = true;
-                    break;
-                }
-                Err(e) => {
-                    warn!("Error <{e}> received downloading song");
-                    retries += 1;
-                    if retries > MAX_RETRIES {
-                        error!("Max retries exceeded");
+            };
+            let mut i = 0;
+            songbuffer.clear();
+            loop {
+                match stream.chunk().await {
+                    Ok(Some(chunk)) => {
+                        i += 1;
+                        songbuffer.append(&mut chunk.into());
+                        let progress =
+                            (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
+                        info!("Sending song progress update");
                         send_or_error(
                             &tx,
-                            ServerResponse::new_downloader(
-                                task_id,
-                                Response::DownloadProgressUpdate(
-                                    DownloadProgressUpdateType::Error,
-                                    song_playlist_id,
-                                ),
-                            ),
+                            DownloadProgressUpdate {
+                                kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                    progress as u8,
+                                )),
+                                id: song_playlist_id,
+                            },
                         )
                         .await;
-                        return;
                     }
-                    warn!("Retrying - {} tries left", MAX_RETRIES - retries);
-                    send_or_error(
-                        &tx,
-                        ServerResponse::new_downloader(
-                            task_id,
-                            Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Retrying {
+                    // SUCCESS
+                    Ok(None) => {
+                        download_succeeded = true;
+                        break;
+                    }
+                    Err(e) => {
+                        warn!("Error <{e}> received downloading song");
+                        retries += 1;
+                        if retries > MAX_RETRIES {
+                            error!("Max retries exceeded");
+                            send_or_error(
+                                &tx,
+                                DownloadProgressUpdate {
+                                    kind: DownloadProgressUpdateType::Error,
+                                    id: song_playlist_id,
+                                },
+                            )
+                            .await;
+                            return;
+                        }
+                        warn!("Retrying - {} tries left", MAX_RETRIES - retries);
+                        send_or_error(
+                            &tx,
+                            DownloadProgressUpdate {
+                                kind: DownloadProgressUpdateType::Retrying {
                                     times_retried: retries,
                                 },
-                                song_playlist_id,
-                            ),
-                        ),
-                    )
-                    .await;
-                    break;
+                                id: song_playlist_id,
+                            },
+                        )
+                        .await;
+                        break;
+                    }
                 }
             }
         }
-    }
-    info!("Song downloaded");
-    send_or_error(
-        &tx,
-        ServerResponse::new_downloader(
-            task_id,
-            Response::DownloadProgressUpdate(
-                DownloadProgressUpdateType::Completed(InMemSong(songbuffer)),
-                song_playlist_id,
-            ),
-        ),
-    )
-    .await;
+        info!("Song downloaded");
+        send_or_error(
+            &tx,
+            DownloadProgressUpdate {
+                kind: DownloadProgressUpdateType::Completed(InMemSong(songbuffer)),
+                id: song_playlist_id,
+            },
+        )
+        .await;
+    });
+    ReceiverStream::new(rx)
 }

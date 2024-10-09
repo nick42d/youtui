@@ -1,15 +1,8 @@
-use super::{
-    structures::ListSongID,
-    taskmanager::{KillableTask, TaskID},
-};
+use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
-use api::ConcurrentApi;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
 use downloader::DownloadProgressUpdate;
-use futures::{future::Shared, Future};
-use std::sync::Arc;
-use tokio::sync::{mpsc, oneshot};
-use tracing::{debug, error, info};
+use futures::Future;
 use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
 
 pub mod api;
@@ -41,6 +34,13 @@ impl Server {
     }
     pub async fn get_search_suggestions(&self, query: String) -> Result<Vec<SearchSuggestion>> {
         api::get_search_suggestions(self.api.get_api().await?, query).await
+    }
+    pub fn download_song(
+        &self,
+        video_id: VideoID<'static>,
+        song_id: ListSongID,
+    ) -> impl Stream<Item = DownloadProgressUpdate> {
+        downloader::download_song(self.downloader.options, video_id, song_id)
     }
 }
 pub struct GetSearchSuggestions(String);
@@ -94,6 +94,6 @@ impl BackendStreamingTask<Server> for DownloadSong {
         self,
         backend: &Server,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
+        backend.download_song(self.0, self.1)
     }
 }

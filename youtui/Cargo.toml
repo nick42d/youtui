@@ -35,6 +35,7 @@ toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
+tokio-stream = "0.1.16"
 
 # Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
 [dependencies.rodio]
