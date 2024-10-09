@@ -5,6 +5,7 @@ use futures::{future::Shared, Future};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 use tracing::{debug, error, info};
+use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
 
 pub use messages::*;
 
@@ -17,29 +18,8 @@ const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will paus
 const MAX_RETRIES: usize = 5;
 const AUDIO_QUALITY: rusty_ytdl::VideoQuality = rusty_ytdl::VideoQuality::HighestAudio;
 
-/// A component of the server can handle requests.
-/// Note, the handler functions should not significantly block - these run
-/// sequentially, and so a blocked handler will prevent the next handler from
-/// running. Instead a handler should spawn any significant amounts of work.
-trait ServerComponent {
-    type KillableRequestType;
-    type UnkillableRequestType;
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> Result<()>;
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        task: TaskID,
-    ) -> Result<()>;
-}
-
 /// Application backend that is capable of spawning concurrent tasks in response
 /// to requests. Tasks each receive a handle to respond back to the caller.
-/// Generic across 'T' - 'T' is a future but we need to use generics to allow
-/// use of concrete type.
 pub struct Server {
     api: api::Api,
     player: player::Player,
@@ -57,78 +37,32 @@ impl Server {
             downloader,
         }
     }
-}
-
-impl Server {
-    pub async fn run(&mut self) {
-        while let Some(request) = self.request_rx.recv().await {
-            debug!("Received {:?}", request);
-            let outcome = match request {
-                ServerRequest::Killable {
-                    killable_task,
-                    request,
-                } => self.handle_killable_request(request, killable_task).await,
-                ServerRequest::Unkillable { task_id, request } => {
-                    self.handle_unkillable_request(request, task_id).await
-                }
-            };
-            if let Err(e) = outcome {
-                error!("Error handling request: {:?}", e)
-            }
-        }
+    pub async fn get_search_suggestions(&self, query: String) -> Result<Vec<SearchSuggestion>> {
+        api::get_search_suggestions(self.api.get_api().await?, query).await
     }
 }
+pub struct GetSearchSuggestions(String);
+pub struct NewArtistSearch(String);
+pub struct SearchSelectedArtist(ArtistChannelID<'static>);
 
-impl ServerComponent for Server {
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> Result<()> {
-        match request {
-            KillableServerRequest::Api(r) => self.api.handle_killable_request(r, task).await,
-            KillableServerRequest::Player(r) => self.player.handle_killable_request(r, task).await,
-            KillableServerRequest::Downloader(r) => {
-                self.downloader.handle_killable_request(r, task).await
-            }
-        }
-    }
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        task: TaskID,
-    ) -> Result<()> {
-        match request {
-            UnkillableServerRequest::Api(r) => self.api.handle_unkillable_request(r, task).await,
-            UnkillableServerRequest::Player(r) => {
-                self.player.handle_unkillable_request(r, task).await
-            }
-            UnkillableServerRequest::Downloader(r) => {
-                self.downloader.handle_unkillable_request(r, task).await
-            }
-        }
+impl async_callback_manager::BackendTask<Server> for GetSearchSuggestions {
+    type Output = Result<Vec<SearchSuggestion>>;
+    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
+        backend.get_search_suggestions(self.0)
     }
 }
-
-fn spawn_unkillable(future: impl futures::Future<Output = ()> + Send + 'static) {
-    tokio::spawn(future);
+impl async_callback_manager::BackendTask<Server> for NewArtistSearch {
+    type Output = ();
+    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
+        todo!()
+    }
 }
-
-fn spawn_run_or_kill(
-    future: impl futures::Future<Output = ()> + Send + 'static,
-    kill_rx: oneshot::Receiver<KillRequest>,
-) {
-    tokio::spawn(run_or_kill(future, kill_rx));
-}
-
-async fn run_or_kill(
-    future: impl futures::Future<Output = ()>,
-    kill_rx: oneshot::Receiver<KillRequest>,
-) {
-    tokio::select! {
-        _ = future => (),
-        _ = kill_rx => info!("Task killed by caller"),
+impl async_callback_manager::BackendStreamingTask<Server> for SearchSelectedArtist {
+    type Output = ();
+    fn into_stream(
+        self,
+        backend: &Server,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        todo!()
     }
 }

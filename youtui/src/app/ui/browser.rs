@@ -10,11 +10,13 @@ use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
+    server::Server,
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
-    YoutuiMutableState,
+    YoutuiMutableState, CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
@@ -52,6 +54,7 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
+    async_tx: AsyncCallbackSender<Server, Self>,
 }
 
 impl InputRouting {
@@ -259,7 +262,10 @@ impl DominantKeyRouter for Browser {
 }
 
 impl Browser {
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
+    pub fn new(
+        callback_manager: &mut AsyncCallbackManager<Server>,
+        ui_tx: mpsc::Sender<AppCallback>,
+    ) -> Self {
         Self {
             callback_tx: ui_tx,
             artist_list: ArtistSearchPanel::new(),
@@ -267,7 +273,12 @@ impl Browser {
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
+            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
         }
+    }
+    pub async fn async_update(&mut self) {
+        // TODO: Size
+        self.async_tx.get_next_mutations(10).await.apply(self)
     }
     fn left(&mut self) {
         // Doesn't consider previous routing.

@@ -1,88 +1,25 @@
-use super::{messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent};
 use crate::{
     api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
     error::Error, get_config_dir, Result, OAUTH_FILENAME,
 };
-use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, StreamExt};
+use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt};
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
-    sync::{
-        mpsc::{self, Sender},
-        RwLock,
-    },
+    sync::{mpsc::Sender, RwLock},
 };
 use tracing::{error, info};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
     error::ErrorKind,
-    parse::{AlbumSong, GetAlbum, GetArtistAlbums},
+    parse::{GetAlbum, GetArtistAlbums},
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
-#[derive(Debug)]
-pub enum KillableServerRequest {
-    GetSearchSuggestions(String),
-    NewArtistSearch(String),
-    SearchSelectedArtist(ArtistChannelID<'static>),
-}
-#[derive(Debug)]
-pub enum UnkillableServerRequest {}
-
-pub enum Response {
-    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
-    SearchArtistError,
-    ReplaceSearchSuggestions(Vec<SearchSuggestion>, String),
-    SongListLoading,
-    SongListLoaded,
-    NoSongsFound,
-    SongsFound,
-    AppendSongList {
-        song_list: Vec<AlbumSong>,
-        album: String,
-        year: String,
-        artist: String,
-    },
-}
-
-// Custom debug due to size of vec params.
-impl std::fmt::Debug for Response {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Response::ReplaceArtistList(_) => f
-                .debug_tuple("ReplaceArtistList")
-                .field(&"Vec<..>")
-                .finish(),
-            Response::SearchArtistError => f.debug_tuple("SearchArtistError").finish(),
-            Response::ReplaceSearchSuggestions(_, b) => f
-                .debug_tuple("ReplaceSearchSuggestions")
-                .field(&"Vec<..>")
-                .field(b)
-                .finish(),
-            Response::SongListLoading => f.debug_tuple("SongListLoading").finish(),
-            Response::SongListLoaded => f.debug_tuple("SongListLoaded").finish(),
-            Response::NoSongsFound => f.debug_tuple("NoSongsFound").finish(),
-            Response::SongsFound => f.debug_tuple("SongsFound").finish(),
-            Response::AppendSongList {
-                song_list: _,
-                album,
-                year,
-                artist,
-            } => f
-                .debug_struct("AppendSongList")
-                .field("song_list", &"Vec<..>")
-                .field("album", album)
-                .field("year", year)
-                .field("artist", artist)
-                .finish(),
-        }
-    }
-}
-
 pub struct Api {
     #[deprecated = "TODO: remove box dyn"]
-    api: Box<dyn Future<Output = Arc<Result<ConcurrentApi>>>>,
+    api: Shared<Box<dyn Future<Output = Arc<Result<ConcurrentApi>>> + Unpin>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -100,53 +37,11 @@ impl Api {
                 .map(|api| Arc::new(RwLock::new(api)))
                 .map_err(Into::into)
         });
-        let api = Box::new(get_concrete_type(api_handle).shared());
+        let api = Box::new(get_concrete_type(api_handle)).shared();
         Api { api }
     }
-}
-
-impl Api {
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
-    }
-}
-
-impl ServerComponent for Api {
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        let tx = self.response_tx.clone();
-        // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
-        // internally.
-        let api = (*self.get_api().await)
-            .as_ref()
-            .map_err(Error::new_api_error_cloned)?
-            .clone();
-        match request {
-            KillableServerRequest::NewArtistSearch(artist) => {
-                spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx)
-            }
-            KillableServerRequest::GetSearchSuggestions(text) => {
-                spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx)
-            }
-            KillableServerRequest::SearchSelectedArtist(browse_id) => {
-                spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx);
-            }
-        };
-        Ok(())
-    }
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        _: TaskID,
-    ) -> Result<()> {
-        match request {};
     }
 }
 
@@ -222,6 +117,7 @@ where
     }
 }
 
+#[cfg(FALSE)]
 async fn handle_new_artist_search_task(
     api: ConcurrentApi,
     artist: String,
@@ -253,32 +149,16 @@ async fn handle_new_artist_search_task(
     .await;
 }
 
-async fn get_search_suggestions_task(
+pub async fn get_search_suggestions(
     api: ConcurrentApi,
     text: String,
-    id: TaskID,
-    tx: Sender<ServerResponse>,
-) {
+) -> Result<Vec<SearchSuggestion>> {
     tracing::info!("Getting search suggestions for {text}");
     let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
-    let search_suggestions = match query_api_with_retry(&api, query).await {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Received error on search suggestions query \"{}\"", e);
-            return;
-        }
-    };
-    tracing::info!("Requesting caller to replace search suggestions");
-    send_or_error(
-        tx,
-        ServerResponse::new_api(
-            id,
-            Response::ReplaceSearchSuggestions(search_suggestions, text),
-        ),
-    )
-    .await;
+    query_api_with_retry(&api, query).await
 }
 
+#[cfg(FALSE)]
 async fn search_selected_artist_task(
     api: ConcurrentApi,
     browse_id: ArtistChannelID<'static>,

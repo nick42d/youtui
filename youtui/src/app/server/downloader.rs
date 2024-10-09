@@ -1,7 +1,4 @@
-use super::{
-    messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent, AUDIO_QUALITY,
-    DL_CALLBACK_CHUNK_SIZE,
-};
+use super::{messages::ServerResponse, KillableTask, AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::{
     app::{
         server::MAX_RETRIES,
@@ -71,40 +68,6 @@ impl Downloader {
             },
         });
         Self { options }
-    }
-}
-
-impl ServerComponent for Downloader {
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> crate::Result<()> {
-        let KillableTask {
-            id: task_id,
-            kill_rx,
-        } = task;
-        let tx = self.response_tx.clone();
-        let options = self.options.clone();
-        match request {
-            KillableServerRequest::DownloadSong(song_video_id, song_playlist_id) => {
-                spawn_run_or_kill(
-                    download_song(options, song_video_id, song_playlist_id, task_id, tx),
-                    kill_rx,
-                )
-            }
-        }
-        Ok(())
-    }
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        _: TaskID,
-    ) -> crate::Result<()> {
-        match request {}
     }
 }
 

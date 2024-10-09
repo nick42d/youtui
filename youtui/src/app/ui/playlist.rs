@@ -1,4 +1,5 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
+use crate::app::server::Server;
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -10,8 +11,9 @@ use crate::app::{
     ui::{AppCallback, WindowContext},
 };
 
-use crate::app::YoutuiMutableState;
+use crate::app::{YoutuiMutableState, CALLBACK_CHANNEL_SIZE};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
 use crossterm::event::KeyCode;
 use ratatui::{layout::Rect, Frame};
 use std::iter;
@@ -33,6 +35,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
+    async_tx: AsyncCallbackSender<Server, Self>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
 }
@@ -201,7 +204,10 @@ impl SongListComponent for Playlist {
 
 // Primatives
 impl Playlist {
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
+    pub fn new(
+        callback_manager: &mut AsyncCallbackManager<Server>,
+        ui_tx: mpsc::Sender<AppCallback>,
+    ) -> Self {
         // This could fail, made to try send to avoid needing to change function
         // signature to asynchronous. Should change.
         ui_tx
@@ -218,6 +224,7 @@ impl Playlist {
             keybinds: playlist_keybinds(),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
+            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
         }
     }
     /// Drop downloads no longer relevant for ID, download new
@@ -601,6 +608,10 @@ impl Playlist {
 }
 // Server handlers
 impl Playlist {
+    pub async fn async_update(&mut self) {
+        // TODO: Size
+        self.async_tx.get_next_mutations(10).await.apply(self)
+    }
     /// Handle song progress update from server.
     pub async fn handle_song_download_progress_update(
         &mut self,
