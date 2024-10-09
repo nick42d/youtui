@@ -21,6 +21,7 @@ mod error;
 #[cfg(test)]
 mod tests;
 
+pub const POTOKEN_FILENAME: &str = "po_token.txt";
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
 
@@ -233,6 +234,7 @@ pub struct RuntimeInfo {
     debug: bool,
     config: Config,
     api_key: ApiKey,
+    po_token: Option<String>,
 }
 
 #[tokio::main]
@@ -278,10 +280,13 @@ async fn try_main() -> Result<()> {
     // XXX: check that this won't cause any delays.
     // TODO: Remove delay, should be handled inside app instead.
     let api_key = load_api_key(&config).await?;
+    // Use PoToken, if the user has supplied one (otherwise don't).
+    let po_token = load_po_token().await.ok();
     let rt = RuntimeInfo {
         debug,
         config,
         api_key,
+        po_token,
     };
     match cli.command {
         None => run_app(rt).await?,
@@ -347,6 +352,16 @@ pub fn get_config_dir() -> Result<PathBuf> {
         return Err(Error::DirectoryName);
     };
     Ok(directory)
+}
+
+async fn load_po_token() -> Result<String> {
+    let mut path = get_config_dir()?;
+    path.push(POTOKEN_FILENAME);
+    tokio::fs::read_to_string(&path)
+        .await
+        // TODO: Remove allocation.
+        .map(|s| s.trim().to_string())
+        .map_err(|e| Error::new_po_token_error(path, e))
 }
 
 async fn load_cookie_file() -> Result<String> {

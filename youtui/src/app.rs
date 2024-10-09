@@ -90,7 +90,12 @@ pub enum AppCallback {
 
 impl Youtui {
     pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
-        let RuntimeInfo { api_key, debug, .. } = rt;
+        let RuntimeInfo {
+            api_key,
+            debug,
+            po_token,
+            ..
+        } = rt;
         // Setup tracing and link to tui_logger.
         init_tracing(debug)?;
         info!("Starting");
@@ -109,7 +114,7 @@ impl Youtui {
         }));
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
-        let task_manager = taskmanager::TaskManager::new(api_key);
+        let task_manager = taskmanager::TaskManager::new(api_key, po_token);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;

@@ -54,7 +54,7 @@ pub struct Downloader {
     response_tx: mpsc::Sender<ServerResponse>,
 }
 impl Downloader {
-    pub fn new(response_tx: mpsc::Sender<ServerResponse>) -> Self {
+    pub fn new(po_token: Option<String>, response_tx: mpsc::Sender<ServerResponse>) -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
@@ -68,6 +68,7 @@ impl Downloader {
                         .build()
                         .expect("Expect client build to succeed"),
                 ),
+                po_token,
                 ..Default::default()
             },
         });
@@ -128,10 +129,7 @@ async fn download_song(
         ),
     )
     .await;
-    // Upstream issue to remove allocation
-    // https://github.com/Mithronn/rusty_ytdl/issues/38
-    let options = (*options).clone();
-    let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options) else {
+    let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
         error!("Error received finding song");
         send_or_error(
             &tx,
