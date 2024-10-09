@@ -206,7 +206,7 @@ fn build_client(client_options: ClientOptions) -> Result<Client> {
         #[cfg(feature = "rustls-tls")]
         ClientOptions::RustlsTls => Client::new_rustls_tls(),
         #[cfg(feature = "native-tls")]
-        ClientOptions::Native => Client::new_native_tls(),
+        ClientOptions::NativeTls => Client::new_native_tls(),
         ClientOptions::Existing(client) => Ok(client),
     }
 }

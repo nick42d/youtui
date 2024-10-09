@@ -25,6 +25,13 @@ pub struct AsyncCallbackSender<Bkend, Frntend> {
 pub struct StateMutationBundle<Frntend> {
     mutation_list: Vec<DynCallbackFn<Frntend>>,
 }
+// fn map<Frntend, NewFrntend>(
+//     f: DynCallbackFn<Frntend>,
+//     mut nf: impl FnMut(&mut NewFrntend) -> &mut Frntend + Send + 'static,
+// ) -> DynCallbackFn<NewFrntend> {
+//     let closure = move |x: &mut NewFrntend| f(nf(x));
+//     Box::new(closure)
+// }
 impl<Frntend> StateMutationBundle<Frntend> {
     pub fn apply(self, frontend: &mut Frntend) {
         self.mutation_list

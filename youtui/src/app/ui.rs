@@ -68,14 +68,6 @@ pub struct YoutuiWindow {
     help: HelpMenu,
 }
 
-impl YoutuiWindow {
-    pub async fn async_update(&mut self) {
-        tokio::select! {
-            _ = async {todo!()} /*self.browser.async_update()*/ => (),
-            _ = async {todo!()} /*self.playlist.async_update()*/ => (),
-        }
-    }
-}
 pub struct HelpMenu {
     shown: bool,
     cur: usize,
@@ -311,13 +303,19 @@ impl YoutuiWindow {
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_tx.clone()),
-            browser: Browser::new(callback_tx.clone()),
+            playlist: Playlist::new(callback_manager, callback_tx.clone()),
+            browser: Browser::new(callback_manager, callback_tx.clone()),
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help: Default::default(),
             callback_tx,
+        }
+    }
+    pub async fn async_update(&mut self) {
+        tokio::select! {
+            _ = self.browser.async_update() => (),
+            _ = self.playlist.async_update() => (),
         }
     }
     // Splitting out event types removes one layer of indentation.
