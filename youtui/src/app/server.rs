@@ -50,12 +50,13 @@ pub struct Server<T> {
 impl Server<()> {
     pub fn new(
         api_key: ApiKey,
+        po_token: Option<String>,
         response_tx: mpsc::Sender<ServerResponse>,
         request_rx: mpsc::Receiver<ServerRequest>,
     ) -> Server<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
         let api = api::Api::new(api_key, response_tx.clone());
         let player = player::Player::new(response_tx.clone());
-        let downloader = downloader::Downloader::new(response_tx.clone());
+        let downloader = downloader::Downloader::new(po_token, response_tx.clone());
         Server {
             api,
             player,

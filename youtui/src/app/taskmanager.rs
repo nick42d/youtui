@@ -91,11 +91,11 @@ pub enum RequestCategory {
 }
 
 impl TaskManager {
-    pub fn new(api_key: ApiKey) -> Self {
+    pub fn new(api_key: ApiKey, po_token: Option<String>) -> Self {
         let (server_request_tx, server_request_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         let (server_response_tx, server_response_rx) = mpsc::channel(MESSAGE_QUEUE_LENGTH);
         tokio::spawn(async {
-            server::Server::new(api_key, server_response_tx, server_request_rx)
+            server::Server::new(api_key, po_token, server_response_tx, server_request_rx)
                 .run()
                 .await;
         });

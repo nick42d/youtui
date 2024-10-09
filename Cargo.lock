@@ -1701,7 +1701,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e310b3a6b5907f99202fcdb4960ff45b93735d7c7d96b760fcff8db2dc0e103d"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -2716,38 +2716,6 @@ name = "rustversion"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
-
-[[package]]
-name = "rusty_ytdl"
-version = "0.7.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86e7b627f7d821e0d2e44453b57d92b7a5108459f863386198f568225b0ab5d7"
-dependencies = [
- "aes",
- "async-trait",
- "boa_engine",
- "bytes",
- "cbc",
- "derivative",
- "derive_more 1.0.0",
- "hex",
- "m3u8-rs",
- "mime",
- "once_cell",
- "rand",
- "regex",
- "reqwest",
- "reqwest-middleware",
- "reqwest-retry",
- "scraper",
- "serde",
- "serde_json",
- "serde_qs",
- "thiserror",
- "tokio",
- "url",
- "urlencoding",
-]
 
 [[package]]
 name = "ryu"
@@ -4233,7 +4201,6 @@ dependencies = [
  "gag",
  "itertools 0.13.0",
  "ratatui",
- "rusty_ytdl",
  "serde",
  "serde_json",
  "tokio",
@@ -4242,6 +4209,7 @@ dependencies = [
  "tracing-subscriber",
  "tui-logger",
  "youtui-vendored-rodio",
+ "youtui-vendored-rusty_ytdl",
  "ytmapi-rs",
 ]
 
@@ -4257,6 +4225,38 @@ dependencies = [
  "lewton",
  "symphonia",
  "thiserror",
+]
+
+[[package]]
+name = "youtui-vendored-rusty_ytdl"
+version = "0.7.4-youtui-vendored.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8195de37a8848419db0f20a011d617608943f262c51c5156ee45d2678ec0563c"
+dependencies = [
+ "aes",
+ "async-trait",
+ "boa_engine",
+ "bytes",
+ "cbc",
+ "derivative",
+ "derive_more 1.0.0",
+ "hex",
+ "m3u8-rs",
+ "mime",
+ "once_cell",
+ "rand",
+ "regex",
+ "reqwest",
+ "reqwest-middleware",
+ "reqwest-retry",
+ "scraper",
+ "serde",
+ "serde_json",
+ "serde_qs",
+ "thiserror",
+ "tokio",
+ "url",
+ "urlencoding",
 ]
 
 [[package]]

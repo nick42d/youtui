@@ -26,6 +26,10 @@ pub enum Error {
         token_location: PathBuf,
         io_error: std::io::Error,
     },
+    PoToken {
+        token_location: PathBuf,
+        io_error: std::io::Error,
+    },
     AuthTokenParse {
         token_type: AuthType,
         token_location: PathBuf,
@@ -72,6 +76,13 @@ impl Error {
         }
     }
     // Consider taking into pathbuf.
+    pub fn new_po_token_error(token_location: PathBuf, io_error: std::io::Error) -> Self {
+        Self::PoToken {
+            token_location,
+            io_error,
+        }
+    }
+    // Consider taking into pathbuf.
     pub fn new_auth_token_parse_error(token_type: AuthType, token_location: PathBuf) -> Self {
         Self::AuthTokenParse {
             token_type,
@@ -99,6 +110,7 @@ impl Display for Error {
             Error::TomlDeserialization(e) => write!(f, "Toml deserialization error:\n{e}"),
             // TODO: Better display format for token_type.
             // XXX: Consider displaying the io error.
+            Error::PoToken { token_location, io_error: _} => write!(f, "Error loading po_token from {}. Does the file exist?", token_location.display()),
             Error::AuthToken { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::AuthTokenParse { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
