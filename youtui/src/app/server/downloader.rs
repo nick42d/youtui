@@ -1,4 +1,4 @@
-use super::{messages::ServerResponse, KillableTask, AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
+use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::{
     app::{
         server::MAX_RETRIES,
@@ -14,26 +14,9 @@ use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
 #[derive(Debug)]
-pub enum KillableServerRequest {
-    DownloadSong(VideoID<'static>, ListSongID),
-}
-#[derive(Debug)]
-pub enum UnkillableServerRequest {}
-
-#[derive(Debug)]
-pub enum Response {
-    DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID),
-}
-
-/// Representation of a song in memory - an array of bytes.
-/// Newtype pattern is used to provide a cleaner Debug display.
-pub struct InMemSong(pub Vec<u8>);
-
-// Custom derive - otherwise will be displaying 3MB array of bytes...
-impl std::fmt::Debug for InMemSong {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Song").field(&"Vec<..>").finish()
-    }
+pub struct DownloadProgressUpdate {
+    kind: DownloadProgressUpdateType,
+    id: ListSongID,
 }
 
 #[derive(Debug)]
@@ -43,6 +26,16 @@ pub enum DownloadProgressUpdateType {
     Completed(InMemSong),
     Error,
     Retrying { times_retried: usize },
+}
+
+/// Representation of a song in memory - an array of bytes.
+/// Newtype pattern is used to provide a cleaner Debug display.
+pub struct InMemSong(pub Vec<u8>);
+// Custom derive - otherwise will be displaying 3MB array of bytes...
+impl std::fmt::Debug for InMemSong {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("InMemSong").field(&"Vec<..>").finish()
+    }
 }
 
 pub struct Downloader {

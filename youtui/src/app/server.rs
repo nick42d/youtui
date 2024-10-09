@@ -1,17 +1,19 @@
-use super::taskmanager::{KillableTask, TaskID};
+use super::{
+    structures::ListSongID,
+    taskmanager::{KillableTask, TaskID},
+};
 use crate::{config::ApiKey, Result};
 use api::ConcurrentApi;
+use async_callback_manager::{BackendStreamingTask, BackendTask};
+use downloader::DownloadProgressUpdate;
 use futures::{future::Shared, Future};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 use tracing::{debug, error, info};
-use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
-
-pub use messages::*;
+use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
 
 pub mod api;
 pub mod downloader;
-pub mod messages;
 pub mod player;
 
 const DL_CALLBACK_CHUNK_SIZE: u64 = 100000; // How often song download will pause to execute code.
@@ -44,21 +46,50 @@ impl Server {
 pub struct GetSearchSuggestions(String);
 pub struct NewArtistSearch(String);
 pub struct SearchSelectedArtist(ArtistChannelID<'static>);
+pub struct DownloadSong(VideoID<'static>, ListSongID);
 
-impl async_callback_manager::BackendTask<Server> for GetSearchSuggestions {
+#[cfg(FALSE)]
+#[derive(Debug)]
+// NOTE: I considered giving player more control of the playback than playlist,
+// and increasing message size. However this seems to be more combinatorially
+// difficult without a well defined data structure.
+pub enum UnkillableServerRequest {
+    IncreaseVolume(i8),
+    // Play a song, starting from the start, regardless what's queued.
+    PlaySong(Arc<InMemSong>, ListSongID),
+    // Play a song, unless it's already queued.
+    AutoplaySong(Arc<InMemSong>, ListSongID),
+    // Queue a song to play next.
+    QueueSong(Arc<InMemSong>, ListSongID),
+    Stop(ListSongID),
+    PausePlay(ListSongID),
+    Seek(i8),
+}
+
+impl BackendTask<Server> for GetSearchSuggestions {
     type Output = Result<Vec<SearchSuggestion>>;
     fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
         backend.get_search_suggestions(self.0)
     }
 }
-impl async_callback_manager::BackendTask<Server> for NewArtistSearch {
+impl BackendTask<Server> for NewArtistSearch {
     type Output = ();
     fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
         todo!()
     }
 }
-impl async_callback_manager::BackendStreamingTask<Server> for SearchSelectedArtist {
+impl BackendStreamingTask<Server> for SearchSelectedArtist {
     type Output = ();
+    fn into_stream(
+        self,
+        backend: &Server,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        todo!()
+    }
+}
+
+impl BackendStreamingTask<Server> for DownloadSong {
+    type Output = DownloadProgressUpdate;
     fn into_stream(
         self,
         backend: &Server,

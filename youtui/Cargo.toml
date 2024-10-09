@@ -50,3 +50,6 @@ version = "0.7.4-youtui-vendored.1"
 package = "youtui-vendored-rusty_ytdl"
 default-features = false
 features = ["live", "rustls-tls"]
+
+[lints]
+workspace = true

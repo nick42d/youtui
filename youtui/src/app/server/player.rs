@@ -1,8 +1,4 @@
 use super::downloader::InMemSong;
-use super::messages::ServerResponse;
-use super::spawn_unkillable;
-use super::KillableTask;
-use super::ServerComponent;
 use crate::app::structures::ListSongID;
 use crate::app::structures::Percentage;
 use crate::app::taskmanager::TaskID;
@@ -24,26 +20,6 @@ mod rodio_thread;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
-
-#[derive(Debug)]
-// NOTE: I considered giving player more control of the playback than playlist,
-// and increasing message size. However this seems to be more combinatorially
-// difficult without a well defined data structure.
-pub enum UnkillableServerRequest {
-    IncreaseVolume(i8),
-    // Play a song, starting from the start, regardless what's queued.
-    PlaySong(Arc<InMemSong>, ListSongID),
-    // Play a song, unless it's already queued.
-    AutoplaySong(Arc<InMemSong>, ListSongID),
-    // Queue a song to play next.
-    QueueSong(Arc<InMemSong>, ListSongID),
-    Stop(ListSongID),
-    PausePlay(ListSongID),
-    Seek(i8),
-}
-
-#[derive(Debug)]
-pub enum KillableServerRequest {}
 
 #[derive(Debug)]
 pub enum Response {
@@ -72,51 +48,6 @@ impl Player {
         let (msg_tx, msg_rx) = mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         spawn_rodio_thread(msg_rx);
         Self { rodio_tx: msg_tx }
-    }
-}
-
-impl ServerComponent for Player {
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> Result<()> {
-        let KillableTask { id: _, kill_rx: _ } = task;
-        match request {}
-    }
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        task: TaskID,
-    ) -> Result<()> {
-        let rodio_tx = self.rodio_tx.clone();
-        let response_tx = self.response_tx.clone();
-        match request {
-            UnkillableServerRequest::IncreaseVolume(vol_inc) => {
-                spawn_unkillable(increase_volume(vol_inc, rodio_tx, task, response_tx))
-            }
-            UnkillableServerRequest::PlaySong(song_pointer, song_id) => spawn_unkillable(
-                play_song(song_pointer, song_id, rodio_tx, task, response_tx),
-            ),
-            UnkillableServerRequest::AutoplaySong(song_pointer, song_id) => spawn_unkillable(
-                autoplay_song(song_pointer, song_id, rodio_tx, task, response_tx),
-            ),
-            UnkillableServerRequest::QueueSong(song_pointer, song_id) => spawn_unkillable(
-                queue_song(song_pointer, song_id, rodio_tx, task, response_tx),
-            ),
-            UnkillableServerRequest::Stop(song_id) => {
-                spawn_unkillable(stop(song_id, rodio_tx, task, response_tx))
-            }
-            UnkillableServerRequest::PausePlay(song_id) => {
-                spawn_unkillable(pause_play(song_id, rodio_tx, task, response_tx))
-            }
-            UnkillableServerRequest::Seek(inc) => {
-                spawn_unkillable(seek(inc, rodio_tx, task, response_tx))
-            }
-        }
-        Ok(())
     }
 }
 

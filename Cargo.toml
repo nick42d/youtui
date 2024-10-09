@@ -1,3 +1,6 @@
 [workspace]
 members = ["youtui", "ytmapi-rs", "json-crawler", "async-callback-manager"]
 resolver = "2"
+
+[workspace.lints.clippy]
+todo = "warn"
