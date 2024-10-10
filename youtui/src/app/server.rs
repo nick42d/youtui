@@ -1,8 +1,14 @@
 use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
+use api::ConcurrentApi;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
 use downloader::DownloadProgressUpdate;
 use futures::Future;
+use futures::{future::Shared, Future};
+use std::sync::Arc;
+use tokio::sync::{mpsc, oneshot};
+use tracing::{debug, error, info};
+use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
 use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
 
 pub mod api;
@@ -95,5 +101,27 @@ impl BackendStreamingTask<Server> for DownloadSong {
         backend: &Server,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         backend.download_song(self.0, self.1)
+    }
+}
+
+impl async_callback_manager::BackendTask<Server> for GetSearchSuggestions {
+    type Output = Result<Vec<SearchSuggestion>>;
+    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
+        backend.get_search_suggestions(self.0)
+    }
+}
+impl async_callback_manager::BackendTask<Server> for NewArtistSearch {
+    type Output = ();
+    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
+        todo!()
+    }
+}
+impl async_callback_manager::BackendStreamingTask<Server> for SearchSelectedArtist {
+    type Output = ();
+    fn into_stream(
+        self,
+        backend: &Server,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        todo!()
     }
 }
