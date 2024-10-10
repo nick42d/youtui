@@ -63,9 +63,16 @@ impl Downloader {
         });
         Self { options }
     }
+    pub fn download_song(
+        &self,
+        song_video_id: VideoID<'static>,
+        song_playlist_id: ListSongID,
+    ) -> impl Stream<Item = DownloadProgressUpdate> {
+        download_song(self.options.clone(), song_video_id, song_playlist_id)
+    }
 }
 
-pub fn download_song(
+fn download_song(
     options: Arc<VideoOptions>,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,

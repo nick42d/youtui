@@ -14,7 +14,6 @@ use server::Server;
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::{ListSong, ListSongID};
-use taskmanager::{AppRequest, TaskManager};
 use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;
@@ -27,6 +26,7 @@ mod keycommand;
 mod musiccache;
 mod server;
 mod structures;
+#[cfg(FALSE)]
 mod taskmanager;
 mod ui;
 mod view;
@@ -133,7 +133,7 @@ impl Youtui {
                         response.type_id, response.sender_id, response.task_id
                     )
                 });
-        let server = server::Server::new(api_key);
+        let server = server::Server::new(api_key, po_token);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
@@ -180,7 +180,7 @@ impl Youtui {
                         Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
                             redraw = false;
                         },
-                        mutations = self.window_state.async_update() => (),
+                        _ = self.window_state.async_update() => (),
                     }
                 }
                 AppStatus::Exiting(s) => {

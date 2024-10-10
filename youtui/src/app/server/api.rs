@@ -1,6 +1,6 @@
 use crate::{
-    api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
-    error::Error, get_config_dir, Result, OAUTH_FILENAME,
+    api::DynamicYtMusic, config::ApiKey, core::send_or_error, error::Error, get_config_dir, Result,
+    OAUTH_FILENAME,
 };
 use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt};
 use std::{borrow::Borrow, sync::Arc};
@@ -42,6 +42,9 @@ impl Api {
     }
     pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
         self.api.clone().await
+    }
+    pub async fn get_search_suggestions(&self, text: String) -> Result<Vec<SearchSuggestion>> {
+        get_search_suggestions(self.get_api().await?, text).await
     }
 }
 

@@ -1,7 +1,6 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
 use crate::app::structures::Percentage;
-use crate::app::taskmanager::TaskID;
 use crate::core::send_or_error;
 use crate::Result;
 use rodio_thread::rodio_mpsc_channel;
