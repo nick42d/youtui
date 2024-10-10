@@ -14,6 +14,10 @@ pub use manager::*;
 pub use sender::*;
 pub use task::Constraint;
 
+pub trait BkendMap<Bkend> {
+    fn map(backend: &Bkend) -> &Self;
+}
+
 /// A task of kind T that can be run on a backend, returning a future of output
 /// Output. The type must implement Any, as the
 /// TypeId is used as part of the task management process.

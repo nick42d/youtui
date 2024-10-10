@@ -26,15 +26,18 @@ pub enum Response {
     // means that the song has been dropped by the player, whereas Stopped simply means that a
     // Stop message to the player was succesful.
     DonePlaying(ListSongID),
-    Stopped(ListSongID),
-    Paused(ListSongID),
-    Resumed(ListSongID),
     Playing(Option<Duration>, ListSongID),
     Queued(Option<Duration>, ListSongID),
     AutoplayQueued(ListSongID),
     Error(ListSongID),
-    ProgressUpdate(Duration, ListSongID),
-    VolumeUpdate(Percentage),
+}
+
+pub struct VolumeUpdate(Percentage);
+pub struct ProgressUpdate(Duration, ListSongID);
+pub struct Stopped(ListSongID);
+pub enum PausePlayResponse {
+    Paused(ListSongID),
+    Resumed(ListSongID),
 }
 
 pub struct Player {
@@ -50,6 +53,7 @@ impl Player {
     }
 }
 
+#[cfg(FALSE)]
 async fn autoplay_song(
     song_pointer: Arc<InMemSong>,
     song_id: ListSongID,
@@ -120,6 +124,7 @@ async fn autoplay_song(
         id
     );
 }
+#[cfg(FALSE)]
 async fn queue_song(
     song_pointer: Arc<InMemSong>,
     song_id: ListSongID,
@@ -181,6 +186,7 @@ async fn queue_song(
         id
     );
 }
+#[cfg(FALSE)]
 async fn play_song(
     song_pointer: Arc<InMemSong>,
     song_id: ListSongID,
@@ -240,100 +246,56 @@ async fn play_song(
     );
 }
 
-async fn seek(
-    inc: i8,
-    rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
+async fn seek(inc: i8, rodio_tx: mpsc::Sender<RodioMessage>) -> Option<ProgressUpdate> {
     let (tx, rx) = rodio_oneshot_channel();
     send_or_error(rodio_tx, RodioMessage::Seek(inc, tx)).await;
     let Ok((current_duration, song_id)) = rx.await else {
         // This happens intentionally - when a seek is requested for a song
         // but all songs have finished, instead of sending a reply, rodio will drop
         // sender.
-        info!("The song I tried to seek is no longer playing {:?}", id);
-        return;
+        info!("The song I tried to seek is no longer playing");
+        return None;
     };
-    send_or_error(
-        response_tx,
-        ServerResponse::new_player(id, Response::ProgressUpdate(current_duration, song_id)),
-    )
-    .await;
+    Some(ProgressUpdate(current_duration, song_id))
 }
-async fn stop(
-    song_id: ListSongID,
-    rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
+async fn stop(song_id: ListSongID, rodio_tx: mpsc::Sender<RodioMessage>) -> Option<Stopped> {
     let (tx, rx) = rodio_oneshot_channel();
     send_or_error(rodio_tx, RodioMessage::Stop(song_id, tx)).await;
     let Ok(_) = rx.await else {
         // This happens intentionally - when a stop is requested for a song
         // that's no longer playing, instead of sending a reply, rodio will drop sender.
-        info!("The song I tried to stop is no longer playing {:?}", id);
-        return;
+        info!("The song I tried to stop is no longer playing");
+        return None;
     };
-    send_or_error(
-        response_tx,
-        ServerResponse::new_player(id, Response::Stopped(song_id)),
-    )
-    .await;
+    Some(Stopped(song_id))
 }
 async fn pause_play(
     song_id: ListSongID,
     rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
+) -> Option<PausePlayResponse> {
     let (tx, rx) = rodio_oneshot_channel();
     send_or_error(rodio_tx, RodioMessage::PausePlay(song_id, tx)).await;
     let Ok(play_action_taken) = rx.await else {
         // This happens intentionally - when a pauseplay is requested for a song
         // that's no longer playing, instead of sending a reply, rodio will drop sender.
-        info!(
-            "The song I tried to pause/play was no longer selected {:?}",
-            id
-        );
-        return;
+        info!("The song I tried to pause/play was no longer selected",);
+        return None;
     };
     match play_action_taken {
-        PlayActionTaken::Paused => {
-            send_or_error(
-                response_tx,
-                ServerResponse::new_player(id, Response::Paused(song_id)),
-            )
-            .await
-        }
-        PlayActionTaken::Played => {
-            send_or_error(
-                response_tx,
-                ServerResponse::new_player(id, Response::Resumed(song_id)),
-            )
-            .await
-        }
+        PlayActionTaken::Paused => Some(PausePlayResponse::Paused(song_id)),
+        PlayActionTaken::Played => Some(PausePlayResponse::Resumed(song_id)),
     }
 }
 async fn increase_volume(
     vol_inc: i8,
     rodio_tx: mpsc::Sender<RodioMessage>,
-    id: TaskID,
-    response_tx: mpsc::Sender<ServerResponse>,
-) {
+) -> Option<VolumeUpdate> {
     let (tx, rx) = rodio_oneshot_channel();
     send_or_error(rodio_tx, RodioMessage::IncreaseVolume(vol_inc, tx)).await;
     let Ok(current_volume) = rx.await else {
         // Should never happen!
-        error!(
-            "The player has been dropped while I was waiting for a volume update for {:?}",
-            id
-        );
-        return;
+        error!("The player has been dropped while I was waiting for a volume update for",);
+        return None;
     };
-    send_or_error(
-        response_tx,
-        ServerResponse::new_player(id, Response::VolumeUpdate(current_volume)),
-    )
-    .await;
+    Some(VolumeUpdate(current_volume))
 }

@@ -36,6 +36,7 @@ toml = "0.8.19"
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
 tokio-stream = "0.1.16"
+async_cell = "0.2.2"
 
 # Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
 [dependencies.rodio]

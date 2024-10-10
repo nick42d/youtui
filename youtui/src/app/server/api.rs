@@ -2,11 +2,14 @@ use crate::{
     api::DynamicYtMusic, config::ApiKey, core::send_or_error, error::Error, get_config_dir, Result,
     OAUTH_FILENAME,
 };
-use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt};
+use async_cell::sync::AsyncCell;
+use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, TryFutureExt};
+use std::pin::Pin;
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
     sync::{mpsc::Sender, RwLock},
+    task::JoinHandle,
 };
 use tracing::{error, info};
 use ytmapi_rs::{
@@ -18,30 +21,25 @@ use ytmapi_rs::{
 };
 
 pub struct Api {
-    #[deprecated = "TODO: remove box dyn"]
-    api: Shared<Box<dyn Future<Output = Arc<Result<ConcurrentApi>>> + Unpin>>,
+    api: Arc<AsyncCell<Result<ConcurrentApi>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
-async fn get_concrete_type(
-    j: tokio::task::JoinHandle<Result<ConcurrentApi>>,
-) -> Arc<Result<ConcurrentApi>> {
-    Arc::new(j.await.expect("Create new API task should never panic"))
-}
-
 impl Api {
     pub fn new(api_key: ApiKey) -> Api {
-        let api_handle = tokio::spawn(async {
-            DynamicYtMusic::new(api_key)
+        let api = AsyncCell::new().into_shared();
+        let api_clone = api.clone();
+        tokio::spawn(async move {
+            let api = DynamicYtMusic::new(api_key)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)))
-                .map_err(Into::into)
+                .map_err(Into::into);
+            api_clone.set(api)
         });
-        let api = Box::new(get_concrete_type(api_handle)).shared();
         Api { api }
     }
-    pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
-        self.api.clone().await
+    pub async fn get_api(&self) -> Result<ConcurrentApi> {
+        self.api.get().await
     }
     pub async fn get_search_suggestions(&self, text: String) -> Result<Vec<SearchSuggestion>> {
         get_search_suggestions(self.get_api().await?, text).await

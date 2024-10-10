@@ -153,29 +153,7 @@ impl BackendTask<Downloader> for PausePlay {
     }
 }
 
-impl<T> BackendTask<Server> for T
-where
-    T: BackendTask<Downloader>,
-{
-    type Output = T::Output;
-    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
-        T::into_future(self, &backend.downloader)
-    }
-}
-impl<T> BackendStreamingTask<Server> for T
-where
-    T: BackendStreamingTask<Downloader>,
-{
-    type Output = T::Output;
-    fn into_stream(
-        self,
-        backend: &Server,
-    ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
-    }
-}
-
-impl BackendStreamingTask<Downloader> for PlaySong {
+impl BackendStreamingTask<Server> for PlaySong {
     type Output = ();
     fn into_stream(
         self,
@@ -184,7 +162,7 @@ impl BackendStreamingTask<Downloader> for PlaySong {
         todo!()
     }
 }
-impl BackendStreamingTask<Downloader> for AutoplaySong {
+impl BackendStreamingTask<Server> for AutoplaySong {
     type Output = ();
     fn into_stream(
         self,
@@ -193,7 +171,7 @@ impl BackendStreamingTask<Downloader> for AutoplaySong {
         todo!()
     }
 }
-impl BackendStreamingTask<Downloader> for QueueSong {
+impl BackendStreamingTask<Server> for QueueSong {
     type Output = ();
     fn into_stream(
         self,
