@@ -6,12 +6,16 @@ use crate::{
     },
     core::send_or_error,
 };
-use futures::Stream;
-use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
-use std::sync::Arc;
+use futures::{Stream, TryStreamExt};
+use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoError, VideoOptions};
+use std::{ops::Deref, sync::Arc};
 use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::StreamExt;
 use tracing::{error, info, warn};
+use utils::into_futures_stream;
 use ytmapi_rs::common::{VideoID, YoutubeID};
+
+mod utils;
 
 #[derive(Debug)]
 pub struct DownloadProgressUpdate {
@@ -121,6 +125,25 @@ fn download_song(
                     return;
                 }
             };
+            let content_length = stream.content_length();
+            let stream = into_futures_stream(stream);
+            let x = futures::StreamExt::enumerate(stream)
+                .map(|(idx, chunk)| {
+                    let progress = (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
+                    info!("Sending song progress update");
+                    send_or_error(
+                        &tx,
+                        DownloadProgressUpdate {
+                            kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                progress as u8,
+                            )),
+                            id: song_playlist_id,
+                        },
+                    )
+                    .await;
+                    chunk.map(|b| b.into())
+                })
+                .try_collect::<Vec<u8>>();
             let mut i = 0;
             songbuffer.clear();
             loop {

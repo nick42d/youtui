@@ -37,6 +37,7 @@ toml = "0.8.19"
 itertools = "0.13.0"
 tokio-stream = "0.1.16"
 async_cell = "0.2.2"
+bytes = "1.7.2"
 
 # Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
 [dependencies.rodio]
