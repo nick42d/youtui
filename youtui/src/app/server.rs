@@ -1,5 +1,6 @@
 use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
+use async_callback_manager::ArcBackendTask;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
 use downloader::DownloadProgressUpdate;
 use downloader::Downloader;
@@ -85,16 +86,20 @@ pub struct QueueSong {
     id: ListSongID,
 }
 
-impl BackendTask<Server> for GetSearchSuggestions {
+impl ArcBackendTask<Server> for GetSearchSuggestions {
     type Output = Result<Vec<SearchSuggestion>>;
-    fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
-        backend.get_search_suggestions(self.0)
+    fn into_future(self, backend: Arc<Server>) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move {
+            backend.get_search_suggestions(self.0).await
+        }
     }
 }
 impl BackendTask<Server> for NewArtistSearch {
     type Output = ();
     fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
         todo!()
+        async{}
     }
 }
 impl BackendStreamingTask<Server> for SearchSelectedArtist {
@@ -103,7 +108,8 @@ impl BackendStreamingTask<Server> for SearchSelectedArtist {
         self,
         backend: &Server,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
+        todo!();
+        futures::stream::empty()
     }
 }
 
@@ -122,7 +128,8 @@ impl BackendTask<Downloader> for IncreaseVolume {
         self,
         backend: &Downloader,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!()
+        todo!();
+        async {}
     }
 }
 impl BackendTask<Downloader> for Seek {
@@ -131,7 +138,8 @@ impl BackendTask<Downloader> for Seek {
         self,
         backend: &Downloader,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!()
+        todo!();
+        async {}
     }
 }
 impl BackendTask<Downloader> for Stop {
@@ -140,7 +148,8 @@ impl BackendTask<Downloader> for Stop {
         self,
         backend: &Downloader,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!()
+        todo!();
+        async {}
     }
 }
 impl BackendTask<Downloader> for PausePlay {
@@ -149,7 +158,8 @@ impl BackendTask<Downloader> for PausePlay {
         self,
         backend: &Downloader,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!()
+        todo!();
+        async {}
     }
 }
 
@@ -157,26 +167,29 @@ impl BackendStreamingTask<Server> for PlaySong {
     type Output = ();
     fn into_stream(
         self,
-        backend: &Downloader,
+        backend: &Server,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
+        todo!();
+        futures::stream::empty()
     }
 }
 impl BackendStreamingTask<Server> for AutoplaySong {
     type Output = ();
     fn into_stream(
         self,
-        backend: &Downloader,
+        backend: &Server,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
+        todo!();
+        futures::stream::empty()
     }
 }
 impl BackendStreamingTask<Server> for QueueSong {
     type Output = ();
     fn into_stream(
         self,
-        backend: &Downloader,
+        backend: &Server,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!()
+        todo!();
+        futures::stream::empty()
     }
 }

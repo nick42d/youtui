@@ -2,6 +2,7 @@ use futures::Future;
 use futures::FutureExt;
 use futures::Stream;
 use std::any::Any;
+use std::sync::Arc;
 use tokio::sync::oneshot;
 
 mod error;
@@ -26,6 +27,24 @@ pub trait BackendTask<Bkend>: Send + Any {
     fn into_future(self, backend: &Bkend) -> impl Future<Output = Self::Output> + Send + 'static;
 }
 
+pub trait ArcBackendTask<Bkend>: Send + Any {
+    type Output: Send;
+    fn into_future(
+        self,
+        backend: Arc<Bkend>,
+    ) -> impl Future<Output = Self::Output> + Send + 'static;
+}
+
+impl<T, Bkend> BackendTask<Arc<Bkend>> for T
+where
+    T: ArcBackendTask<Bkend>,
+{
+    type Output = T::Output;
+    fn into_future(self, backend: &Arc<Bkend>) -> impl Future<Output = T::Output> + Send + 'static {
+        ArcBackendTask::into_future(self, backend.clone())
+    }
+}
+
 /// A task of kind T that can be run on a backend, returning a stream of outputs
 /// Output. The type must implement Any, as the TypeId is used as part of the
 /// task management process.
@@ -35,6 +54,24 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
         self,
         backend: &Bkend,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static;
+}
+
+pub trait ArcBackendStreamingTask<Bkend>: Send + Any {
+    type Output: Send;
+    fn into_stream(
+        self,
+        backend: Arc<Bkend>,
+    ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static;
+}
+
+impl<T, Bkend> BackendStreamingTask<Arc<Bkend>> for T
+where
+    T: ArcBackendStreamingTask<Bkend>,
+{
+    type Output = T::Output;
+    fn into_stream(self, backend: &Arc<Bkend>) -> impl Stream<Item = T::Output> + Send + 'static {
+        ArcBackendStreamingTask::into_stream(self, backend.clone())
+    }
 }
 
 struct KillHandle(Option<oneshot::Sender<()>>);
