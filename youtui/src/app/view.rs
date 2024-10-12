@@ -203,18 +203,12 @@ pub trait Drawable {
     }
 }
 // A drawable part of the application that mutates its state on draw.
-pub trait DrawableMut {
+pub trait DrawableMut<S> {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(
-        &self,
-        f: &mut Frame,
-        chunk: Rect,
-        mutable_state: &mut YoutuiMutableState,
-        selected: bool,
-    );
-    fn draw_mut(&self, f: &mut Frame, mutable_state: &mut YoutuiMutableState, selected: bool) {
-        self.draw_mut_chunk(f, f.area(), mutable_state, selected);
+    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, mutable_state: S, selected: bool) -> S;
+    fn draw_mut(&self, f: &mut Frame, mutable_state: S, selected: bool) -> S {
+        self.draw_mut_chunk(f, f.area(), mutable_state, selected)
     }
 }
 // A part of the application that can be in a Loading state.

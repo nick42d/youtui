@@ -21,7 +21,7 @@ use ytmapi_rs::{
 };
 
 pub struct Api {
-    api: Arc<AsyncCell<Result<ConcurrentApi>>>,
+    api: Arc<AsyncCell<std::result::Result<ConcurrentApi, String>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -33,16 +33,22 @@ impl Api {
             let api = DynamicYtMusic::new(api_key)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)))
-                .map_err(Into::into);
+                // Hack to allow error to be cloneable.
+                .map_err(|e| format!("{:?}", e));
             api_clone.set(api)
         });
         Api { api }
     }
-    pub async fn get_api(&self) -> Result<ConcurrentApi> {
+    pub async fn get_api(&self) -> std::result::Result<ConcurrentApi, String> {
+        // Note that the error, if it exists, is cloned here.
         self.api.get().await
     }
     pub async fn get_search_suggestions(&self, text: String) -> Result<Vec<SearchSuggestion>> {
-        get_search_suggestions(self.get_api().await?, text).await
+        get_search_suggestions(
+            self.get_api().await.map_err(Error::new_api_error_string)?,
+            text,
+        )
+        .await
     }
 }
 
