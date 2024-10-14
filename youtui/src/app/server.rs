@@ -88,18 +88,19 @@ pub struct QueueSong {
 
 impl ArcBackendTask<Server> for GetSearchSuggestions {
     type Output = Result<Vec<SearchSuggestion>>;
-    fn into_future(self, backend: Arc<Server>) -> impl Future<Output = Self::Output> + Send + 'static {
+    fn into_future(
+        self,
+        backend: Arc<Server>,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
-        async move {
-            backend.get_search_suggestions(self.0).await
-        }
+        async move { backend.get_search_suggestions(self.0).await }
     }
 }
 impl BackendTask<Server> for NewArtistSearch {
     type Output = ();
     fn into_future(self, backend: &Server) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!()
-        async{}
+        todo!();
+        async {}
     }
 }
 impl BackendStreamingTask<Server> for SearchSelectedArtist {
