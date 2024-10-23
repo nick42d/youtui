@@ -1,4 +1,7 @@
-use super::{parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY};
+use super::{
+    parse_flex_column_item, parse_flex_column_item_as_string_until_delimiter, ParseFrom,
+    ProcessedResult, DISPLAY_POLICY,
+};
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
@@ -18,10 +21,7 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
-use itertools::Itertools;
-use json_crawler::{
-    CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
-};
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
 
@@ -503,26 +503,13 @@ fn parse_album_search_result_from_music_shelf_contents(
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let mut artist = String::new();
-    let mut year = String::new();
 
-    let mut idx = 0;
-    let mut chunk = 0;
-    loop {
-        idx += 1;
-        let item: String = parse_flex_column_item(&mut mrlir, 1, idx)?;
-        if item == " • " {
-            chunk += 1;
-            continue;
-        };
-        if chunk == 1 {
-            artist.push_str(&item)
-        }
-        if chunk == 2 {
-            year = item;
-            break;
-        }
-    }
+    // Artist can comprise of multiple runs, delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171
+    let (artist, delimiter_idx) =
+        parse_flex_column_item_as_string_until_delimiter(&mut mrlir, " • ", 1, 2)?;
+
+    let year = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 1)?;
 
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
@@ -549,38 +536,13 @@ fn parse_song_search_result_from_music_shelf_contents(
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
 
-    let byline = mrlir
-        .borrow_pointer(crate::process::flex_column_item_pointer(1))?
-        .navigate_pointer("/text/runs")?;
+    // Artist can comprise of multiple runs, delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171
+    let (artist, delimiter_idx) =
+        parse_flex_column_item_as_string_until_delimiter(&mut mrlir, " • ", 1, 0)?;
 
-    let chunks = byline.try_into_iter()?;
-    let context = chunks.get_context();
-    let chunks = chunks
-        .map(|mut column| {
-            column
-                .take_value_pointer::<String>("/text")
-                .map_err(Into::into)
-        })
-        .chunk_by(|item| item.as_ref().is_ok_and(|x| x != " • "))
-        .into_iter()
-        .map(|(_, chunk)| chunk.collect::<Result<String>>())
-        .collect::<Result<Vec<_>>>()?;
-
-    // The array size in the error message here is incorrect - original array may
-    // have been longer than length 4. TODO: Resolve incorrect array size in
-    // error.
-    let artist = chunks
-        .get(0)
-        .ok_or_else(|| CrawlerError::array_size_from_context(context.clone(), 0))?
-        .clone();
-    let album = chunks
-        .get(2)
-        .ok_or_else(|| CrawlerError::array_size_from_context(context.clone(), 2))?
-        .clone();
-    let duration = chunks
-        .get(4)
-        .ok_or_else(|| CrawlerError::array_size_from_context(context, 4))?
-        .clone();
+    let album = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 1)?;
+    let duration = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 3)?;
 
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
 
