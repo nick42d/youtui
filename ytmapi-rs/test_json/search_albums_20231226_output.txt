@@ -32,6 +32,38 @@
         ],
     },
     SearchResultAlbum {
+        title: "Keith Power",
+        artist: "Sleeping in the Cold Below (From \"Warframe\") (feat. Damhnait Doyle) & Alan Doyle",
+        year: "2021",
+        explicit: NotExplicit,
+        album_id: AlbumID(
+            "MPREb_zjKqlIlmFnG",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
         title: "Limp Bizkit",
         artist: "Significant Other",
         year: "1999",
