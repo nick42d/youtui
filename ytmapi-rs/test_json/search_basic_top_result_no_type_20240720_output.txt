@@ -245,8 +245,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "STeXeN",
-            artist: "Beaten",
+            title: "Beaten",
+            artist: "STeXeN",
             year: "2024",
             explicit: NotExplicit,
             album_id: AlbumID(

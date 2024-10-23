@@ -123,8 +123,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Swørn",
-            artist: "Beaten",
+            title: "Beaten",
+            artist: "Swørn",
             year: "2023",
             explicit: NotExplicit,
             album_id: AlbumID(

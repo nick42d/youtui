@@ -105,7 +105,7 @@ SearchResults {
     albums: [
         SearchResultAlbum {
             title: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
-            artist: "Relaxing Classical Music",
+            artist: "Classical Music For Relaxation, Relaxing Classical Music & Classical Piano",
             year: "2020",
             explicit: NotExplicit,
             album_id: AlbumID(
