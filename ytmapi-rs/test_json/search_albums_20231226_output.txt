@@ -32,8 +32,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Keith Power",
-        artist: "Sleeping in the Cold Below (From \"Warframe\") (feat. Damhnait Doyle) & Alan Doyle",
+        title: "Sleeping in the Cold Below (From \"Warframe\") (feat. Damhnait Doyle)",
+        artist: "Keith Power & Alan Doyle",
         year: "2021",
         explicit: NotExplicit,
         album_id: AlbumID(

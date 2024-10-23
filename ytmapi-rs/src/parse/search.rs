@@ -501,10 +501,29 @@ fn parse_album_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultAlbum> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let title = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let year = parse_flex_column_item(&mut mrlir, 1, 4)?;
+    let mut artist = String::new();
+    let mut year = String::new();
+
+    let mut idx = 0;
+    let mut chunk = 0;
+    loop {
+        idx += 1;
+        let item: String = parse_flex_column_item(&mut mrlir, 1, idx)?;
+        if item == " • " {
+            chunk += 1;
+            continue;
+        };
+        if chunk == 1 {
+            artist.push_str(&item)
+        }
+        if chunk == 2 {
+            year = item;
+            break;
+        }
+    }
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -547,6 +566,9 @@ fn parse_song_search_result_from_music_shelf_contents(
         .map(|(_, chunk)| chunk.collect::<Result<String>>())
         .collect::<Result<Vec<_>>>()?;
 
+    // The array size in the error message here is incorrect - original array may
+    // have been longer than length 4. TODO: Resolve incorrect array size in
+    // error.
     let artist = chunks
         .get(0)
         .ok_or_else(|| CrawlerError::array_size_from_context(context.clone(), 0))?
