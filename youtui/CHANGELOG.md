@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.15](https://github.com/nick42d/youtui/compare/youtui/v0.0.14...youtui/v0.0.15) - 2024-10-23
+
+### Added
+- [**breaking**] Implement continuations for GetLibraryXX Queries ([#165](https://github.com/nick42d/youtui/pull/165))
+- _Client::post_query method has been improved to allow params to be passed to add to URL. Return types for GetLibraryXX queries have been changed to add continuation params - please consider this API still unstable is I'm not yet sure it that's the ideal form. Pre-existing continuations module and query have been refactored to new modules._ 
+
+### Fixed
+- Add way to supply potoken ([#170](https://github.com/nick42d/youtui/pull/170))
+
+
+
+
 ## [0.0.14](https://github.com/nick42d/youtui/compare/youtui/v0.0.13...youtui/v0.0.14) - 2024-09-04
 
 ### Added
