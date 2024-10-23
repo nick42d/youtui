@@ -11,7 +11,7 @@ use crate::{
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Result,
+    Result,
 };
 use const_format::concatcp;
 use itertools::Itertools;

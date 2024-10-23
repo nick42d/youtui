@@ -18,7 +18,10 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
-use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
+use itertools::Itertools;
+use json_crawler::{
+    CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
+};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
 
@@ -526,10 +529,39 @@ fn parse_song_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultSong> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
-    let artist = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let album = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let duration = parse_flex_column_item(&mut mrlir, 1, 4)?;
+
+    let byline = mrlir
+        .borrow_pointer(crate::process::flex_column_item_pointer(1))?
+        .navigate_pointer("/text/runs")?;
+
+    let chunks = byline.try_into_iter()?;
+    let context = chunks.get_context();
+    let chunks = chunks
+        .map(|mut column| {
+            column
+                .take_value_pointer::<String>("/text")
+                .map_err(Into::into)
+        })
+        .chunk_by(|item| item.as_ref().is_ok_and(|x| x != " • "))
+        .into_iter()
+        .map(|(_, chunk)| chunk.collect::<Result<String>>())
+        .collect::<Result<Vec<_>>>()?;
+
+    let artist = chunks
+        .get(0)
+        .ok_or_else(|| CrawlerError::array_size_from_context(context.clone(), 0))?
+        .clone();
+    let album = chunks
+        .get(2)
+        .ok_or_else(|| CrawlerError::array_size_from_context(context.clone(), 2))?
+        .clone();
+    let duration = chunks
+        .get(4)
+        .ok_or_else(|| CrawlerError::array_size_from_context(context, 4))?
+        .clone();
+
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

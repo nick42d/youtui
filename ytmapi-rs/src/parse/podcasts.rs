@@ -16,7 +16,7 @@ use crate::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
         GetPodcastQuery,
     },
-    utils, Result,
+    Result,
 };
 use const_format::concatcp;
 use itertools::Itertools;

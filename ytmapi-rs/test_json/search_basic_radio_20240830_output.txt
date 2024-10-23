@@ -362,9 +362,9 @@ SearchResults {
     songs: [
         SearchResultSong {
             title: "J.S. Bach: Orchestral Suite No. 3 in D Major, BWV 1068: II. Air",
-            artist: "Academy of St Martin in the Fields",
-            album: "Sir Neville Marriner",
-            duration: "Johann Sebastian Bach",
+            artist: "Academy of St Martin in the Fields, Sir Neville Marriner & Johann Sebastian Bach",
+            album: "Bach, J.S.: Orchestral Suites 1-4",
+            duration: "5:13",
             plays: "1.6M plays",
             explicit: NotExplicit,
             video_id: VideoID(
@@ -385,9 +385,9 @@ SearchResults {
         },
         SearchResultSong {
             title: "Violin Concerto in A Minor, BWV 1041: I. Allegro",
-            artist: "Joshua Bell",
-            album: "Academy of St Martin in the Fields",
-            duration: "Johann Sebastian Bach",
+            artist: "Joshua Bell, Academy of St Martin in the Fields & Johann Sebastian Bach",
+            album: "Bach: Works for Violin",
+            duration: "3:18",
             plays: "2.1M plays",
             explicit: NotExplicit,
             video_id: VideoID(
