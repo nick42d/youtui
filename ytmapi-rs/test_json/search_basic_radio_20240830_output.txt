@@ -104,9 +104,9 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "Classical Music For Relaxation",
-            artist: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
-            year: "Relaxing Classical Music",
+            title: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
+            artist: "Relaxing Classical Music",
+            year: "2020",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_waBHly97VR1",
@@ -136,9 +136,9 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Silvano Frontalini",
-            artist: "Vivaldi - Classical Music for Relaxation",
-            year: "Giuseppe Lanzetta",
+            title: "Vivaldi - Classical Music for Relaxation",
+            artist: "Silvano Frontalini, Giuseppe Lanzetta, Kaunas Chamber Orchestra & Orchestra da Camera Fiorentina",
+            year: "2017",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_t3RRcQYIlyB",
@@ -168,9 +168,9 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Crazy Monkey",
-            artist: "classical music but it's lofi 30 (Bach)",
-            year: "Classical Music But",
+            title: "classical music but it's lofi 30 (Bach)",
+            artist: "Crazy Monkey & Classical Music But",
+            year: "2024",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_MgMDqnhK9cm",
