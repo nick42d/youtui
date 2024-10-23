@@ -4266,6 +4266,7 @@ dependencies = [
  "chrono",
  "const_format",
  "futures",
+ "itertools 0.13.0",
  "json-crawler",
  "pretty_assertions",
  "rand",
