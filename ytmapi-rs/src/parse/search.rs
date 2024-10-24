@@ -1,4 +1,7 @@
-use super::{parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY};
+use super::{
+    parse_flex_column_item, parse_flex_column_item_as_string_until_delimiter, ParseFrom,
+    ProcessedResult, DISPLAY_POLICY,
+};
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
@@ -498,10 +501,16 @@ fn parse_album_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultAlbum> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let title = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let year = parse_flex_column_item(&mut mrlir, 1, 4)?;
+
+    // Artist can comprise of multiple runs, delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171
+    let (artist, delimiter_idx) =
+        parse_flex_column_item_as_string_until_delimiter(&mut mrlir, " • ", 1, 2)?;
+
+    let year = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 1)?;
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -526,10 +535,17 @@ fn parse_song_search_result_from_music_shelf_contents(
 ) -> Result<SearchResultSong> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
-    let artist = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let album = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let duration = parse_flex_column_item(&mut mrlir, 1, 4)?;
+
+    // Artist can comprise of multiple runs, delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171
+    let (artist, delimiter_idx) =
+        parse_flex_column_item_as_string_until_delimiter(&mut mrlir, " • ", 1, 0)?;
+
+    let album = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 1)?;
+    let duration = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 3)?;
+
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

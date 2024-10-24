@@ -198,8 +198,8 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Help!",
+            title: "Help!",
+            artist: "The Beatles",
             year: "1965",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -230,8 +230,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "A Hard Day's Night",
+            title: "A Hard Day's Night",
+            artist: "The Beatles",
             year: "1964",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -262,8 +262,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Abbey Road (Super Deluxe Edition)",
+            title: "Abbey Road (Super Deluxe Edition)",
+            artist: "The Beatles",
             year: "1969",
             explicit: NotExplicit,
             album_id: AlbumID(

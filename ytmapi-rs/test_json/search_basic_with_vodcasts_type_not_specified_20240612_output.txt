@@ -230,8 +230,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Abbey Road (Super Deluxe Edition)",
+            title: "Abbey Road (Super Deluxe Edition)",
+            artist: "The Beatles",
             year: "1969",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -262,8 +262,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "The Beatles 1967 - 1970",
+            title: "The Beatles 1967 - 1970",
+            artist: "The Beatles",
             year: "1973",
             explicit: NotExplicit,
             album_id: AlbumID(

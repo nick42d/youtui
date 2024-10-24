@@ -188,6 +188,29 @@ fn parse_song_album(data: &mut impl JsonCrawler, col_idx: usize) -> Result<Parse
     })
 }
 
+/// Parse a series of runs, accumulating theme as a single string until
+/// delimiter is found. Returns (string, index of found delimiter)
+/// # Warning
+/// If delimiter is not found, this will hang!
+// See https://github.com/nick42d/youtui/issues/171
+fn parse_flex_column_item_as_string_until_delimiter(
+    item: &mut impl JsonCrawler,
+    delimiter: impl AsRef<str>,
+    col_idx: usize,
+    first_run_idx: usize,
+) -> Result<(String, usize)> {
+    let mut out = String::new();
+    let mut run_idx = first_run_idx;
+    loop {
+        let item = parse_flex_column_item::<String>(item, col_idx, run_idx)?;
+        if item == delimiter.as_ref() {
+            return Ok((out, run_idx));
+        }
+        out.push_str(&item);
+        run_idx += 1;
+    }
+}
+
 fn parse_flex_column_item<T: DeserializeOwned>(
     item: &mut impl JsonCrawler,
     col_idx: usize,
