@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolve duration for songs search and years field for artists search when multiple artists exist. Closes [#171](https://github.com/nick42d/youtui/pull/171) ([#173](https://github.com/nick42d/youtui/pull/173))
 
-
-
-
 ## [0.0.13](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.12...ytmapi-rs/v0.0.13) - 2024-09-04
 
 ### Added
