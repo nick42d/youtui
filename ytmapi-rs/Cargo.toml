@@ -31,7 +31,6 @@ chrono = "0.4.38"
 rand = "0.8.5"
 # Futures `executor` feature is not required.
 futures = { version = "0.3.30", features = ["async-await", "std"] }
-itertools = "0.13.0"
 
 [features]
 default = ["default-tls", "simplified-queries"]

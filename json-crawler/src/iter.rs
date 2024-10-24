@@ -23,7 +23,6 @@ where
     fn try_last(self) -> CrawlerResult<Self::Item>;
 }
 
-#[derive(Clone)]
 pub struct JsonCrawlerArrayIterContext {
     pub(crate) source: Arc<String>,
     pub(crate) path: String,
