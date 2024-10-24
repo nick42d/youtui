@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.15](https://github.com/nick42d/youtui/compare/youtui/v0.0.14...youtui/v0.0.15) - 2024-10-24
+
+### Fixed
+- Add way to supply potoken ([#170](https://github.com/nick42d/youtui/pull/170))
+
 ## [0.0.14](https://github.com/nick42d/youtui/compare/youtui/v0.0.13...youtui/v0.0.14) - 2024-09-04
 
 ### Added
