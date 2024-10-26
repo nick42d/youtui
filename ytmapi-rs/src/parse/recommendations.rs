@@ -11,13 +11,11 @@ use crate::{
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Result,
+    Result,
 };
 use const_format::concatcp;
-use json_crawler::{
-    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator,
-    JsonCrawlerOwned,
-};
+use itertools::Itertools;
+use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -66,7 +64,7 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     fn parse_from(p: super::ProcessedResult<GetTasteProfileQuery>) -> Result<Self> {
         let crawler = JsonCrawlerOwned::from(p);
         // TODO: Neaten this
-        let nested_iter = crawler
+        crawler
             .navigate_pointer(TASTE_PROFILE_ITEMS)?
             .try_into_iter()?
             .map(|item| -> Result<_> {
@@ -74,10 +72,8 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
                     .navigate_pointer(TASTE_ITEM_CONTENTS)?
                     .try_into_iter()?
                     .map(get_taste_profile_artist))
-            });
-        utils::process_results::process_results(nested_iter, |i| {
-            i.flatten().collect::<Result<_>>()
-        })?
+            })
+            .process_results(|nested_iter| nested_iter.flatten().collect::<Result<_>>())?
     }
 }
 
@@ -142,15 +138,19 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
             let playlist_id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let title = item.take_value_pointer(TITLE_TEXT)?;
             let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
-            let subtitle_runs_iter = item.borrow_pointer(SUBTITLE_RUNS)?.try_into_iter()?;
-            let subtitle_runs_iter_context = subtitle_runs_iter.get_context();
-            let author = subtitle_runs_iter
-                .take(3)
-                .last()
-                .map(|mut run| run.take_value_pointer("/text"))
-                .ok_or_else(|| {
-                    CrawlerError::array_size_from_context(subtitle_runs_iter_context, 1)
-                })??;
+
+            let author = item.borrow_pointer(SUBTITLE_RUNS)?.try_expect(
+                "Subtitle runs should contain at least 1 item",
+                |subtitle_runs| {
+                    subtitle_runs
+                        .try_iter_mut()?
+                        .take(3)
+                        .last()
+                        .map(|mut run| run.take_value_pointer("/text"))
+                        .transpose()
+                },
+            )?;
+
             Ok(MoodPlaylist {
                 playlist_id,
                 title,

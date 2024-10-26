@@ -133,23 +133,6 @@
                                         "navigationEndpoint": {
                                           "clickTrackingParams": "CK4CEOFnGAAiEwjcjpHBt6yDAxW1DbcAHcUIAi4=",
                                           "browseEndpoint": {
-                                            "browseId": "UC2XdaAVUannpujzv32jcouQ",
-                                            "browseEndpointContextSupportedConfigs": {
-                                              "browseEndpointContextMusicConfig": {
-                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
-                                              }
-                                            }
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "text": " • "
-                                      },
-                                      {
-                                        "text": "Now And Then",
-                                        "navigationEndpoint": {
-                                          "clickTrackingParams": "CK4CEOFnGAAiEwjcjpHBt6yDAxW1DbcAHcUIAi4=",
-                                          "browseEndpoint": {
                                             "browseId": "MPREb_oloYR7Vz0y8",
                                             "browseEndpointContextSupportedConfigs": {
                                               "browseEndpointContextMusicConfig": {
@@ -10881,3 +10864,4 @@
   },
   "trackingParams": "CAAQvGkiEwjcjpHBt6yDAxW1DbcAHcUIAi4="
 }
+

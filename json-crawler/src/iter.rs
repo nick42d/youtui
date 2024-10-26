@@ -4,7 +4,7 @@ use crate::{
     CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned, JsonPath,
     PathList,
 };
-use std::{borrow::Borrow, slice::IterMut, sync::Arc, vec::IntoIter};
+use std::{slice::IterMut, sync::Arc, vec::IntoIter};
 
 /// Iterator extension trait containing special methods for Json Crawler
 /// iterators to help with error handling.
@@ -14,18 +14,8 @@ where
 {
     /// Return the first crawler found at `path`, or error.
     fn find_path(self, path: impl AsRef<str>) -> CrawlerResult<Self::Item>;
-    /// Get a context object that can be used to generate error types that are
-    /// unable to be expressed declaratively.
-    /// # Note
-    /// This allocates internally, to allow it to outlive the original iterator.
-    fn get_context(&self) -> JsonCrawlerArrayIterContext;
     /// Return the last item of the array, or return an error with context.
     fn try_last(self) -> CrawlerResult<Self::Item>;
-}
-
-pub struct JsonCrawlerArrayIterContext {
-    pub(crate) source: Arc<String>,
-    pub(crate) path: String,
 }
 
 pub struct JsonCrawlerArrayIterMut<'a> {
@@ -92,12 +82,6 @@ impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
                 CrawlerError::path_not_found_in_array(self.path, self.source, path.as_ref())
             })
     }
-    fn get_context(&self) -> JsonCrawlerArrayIterContext {
-        JsonCrawlerArrayIterContext {
-            source: self.source.clone(),
-            path: self.path.borrow().into(),
-        }
-    }
     fn try_last(self) -> CrawlerResult<Self::Item> {
         let Self {
             source,
@@ -162,12 +146,6 @@ impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
             .ok_or_else(|| {
                 CrawlerError::path_not_found_in_array(self.path, self.source, path.as_ref())
             })
-    }
-    fn get_context(&self) -> JsonCrawlerArrayIterContext {
-        JsonCrawlerArrayIterContext {
-            source: self.source.clone(),
-            path: self.path.borrow().into(),
-        }
     }
     fn try_last(self) -> CrawlerResult<Self::Item> {
         let Self {
