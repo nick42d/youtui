@@ -7,6 +7,9 @@ assignees: nick42d
 
 ---
 
+**Is your feature request related to the youtui app, or one of the helper crates (e.g ytmapi_rs)?**
+Please list either youtui or the crate the feature request relates to.
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

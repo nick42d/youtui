@@ -1,9 +1,9 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+name: Bug report - crates
+about: Create a report to help us improve the crates
+title: '[Bug report]: '
+labels: ['triage', 'api']
+assignees: 'nick42d'
 
 ---
 
@@ -11,28 +11,23 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Steps to reproduce the behavior.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**If ytmapi_rs: Provide the source json file that caused the error**
+This can be returned using the `youtui` command line app with the `-s` flag. 
+E.g, error was returned when searching for 'The Beatles'. Provide the output of `youtui -s search "The beatles"`
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**If ytmapi_rs: Provide a screenshot of the YouTube Music page that shows the result you expected**
+E.g, error was returned when searching for 'The Beatles'. Provide a screenshot of your YouTube Music searching for 'The Beatles'.
+Please provide as close to a full page screenshot as possible, without including identifying information.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Environment (please complete the following information):**
+ - OS/distro: [e.g. macOS / fedora]
+ - Crate: [e.g ytmapi_rs]
+ - Version [e.g. 0.0.15 or git tag f8e24a5]
 
 **Additional context**
 Add any other context about the problem here.
