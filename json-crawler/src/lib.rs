@@ -52,19 +52,20 @@ where
     /// closure return type is fallible, allowing you to see the cause of the
     /// error at the failure point as well, if you have it.
     ///
-    /// #Usage
+    /// # Usage
     /// ```no_run
-    /// # let crawler = JsonCrawlerOwned::default();
+    /// # use json_crawler::*;
+    /// # let mut crawler = JsonCrawlerOwned::new(String::new(), serde_json::Value::Null);
     /// // Returns Ok(42) if crawler parses into 42.
-    /// // Returns parsing error, plus the message that output should be 42, if output fails to parse from string.
+    /// // Returns parsing from string error, plus the message that output should be 42, if output fails to parse from string.
     /// // Returns message that output should be 42, if output parses from string, but is not 42.
-    /// crawler.try_expect_parse("Output should be 42", |crawler| {
+    /// let forty_two: CrawlerResult<usize> = crawler.try_expect("Output should be 42", |crawler| {
     ///     let num = crawler.take_and_parse_str::<usize>()?;
     ///     if num == 42 {
     ///         return Ok(Some(num));
     ///     }
     ///     Ok(None)
-    /// })
+    /// });
     /// ```
     fn try_expect<F, O>(&mut self, msg: impl ToString, f: F) -> CrawlerResult<O>
     where
