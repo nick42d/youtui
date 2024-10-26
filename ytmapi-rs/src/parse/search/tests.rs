@@ -123,7 +123,7 @@ async fn test_basic_search_no_top_results_has_results() {
 }
 
 #[tokio::test]
-async fn test_basic_search() {
+async fn test_basic_search_highlighted_top_result() {
     parse_test!(
         "./test_json/search_highlighted_top_result_20240107.json",
         "./test_json/search_highlighted_top_result_20240107_output.txt",

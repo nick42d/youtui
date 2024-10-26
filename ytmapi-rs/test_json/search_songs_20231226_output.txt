@@ -2,7 +2,7 @@
     SearchResultSong {
         title: "Now And Then",
         artist: "The Beatles",
-        album: "Now And Then",
+        album: None,
         duration: "4:09",
         plays: "55M\u{a0}plays",
         explicit: NotExplicit,
@@ -25,7 +25,9 @@
     SearchResultSong {
         title: "Sleeping in the Cold Below (From \"Warframe\") (feat. Damhnait Doyle)",
         artist: "Keith Power & Alan Doyle",
-        album: "Sleeping in the Cold Below (From \"Warframe\")",
+        album: Some(
+            "Sleeping in the Cold Below (From \"Warframe\")",
+        ),
         duration: "3:32",
         plays: "5M\u{a0}plays",
         explicit: NotExplicit,
@@ -48,7 +50,9 @@
     SearchResultSong {
         title: "Ticket To Ride (2023 Mix)",
         artist: "The Beatles",
-        album: "The Beatles 1962 – 1966 (2023 Edition)",
+        album: Some(
+            "The Beatles 1962 – 1966 (2023 Edition)",
+        ),
         duration: "3:12",
         plays: "99M\u{a0}plays",
         explicit: NotExplicit,
@@ -71,7 +75,9 @@
     SearchResultSong {
         title: "Don't Let Me Down (Rooftop Performance / Take 2)",
         artist: "The Beatles",
-        album: "Get Back (Rooftop Performance)",
+        album: Some(
+            "Get Back (Rooftop Performance)",
+        ),
         duration: "3:30",
         plays: "1.2M\u{a0}plays",
         explicit: NotExplicit,
@@ -94,7 +100,9 @@
     SearchResultSong {
         title: "I Want You (She's So Heavy) (Remastered 2009)",
         artist: "The Beatles",
-        album: "Abbey Road",
+        album: Some(
+            "Abbey Road",
+        ),
         duration: "7:48",
         plays: "48M\u{a0}plays",
         explicit: NotExplicit,
@@ -117,7 +125,9 @@
     SearchResultSong {
         title: "What's The New Mary Jane (Anthology 3 Version)",
         artist: "The Beatles",
-        album: "Anthology 3",
+        album: Some(
+            "Anthology 3",
+        ),
         duration: "6:13",
         plays: "444K\u{a0}plays",
         explicit: NotExplicit,
@@ -140,7 +150,9 @@
     SearchResultSong {
         title: "Good Morning Good Morning (Take 8 / Anthology 2 Version)",
         artist: "The Beatles",
-        album: "Anthology 2",
+        album: Some(
+            "Anthology 2",
+        ),
         duration: "2:41",
         plays: "400K\u{a0}plays",
         explicit: NotExplicit,
@@ -163,7 +175,9 @@
     SearchResultSong {
         title: "Only A Northern Song (Anthology 2 Version)",
         artist: "The Beatles",
-        album: "Anthology 2",
+        album: Some(
+            "Anthology 2",
+        ),
         duration: "2:44",
         plays: "284K\u{a0}plays",
         explicit: NotExplicit,
@@ -186,7 +200,9 @@
     SearchResultSong {
         title: "A Day In The Life (Take 1)",
         artist: "The Beatles",
-        album: "Sgt. Pepper's Lonely Hearts Club Band (Super Deluxe Edition)",
+        album: Some(
+            "Sgt. Pepper's Lonely Hearts Club Band (Super Deluxe Edition)",
+        ),
         duration: "4:42",
         plays: "458K\u{a0}plays",
         explicit: NotExplicit,
@@ -209,7 +225,9 @@
     SearchResultSong {
         title: "While My Guitar Gently Weeps (Anthology 3 Version)",
         artist: "The Beatles",
-        album: "Anthology 3",
+        album: Some(
+            "Anthology 3",
+        ),
         duration: "3:28",
         plays: "3.3M\u{a0}plays",
         explicit: NotExplicit,
@@ -232,7 +250,9 @@
     SearchResultSong {
         title: "Michelle (Remastered 2009)",
         artist: "The Beatles",
-        album: "Rubber Soul",
+        album: Some(
+            "Rubber Soul",
+        ),
         duration: "2:43",
         plays: "51M\u{a0}plays",
         explicit: NotExplicit,
@@ -255,7 +275,9 @@
     SearchResultSong {
         title: "Come Together",
         artist: "The Beatles",
-        album: "1",
+        album: Some(
+            "1",
+        ),
         duration: "4:19",
         plays: "243M\u{a0}plays",
         explicit: NotExplicit,
@@ -278,7 +300,9 @@
     SearchResultSong {
         title: "Octopus's Garden (Remastered 2009)",
         artist: "The Beatles",
-        album: "Abbey Road",
+        album: Some(
+            "Abbey Road",
+        ),
         duration: "2:51",
         plays: "23M\u{a0}plays",
         explicit: NotExplicit,
@@ -301,7 +325,9 @@
     SearchResultSong {
         title: "Something (Take 39 / Instrumental / Strings Only)",
         artist: "The Beatles",
-        album: "Abbey Road (Super Deluxe Edition)",
+        album: Some(
+            "Abbey Road (Super Deluxe Edition)",
+        ),
         duration: "2:42",
         plays: "1M\u{a0}plays",
         explicit: NotExplicit,
@@ -324,7 +350,9 @@
     SearchResultSong {
         title: "Don’t Let Me Down (First Rooftop Performance)",
         artist: "The Beatles",
-        album: "Let It Be (Super Deluxe)",
+        album: Some(
+            "Let It Be (Super Deluxe)",
+        ),
         duration: "3:30",
         plays: "503M\u{a0}plays",
         explicit: NotExplicit,
@@ -347,7 +375,9 @@
     SearchResultSong {
         title: "Nowhere Man (Remastered 2009)",
         artist: "The Beatles",
-        album: "Rubber Soul",
+        album: Some(
+            "Rubber Soul",
+        ),
         duration: "2:44",
         plays: "28M\u{a0}plays",
         explicit: NotExplicit,
@@ -370,7 +400,9 @@
     SearchResultSong {
         title: "Blackbird (Remastered 2009)",
         artist: "The Beatles",
-        album: "The Beatles",
+        album: Some(
+            "The Beatles",
+        ),
         duration: "2:19",
         plays: "63M\u{a0}plays",
         explicit: NotExplicit,
@@ -393,7 +425,9 @@
     SearchResultSong {
         title: "Black Beatles (feat. Gucci Mane)",
         artist: "Rae Sremmurd",
-        album: "SremmLife 2 (Deluxe)",
+        album: Some(
+            "SremmLife 2 (Deluxe)",
+        ),
         duration: "4:52",
         plays: "1.1B\u{a0}plays",
         explicit: IsExplicit,
@@ -416,7 +450,9 @@
     SearchResultSong {
         title: "Helter Skelter (Remastered 2009)",
         artist: "The Beatles",
-        album: "The Beatles",
+        album: Some(
+            "The Beatles",
+        ),
         duration: "4:30",
         plays: "26M\u{a0}plays",
         explicit: NotExplicit,
@@ -439,7 +475,9 @@
     SearchResultSong {
         title: "Jealous Guy",
         artist: "John Lennon",
-        album: "Imagine",
+        album: Some(
+            "Imagine",
+        ),
         duration: "4:18",
         plays: "72M\u{a0}plays",
         explicit: NotExplicit,
@@ -462,7 +500,9 @@
     SearchResultSong {
         title: "Lovely Rita (Remastered 2009)",
         artist: "The Beatles",
-        album: "Sgt. Pepper's Lonely Hearts Club Band",
+        album: Some(
+            "Sgt. Pepper's Lonely Hearts Club Band",
+        ),
         duration: "2:43",
         plays: "9.4M\u{a0}plays",
         explicit: NotExplicit,
