@@ -16,9 +16,10 @@ use crate::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
         GetPodcastQuery,
     },
-    utils, Result,
+    Result,
 };
 use const_format::concatcp;
+use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
@@ -242,16 +243,15 @@ impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
         let mut strapline = responsive_header.navigate_pointer(concatcp!(STRAPLINE_RUNS, "/0"))?;
         let podcast_name = strapline.take_value_pointer("/text")?;
         let podcast_id = strapline.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-        let description_iter = two_column
+        let description = two_column
             .navigate_pointer(concatcp!(
                 SECONDARY_SECTION_LIST_ITEM,
                 DESCRIPTION_SHELF,
                 "/description/runs"
             ))?
             .try_into_iter()?
-            .map(|mut item| item.take_value_pointer::<String>("/text"));
-        let description =
-            utils::process_results::process_results(description_iter, |iter| iter.collect())?;
+            .map(|mut item| item.take_value_pointer::<String>("/text"))
+            .process_results(|iter| iter.collect())?;
         Ok(GetEpisode {
             title,
             date,

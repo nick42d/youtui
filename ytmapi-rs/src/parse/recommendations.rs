@@ -11,9 +11,10 @@ use crate::{
     query::{
         GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     },
-    utils, Result,
+    Result,
 };
 use const_format::concatcp;
+use itertools::Itertools;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
@@ -63,7 +64,7 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     fn parse_from(p: super::ProcessedResult<GetTasteProfileQuery>) -> Result<Self> {
         let crawler = JsonCrawlerOwned::from(p);
         // TODO: Neaten this
-        let nested_iter = crawler
+        crawler
             .navigate_pointer(TASTE_PROFILE_ITEMS)?
             .try_into_iter()?
             .map(|item| -> Result<_> {
@@ -71,10 +72,8 @@ impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
                     .navigate_pointer(TASTE_ITEM_CONTENTS)?
                     .try_into_iter()?
                     .map(get_taste_profile_artist))
-            });
-        utils::process_results::process_results(nested_iter, |i| {
-            i.flatten().collect::<Result<_>>()
-        })?
+            })
+            .process_results(|nested_iter| nested_iter.flatten().collect::<Result<_>>())?
     }
 }
 
