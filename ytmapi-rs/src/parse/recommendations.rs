@@ -14,10 +14,7 @@ use crate::{
     utils, Result,
 };
 use const_format::concatcp;
-use json_crawler::{
-    CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator,
-    JsonCrawlerOwned,
-};
+use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]

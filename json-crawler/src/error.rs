@@ -2,7 +2,6 @@ use std::{
     fmt::{Debug, Display},
     sync::Arc,
 };
-use crate::JsonCrawlerArrayIterContext;
 
 pub struct CrawlerError {
     inner: Box<ErrorKind>,
@@ -98,20 +97,6 @@ impl std::fmt::Display for ParseTarget {
 impl std::error::Error for CrawlerError {}
 
 impl CrawlerError {
-    /// Public way of generating an array related to insufficient array size.
-    /// This is designed to be used where complex iterator manipulation
-    /// is performed and it's no longer possible to decleratively generate an error.
-    // TODO: Look to cover this in all situations decleratively.
-    pub fn array_size_from_context(context: JsonCrawlerArrayIterContext, min_elements: usize) -> Self {
-        let JsonCrawlerArrayIterContext { source, path } = context;
-        Self {
-            inner: Box::new(ErrorKind::ArraySize {
-                key: path,
-                json: source,
-                min_elements,
-            }),
-        }
-    }
     /// Return the source Json and key at the location of the error.
     pub fn get_json_and_key(&self) -> (String, &String) {
         match self.inner.as_ref() {
