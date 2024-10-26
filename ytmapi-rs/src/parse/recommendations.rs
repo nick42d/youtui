@@ -142,15 +142,19 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
             let playlist_id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
             let title = item.take_value_pointer(TITLE_TEXT)?;
             let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
-            let subtitle_runs_iter = item.borrow_pointer(SUBTITLE_RUNS)?.try_into_iter()?;
-            let subtitle_runs_iter_context = subtitle_runs_iter.get_context();
-            let author = subtitle_runs_iter
-                .take(3)
-                .last()
-                .map(|mut run| run.take_value_pointer("/text"))
-                .ok_or_else(|| {
-                    CrawlerError::array_size_from_context(subtitle_runs_iter_context, 1)
-                })??;
+
+            let author = item.borrow_pointer(SUBTITLE_RUNS)?.try_expect(
+                "Subtitle runs should contain at least 1 item",
+                |subtitle_runs| {
+                    subtitle_runs
+                        .try_iter_mut()?
+                        .take(3)
+                        .last()
+                        .map(|mut run| run.take_value_pointer("/text"))
+                        .transpose()
+                },
+            )?;
+
             Ok(MoodPlaylist {
                 playlist_id,
                 title,

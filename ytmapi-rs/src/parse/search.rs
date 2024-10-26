@@ -12,6 +12,7 @@ use crate::nav_consts::{
     THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
+use crate::process::flex_column_item_pointer;
 use crate::query::*;
 use crate::youtube_enums::PlaylistEndpointParams;
 use crate::{Error, Result};
@@ -177,7 +178,8 @@ pub struct SearchResultSong {
     // Potentially can include links to artist and album.
     pub title: String,
     pub artist: String,
-    pub album: String,
+    // Album field can be optional - see https://github.com/nick42d/youtui/issues/174
+    pub album: Option<String>,
     pub duration: String,
     pub plays: String,
     pub explicit: Explicit,
@@ -533,16 +535,40 @@ fn parse_album_search_result_from_music_shelf_contents(
 fn parse_song_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultSong> {
+    // The byline comprises multiple fields delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171.
+    // Album field is optional. See https://github.com/nick42d/youtui/issues/174
+    /// Tuple makeup: (artist, album, duration)
+    fn parse_song_fields(
+        x: &mut impl JsonCrawler,
+    ) -> json_crawler::CrawlerResult<Option<(String, Option<String>, String)>> {
+        let mut y = x
+            .borrow_pointer(format!("{}/text/runs", flex_column_item_pointer(1)))?
+            .try_into_iter()?
+            .map(|mut field| field.take_value_pointer::<String>("/text"))
+            .collect::<json_crawler::CrawlerResult<String>>()?
+            .rsplit(" • ")
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+        let Some(artist) = y.pop() else {
+            return Ok(None);
+        };
+        let Some(album_or_duration) = y.pop() else {
+            return Ok(None);
+        };
+        if let Some(duration) = y.pop() {
+            return Ok(Some((artist, Some(album_or_duration), duration)));
+        }
+        Ok(Some((artist, None, album_or_duration)))
+    }
+
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
 
-    // Artist can comprise of multiple runs, delimited by " • ".
-    // See https://github.com/nick42d/youtui/issues/171
-    let (artist, delimiter_idx) =
-        parse_flex_column_item_as_string_until_delimiter(&mut mrlir, " • ", 1, 0)?;
-
-    let album = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 1)?;
-    let duration = parse_flex_column_item(&mut mrlir, 1, delimiter_idx + 3)?;
+    let (artist, album, duration) = mrlir.try_expect(
+        "Song result should contain 2 or 3 string fields delimited by ' • '",
+        parse_song_fields,
+    )?;
 
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
 

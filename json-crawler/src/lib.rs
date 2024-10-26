@@ -47,6 +47,51 @@ where
     ) -> CrawlerResult<T>;
     fn path_exists(&self, path: &str) -> bool;
     fn get_source(&self) -> Arc<String>;
+    /// For use when you want to apply some operations that return Option, but
+    /// still return an error with context if they fail. For convenience,
+    /// closure return type is fallible, allowing you to see the cause of the
+    /// error at the failure point as well, if you have it.
+    ///
+    /// #Usage
+    /// ```no_run
+    /// # let crawler = JsonCrawlerOwned::default();
+    /// // Returns Ok(42) if crawler parses into 42.
+    /// // Returns parsing error, plus the message that output should be 42, if output fails to parse from string.
+    /// // Returns message that output should be 42, if output parses from string, but is not 42.
+    /// crawler.try_expect_parse("Output should be 42", |crawler| {
+    ///     let num = crawler.take_and_parse_str::<usize>()?;
+    ///     if num == 42 {
+    ///         return Ok(Some(num));
+    ///     }
+    ///     Ok(None)
+    /// })
+    /// ```
+    fn try_expect<F, O>(&mut self, msg: impl ToString, f: F) -> CrawlerResult<O>
+    where
+        F: FnOnce(&mut Self) -> CrawlerResult<Option<O>>,
+    {
+        match f(self) {
+            Ok(Some(r)) => Ok(r),
+            Ok(None) => Err(CrawlerError::parsing(
+                self.get_path(),
+                self.get_source(),
+                crate::error::ParseTarget::Other(std::any::type_name::<O>().to_string()),
+                Some(msg.to_string()),
+            )),
+            // In this case, we've got a nested error, and should display both sets of context.
+            Err(e) => {
+                let msg = format!("Expected {} but encountered '{e}'", msg.to_string());
+                Err(CrawlerError::parsing(
+                    self.get_path(),
+                    self.get_source(),
+                    crate::error::ParseTarget::Other(std::any::type_name::<O>().to_string()),
+                    Some(msg),
+                ))
+            }
+        }
+    }
+    /// Take the value as a String, and apply FromStr to return the desired
+    /// type.
     fn take_and_parse_str<F: FromStr>(&mut self) -> CrawlerResult<F>
     where
         F::Err: Display,
@@ -61,9 +106,13 @@ where
             )
         })
     }
+    /// Try to apply each function in a list of functions, returning the first
+    /// Ok result, or the last Err result if none returned Ok.
+    ///
     /// # Warning
     /// If one of the functions mutates before failing, the mutation will still
-    /// be applied.
+    /// be applied. Also, the mutations are applied sequentially - mutation 1
+    /// could impact mutation 2 for example.
     fn try_functions<O>(
         &mut self,
         functions: Vec<fn(&mut Self) -> CrawlerResult<O>>,
@@ -121,8 +170,14 @@ impl JsonCrawlerOwned {
 }
 
 impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
-    type BorrowTo<'b> = JsonCrawlerBorrowed<'b> where Self: 'b ;
-    type IterMut<'b> = JsonCrawlerArrayIterMut<'b> where Self: 'b;
+    type BorrowTo<'b>
+        = JsonCrawlerBorrowed<'b>
+    where
+        Self: 'b;
+    type IterMut<'b>
+        = JsonCrawlerArrayIterMut<'b>
+    where
+        Self: 'b;
     type IntoIter = JsonCrawlerArrayIterMut<'a>;
     fn take_value_pointer<T: DeserializeOwned>(
         &mut self,
@@ -280,8 +335,14 @@ impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
 }
 
 impl JsonCrawler for JsonCrawlerOwned {
-    type BorrowTo<'a> = JsonCrawlerBorrowed<'a> where Self: 'a;
-    type IterMut<'a> = JsonCrawlerArrayIterMut<'a> where Self: 'a;
+    type BorrowTo<'a>
+        = JsonCrawlerBorrowed<'a>
+    where
+        Self: 'a;
+    type IterMut<'a>
+        = JsonCrawlerArrayIterMut<'a>
+    where
+        Self: 'a;
     type IntoIter = JsonCrawlerArrayIntoIter;
     fn try_into_iter(self) -> CrawlerResult<Self::IntoIter> {
         if let JsonCrawlerOwned {
