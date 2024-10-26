@@ -130,7 +130,11 @@ impl CrawlerError {
             }),
         }
     }
-    pub(crate) fn array_size(key: impl Into<String>, json: Arc<String>, min_elements: usize) -> Self {
+    pub(crate) fn array_size(
+        key: impl Into<String>,
+        json: Arc<String>,
+        min_elements: usize,
+    ) -> Self {
         let key = key.into();
         Self {
             inner: Box::new(ErrorKind::ArraySize {
@@ -219,7 +223,7 @@ impl Display for ErrorKind {
             } => write!(
                 f,
                 "Error {}. Unable to parse into {target} at {key}",
-                message.as_deref().unwrap_or_default() 
+                message.as_deref().unwrap_or_default()
             ),
             ErrorKind::MultipleParseError { key, json: _, messages } => write!(f,"Expected one of the parsing functions at {key} to succeed, but all failed with the following errors: {:?}",messages),
         }

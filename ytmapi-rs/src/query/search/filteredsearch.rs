@@ -1,6 +1,6 @@
 use super::{
-    search_query_header, AuthToken, PostMethod, PostQuery, Query, SearchQuery,
-    SearchType, SpellingMode, SEARCH_QUERY_PATH, SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
+    search_query_header, AuthToken, PostMethod, PostQuery, Query, SearchQuery, SearchType,
+    SpellingMode, SEARCH_QUERY_PATH, SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
     SPECIALIZED_PLAYLIST_PREFIX_PARAMS, SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
 };
 use crate::parse::{
