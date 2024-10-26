@@ -10,11 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.16](https://github.com/nick42d/youtui/compare/youtui/v0.0.15...youtui/v0.0.16) - 2024-10-26
 
 ### Fixed
-- [**breaking**] Make album optional for songs search. Closes [#174](https://github.com/nick42d/youtui/pull/174) ([#176](https://github.com/nick42d/youtui/pull/176))
+- Make album optional for songs search. Closes [#174](https://github.com/nick42d/youtui/pull/174) ([#176](https://github.com/nick42d/youtui/pull/176))
 - _album field on SearchResultSong is now optional, removed public ways to create custom error from json_crawler (CrawlerError::array_size_from_context, JsonCrawlerIterator::get_context and JsonCrawlerArrayIterContext struct)_ 
-
-
-
 
 ## [0.0.15](https://github.com/nick42d/youtui/compare/youtui/v0.0.14...youtui/v0.0.15) - 2024-10-24
 
