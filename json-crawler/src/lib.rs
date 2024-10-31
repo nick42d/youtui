@@ -1,5 +1,32 @@
 //! Library to crawl Json using the pointer syntax and return useful errors.
 //! Documentation is a work in progress.
+//!
+//! # Usage examples
+//! ```
+//! fn main() {
+//!     let json =
+//! r#"
+//! {places: [
+//!     australia: [
+//!         syndney: {
+//!             state: "New South Wales",
+//!             population: 5450000
+//!         },
+//!         melbourne: {
+//!             state: "Victoria",
+//!             population: 5207000
+//!         }
+//!     ],
+//!     new_zealand: [
+//!         auckland: {
+//!             state: "North Island",
+//!             population: 1798000
+//!         }
+//!     ]
+//! ]}
+//! "#
+//! let json = Value::from(json);
+//! ```
 use error::ParseTarget;
 use serde::de::DeserializeOwned;
 use std::{fmt::Display, ops::ControlFlow, str::FromStr, sync::Arc};
@@ -108,7 +135,8 @@ where
         })
     }
     /// Try to apply each function in a list of functions, returning the first
-    /// Ok result, or the last Err result if none returned Ok.
+    /// Ok result, or an error representing each failure reason if none returned
+    /// Ok.
     ///
     /// # Warning
     /// If one of the functions mutates before failing, the mutation will still
