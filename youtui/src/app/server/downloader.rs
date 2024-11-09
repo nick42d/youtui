@@ -6,7 +6,7 @@ use crate::{
     },
     core::send_or_error,
 };
-use futures::{Stream, StreamExt};
+use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoError, VideoOptions};
 use std::{ops::Deref, sync::Arc};
 use tokio_stream::wrappers::ReceiverStream;
@@ -127,30 +127,41 @@ fn download_song(
             };
             let content_length = stream.content_length();
             let stream = into_futures_stream(stream);
+            let txc = tx.clone();
+            async fn process_song(
+                idx: usize,
+                id: ListSongID,
+                content_length: usize,
+                tx: tokio::sync::mpsc::Sender<DownloadProgressUpdate>,
+            ) {
+                let progress = (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
+                info!("Sending song progress update");
+                send_or_error(
+                    tx,
+                    DownloadProgressUpdate {
+                        kind: DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
+                        id,
+                    },
+                )
+                .await;
+            }
             let song = futures::StreamExt::enumerate(stream)
-                .then(|(idx, chunk)| async move {
-                    let progress = (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
-                    info!("Sending song progress update");
-                    send_or_error(
-                        &tx,
-                        DownloadProgressUpdate {
-                            kind: DownloadProgressUpdateType::Downloading(Percentage(
-                                progress as u8,
-                            )),
-                            id: song_playlist_id,
-                        },
-                    )
-                    .await;
-                    futures::stream::iter(
-                        chunk
-                            .map(|b| futures::stream::iter(b.into_iter()))
-                            // TODO: Cloneable error type, String ::new() is a placeholder.
-                            .map_err(|e| futures::stream::repeat(Err(String::new())).fuse())
-                            .into_iter(),
-                    )
-                    .flatten()
+                // .then(move |(idx, chunk)| {
+                //     let tx = txc.clone();
+                //     async {
+                //         process_song(idx, song_playlist_id, content_length, tx).await;
+                //         chunk
+                //     }
+                // })
+                .then(|(idx, chunk)| async { chunk })
+                .flat_map(|chunk| match chunk {
+                    Ok(chunk) => futures::future::Either::Left(futures::stream::iter(
+                        chunk.into_iter().map(Ok),
+                    )),
+                    Err(e) => futures::future::Either::Right(futures::stream::iter(vec![Err(
+                        String::new(),
+                    )])),
                 })
-                .flatten()
                 .try_collect::<Vec<u8>>()
                 .await;
             match song {

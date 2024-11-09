@@ -55,7 +55,7 @@ pub struct SearchSelectedArtist(ArtistChannelID<'static>);
 
 pub struct DownloadSong(VideoID<'static>, ListSongID);
 
-// Player requests documentation:
+// Player Requests documentation:
 // NOTE: I considered giving player more control of the playback than playlist,
 // and increasing message size. However this seems to be more combinatorially
 // difficult without a well defined data structure.
