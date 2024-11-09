@@ -104,9 +104,9 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "Classical Music For Relaxation",
-            artist: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
-            year: "Relaxing Classical Music",
+            title: "Classical Music For Relaxation: Relaxing Classical Piano For Studying Music, Reading, Focus, Concentration, Spa Music, Yoga Music, Sleep Music, Massage Music, Stress Relief, Anxiety, Office Music Playlist",
+            artist: "Classical Music For Relaxation, Relaxing Classical Music & Classical Piano",
+            year: "2020",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_waBHly97VR1",
@@ -136,9 +136,9 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Silvano Frontalini",
-            artist: "Vivaldi - Classical Music for Relaxation",
-            year: "Giuseppe Lanzetta",
+            title: "Vivaldi - Classical Music for Relaxation",
+            artist: "Silvano Frontalini, Giuseppe Lanzetta, Kaunas Chamber Orchestra & Orchestra da Camera Fiorentina",
+            year: "2017",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_t3RRcQYIlyB",
@@ -168,9 +168,9 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Crazy Monkey",
-            artist: "classical music but it's lofi 30 (Bach)",
-            year: "Classical Music But",
+            title: "classical music but it's lofi 30 (Bach)",
+            artist: "Crazy Monkey & Classical Music But",
+            year: "2024",
             explicit: NotExplicit,
             album_id: AlbumID(
                 "MPREb_MgMDqnhK9cm",
@@ -362,9 +362,11 @@ SearchResults {
     songs: [
         SearchResultSong {
             title: "J.S. Bach: Orchestral Suite No. 3 in D Major, BWV 1068: II. Air",
-            artist: "Academy of St Martin in the Fields",
-            album: "Sir Neville Marriner",
-            duration: "Johann Sebastian Bach",
+            artist: "Academy of St Martin in the Fields, Sir Neville Marriner & Johann Sebastian Bach",
+            album: Some(
+                "Bach, J.S.: Orchestral Suites 1-4",
+            ),
+            duration: "5:13",
             plays: "1.6M plays",
             explicit: NotExplicit,
             video_id: VideoID(
@@ -385,9 +387,11 @@ SearchResults {
         },
         SearchResultSong {
             title: "Violin Concerto in A Minor, BWV 1041: I. Allegro",
-            artist: "Joshua Bell",
-            album: "Academy of St Martin in the Fields",
-            duration: "Johann Sebastian Bach",
+            artist: "Joshua Bell, Academy of St Martin in the Fields & Johann Sebastian Bach",
+            album: Some(
+                "Bach: Works for Violin",
+            ),
+            duration: "3:18",
             plays: "2.1M plays",
             explicit: NotExplicit,
             video_id: VideoID(
@@ -409,7 +413,9 @@ SearchResults {
         SearchResultSong {
             title: "Deep Sleep Music: Deeper Relaxation",
             artist: "Jason Stephenson",
-            album: "Deep Sleep Music: Deeper Relaxation",
+            album: Some(
+                "Deep Sleep Music: Deeper Relaxation",
+            ),
             duration: "3:00:16",
             plays: "17M plays",
             explicit: NotExplicit,

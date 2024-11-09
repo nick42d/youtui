@@ -234,8 +234,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Abbey Road (Super Deluxe Edition)",
+            title: "Abbey Road (Super Deluxe Edition)",
+            artist: "The Beatles",
             year: "1969",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -266,8 +266,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "The Beatles 1967 - 1970",
+            title: "The Beatles 1967 - 1970",
+            artist: "The Beatles",
             year: "1973",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -471,7 +471,9 @@ SearchResults {
         SearchResultSong {
             title: "Blackbird (Remastered 2009)",
             artist: "The Beatles",
-            album: "The Beatles",
+            album: Some(
+                "The Beatles",
+            ),
             duration: "2:19",
             plays: "62M\u{a0}plays",
             explicit: NotExplicit,
@@ -494,7 +496,9 @@ SearchResults {
         SearchResultSong {
             title: "The Long And Winding Road (Remastered 2009)",
             artist: "The Beatles",
-            album: "Let It Be",
+            album: Some(
+                "Let It Be",
+            ),
             duration: "3:39",
             plays: "30M\u{a0}plays",
             explicit: NotExplicit,
@@ -517,7 +521,9 @@ SearchResults {
         SearchResultSong {
             title: "Let It Be (Remastered 2009)",
             artist: "The Beatles",
-            album: "Let It Be",
+            album: Some(
+                "Let It Be",
+            ),
             duration: "4:04",
             plays: "273M\u{a0}plays",
             explicit: NotExplicit,

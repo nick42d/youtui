@@ -198,8 +198,8 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "The Beatles 1967 - 1970",
+            title: "The Beatles 1967 - 1970",
+            artist: "The Beatles",
             year: "1973",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -230,8 +230,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Abbey Road (Super Deluxe Edition)",
+            title: "Abbey Road (Super Deluxe Edition)",
+            artist: "The Beatles",
             year: "1969",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -437,7 +437,9 @@ SearchResults {
         SearchResultSong {
             title: "Come Together",
             artist: "The Beatles",
-            album: "1",
+            album: Some(
+                "1",
+            ),
             duration: "4:19",
             plays: "244M plays",
             explicit: NotExplicit,
@@ -460,7 +462,9 @@ SearchResults {
         SearchResultSong {
             title: "Here Comes The Sun (Remastered 2009)",
             artist: "The Beatles",
-            album: "Abbey Road",
+            album: Some(
+                "Abbey Road",
+            ),
             duration: "3:06",
             plays: "332M plays",
             explicit: NotExplicit,
@@ -483,7 +487,9 @@ SearchResults {
         SearchResultSong {
             title: "Come Together (Remastered 2009)",
             artist: "The Beatles",
-            album: "Abbey Road",
+            album: Some(
+                "Abbey Road",
+            ),
             duration: "4:20",
             plays: "244M plays",
             explicit: NotExplicit,

@@ -18,9 +18,7 @@ use crate::{
     Result,
 };
 use const_format::concatcp;
-use json_crawler::{
-    CrawlerError, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
-};
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -353,11 +351,9 @@ pub(crate) fn parse_table_list_upload_song(
 
 fn get_uploads_tab(json: JsonCrawlerOwned) -> Result<JsonCrawlerOwned> {
     let tabs_path = concatcp!(SINGLE_COLUMN_TABS);
-    let iter = json.navigate_pointer(tabs_path)?.try_into_iter()?;
-    let iter_context = iter.get_context();
-    iter.clone()
-        .last()
-        .ok_or_else(|| CrawlerError::array_size_from_context(iter_context, 0))
+    json.navigate_pointer(tabs_path)?
+        .try_into_iter()?
+        .try_last()
         .map_err(Into::into)
 }
 

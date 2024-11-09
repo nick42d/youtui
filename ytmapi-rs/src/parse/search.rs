@@ -9,6 +9,7 @@ use crate::nav_consts::{
     THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::EpisodeDate;
+use crate::process::flex_column_item_pointer;
 use crate::query::*;
 use crate::youtube_enums::PlaylistEndpointParams;
 use crate::{Error, Result};
@@ -18,6 +19,7 @@ use filteredsearch::{
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
@@ -174,7 +176,8 @@ pub struct SearchResultSong {
     // Potentially can include links to artist and album.
     pub title: String,
     pub artist: String,
-    pub album: String,
+    // Album field can be optional - see https://github.com/nick42d/youtui/issues/174
+    pub album: Option<String>,
     pub duration: String,
     pub plays: String,
     pub explicit: Explicit,
@@ -498,10 +501,29 @@ fn parse_album_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultAlbum> {
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
+    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let title = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let year = parse_flex_column_item(&mut mrlir, 1, 4)?;
+
+    // Artist can comprise of multiple runs, delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171
+    let (artist, year) = mrlir
+        .borrow_pointer(format!("{}/text/runs", flex_column_item_pointer(1)))?
+        .try_expect(
+            "album result should contain 3 string fields delimited by ' • '",
+            |flex_column_1| {
+                Ok(flex_column_1
+                    .try_iter_mut()?
+                    // First field is album_type which we parsed above, so skip it and the
+                    // delimiter.
+                    .skip(2)
+                    .map(|mut field| field.take_value_pointer::<String>("/text"))
+                    .collect::<json_crawler::CrawlerResult<String>>()?
+                    .split(" • ")
+                    .map(ToString::to_string)
+                    .collect_tuple::<(String, String)>())
+            },
+        )?;
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {
@@ -524,12 +546,44 @@ fn parse_album_search_result_from_music_shelf_contents(
 fn parse_song_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultSong> {
+    // The byline comprises multiple fields delimited by " • ".
+    // See https://github.com/nick42d/youtui/issues/171.
+    // Album field is optional. See https://github.com/nick42d/youtui/issues/174
+    /// Tuple makeup: (artist, album, duration)
+    fn parse_song_fields(
+        mrlir: &mut impl JsonCrawler,
+    ) -> json_crawler::CrawlerResult<Option<(String, Option<String>, String)>> {
+        let mut fields_vec = mrlir
+            .try_iter_mut()?
+            .map(|mut field| field.take_value_pointer::<String>("/text"))
+            .collect::<json_crawler::CrawlerResult<String>>()?
+            .rsplit(" • ")
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+        let Some(artist) = fields_vec.pop() else {
+            return Ok(None);
+        };
+        let Some(album_or_duration) = fields_vec.pop() else {
+            return Ok(None);
+        };
+        if let Some(duration) = fields_vec.pop() {
+            return Ok(Some((artist, Some(album_or_duration), duration)));
+        }
+        Ok(Some((artist, None, album_or_duration)))
+    }
+
     let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
-    let artist = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let album = parse_flex_column_item(&mut mrlir, 1, 2)?;
-    let duration = parse_flex_column_item(&mut mrlir, 1, 4)?;
+
+    let (artist, album, duration) = mrlir
+        .borrow_pointer(format!("{}/text/runs", flex_column_item_pointer(1)))?
+        .try_expect(
+            "Song result should contain 2 or 3 string fields delimited by ' • '",
+            parse_song_fields,
+        )?;
+
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
+
     let explicit = if mrlir.path_exists(BADGE_LABEL) {
         Explicit::IsExplicit
     } else {

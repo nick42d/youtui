@@ -16,7 +16,7 @@ use crate::{
     Error, Result,
 };
 use const_format::concatcp;
-use json_crawler::{CrawlerError, JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -126,21 +126,24 @@ fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
-    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
-    let track_count_text = second_subtitle_runs_iter
-        .rev()
-        .nth(2)
-        .map(|mut run| run.take_value_pointer("/text"))
-        .ok_or_else(|| {
-            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
-        })??;
+    let track_count_text = second_subtitle_runs.try_expect(
+        "second subtitle runs should count at least 3 runs",
+        |second_subtitle_runs| {
+            second_subtitle_runs
+                .try_iter_mut()?
+                .rev()
+                .nth(2)
+                .map(|mut run| run.take_value_pointer("/text"))
+                .transpose()
+        },
+    )?;
     let views = second_subtitle_runs
         .try_iter_mut()?
         .rev()
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
         .transpose()?;
+
     let mut results = json_crawler.borrow_pointer(concatcp!(
         SINGLE_COLUMN_TAB,
         SECTION_LIST_ITEM,
@@ -213,15 +216,17 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         .try_iter_mut()?
         .try_last()?
         .take_value_pointer("/text")?;
-    let second_subtitle_runs_iter = second_subtitle_runs.try_iter_mut()?;
-    let second_subtitle_runs_iter_context = second_subtitle_runs_iter.get_context();
-    let track_count_text = second_subtitle_runs_iter
-        .rev()
-        .nth(2)
-        .map(|mut run| run.take_value_pointer("/text"))
-        .ok_or_else(|| {
-            CrawlerError::array_size_from_context(second_subtitle_runs_iter_context, 3)
-        })??;
+    let track_count_text = second_subtitle_runs.try_expect(
+        "second subtitle runs should count at least 3 runs",
+        |second_subtitle_runs| {
+            second_subtitle_runs
+                .try_iter_mut()?
+                .rev()
+                .nth(2)
+                .map(|mut run| run.take_value_pointer("/text"))
+                .transpose()
+        },
+    )?;
     let views = second_subtitle_runs
         .try_iter_mut()?
         .rev()

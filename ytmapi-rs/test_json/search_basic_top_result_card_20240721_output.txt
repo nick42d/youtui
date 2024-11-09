@@ -91,8 +91,8 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "Buweloboy",
-            artist: "Beaten",
+            title: "Beaten",
+            artist: "Buweloboy",
             year: "2024",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -123,8 +123,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "Swørn",
-            artist: "Beaten",
+            title: "Beaten",
+            artist: "Swørn",
             year: "2023",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -155,8 +155,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "STeXeN",
-            artist: "Beaten",
+            title: "Beaten",
+            artist: "STeXeN",
             year: "2024",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -360,7 +360,9 @@ SearchResults {
         SearchResultSong {
             title: "For the Beaten",
             artist: "Filter",
-            album: "For the Beaten",
+            album: Some(
+                "For the Beaten",
+            ),
             duration: "3:32",
             plays: "180K plays",
             explicit: NotExplicit,
@@ -383,7 +385,9 @@ SearchResults {
         SearchResultSong {
             title: "Beaten",
             artist: "Biohazard",
-            album: "Alternative Metal Giants",
+            album: Some(
+                "Alternative Metal Giants",
+            ),
             duration: "3:11",
             plays: "19K plays",
             explicit: NotExplicit,
@@ -406,7 +410,9 @@ SearchResults {
         SearchResultSong {
             title: "Beat It",
             artist: "Michael Jackson",
-            album: "Thriller",
+            album: Some(
+                "Thriller",
+            ),
             duration: "4:19",
             plays: "1.5B plays",
             explicit: NotExplicit,

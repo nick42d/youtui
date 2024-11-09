@@ -198,8 +198,8 @@ SearchResults {
     ],
     albums: [
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Help!",
+            title: "Help!",
+            artist: "The Beatles",
             year: "1965",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -230,8 +230,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "A Hard Day's Night",
+            title: "A Hard Day's Night",
+            artist: "The Beatles",
             year: "1964",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -262,8 +262,8 @@ SearchResults {
             ],
         },
         SearchResultAlbum {
-            title: "The Beatles",
-            artist: "Abbey Road (Super Deluxe Edition)",
+            title: "Abbey Road (Super Deluxe Edition)",
+            artist: "The Beatles",
             year: "1969",
             explicit: NotExplicit,
             album_id: AlbumID(
@@ -467,7 +467,9 @@ SearchResults {
         SearchResultSong {
             title: "While My Guitar Gently Weeps",
             artist: "The Beatles",
-            album: "Love",
+            album: Some(
+                "Love",
+            ),
             duration: "3:47",
             plays: "79M plays",
             explicit: NotExplicit,
@@ -490,7 +492,9 @@ SearchResults {
         SearchResultSong {
             title: "Help! (Remastered 2009)",
             artist: "The Beatles",
-            album: "Help!",
+            album: Some(
+                "Help!",
+            ),
             duration: "2:20",
             plays: "196M plays",
             explicit: NotExplicit,
@@ -513,7 +517,9 @@ SearchResults {
         SearchResultSong {
             title: "The Long And Winding Road (Remastered 2009)",
             artist: "The Beatles",
-            album: "Let It Be",
+            album: Some(
+                "Let It Be",
+            ),
             duration: "3:39",
             plays: "31M plays",
             explicit: NotExplicit,

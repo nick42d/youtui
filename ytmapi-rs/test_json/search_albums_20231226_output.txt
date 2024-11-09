@@ -1,7 +1,7 @@
 [
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Chocolate Starfish And The Hot Dog Flavored Water",
+        title: "Chocolate Starfish And The Hot Dog Flavored Water",
+        artist: "Limp Bizkit",
         year: "2000",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -32,8 +32,40 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Significant Other",
+        title: "Sleeping in the Cold Below (From \"Warframe\") (feat. Damhnait Doyle)",
+        artist: "Keith Power & Alan Doyle",
+        year: "2021",
+        explicit: NotExplicit,
+        album_id: AlbumID(
+            "MPREb_zjKqlIlmFnG",
+        ),
+        album_type: Single,
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/SdV90lGM_wxu3dzLlc6kEhENt6vRBO-TwCAnzKCI-8cslYXnHOUC9u91g4cj3ZkrKAZySFKN6r5z7L3e=w544-h544-l90-rj",
+            },
+        ],
+    },
+    SearchResultAlbum {
+        title: "Significant Other",
+        artist: "Limp Bizkit",
         year: "1999",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -64,8 +96,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Results May Vary",
+        title: "Results May Vary",
+        artist: "Limp Bizkit",
         year: "2003",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -96,8 +128,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "STILL SUCKS",
+        title: "STILL SUCKS",
+        artist: "Limp Bizkit",
         year: "2021",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -128,8 +160,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Three Dollar Bill, Y'All$",
+        title: "Three Dollar Bill, Y'All$",
+        artist: "Limp Bizkit",
         year: "1997",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -160,8 +192,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "The Who",
-        artist: "Who's Next (Remastered 2022)",
+        title: "Who's Next (Remastered 2022)",
+        artist: "The Who",
         year: "1971",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -192,8 +224,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Gold Cobra",
+        title: "Gold Cobra",
+        artist: "Limp Bizkit",
         year: "2011",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -224,8 +256,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Korn",
-        artist: "Follow The Leader",
+        title: "Follow The Leader",
+        artist: "Korn",
         year: "1998",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -256,8 +288,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "New Old Songs",
+        title: "New Old Songs",
+        artist: "Limp Bizkit",
         year: "2001",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -288,8 +320,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Greatest Hitz",
+        title: "Greatest Hitz",
+        artist: "Limp Bizkit",
         year: "2005",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -320,8 +352,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Metallica",
-        artist: "Master of Puppets",
+        title: "Master of Puppets",
+        artist: "Metallica",
         year: "1986",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -352,8 +384,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Linkin Park",
-        artist: "Hybrid Theory",
+        title: "Hybrid Theory",
+        artist: "Linkin Park",
         year: "2000",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -384,8 +416,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "The Unquestionable Truth (Pt. 1)",
+        title: "The Unquestionable Truth (Pt. 1)",
+        artist: "Limp Bizkit",
         year: "2005",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -416,8 +448,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Endless Slaughter",
+        title: "Endless Slaughter",
+        artist: "Limp Bizkit",
         year: "2014",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -448,8 +480,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "D12",
-        artist: "Devils Night",
+        title: "Devils Night",
+        artist: "D12",
         year: "2001",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -480,8 +512,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "AchtVier",
-        artist: "Limp Bizkit",
+        title: "Limp Bizkit",
+        artist: "AchtVier",
         year: "2021",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -512,8 +544,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Counterfeit Countdown",
+        title: "Counterfeit Countdown",
+        artist: "Limp Bizkit",
         year: "1997",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -544,8 +576,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Linkin Park",
-        artist: "Meteora",
+        title: "Meteora",
+        artist: "Linkin Park",
         year: "2003",
         explicit: NotExplicit,
         album_id: AlbumID(
@@ -576,8 +608,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Various Artists",
-        artist: "Family Values Tour '98",
+        title: "Family Values Tour '98",
+        artist: "Various Artists",
         year: "1999",
         explicit: IsExplicit,
         album_id: AlbumID(
@@ -608,8 +640,8 @@
         ],
     },
     SearchResultAlbum {
-        title: "Limp Bizkit",
-        artist: "Eat You Alive",
+        title: "Eat You Alive",
+        artist: "Limp Bizkit",
         year: "2003",
         explicit: IsExplicit,
         album_id: AlbumID(
