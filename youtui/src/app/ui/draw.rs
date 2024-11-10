@@ -1,4 +1,4 @@
-use super::{footer, header, WindowContext, YoutuiWindow};
+use super::{footer, header, WindowContext, YoutuiMutableState, YoutuiWindow};
 use crate::app::component::actionhandler::KeyDisplayer;
 use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
@@ -21,7 +21,7 @@ use ratatui::{
 use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.
-pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
+pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     let base_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -37,17 +37,18 @@ pub fn draw_app(f: &mut Frame, w: &YoutuiWindow, m: &mut YoutuiMutableState) {
     header::draw_header(f, w, base_layout[0]);
     let context_selected = !w.help.shown && !w.key_pending();
     match w.context {
-        WindowContext::Browser => w
-            .browser
-            .draw_mut_chunk(f, base_layout[1], m, context_selected),
+        WindowContext::Browser => {
+            w.browser
+                .draw_mut_chunk(f, base_layout[1], context_selected);
+        }
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1], context_selected),
         WindowContext::Playlist => {
             w.playlist
-                .draw_mut_chunk(f, base_layout[1], m, context_selected)
+                .draw_mut_chunk(f, base_layout[1], context_selected);
         }
     }
     if w.help.shown {
-        draw_help(f, w, &mut m.help_state, base_layout[1]);
+        draw_help(f, w, &mut help_state, base_layout[1]);
     }
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);

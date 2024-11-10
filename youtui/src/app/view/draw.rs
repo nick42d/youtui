@@ -159,7 +159,7 @@ where
             }),
             &mut scrollbar_state,
         )
-    }
+    };
 }
 
 pub fn draw_sortable_table<T>(

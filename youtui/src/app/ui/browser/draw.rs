@@ -1,6 +1,6 @@
 use super::artistalbums::albumsongs::{AlbumSongsInputRouting, AlbumSongsPanel};
 use super::artistalbums::artistsearch::ArtistInputRouting;
-use super::{Browser, InputRouting};
+use super::{Browser, BrowserState, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::{SortableTableView, TableView};
@@ -24,8 +24,7 @@ pub fn draw_browser(
     f: &mut Frame,
     browser: &Browser,
     chunk: Rect,
-    artist_list_state: &mut ListState,
-    album_songs_table_state: &mut TableState,
+    state: &mut BrowserState,
     selected: bool,
 ) {
     let layout = Layout::new(
@@ -48,7 +47,7 @@ pub fn draw_browser(
             &browser.artist_list,
             layout[0],
             artistselected,
-            artist_list_state,
+            &mut state.artists_state,
         );
     } else {
         let s = Layout::default()
@@ -61,7 +60,7 @@ pub fn draw_browser(
             &browser.artist_list,
             s[1],
             artistselected,
-            artist_list_state,
+            &mut state.artists_state,
         );
         draw_search_box(f, browser, s[0]);
         // Should this be part of draw_search_box
@@ -73,7 +72,7 @@ pub fn draw_browser(
         f,
         &browser.album_songs_list,
         layout[1],
-        album_songs_table_state,
+        &mut state.album_songs_state,
         albumsongsselected,
     );
     if browser.album_songs_list.sort.shown {

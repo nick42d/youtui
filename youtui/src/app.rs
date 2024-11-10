@@ -17,8 +17,8 @@ use structures::{ListSong, ListSongID};
 use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;
-use ui::WindowContext;
 use ui::YoutuiWindow;
+use ui::{WindowContext, YoutuiMutableState};
 use ytmapi_rs::common::{ArtistChannelID, VideoID};
 
 mod component;
@@ -52,18 +52,8 @@ pub struct Youtui {
     server: Server,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
-}
-
-// Mutable state for scrollable widgets.
-// This needs to be stored seperately so that we don't have concurrent mutable
-// access.
-#[derive(Default)]
-pub struct YoutuiMutableState {
-    pub filter_state: ListState,
-    pub help_state: TableState,
-    pub browser_album_songs_state: TableState,
-    pub browser_artists_state: ListState,
-    pub playlist_state: TableState,
+    /// If Youtui will redraw on the next rendering loop.
+    redraw: bool,
 }
 
 #[derive(PartialEq)]
@@ -147,10 +137,10 @@ impl Youtui {
             server,
             callback_rx,
             terminal,
+            redraw: true,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
-        let mut redraw = true;
         loop {
             match &self.status {
                 AppStatus::Running => {
@@ -158,16 +148,16 @@ impl Youtui {
                     // We draw after handling the event, as the event could be a keypress we want to
                     // instantly react to.
                     // Draw occurs before the first event, to ensure up loads immediately.
-                    if redraw {
+                    if self.redraw {
                         self.terminal.draw(|f| {
-                            ui::draw::draw_app(
+                            self.window_mutable_state = ui::draw::draw_app(
                                 f,
                                 &self.window_state,
-                                &mut self.window_mutable_state,
+                                self.window_mutable_state,
                             );
                         })?;
                     };
-                    redraw = true;
+                    self.redraw = true;
                     // When running, the app is event based, and will block until one of the
                     // following 4 message types is received.
                     tokio::select! {
@@ -178,7 +168,7 @@ impl Youtui {
                         // Process the next manager event.
                         // If all the manager has done is spawn tasks, there's no need to draw.
                         Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
-                            redraw = false;
+                            self.redraw = false;
                         },
                         _ = self.window_state.async_update() => (),
                     }

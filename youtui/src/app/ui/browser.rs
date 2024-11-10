@@ -18,6 +18,7 @@ use crate::app::{
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
 use crossterm::event::KeyCode;
+use ratatui::widgets::{ListState, TableState};
 use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
 use tracing::error;
@@ -55,6 +56,12 @@ pub struct Browser {
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
     async_tx: AsyncCallbackSender<Server, Self>,
+}
+
+#[derive(Default)]
+pub struct BrowserState {
+    pub album_songs_state: TableState,
+    pub artists_state: ListState,
 }
 
 impl InputRouting {
@@ -147,22 +154,16 @@ impl TextHandler for Browser {
     }
 }
 
-impl DrawableMut for Browser {
+impl DrawableMut<BrowserState> for Browser {
     fn draw_mut_chunk(
         &self,
         f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
-        mutable_state: &mut YoutuiMutableState,
+        mut mutable_state: BrowserState,
         selected: bool,
-    ) {
-        draw_browser(
-            f,
-            self,
-            chunk,
-            &mut mutable_state.browser_artists_state,
-            &mut mutable_state.browser_album_songs_state,
-            selected,
-        );
+    ) -> BrowserState {
+        draw_browser(f, self, chunk, &mut mutable_state, selected);
+        mutable_state
     }
 }
 impl KeyRouter<BrowserAction> for Browser {

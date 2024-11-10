@@ -15,6 +15,7 @@ use crate::app::{YoutuiMutableState, CALLBACK_CHANNEL_SIZE};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
 use crossterm::event::KeyCode;
+use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
 use std::iter;
 use std::sync::Arc;
@@ -102,15 +103,10 @@ impl TextHandler for Playlist {
     fn replace_text(&mut self, _text: String) {}
 }
 
-impl DrawableMut for Playlist {
-    fn draw_mut_chunk(
-        &self,
-        f: &mut Frame,
-        chunk: Rect,
-        mutable_state: &mut YoutuiMutableState,
-        selected: bool,
-    ) {
-        draw_table(f, self, chunk, &mut mutable_state.playlist_state, selected);
+impl DrawableMut<TableState> for Playlist {
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
+        draw_table(f, self, chunk, selected);
+        mutable_state
     }
 }
 
