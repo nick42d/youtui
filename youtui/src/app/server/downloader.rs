@@ -127,40 +127,33 @@ fn download_song(
             };
             let content_length = stream.content_length();
             let stream = into_futures_stream(stream);
-            let txc = tx.clone();
-            async fn process_song(
-                idx: usize,
-                id: ListSongID,
-                content_length: usize,
-                tx: tokio::sync::mpsc::Sender<DownloadProgressUpdate>,
-            ) {
-                let progress = (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
-                info!("Sending song progress update");
-                send_or_error(
-                    tx,
-                    DownloadProgressUpdate {
-                        kind: DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
-                        id,
-                    },
-                )
-                .await;
-            }
             let song = futures::StreamExt::enumerate(stream)
-                // .then(move |(idx, chunk)| {
-                //     let tx = txc.clone();
-                //     async {
-                //         process_song(idx, song_playlist_id, content_length, tx).await;
-                //         chunk
-                //     }
-                // })
-                .then(|(idx, chunk)| async { chunk })
+                .then(|(idx, chunk)| {
+                    let tx = tx.clone();
+                    async move {
+                        let progress =
+                            (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
+                        info!("Sending song progress update");
+                        send_or_error(
+                            tx,
+                            DownloadProgressUpdate {
+                                kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                    progress as u8,
+                                )),
+                                id: song_playlist_id,
+                            },
+                        )
+                        .await;
+                        chunk
+                    }
+                })
                 .flat_map(|chunk| match chunk {
                     Ok(chunk) => futures::future::Either::Left(futures::stream::iter(
                         chunk.into_iter().map(Ok),
                     )),
-                    Err(e) => futures::future::Either::Right(futures::stream::iter(vec![Err(
-                        String::new(),
-                    )])),
+                    Err(e) => {
+                        futures::future::Either::Right(futures::stream::once(async { Err(e) }))
+                    }
                 })
                 .try_collect::<Vec<u8>>()
                 .await;
