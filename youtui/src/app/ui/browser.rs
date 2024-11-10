@@ -154,16 +154,14 @@ impl TextHandler for Browser {
     }
 }
 
-impl DrawableMut<BrowserState> for Browser {
+impl DrawableMut for Browser {
     fn draw_mut_chunk(
         &self,
         f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
-        mut mutable_state: BrowserState,
         selected: bool,
     ) -> BrowserState {
-        draw_browser(f, self, chunk, &mut mutable_state, selected);
-        mutable_state
+        draw_browser(f, self, chunk, selected)
     }
 }
 impl KeyRouter<BrowserAction> for Browser {

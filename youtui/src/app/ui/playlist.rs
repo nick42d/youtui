@@ -39,6 +39,7 @@ pub struct Playlist {
     async_tx: AsyncCallbackSender<Server, Self>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
+    widget_state: TableState,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -129,6 +130,9 @@ impl Scrollable for Playlist {
 }
 
 impl TableView for Playlist {
+    fn get_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
+    }
     fn get_title(&self) -> Cow<str> {
         format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
     }
@@ -221,6 +225,7 @@ impl Playlist {
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
+            widget_state: Default::default(),
         }
     }
     /// Drop downloads no longer relevant for ID, download new

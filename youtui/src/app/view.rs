@@ -3,6 +3,7 @@ use super::{structures::Percentage, YoutuiMutableState};
 use crate::Result;
 use ratatui::{
     prelude::{Constraint, Rect},
+    widgets::{ListState, TableState},
     Frame,
 };
 use std::{borrow::Cow, fmt::Display};
@@ -145,6 +146,7 @@ pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
+    fn get_state(&mut self) -> &mut TableState;
     // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
     // SortableTable), as possible we don't want to sort the Playlist (what happens
     // to play order, for eg). Could have a "commontitle" trait to prevent the
@@ -180,6 +182,7 @@ pub trait SortableTableView: TableView {
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView: Scrollable + SortableList + Loadable {
     type DisplayItem: Display;
+    fn get_state(&mut self) -> &mut ListState;
     fn get_title(&self) -> Cow<str>;
     fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
     fn len(&self) -> usize {

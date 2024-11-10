@@ -20,13 +20,7 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
 
-pub fn draw_browser(
-    f: &mut Frame,
-    browser: &Browser,
-    chunk: Rect,
-    state: &mut BrowserState,
-    selected: bool,
-) {
+pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: bool) {
     let layout = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],

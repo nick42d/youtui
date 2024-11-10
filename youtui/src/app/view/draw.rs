@@ -1,4 +1,4 @@
-use super::{
+e super::{
     basic_constraints_to_table_constraints, SortableTableView, TableSortCommand, TableView,
 };
 use crate::{
@@ -20,6 +20,28 @@ use ratatui::{
     },
     Frame,
 };
+
+struct Mutation<F> {
+    f: F,
+}
+
+impl<F: FnMut(&mut ListState)> Mutation<F> {
+    fn add_mutation<F2: FnMut(&mut ListState)>(
+        self,
+        mut closure: F2,
+    ) -> Mutation<impl FnMut(&mut ListState)> {
+        let Mutation { mut f } = self;
+        let f2 = move |x: &mut ListState| {
+            f(x);
+            closure(x);
+        };
+        Mutation { f: f2 }
+    }
+}
+
+fn mutate_state<F: FnMut(&mut ListState)>(closure: F) -> Mutation<F> {
+    Mutation { f: closure }
+}
 
 pub fn get_table_sort_character_array(
     sort_commands: &[TableSortCommand],
@@ -77,12 +99,18 @@ pub fn draw_panel<S: AsRef<str>>(
     }
 }
 
-pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool, state: &mut ListState)
+pub fn draw_list<'a, L>(
+    f: &mut Frame,
+    list: &'a L,
+    chunk: Rect,
+    selected: bool,
+) -> Mutation<impl FnMut(&mut ListState) + 'a>
 where
     L: ListView,
 {
     // Set the state to the currently selected item.
-    state.select(Some(list.get_selected_item()));
+    let selected_item = list.get_selected_item();
+    let mutation = mutate_state(|state| state.select(Some(selected_item)));
     // TODO: Scroll bars
     let list_title = list.get_title();
     let list_len = list.len();
@@ -99,15 +127,16 @@ where
     let list_widget =
         List::new(list_items).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     let inner_chunk = draw_panel(f, list_title, None, chunk, selected);
-    f.render_stateful_widget(list_widget, inner_chunk, state);
+    mutation.add_mutation(|state| f.render_stateful_widget(list_widget, inner_chunk, state))
 }
 
-pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, state: &mut TableState, selected: bool)
+pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)
 where
     T: TableView,
 {
     // Set the state to the currently selected item.
-    state.select(Some(table.get_selected_item()));
+    let selected_item = table.get_selected_item();
+    table.get_state().select(Some(selected_item));
     let cur_highlighted = table.get_highlighted_row();
     // TODO: theming
     let table_items = table.get_items().enumerate().map(|(idx, items)| {
@@ -146,10 +175,10 @@ where
     if table.is_loading() {
         draw_loading(f, inner_chunk)
     } else {
-        f.render_stateful_widget(table_widget, inner_chunk, state);
+        f.render_stateful_widget(table_widget, inner_chunk, table.get_state());
         // Call this after rendering table, as offset is mutated.
         let mut scrollbar_state = ScrollbarState::default()
-            .position(state.offset().min(scrollable_lines))
+            .position(table.get_state().offset().min(scrollable_lines))
             .content_length(scrollable_lines);
         f.render_stateful_widget(
             scrollbar,
