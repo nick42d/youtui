@@ -130,13 +130,13 @@ where
     mutation.add_mutation(|state| f.render_stateful_widget(list_widget, inner_chunk, state))
 }
 
-pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)
+pub fn draw_table<'a, T>(f: &mut Frame, table: &'a T, chunk: Rect, selected: bool) -> Mutation<impl FnMut(&mut TableState) + 'a>
 where
     T: TableView,
 {
     // Set the state to the currently selected item.
     let selected_item = table.get_selected_item();
-    table.get_state().select(Some(selected_item));
+    let mutation = mutate_state(|state| {state.select(Some(selected_item))});
     let cur_highlighted = table.get_highlighted_row();
     // TODO: theming
     let table_items = table.get_items().enumerate().map(|(idx, items)| {
