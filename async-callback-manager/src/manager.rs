@@ -1,8 +1,7 @@
 use crate::{
     task::{ResponseInformation, Task, TaskFromFrontend, TaskInformation, TaskList},
-    AsyncCallbackSender, Constraint,
+    AsyncCallbackSender,
 };
-use std::any::TypeId;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

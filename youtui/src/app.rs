@@ -7,9 +7,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::widgets::{ListState, TableState};
 use ratatui::{backend::CrosstermBackend, Terminal};
-use server::downloader::InMemSong;
 use server::Server;
 use std::borrow::Cow;
 use std::{io, sync::Arc};
@@ -19,7 +17,6 @@ use tracing::info;
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;
-use ytmapi_rs::common::{ArtistChannelID, VideoID};
 
 mod component;
 mod keycommand;
@@ -65,21 +62,10 @@ pub enum AppStatus {
 // A callback from one of the application components to the top level.
 #[derive(Debug)]
 pub enum AppCallback {
-    DownloadSong(VideoID<'static>, ListSongID),
     Quit,
     ChangeContext(WindowContext),
-    IncreaseVolume(i8),
-    SearchArtist(String),
-    GetSearchSuggestions(String),
-    GetArtistSongs(ArtistChannelID<'static>),
     AddSongsToPlaylist(Vec<ListSong>),
     AddSongsToPlaylistAndPlay(Vec<ListSong>),
-    PlaySong(Arc<InMemSong>, ListSongID),
-    QueueSong(Arc<InMemSong>, ListSongID),
-    AutoplaySong(Arc<InMemSong>, ListSongID),
-    PausePlay(ListSongID),
-    Stop(ListSongID),
-    Seek(i8),
 }
 
 impl Youtui {
@@ -108,21 +94,20 @@ impl Youtui {
         }));
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
-        let mut task_manager = async_callback_manager::AsyncCallbackManager::new(
-            ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE,
-        )
-        .with_on_task_received_callback(|task| {
-            info!(
-                "Received task {:?}: - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
-                task.type_name, task.type_id, task.sender_id, task.constraint
-            )
-        })
-        .with_on_response_received_callback(|response| {
-            info!(
+        let mut task_manager =
+            async_callback_manager::AsyncCallbackManager::new(ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE)
+                .with_on_task_received_callback(|task| {
+                    info!(
+                        "Received task {:?}: - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
+                        task.type_name, task.type_id, task.sender_id, task.constraint
+                    )
+                })
+                .with_on_response_received_callback(|response| {
+                    info!(
                 "Received response to {:?}: - type_id: {:?}, sender_id: {:?}, task_id: {:?}",
                 response.type_name, response.type_id, response.sender_id, response.task_id
             )
-        });
+                });
         let server = server::Server::new(api_key, po_token);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
@@ -198,7 +183,6 @@ impl Youtui {
                     .handle_add_songs_to_playlist_and_play(song_list)
                     .await
             }
-            _ => todo!(),
         }
     }
 }

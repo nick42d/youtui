@@ -46,9 +46,8 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
                 .draw_mut_chunk(f, base_layout[1], context_selected);
         }
     }
-    let help_state = todo!();
     if w.help.shown {
-        draw_help(f, w, &mut help_state, base_layout[1]);
+        draw_help(f, w, base_layout[1]);
     }
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);
@@ -107,7 +106,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     f.render_widget(block, area);
 }
 
-fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rect) {
+fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be
     // cut off.
     let commands = w.get_all_visible_keybinds_as_readable_iter();
@@ -162,6 +161,7 @@ fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rec
         chunk,
     );
     f.render_widget(Clear, area);
+    let mut state = w.help.widget_state.clone();
     draw_generic_scrollable_table(
         f,
         commands_table,
@@ -171,9 +171,10 @@ fn draw_help(f: &mut Frame, w: &YoutuiWindow, state: &mut TableState, chunk: Rec
         &table_constraints,
         &headings,
         area,
-        state,
+        &mut state,
         true,
     );
+    w.help.widget_state = state;
 }
 
 // At this stage, this is the most efficient way to call this function.

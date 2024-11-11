@@ -10,16 +10,17 @@ use crate::app::{
     component::actionhandler::{
         Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
-    server::Server,
+    server::{
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, GetSearchSuggestions, Server,
+    },
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
     CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
 use crossterm::event::KeyCode;
-use ratatui::widgets::{ListState, TableState};
-use std::{borrow::Cow, mem};
+use std::{borrow::Cow, mem, sync::Arc};
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
@@ -55,7 +56,7 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
-    async_tx: AsyncCallbackSender<Server, Self>,
+    async_tx: AsyncCallbackSender<Arc<Server>, Self>,
 }
 
 impl InputRouting {
@@ -256,7 +257,7 @@ impl DominantKeyRouter for Browser {
 
 impl Browser {
     pub fn new(
-        callback_manager: &mut AsyncCallbackManager<Server>,
+        callback_manager: &mut AsyncCallbackManager<ArcServer>,
         ui_tx: mpsc::Sender<AppCallback>,
     ) -> Self {
         Self {
@@ -294,15 +295,30 @@ impl Browser {
     // XXX: Currently has race conditions - if list is cleared response will arrive
     // afterwards. Proposal: When recieving a message from the app validate
     // against query string.
-    fn fetch_search_suggestions(&mut self) {
+    async fn fetch_search_suggestions(&mut self) {
         // No need to fetch search suggestions if contents is empty.
         if self.artist_list.search.search_contents.is_empty() {
             self.artist_list.search.search_suggestions.clear();
             return;
         }
-        if let Err(e) = self.callback_tx.try_send(AppCallback::GetSearchSuggestions(
-            self.artist_list.search.search_contents.clone(),
-        )) {
+        let handler = |this: &mut Self, results| match results {
+            Ok((suggestions, text)) => {
+                this.replace_search_suggestions(suggestions, text);
+            }
+            Err(e) => {
+                error!("Error <{e}> recieved getting search suggestions");
+                return;
+            }
+        };
+        if let Err(e) = self
+            .async_tx
+            .add_callback(
+                GetSearchSuggestions(self.artist_list.search.search_contents.clone()),
+                handler,
+                Some(Constraint::new_kill_same_type()),
+            )
+            .await
+        {
             error!("Error <{e}> recieved sending message")
         };
     }
@@ -420,12 +436,32 @@ impl Browser {
             tracing::warn!("Tried to get item from list with index out of range");
             return;
         };
-        send_or_error(
-            &self.callback_tx,
-            AppCallback::GetArtistSongs(cur_artist_id),
-        )
-        .await;
-        tracing::info!("Sent request to UI to get songs");
+
+        let handler = |this, item| match item {
+            GetArtistSongsProgressUpdate::Loading => self.handle_song_list_loading(),
+            GetArtistSongsProgressUpdate::NoSongsFound => self.handle_no_songs_found(),
+            GetArtistSongsProgressUpdate::SearchArtistError => self.handle_search_artist_error(),
+            GetArtistSongsProgressUpdate::SongsFound => self.handle_songs_found(),
+            GetArtistSongsProgressUpdate::Songs {
+                song_list,
+                album,
+                year,
+                artist,
+            } => self.handle_append_song_list(song_list, album, year, artist),
+            GetArtistSongsProgressUpdate::AllSongsSent => self.handle_song_list_loaded(),
+        };
+
+        if let Err(e) = self
+            .async_tx
+            .add_stream_callback(
+                GetArtistSongs(cur_artist_id),
+                handler,
+                Some(Constraint::new_kill_same_type()),
+            )
+            .await
+        {
+            error!("Error <{e}> recieved sending message")
+        };
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
@@ -448,7 +484,7 @@ impl Browser {
         // Handled by this function?
         self.increment_cur_list(0);
     }
-    pub fn handle_replace_search_suggestions(
+    pub fn replace_search_suggestions(
         &mut self,
         search_suggestions: Vec<SearchSuggestion>,
         search: String,

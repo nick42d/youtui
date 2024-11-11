@@ -75,6 +75,7 @@ pub struct HelpMenu {
     cur: usize,
     len: usize,
     keybinds: Vec<KeyCommand<UIAction>>,
+    pub widget_state: TableState,
 }
 
 impl Default for HelpMenu {
@@ -84,6 +85,7 @@ impl Default for HelpMenu {
             cur: Default::default(),
             len: Default::default(),
             keybinds: help_keybinds(),
+            widget_state: Default::default(),
         }
     }
 }
@@ -387,13 +389,6 @@ impl YoutuiWindow {
         self.playlist
             .handle_song_download_progress_update(update, playlist_id)
             .await
-    }
-    pub async fn handle_replace_search_suggestions(
-        &mut self,
-        x: Vec<SearchSuggestion>,
-        search: String,
-    ) {
-        self.browser.handle_replace_search_suggestions(x, search);
     }
     pub async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
         self.browser.handle_replace_artist_list(x).await;
