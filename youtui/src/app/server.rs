@@ -65,7 +65,7 @@ impl Server {
     }
 }
 pub struct GetSearchSuggestions(pub String);
-pub struct NewArtistSearch(pub String);
+pub struct SearchArtists(pub String);
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
 
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
@@ -112,7 +112,7 @@ impl BackendTask<ArcServer> for GetSearchSuggestions {
         async move { backend.get_search_suggestions(self.0).await }
     }
 }
-impl BackendTask<ArcServer> for NewArtistSearch {
+impl BackendTask<ArcServer> for SearchArtists {
     type Output = Result<Vec<SearchResultArtist>>;
     fn into_future(
         self,

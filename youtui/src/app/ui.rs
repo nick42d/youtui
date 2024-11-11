@@ -390,28 +390,6 @@ impl YoutuiWindow {
             .handle_song_download_progress_update(update, playlist_id)
             .await
     }
-    pub async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
-        self.browser.handle_replace_artist_list(x).await;
-    }
-    pub fn handle_song_list_loaded(&mut self) {
-        self.browser.handle_song_list_loaded();
-    }
-    pub fn handle_song_list_loading(&mut self) {
-        self.browser.handle_song_list_loading();
-    }
-    pub fn handle_no_songs_found(&mut self) {
-        self.browser.handle_no_songs_found();
-    }
-    pub fn handle_append_song_list(
-        &mut self,
-        song_list: Vec<AlbumSong>,
-        album: String,
-        year: String,
-        artist: String,
-    ) {
-        self.browser
-            .handle_append_song_list(song_list, album, year, artist)
-    }
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);
     }
@@ -419,12 +397,6 @@ impl YoutuiWindow {
         self.playlist.reset().await;
         let id = self.playlist.push_song_list(song_list);
         self.playlist.play_song_id(id).await;
-    }
-    pub fn handle_songs_found(&mut self) {
-        self.browser.handle_songs_found();
-    }
-    pub fn handle_search_artist_error(&mut self) {
-        self.browser.handle_search_artist_error();
     }
     fn is_dominant_keybinds(&self) -> bool {
         self.help.shown
