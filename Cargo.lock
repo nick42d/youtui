@@ -180,6 +180,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-rodio-sink"
+version = "0.1.0"
+dependencies = [
+ "gag",
+ "rodio",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2660,6 +2670,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "rodio"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7ceb6607dd738c99bc8cb28eff249b7cd5c8ec88b9db96c0608c1480d140fb1"
+dependencies = [
+ "claxon",
+ "cpal",
+ "hound",
+ "lewton",
+ "symphonia",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4264,23 +4287,8 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tui-logger",
- "youtui-vendored-rodio",
  "youtui-vendored-rusty_ytdl",
  "ytmapi-rs",
-]
-
-[[package]]
-name = "youtui-vendored-rodio"
-version = "0.19.0-youtui-vendored.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a04dcacfe72ecd1a41ac89e008ab863febd3fcb778d4d7037c96871b86d6a3ef"
-dependencies = [
- "claxon",
- "cpal",
- "hound",
- "lewton",
- "symphonia",
- "thiserror",
 ]
 
 [[package]]
