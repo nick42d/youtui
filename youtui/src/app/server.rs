@@ -47,8 +47,8 @@ impl Server {
     ) -> Result<(Vec<SearchSuggestion>, String)> {
         self.api.get_search_suggestions(query).await
     }
-    pub async fn get_artists(&self, query: String) -> Result<Vec<SearchResultArtist>> {
-        self.api.get_artists(query).await
+    pub async fn search_artists(&self, query: String) -> Result<Vec<SearchResultArtist>> {
+        self.api.search_artists(query).await
     }
     pub fn get_artist_songs(
         &self,
@@ -119,7 +119,7 @@ impl BackendTask<ArcServer> for SearchArtists {
         backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
-        async move { backend.get_artists(self.0).await }
+        async move { backend.search_artists(self.0).await }
     }
 }
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {

@@ -58,8 +58,8 @@ impl Api {
         )
         .await
     }
-    pub async fn get_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
-        get_artists(
+    pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
+        search_artists(
             self.get_api().await.map_err(Error::new_api_error_string)?,
             text,
         )
@@ -146,7 +146,7 @@ where
     }
 }
 
-async fn get_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
+async fn search_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
     tracing::info!("Getting artists for {text}");
     let query = ytmapi_rs::query::SearchQuery::new(text)
         .with_filter(ytmapi_rs::query::ArtistsFilter)
