@@ -17,8 +17,8 @@ use structures::{ListSong, ListSongID};
 use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;
+use ui::WindowContext;
 use ui::YoutuiWindow;
-use ui::{WindowContext, YoutuiMutableState};
 use ytmapi_rs::common::{ArtistChannelID, VideoID};
 
 mod component;
@@ -47,7 +47,6 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    window_mutable_state: YoutuiMutableState,
     task_manager: AsyncCallbackManager<Server>,
     server: Server,
     callback_rx: mpsc::Receiver<AppCallback>,
@@ -132,7 +131,6 @@ impl Youtui {
             status: AppStatus::Running,
             event_handler,
             window_state,
-            window_mutable_state: Default::default(),
             task_manager,
             server,
             callback_rx,
@@ -150,11 +148,7 @@ impl Youtui {
                     // Draw occurs before the first event, to ensure up loads immediately.
                     if self.redraw {
                         self.terminal.draw(|f| {
-                            self.window_mutable_state = ui::draw::draw_app(
-                                f,
-                                &self.window_state,
-                                self.window_mutable_state,
-                            );
+                            ui::draw::draw_app(f, &mut self.window_state);
                         })?;
                     };
                     self.redraw = true;

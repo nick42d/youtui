@@ -8,6 +8,8 @@ use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
+use core::panic;
+use core::panicking::panic;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};
@@ -38,15 +40,18 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     let context_selected = !w.help.shown && !w.key_pending();
     match w.context {
         WindowContext::Browser => {
-            w.browser
+            w.browser.widget_state = w
+                .browser
                 .draw_mut_chunk(f, base_layout[1], context_selected);
         }
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1], context_selected),
         WindowContext::Playlist => {
-            w.playlist
-                .draw_mut_chunk(f, base_layout[1], context_selected);
+            w.playlist.widget_state =
+                w.playlist
+                    .draw_mut_chunk(f, base_layout[1], context_selected);
         }
     }
+    let help_state = todo!();
     if w.help.shown {
         draw_help(f, w, &mut help_state, base_layout[1]);
     }

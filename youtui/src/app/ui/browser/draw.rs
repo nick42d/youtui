@@ -20,7 +20,14 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
 
-pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: bool) {
+pub fn draw_browser(
+    f: &mut Frame,
+    browser: &Browser,
+    state: &BrowserState,
+    chunk: Rect,
+    selected: bool,
+) -> BrowserState {
+    let mut new_state = BrowserState::default();
     let layout = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],
@@ -36,12 +43,12 @@ pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: boo
         && browser.artist_list.route == ArtistInputRouting::List;
 
     if !browser.artist_list.search_popped {
-        draw_list(
+        new_state.artists_state = draw_list(
             f,
             &browser.artist_list,
+            &state.artists_state,
             layout[0],
             artistselected,
-            &mut state.artists_state,
         );
     } else {
         let s = Layout::default()
@@ -49,12 +56,12 @@ pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: boo
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(layout[0]);
-        draw_list(
+        new_state.artists_state = draw_list(
             f,
             &browser.artist_list,
+            &state.artists_state,
             s[1],
             artistselected,
-            &mut state.artists_state,
         );
         draw_search_box(f, browser, s[0]);
         // Should this be part of draw_search_box
@@ -62,11 +69,11 @@ pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: boo
             draw_search_suggestions(f, browser, s[0], layout[0])
         }
     }
-    draw_sortable_table(
+    new_state.album_songs_state = draw_sortable_table(
         f,
         &browser.album_songs_list,
+        &state.album_songs_state,
         layout[1],
-        &mut state.album_songs_state,
         albumsongsselected,
     );
     if browser.album_songs_list.sort.shown {
@@ -75,6 +82,7 @@ pub fn draw_browser(f: &mut Frame, browser: &Browser, chunk: Rect, selected: boo
     if browser.album_songs_list.filter.shown {
         draw_filter_popup(f, &browser.album_songs_list, layout[1]);
     }
+    new_state
 }
 
 // TODO: Generalize

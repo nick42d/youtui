@@ -146,7 +146,9 @@ pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Scrollable + Loadable {
-    fn get_state(&mut self) -> &mut TableState;
+    /// Get an owned version of the widget state, e.g scroll offset position.
+    /// In practice this will clone, and this is acceptable due to the low cost.
+    fn get_state(&self) -> TableState;
     // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
     // SortableTable), as possible we don't want to sort the Playlist (what happens
     // to play order, for eg). Could have a "commontitle" trait to prevent the
@@ -182,7 +184,9 @@ pub trait SortableTableView: TableView {
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView: Scrollable + SortableList + Loadable {
     type DisplayItem: Display;
-    fn get_state(&mut self) -> &mut ListState;
+    /// Get an owned version of the widget state, e.g scroll offset position.
+    /// In practice this will clone, and this is acceptable due to the low cost.
+    fn get_state(&self) -> ListState;
     fn get_title(&self) -> Cow<str>;
     fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
     fn len(&self) -> usize {
@@ -206,11 +210,11 @@ pub trait Drawable {
     }
 }
 // A drawable part of the application that mutates its state on draw.
-pub trait DrawableMut {
+pub trait DrawableMut<State> {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
-    fn draw_mut(&mut self, f: &mut Frame, selected: bool) {
+    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) -> State;
+    fn draw_mut(&self, f: &mut Frame, selected: bool) -> State {
         self.draw_mut_chunk(f, f.area(), selected)
     }
 }

@@ -39,7 +39,7 @@ pub struct Playlist {
     async_tx: AsyncCallbackSender<Server, Self>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
-    widget_state: TableState,
+    pub widget_state: TableState,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -105,9 +105,8 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut<TableState> for Playlist {
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
-        draw_table(f, self, chunk, selected);
-        mutable_state
+    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) -> TableState {
+        draw_table(f, self, chunk, selected)
     }
 }
 

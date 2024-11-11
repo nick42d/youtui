@@ -56,6 +56,7 @@ pub struct Browser {
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
     async_tx: AsyncCallbackSender<Server, Self>,
+    pub widget_state: BrowserState,
 }
 
 #[derive(Default)]
@@ -154,7 +155,7 @@ impl TextHandler for Browser {
     }
 }
 
-impl DrawableMut for Browser {
+impl DrawableMut<BrowserState> for Browser {
     fn draw_mut_chunk(
         &self,
         f: &mut ratatui::Frame,
@@ -273,6 +274,7 @@ impl Browser {
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
             async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
+            widget_state: Default::default(),
         }
     }
     pub async fn async_update(&mut self) {
