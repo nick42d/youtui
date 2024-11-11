@@ -1,13 +1,12 @@
 use super::artistalbums::albumsongs::{AlbumSongsInputRouting, AlbumSongsPanel};
 use super::artistalbums::artistsearch::ArtistInputRouting;
-use super::{Browser, BrowserState, InputRouting};
+use super::{Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
-use ratatui::widgets::TableState;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
@@ -20,14 +19,7 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
 
-pub fn draw_browser(
-    f: &mut Frame,
-    browser: &Browser,
-    state: &BrowserState,
-    chunk: Rect,
-    selected: bool,
-) -> BrowserState {
-    let mut new_state = BrowserState::default();
+pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
     let layout = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],
@@ -43,46 +35,29 @@ pub fn draw_browser(
         && browser.artist_list.route == ArtistInputRouting::List;
 
     if !browser.artist_list.search_popped {
-        new_state.artists_state = draw_list(
-            f,
-            &browser.artist_list,
-            &state.artists_state,
-            layout[0],
-            artistselected,
-        );
+        browser.artist_list.widget_state =
+            draw_list(f, &browser.artist_list, layout[0], artistselected);
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(layout[0]);
-        new_state.artists_state = draw_list(
-            f,
-            &browser.artist_list,
-            &state.artists_state,
-            s[1],
-            artistselected,
-        );
+        browser.artist_list.widget_state = draw_list(f, &browser.artist_list, s[1], artistselected);
         draw_search_box(f, browser, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
             draw_search_suggestions(f, browser, s[0], layout[0])
         }
     }
-    new_state.album_songs_state = draw_sortable_table(
-        f,
-        &browser.album_songs_list,
-        &state.album_songs_state,
-        layout[1],
-        albumsongsselected,
-    );
+    browser.album_songs_list.widget_state =
+        draw_sortable_table(f, &browser.album_songs_list, layout[1], albumsongsselected);
     if browser.album_songs_list.sort.shown {
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
     if browser.album_songs_list.filter.shown {
         draw_filter_popup(f, &browser.album_songs_list, layout[1]);
     }
-    new_state
 }
 
 // TODO: Generalize

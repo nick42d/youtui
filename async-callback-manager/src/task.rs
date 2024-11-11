@@ -8,12 +8,23 @@ pub(crate) struct TaskList {
     pub inner: Vec<Task>,
 }
 
+// User visible struct for introspection.
 #[derive(Debug, Clone)]
 pub struct ResponseInformation {
     pub type_id: TypeId,
+    pub type_name: &'static str,
     pub sender_id: SenderId,
     pub task_id: TaskId,
     pub task_is_now_finished: bool,
+}
+
+// User visible struct for introspection.
+#[derive(Debug, Clone)]
+pub struct TaskInformation<'a> {
+    pub type_id: TypeId,
+    pub type_name: &'static str,
+    pub sender_id: SenderId,
+    pub constraint: &'a Option<Constraint>,
 }
 
 pub(crate) struct TaskFromFrontend<Bkend> {
@@ -28,6 +39,7 @@ pub(crate) struct TaskFromFrontend<Bkend> {
 
 pub(crate) struct Task {
     pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
     pub(crate) receiver: TaskReceiver,
     pub(crate) sender_id: SenderId,
     pub(crate) task_id: TaskId,
@@ -73,16 +85,40 @@ impl TaskList {
                     TaskReceiver::Future(ref mut receiver) => {
                         if let Ok(forwarder) = receiver.await {
                             let _ = forwarder.await;
-                            return (Some(idx), task.type_id, task.sender_id, task.task_id);
+                            return (
+                                Some(idx),
+                                task.type_id,
+                                task.type_name,
+                                task.sender_id,
+                                task.task_id,
+                            );
                         }
-                        (None, task.type_id, task.sender_id, task.task_id)
+                        (
+                            None,
+                            task.type_id,
+                            task.type_name,
+                            task.sender_id,
+                            task.task_id,
+                        )
                     }
                     TaskReceiver::Stream(ref mut receiver) => {
                         if let Some(forwarder) = receiver.recv().await {
                             let _ = forwarder.await;
-                            return (None, task.type_id, task.sender_id, task.task_id);
+                            return (
+                                None,
+                                task.type_id,
+                                task.type_name,
+                                task.sender_id,
+                                task.task_id,
+                            );
                         }
-                        (Some(idx), task.type_id, task.sender_id, task.task_id)
+                        (
+                            Some(idx),
+                            task.type_id,
+                            task.type_name,
+                            task.sender_id,
+                            task.task_id,
+                        )
                     }
                 }
             })
@@ -93,14 +129,15 @@ impl TaskList {
             // Safe - this value is in range as produced from enumerate on original list.
             self.inner.swap_remove(task_completed);
         }
-        task_completed.map(
-            |(maybe_idx, type_id, sender_id, task_id)| ResponseInformation {
+        task_completed.map(|(maybe_idx, type_id, type_name, sender_id, task_id)| {
+            ResponseInformation {
                 type_id,
+                type_name,
                 sender_id,
                 task_id,
                 task_is_now_finished: maybe_idx.is_some(),
-            },
-        )
+            }
+        })
     }
     pub(crate) fn push(&mut self, task: Task) {
         self.inner.push(task)
@@ -149,11 +186,20 @@ impl<Bkend> TaskFromFrontend<Bkend> {
             kill_handle,
         }
     }
+    pub(crate) fn get_information(&self) -> TaskInformation<'_> {
+        TaskInformation {
+            type_id: self.type_id,
+            type_name: self.type_name,
+            sender_id: self.sender_id,
+            constraint: &self.constraint,
+        }
+    }
 }
 
 impl Task {
     pub(crate) fn new(
         type_id: TypeId,
+        type_name: &'static str,
         receiver: TaskReceiver,
         sender_id: SenderId,
         task_id: TaskId,
@@ -161,6 +207,7 @@ impl Task {
     ) -> Self {
         Self {
             type_id,
+            type_name,
             receiver,
             sender_id,
             kill_handle,

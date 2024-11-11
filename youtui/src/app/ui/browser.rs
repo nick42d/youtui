@@ -13,7 +13,7 @@ use crate::app::{
     server::Server,
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
-    YoutuiMutableState, CALLBACK_CHANNEL_SIZE,
+    CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
@@ -56,13 +56,6 @@ pub struct Browser {
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
     async_tx: AsyncCallbackSender<Server, Self>,
-    pub widget_state: BrowserState,
-}
-
-#[derive(Default)]
-pub struct BrowserState {
-    pub album_songs_state: TableState,
-    pub artists_state: ListState,
 }
 
 impl InputRouting {
@@ -155,14 +148,14 @@ impl TextHandler for Browser {
     }
 }
 
-impl DrawableMut<BrowserState> for Browser {
+impl DrawableMut for Browser {
     fn draw_mut_chunk(
-        &self,
+        &mut self,
         f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
         selected: bool,
-    ) -> BrowserState {
-        draw_browser(f, self, chunk, selected)
+    ) {
+        draw_browser(f, self, chunk, selected);
     }
 }
 impl KeyRouter<BrowserAction> for Browser {
@@ -274,7 +267,6 @@ impl Browser {
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
             async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
-            widget_state: Default::default(),
         }
     }
     pub async fn async_update(&mut self) {

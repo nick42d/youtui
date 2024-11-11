@@ -34,7 +34,7 @@ pub struct AlbumSongsPanel {
     pub sort: SortManager,
     pub filter: FilterManager,
     cur_selected: usize,
-    widget_state: TableState,
+    pub widget_state: TableState,
 }
 
 // TODO: refactor
@@ -391,8 +391,8 @@ impl Scrollable for AlbumSongsPanel {
 }
 
 impl TableView for AlbumSongsPanel {
-    fn get_state(&mut self) -> &mut ratatui::widgets::TableState {
-        &mut self.widget_state
+    fn get_state(&self) -> ratatui::widgets::TableState {
+        self.widget_state.clone()
     }
     fn get_title(&self) -> Cow<str> {
         match self.list.state {

@@ -77,17 +77,11 @@ pub fn draw_panel<S: AsRef<str>>(
     }
 }
 
-pub fn draw_list<L>(
-    f: &mut Frame,
-    list: &L,
-    state: &ListState,
-    chunk: Rect,
-    selected: bool,
-) -> ListState
+pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool) -> ListState
 where
     L: ListView,
 {
-    let mut state = state.clone();
+    let mut state = list.get_state();
     state.select(Some(list.get_selected_item()));
     // TODO: Scroll bars
     let list_title = list.get_title();
@@ -109,17 +103,11 @@ where
     state
 }
 
-pub fn draw_table<T>(
-    f: &mut Frame,
-    table: &T,
-    state: &TableState,
-    chunk: Rect,
-    selected: bool,
-) -> TableState
+pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, selected: bool) -> TableState
 where
     T: TableView,
 {
-    let mut state = state.clone();
+    let mut state = table.get_state();
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     let cur_highlighted = table.get_highlighted_row();
@@ -177,17 +165,11 @@ where
     state
 }
 
-pub fn draw_sortable_table<T>(
-    f: &mut Frame,
-    table: &T,
-    state: &TableState,
-    chunk: Rect,
-    selected: bool,
-) -> TableState
+pub fn draw_sortable_table<T>(f: &mut Frame, table: &T, chunk: Rect, selected: bool) -> TableState
 where
     T: SortableTableView,
 {
-    let mut state = state.clone();
+    let mut state = table.get_state();
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     // TODO: theming

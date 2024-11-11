@@ -1,5 +1,5 @@
 use crate::{
-    task::{ResponseInformation, Task, TaskFromFrontend, TaskList},
+    task::{ResponseInformation, Task, TaskFromFrontend, TaskInformation, TaskList},
     AsyncCallbackSender, Constraint,
 };
 use std::any::TypeId;
@@ -10,7 +10,7 @@ pub struct SenderId(usize);
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(usize);
 
-type DynTaskReceivedCallback = dyn FnMut((TypeId, SenderId, &Option<Constraint>));
+type DynTaskReceivedCallback = dyn FnMut(TaskInformation);
 type DynResponseReceivedCallback = dyn FnMut(ResponseInformation);
 
 pub struct AsyncCallbackManager<Bkend> {
@@ -55,7 +55,7 @@ impl<Bkend> AsyncCallbackManager<Bkend> {
     }
     pub fn with_on_task_received_callback(
         mut self,
-        cb: impl FnMut((TypeId, SenderId, &Option<Constraint>)) + 'static,
+        cb: impl FnMut(TaskInformation) + 'static,
     ) -> Self {
         self.on_task_received = Box::new(cb);
         self
@@ -122,13 +122,14 @@ impl<Bkend> AsyncCallbackManager<Bkend> {
         self.tasks_list.process_next_response().await
     }
     fn spawn_task(&mut self, backend: &Bkend, task: TaskFromFrontend<Bkend>) {
-        (self.on_task_received)((task.type_id, task.sender_id, &task.constraint));
+        (self.on_task_received)(task.get_information());
         if let Some(constraint) = task.constraint {
             self.tasks_list
                 .handle_constraint(constraint, task.type_id, task.sender_id);
         }
         self.tasks_list.push(Task::new(
             task.type_id,
+            task.type_name,
             task.receiver,
             task.sender_id,
             TaskId(self.next_task_id),

@@ -161,7 +161,7 @@ fn download_song(
                     send_or_error(
                         &tx,
                         DownloadProgressUpdate {
-                            kind: DownloadProgressUpdateType::Completed(InMemSong(songbuffer)),
+                            kind: DownloadProgressUpdateType::Completed(InMemSong(song)),
                             id: song_playlist_id,
                         },
                     )

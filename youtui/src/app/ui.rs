@@ -13,7 +13,6 @@ use super::AppCallback;
 use super::{server, structures::*};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
-use browser::BrowserState;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use draw::draw_app;
 use ratatui::widgets::{ListState, TableState};
@@ -256,17 +255,6 @@ impl Action for UIAction {
             UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT_SECS).into(),
             UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT_SECS).into(),
         }
-    }
-}
-
-impl DrawableMut<YoutuiMutableState> for YoutuiWindow {
-    fn draw_mut_chunk(
-        &self,
-        f: &mut ratatui::Frame,
-        chunk: ratatui::prelude::Rect,
-        selected: bool,
-    ) -> YoutuiMutableState {
-        draw_app(f, &self)
     }
 }
 

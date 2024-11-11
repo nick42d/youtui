@@ -11,7 +11,7 @@ use crate::app::{
     ui::{AppCallback, WindowContext},
 };
 
-use crate::app::{YoutuiMutableState, CALLBACK_CHANNEL_SIZE};
+use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
 use crossterm::event::KeyCode;
@@ -104,9 +104,9 @@ impl TextHandler for Playlist {
     fn replace_text(&mut self, _text: String) {}
 }
 
-impl DrawableMut<TableState> for Playlist {
-    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) -> TableState {
-        draw_table(f, self, chunk, selected)
+impl DrawableMut for Playlist {
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
+        self.widget_state = draw_table(f, self, chunk, selected);
     }
 }
 
@@ -129,8 +129,8 @@ impl Scrollable for Playlist {
 }
 
 impl TableView for Playlist {
-    fn get_state(&mut self) -> &mut TableState {
-        &mut self.widget_state
+    fn get_state(&self) -> TableState {
+        self.widget_state.clone()
     }
     fn get_title(&self) -> Cow<str> {
         format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()

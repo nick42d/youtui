@@ -1,5 +1,5 @@
 /// Traits related to viewable application components.
-use super::{structures::Percentage, YoutuiMutableState};
+use super::structures::Percentage;
 use crate::Result;
 use ratatui::{
     prelude::{Constraint, Rect},
@@ -210,11 +210,11 @@ pub trait Drawable {
     }
 }
 // A drawable part of the application that mutates its state on draw.
-pub trait DrawableMut<State> {
+pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) -> State;
-    fn draw_mut(&self, f: &mut Frame, selected: bool) -> State {
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
+    fn draw_mut(&mut self, f: &mut Frame, selected: bool) {
         self.draw_mut_chunk(f, f.area(), selected)
     }
 }
