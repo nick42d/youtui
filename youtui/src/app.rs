@@ -156,6 +156,7 @@ impl Youtui {
                     // following 4 message types is received.
                     tokio::select! {
                         // Get the next event from the event_handler and process it.
+                        // TODO: Consider checking here if redraw is required.
                         Some(event) = self.event_handler.next() => self.handle_event(event).await,
                         // Process any top-level callbacks in the queue.
                         Some(callback) = self.callback_rx.recv() => self.handle_callback(callback).await,

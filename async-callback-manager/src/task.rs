@@ -18,6 +18,7 @@ pub struct ResponseInformation {
 
 pub(crate) struct TaskFromFrontend<Bkend> {
     pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
     pub(crate) task: DynBackendTask<Bkend>,
     pub(crate) receiver: TaskReceiver,
     pub(crate) sender_id: SenderId,
@@ -131,6 +132,7 @@ impl TaskList {
 impl<Bkend> TaskFromFrontend<Bkend> {
     pub(crate) fn new(
         type_id: TypeId,
+        type_name: &'static str,
         task: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
         receiver: impl Into<TaskReceiver>,
         sender_id: SenderId,
@@ -139,6 +141,7 @@ impl<Bkend> TaskFromFrontend<Bkend> {
     ) -> Self {
         Self {
             type_id,
+            type_name,
             task: Box::new(task),
             receiver: receiver.into(),
             sender_id,

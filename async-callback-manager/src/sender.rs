@@ -121,6 +121,7 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
         self.runner_sender
             .send(TaskFromFrontend::new(
                 TypeId::of::<R>(),
+                std::any::type_name::<R>(),
                 func,
                 rx,
                 self.id,
