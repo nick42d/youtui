@@ -181,8 +181,9 @@ dependencies = [
 
 [[package]]
 name = "async-rodio-sink"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
+ "futures",
  "gag",
  "rodio",
  "tokio",
@@ -4270,13 +4271,13 @@ name = "youtui"
 version = "0.0.16"
 dependencies = [
  "async-callback-manager",
+ "async-rodio-sink",
  "async_cell",
  "bytes",
  "clap",
  "crossterm",
  "directories",
  "futures",
- "gag",
  "itertools 0.13.0",
  "ratatui",
  "serde",
