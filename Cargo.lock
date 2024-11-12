@@ -187,6 +187,7 @@ dependencies = [
  "gag",
  "rodio",
  "tokio",
+ "tokio-stream",
  "tracing",
 ]
 
