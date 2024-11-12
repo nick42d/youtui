@@ -1,4 +1,5 @@
-//! Provides a single handle to a rodio sink
+//! Provides an asynchronous handle to a rodio sink, specifically designed to
+//! handle gapless playback.
 use futures::Stream;
 use rodio::decoder::DecoderError;
 use rodio::source::EmptyCallback;
@@ -104,27 +105,7 @@ impl<T> From<RodioOneshot<T>> for oneshot::Sender<T> {
     }
 }
 
-fn try_decode<S: AsRef<[u8]> + Send + Sync + 'static>(
-    song: S,
-) -> std::result::Result<Decoder<Cursor<S>>, DecoderError> {
-    let cur = std::io::Cursor::new(song);
-    rodio::Decoder::new(cur)
-}
-
-fn add_periodic_access<S>(
-    song: Decoder<Cursor<S>>,
-    interval: Duration,
-    callback: impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
-) -> PeriodicAccess<
-    TrackPosition<Decoder<Cursor<S>>>,
-    impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
->
-where
-    S: AsRef<[u8]> + Send + Sync + 'static,
-{
-    song.track_position().periodic_access(interval, callback)
-}
-
+const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 const PLAYER_MSG_QUEUE_SIZE: usize = 50;
 
 #[derive(Debug)]
@@ -471,6 +452,10 @@ where
                         if !sink.empty() {
                             sink.stop()
                         }
+                        let txs = tx.0.clone();
+                        let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
+                            txs.blocking_send(AsyncRodioResponse::ProgressUpdate(s.get_pos()));
+                        });
                         let on_done = on_done_cb(&tx);
                         sink.append(song);
                         sink.append(on_done);
@@ -494,6 +479,9 @@ where
                         }
                         next_song_duration = song.total_duration();
                         &tx.0.send(AsyncRodioResponse::Queued(next_song_duration));
+                        let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
+                            txs.blocking_send(AsyncRodioResponse::ProgressUpdate(s.get_pos()));
+                        });
                         let on_done = on_done_cb(&tx);
                         sink.append(song);
                         sink.append(on_done);
@@ -504,6 +492,9 @@ where
                         if !sink.empty() {
                             sink.stop()
                         }
+                        let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
+                            txs.blocking_send(AsyncRodioResponse::ProgressUpdate(s.get_pos()));
+                        });
                         let on_done = on_done_cb(&tx);
                         sink.append(song);
                         sink.append(on_done);
@@ -596,4 +587,27 @@ fn on_done_cb(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback<f32> {
         tx.blocking_send(AsyncRodioResponse::StoppedPlaying);
     };
     EmptyCallback::new(Box::new(cb))
+}
+
+/// Try to decode bytes into Source.
+fn try_decode<S: AsRef<[u8]> + Send + Sync + 'static>(
+    song: S,
+) -> std::result::Result<Decoder<Cursor<S>>, DecoderError> {
+    let cur = std::io::Cursor::new(song);
+    rodio::Decoder::new(cur)
+}
+
+/// Add a periodic access callback to song.
+fn add_periodic_access<S>(
+    song: Decoder<Cursor<S>>,
+    interval: Duration,
+    callback: impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
+) -> PeriodicAccess<
+    TrackPosition<Decoder<Cursor<S>>>,
+    impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
+>
+where
+    S: AsRef<[u8]> + Send + Sync + 'static,
+{
+    song.track_position().periodic_access(interval, callback)
 }
