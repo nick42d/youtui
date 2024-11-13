@@ -10,15 +10,15 @@ use std::{
     future::Future,
 };
 use tokio::sync::{
-    mpsc::{self, Receiver, Sender},
+    mpsc::{self, Receiver, Sender, UnboundedSender},
     oneshot,
 };
 
-pub struct AsyncCallbackSender<Bkend, Frntend> {
+pub struct AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
     pub(crate) id: SenderId,
     pub(crate) this_sender: Sender<DynCallbackFn<Frntend>>,
     pub(crate) this_receiver: Receiver<DynCallbackFn<Frntend>>,
-    pub(crate) runner_sender: Sender<TaskFromFrontend<Bkend>>,
+    pub(crate) runner_sender: UnboundedSender<TaskFromFrontend<Bkend, Cstrnt>>,
 }
 
 /// A set of state mutations, that can be applied to a Frntend.
@@ -40,7 +40,7 @@ impl<Frntend> StateMutationBundle<Frntend> {
     }
 }
 
-impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
+impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
     pub async fn get_next_mutations(
         &mut self,
         max_mutations: usize,
@@ -51,15 +51,15 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
             .await;
         StateMutationBundle { mutation_list }
     }
-    pub async fn add_stream_callback<R>(
+    pub fn add_stream_callback<R>(
         &self,
         request: R,
         // TODO: Relax Clone bounds if possible.
         handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
-        constraint: Option<Constraint>,
+        constraint: Option<Constraint<Cstrnt>>,
     ) -> Result<()>
     where
-        R: BackendStreamingTask<Bkend> + 'static,
+        R: BackendStreamingTask<Bkend, ConstraintType = Cstrnt> + 'static,
         Bkend: Send + 'static,
         Frntend: 'static,
     {
@@ -80,16 +80,16 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
                 .boxed(),
             ) as DynFallibleFuture
         };
-        self.send_task::<R>(func, rx, constraint, kill_tx).await
+        self.send_task::<R>(func, R::metadata(), rx, constraint, kill_tx)
     }
-    pub async fn add_callback<R>(
+    pub fn add_callback<R>(
         &self,
         request: R,
         handler: impl FnOnce(&mut Frntend, R::Output) + Send + 'static,
-        constraint: Option<Constraint>,
+        constraint: Option<Constraint<Cstrnt>>,
     ) -> Result<()>
     where
-        R: BackendTask<Bkend> + 'static,
+        R: BackendTask<Bkend, ConstraintType = Cstrnt> + 'static,
         Bkend: Send + 'static,
         Frntend: 'static,
     {
@@ -109,27 +109,28 @@ impl<Bkend, Frntend> AsyncCallbackSender<Bkend, Frntend> {
                 .boxed(),
             ) as DynFallibleFuture
         };
-        self.send_task::<R>(func, rx, constraint, kill_tx).await
+        self.send_task::<R>(func, R::metadata(), rx, constraint, kill_tx)
     }
-    async fn send_task<R: Any + 'static>(
+    fn send_task<R: Any + 'static>(
         &self,
         func: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
+        metadata: Vec<Cstrnt>,
         rx: impl Into<TaskReceiver>,
-        constraint: Option<Constraint>,
+        constraint: Option<Constraint<Cstrnt>>,
         kill_handle: KillHandle,
     ) -> Result<()> {
         self.runner_sender
             .send(TaskFromFrontend::new(
                 TypeId::of::<R>(),
                 std::any::type_name::<R>(),
+                metadata,
                 func,
                 rx,
                 self.id,
                 constraint,
                 kill_handle,
             ))
-            .await
-            .map_err(|_| Error::ErrorSending)
+            .map_err(|_| Error::ReceiverDropped)
     }
 }
 

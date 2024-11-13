@@ -19,8 +19,8 @@ mod utils;
 
 #[derive(Debug)]
 pub struct DownloadProgressUpdate {
-    kind: DownloadProgressUpdateType,
-    id: ListSongID,
+    pub kind: DownloadProgressUpdateType,
+    pub id: ListSongID,
 }
 
 #[derive(Debug)]

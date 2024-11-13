@@ -43,7 +43,7 @@ pub struct ProgressUpdate<I>(Duration, I);
 // At this stage this difference between DonePlaying and Stopped is very thin.
 // DonePlaying means that the song has been dropped by the player, whereas
 // Stopped simply means that a Stop message to the player was succesful.
-pub struct Stopped<I>(I);
+pub struct Stopped<I>(pub I);
 pub enum PausePlayResponse<I> {
     Paused(I),
     Resumed(I),

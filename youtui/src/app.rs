@@ -35,7 +35,6 @@ thread_local! {
 }
 
 const CALLBACK_CHANNEL_SIZE: usize = 64;
-const ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE: usize = 64;
 const ASYNC_CALLBACK_SENDER_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
@@ -94,20 +93,19 @@ impl Youtui {
         }));
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
-        let mut task_manager =
-            async_callback_manager::AsyncCallbackManager::new(ASYNC_CALLBACK_MANAGER_CHANNEL_SIZE)
-                .with_on_task_received_callback(|task| {
-                    info!(
-                        "Received task {:?}: - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
-                        task.type_name, task.type_id, task.sender_id, task.constraint
-                    )
-                })
-                .with_on_response_received_callback(|response| {
-                    info!(
-                "Received response to {:?}: - type_id: {:?}, sender_id: {:?}, task_id: {:?}",
-                response.type_name, response.type_id, response.sender_id, response.task_id
-            )
-                });
+        let mut task_manager = async_callback_manager::AsyncCallbackManager::new()
+            .with_on_task_received_callback(|task| {
+                info!(
+                    "Received task {:?}: - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
+                    task.type_name, task.type_id, task.sender_id, task.constraint
+                )
+            })
+            .with_on_response_received_callback(|response| {
+                info!(
+                    "Received response to {:?}: - type_id: {:?}, sender_id: {:?}, task_id: {:?}",
+                    response.type_name, response.type_id, response.sender_id, response.task_id
+                )
+            });
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;

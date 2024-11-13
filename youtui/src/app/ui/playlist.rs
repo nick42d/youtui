@@ -1,5 +1,5 @@
-use crate::app::server::downloader::DownloadProgressUpdateType;
-use crate::app::server::{ArcServer, IncreaseVolume, Server};
+use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::{ArcServer, DownloadSong, IncreaseVolume, Server, Stop};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -14,7 +14,7 @@ use crate::app::{
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
-use async_rodio_sink::VolumeUpdate;
+use async_rodio_sink::{Stopped, VolumeUpdate};
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -210,15 +210,13 @@ impl Playlist {
     ) -> Self {
         let async_tx = callback_manager.new_sender(CALLBACK_CHANNEL_SIZE);
         // Ensure volume is synced with player.
-        async_tx
-            .add_callback(
-                // Since IncreaseVolume responds back with player volume after change, this is a
-                // neat hack.
-                IncreaseVolume(0),
-                Self::handle_set_volume,
-                Some(Constraint::new_block_same_type()),
-            )
-            .await;
+        async_tx.add_callback(
+            // Since IncreaseVolume responds back with player volume after change, this is a
+            // neat hack.
+            IncreaseVolume(0),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        );
         Playlist {
             ui_tx,
             volume: Percentage(50),
@@ -282,7 +280,9 @@ impl Playlist {
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
-                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                    // TODO: Consider how race condition is supposed to be handled with this.
+                    self.async_tx
+                        .add_callback(Stop(cur_id), Self::handle_stopped, None);
                 }
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
@@ -293,7 +293,9 @@ impl Playlist {
     pub async fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+            // TODO: Consider how race condition is supposed to be handled with this.
+            self.async_tx
+                .add_callback(Stop(cur_id), Self::handle_stopped, None);
         }
         self.clear()
         // XXX: Also need to kill pending download tasks
@@ -361,11 +363,16 @@ impl Playlist {
             | DownloadStatus::Queued => return,
             _ => (),
         };
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::DownloadSong(song.raw.video_id.clone(), id),
-        )
-        .await;
+        // TODO: Consider how to handle race conditions.
+        // XXX: Need to add async callback handling mechanism!
+        self.async_tx.add_stream_callback(
+            DownloadSong(song.raw.video_id.clone(), id),
+            |this, item| {
+                let DownloadProgressUpdate { kind, id } = item;
+                this.handle_song_download_progress_update(kind, id);
+            },
+            None,
+        );
         song.download_status = DownloadStatus::Queued;
     }
     /// Update the volume in the UI for immediate visual feedback - response
@@ -672,7 +679,7 @@ impl Playlist {
         }
     }
     /// Handle volume message from server
-    pub fn handle_set_volume(&mut self, response: Option<VolumeUpdate>) {
+    pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
         if let Some(v) = response {
             self.volume = Percentage(v.0 .0)
         }
@@ -774,7 +781,9 @@ impl Playlist {
         }
     }
     /// Handle stopped message from server
-    pub fn handle_stopped(&mut self, id: ListSongID) {
+    pub fn handle_stopped(&mut self, id: Option<Stopped<ListSongID>>) {
+        let Some(Stopped(id)) = id else { return };
+        // TODO: Hoist info up.
         info!("Received message that playback {:?} has been stopped", id);
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);

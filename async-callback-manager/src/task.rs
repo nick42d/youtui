@@ -3,9 +3,8 @@ use futures::{stream::FuturesUnordered, StreamExt};
 use std::any::TypeId;
 use tokio::sync::{mpsc, oneshot};
 
-#[derive(Default)]
-pub(crate) struct TaskList {
-    pub inner: Vec<Task>,
+pub(crate) struct TaskList<Cstrnt> {
+    pub inner: Vec<Task<Cstrnt>>,
 }
 
 // User visible struct for introspection.
@@ -20,41 +19,44 @@ pub struct ResponseInformation {
 
 // User visible struct for introspection.
 #[derive(Debug, Clone)]
-pub struct TaskInformation<'a> {
+pub struct TaskInformation<'a, Cstrnt> {
     pub type_id: TypeId,
     pub type_name: &'static str,
     pub sender_id: SenderId,
-    pub constraint: &'a Option<Constraint>,
+    pub constraint: &'a Option<Constraint<Cstrnt>>,
 }
 
-pub(crate) struct TaskFromFrontend<Bkend> {
+pub(crate) struct TaskFromFrontend<Bkend, Cstrnt> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
+    pub(crate) metadata: Vec<Cstrnt>,
     pub(crate) task: DynBackendTask<Bkend>,
     pub(crate) receiver: TaskReceiver,
     pub(crate) sender_id: SenderId,
-    pub(crate) constraint: Option<Constraint>,
+    pub(crate) constraint: Option<Constraint<Cstrnt>>,
     pub(crate) kill_handle: KillHandle,
 }
 
-pub(crate) struct Task {
+pub(crate) struct Task<Cstrnt> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) receiver: TaskReceiver,
     pub(crate) sender_id: SenderId,
     pub(crate) task_id: TaskId,
     pub(crate) kill_handle: KillHandle,
+    pub(crate) metadata: Vec<Cstrnt>,
 }
 
 #[derive(Eq, PartialEq, Debug)]
-pub struct Constraint {
-    pub(crate) constraint_type: ConstraitType,
+pub struct Constraint<Cstrnt> {
+    pub(crate) constraint_type: ConstraitType<Cstrnt>,
 }
 
 #[derive(Eq, PartialEq, Debug)]
-pub enum ConstraitType {
+pub enum ConstraitType<Cstrnt> {
     BlockSameType,
     KillSameType,
+    BlockMatchingMetatdata(Cstrnt),
 }
 
 pub(crate) enum TaskReceiver {
@@ -72,7 +74,10 @@ impl From<mpsc::Receiver<DynFallibleFuture>> for TaskReceiver {
     }
 }
 
-impl TaskList {
+impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
+    pub(crate) fn new() -> Self {
+        Self { inner: vec![] }
+    }
     /// Returns Some(ResponseInformation) if a task existed in the list, and it
     /// was processed. Returns None, if no tasks were in the list.
     pub(crate) async fn process_next_response(&mut self) -> Option<ResponseInformation> {
@@ -139,19 +144,25 @@ impl TaskList {
             }
         })
     }
-    pub(crate) fn push(&mut self, task: Task) {
+    pub(crate) fn push(&mut self, task: Task<Cstrnt>) {
         self.inner.push(task)
     }
+    // TODO: Tests
     pub(crate) fn handle_constraint(
         &mut self,
-        constraint: Constraint,
+        constraint: Constraint<Cstrnt>,
         type_id: TypeId,
         sender_id: SenderId,
     ) {
         // Assuming here that kill implies block also.
         let task_doesnt_match_constraint =
-            |task: &Task| (task.type_id != type_id) || (task.sender_id != sender_id);
+            |task: &Task<_>| (task.type_id != type_id) || (task.sender_id != sender_id);
+        let task_doesnt_match_metadata =
+            |task: &Task<_>, constraint: &Cstrnt| !task.metadata.contains(constraint);
         match constraint.constraint_type {
+            ConstraitType::BlockMatchingMetatdata(metadata) => self
+                .inner
+                .retain(|task| task_doesnt_match_metadata(task, &metadata)),
             ConstraitType::BlockSameType => {
                 self.inner.retain(task_doesnt_match_constraint);
             }
@@ -166,19 +177,21 @@ impl TaskList {
     }
 }
 
-impl<Bkend> TaskFromFrontend<Bkend> {
+impl<Bkend, Cstrnt> TaskFromFrontend<Bkend, Cstrnt> {
     pub(crate) fn new(
         type_id: TypeId,
         type_name: &'static str,
+        metadata: Vec<Cstrnt>,
         task: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
         receiver: impl Into<TaskReceiver>,
         sender_id: SenderId,
-        constraint: Option<Constraint>,
+        constraint: Option<Constraint<Cstrnt>>,
         kill_handle: KillHandle,
     ) -> Self {
         Self {
             type_id,
             type_name,
+            metadata,
             task: Box::new(task),
             receiver: receiver.into(),
             sender_id,
@@ -186,7 +199,7 @@ impl<Bkend> TaskFromFrontend<Bkend> {
             kill_handle,
         }
     }
-    pub(crate) fn get_information(&self) -> TaskInformation<'_> {
+    pub(crate) fn get_information(&self) -> TaskInformation<'_, Cstrnt> {
         TaskInformation {
             type_id: self.type_id,
             type_name: self.type_name,
@@ -196,10 +209,11 @@ impl<Bkend> TaskFromFrontend<Bkend> {
     }
 }
 
-impl Task {
+impl<Cstrnt> Task<Cstrnt> {
     pub(crate) fn new(
         type_id: TypeId,
         type_name: &'static str,
+        metadata: Vec<Cstrnt>,
         receiver: TaskReceiver,
         sender_id: SenderId,
         task_id: TaskId,
@@ -212,11 +226,12 @@ impl Task {
             sender_id,
             kill_handle,
             task_id,
+            metadata,
         }
     }
 }
 
-impl Constraint {
+impl<Cstrnt> Constraint<Cstrnt> {
     pub fn new_block_same_type() -> Self {
         Self {
             constraint_type: ConstraitType::BlockSameType,
@@ -225,6 +240,11 @@ impl Constraint {
     pub fn new_kill_same_type() -> Self {
         Self {
             constraint_type: ConstraitType::KillSameType,
+        }
+    }
+    pub fn new_block_matching_metadata(metadata: Cstrnt) -> Self {
+        Self {
+            constraint_type: ConstraitType::BlockMatchingMetatdata(metadata),
         }
     }
 }

@@ -29,7 +29,7 @@ impl Mode {
         }
     }
 }
-impl From<&Mode> for Option<async_callback_manager::Constraint> {
+impl<T> From<&Mode> for Option<async_callback_manager::Constraint<T>> {
     fn from(value: &Mode) -> Self {
         match value {
             Mode::BlockPreviousTasks => {
@@ -46,7 +46,7 @@ struct State {
     word: String,
     number: String,
     mode: Mode,
-    callback_handle: AsyncCallbackSender<reqwest::Client, Self>,
+    callback_handle: AsyncCallbackSender<reqwest::Client, Self, ()>,
 }
 impl State {
     fn draw(&self, f: &mut Frame) {
@@ -79,7 +79,6 @@ impl State {
                 |state, word| state.word = word,
                 (&self.mode).into(),
             )
-            .await
             .unwrap()
     }
     async fn handle_start_counter(&mut self) {
@@ -90,7 +89,6 @@ impl State {
                 |state, num| state.number = num,
                 (&self.mode).into(),
             )
-            .await
             .unwrap()
     }
 }
@@ -100,7 +98,7 @@ async fn main() {
     let mut terminal = ratatui::init();
     let backend = reqwest::Client::new();
     let mut events = EventStream::new().filter_map(event_to_action);
-    let mut manager = AsyncCallbackManager::new(50);
+    let mut manager = AsyncCallbackManager::new();
     let mut state = State {
         word: String::new(),
         number: String::new(),
@@ -127,6 +125,10 @@ async fn main() {
 
 struct GetWordRequest;
 impl BackendTask<reqwest::Client> for GetWordRequest {
+    type ConstraintType = ();
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![]
+    }
     type Output = String;
     fn into_future(
         self,
@@ -149,6 +151,10 @@ impl BackendTask<reqwest::Client> for GetWordRequest {
 struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;
+    type ConstraintType = ();
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![]
+    }
     fn into_stream(
         self,
         _: &T,

@@ -93,11 +93,11 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
 pub struct IncreaseVolume(pub i8);
 pub struct Seek {
-    duration: Duration,
-    direction: SeekDirection,
+    pub duration: Duration,
+    pub direction: SeekDirection,
 }
-pub struct Stop(ListSongID);
-pub struct PausePlay(ListSongID);
+pub struct Stop(pub ListSongID);
+pub struct PausePlay(pub ListSongID);
 // Play a song, starting from the start, regardless what's queued.
 pub struct PlaySong {
     song: Arc<InMemSong>,

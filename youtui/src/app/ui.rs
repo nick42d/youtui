@@ -8,12 +8,14 @@ use super::component::actionhandler::{
 use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
-use super::server::ArcServer;
+use super::server::{ArcServer, IncreaseVolume};
 use super::view::{DrawableMut, Scrollable};
-use super::AppCallback;
 use super::{server, structures::*};
+use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
+use async_callback_manager::{AsyncCallbackSender, Constraint};
+use async_rodio_sink::VolumeUpdate;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use draw::draw_app;
 use ratatui::widgets::{ListState, TableState};
@@ -69,6 +71,7 @@ pub struct YoutuiWindow {
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
+    async_tx: AsyncCallbackSender<ArcServer, Self>,
 }
 
 pub struct HelpMenu {
@@ -304,7 +307,6 @@ impl YoutuiWindow {
         callback_tx: mpsc::Sender<AppCallback>,
         callback_manager: &mut async_callback_manager::AsyncCallbackManager<ArcServer>,
     ) -> YoutuiWindow {
-        // TODO: derive default
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
@@ -315,6 +317,7 @@ impl YoutuiWindow {
             key_stack: Vec::new(),
             help: Default::default(),
             callback_tx,
+            async_tx: callback_manager.new_sender(ASYNC_CALLBACK_SENDER_CHANNEL_SIZE),
         }
     }
     pub async fn async_update(&mut self) {
@@ -347,7 +350,11 @@ impl YoutuiWindow {
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        send_or_error(&self.callback_tx, AppCallback::IncreaseVolume(inc)).await;
+        self.async_tx.add_callback(
+            IncreaseVolume(inc),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        );
     }
     pub async fn handle_seek(&mut self, inc: i8) {
         self.playlist.handle_seek(inc).await
@@ -370,14 +377,11 @@ impl YoutuiWindow {
     pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
         self.playlist.handle_playing(duration, id)
     }
-    pub async fn handle_stopped(&mut self, id: ListSongID) {
-        self.playlist.handle_stopped(id)
-    }
     pub async fn handle_set_to_error(&mut self, id: ListSongID) {
         self.playlist.handle_set_to_error(id)
     }
-    pub fn handle_set_volume(&mut self, p: Percentage) {
-        self.playlist.handle_set_volume(p)
+    pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
+        self.playlist.handle_volume_update(update)
     }
     pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         self.playlist.handle_set_song_play_progress(d, id).await;

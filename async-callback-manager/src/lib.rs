@@ -23,7 +23,13 @@ pub trait BkendMap<Bkend> {
 /// TypeId is used as part of the task management process.
 pub trait BackendTask<Bkend>: Send + Any {
     type Output: Send;
+    type ConstraintType: PartialEq;
     fn into_future(self, backend: &Bkend) -> impl Future<Output = Self::Output> + Send + 'static;
+    /// Metadata provides a way of grouping different tasks for use in
+    /// constraints, if you override the default implementation.
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![]
+    }
 }
 
 /// A task of kind T that can be run on a backend, returning a stream of outputs
@@ -31,10 +37,16 @@ pub trait BackendTask<Bkend>: Send + Any {
 /// task management process.
 pub trait BackendStreamingTask<Bkend>: Send + Any {
     type Output: Send;
+    type ConstraintType: PartialEq;
     fn into_stream(
         self,
         backend: &Bkend,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static;
+    /// Metadata provides a way of grouping different tasks for use in
+    /// constraints, if you override the default implementation.
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![]
+    }
 }
 
 struct KillHandle(Option<oneshot::Sender<()>>);
