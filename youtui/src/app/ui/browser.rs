@@ -448,15 +448,11 @@ impl Browser {
             GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
         };
 
-        if let Err(e) = self
-            .async_tx
-            .add_stream_callback(
-                GetArtistSongs(cur_artist_id),
-                handler,
-                Some(Constraint::new_kill_same_type()),
-            )
-            .await
-        {
+        if let Err(e) = self.async_tx.add_stream_callback(
+            GetArtistSongs(cur_artist_id),
+            handler,
+            Some(Constraint::new_kill_same_type()),
+        ) {
             error!("Error <{e}> recieved sending message")
         };
     }

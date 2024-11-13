@@ -69,7 +69,7 @@ impl Api {
         &self,
         browse_id: ArtistChannelID<'static>,
     ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
-        let api = async { self.get_api().await.map_err(Error::new_api_error_string) };
+        let api = self.api.clone();
         get_artist_songs(api, browse_id)
     }
 }
@@ -179,7 +179,7 @@ pub enum GetArtistSongsProgressUpdate {
 }
 
 fn get_artist_songs(
-    api: impl Future<Output = Result<ConcurrentApi>> + Send + 'static,
+    api: Arc<AsyncCell<std::result::Result<ConcurrentApi, String>>>,
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
     /// Bailout function that will log an error and send NoSongsFound if we get
@@ -194,7 +194,7 @@ fn get_artist_songs(
     tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
-        let api = match api.await {
+        let api = match api.get().await {
             Err(e) => return bailout(e, tx).await,
             Ok(api) => api,
         };

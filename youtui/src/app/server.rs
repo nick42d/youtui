@@ -49,28 +49,6 @@ impl Server {
             downloader,
         }
     }
-    pub async fn get_search_suggestions(
-        &self,
-        query: String,
-    ) -> Result<(Vec<SearchSuggestion>, String)> {
-        self.api.get_search_suggestions(query).await
-    }
-    pub async fn search_artists(&self, query: String) -> Result<Vec<SearchResultArtist>> {
-        self.api.search_artists(query).await
-    }
-    pub fn get_artist_songs(
-        &self,
-        browse_id: ArtistChannelID<'static>,
-    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> {
-        self.api.get_artist_songs(browse_id)
-    }
-    pub fn download_song(
-        &self,
-        video_id: VideoID<'static>,
-        song_id: ListSongID,
-    ) -> impl Stream<Item = DownloadProgressUpdate> {
-        self.downloader.download_song(video_id, song_id)
-    }
 }
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -126,7 +104,7 @@ impl BackendTask<ArcServer> for GetSearchSuggestions {
         backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
-        async move { backend.get_search_suggestions(self.0).await }
+        async move { backend.api.get_search_suggestions(self.0).await }
     }
 }
 impl BackendTask<ArcServer> for SearchArtists {
@@ -137,7 +115,7 @@ impl BackendTask<ArcServer> for SearchArtists {
         backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
-        async move { backend.search_artists(self.0).await }
+        async move { backend.api.search_artists(self.0).await }
     }
 }
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
@@ -148,7 +126,7 @@ impl BackendStreamingTask<ArcServer> for GetArtistSongs {
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.get_artist_songs(self.0)
+        backend.api.get_artist_songs(self.0)
     }
 }
 
@@ -160,7 +138,7 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.download_song(self.0, self.1)
+        backend.downloader.download_song(self.0, self.1)
     }
 }
 impl BackendTask<ArcServer> for Seek {
