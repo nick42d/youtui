@@ -1,5 +1,5 @@
 use crate::app::server::downloader::DownloadProgressUpdateType;
-use crate::app::server::Server;
+use crate::app::server::{ArcServer, IncreaseVolume, Server};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -13,7 +13,8 @@ use crate::app::{
 
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
+use async_rodio_sink::VolumeUpdate;
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -36,7 +37,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    async_tx: AsyncCallbackSender<Server, Self>,
+    async_tx: AsyncCallbackSender<ArcServer, Self>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
     pub widget_state: TableState,
@@ -203,17 +204,21 @@ impl SongListComponent for Playlist {
 
 // Primatives
 impl Playlist {
-    pub fn new(
-        callback_manager: &mut AsyncCallbackManager<Server>,
+    pub async fn new(
+        callback_manager: &mut AsyncCallbackManager<ArcServer>,
         ui_tx: mpsc::Sender<AppCallback>,
     ) -> Self {
-        // This could fail, made to try send to avoid needing to change function
-        // signature to asynchronous. Should change.
-        ui_tx
-            // Since IncreaseVolume responds back with player volume after change, this is a neat
-            // hack.
-            .try_send(AppCallback::IncreaseVolume(0))
-            .unwrap_or_else(|e| error!("Error <{e}> received getting initial player volume."));
+        let async_tx = callback_manager.new_sender(CALLBACK_CHANNEL_SIZE);
+        // Ensure volume is synced with player.
+        async_tx
+            .add_callback(
+                // Since IncreaseVolume responds back with player volume after change, this is a
+                // neat hack.
+                IncreaseVolume(0),
+                Self::handle_set_volume,
+                Some(Constraint::new_block_same_type()),
+            )
+            .await;
         Playlist {
             ui_tx,
             volume: Percentage(50),
@@ -223,7 +228,7 @@ impl Playlist {
             keybinds: playlist_keybinds(),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
-            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
+            async_tx,
             widget_state: Default::default(),
         }
     }
@@ -667,8 +672,10 @@ impl Playlist {
         }
     }
     /// Handle volume message from server
-    pub fn handle_set_volume(&mut self, p: Percentage) {
-        self.volume = p;
+    pub fn handle_set_volume(&mut self, response: Option<VolumeUpdate>) {
+        if let Some(v) = response {
+            self.volume = Percentage(v.0 .0)
+        }
     }
     /// Handle song progress message from server
     pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {

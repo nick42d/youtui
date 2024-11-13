@@ -19,7 +19,7 @@ use tracing::info;
 use tracing::warn;
 
 #[derive(Debug)]
-struct Percentage(pub u8);
+pub struct Percentage(pub u8);
 
 #[derive(Debug)]
 pub enum SeekDirection {
@@ -38,7 +38,7 @@ enum AsyncRodioRequest<S, I> {
     Seek(Duration, SeekDirection, RodioOneshot<(Duration, I)>),
 }
 
-pub struct VolumeUpdate(Percentage);
+pub struct VolumeUpdate(pub Percentage);
 pub struct ProgressUpdate<I>(Duration, I);
 // At this stage this difference between DonePlaying and Stopped is very thin.
 // DonePlaying means that the song has been dropped by the player, whereas
@@ -398,7 +398,7 @@ where
     pub fn new(channel_size: usize) -> Self {
         let (tx, mut rx) =
             tokio::sync::mpsc::channel::<AsyncRodioRequest<Decoder<Cursor<S>>, I>>(channel_size);
-        let handle = tokio::task::spawn_blocking(move || {
+        let handle = tokio::task::spawn(async move {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -479,6 +479,7 @@ where
                         }
                         next_song_duration = song.total_duration();
                         &tx.0.send(AsyncRodioResponse::Queued(next_song_duration));
+                        let txs = tx.0.clone();
                         let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
                             txs.blocking_send(AsyncRodioResponse::ProgressUpdate(s.get_pos()));
                         });
@@ -492,6 +493,7 @@ where
                         if !sink.empty() {
                             sink.stop()
                         }
+                        let txs = tx.0.clone();
                         let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
                             txs.blocking_send(AsyncRodioResponse::ProgressUpdate(s.get_pos()));
                         });

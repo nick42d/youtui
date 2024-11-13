@@ -8,6 +8,7 @@ use super::component::actionhandler::{
 use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
+use super::server::ArcServer;
 use super::view::{DrawableMut, Scrollable};
 use super::AppCallback;
 use super::{server, structures::*};
@@ -299,15 +300,15 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(
+    pub async fn new(
         callback_tx: mpsc::Sender<AppCallback>,
-        callback_manager: &mut async_callback_manager::AsyncCallbackManager<server::Server>,
+        callback_manager: &mut async_callback_manager::AsyncCallbackManager<ArcServer>,
     ) -> YoutuiWindow {
         // TODO: derive default
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_manager, callback_tx.clone()),
+            playlist: Playlist::new(callback_manager, callback_tx.clone()).await,
             browser: Browser::new(callback_manager, callback_tx.clone()),
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),

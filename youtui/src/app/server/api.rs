@@ -68,7 +68,7 @@ impl Api {
     pub fn get_artist_songs(
         &self,
         browse_id: ArtistChannelID<'static>,
-    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> {
+    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
         let api = async { self.get_api().await.map_err(Error::new_api_error_string) };
         get_artist_songs(api, browse_id)
     }
@@ -181,7 +181,7 @@ pub enum GetArtistSongsProgressUpdate {
 fn get_artist_songs(
     api: impl Future<Output = Result<ConcurrentApi>> + Send + 'static,
     browse_id: ArtistChannelID<'static>,
-) -> impl Stream<Item = GetArtistSongsProgressUpdate> {
+) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
     /// Bailout function that will log an error and send NoSongsFound if we get
     /// an unrecoverable error.
     async fn bailout(e: impl std::fmt::Display, tx: Sender<GetArtistSongsProgressUpdate>) {
@@ -198,7 +198,7 @@ fn get_artist_songs(
             Err(e) => return bailout(e, tx).await,
             Ok(api) => api,
         };
-        let query = ytmapi_rs::query::GetArtistQuery::new(browse_id);
+        let query = ytmapi_rs::query::GetArtistQuery::new(&browse_id);
         let artist = query_api_with_retry(&api, query).await;
         let artist = match artist {
             Ok(a) => a,
@@ -277,9 +277,12 @@ fn get_artist_songs(
             .inspect(|a_id| {
                 tracing::info!("Spawning request for caller tracks for album ID {:?}", a_id,)
             })
-            .map(|a_id| async move {
-                let query = GetAlbumQuery::new(&a_id);
-                query_api_with_retry(&api, query).await
+            .map(|a_id| {
+                let api = api.clone();
+                async move {
+                    let query = GetAlbumQuery::new(&a_id);
+                    query_api_with_retry(&api, query).await
+                }
             })
             .collect::<FuturesOrdered<_>>();
         while let Some(maybe_album) = stream.next().await {

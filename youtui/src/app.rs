@@ -44,8 +44,8 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    task_manager: AsyncCallbackManager<Server>,
-    server: Server,
+    task_manager: AsyncCallbackManager<Arc<Server>>,
+    server: Arc<Server>,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
     /// If Youtui will redraw on the next rendering loop.
@@ -69,7 +69,7 @@ pub enum AppCallback {
 }
 
 impl Youtui {
-    pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
+    pub async fn new(rt: RuntimeInfo) -> Result<Youtui> {
         let RuntimeInfo {
             api_key,
             debug,
@@ -108,11 +108,11 @@ impl Youtui {
                 response.type_name, response.type_id, response.sender_id, response.task_id
             )
                 });
-        let server = server::Server::new(api_key, po_token);
+        let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager);
+        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager).await;
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,

@@ -1,13 +1,23 @@
+#![warn(clippy::unwrap_used)]
 use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
 use api::GetArtistSongsProgressUpdate;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
+use async_rodio_sink::AutoplayUpdate;
+use async_rodio_sink::PausePlayResponse;
+use async_rodio_sink::PlayUpdate;
+use async_rodio_sink::ProgressUpdate;
+use async_rodio_sink::QueueUpdate;
+use async_rodio_sink::SeekDirection;
+use async_rodio_sink::Stopped;
+use async_rodio_sink::VolumeUpdate;
 use downloader::DownloadProgressUpdate;
 use downloader::Downloader;
 use downloader::InMemSong;
 use futures::Future;
 use futures::Stream;
 use std::sync::Arc;
+use std::time::Duration;
 use ytmapi_rs::common::VideoID;
 use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
 use ytmapi_rs::parse::SearchResultArtist;
@@ -25,9 +35,9 @@ pub type ArcServer = Arc<Server>;
 /// Application backend that is capable of spawning concurrent tasks in response
 /// to requests. Tasks each receive a handle to respond back to the caller.
 pub struct Server {
-    api: api::Api,
-    player: player::Player,
-    downloader: downloader::Downloader,
+    pub api: api::Api,
+    pub player: player::Player,
+    pub downloader: downloader::Downloader,
 }
 
 impl Server {
@@ -81,8 +91,11 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Send IncreaseVolume(5)
 // Send IncreaseVolume(5), killing previous task
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
-pub struct IncreaseVolume(i8);
-pub struct Seek(i8);
+pub struct IncreaseVolume(pub i8);
+pub struct Seek {
+    duration: Duration,
+    direction: SeekDirection,
+}
 pub struct Stop(ListSongID);
 pub struct PausePlay(ListSongID);
 // Play a song, starting from the start, regardless what's queued.
@@ -139,77 +152,78 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
         self,
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        let backend = backend.clone();
         backend.download_song(self.0, self.1)
     }
 }
-impl BackendTask<Downloader> for IncreaseVolume {
-    type Output = ();
+impl BackendTask<ArcServer> for Seek {
+    type Output = Option<ProgressUpdate<ListSongID>>;
     fn into_future(
         self,
-        backend: &Downloader,
+        backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!();
-        async {}
+        let backend = backend.clone();
+        async move { backend.player.seek(self.duration, self.direction).await }
     }
 }
-impl BackendTask<Downloader> for Seek {
-    type Output = ();
+impl BackendTask<ArcServer> for IncreaseVolume {
+    type Output = Option<VolumeUpdate>;
     fn into_future(
         self,
-        backend: &Downloader,
+        backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!();
-        async {}
+        let backend = backend.clone();
+        async move { backend.player.increase_volume(self.0).await }
     }
 }
-impl BackendTask<Downloader> for Stop {
-    type Output = ();
+impl BackendTask<ArcServer> for Stop {
+    type Output = Option<Stopped<ListSongID>>;
     fn into_future(
         self,
-        backend: &Downloader,
+        backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!();
-        async {}
+        let backend = backend.clone();
+        async move { backend.player.stop(self.0).await }
     }
 }
-impl BackendTask<Downloader> for PausePlay {
-    type Output = ();
+impl BackendTask<ArcServer> for PausePlay {
+    type Output = Option<PausePlayResponse<ListSongID>>;
     fn into_future(
         self,
-        backend: &Downloader,
+        backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
-        todo!();
-        async {}
+        let backend = backend.clone();
+        async move { backend.player.pause_play(self.0).await }
     }
 }
 
 impl BackendStreamingTask<ArcServer> for PlaySong {
-    type Output = ();
+    type Output = PlayUpdate<ListSongID>;
     fn into_stream(
         self,
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!();
-        futures::stream::empty()
+        let backend = backend.clone();
+        backend.player.play_song(self.song, self.id).unwrap()
     }
 }
 impl BackendStreamingTask<ArcServer> for AutoplaySong {
-    type Output = ();
+    type Output = AutoplayUpdate<ListSongID>;
     fn into_stream(
         self,
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!();
-        futures::stream::empty()
+        let backend = backend.clone();
+        backend.player.autoplay_song(self.song, self.id).unwrap()
     }
 }
 impl BackendStreamingTask<ArcServer> for QueueSong {
-    type Output = ();
+    type Output = QueueUpdate<ListSongID>;
     fn into_stream(
         self,
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        todo!();
-        futures::stream::empty()
+        let backend = backend.clone();
+        backend.player.queue_song(self.song, self.id).unwrap()
     }
 }
