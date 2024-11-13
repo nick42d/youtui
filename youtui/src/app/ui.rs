@@ -9,8 +9,8 @@ use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
-use super::view::Scrollable;
 use super::structures::*;
+use super::view::Scrollable;
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
@@ -361,35 +361,8 @@ impl YoutuiWindow {
     pub async fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
         self.playlist.handle_seek(duration, direction)
     }
-    pub async fn handle_done_playing(&mut self, id: ListSongID) {
-        self.playlist.handle_done_playing(id).await
-    }
-    pub fn handle_song_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
-        self.playlist.handle_queued(duration, id)
-    }
-    pub fn handle_song_autoplay_queued(&mut self, id: ListSongID) {
-        self.playlist.handle_autoplay_queued(id)
-    }
-    pub fn handle_song_resumed(&mut self, id: ListSongID) {
-        self.playlist.handle_resumed(id)
-    }
-    pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
-        self.playlist.handle_playing(duration, id)
-    }
-    pub async fn handle_set_to_error(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_error(id)
-    }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
         self.playlist.handle_volume_update(update)
-    }
-    pub async fn handle_song_download_progress_update(
-        &mut self,
-        update: DownloadProgressUpdateType,
-        playlist_id: ListSongID,
-    ) {
-        self.playlist
-            .handle_song_download_progress_update(update, playlist_id)
-            .await
     }
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);

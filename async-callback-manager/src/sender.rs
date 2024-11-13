@@ -51,6 +51,8 @@ impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
             .await;
         StateMutationBundle { mutation_list }
     }
+    /// # Errors
+    /// This will return an error if the manager has been dropped.
     pub fn add_stream_callback<R>(
         &self,
         request: R,
@@ -82,6 +84,8 @@ impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
         };
         self.send_task::<R>(func, R::metadata(), rx, constraint, kill_tx)
     }
+    /// # Errors
+    /// This will return an error if the manager has been dropped.
     pub fn add_callback<R>(
         &self,
         request: R,
@@ -111,6 +115,8 @@ impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
         };
         self.send_task::<R>(func, R::metadata(), rx, constraint, kill_tx)
     }
+    /// # Errors
+    /// This will return an error if the manager has been dropped.
     fn send_task<R: Any + 'static>(
         &self,
         func: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,

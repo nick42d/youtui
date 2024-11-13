@@ -367,7 +367,7 @@ impl Playlist {
         }
     }
     /// Play song at ID, if it was buffering.
-    pub async fn handle_song_downloaded(&mut self, id: ListSongID) {
+    pub fn handle_song_downloaded(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
                 info!("Playing");
@@ -393,7 +393,6 @@ impl Playlist {
             _ => (),
         };
         // TODO: Consider how to handle race conditions.
-        // XXX: Need to add async callback handling mechanism!
         self.async_tx.add_stream_callback(
             DownloadSong(song.raw.video_id.clone(), id),
             |this, item| {
@@ -676,7 +675,7 @@ impl Playlist {
         self.async_tx.get_next_mutations(10).await.apply(self)
     }
     /// Handle song progress update from server.
-    pub async fn handle_song_download_progress_update(
+    pub fn handle_song_download_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
         id: ListSongID,
@@ -701,16 +700,12 @@ impl Playlist {
                 }
             }
             DownloadProgressUpdateType::Completed(song_buf) => {
-                let fut = self
-                    .get_mut_song_from_id(id)
-                    .map(|s| {
-                        s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
-                        s.id
-                    })
-                    .map(|id| async move { self.handle_song_downloaded(id).await });
-                if let Some(f) = fut {
-                    f.await
-                }
+                if let Some(new_id) = self.get_mut_song_from_id(id).map(|s| {
+                    s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
+                    s.id
+                }) {
+                    self.handle_song_downloaded(new_id)
+                };
             }
             DownloadProgressUpdateType::Error => {
                 if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
