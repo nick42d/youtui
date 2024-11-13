@@ -39,7 +39,7 @@ enum AsyncRodioRequest<S, I> {
 }
 
 pub struct VolumeUpdate(pub Percentage);
-pub struct ProgressUpdate<I>(Duration, I);
+pub struct ProgressUpdate<I>(pub Duration, pub I);
 // At this stage this difference between DonePlaying and Stopped is very thin.
 // DonePlaying means that the song has been dropped by the player, whereas
 // Stopped simply means that a Stop message to the player was succesful.

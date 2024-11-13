@@ -410,15 +410,11 @@ impl Browser {
                 return;
             }
         };
-        if let Err(e) = self
-            .async_tx
-            .add_callback(
-                GetSearchSuggestions(self.artist_list.search.search_contents.clone()),
-                handler,
-                Some(Constraint::new_kill_same_type()),
-            )
-            .await
-        {
+        if let Err(e) = self.async_tx.add_callback(
+            GetSearchSuggestions(self.artist_list.search.search_contents.clone()),
+            handler,
+            Some(Constraint::new_kill_same_type()),
+        ) {
             error!("Error <{e}> recieved sending message")
         };
     }
@@ -477,15 +473,11 @@ impl Browser {
                 return;
             }
         };
-        if let Err(e) = self
-            .async_tx
-            .add_callback(
-                SearchArtists(search_query),
-                handler,
-                Some(Constraint::new_kill_same_type()),
-            )
-            .await
-        {
+        if let Err(e) = self.async_tx.add_callback(
+            SearchArtists(search_query),
+            handler,
+            Some(Constraint::new_kill_same_type()),
+        ) {
             error!("Error <{e}> recieved sending message")
         };
     }

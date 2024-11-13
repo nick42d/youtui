@@ -1,6 +1,3 @@
-// Clippy project config
-#![warn(clippy::unwrap_used)]
-
 use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};

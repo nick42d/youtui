@@ -15,7 +15,7 @@ use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use async_callback_manager::{AsyncCallbackSender, Constraint};
-use async_rodio_sink::VolumeUpdate;
+use async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use draw::draw_app;
 use ratatui::widgets::{ListState, TableState};
@@ -31,7 +31,7 @@ mod logger;
 mod playlist;
 
 const VOL_TICK: i8 = 5;
-const SEEK_AMOUNT_SECS: i8 = 5;
+const SEEK_AMOUNT: Duration = Duration::from_secs(5);
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -219,8 +219,10 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT_SECS).await,
-            UIAction::StepSeekBack => self.handle_seek(-SEEK_AMOUNT_SECS).await,
+            UIAction::StepSeekForward => {
+                self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward).await
+            }
+            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back).await,
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -258,8 +260,8 @@ impl Action for UIAction {
             UIAction::ViewLogs => "View Logs".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT_SECS).into(),
-            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT_SECS).into(),
+            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT.as_secs()).into(),
+            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
         }
     }
 }
@@ -359,8 +361,8 @@ impl YoutuiWindow {
             Some(Constraint::new_block_same_type()),
         );
     }
-    pub async fn handle_seek(&mut self, inc: i8) {
-        self.playlist.handle_seek(inc).await
+    pub async fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
+        self.playlist.handle_seek(duration, direction)
     }
     pub async fn handle_done_playing(&mut self, id: ListSongID) {
         self.playlist.handle_done_playing(id).await
@@ -374,9 +376,6 @@ impl YoutuiWindow {
     pub fn handle_song_resumed(&mut self, id: ListSongID) {
         self.playlist.handle_resumed(id)
     }
-    pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_paused(id).await
-    }
     pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
         self.playlist.handle_playing(duration, id)
     }
@@ -385,9 +384,6 @@ impl YoutuiWindow {
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
         self.playlist.handle_volume_update(update)
-    }
-    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
-        self.playlist.handle_set_song_play_progress(d, id).await;
     }
     pub async fn handle_song_download_progress_update(
         &mut self,
@@ -404,7 +400,7 @@ impl YoutuiWindow {
     pub async fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
         self.playlist.reset().await;
         let id = self.playlist.push_song_list(song_list);
-        self.playlist.play_song_id(id).await;
+        self.playlist.play_song_id(id);
     }
     fn is_dominant_keybinds(&self) -> bool {
         self.help.shown

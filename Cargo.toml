@@ -4,3 +4,4 @@ resolver = "2"
 
 [workspace.lints.clippy]
 todo = "warn"
+unwrap_used = "warn"

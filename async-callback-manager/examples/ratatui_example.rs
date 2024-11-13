@@ -1,4 +1,5 @@
 //! Example of using async-callback-manager in a ratatui app.
+#![allow(clippy::unwrap_used)]
 
 use async_callback_manager::{
     AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask,

@@ -1,4 +1,3 @@
-#![warn(clippy::unwrap_used)]
 use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
 use api::GetArtistSongsProgressUpdate;
@@ -109,13 +108,13 @@ pub struct PlaySong {
 }
 // Play a song, unless it's already queued.
 pub struct AutoplaySong {
-    song: Arc<InMemSong>,
-    id: ListSongID,
+    pub song: Arc<InMemSong>,
+    pub id: ListSongID,
 }
 // Queue a song to play next.
 pub struct QueueSong {
-    song: Arc<InMemSong>,
-    id: ListSongID,
+    pub song: Arc<InMemSong>,
+    pub id: ListSongID,
 }
 
 impl BackendTask<ArcServer> for GetSearchSuggestions {
