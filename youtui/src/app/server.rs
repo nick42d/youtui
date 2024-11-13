@@ -53,6 +53,7 @@ impl Server {
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
     PlayingSong,
+    PlayPause,
 }
 
 pub struct GetSearchSuggestions(pub String);
@@ -183,6 +184,9 @@ impl BackendTask<ArcServer> for PausePlay {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.player.pause_play(self.0).await }
+    }
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![TaskMetadata::PlayPause]
     }
 }
 

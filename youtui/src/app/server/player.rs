@@ -6,16 +6,6 @@ use std::sync::Arc;
 use std::time::Duration;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
-const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
-
-#[derive(Debug)]
-pub enum Response {
-    DonePlaying(ListSongID),
-    Playing(Option<Duration>, ListSongID),
-    Queued(Option<Duration>, ListSongID),
-    AutoplayQueued(ListSongID),
-    Error(ListSongID),
-}
 
 struct ArcInMemSong(Arc<InMemSong>);
 

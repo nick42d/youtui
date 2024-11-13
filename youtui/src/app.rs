@@ -23,8 +23,6 @@ mod keycommand;
 mod musiccache;
 mod server;
 mod structures;
-#[cfg(FALSE)]
-mod taskmanager;
 mod ui;
 mod view;
 

@@ -1,6 +1,7 @@
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    ArcServer, AutoplaySong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek, Stop, TaskMetadata,
+    ArcServer, AutoplaySong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
+    Stop, TaskMetadata,
 };
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
@@ -236,8 +237,13 @@ impl Playlist {
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
     pub fn stop_song_id(&self, song_id: ListSongID) -> Result<(), async_callback_manager::Error> {
-        self.async_tx
-            .add_callback(Stop(song_id), Self::handle_stopped, None)
+        self.async_tx.add_callback(
+            Stop(song_id),
+            Self::handle_stopped,
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState. If the
@@ -573,7 +579,7 @@ impl Playlist {
             },
             |this, response| {
                 let Some(response) = response else { return };
-                this.handle_set_song_play_progress(response.0, response.1)
+                this.handle_set_song_play_progress(response.duration, response.identifier)
             },
             None,
         );
@@ -657,7 +663,9 @@ impl Playlist {
                     PausePlayResponse::Resumed(id) => this.handle_resumed(id),
                 };
             },
-            Some(Constraint::new_block_same_type()),
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
         );
     }
 }
@@ -724,7 +732,7 @@ impl Playlist {
     /// Handle volume message from server
     pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
         if let Some(v) = response {
-            self.volume = Percentage(v.0 .0)
+            self.volume = Percentage(v.0.into())
         }
     }
     /// Handle song progress message from server

@@ -3,7 +3,7 @@ use crate::{
     OAUTH_FILENAME,
 };
 use async_cell::sync::AsyncCell;
-use futures::{stream::FuturesOrdered, FutureExt, TryFutureExt};
+use futures::stream::FuturesOrdered;
 use futures::{Stream, StreamExt};
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
@@ -25,8 +25,6 @@ pub struct Api {
     api: Arc<AsyncCell<std::result::Result<ConcurrentApi, String>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
-
-const GET_ARTIST_SONGS_STREAM_SIZE: usize = 50;
 
 impl Api {
     pub fn new(api_key: ApiKey) -> Api {
@@ -266,7 +264,7 @@ fn get_artist_songs(
             };
             albums.into_iter().map(|a| a.browse_id).collect()
         };
-        send_or_error(&tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
+        send_or_error(&tx, GetArtistSongsProgressUpdate::SongsFound).await;
         // Request all albums, concurrently but retaining order.
         // Future improvement: instead of using a FuturesOrdered, we could send
         // willy-nilly but with an index, so the caller can insert songs in place.
