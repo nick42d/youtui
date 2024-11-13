@@ -12,7 +12,6 @@ use async_rodio_sink::SeekDirection;
 use async_rodio_sink::Stopped;
 use async_rodio_sink::VolumeUpdate;
 use downloader::DownloadProgressUpdate;
-use downloader::Downloader;
 use downloader::InMemSong;
 use futures::Future;
 use futures::Stream;
@@ -74,6 +73,11 @@ impl Server {
         self.downloader.download_song(video_id, song_id)
     }
 }
+#[derive(PartialEq, Debug)]
+pub enum TaskMetadata {
+    PlayingSong,
+}
+
 pub struct GetSearchSuggestions(pub String);
 pub struct SearchArtists(pub String);
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
@@ -85,7 +89,7 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // and increasing message size. However this seems to be more combinatorially
 // difficult without a well defined data structure.
 
-// This should be set as unkillable.
+// XXX: This should be programmed to be unkillable.
 // Case:
 // Cur volume: 5
 // Send IncreaseVolume(5)
@@ -100,8 +104,8 @@ pub struct Stop(pub ListSongID);
 pub struct PausePlay(pub ListSongID);
 // Play a song, starting from the start, regardless what's queued.
 pub struct PlaySong {
-    song: Arc<InMemSong>,
-    id: ListSongID,
+    pub song: Arc<InMemSong>,
+    pub id: ListSongID,
 }
 // Play a song, unless it's already queued.
 pub struct AutoplaySong {
@@ -117,6 +121,7 @@ pub struct QueueSong {
 impl BackendTask<ArcServer> for GetSearchSuggestions {
     // TODO: Consider alternative where the text isn't returned back to the caller.
     type Output = Result<(Vec<SearchSuggestion>, String)>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -127,6 +132,7 @@ impl BackendTask<ArcServer> for GetSearchSuggestions {
 }
 impl BackendTask<ArcServer> for SearchArtists {
     type Output = Result<Vec<SearchResultArtist>>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -137,6 +143,7 @@ impl BackendTask<ArcServer> for SearchArtists {
 }
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     type Output = GetArtistSongsProgressUpdate;
+    type ConstraintType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -148,6 +155,7 @@ impl BackendStreamingTask<ArcServer> for GetArtistSongs {
 
 impl BackendStreamingTask<ArcServer> for DownloadSong {
     type Output = DownloadProgressUpdate;
+    type ConstraintType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -158,6 +166,7 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
 }
 impl BackendTask<ArcServer> for Seek {
     type Output = Option<ProgressUpdate<ListSongID>>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -168,6 +177,7 @@ impl BackendTask<ArcServer> for Seek {
 }
 impl BackendTask<ArcServer> for IncreaseVolume {
     type Output = Option<VolumeUpdate>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -178,6 +188,7 @@ impl BackendTask<ArcServer> for IncreaseVolume {
 }
 impl BackendTask<ArcServer> for Stop {
     type Output = Option<Stopped<ListSongID>>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -188,6 +199,7 @@ impl BackendTask<ArcServer> for Stop {
 }
 impl BackendTask<ArcServer> for PausePlay {
     type Output = Option<PausePlayResponse<ListSongID>>;
+    type ConstraintType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -199,6 +211,7 @@ impl BackendTask<ArcServer> for PausePlay {
 
 impl BackendStreamingTask<ArcServer> for PlaySong {
     type Output = PlayUpdate<ListSongID>;
+    type ConstraintType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -206,9 +219,13 @@ impl BackendStreamingTask<ArcServer> for PlaySong {
         let backend = backend.clone();
         backend.player.play_song(self.song, self.id).unwrap()
     }
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![TaskMetadata::PlayingSong]
+    }
 }
 impl BackendStreamingTask<ArcServer> for AutoplaySong {
     type Output = AutoplayUpdate<ListSongID>;
+    type ConstraintType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -216,14 +233,21 @@ impl BackendStreamingTask<ArcServer> for AutoplaySong {
         let backend = backend.clone();
         backend.player.autoplay_song(self.song, self.id).unwrap()
     }
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![TaskMetadata::PlayingSong]
+    }
 }
 impl BackendStreamingTask<ArcServer> for QueueSong {
     type Output = QueueUpdate<ListSongID>;
+    type ConstraintType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
         backend.player.queue_song(self.song, self.id).unwrap()
+    }
+    fn metadata() -> Vec<Self::ConstraintType> {
+        vec![TaskMetadata::PlayingSong]
     }
 }

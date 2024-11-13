@@ -8,7 +8,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use server::Server;
+use server::{Server, TaskMetadata};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::{ListSong, ListSongID};
@@ -43,7 +43,7 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    task_manager: AsyncCallbackManager<Arc<Server>>,
+    task_manager: AsyncCallbackManager<Arc<Server>, TaskMetadata>,
     server: Arc<Server>,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,

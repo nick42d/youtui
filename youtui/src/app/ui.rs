@@ -8,7 +8,7 @@ use super::component::actionhandler::{
 use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
-use super::server::{ArcServer, IncreaseVolume};
+use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::view::{DrawableMut, Scrollable};
 use super::{server, structures::*};
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
@@ -71,7 +71,7 @@ pub struct YoutuiWindow {
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
-    async_tx: AsyncCallbackSender<ArcServer, Self>,
+    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 pub struct HelpMenu {
@@ -305,7 +305,10 @@ impl TextHandler for YoutuiWindow {
 impl YoutuiWindow {
     pub async fn new(
         callback_tx: mpsc::Sender<AppCallback>,
-        callback_manager: &mut async_callback_manager::AsyncCallbackManager<ArcServer>,
+        callback_manager: &mut async_callback_manager::AsyncCallbackManager<
+            ArcServer,
+            TaskMetadata,
+        >,
     ) -> YoutuiWindow {
         YoutuiWindow {
             context: WindowContext::Browser,

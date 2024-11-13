@@ -1,5 +1,7 @@
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
-use crate::app::server::{ArcServer, DownloadSong, IncreaseVolume, Server, Stop};
+use crate::app::server::{
+    ArcServer, DownloadSong, IncreaseVolume, PlaySong, Server, Stop, TaskMetadata,
+};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -37,7 +39,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    async_tx: AsyncCallbackSender<ArcServer, Self>,
+    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
     pub widget_state: TableState,
@@ -205,7 +207,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     pub async fn new(
-        callback_manager: &mut AsyncCallbackManager<ArcServer>,
+        callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
         ui_tx: mpsc::Sender<AppCallback>,
     ) -> Self {
         let async_tx = callback_manager.new_sender(CALLBACK_CHANNEL_SIZE);
@@ -230,6 +232,10 @@ impl Playlist {
             widget_state: Default::default(),
         }
     }
+    pub fn stop(&self, song_id: ListSongID) -> Result<(), async_callback_manager::Error> {
+        self.async_tx
+            .add_callback(Stop(song_id), Self::handle_stopped, None)
+    }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState. If the
     /// selected song is buffering, stop playback until it's complete.
@@ -246,13 +252,22 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
+                self.async_tx.add_stream_callback(
+                    PlaySong {
+                        song: pointer.clone(),
+                        id,
+                    },
+                    |this, item| todo!(),
+                    Some(Constraint::new_block_matching_metadata(
+                        TaskMetadata::PlayingSong,
+                    )),
+                );
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
-                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                    self.stop(cur_id);
                 }
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
@@ -281,8 +296,7 @@ impl Playlist {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
                     // TODO: Consider how race condition is supposed to be handled with this.
-                    self.async_tx
-                        .add_callback(Stop(cur_id), Self::handle_stopped, None);
+                    self.stop(cur_id);
                 }
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
@@ -294,8 +308,7 @@ impl Playlist {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
             // TODO: Consider how race condition is supposed to be handled with this.
-            self.async_tx
-                .add_callback(Stop(cur_id), Self::handle_stopped, None);
+            self.stop(cur_id);
         }
         self.clear()
         // XXX: Also need to kill pending download tasks

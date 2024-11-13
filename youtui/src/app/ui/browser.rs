@@ -12,7 +12,7 @@ use crate::app::{
     },
     server::{
         api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, GetSearchSuggestions,
-        SearchArtists, Server,
+        SearchArtists, Server, TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
@@ -57,7 +57,7 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
-    async_tx: AsyncCallbackSender<Arc<Server>, Self>,
+    async_tx: AsyncCallbackSender<Arc<Server>, Self, TaskMetadata>,
 }
 
 impl InputRouting {
@@ -258,7 +258,7 @@ impl DominantKeyRouter for Browser {
 
 impl Browser {
     pub fn new(
-        callback_manager: &mut AsyncCallbackManager<ArcServer>,
+        callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
         ui_tx: mpsc::Sender<AppCallback>,
     ) -> Self {
         Self {
