@@ -3,14 +3,12 @@ use crate::{
     OAUTH_FILENAME,
 };
 use async_cell::sync::AsyncCell;
-use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, TryFutureExt};
+use futures::{stream::FuturesOrdered, FutureExt, TryFutureExt};
 use futures::{Stream, StreamExt};
-use std::pin::Pin;
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
     sync::{mpsc::Sender, RwLock},
-    task::JoinHandle,
 };
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};

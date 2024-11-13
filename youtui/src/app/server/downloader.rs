@@ -7,8 +7,8 @@ use crate::{
     core::send_or_error,
 };
 use futures::{Stream, StreamExt, TryStreamExt};
-use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoError, VideoOptions};
-use std::{ops::Deref, sync::Arc};
+use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
+use std::sync::Arc;
 use tokio_stream::wrappers::ReceiverStream;
 // use tokio_stream::StreamExt;
 use tracing::{error, info, warn};

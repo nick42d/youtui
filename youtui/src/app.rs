@@ -11,7 +11,7 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{Server, TaskMetadata};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
-use structures::{ListSong, ListSongID};
+use structures::ListSong;
 use tokio::sync::mpsc;
 use tracing::info;
 use tracing_subscriber::prelude::*;

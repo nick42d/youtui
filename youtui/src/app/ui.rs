@@ -9,19 +9,16 @@ use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
-use super::view::{DrawableMut, Scrollable};
-use super::{server, structures::*};
+use super::view::Scrollable;
+use super::structures::*;
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use async_callback_manager::{AsyncCallbackSender, Constraint};
 use async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use draw::draw_app;
-use ratatui::widgets::{ListState, TableState};
+use ratatui::widgets::TableState;
 use tokio::sync::mpsc;
-use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 
 mod browser;
 pub mod draw;

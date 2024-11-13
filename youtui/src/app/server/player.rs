@@ -1,16 +1,9 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
-use crate::app::structures::Percentage;
-use crate::core::send_or_error;
-use crate::Result;
 use async_rodio_sink::AsyncRodio;
 use futures::Stream;
-use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::mpsc;
-use tracing::error;
-use tracing::info;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);

@@ -1,7 +1,6 @@
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    ArcServer, AutoplaySong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
-    Server, Stop, TaskMetadata,
+    ArcServer, AutoplaySong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek, Stop, TaskMetadata,
 };
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
@@ -26,7 +25,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
