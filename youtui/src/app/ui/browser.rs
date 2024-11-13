@@ -395,7 +395,7 @@ impl Browser {
     // XXX: Currently has race conditions - if list is cleared response will arrive
     // afterwards. Proposal: When recieving a message from the app validate
     // against query string.
-    async fn fetch_search_suggestions(&mut self) {
+    fn fetch_search_suggestions(&mut self) {
         // No need to fetch search suggestions if contents is empty.
         if self.artist_list.search.search_contents.is_empty() {
             self.artist_list.search.search_suggestions.clear();
@@ -407,7 +407,6 @@ impl Browser {
             }
             Err(e) => {
                 error!("Error <{e}> recieved getting search suggestions");
-                return;
             }
         };
         if let Err(e) = self.async_tx.add_callback(
@@ -466,7 +465,6 @@ impl Browser {
             }
             Err(e) => {
                 error!("Error <{e}> recieved getting artists.");
-                return;
             }
         };
         if let Err(e) = self.async_tx.add_callback(
@@ -486,7 +484,7 @@ impl Browser {
     pub fn handle_song_list_loading(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loading;
     }
-    pub async fn replace_artist_list(&mut self, artist_list: Vec<SearchResultArtist>) {
+    pub fn replace_artist_list(&mut self, artist_list: Vec<SearchResultArtist>) {
         self.artist_list.list = artist_list;
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?

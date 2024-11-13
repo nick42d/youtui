@@ -94,13 +94,13 @@ impl Youtui {
         let mut task_manager = async_callback_manager::AsyncCallbackManager::new()
             .with_on_task_received_callback(|task| {
                 info!(
-                    "Received task {:?}: - type_id: {:?}, sender_id: {:?}, constraint: {:?}",
+                    "Received task {:?}: type_id: {:?}, sender_id: {:?}, constraint: {:?}",
                     task.type_name, task.type_id, task.sender_id, task.constraint
                 )
             })
             .with_on_response_received_callback(|response| {
                 info!(
-                    "Received response to {:?}: - type_id: {:?}, sender_id: {:?}, task_id: {:?}",
+                    "Received response to {:?}: type_id: {:?}, sender_id: {:?}, task_id: {:?}",
                     response.type_name, response.type_id, response.sender_id, response.task_id
                 )
             });
