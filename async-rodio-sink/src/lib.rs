@@ -1,15 +1,14 @@
 //! Provides an asynchronous handle to a rodio sink, specifically designed to
 //! handle gapless playback.
 use futures::Stream;
-use rodio::decoder::DecoderError;
+use rodio::cpal::FromSample;
 use rodio::source::EmptyCallback;
 use rodio::source::PeriodicAccess;
 use rodio::source::TrackPosition;
-use rodio::Decoder;
+use rodio::Sample;
 use rodio::Source;
 use std::borrow::Borrow;
 use std::fmt::Debug;
-use std::io::Cursor;
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
@@ -18,6 +17,10 @@ use tracing::debug;
 use tracing::error;
 use tracing::info;
 use tracing::warn;
+
+pub mod rodio {
+    pub use rodio::*;
+}
 
 const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 const PLAYER_MSG_QUEUE_SIZE: usize = 50;
@@ -147,20 +150,21 @@ where
 
 pub struct AsyncRodio<S, I>
 where
-    S: AsRef<[u8]> + Send + Sync + 'static,
     I: Debug,
 {
     handle: tokio::task::JoinHandle<()>,
-    tx: std::sync::mpsc::Sender<AsyncRodioRequest<Decoder<Cursor<S>>, I>>,
+    tx: std::sync::mpsc::Sender<AsyncRodioRequest<S, I>>,
 }
 
 impl<S, I> AsyncRodio<S, I>
 where
-    S: AsRef<[u8]> + Send + Sync + 'static,
+    S: Source + Send + Sync + 'static,
+    f32: FromSample<S::Item>,
+    S::Item: Sample + Send,
     I: Debug + PartialEq + Copy + Send + 'static,
 {
     pub fn new() -> Self {
-        let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<Decoder<Cursor<S>>, I>>();
+        let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
         let handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
@@ -365,12 +369,7 @@ where
         });
         Self { handle, tx }
     }
-    pub fn autoplay_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = AutoplayUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
+    pub fn autoplay_song(&self, song: S, identifier: I) -> impl Stream<Item = AutoplayUpdate<I>> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
@@ -424,14 +423,9 @@ where
                 identifier
             );
         });
-        Ok(ReceiverStream::new(streamrx))
+        ReceiverStream::new(streamrx)
     }
-    pub fn queue_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = QueueUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
+    pub fn queue_song(&self, song: S, identifier: I) -> impl Stream<Item = QueueUpdate<I>> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
@@ -479,14 +473,9 @@ where
                 identifier
             );
         });
-        Ok(ReceiverStream::new(streamrx))
+        ReceiverStream::new(streamrx)
     }
-    pub fn play_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = PlayUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
+    pub fn play_song(&self, song: S, identifier: I) -> impl Stream<Item = PlayUpdate<I>> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
@@ -534,7 +523,7 @@ where
                 identifier
             );
         });
-        Ok(ReceiverStream::new(streamrx))
+        ReceiverStream::new(streamrx)
     }
     pub async fn seek(
         &self,
@@ -594,7 +583,7 @@ where
 
 /// Specific helper function to generate a source that sends a stopped playing
 /// message to the sender.
-fn on_done_cb(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback<f32> {
+fn on_done_cb<S>(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback<S> {
     let tx = tx.0.clone();
     let cb = move || {
         blocking_send_or_error(&tx, AsyncRodioResponse::StoppedPlaying);
@@ -602,25 +591,16 @@ fn on_done_cb(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback<f32> {
     EmptyCallback::new(Box::new(cb))
 }
 
-/// Try to decode bytes into Source.
-fn try_decode<S: AsRef<[u8]> + Send + Sync + 'static>(
-    song: S,
-) -> std::result::Result<Decoder<Cursor<S>>, DecoderError> {
-    let cur = std::io::Cursor::new(song);
-    rodio::Decoder::new(cur)
-}
-
 /// Add a periodic access callback to song.
 fn add_periodic_access<S>(
-    song: Decoder<Cursor<S>>,
+    song: S,
     interval: Duration,
-    callback: impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
-) -> PeriodicAccess<
-    TrackPosition<Decoder<Cursor<S>>>,
-    impl FnMut(&mut TrackPosition<Decoder<Cursor<S>>>),
->
+    callback: impl FnMut(&mut TrackPosition<S>),
+) -> PeriodicAccess<TrackPosition<S>, impl FnMut(&mut TrackPosition<S>)>
 where
-    S: AsRef<[u8]> + Send + Sync + 'static,
+    S: Source + Send + Sync + 'static,
+    f32: FromSample<S::Item>,
+    S::Item: Sample + Send,
 {
     song.track_position().periodic_access(interval, callback)
 }

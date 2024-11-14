@@ -2,6 +2,7 @@ use super::structures::ListSongID;
 use crate::{config::ApiKey, Result};
 use api::GetArtistSongsProgressUpdate;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
+use async_rodio_sink::rodio::decoder::DecoderError;
 use async_rodio_sink::AutoplayUpdate;
 use async_rodio_sink::PausePlayResponse;
 use async_rodio_sink::PlayUpdate;
@@ -14,6 +15,8 @@ use downloader::DownloadProgressUpdate;
 use downloader::InMemSong;
 use futures::Future;
 use futures::Stream;
+use player::DecodedInMemSong;
+use player::Player;
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::VideoID;
@@ -80,19 +83,21 @@ pub struct Seek {
 }
 pub struct Stop(pub ListSongID);
 pub struct PausePlay(pub ListSongID);
+/// Decode a song into a format that can be played.
+pub struct DecodeSong(pub Arc<InMemSong>);
 // Play a song, starting from the start, regardless what's queued.
 pub struct PlaySong {
-    pub song: Arc<InMemSong>,
+    pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
 // Play a song, unless it's already queued.
 pub struct AutoplaySong {
-    pub song: Arc<InMemSong>,
+    pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
 // Queue a song to play next.
 pub struct QueueSong {
-    pub song: Arc<InMemSong>,
+    pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
 
@@ -153,6 +158,16 @@ impl BackendTask<ArcServer> for Seek {
         async move { backend.player.seek(self.duration, self.direction).await }
     }
 }
+impl BackendTask<ArcServer> for DecodeSong {
+    type Output = std::result::Result<DecodedInMemSong, DecoderError>;
+    type ConstraintType = TaskMetadata;
+    fn into_future(
+        self,
+        _backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        Player::try_decode(self.0)
+    }
+}
 impl BackendTask<ArcServer> for IncreaseVolume {
     type Output = Option<VolumeUpdate>;
     type ConstraintType = TaskMetadata;
@@ -198,7 +213,7 @@ impl BackendStreamingTask<ArcServer> for PlaySong {
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.player.play_song(self.song, self.id).unwrap()
+        backend.player.play_song(self.song, self.id)
     }
     fn metadata() -> Vec<Self::ConstraintType> {
         vec![TaskMetadata::PlayingSong]
@@ -212,7 +227,7 @@ impl BackendStreamingTask<ArcServer> for AutoplaySong {
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.player.autoplay_song(self.song, self.id).unwrap()
+        backend.player.autoplay_song(self.song, self.id)
     }
     fn metadata() -> Vec<Self::ConstraintType> {
         vec![TaskMetadata::PlayingSong]
@@ -226,7 +241,7 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
         backend: &ArcServer,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.player.queue_song(self.song, self.id).unwrap()
+        backend.player.queue_song(self.song, self.id)
     }
     fn metadata() -> Vec<Self::ConstraintType> {
         vec![TaskMetadata::PlayingSong]

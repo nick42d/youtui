@@ -1,7 +1,8 @@
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::player::DecodedInMemSong;
 use crate::app::server::{
-    ArcServer, AutoplaySong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
-    Stop, TaskMetadata,
+    ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
+    QueueSong, Seek, Stop, TaskMetadata,
 };
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
@@ -17,6 +18,7 @@ use crate::app::{
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
+use async_rodio_sink::rodio::decoder::DecoderError;
 use async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
@@ -264,16 +266,26 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                self.async_tx.add_stream_callback(
-                    PlaySong {
-                        song: pointer.clone(),
-                        id,
-                    },
-                    Self::handle_play_update,
+                // TODO: Should constraint be clone?
+                let constraint = || {
                     Some(Constraint::new_block_matching_metadata(
                         TaskMetadata::PlayingSong,
-                    )),
-                );
+                    ))
+                };
+                let play =
+                    move |this: &mut Self, song: std::result::Result<DecodedInMemSong, DecoderError>| {
+                        // TODO: Handle error
+                        let song = song.unwrap();
+                        this.async_tx
+                            .add_stream_callback(
+                                PlaySong { song, id },
+                                Self::handle_play_update,
+                                constraint(),
+                            )
+                            .unwrap();
+                    };
+                self.async_tx
+                    .add_callback(DecodeSong(pointer.clone()), play, constraint());
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {

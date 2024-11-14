@@ -1,12 +1,15 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
+use async_rodio_sink::rodio::{decoder::DecoderError, Decoder};
 use async_rodio_sink::AsyncRodio;
 use futures::Stream;
+use std::io::Cursor;
 use std::sync::Arc;
 use std::time::Duration;
 
 const PLAYER_MSG_QUEUE_SIZE: usize = 256;
 
+pub struct DecodedInMemSong(Decoder<Cursor<ArcInMemSong>>);
 struct ArcInMemSong(Arc<InMemSong>);
 
 impl AsRef<[u8]> for ArcInMemSong {
@@ -16,7 +19,7 @@ impl AsRef<[u8]> for ArcInMemSong {
 }
 
 pub struct Player {
-    rodio_handle: AsyncRodio<ArcInMemSong, ListSongID>,
+    rodio_handle: AsyncRodio<Decoder<Cursor<ArcInMemSong>>, ListSongID>,
 }
 
 // Consider if this can be managed by Server.
@@ -27,29 +30,24 @@ impl Player {
     }
     pub fn autoplay_song(
         &self,
-        song: Arc<InMemSong>,
+        song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> std::result::Result<impl Stream<Item = async_rodio_sink::AutoplayUpdate<ListSongID>>, ()>
-    {
-        let song = ArcInMemSong(song);
-        self.rodio_handle.autoplay_song(song, song_id)
+    ) -> impl Stream<Item = async_rodio_sink::AutoplayUpdate<ListSongID>> {
+        self.rodio_handle.autoplay_song(song.0, song_id)
     }
     pub fn play_song(
         &self,
-        song: Arc<InMemSong>,
+        song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> std::result::Result<impl Stream<Item = async_rodio_sink::PlayUpdate<ListSongID>>, ()> {
-        let song = ArcInMemSong(song);
-        self.rodio_handle.play_song(song, song_id)
+    ) -> impl Stream<Item = async_rodio_sink::PlayUpdate<ListSongID>> {
+        self.rodio_handle.play_song(song.0, song_id)
     }
     pub fn queue_song(
         &self,
-        song: Arc<InMemSong>,
+        song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> std::result::Result<impl Stream<Item = async_rodio_sink::QueueUpdate<ListSongID>>, ()>
-    {
-        let song = ArcInMemSong(song);
-        self.rodio_handle.queue_song(song, song_id)
+    ) -> impl Stream<Item = async_rodio_sink::QueueUpdate<ListSongID>> {
+        self.rodio_handle.queue_song(song.0, song_id)
     }
     pub async fn seek(
         &self,
@@ -70,4 +68,20 @@ impl Player {
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<async_rodio_sink::VolumeUpdate> {
         self.rodio_handle.increase_volume(vol_inc).await
     }
+    pub async fn try_decode(
+        song: Arc<InMemSong>,
+    ) -> std::result::Result<DecodedInMemSong, DecoderError> {
+        tokio::task::spawn_blocking(move || try_decode(song))
+            .await
+            .expect("Try decode should not panic")
+    }
+}
+
+/// Try to decode bytes into Source.
+fn try_decode(song: Arc<InMemSong>) -> std::result::Result<DecodedInMemSong, DecoderError> {
+    let song = ArcInMemSong(song);
+    let cur = std::io::Cursor::new(song);
+    Ok(DecodedInMemSong(async_rodio_sink::rodio::Decoder::new(
+        cur,
+    )?))
 }
