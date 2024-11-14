@@ -26,7 +26,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
@@ -266,7 +266,10 @@ impl Playlist {
                         song: pointer.clone(),
                         id,
                     },
-                    |this, item| todo!(),
+                    |this, item| {
+                        error!("TEST");
+                        todo!();
+                    },
                     Some(Constraint::new_block_matching_metadata(
                         TaskMetadata::PlayingSong,
                     )),

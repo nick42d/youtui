@@ -22,7 +22,7 @@ pub struct Player {
 // Consider if this can be managed by Server.
 impl Player {
     pub fn new() -> Self {
-        let rodio_handle = AsyncRodio::new(PLAYER_MSG_QUEUE_SIZE);
+        let rodio_handle = AsyncRodio::new();
         Self { rodio_handle }
     }
     pub fn autoplay_song(

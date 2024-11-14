@@ -151,19 +151,7 @@ where
     I: Debug,
 {
     handle: tokio::task::JoinHandle<()>,
-    tx: tokio::sync::mpsc::Sender<AsyncRodioRequest<Decoder<Cursor<S>>, I>>,
-}
-
-impl<S, I> Drop for AsyncRodio<S, I>
-where
-    S: AsRef<[u8]> + Send + Sync + 'static,
-    I: Debug,
-{
-    // WARNING! This doesn't do what I thought it did. Since JoinHandle is for a
-    // blocking task, I can't abort it.
-    fn drop(&mut self) {
-        self.handle.abort()
-    }
+    tx: std::sync::mpsc::Sender<AsyncRodioRequest<Decoder<Cursor<S>>, I>>,
 }
 
 impl<S, I> AsyncRodio<S, I>
@@ -171,235 +159,9 @@ where
     S: AsRef<[u8]> + Send + Sync + 'static,
     I: Debug + PartialEq + Copy + Send + 'static,
 {
-    pub fn autoplay_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = AutoplayUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
-        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
-        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
-        let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
-            send_or_error(
-                selftx,
-                AsyncRodioRequest::AutoplaySong(song, identifier, tx),
-            )
-            .await;
-            while let Some(msg) = rx.recv().await {
-                match msg {
-                    AsyncRodioResponse::ProgressUpdate(duration) => {
-                        send_or_error(
-                            &streamtx,
-                            AutoplayUpdate::PlayProgress(duration, identifier),
-                        )
-                        .await;
-                    }
-                    AsyncRodioResponse::Queued(_) => {
-                        send_or_error(
-                            &streamtx,
-                            AutoplayUpdate::Error(format!(
-                                "Received queued message, but I wasn't queued... {:?}",
-                                identifier
-                            )),
-                        )
-                        .await;
-                    }
-                    // This is the case where the song we asked to play is already
-                    // queued. In this case, this task can finish, as the task that
-                    // added the song to the queue is responsible for the playback
-                    // updates.
-                    AsyncRodioResponse::AutoplayingQueued => {
-                        send_or_error(&streamtx, AutoplayUpdate::AutoplayQueued(identifier)).await;
-                        return;
-                    }
-                    AsyncRodioResponse::StartedPlaying(duration) => {
-                        send_or_error(&streamtx, AutoplayUpdate::Playing(duration, identifier))
-                            .await;
-                    }
-                    AsyncRodioResponse::StoppedPlaying => {
-                        send_or_error(&streamtx, AutoplayUpdate::DonePlaying(identifier)).await;
-                        return;
-                    }
-                }
-            }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
-            error!(
-                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
-                identifier
-            );
-        });
-        Ok(ReceiverStream::new(streamrx))
-    }
-    pub fn queue_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = QueueUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
-        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
-        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
-        let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
-            send_or_error(selftx, AsyncRodioRequest::QueueSong(song, identifier, tx)).await;
-            while let Some(msg) = rx.recv().await {
-                match msg {
-                    AsyncRodioResponse::ProgressUpdate(duration) => {
-                        send_or_error(&streamtx, QueueUpdate::PlayProgress(duration, identifier))
-                            .await;
-                    }
-                    AsyncRodioResponse::Queued(duration) => {
-                        send_or_error(&streamtx, QueueUpdate::Queued(duration, identifier)).await;
-                    }
-                    AsyncRodioResponse::AutoplayingQueued => {
-                        send_or_error(
-                            &streamtx,
-                            QueueUpdate::Error(format!(
-                                "Received AutoPlayingQueued message, but I asked to queue... {:?}",
-                                identifier
-                            )),
-                        )
-                        .await;
-                    }
-                    AsyncRodioResponse::StartedPlaying(_) => {
-                        send_or_error(
-                            &streamtx,
-                            QueueUpdate::Error(format!(
-                                "Received StartedPlaying message, but I asked to queue... {:?}",
-                                identifier,
-                            )),
-                        )
-                        .await;
-                    }
-                    AsyncRodioResponse::StoppedPlaying => {
-                        send_or_error(&streamtx, QueueUpdate::DonePlaying(identifier)).await;
-                        return;
-                    }
-                }
-            }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
-            error!(
-                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
-                identifier
-            );
-        });
-        Ok(ReceiverStream::new(streamrx))
-    }
-    pub fn play_song(
-        &self,
-        song: S,
-        identifier: I,
-    ) -> Result<impl Stream<Item = PlayUpdate<I>>, ()> {
-        let song = try_decode(song).map_err(|_| ())?;
-        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
-        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
-        let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
-            send_or_error(selftx, AsyncRodioRequest::PlaySong(song, identifier, tx)).await;
-            while let Some(msg) = rx.recv().await {
-                match msg {
-                    AsyncRodioResponse::ProgressUpdate(duration) => {
-                        send_or_error(&streamtx, PlayUpdate::PlayProgress(duration, identifier))
-                            .await;
-                    }
-                    AsyncRodioResponse::Queued(_) => {
-                        send_or_error(
-                            &streamtx,
-                            PlayUpdate::Error(format!(
-                                "Received Queued message, but I wasn't queued... {:?}",
-                                identifier
-                            )),
-                        )
-                        .await;
-                    }
-                    AsyncRodioResponse::AutoplayingQueued => {
-                        send_or_error(
-                            &streamtx,
-                            PlayUpdate::Error(format!(
-                                "Received AutoPlayingQueued message, but I asked to play... {:?}",
-                                identifier
-                            )),
-                        )
-                        .await;
-                    }
-                    AsyncRodioResponse::StartedPlaying(duration) => {
-                        send_or_error(&streamtx, PlayUpdate::Playing(duration, identifier)).await;
-                    }
-                    AsyncRodioResponse::StoppedPlaying => {
-                        send_or_error(&streamtx, PlayUpdate::DonePlaying(identifier)).await;
-                        return;
-                    }
-                }
-            }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
-            error!(
-                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
-                identifier
-            );
-        });
-        Ok(ReceiverStream::new(streamrx))
-    }
-    pub async fn seek(
-        &self,
-        duration: Duration,
-        direction: SeekDirection,
-    ) -> Option<ProgressUpdate<I>> {
-        let (tx, rx) = rodio_oneshot_channel();
-        send_or_error(&self.tx, AsyncRodioRequest::Seek(duration, direction, tx)).await;
-        let Ok((current_duration, song_id)) = rx.await else {
-            // This happens intentionally - when a seek is requested for a song
-            // but all songs have finished, instead of sending a reply, rodio will drop
-            // sender.
-            info!("The song I tried to seek is no longer playing");
-            return None;
-        };
-        Some(ProgressUpdate {
-            duration: current_duration,
-            identifier: song_id,
-        })
-    }
-    pub async fn stop(&self, identifier: I) -> Option<Stopped<I>> {
-        let (tx, rx) = rodio_oneshot_channel();
-        send_or_error(&self.tx, AsyncRodioRequest::Stop(identifier, tx)).await;
-        let Ok(_) = rx.await else {
-            // This happens intentionally - when a stop is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
-            info!("The song I tried to stop is no longer playing");
-            return None;
-        };
-        Some(Stopped(identifier))
-    }
-    pub async fn pause_play(&self, identifier: I) -> Option<PausePlayResponse<I>> {
-        let (tx, rx) = rodio_oneshot_channel();
-        send_or_error(&self.tx, AsyncRodioRequest::PausePlay(identifier, tx)).await;
-        let Ok(play_action_taken) = rx.await else {
-            // This happens intentionally - when a pauseplay is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
-            info!("The song I tried to pause/play was no longer selected",);
-            return None;
-        };
-        match play_action_taken {
-            AsyncRodioPlayActionTaken::Paused => Some(PausePlayResponse::Paused(identifier)),
-            AsyncRodioPlayActionTaken::Played => Some(PausePlayResponse::Resumed(identifier)),
-        }
-    }
-    pub async fn increase_volume(&self, vol_inc: i8) -> Option<VolumeUpdate> {
-        let (tx, rx) = rodio_oneshot_channel();
-        send_or_error(&self.tx, AsyncRodioRequest::IncreaseVolume(vol_inc, tx)).await;
-        let Ok(current_volume) = rx.await else {
-            // Should never happen!
-            error!("The player has been dropped while I was waiting for a volume update for",);
-            return None;
-        };
-        Some(VolumeUpdate(current_volume))
-    }
-    pub fn new(channel_size: usize) -> Self {
-        let (tx, mut rx) =
-            tokio::sync::mpsc::channel::<AsyncRodioRequest<Decoder<Cursor<S>>, I>>(channel_size);
-        let handle = tokio::task::spawn(async move {
+    pub fn new() -> Self {
+        let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<Decoder<Cursor<S>>, I>>();
+        let handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -422,7 +184,9 @@ where
             let mut next_song_duration = None;
             let mut cur_song_id = None;
             let mut next_song_id = None;
-            while let Some(msg) = rx.blocking_recv() {
+            // There is no need for a drop implementation on AsyncRodio, since if AsyncRodio
+            // has dropped with it's sender, receive loop will receive Err and end.
+            while let Ok(msg) = rx.recv() {
                 match msg {
                     AsyncRodioRequest::AutoplaySong(song, song_id, tx) => {
                         if Some(song_id) == next_song_id {
@@ -601,6 +365,231 @@ where
         });
         Self { handle, tx }
     }
+    pub fn autoplay_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> Result<impl Stream<Item = AutoplayUpdate<I>>, ()> {
+        let song = try_decode(song).map_err(|_| ())?;
+        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
+        let selftx = self.tx.clone();
+        tokio::task::spawn(async move {
+            std_send_or_error(
+                selftx,
+                AsyncRodioRequest::AutoplaySong(song, identifier, tx),
+            )
+            .await;
+            while let Some(msg) = rx.recv().await {
+                match msg {
+                    AsyncRodioResponse::ProgressUpdate(duration) => {
+                        send_or_error(
+                            &streamtx,
+                            AutoplayUpdate::PlayProgress(duration, identifier),
+                        )
+                        .await;
+                    }
+                    AsyncRodioResponse::Queued(_) => {
+                        send_or_error(
+                            &streamtx,
+                            AutoplayUpdate::Error(format!(
+                                "Received queued message, but I wasn't queued... {:?}",
+                                identifier
+                            )),
+                        )
+                        .await;
+                    }
+                    // This is the case where the song we asked to play is already
+                    // queued. In this case, this task can finish, as the task that
+                    // added the song to the queue is responsible for the playback
+                    // updates.
+                    AsyncRodioResponse::AutoplayingQueued => {
+                        send_or_error(&streamtx, AutoplayUpdate::AutoplayQueued(identifier)).await;
+                        return;
+                    }
+                    AsyncRodioResponse::StartedPlaying(duration) => {
+                        send_or_error(&streamtx, AutoplayUpdate::Playing(duration, identifier))
+                            .await;
+                    }
+                    AsyncRodioResponse::StoppedPlaying => {
+                        send_or_error(&streamtx, AutoplayUpdate::DonePlaying(identifier)).await;
+                        return;
+                    }
+                }
+            }
+            // Should never reach here! Player should send either Error, Stopped or Playing
+            // message first.
+            error!(
+                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+                identifier
+            );
+        });
+        Ok(ReceiverStream::new(streamrx))
+    }
+    pub fn queue_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> Result<impl Stream<Item = QueueUpdate<I>>, ()> {
+        let song = try_decode(song).map_err(|_| ())?;
+        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
+        let selftx = self.tx.clone();
+        tokio::task::spawn(async move {
+            std_send_or_error(selftx, AsyncRodioRequest::QueueSong(song, identifier, tx)).await;
+            while let Some(msg) = rx.recv().await {
+                match msg {
+                    AsyncRodioResponse::ProgressUpdate(duration) => {
+                        send_or_error(&streamtx, QueueUpdate::PlayProgress(duration, identifier))
+                            .await;
+                    }
+                    AsyncRodioResponse::Queued(duration) => {
+                        send_or_error(&streamtx, QueueUpdate::Queued(duration, identifier)).await;
+                    }
+                    AsyncRodioResponse::AutoplayingQueued => {
+                        send_or_error(
+                            &streamtx,
+                            QueueUpdate::Error(format!(
+                                "Received AutoPlayingQueued message, but I asked to queue... {:?}",
+                                identifier
+                            )),
+                        )
+                        .await;
+                    }
+                    AsyncRodioResponse::StartedPlaying(_) => {
+                        send_or_error(
+                            &streamtx,
+                            QueueUpdate::Error(format!(
+                                "Received StartedPlaying message, but I asked to queue... {:?}",
+                                identifier,
+                            )),
+                        )
+                        .await;
+                    }
+                    AsyncRodioResponse::StoppedPlaying => {
+                        send_or_error(&streamtx, QueueUpdate::DonePlaying(identifier)).await;
+                        return;
+                    }
+                }
+            }
+            // Should never reach here! Player should send either Error, Stopped or Playing
+            // message first.
+            error!(
+                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+                identifier
+            );
+        });
+        Ok(ReceiverStream::new(streamrx))
+    }
+    pub fn play_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> Result<impl Stream<Item = PlayUpdate<I>>, ()> {
+        let song = try_decode(song).map_err(|_| ())?;
+        let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
+        let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
+        let selftx = self.tx.clone();
+        tokio::task::spawn(async move {
+            std_send_or_error(selftx, AsyncRodioRequest::PlaySong(song, identifier, tx)).await;
+            while let Some(msg) = rx.recv().await {
+                match msg {
+                    AsyncRodioResponse::ProgressUpdate(duration) => {
+                        send_or_error(&streamtx, PlayUpdate::PlayProgress(duration, identifier))
+                            .await;
+                    }
+                    AsyncRodioResponse::Queued(_) => {
+                        send_or_error(
+                            &streamtx,
+                            PlayUpdate::Error(format!(
+                                "Received Queued message, but I wasn't queued... {:?}",
+                                identifier
+                            )),
+                        )
+                        .await;
+                    }
+                    AsyncRodioResponse::AutoplayingQueued => {
+                        send_or_error(
+                            &streamtx,
+                            PlayUpdate::Error(format!(
+                                "Received AutoPlayingQueued message, but I asked to play... {:?}",
+                                identifier
+                            )),
+                        )
+                        .await;
+                    }
+                    AsyncRodioResponse::StartedPlaying(duration) => {
+                        send_or_error(&streamtx, PlayUpdate::Playing(duration, identifier)).await;
+                    }
+                    AsyncRodioResponse::StoppedPlaying => {
+                        send_or_error(&streamtx, PlayUpdate::DonePlaying(identifier)).await;
+                        return;
+                    }
+                }
+            }
+            // Should never reach here! Player should send either Error, Stopped or Playing
+            // message first.
+            error!(
+                "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
+                identifier
+            );
+        });
+        Ok(ReceiverStream::new(streamrx))
+    }
+    pub async fn seek(
+        &self,
+        duration: Duration,
+        direction: SeekDirection,
+    ) -> Option<ProgressUpdate<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::Seek(duration, direction, tx)).await;
+        let Ok((current_duration, song_id)) = rx.await else {
+            // This happens intentionally - when a seek is requested for a song
+            // but all songs have finished, instead of sending a reply, rodio will drop
+            // sender.
+            info!("The song I tried to seek is no longer playing");
+            return None;
+        };
+        Some(ProgressUpdate {
+            duration: current_duration,
+            identifier: song_id,
+        })
+    }
+    pub async fn stop(&self, identifier: I) -> Option<Stopped<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::Stop(identifier, tx)).await;
+        let Ok(_) = rx.await else {
+            // This happens intentionally - when a stop is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            info!("The song I tried to stop is no longer playing");
+            return None;
+        };
+        Some(Stopped(identifier))
+    }
+    pub async fn pause_play(&self, identifier: I) -> Option<PausePlayResponse<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::PausePlay(identifier, tx)).await;
+        let Ok(play_action_taken) = rx.await else {
+            // This happens intentionally - when a pauseplay is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            info!("The song I tried to pause/play was no longer selected",);
+            return None;
+        };
+        match play_action_taken {
+            AsyncRodioPlayActionTaken::Paused => Some(PausePlayResponse::Paused(identifier)),
+            AsyncRodioPlayActionTaken::Played => Some(PausePlayResponse::Resumed(identifier)),
+        }
+    }
+    pub async fn increase_volume(&self, vol_inc: i8) -> Option<VolumeUpdate> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::IncreaseVolume(vol_inc, tx)).await;
+        let Ok(current_volume) = rx.await else {
+            // Should never happen!
+            error!("The player has been dropped while I was waiting for a volume update for",);
+            return None;
+        };
+        Some(VolumeUpdate(current_volume))
+    }
 }
 
 /// Specific helper function to generate a source that sends a stopped playing
@@ -643,6 +632,11 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
     tx.borrow()
         .send(msg)
         .await
+        .unwrap_or_else(|e| error!("Error {e} received when sending message"));
+}
+pub async fn std_send_or_error<T, S: Borrow<std::sync::mpsc::Sender<T>>>(tx: S, msg: T) {
+    tx.borrow()
+        .send(msg)
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
