@@ -288,7 +288,7 @@ impl Playlist {
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
-    pub async fn autoplay_song_id(&mut self, id: ListSongID) {
+    pub fn autoplay_song_id(&mut self, id: ListSongID) {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
@@ -454,7 +454,7 @@ impl Playlist {
     /// stopped. This is triggered when a song has finished playing. The
     /// softer, Autoplay message, lets the Player use gapless playback if songs
     /// are queued correctly.
-    pub async fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
+    pub fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
@@ -474,7 +474,7 @@ impl Playlist {
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
                     Some(id) => {
-                        self.autoplay_song_id(id).await;
+                        self.autoplay_song_id(id);
                     }
                     None => {
                         info!("No next song - resetting play status");
@@ -735,27 +735,34 @@ impl Playlist {
     }
     pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) {
         match update {
-            PlayUpdate::PlayProgress(_, _) => todo!(),
-            PlayUpdate::Playing(_, _) => todo!(),
-            PlayUpdate::DonePlaying(_) => todo!(),
-            PlayUpdate::Error(_) => todo!(),
+            PlayUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            PlayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
+            PlayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            // This is a player invariant.
+            PlayUpdate::Error(e) => error!("{e}"),
         }
     }
     pub fn handle_queue_update(&mut self, update: QueueUpdate<ListSongID>) {
         match update {
-            QueueUpdate::PlayProgress(_, _) => todo!(),
-            QueueUpdate::Queued(_, _) => todo!(),
-            QueueUpdate::DonePlaying(_) => todo!(),
-            QueueUpdate::Error(_) => todo!(),
+            QueueUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            QueueUpdate::Queued(duration, id) => self.handle_queued(duration, id),
+            QueueUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            QueueUpdate::Error(e) => error!("{e}"),
         }
     }
     pub fn handle_autoplay_update(&mut self, update: AutoplayUpdate<ListSongID>) {
         match update {
-            AutoplayUpdate::PlayProgress(_, _) => todo!(),
-            AutoplayUpdate::Playing(_, _) => todo!(),
-            AutoplayUpdate::DonePlaying(_) => todo!(),
-            AutoplayUpdate::AutoplayQueued(_) => todo!(),
-            AutoplayUpdate::Error(_) => todo!(),
+            AutoplayUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            AutoplayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
+            AutoplayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            AutoplayUpdate::AutoplayQueued(id) => self.handle_autoplay_queued(id),
+            AutoplayUpdate::Error(e) => error!("{e}"),
         }
     }
     /// Handle song progress message from server
@@ -798,7 +805,7 @@ impl Playlist {
         }
     }
     /// Handle done playing message from server
-    pub async fn handle_done_playing(&mut self, id: ListSongID) {
+    pub fn handle_done_playing(&mut self, id: ListSongID) {
         if QueueState::Queued(id) == self.queue_status {
             self.queue_status = QueueState::NotQueued;
             return;
@@ -806,7 +813,7 @@ impl Playlist {
         if !self.check_id_is_cur(id) {
             return;
         }
-        self.autoplay_next_or_stop(id).await;
+        self.autoplay_next_or_stop(id);
     }
     /// Handle queued message from server
     pub fn handle_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
@@ -829,6 +836,26 @@ impl Playlist {
             }
         }
     }
+    /// Handle playing message from server
+    pub fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
+        // NOTE: Happens twice, if song already was queued.
+        if let Some(song) = self.get_mut_song_from_id(id) {
+            song.actual_duration = duration;
+        }
+        if let PlayState::Paused(p_id) = self.play_status {
+            if p_id == id {
+                self.play_status = PlayState::Playing(id)
+            }
+        }
+    }
+    /// Handle set to error message from server (playback)
+    pub fn handle_set_to_error(&mut self, id: ListSongID) {
+        info!("Received message that song had a playback error {:?}", id);
+        if self.check_id_is_cur(id) {
+            info!("Setting song state to Error {:?}", id);
+            self.play_status = PlayState::Error(id)
+        }
+    }
     /// Handle set to paused message from server
     pub fn handle_paused(&mut self, s_id: ListSongID) {
         if let PlayState::Playing(p_id) = self.play_status {
@@ -845,18 +872,6 @@ impl Playlist {
             }
         }
     }
-    /// Handle playing message from server
-    pub fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
-        // NOTE: Happens twice, if song already was queued.
-        if let Some(song) = self.get_mut_song_from_id(id) {
-            song.actual_duration = duration;
-        }
-        if let PlayState::Paused(p_id) = self.play_status {
-            if p_id == id {
-                self.play_status = PlayState::Playing(id)
-            }
-        }
-    }
     /// Handle stopped message from server
     pub fn handle_stopped(&mut self, id: Option<Stopped<ListSongID>>) {
         let Some(Stopped(id)) = id else { return };
@@ -865,14 +880,6 @@ impl Playlist {
         if self.check_id_is_cur(id) {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
-        }
-    }
-    /// Handle set to error message from server (playback)
-    pub fn handle_set_to_error(&mut self, id: ListSongID) {
-        info!("Received message that song had a playback error {:?}", id);
-        if self.check_id_is_cur(id) {
-            info!("Setting song state to Error {:?}", id);
-            self.play_status = PlayState::Error(id)
         }
     }
 }
