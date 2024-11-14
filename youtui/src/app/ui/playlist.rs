@@ -17,7 +17,10 @@ use crate::app::{
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
-use async_rodio_sink::{PausePlayResponse, SeekDirection, Stopped, VolumeUpdate};
+use async_rodio_sink::{
+    AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
+    VolumeUpdate,
+};
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -266,10 +269,7 @@ impl Playlist {
                         song: pointer.clone(),
                         id,
                     },
-                    |this, item| {
-                        error!("TEST");
-                        todo!();
-                    },
+                    Self::handle_play_update,
                     Some(Constraint::new_block_matching_metadata(
                         TaskMetadata::PlayingSong,
                     )),
@@ -306,7 +306,7 @@ impl Playlist {
                         song: pointer.clone(),
                         id,
                     },
-                    |this, item| todo!(),
+                    Self::handle_autoplay_update,
                     None,
                 );
                 self.play_status = PlayState::Playing(id);
@@ -733,6 +733,31 @@ impl Playlist {
             self.volume = Percentage(v.0.into())
         }
     }
+    pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) {
+        match update {
+            PlayUpdate::PlayProgress(_, _) => todo!(),
+            PlayUpdate::Playing(_, _) => todo!(),
+            PlayUpdate::DonePlaying(_) => todo!(),
+            PlayUpdate::Error(_) => todo!(),
+        }
+    }
+    pub fn handle_queue_update(&mut self, update: QueueUpdate<ListSongID>) {
+        match update {
+            QueueUpdate::PlayProgress(_, _) => todo!(),
+            QueueUpdate::Queued(_, _) => todo!(),
+            QueueUpdate::DonePlaying(_) => todo!(),
+            QueueUpdate::Error(_) => todo!(),
+        }
+    }
+    pub fn handle_autoplay_update(&mut self, update: AutoplayUpdate<ListSongID>) {
+        match update {
+            AutoplayUpdate::PlayProgress(_, _) => todo!(),
+            AutoplayUpdate::Playing(_, _) => todo!(),
+            AutoplayUpdate::DonePlaying(_) => todo!(),
+            AutoplayUpdate::AutoplayQueued(_) => todo!(),
+            AutoplayUpdate::Error(_) => todo!(),
+        }
+    }
     /// Handle song progress message from server
     pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         if !self.check_id_is_cur(id) {
@@ -763,7 +788,7 @@ impl Playlist {
                                 song: song.clone(),
                                 id: next_song.id,
                             },
-                            |this, item| todo!(),
+                            Self::handle_queue_update,
                             None,
                         );
                         self.queue_status = QueueState::Queued(next_song.id)
