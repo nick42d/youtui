@@ -7,8 +7,6 @@ use std::io::Cursor;
 use std::sync::Arc;
 use std::time::Duration;
 
-const PLAYER_MSG_QUEUE_SIZE: usize = 256;
-
 pub struct DecodedInMemSong(Decoder<Cursor<ArcInMemSong>>);
 struct ArcInMemSong(Arc<InMemSong>);
 

@@ -141,7 +141,7 @@ impl Youtui {
                         // TODO: Consider checking here if redraw is required.
                         Some(event) = self.event_handler.next() => self.handle_event(event).await,
                         // Process any top-level callbacks in the queue.
-                        Some(callback) = self.callback_rx.recv() => self.handle_callback(callback).await,
+                        Some(callback) = self.callback_rx.recv() => self.handle_callback(callback),
                         // Process the next manager event.
                         // If all the manager has done is spawn tasks, there's no need to draw.
                         Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
@@ -167,18 +167,16 @@ impl Youtui {
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
-    pub async fn handle_callback(&mut self, callback: AppCallback) {
+    pub fn handle_callback(&mut self, callback: AppCallback) {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
             AppCallback::AddSongsToPlaylist(song_list) => {
                 self.window_state.handle_add_songs_to_playlist(song_list);
             }
-            AppCallback::AddSongsToPlaylistAndPlay(song_list) => {
-                self.window_state
-                    .handle_add_songs_to_playlist_and_play(song_list)
-                    .await
-            }
+            AppCallback::AddSongsToPlaylistAndPlay(song_list) => self
+                .window_state
+                .handle_add_songs_to_playlist_and_play(song_list),
         }
     }
 }

@@ -152,8 +152,20 @@ pub struct AsyncRodio<S, I>
 where
     I: Debug,
 {
-    handle: tokio::task::JoinHandle<()>,
+    _handle: tokio::task::JoinHandle<()>,
     tx: std::sync::mpsc::Sender<AsyncRodioRequest<S, I>>,
+}
+
+impl<S, I> Default for AsyncRodio<S, I>
+where
+    S: Source + Send + Sync + 'static,
+    f32: FromSample<S::Item>,
+    S::Item: Sample + Send,
+    I: Debug + PartialEq + Copy + Send + 'static,
+{
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<S, I> AsyncRodio<S, I>
@@ -165,7 +177,7 @@ where
 {
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
-        let handle = tokio::task::spawn_blocking(move || {
+        let _handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -367,7 +379,7 @@ where
                 }
             }
         });
-        Self { handle, tx }
+        Self { _handle, tx }
     }
     pub fn autoplay_song(&self, song: S, identifier: I) -> impl Stream<Item = AutoplayUpdate<I>> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);

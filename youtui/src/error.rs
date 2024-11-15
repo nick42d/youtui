@@ -38,7 +38,8 @@ pub enum Error {
         directory: PathBuf,
         io_error: std::io::Error,
     },
-    // TODO: Remove this, catchall currentl
+    ManagerDropped,
+    // TODO: Remove this, catchall currently
     Other(String),
 }
 impl Error {
@@ -116,6 +117,7 @@ impl Display for Error {
             Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
             Error::WrongAuthType { current_authtype, expected_authtype, query_type } => write!(f, "Query <{query_type}> not supported on auth type {:?}. Expected auth type: {:?}",current_authtype, expected_authtype),
             Error::ApiErrorString(s) => write!(f, "{s}"),
+            Error::ManagerDropped => write!(f, "Async callback manager dropped"),
         }
     }
 }
@@ -152,5 +154,10 @@ impl From<toml::de::Error> for Error {
 impl From<ytmapi_rs::Error> for Error {
     fn from(value: ytmapi_rs::Error) -> Self {
         Error::Api(value)
+    }
+}
+impl From<async_callback_manager::Error> for Error {
+    fn from(_: async_callback_manager::Error) -> Self {
+        Error::ManagerDropped
     }
 }

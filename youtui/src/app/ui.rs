@@ -12,7 +12,6 @@ use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
-use crate::app::server::downloader::DownloadProgressUpdateType;
 use crate::core::send_or_error;
 use async_callback_manager::{AsyncCallbackSender, Constraint};
 use async_rodio_sink::{SeekDirection, VolumeUpdate};
@@ -216,10 +215,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => {
-                self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward).await
-            }
-            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back).await,
+            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
+            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -358,7 +355,7 @@ impl YoutuiWindow {
             Some(Constraint::new_block_same_type()),
         );
     }
-    pub async fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
+    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
         self.playlist.handle_seek(duration, direction)
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
@@ -367,8 +364,8 @@ impl YoutuiWindow {
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);
     }
-    pub async fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
-        self.playlist.reset().await;
+    pub fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
+        self.playlist.reset();
         let id = self.playlist.push_song_list(song_list);
         self.playlist.play_song_id(id);
     }

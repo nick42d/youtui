@@ -168,7 +168,7 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
             }
             ConstraitType::KillSameType => self.inner.retain_mut(|task| {
                 if !task_doesnt_match_constraint(task) {
-                    task.kill_handle.kill().unwrap();
+                    task.kill_handle.kill().expect("Task should still be alive");
                     return false;
                 }
                 true
