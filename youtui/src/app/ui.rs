@@ -356,7 +356,7 @@ impl YoutuiWindow {
         );
     }
     pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
-        self.playlist.handle_seek(duration, direction)
+        self.playlist.handle_seek(duration, direction);
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
         self.playlist.handle_volume_update(update)

@@ -1,5 +1,4 @@
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
-use crate::app::server::player::DecodedInMemSong;
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
     QueueSong, Seek, Stop, TaskMetadata,
@@ -23,7 +22,7 @@ use crate::async_rodio_sink::{
 };
 use crate::Result;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint, Then};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint, Map};
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -271,36 +270,30 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                // TODO: Should constraint be clone?
-                let constraint = || {
-                    Some(Constraint::new_block_matching_metadata(
-                        TaskMetadata::PlayingSong,
-                    ))
-                };
-                let play =
-                    move |this: &mut Self, song: std::result::Result<DecodedInMemSong, DecoderError>| {
-                        let song = match song {
-                            Ok(s) => s,
-                            Err(e) => {
-                                error!("Error {e} received when trying to decode {:?}", id);
-                                // TODO: Consider if currently playing song should be stopped.
-                                this.handle_set_to_error(id);
-                                return;
-                            },
-                        };
-                        this.async_tx
-                            .add_stream_callback(
-                                PlaySong { song, id },
-                                // Consider add_stream_callback_fallible option.
-                                Self::handle_play_update,
-                                constraint(),
-                            )
-                            .unwrap();
+                // This task has the metadata of both DecodeSong and PlaySong and returns
+                // Result<PlayUpdate>.
+                let task = Map::map_stream(DecodeSong(pointer.clone()), move |song| PlaySong {
+                    song,
+                    id,
+                });
+                let constraint = Some(Constraint::new_block_matching_metadata(
+                    TaskMetadata::PlayingSong,
+                ));
+                let handle_update = move |this: &mut Self,
+                                          update: std::result::Result<
+                    PlayUpdate<ListSongID>,
+                    DecoderError,
+                >| {
+                    match update {
+                        Ok(u) => this.handle_play_update(u).unwrap(),
+                        Err(e) => {
+                            error!("Error {e} received when trying to decode {:?}", id);
+                            this.handle_set_to_error(id);
+                        }
                     };
-                // TODO: This DecodeSong here should be able to be blocked as if it where a
-                // QueueSong. How to do this?
+                };
                 self.async_tx
-                    .add_callback(DecodeSong(pointer.clone()), play, constraint())?;
+                    .add_stream_callback(task, handle_update, constraint)?;
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {
@@ -329,29 +322,27 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                let play =
-                    move |this: &mut Self, song: std::result::Result<DecodedInMemSong, DecoderError>| {
-                        let song = match song {
-                            Ok(s) => s,
-                            Err(e) => {
-                                error!("Error {e} received when trying to decode {:?}", id);
-                                // TODO: Consider if currently playing song should be stopped.
-                                this.handle_set_to_error(id);
-                                return;
-                            },
-                        };
-                        this.async_tx
-                            .add_stream_callback(
-                                AutoplaySong { song, id },
-                                Self::handle_autoplay_update,
-                                None,
-                            )
-                            .unwrap();
+                // This task has the metadata of both DecodeSong and AutoplaySong and returns
+                // Result<AutoplayUpdate>.
+                let task = Map::map_stream(DecodeSong(pointer.clone()), move |song| AutoplaySong {
+                    song,
+                    id,
+                });
+                let handle_update = move |this: &mut Self,
+                                          update: std::result::Result<
+                    AutoplayUpdate<ListSongID>,
+                    DecoderError,
+                >| {
+                    match update {
+                        Ok(u) => this.handle_autoplay_update(u).unwrap(),
+                        Err(e) => {
+                            error!("Error {e} received when trying to decode {:?}", id);
+                            this.handle_set_to_error(id);
+                        }
                     };
-                // TODO: This DecodeSong here should be able to be blocked as if it where a
-                // QueueSong. How to do this?
+                };
                 self.async_tx
-                    .add_callback(DecodeSong(pointer.clone()), play, None)?;
+                    .add_stream_callback(task, handle_update, None)?;
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {
@@ -843,36 +834,27 @@ impl Playlist {
             {
                 if let Some(next_song) = self.get_next_song() {
                     if let DownloadStatus::Downloaded(song) = &next_song.download_status {
-                        let task = Then::new(DecodeSong(song.clone()), |song| {
-                            let song = song.unwrap();
+                        // This task has the metadata of both DecodeSong and QueueSong and returns
+                        // Result<QueueUpdate>.
+                        let task = Map::map_stream(DecodeSong(song.clone()), move |song| {
                             QueueSong { song, id }
                         });
                         info!("Queuing up song!");
-                        let play = move |this: &mut Self,
-                                         song: std::result::Result<
-                            DecodedInMemSong,
+                        let handle_update = move |this: &mut Self,
+                                                  update: std::result::Result<
+                            QueueUpdate<ListSongID>,
                             DecoderError,
                         >| {
-                            let song = match song {
-                                Ok(s) => s,
+                            match update {
+                                Ok(u) => this.handle_queue_update(u).unwrap(),
                                 Err(e) => {
                                     error!("Error {e} received when trying to decode {:?}", id);
                                     this.handle_set_to_error(id);
-                                    return;
                                 }
                             };
-                            this.async_tx
-                                .add_stream_callback(
-                                    QueueSong { song, id },
-                                    Self::handle_queue_update,
-                                    None,
-                                )
-                                .unwrap();
                         };
-                        // TODO: This DecodeSong here should be able to be blocked as if it where a
-                        // QueueSong. How to do this?
                         self.async_tx
-                            .add_callback(DecodeSong(song.clone()), play, None)?;
+                            .add_stream_callback(task, handle_update, None)?;
                         self.queue_status = QueueState::Queued(next_song.id)
                     }
                 }
