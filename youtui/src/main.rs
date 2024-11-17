@@ -10,6 +10,7 @@ use ytmapi_rs::auth::OAuthToken;
 mod api;
 mod app;
 mod appevent;
+mod async_rodio_sink;
 mod cli;
 mod config;
 mod core;

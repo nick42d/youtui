@@ -180,18 +180,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-rodio-sink"
-version = "0.0.1"
-dependencies = [
- "futures",
- "gag",
- "rodio",
- "tokio",
- "tokio-stream",
- "tracing",
-]
-
-[[package]]
 name = "async-trait"
 version = "0.1.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4272,15 +4260,16 @@ name = "youtui"
 version = "0.0.16"
 dependencies = [
  "async-callback-manager",
- "async-rodio-sink",
  "async_cell",
  "bytes",
  "clap",
  "crossterm",
  "directories",
  "futures",
+ "gag",
  "itertools 0.13.0",
  "ratatui",
+ "rodio",
  "serde",
  "serde_json",
  "tokio",

@@ -1,7 +1,7 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
-use async_rodio_sink::rodio::{decoder::DecoderError, Decoder};
-use async_rodio_sink::AsyncRodio;
+use crate::async_rodio_sink::rodio::{decoder::DecoderError, Decoder};
+use crate::async_rodio_sink::{self, AsyncRodio};
 use futures::Stream;
 use std::io::Cursor;
 use std::sync::Arc;

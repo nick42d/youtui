@@ -16,14 +16,14 @@ use crate::app::{
 };
 
 use crate::app::CALLBACK_CHANNEL_SIZE;
-use crate::Result;
-use crate::{app::structures::DownloadStatus, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
-use async_rodio_sink::rodio::decoder::DecoderError;
-use async_rodio_sink::{
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
+use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
+use crate::Result;
+use crate::{app::structures::DownloadStatus, core::send_or_error};
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint, Then};
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -843,6 +843,10 @@ impl Playlist {
             {
                 if let Some(next_song) = self.get_next_song() {
                     if let DownloadStatus::Downloaded(song) = &next_song.download_status {
+                        let task = Then::new(DecodeSong(song.clone()), |song| {
+                            let song = song.unwrap();
+                            QueueSong { song, id }
+                        });
                         info!("Queuing up song!");
                         let play = move |this: &mut Self,
                                          song: std::result::Result<

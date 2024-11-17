@@ -1,16 +1,11 @@
 use super::structures::ListSongID;
+use crate::async_rodio_sink::{
+    rodio::decoder::DecoderError, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate,
+    QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
+};
 use crate::{config::ApiKey, Result};
 use api::GetArtistSongsProgressUpdate;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
-use async_rodio_sink::rodio::decoder::DecoderError;
-use async_rodio_sink::AutoplayUpdate;
-use async_rodio_sink::PausePlayResponse;
-use async_rodio_sink::PlayUpdate;
-use async_rodio_sink::ProgressUpdate;
-use async_rodio_sink::QueueUpdate;
-use async_rodio_sink::SeekDirection;
-use async_rodio_sink::Stopped;
-use async_rodio_sink::VolumeUpdate;
 use downloader::DownloadProgressUpdate;
 use downloader::InMemSong;
 use futures::Future;

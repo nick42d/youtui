@@ -1,5 +1,5 @@
 [workspace]
-members = ["youtui", "ytmapi-rs", "json-crawler", "async-callback-manager", "async-rodio-sink"]
+members = ["youtui", "ytmapi-rs", "json-crawler", "async-callback-manager"]
 resolver = "2"
 
 [workspace.lints.clippy]
