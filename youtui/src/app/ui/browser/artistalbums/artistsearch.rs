@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use crossterm::event::KeyCode;
+use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
@@ -35,9 +36,8 @@ pub struct ArtistSearchPanel {
 
 #[derive(Default, Clone)]
 pub struct SearchBlock {
-    pub search_contents: String,
+    pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
-    pub text_cur: usize,
     pub suggestions_cur: Option<usize>,
 }
 
@@ -92,25 +92,25 @@ impl Action for ArtistAction {
 }
 
 impl TextHandler for SearchBlock {
-    fn push_text(&mut self, c: char) {
-        self.search_contents.push(c);
-        self.text_cur += 1;
-    }
-    fn pop_text(&mut self) {
-        self.search_contents.pop();
-        self.text_cur = self.text_cur.saturating_sub(1);
-    }
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&mut self) -> String {
-        self.text_cur = 0;
-        self.search_suggestions.clear();
-        std::mem::take(&mut self.search_contents)
+    fn get_text(&self) -> &str {
+        self.search_contents.text()
     }
-    fn replace_text(&mut self, text: String) {
-        self.search_contents = text;
-        self.move_cursor_to_end();
+    fn replace_text(&mut self, text: impl Into<String>) {
+        self.search_contents.set_text(text);
+    }
+    fn clear_text(&mut self) -> bool {
+        self.search_contents.clear()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        match handle_events(&mut self.filter_text, true, event) {
+            rat_text::event::TextOutcome::Continue => false,
+            rat_text::event::TextOutcome::Unchanged => true,
+            rat_text::event::TextOutcome::Changed => true,
+            rat_text::event::TextOutcome::TextChanged => true,
+        }
     }
 }
 
@@ -139,20 +139,20 @@ impl SearchBlock {
 }
 
 impl TextHandler for ArtistSearchPanel {
-    fn push_text(&mut self, c: char) {
-        self.search.push_text(c);
-    }
-    fn pop_text(&mut self) {
-        self.search.pop_text();
-    }
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
     }
-    fn get_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         self.search.get_text()
     }
     fn replace_text(&mut self, text: String) {
         self.search.replace_text(text)
+    }
+    fn clear_text(&mut self) -> bool {
+        self.search.clear_text()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        self.search.handle_event_repr(&event)
     }
 }
 

@@ -66,12 +66,6 @@ impl Default for SortManager {
         }
     }
 }
-impl FilterManager {
-    fn move_cursor_to_end(&mut self) {
-        self.filter_cur = self.filter_text.len();
-    }
-}
-
 impl Default for FilterManager {
     fn default() -> Self {
         Self {
@@ -192,7 +186,7 @@ impl AlbumSongsPanel {
         }))
     }
     pub fn apply_filter(&mut self) {
-        let filter = self.filter.get_text();
+        let filter = self.filter.get_text().to_string();
         self.filter.shown = false;
         self.route = AlbumSongsInputRouting::List;
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
@@ -296,24 +290,20 @@ impl SongListComponent for AlbumSongsPanel {
 }
 
 impl TextHandler for AlbumSongsPanel {
-    fn push_text(&mut self, c: char) {
-        self.filter.push_text(c)
-    }
-
-    fn pop_text(&mut self) {
-        self.filter.pop_text()
-    }
-
-    fn get_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         self.filter.get_text()
     }
-
     fn replace_text(&mut self, text: String) {
         self.filter.replace_text(text)
     }
-
     fn is_text_handling(&self) -> bool {
         self.route == AlbumSongsInputRouting::Filter
+    }
+    fn clear_text(&mut self) -> bool {
+        self.filter.clear_text()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        self.filter.handle_event_repr(event)
     }
 }
 

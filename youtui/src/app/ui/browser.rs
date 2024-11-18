@@ -112,42 +112,34 @@ impl Suggestable for Browser {
     }
 }
 impl TextHandler for Browser {
-    fn push_text(&mut self, c: char) {
-        match self.input_routing {
-            InputRouting::Artist => {
-                self.artist_list.push_text(c);
-                // Should be on artist_list instead?
-                self.fetch_search_suggestions();
-            }
-            InputRouting::Song => self.album_songs_list.push_text(c),
-        }
-    }
-    fn pop_text(&mut self) {
-        match self.input_routing {
-            InputRouting::Artist => {
-                self.artist_list.pop_text();
-                // Should be on artist_list instead?
-                self.fetch_search_suggestions();
-            }
-            InputRouting::Song => self.album_songs_list.pop_text(),
-        }
-    }
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.is_text_handling(),
             InputRouting::Song => self.album_songs_list.is_text_handling(),
         }
     }
-    fn get_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.get_text(),
             InputRouting::Song => self.album_songs_list.get_text(),
         }
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.replace_text(text),
             InputRouting::Song => self.album_songs_list.replace_text(text),
+        }
+    }
+    fn clear_text(&mut self) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.clear_text(),
+            InputRouting::Song => self.album_songs_list.clear_text(),
+        }
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.handle_event_repr(event),
+            InputRouting::Song => self.album_songs_list.handle_event_repr(event),
         }
     }
 }
@@ -412,7 +404,7 @@ impl Browser {
             }
         };
         if let Err(e) = self.async_tx.add_callback(
-            GetSearchSuggestions(self.artist_list.search.search_contents.clone()),
+            GetSearchSuggestions(self.artist_list.search.get_text().to_string()),
             handler,
             Some(Constraint::new_kill_same_type()),
         ) {
@@ -459,7 +451,7 @@ impl Browser {
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
-        let search_query = self.artist_list.search.get_text();
+        let search_query = self.artist_list.search.get_text().to_string();
 
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
@@ -497,7 +489,7 @@ impl Browser {
         search_suggestions: Vec<SearchSuggestion>,
         search: String,
     ) {
-        if self.artist_list.search.search_contents == search {
+        if self.artist_list.search.get_text() == search {
             self.artist_list.search.search_suggestions = search_suggestions;
             self.artist_list.search.suggestions_cur = None;
         }

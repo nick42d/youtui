@@ -261,20 +261,6 @@ impl Action for UIAction {
 }
 
 impl TextHandler for YoutuiWindow {
-    fn push_text(&mut self, c: char) {
-        match self.context {
-            WindowContext::Browser => self.browser.push_text(c),
-            WindowContext::Playlist => self.playlist.push_text(c),
-            WindowContext::Logs => self.logger.push_text(c),
-        }
-    }
-    fn pop_text(&mut self) {
-        match self.context {
-            WindowContext::Browser => self.browser.pop_text(),
-            WindowContext::Playlist => self.playlist.pop_text(),
-            WindowContext::Logs => self.logger.pop_text(),
-        }
-    }
     fn is_text_handling(&self) -> bool {
         match self.context {
             WindowContext::Browser => self.browser.is_text_handling(),
@@ -282,18 +268,32 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.is_text_handling(),
         }
     }
-    fn get_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         match self.context {
             WindowContext::Browser => self.browser.get_text(),
             WindowContext::Playlist => self.playlist.get_text(),
             WindowContext::Logs => self.logger.get_text(),
         }
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         match self.context {
             WindowContext::Browser => self.browser.replace_text(text),
             WindowContext::Playlist => self.playlist.replace_text(text),
             WindowContext::Logs => self.logger.replace_text(text),
+        }
+    }
+    fn clear_text(&mut self) -> bool {
+        match self.context {
+            WindowContext::Browser => self.browser.clear_text(),
+            WindowContext::Playlist => self.playlist.clear_text(),
+            WindowContext::Logs => self.logger.clear_text(),
+        }
+    }
+    fn handle_event_repr(&mut self, event: &Event) -> bool {
+        match self.context {
+            WindowContext::Browser => self.browser.handle_event_repr(event),
+            WindowContext::Playlist => self.playlist.handle_event_repr(event),
+            WindowContext::Logs => self.logger.handle_event_repr(event),
         }
     }
 }
