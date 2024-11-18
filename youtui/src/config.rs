@@ -31,8 +31,8 @@ pub struct Config {
 #[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum AuthType {
     #[value(name = "oauth")]
-    #[default]
     OAuth,
+    #[default]
     Browser,
 }
 
