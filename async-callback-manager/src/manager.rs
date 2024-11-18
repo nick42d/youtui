@@ -104,7 +104,10 @@ impl<Bkend, Cstrnt: PartialEq> AsyncCallbackManager<Bkend, Cstrnt> {
                 self.spawn_task(backend, task);
                 Some(ManagedEventType::SpawnedTask)
             },
-            Some(response) = self.tasks_list.process_next_response() => {
+            Some((response, forwarder)) = self.tasks_list.process_next_response() => {
+                if let Some(forwarder) = forwarder {
+                    let _ = forwarder.await;
+                }
                 (self.on_response_received)(response);
                 Some(ManagedEventType::ReceivedResponse)
             }
@@ -125,7 +128,11 @@ impl<Bkend, Cstrnt: PartialEq> AsyncCallbackManager<Bkend, Cstrnt> {
     /// Note that the 'on_next_response' callback is not called, you're given
     /// the ResponseInformation directly.
     pub async fn process_next_response(&mut self) -> Option<ResponseInformation> {
-        self.tasks_list.process_next_response().await
+        let (response, forwarder) = self.tasks_list.process_next_response().await?;
+        if let Some(forwarder) = forwarder {
+            let _ = forwarder.await;
+        }
+        Some(response)
     }
     fn spawn_task(&mut self, backend: &Bkend, task: TaskFromFrontend<Bkend, Cstrnt>) {
         (self.on_task_received)(task.get_information());
