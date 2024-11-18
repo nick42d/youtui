@@ -10,10 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.16](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.15...ytmapi-rs/v0.0.16) - 2024-11-18
 
 ### Added
-- refactor task management and improve responsiveness ([#178](https://github.com/nick42d/youtui/pull/178))
-
-
-
+- Small fixes to alternative TLS builders ([#178](https://github.com/nick42d/youtui/pull/178))
 
 ## [0.0.15](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.14...ytmapi-rs/v0.0.15) - 2024-10-26
 

@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [**breaking**] Update default auth method - closes [#179](https://github.com/nick42d/youtui/pull/179) ([#181](https://github.com/nick42d/youtui/pull/181))
 - _Youtui default auth method has changed from OAuth to Browser._ 
 
-
-
-
 ## [0.0.16](https://github.com/nick42d/youtui/compare/youtui/v0.0.15...youtui/v0.0.16) - 2024-10-26
 
 ### Fixed

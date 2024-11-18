@@ -10,10 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.4](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.3...json-crawler/v0.0.4) - 2024-11-18
 
 ### Added
-- refactor task management and improve responsiveness ([#178](https://github.com/nick42d/youtui/pull/178))
-
-
-
+- Added additional project lints only ([#178](https://github.com/nick42d/youtui/pull/178))
 
 ## [0.0.3](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.2...json-crawler/v0.0.3) - 2024-10-26
 
