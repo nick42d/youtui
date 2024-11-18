@@ -19,7 +19,9 @@ use crate::app::{
     CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
+use async_callback_manager::{
+    AsyncCallbackManager, AsyncCallbackSender, Constraint, StateMutationBundle,
+};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem, sync::Arc};
 use tokio::sync::mpsc;
@@ -271,9 +273,9 @@ impl Browser {
             async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
         }
     }
-    pub async fn async_update(&mut self) {
+    pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
         // TODO: Size
-        self.async_tx.get_next_mutations(10).await.apply(self)
+        self.async_tx.get_next_mutations(10).await
     }
     fn left(&mut self) {
         // Doesn't consider previous routing.

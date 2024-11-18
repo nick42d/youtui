@@ -22,7 +22,7 @@ use crate::async_rodio_sink::{
 use crate::core::{add_cb_or_error, add_stream_cb_or_error};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{
-    AsyncCallbackManager, AsyncCallbackSender, Constraint, TryBackendTaskExt,
+    AsyncCallbackManager, AsyncCallbackSender, Constraint, StateMutationBundle, TryBackendTaskExt,
 };
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
@@ -695,9 +695,9 @@ impl Playlist {
 }
 // Server handlers
 impl Playlist {
-    pub async fn async_update(&mut self) {
+    pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
         // TODO: Size
-        self.async_tx.get_next_mutations(10).await.apply(self)
+        self.async_tx.get_next_mutations(10).await
     }
     /// Handle song progress update from server.
     pub fn handle_song_download_progress_update(
