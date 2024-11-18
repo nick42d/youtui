@@ -78,9 +78,13 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
     pub(crate) fn new() -> Self {
         Self { inner: vec![] }
     }
-    /// Returns Some(ResponseInformation) if a task existed in the list, and it
-    /// was processed. Returns None, if no tasks were in the list.
-    pub(crate) async fn process_next_response(&mut self) -> Option<ResponseInformation> {
+    /// Returns Some(ResponseInformation, Option<DynFallibleFuture>) if a task
+    /// existed in the list, and it was processed. Returns None, if no tasks
+    /// were in the list. The DynFallibleFuture represents a future that
+    /// forwards messages from the manager back to the sender.
+    pub(crate) async fn process_next_response(
+        &mut self,
+    ) -> Option<(ResponseInformation, Option<DynFallibleFuture>)> {
         let task_completed = self
             .inner
             .iter_mut()
@@ -134,22 +138,20 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
             .await;
         let (maybe_completed_id, maybe_forwarder, type_id, type_name, sender_id, task_id) =
             task_completed?;
-        if let Some(forwarder) = maybe_forwarder {
-            // Whilst this seems inefficient, this removes an await point and therefore
-            // makes this function cancellation safe.
-            tokio::spawn(forwarder);
-        }
         if let Some(task_completed) = maybe_completed_id {
             // Safe - this value is in range as produced from enumerate on original list.
             self.inner.swap_remove(task_completed);
         }
-        Some(ResponseInformation {
-            type_id,
-            type_name,
-            sender_id,
-            task_id,
-            task_is_now_finished: maybe_completed_id.is_some(),
-        })
+        Some((
+            ResponseInformation {
+                type_id,
+                type_name,
+                sender_id,
+                task_id,
+                task_is_now_finished: maybe_completed_id.is_some(),
+            },
+            maybe_forwarder,
+        ))
     }
     pub(crate) fn push(&mut self, task: Task<Cstrnt>) {
         self.inner.push(task)
