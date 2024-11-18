@@ -198,7 +198,7 @@ where
         .await
         .is_err()
     {
-        return Err(Error::ErrorSending);
+        return Err(Error::ReceiverDropped);
     }
     Ok(())
 }
@@ -227,7 +227,7 @@ where
         let forward_message_task = forward_message_task(callback, sender).boxed();
         forwarder
             .send(Box::new(forward_message_task))
-            .map_err(|_| Error::ErrorSending)
+            .map_err(|_| Error::ReceiverDropped)
     }
     .boxed()
 }
@@ -239,5 +239,5 @@ async fn forward_message_task<Frntend>(
     sender
         .send(Box::new(callback))
         .await
-        .map_err(|_| Error::ErrorSending)
+        .map_err(|_| Error::ReceiverDropped)
 }

@@ -57,7 +57,7 @@ struct KillSignal(oneshot::Receiver<()>);
 impl KillHandle {
     fn kill(&mut self) -> Result<()> {
         if let Some(tx) = self.0.take() {
-            return tx.send(()).map_err(|_| Error::ErrorSending);
+            return tx.send(()).map_err(|_| Error::ReceiverDropped);
         }
         Ok(())
     }
