@@ -3,6 +3,7 @@ use crate::{
     app::{
         server::MAX_RETRIES,
         structures::{ListSongID, Percentage},
+        CALLBACK_CHANNEL_SIZE,
     },
     core::send_or_error,
 };
@@ -81,8 +82,7 @@ fn download_song(
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
 ) -> impl Stream<Item = DownloadProgressUpdate> {
-    // TODO: CHANNEL SIZE
-    let (tx, rx) = tokio::sync::mpsc::channel(50);
+    let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
         tracing::info!("Running download");
         send_or_error(
