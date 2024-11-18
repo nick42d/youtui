@@ -127,9 +127,6 @@ async fn main() {
 struct GetWordRequest;
 impl BackendTask<reqwest::Client> for GetWordRequest {
     type MetadataType = ();
-    fn metadata() -> Vec<Self::MetadataType> {
-        vec![]
-    }
     type Output = String;
     fn into_future(
         self,
@@ -153,9 +150,6 @@ struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;
     type MetadataType = ();
-    fn metadata() -> Vec<Self::MetadataType> {
-        vec![]
-    }
     fn into_stream(
         self,
         _: &T,
