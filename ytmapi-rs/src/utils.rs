@@ -2,7 +2,7 @@ pub mod constants {
     use const_format::concatcp;
 
     pub const USER_AGENT: &str =
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0";
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0";
     pub const YTM_URL: &str = "https://music.youtube.com";
     pub const YTM_API_URL: &str = "https://music.youtube.com/youtubei/v1/";
     pub const YTM_PARAMS: &str = "?alt=json&prettyPrint=false";
