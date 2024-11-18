@@ -147,6 +147,7 @@ impl Youtui {
                         Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
                             self.redraw = false;
                         },
+                        // If any state mutations have been received by the components, apply them.
                         _ = self.window_state.async_update() => (),
                     }
                 }
