@@ -1,5 +1,5 @@
 use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
@@ -72,38 +72,27 @@ pub trait KeyDisplayer {
         &'a self,
     ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
 }
-/// A component of the application that handles text entry.
-// TODO: Cursor position and movement.
+/// A component of the application that handles text entry, currently designed
+/// to wrap rat_text::TextInputState.
 pub trait TextHandler {
-    // TODO: cursor manipulation
-    fn push_text(&mut self, c: char);
-    fn pop_text(&mut self);
-    // Assume internal representation is a String.
-    fn take_text(&mut self) -> String;
-    // Assume internal representation is a String and we'll simply replace it with
-    // text. Into<String> may also work.
-    fn replace_text(&mut self, text: String);
+    /// Get a reference to the text.
+    fn get_text(&self) -> &str;
+    /// Clear text, returning false if it was already clear.
+    fn clear_text(&mut self) -> bool;
+    /// Replace all text
+    fn replace_text(&mut self, text: impl Into<String>);
+    /// Text handling could be a subset of the component. Return true if the
+    /// text handling subset is active.
     fn is_text_handling(&self) -> bool;
-    fn handle_text_entry(&mut self, key_event: KeyEvent) -> bool {
+    /// Handle a crossterm event, returning true if an event was handled.
+    fn handle_event_repr(&mut self, event: &Event) -> bool;
+    /// Default behaviour is to only handle an event if is_text_handling() ==
+    /// true.
+    fn handle_event(&mut self, event: &Event) -> bool {
         if !self.is_text_handling() {
             return false;
         }
-        // The only accepted modifier is shift - if pressing another set of modifiers,
-        // we won't handle it. Somewhere else should instead.
-        if !key_event.modifiers.is_empty() && key_event.modifiers != KeyModifiers::SHIFT {
-            return false;
-        }
-        match key_event.code {
-            KeyCode::Char(c) => {
-                self.push_text(c);
-                true
-            }
-            KeyCode::Backspace => {
-                self.pop_text();
-                true
-            }
-            _ => false,
-        }
+        self.handle_event_repr(event)
     }
 }
 // A text handler that can receive suggestions

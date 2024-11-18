@@ -282,11 +282,11 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.is_text_handling(),
         }
     }
-    fn take_text(&mut self) -> String {
+    fn get_text(&mut self) -> String {
         match self.context {
-            WindowContext::Browser => self.browser.take_text(),
-            WindowContext::Playlist => self.playlist.take_text(),
-            WindowContext::Logs => self.logger.take_text(),
+            WindowContext::Browser => self.browser.get_text(),
+            WindowContext::Playlist => self.playlist.get_text(),
+            WindowContext::Logs => self.logger.get_text(),
         }
     }
     fn replace_text(&mut self, text: String) {
@@ -339,7 +339,7 @@ impl YoutuiWindow {
         self.playlist.handle_tick().await;
     }
     async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
-        if self.handle_text_entry(key_event) {
+        if self.handle_event(key_event) {
             return;
         }
         self.key_stack.push(key_event);

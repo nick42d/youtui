@@ -138,10 +138,10 @@ impl TextHandler for Browser {
             InputRouting::Song => self.album_songs_list.is_text_handling(),
         }
     }
-    fn take_text(&mut self) -> String {
+    fn get_text(&mut self) -> String {
         match self.input_routing {
-            InputRouting::Artist => self.artist_list.take_text(),
-            InputRouting::Song => self.album_songs_list.take_text(),
+            InputRouting::Artist => self.artist_list.get_text(),
+            InputRouting::Song => self.album_songs_list.get_text(),
         }
     }
     fn replace_text(&mut self, text: String) {
@@ -459,7 +459,7 @@ impl Browser {
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
-        let search_query = self.artist_list.search.take_text();
+        let search_query = self.artist_list.search.get_text();
 
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
