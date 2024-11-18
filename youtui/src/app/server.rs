@@ -99,7 +99,7 @@ pub struct QueueSong {
 impl BackendTask<ArcServer> for GetSearchSuggestions {
     // TODO: Consider alternative where the text isn't returned back to the caller.
     type Output = Result<(Vec<SearchSuggestion>, String)>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -110,7 +110,7 @@ impl BackendTask<ArcServer> for GetSearchSuggestions {
 }
 impl BackendTask<ArcServer> for SearchArtists {
     type Output = Result<Vec<SearchResultArtist>>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -121,7 +121,7 @@ impl BackendTask<ArcServer> for SearchArtists {
 }
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     type Output = GetArtistSongsProgressUpdate;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -133,7 +133,7 @@ impl BackendStreamingTask<ArcServer> for GetArtistSongs {
 
 impl BackendStreamingTask<ArcServer> for DownloadSong {
     type Output = DownloadProgressUpdate;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -144,7 +144,7 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
 }
 impl BackendTask<ArcServer> for Seek {
     type Output = Option<ProgressUpdate<ListSongID>>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -155,7 +155,7 @@ impl BackendTask<ArcServer> for Seek {
 }
 impl BackendTask<ArcServer> for DecodeSong {
     type Output = std::result::Result<DecodedInMemSong, DecoderError>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         _backend: &ArcServer,
@@ -165,7 +165,7 @@ impl BackendTask<ArcServer> for DecodeSong {
 }
 impl BackendTask<ArcServer> for IncreaseVolume {
     type Output = Option<VolumeUpdate>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -176,7 +176,7 @@ impl BackendTask<ArcServer> for IncreaseVolume {
 }
 impl BackendTask<ArcServer> for Stop {
     type Output = Option<Stopped<ListSongID>>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -187,7 +187,7 @@ impl BackendTask<ArcServer> for Stop {
 }
 impl BackendTask<ArcServer> for PausePlay {
     type Output = Option<PausePlayResponse<ListSongID>>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_future(
         self,
         backend: &ArcServer,
@@ -195,14 +195,14 @@ impl BackendTask<ArcServer> for PausePlay {
         let backend = backend.clone();
         async move { backend.player.pause_play(self.0).await }
     }
-    fn metadata() -> Vec<Self::ConstraintType> {
+    fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayPause]
     }
 }
 
 impl BackendStreamingTask<ArcServer> for PlaySong {
     type Output = PlayUpdate<ListSongID>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -210,13 +210,13 @@ impl BackendStreamingTask<ArcServer> for PlaySong {
         let backend = backend.clone();
         backend.player.play_song(self.song, self.id)
     }
-    fn metadata() -> Vec<Self::ConstraintType> {
+    fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayingSong]
     }
 }
 impl BackendStreamingTask<ArcServer> for AutoplaySong {
     type Output = AutoplayUpdate<ListSongID>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -224,13 +224,13 @@ impl BackendStreamingTask<ArcServer> for AutoplaySong {
         let backend = backend.clone();
         backend.player.autoplay_song(self.song, self.id)
     }
-    fn metadata() -> Vec<Self::ConstraintType> {
+    fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayingSong]
     }
 }
 impl BackendStreamingTask<ArcServer> for QueueSong {
     type Output = QueueUpdate<ListSongID>;
-    type ConstraintType = TaskMetadata;
+    type MetadataType = TaskMetadata;
     fn into_stream(
         self,
         backend: &ArcServer,
@@ -238,7 +238,7 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
         let backend = backend.clone();
         backend.player.queue_song(self.song, self.id)
     }
-    fn metadata() -> Vec<Self::ConstraintType> {
+    fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayingSong]
     }
 }

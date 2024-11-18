@@ -89,9 +89,9 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
                 match task.receiver {
                     TaskReceiver::Future(ref mut receiver) => {
                         if let Ok(forwarder) = receiver.await {
-                            let _ = forwarder.await;
                             return (
                                 Some(idx),
+                                Some(forwarder),
                                 task.type_id,
                                 task.type_name,
                                 task.sender_id,
@@ -99,6 +99,7 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
                             );
                         }
                         (
+                            Some(idx),
                             None,
                             task.type_id,
                             task.type_name,
@@ -108,9 +109,9 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
                     }
                     TaskReceiver::Stream(ref mut receiver) => {
                         if let Some(forwarder) = receiver.recv().await {
-                            let _ = forwarder.await;
                             return (
                                 None,
+                                Some(forwarder),
                                 task.type_id,
                                 task.type_name,
                                 task.sender_id,
@@ -119,6 +120,7 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
                         }
                         (
                             Some(idx),
+                            None,
                             task.type_id,
                             task.type_name,
                             task.sender_id,
@@ -130,18 +132,23 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
             .collect::<FuturesUnordered<_>>()
             .next()
             .await;
-        if let Some((Some(task_completed), ..)) = task_completed {
+        let (maybe_completed_id, maybe_forwarder, type_id, type_name, sender_id, task_id) =
+            task_completed?;
+        if let Some(forwarder) = maybe_forwarder {
+            // Whilst this seems inefficient, this removes an await point and therefore
+            // makes this function cancellation safe.
+            tokio::spawn(forwarder);
+        }
+        if let Some(task_completed) = maybe_completed_id {
             // Safe - this value is in range as produced from enumerate on original list.
             self.inner.swap_remove(task_completed);
         }
-        task_completed.map(|(maybe_idx, type_id, type_name, sender_id, task_id)| {
-            ResponseInformation {
-                type_id,
-                type_name,
-                sender_id,
-                task_id,
-                task_is_now_finished: maybe_idx.is_some(),
-            }
+        Some(ResponseInformation {
+            type_id,
+            type_name,
+            sender_id,
+            task_id,
+            task_is_now_finished: maybe_completed_id.is_some(),
         })
     }
     pub(crate) fn push(&mut self, task: Task<Cstrnt>) {
@@ -158,7 +165,7 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
         let task_doesnt_match_constraint =
             |task: &Task<_>| (task.type_id != type_id) || (task.sender_id != sender_id);
         let task_doesnt_match_metadata =
-            |task: &Task<_>, constraint: &Cstrnt| !task.metadata.contains(constraint);
+            |task: &Task<_>, constraint| !task.metadata.contains(constraint);
         match constraint.constraint_type {
             ConstraitType::BlockMatchingMetatdata(metadata) => self
                 .inner
@@ -178,6 +185,7 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
 }
 
 impl<Bkend, Cstrnt> TaskFromFrontend<Bkend, Cstrnt> {
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         type_id: TypeId,
         type_name: &'static str,

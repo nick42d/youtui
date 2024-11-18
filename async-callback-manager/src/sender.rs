@@ -25,13 +25,24 @@ pub struct AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
 pub struct StateMutationBundle<Frntend> {
     mutation_list: Vec<DynCallbackFn<Frntend>>,
 }
-// fn map<Frntend, NewFrntend>(
-//     f: DynCallbackFn<Frntend>,
-//     mut nf: impl FnMut(&mut NewFrntend) -> &mut Frntend + Send + 'static,
-// ) -> DynCallbackFn<NewFrntend> {
-//     let closure = move |x: &mut NewFrntend| f(nf(x));
-//     Box::new(closure)
-// }
+fn map<Frntend: 'static, NewFrntend>(
+    f: DynCallbackFn<Frntend>,
+    mut nf: impl FnMut(&mut NewFrntend) -> &mut Frntend + Send + 'static,
+) -> DynCallbackFn<NewFrntend> {
+    let closure = move |x: &mut NewFrntend| f(nf(x));
+    Box::new(closure)
+}
+impl<Frntend: 'static> StateMutationBundle<Frntend> {
+    fn map<NewFrntend>(
+        self,
+        nf: impl FnMut(&mut NewFrntend) -> &mut Frntend + Send + Copy + 'static,
+    ) -> StateMutationBundle<NewFrntend> {
+        let Self { mutation_list } = self;
+        let mutation_list: Vec<DynCallbackFn<NewFrntend>> =
+            mutation_list.into_iter().map(|m| map(m, nf)).collect();
+        StateMutationBundle { mutation_list }
+    }
+}
 impl<Frntend> StateMutationBundle<Frntend> {
     pub fn apply(self, frontend: &mut Frntend) {
         self.mutation_list
@@ -61,7 +72,7 @@ impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
         constraint: Option<Constraint<Cstrnt>>,
     ) -> Result<()>
     where
-        R: BackendStreamingTask<Bkend, ConstraintType = Cstrnt> + 'static,
+        R: BackendStreamingTask<Bkend, MetadataType = Cstrnt> + 'static,
         Bkend: Send + 'static,
         Frntend: 'static,
     {
@@ -93,7 +104,7 @@ impl<Bkend, Frntend, Cstrnt> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
         constraint: Option<Constraint<Cstrnt>>,
     ) -> Result<()>
     where
-        R: BackendTask<Bkend, ConstraintType = Cstrnt> + 'static,
+        R: BackendTask<Bkend, MetadataType = Cstrnt> + 'static,
         Bkend: Send + 'static,
         Frntend: 'static,
     {

@@ -20,7 +20,7 @@ struct MockMutatingBackend {
 
 impl BackendTask<Arc<Mutex<MockMutatingBackend>>> for DelayedBackendMutatingRequest {
     type Output = String;
-    type ConstraintType = ();
+    type MetadataType = ();
     fn into_future(
         self,
         backend: &Arc<Mutex<MockMutatingBackend>>,
@@ -37,7 +37,7 @@ impl BackendTask<Arc<Mutex<MockMutatingBackend>>> for DelayedBackendMutatingRequ
 }
 impl<T: Send> BackendTask<T> for TextTask {
     type Output = String;
-    type ConstraintType = ();
+    type MetadataType = ();
     // Manual async function required due to bounds.
     #[allow(clippy::manual_async_fn)]
     fn into_future(self, _: &T) -> impl Future<Output = Self::Output> + Send + 'static {
@@ -46,7 +46,7 @@ impl<T: Send> BackendTask<T> for TextTask {
 }
 impl<T> BackendStreamingTask<T> for StreamingCounterTask {
     type Output = usize;
-    type ConstraintType = ();
+    type MetadataType = ();
     fn into_stream(
         self,
         _: &T,
@@ -58,7 +58,7 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
     for DelayedBackendMutatingStreamingCounterTask
 {
     type Output = usize;
-    type ConstraintType = ();
+    type MetadataType = ();
     fn into_stream(
         self,
         backend: &Arc<Mutex<MockMutatingBackend>>,

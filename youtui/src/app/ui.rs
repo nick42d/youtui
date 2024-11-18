@@ -13,7 +13,7 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::core::send_or_error;
+use crate::core::{add_cb_or_error, send_or_error};
 use async_callback_manager::{AsyncCallbackSender, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::widgets::TableState;
@@ -349,7 +349,8 @@ impl YoutuiWindow {
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        self.async_tx.add_callback(
+        add_cb_or_error(
+            &self.async_tx,
             IncreaseVolume(inc),
             Self::handle_volume_update,
             Some(Constraint::new_block_same_type()),
