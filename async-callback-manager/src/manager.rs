@@ -122,7 +122,8 @@ impl<Bkend, Cstrnt: PartialEq> AsyncCallbackManager<Bkend, Cstrnt> {
     /// Spawns the next incoming task from a sender.
     /// Returns Some(ResponseInformation), if a task was spawned.
     /// Returns None, if no senders.
-    /// Note that the 'on_next_response' callback is not called!
+    /// Note that the 'on_next_response' callback is not called, you're given
+    /// the ResponseInformation directly.
     pub async fn process_next_response(&mut self) -> Option<ResponseInformation> {
         self.tasks_list.process_next_response().await
     }

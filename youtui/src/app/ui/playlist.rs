@@ -213,7 +213,7 @@ impl SongListComponent for Playlist {
 
 // Primatives
 impl Playlist {
-    pub async fn new(
+    pub fn new(
         callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
         ui_tx: mpsc::Sender<AppCallback>,
     ) -> Self {

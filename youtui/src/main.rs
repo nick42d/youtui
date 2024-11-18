@@ -323,7 +323,7 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
-    let mut app = app::Youtui::new(rt).await?;
+    let mut app = app::Youtui::new(rt)?;
     app.run().await?;
     Ok(())
 }

@@ -299,7 +299,7 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub async fn new(
+    pub fn new(
         callback_tx: mpsc::Sender<AppCallback>,
         callback_manager: &mut async_callback_manager::AsyncCallbackManager<
             ArcServer,
@@ -309,7 +309,7 @@ impl YoutuiWindow {
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_manager, callback_tx.clone()).await,
+            playlist: Playlist::new(callback_manager, callback_tx.clone()),
             browser: Browser::new(callback_manager, callback_tx.clone()),
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),

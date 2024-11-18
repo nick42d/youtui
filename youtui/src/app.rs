@@ -66,7 +66,7 @@ pub enum AppCallback {
 }
 
 impl Youtui {
-    pub async fn new(rt: RuntimeInfo) -> Result<Youtui> {
+    pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
         let RuntimeInfo {
             api_key,
             debug,
@@ -108,7 +108,7 @@ impl Youtui {
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager).await;
+        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager);
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,
