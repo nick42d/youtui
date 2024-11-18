@@ -1,6 +1,9 @@
 use bytes::Bytes;
 use rusty_ytdl::VideoError;
 
+/// Helper function to use rusty_ytdl::stream::Stream is if it were a
+/// futures::Stream.
+// NOTE: Potentially could be upstreamed: https://github.com/Mithronn/rusty_ytdl/issues/34.
 pub fn into_futures_stream(
     youtube_stream: Box<dyn rusty_ytdl::stream::Stream + Send>,
 ) -> impl futures::Stream<Item = Result<Bytes, VideoError>> + Send {
