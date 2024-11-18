@@ -12,8 +12,8 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
-/// log an error with Tracing.
+/// Send a streaming callback to the specified AsyncCallbackSender, and if
+/// sending fails, log an error with Tracing.
 pub fn add_stream_cb_or_error<Bkend, Frntend, Cstrnt, R>(
     sender: &AsyncCallbackSender<Bkend, Frntend, Cstrnt>,
     // Bounds are from AsyncCallbackSender's own impl.
@@ -30,7 +30,7 @@ pub fn add_stream_cb_or_error<Bkend, Frntend, Cstrnt, R>(
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
+/// Send a callback to the specified AsyncCallbackSender, and if sending fails,
 /// log an error with Tracing.
 pub fn add_cb_or_error<Bkend, Frntend, Cstrnt, R>(
     sender: &AsyncCallbackSender<Bkend, Frntend, Cstrnt>,
