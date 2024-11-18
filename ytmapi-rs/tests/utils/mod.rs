@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 use std::{env, path::Path};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},

@@ -50,6 +50,9 @@ simplified-queries = []
 # NOTE: serde_json dependency is still required whether or not this feature is enabled, as it is used internally.
 serde_json = []
 
+[lints]
+workspace = true
+
 # Dev only section
 [dev-dependencies]
 pretty_assertions = "1.4.0"

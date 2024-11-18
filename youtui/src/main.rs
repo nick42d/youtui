@@ -1,6 +1,3 @@
-// Clippy project config
-#![warn(clippy::unwrap_used)]
-
 use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
@@ -13,6 +10,7 @@ use ytmapi_rs::auth::OAuthToken;
 mod api;
 mod app;
 mod appevent;
+mod async_rodio_sink;
 mod cli;
 mod config;
 mod core;

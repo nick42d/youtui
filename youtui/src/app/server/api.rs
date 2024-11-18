@@ -1,161 +1,72 @@
-use super::{messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent};
 use crate::{
-    api::DynamicYtMusic, app::taskmanager::TaskID, config::ApiKey, core::send_or_error,
-    error::Error, get_config_dir, Result, OAUTH_FILENAME,
+    api::DynamicYtMusic, config::ApiKey, core::send_or_error, error::Error, get_config_dir, Result,
+    OAUTH_FILENAME,
 };
-use futures::{future::Shared, stream::FuturesOrdered, Future, FutureExt, StreamExt};
+use async_cell::sync::AsyncCell;
+use futures::stream::FuturesOrdered;
+use futures::{Stream, StreamExt};
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
-    sync::{
-        mpsc::{self, Sender},
-        RwLock,
-    },
+    sync::{mpsc::Sender, RwLock},
 };
+use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
+use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
     error::ErrorKind,
-    parse::{AlbumSong, GetAlbum, GetArtistAlbums},
+    parse::{GetAlbum, GetArtistAlbums},
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
-#[derive(Debug)]
-pub enum KillableServerRequest {
-    GetSearchSuggestions(String),
-    NewArtistSearch(String),
-    SearchSelectedArtist(ArtistChannelID<'static>),
-}
-#[derive(Debug)]
-pub enum UnkillableServerRequest {}
-
-pub enum Response {
-    ReplaceArtistList(Vec<ytmapi_rs::parse::SearchResultArtist>),
-    SearchArtistError,
-    ReplaceSearchSuggestions(Vec<SearchSuggestion>, String),
-    SongListLoading,
-    SongListLoaded,
-    NoSongsFound,
-    SongsFound,
-    AppendSongList {
-        song_list: Vec<AlbumSong>,
-        album: String,
-        year: String,
-        artist: String,
-    },
-}
-
-// Custom debug due to size of vec params.
-impl std::fmt::Debug for Response {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Response::ReplaceArtistList(_) => f
-                .debug_tuple("ReplaceArtistList")
-                .field(&"Vec<..>")
-                .finish(),
-            Response::SearchArtistError => f.debug_tuple("SearchArtistError").finish(),
-            Response::ReplaceSearchSuggestions(_, b) => f
-                .debug_tuple("ReplaceSearchSuggestions")
-                .field(&"Vec<..>")
-                .field(b)
-                .finish(),
-            Response::SongListLoading => f.debug_tuple("SongListLoading").finish(),
-            Response::SongListLoaded => f.debug_tuple("SongListLoaded").finish(),
-            Response::NoSongsFound => f.debug_tuple("NoSongsFound").finish(),
-            Response::SongsFound => f.debug_tuple("SongsFound").finish(),
-            Response::AppendSongList {
-                song_list: _,
-                album,
-                year,
-                artist,
-            } => f
-                .debug_struct("AppendSongList")
-                .field("song_list", &"Vec<..>")
-                .field("album", album)
-                .field("year", year)
-                .field("artist", artist)
-                .finish(),
-        }
-    }
-}
-
-pub struct Api<T> {
-    api: T,
-    response_tx: mpsc::Sender<ServerResponse>,
+pub struct Api {
+    api: Arc<AsyncCell<std::result::Result<ConcurrentApi, String>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
-async fn get_concrete_type(
-    j: tokio::task::JoinHandle<Result<ConcurrentApi>>,
-) -> Arc<Result<ConcurrentApi>> {
-    Arc::new(j.await.expect("Create new API task should never panic"))
-}
-
-impl Api<()> {
-    pub fn new(
-        api_key: ApiKey,
-        response_tx: mpsc::Sender<ServerResponse>,
-    ) -> Api<Shared<impl Future<Output = Arc<Result<ConcurrentApi>>>>> {
-        let api_handle = tokio::spawn(async {
-            DynamicYtMusic::new(api_key)
+impl Api {
+    pub fn new(api_key: ApiKey) -> Api {
+        let api = AsyncCell::new().into_shared();
+        let api_clone = api.clone();
+        tokio::spawn(async move {
+            let api = DynamicYtMusic::new(api_key)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)))
-                .map_err(Into::into)
+                // Hack to allow error to be cloneable.
+                .map_err(|e| format!("{:?}", e));
+            api_clone.set(api)
         });
-        let api = get_concrete_type(api_handle).shared();
-        Api { api, response_tx }
+        Api { api }
     }
-}
-
-impl<T> Api<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
-    pub async fn get_api(&self) -> Arc<Result<ConcurrentApi>> {
-        self.api.clone().await
+    pub async fn get_api(&self) -> std::result::Result<ConcurrentApi, String> {
+        // Note that the error, if it exists, is cloned here.
+        self.api.get().await
     }
-}
-
-impl<T> ServerComponent for Api<Shared<T>>
-where
-    T: Future<Output = Arc<Result<ConcurrentApi>>>,
-{
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-
-    async fn handle_killable_request(
+    pub async fn get_search_suggestions(
         &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> Result<()> {
-        let KillableTask { id, kill_rx } = task;
-        let tx = self.response_tx.clone();
-        // Note - this only allocates in the Error case - the Ok case is wrapped in Arc
-        // internally.
-        let api = (*self.get_api().await)
-            .as_ref()
-            .map_err(Error::new_api_error_cloned)?
-            .clone();
-        match request {
-            KillableServerRequest::NewArtistSearch(artist) => {
-                spawn_run_or_kill(handle_new_artist_search_task(api, artist, id, tx), kill_rx)
-            }
-            KillableServerRequest::GetSearchSuggestions(text) => {
-                spawn_run_or_kill(get_search_suggestions_task(api, text, id, tx), kill_rx)
-            }
-            KillableServerRequest::SearchSelectedArtist(browse_id) => {
-                spawn_run_or_kill(search_selected_artist_task(api, browse_id, id, tx), kill_rx);
-            }
-        };
-        Ok(())
+        text: String,
+    ) -> Result<(Vec<SearchSuggestion>, String)> {
+        get_search_suggestions(
+            self.get_api().await.map_err(Error::new_api_error_string)?,
+            text,
+        )
+        .await
     }
-    async fn handle_unkillable_request(
+    pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
+        search_artists(
+            self.get_api().await.map_err(Error::new_api_error_string)?,
+            text,
+        )
+        .await
+    }
+    pub fn get_artist_songs(
         &self,
-        request: Self::UnkillableRequestType,
-        _: TaskID,
-    ) -> Result<()> {
-        match request {};
+        browse_id: ArtistChannelID<'static>,
+    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
+        let api = self.api.clone();
+        get_artist_songs(api, browse_id)
     }
 }
 
@@ -231,186 +142,164 @@ where
     }
 }
 
-async fn handle_new_artist_search_task(
-    api: ConcurrentApi,
-    artist: String,
-    id: TaskID,
-    tx: Sender<ServerResponse>,
-) {
-    tracing::info!("Running search query");
-    let search_res = match query_api_with_retry(
-        &api,
-        ytmapi_rs::query::SearchQuery::new(artist)
-            .with_filter(ytmapi_rs::query::ArtistsFilter)
-            .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch),
-    )
-    .await
-    {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Received error on search artist query \"{}\"", e);
-            send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
-            return;
-        }
-    };
-    let artist_list = search_res.into_iter().collect();
-    tracing::info!("Requesting caller to replace artist list");
-    send_or_error(
-        tx,
-        ServerResponse::new_api(id, Response::ReplaceArtistList(artist_list)),
-    )
-    .await;
+async fn search_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
+    tracing::info!("Getting artists for {text}");
+    let query = ytmapi_rs::query::SearchQuery::new(text)
+        .with_filter(ytmapi_rs::query::ArtistsFilter)
+        .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch);
+    query_api_with_retry(&api, query).await
 }
 
-async fn get_search_suggestions_task(
+pub async fn get_search_suggestions(
     api: ConcurrentApi,
     text: String,
-    id: TaskID,
-    tx: Sender<ServerResponse>,
-) {
+) -> Result<(Vec<SearchSuggestion>, String)> {
     tracing::info!("Getting search suggestions for {text}");
     let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
-    let search_suggestions = match query_api_with_retry(&api, query).await {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Received error on search suggestions query \"{}\"", e);
-            return;
-        }
-    };
-    tracing::info!("Requesting caller to replace search suggestions");
-    send_or_error(
-        tx,
-        ServerResponse::new_api(
-            id,
-            Response::ReplaceSearchSuggestions(search_suggestions, text),
-        ),
-    )
-    .await;
+    let results = query_api_with_retry(&api, query).await?;
+    Ok((results, text))
 }
 
-async fn search_selected_artist_task(
-    api: ConcurrentApi,
-    browse_id: ArtistChannelID<'static>,
-    id: TaskID,
-    tx: Sender<ServerResponse>,
-) {
-    let tx = tx.clone();
-    send_or_error(&tx, ServerResponse::new_api(id, Response::SongListLoading)).await;
-    tracing::info!("Running songs query");
-    // Should this be a ChannelID or BrowseID? Should take a trait?.
-    // Should this actually take ChannelID::try_from(BrowseID::Artist) ->
-    // ChannelID::Artist?
-    let query = ytmapi_rs::query::GetArtistQuery::new(browse_id);
-    let artist = query_api_with_retry(&api, query).await;
-    let artist = match artist {
-        Ok(a) => a,
-        Err(e) => {
-            let Error::Api(e) = e else {
-                error!("API error received <{e}>");
-                info!("Telling caller no songs found (error)");
-                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
-                return;
-            };
-            let e = e.into_kind();
-            let ErrorKind::JsonParsing(e) = e else {
-                error!("API error received <{}>", e);
-                info!("Telling caller no songs found (error)");
-                send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
-                return;
-            };
-            let (json, key) = e.get_json_and_key();
-            // TODO: Bring loggable json errors into their own function.
-            error!("API error recieved at key {:?}", key);
-            // compile_error!("Remove shitty logging");
-            let path = std::path::Path::new("test.json");
-            std::fs::write(path, json).unwrap_or_else(|e| error!("Error <{e}> writing json log"));
-            info!("Wrote json to {:?}", path);
-            tracing::info!("Telling caller no songs found (error)");
-            send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
-            return;
-        }
-    };
-    let Some(albums) = artist.top_releases.albums else {
-        tracing::info!("Telling caller no songs found (no params)");
-        send_or_error(tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
-        return;
-    };
+pub enum GetArtistSongsProgressUpdate {
+    Loading,
+    NoSongsFound,
+    SearchArtistError,
+    SongsFound,
+    Songs {
+        song_list: Vec<AlbumSong>,
+        album: String,
+        year: String,
+        artist: String,
+    },
+    AllSongsSent,
+}
 
-    let GetArtistAlbums {
-        browse_id: artist_albums_browse_id,
-        params: artist_albums_params,
-        results: artist_albums_results,
-        ..
-    } = albums;
-    let browse_id_list: Vec<AlbumID> = if artist_albums_browse_id.is_none()
-        && artist_albums_params.is_none()
-        && !artist_albums_results.is_empty()
-    {
-        // Assume we already got all the albums from the search.
-        artist_albums_results
-            .into_iter()
-            .map(|r| r.album_id)
-            .collect()
-    } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
-        tracing::info!("Telling caller no songs found (no params or browse_id)");
-        send_or_error(&tx, ServerResponse::new_api(id, Response::NoSongsFound)).await;
-        return;
-    } else {
-        // Must have params and browse_id
-        let Some(temp_browse_id) = artist_albums_browse_id else {
-            unreachable!("Checked not none above")
+fn get_artist_songs(
+    api: Arc<AsyncCell<std::result::Result<ConcurrentApi, String>>>,
+    browse_id: ArtistChannelID<'static>,
+) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
+    /// Bailout function that will log an error and send NoSongsFound if we get
+    /// an unrecoverable error.
+    async fn bailout(e: impl std::fmt::Display, tx: Sender<GetArtistSongsProgressUpdate>) {
+        error!("API error received <{e}>");
+        info!("Telling caller no songs found (error)");
+        send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
+    }
+
+    let (tx, rx) = tokio::sync::mpsc::channel(50);
+    tokio::spawn(async move {
+        tracing::info!("Running songs query");
+        send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
+        let api = match api.get().await {
+            Err(e) => return bailout(e, tx).await,
+            Ok(api) => api,
         };
-        let Some(temp_params) = artist_albums_params else {
-            unreachable!("Checked not none above")
-        };
-        let query = GetArtistAlbumsQuery::new(temp_browse_id, temp_params);
-        let albums = match query_api_with_retry(&api, query).await {
-            Ok(r) => r,
+        let query = ytmapi_rs::query::GetArtistQuery::new(&browse_id);
+        let artist = query_api_with_retry(&api, query).await;
+        let artist = match artist {
+            Ok(a) => a,
             Err(e) => {
-                error!("Received error on get_artist_albums query \"{}\"", e);
-                // TODO: Better Error type
-                send_or_error(tx, ServerResponse::new_api(id, Response::SearchArtistError)).await;
+                let Error::Api(e) = e else {
+                    return bailout(e, tx).await;
+                };
+                let e = e.into_kind();
+                let ErrorKind::JsonParsing(e) = e else {
+                    return bailout(e, tx).await;
+                };
+                let (json, key) = e.get_json_and_key();
+                // TODO: Bring loggable json errors into their own function.
+                error!("API error recieved at key {:?}", key);
+                // compile_error!("Remove shitty logging");
+                let path = std::path::Path::new("test.json");
+                std::fs::write(path, json)
+                    .unwrap_or_else(|e| error!("Error <{e}> writing json log"));
+                info!("Wrote json to {:?}", path);
+                tracing::info!("Telling caller no songs found (error)");
+                send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
                 return;
             }
         };
-        albums.into_iter().map(|a| a.browse_id).collect()
-    };
-    send_or_error(&tx, ServerResponse::new_api(id, Response::SongsFound)).await;
-    // Request all albums, concurrently but retaining order.
-    // Future improvement: instead of using a FuturesOrdered, we could send
-    // willy-nilly but with an index, so the caller can insert songs in place.
-    let mut stream = browse_id_list
-        .into_iter()
-        .map(|b_id| {
-            let api = &api;
-            async move {
-                tracing::info!("Spawning request for caller tracks for request ID {:?}", id,);
-                let query = GetAlbumQuery::new(&b_id);
-                query_api_with_retry(api, query).await
-            }
-        })
-        .collect::<FuturesOrdered<_>>();
-    while let Some(maybe_album) = stream.next().await {
-        let album = match maybe_album {
-            Ok(album) => album,
-            Err(e) => {
-                error!("Error <{e}> getting album");
-                return;
-            }
+        let Some(albums) = artist.top_releases.albums else {
+            tracing::info!("Telling caller no songs found (no params)");
+            send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
+            return;
         };
-        let GetAlbum {
-            title,
-            artists,
-            year,
-            tracks,
+
+        let GetArtistAlbums {
+            browse_id: artist_albums_browse_id,
+            params: artist_albums_params,
+            results: artist_albums_results,
             ..
-        } = album;
-        tracing::info!("Sending caller tracks for request ID {:?}", id);
-        send_or_error(
-            &tx,
-            ServerResponse::new_api(
-                id,
-                Response::AppendSongList {
+        } = albums;
+        let browse_id_list: Vec<AlbumID> = if artist_albums_browse_id.is_none()
+            && artist_albums_params.is_none()
+            && !artist_albums_results.is_empty()
+        {
+            // Assume we already got all the albums from the search.
+            artist_albums_results
+                .into_iter()
+                .map(|r| r.album_id)
+                .collect()
+        } else if artist_albums_params.is_none() || artist_albums_browse_id.is_none() {
+            tracing::info!("Telling caller no songs found (no params or browse_id)");
+            send_or_error(&tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
+            return;
+        } else {
+            // Must have params and browse_id
+            let Some(temp_browse_id) = artist_albums_browse_id else {
+                unreachable!("Checked not none above")
+            };
+            let Some(temp_params) = artist_albums_params else {
+                unreachable!("Checked not none above")
+            };
+            let query = GetArtistAlbumsQuery::new(temp_browse_id, temp_params);
+            let albums = match query_api_with_retry(&api, query).await {
+                Ok(r) => r,
+                Err(e) => {
+                    error!("Received error on get_artist_albums query \"{}\"", e);
+                    // TODO: Better Error type
+                    send_or_error(tx, GetArtistSongsProgressUpdate::SearchArtistError).await;
+                    return;
+                }
+            };
+            albums.into_iter().map(|a| a.browse_id).collect()
+        };
+        send_or_error(&tx, GetArtistSongsProgressUpdate::SongsFound).await;
+        // Request all albums, concurrently but retaining order.
+        // Future improvement: instead of using a FuturesOrdered, we could send
+        // willy-nilly but with an index, so the caller can insert songs in place.
+        let mut stream = browse_id_list
+            .into_iter()
+            .inspect(|a_id| {
+                tracing::info!("Spawning request for caller tracks for album ID {:?}", a_id,)
+            })
+            .map(|a_id| {
+                let api = api.clone();
+                async move {
+                    let query = GetAlbumQuery::new(&a_id);
+                    query_api_with_retry(&api, query).await
+                }
+            })
+            .collect::<FuturesOrdered<_>>();
+        while let Some(maybe_album) = stream.next().await {
+            let album = match maybe_album {
+                Ok(album) => album,
+                Err(e) => {
+                    error!("Error <{e}> getting album");
+                    return;
+                }
+            };
+            let GetAlbum {
+                title,
+                artists,
+                year,
+                tracks,
+                ..
+            } = album;
+            tracing::info!("Sending caller tracks for artist {:?}", browse_id);
+            send_or_error(
+                &tx,
+                GetArtistSongsProgressUpdate::Songs {
                     song_list: tracks,
                     album: title,
                     year,
@@ -420,9 +309,10 @@ async fn search_selected_artist_task(
                         .map(|a| a.name)
                         .unwrap_or_default(),
                 },
-            ),
-        )
-        .await;
-    }
-    send_or_error(tx, ServerResponse::new_api(id, Response::SongListLoaded)).await;
+            )
+            .await;
+        }
+        send_or_error(tx, GetArtistSongsProgressUpdate::AllSongsSent).await;
+    });
+    ReceiverStream::new(rx)
 }

@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use crossterm::event::KeyCode;
+use ratatui::widgets::ListState;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 use crate::app::{
@@ -29,6 +30,7 @@ pub struct ArtistSearchPanel {
     search_keybinds: Vec<KeyCommand<BrowserAction>>,
     pub search_popped: bool,
     pub search: SearchBlock,
+    pub widget_state: ListState,
 }
 
 #[derive(Default, Clone)]
@@ -209,6 +211,9 @@ impl Loadable for ArtistSearchPanel {
 }
 impl ListView for ArtistSearchPanel {
     type DisplayItem = String;
+    fn get_state(&self) -> ratatui::widgets::ListState {
+        self.widget_state.clone()
+    }
     fn get_items_display(&self) -> Vec<&Self::DisplayItem> {
         self.list
             .iter()

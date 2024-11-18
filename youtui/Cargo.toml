@@ -21,28 +21,23 @@ ratatui = { version = "0.28.0", features = ["all-widgets"] }
 serde = "1.0.209"
 serde_json = "1.0.127"
 tokio = "1.39.3"
+gag = "1.0.0"
 ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.15", default-features = false, features = [
-  "rustls-tls",
-  "simplified-queries",
+    "rustls-tls",
+    "simplified-queries",
 ] }
+async-callback-manager = { path = "../async-callback-manager", version = "0.0.1" }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-tui-logger = { version = "0.12.0", features = [
-  "tracing-support",
-] }
+tui-logger = { version = "0.12.0", features = ["tracing-support"] }
 directories = "5.0.1"
-gag = "1.0.0"
 toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
-
-# Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
-[dependencies.rodio]
-# version = "0.19.0"
-version = "0.19.0-youtui-vendored.1"
-package = "youtui-vendored-rodio"
-features = ["symphonia-all"]
+tokio-stream = "0.1.16"
+async_cell = "0.2.2"
+bytes = "1.7.2"
 
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
@@ -50,7 +45,14 @@ features = ["symphonia-all"]
 version = "0.7.4-youtui-vendored.1"
 package = "youtui-vendored-rusty_ytdl"
 default-features = false
-features = [
-  "live",
-  "rustls-tls",
-]
+features = ["live", "rustls-tls"]
+
+# Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
+[dependencies.rodio]
+version = "0.20.1"
+# version = "0.19.0-youtui-vendored.1"
+# package = "youtui-vendored-rodio"
+features = ["symphonia-all"]
+
+[lints]
+workspace = true

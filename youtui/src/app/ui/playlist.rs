@@ -1,4 +1,8 @@
-use crate::app::server::downloader::DownloadProgressUpdateType;
+use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::{
+    ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
+    QueueSong, Seek, Stop, TaskMetadata,
+};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -10,9 +14,18 @@ use crate::app::{
     ui::{AppCallback, WindowContext},
 };
 
-use crate::app::YoutuiMutableState;
+use crate::app::CALLBACK_CHANNEL_SIZE;
+use crate::async_rodio_sink::{
+    AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
+    VolumeUpdate,
+};
+use crate::core::{add_cb_or_error, add_stream_cb_or_error};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
+use async_callback_manager::{
+    AsyncCallbackManager, AsyncCallbackSender, Constraint, StateMutationBundle, TryBackendTaskExt,
+};
 use crossterm::event::KeyCode;
+use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
 use std::iter;
 use std::sync::Arc;
@@ -33,8 +46,10 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
+    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
+    pub widget_state: TableState,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -100,14 +115,8 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk(
-        &self,
-        f: &mut Frame,
-        chunk: Rect,
-        mutable_state: &mut YoutuiMutableState,
-        selected: bool,
-    ) {
-        draw_table(f, self, chunk, &mut mutable_state.playlist_state, selected);
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
+        self.widget_state = draw_table(f, self, chunk, selected);
     }
 }
 
@@ -130,6 +139,9 @@ impl Scrollable for Playlist {
 }
 
 impl TableView for Playlist {
+    fn get_state(&self) -> TableState {
+        self.widget_state.clone()
+    }
     fn get_title(&self) -> Cow<str> {
         format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
     }
@@ -186,9 +198,9 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::Up => self.increment_list(-1),
             PlaylistAction::PageDown => self.increment_list(10),
             PlaylistAction::PageUp => self.increment_list(-10),
-            PlaylistAction::PlaySelected => self.play_selected().await,
-            PlaylistAction::DeleteSelected => self.delete_selected().await,
-            PlaylistAction::DeleteAll => self.delete_all().await,
+            PlaylistAction::PlaySelected => self.play_selected(),
+            PlaylistAction::DeleteSelected => self.delete_selected(),
+            PlaylistAction::DeleteAll => self.delete_all(),
         }
     }
 }
@@ -201,14 +213,21 @@ impl SongListComponent for Playlist {
 
 // Primatives
 impl Playlist {
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
-        // This could fail, made to try send to avoid needing to change function
-        // signature to asynchronous. Should change.
-        ui_tx
-            // Since IncreaseVolume responds back with player volume after change, this is a neat
-            // hack.
-            .try_send(AppCallback::IncreaseVolume(0))
-            .unwrap_or_else(|e| error!("Error <{e}> received getting initial player volume."));
+    pub fn new(
+        callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
+        ui_tx: mpsc::Sender<AppCallback>,
+    ) -> Self {
+        let async_tx = callback_manager.new_sender(CALLBACK_CHANNEL_SIZE);
+        // Ensure volume is synced with player.
+        async_tx
+            .add_callback(
+                // Since IncreaseVolume responds back with player volume after change, this is a
+                // neat hack.
+                IncreaseVolume(0),
+                Self::handle_volume_update,
+                Some(Constraint::new_block_same_type()),
+            )
+            .expect("Since we just created the sender, this shouldn't fail");
         Playlist {
             ui_tx,
             volume: Percentage(50),
@@ -218,16 +237,31 @@ impl Playlist {
             keybinds: playlist_keybinds(),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
+            async_tx,
+            widget_state: Default::default(),
         }
+    }
+    /// Add a task to:
+    /// - Stop playback of the song 'song_id', if it is still playing.
+    /// - If stop was succesful, update state.
+    pub fn stop_song_id(&self, song_id: ListSongID) {
+        add_cb_or_error(
+            &self.async_tx,
+            Stop(song_id),
+            Self::handle_stopped,
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState. If the
     /// selected song is buffering, stop playback until it's complete.
-    pub async fn play_song_id(&mut self, id: ListSongID) {
+    pub fn play_song_id(&mut self, id: ListSongID) {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        self.download_upcoming_from_id(id).await;
+        self.download_upcoming_from_id(id);
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -236,13 +270,29 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.ui_tx, AppCallback::PlaySong(pointer.clone(), id)).await;
+                // This task has the metadata of both DecodeSong and PlaySong and returns
+                // Result<PlayUpdate>.
+                let task =
+                    DecodeSong(pointer.clone()).map_stream(move |song| PlaySong { song, id });
+                let constraint = Some(Constraint::new_block_matching_metadata(
+                    TaskMetadata::PlayingSong,
+                ));
+                let handle_update = move |this: &mut Self, update| {
+                    match update {
+                        Ok(u) => this.handle_play_update(u),
+                        Err(e) => {
+                            error!("Error {e} received when trying to decode {:?}", id);
+                            this.handle_set_to_error(id);
+                        }
+                    };
+                };
+                add_stream_cb_or_error(&self.async_tx, task, handle_update, constraint);
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
-                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                    self.stop_song_id(cur_id);
                 }
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
@@ -251,11 +301,11 @@ impl Playlist {
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
-    pub async fn autoplay_song_id(&mut self, id: ListSongID) {
+    pub fn autoplay_song_id(&mut self, id: ListSongID) {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        self.download_upcoming_from_id(id).await;
+        self.download_upcoming_from_id(id);
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -264,26 +314,41 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                send_or_error(&self.ui_tx, AppCallback::AutoplaySong(pointer.clone(), id)).await;
+                // This task has the metadata of both DecodeSong and AutoplaySong and returns
+                // Result<AutoplayUpdate>.
+                let task =
+                    DecodeSong(pointer.clone()).map_stream(move |song| AutoplaySong { song, id });
+                let handle_update = move |this: &mut Self, update| {
+                    match update {
+                        Ok(u) => this.handle_autoplay_update(u),
+                        Err(e) => {
+                            error!("Error {e} received when trying to decode {:?}", id);
+                            this.handle_set_to_error(id);
+                        }
+                    };
+                };
+                add_stream_cb_or_error(&self.async_tx, task, handle_update, None);
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
-                    send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+                    // TODO: Consider how race condition is supposed to be handled with this.
+                    self.stop_song_id(cur_id);
                 }
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
             }
-        }
+        };
     }
     /// Stop playing and clear playlist.
-    pub async fn reset(&mut self) {
+    pub fn reset(&mut self) {
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
-            send_or_error(&self.ui_tx, AppCallback::Stop(cur_id)).await;
+            // TODO: Consider how race condition is supposed to be handled with this.
+            self.stop_song_id(cur_id);
         }
-        self.clear()
+        self.clear();
         // XXX: Also need to kill pending download tasks
         // Alternatively, songs could kill their own download tasks on drop
         // (RAII).
@@ -295,7 +360,7 @@ impl Playlist {
         self.list.clear();
     }
     /// If currently playing, play previous song.
-    pub async fn play_prev(&mut self) {
+    pub fn play_prev(&mut self) {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
@@ -313,7 +378,7 @@ impl Playlist {
                 info!("Next song id {:?}", prev_song_id);
                 match prev_song_id {
                     Some(id) => {
-                        self.play_song_id(id).await;
+                        self.play_song_id(id);
                     }
                     None => {
                         // TODO: Reset song to start if got here.
@@ -324,16 +389,16 @@ impl Playlist {
         }
     }
     /// Play song at ID, if it was buffering.
-    pub async fn handle_song_downloaded(&mut self, id: ListSongID) {
+    pub fn handle_song_downloaded(&mut self, id: ListSongID) {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
                 info!("Playing");
-                self.play_song_id(id).await;
+                self.play_song_id(id);
             }
         }
     }
     /// Download song at ID, if it is still in the list.
-    pub async fn download_song_if_exists(&mut self, id: ListSongID) {
+    pub fn download_song_if_exists(&mut self, id: ListSongID) {
         let Some(song_index) = self.get_index_from_id(id) else {
             return;
         };
@@ -349,11 +414,16 @@ impl Playlist {
             | DownloadStatus::Queued => return,
             _ => (),
         };
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::DownloadSong(song.raw.video_id.clone(), id),
-        )
-        .await;
+        // TODO: Consider how to handle race conditions.
+        add_stream_cb_or_error(
+            &self.async_tx,
+            DownloadSong(song.raw.video_id.clone(), id),
+            |this, item| {
+                let DownloadProgressUpdate { kind, id } = item;
+                this.handle_song_download_progress_update(kind, id);
+            },
+            None,
+        );
         song.download_status = DownloadStatus::Queued;
     }
     /// Update the volume in the UI for immediate visual feedback - response
@@ -389,12 +459,12 @@ impl Playlist {
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
                     Some(id) => {
-                        self.play_song_id(id).await;
+                        self.play_song_id(id);
                     }
                     None => {
                         info!("No next song - finishing playback");
                         self.queue_status = QueueState::NotQueued;
-                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
+                        self.stop_song_id(*id);
                     }
                 }
             }
@@ -404,7 +474,7 @@ impl Playlist {
     /// stopped. This is triggered when a song has finished playing. The
     /// softer, Autoplay message, lets the Player use gapless playback if songs
     /// are queued correctly.
-    pub async fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
+    pub fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
@@ -424,21 +494,21 @@ impl Playlist {
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
                     Some(id) => {
-                        self.autoplay_song_id(id).await;
+                        self.autoplay_song_id(id);
                     }
                     None => {
                         info!("No next song - resetting play status");
                         self.queue_status = QueueState::NotQueued;
                         // As a neat hack I only need to ask the player to stop current ID - even if
                         // it's playing the queued track, it doesn't know about it.
-                        send_or_error(&self.ui_tx, AppCallback::Stop(*id)).await;
+                        self.stop_song_id(*id);
                     }
                 }
             }
         }
     }
     /// Download some upcoming songs, if they aren't already downloaded.
-    pub async fn download_upcoming_from_id(&mut self, id: ListSongID) {
+    pub fn download_upcoming_from_id(&mut self, id: ListSongID) {
         // Won't download if already downloaded.
         let Some(song_index) = self.get_index_from_id(id) else {
             return;
@@ -452,7 +522,7 @@ impl Playlist {
             }
         }
         for song_id in song_ids_list {
-            self.download_song_if_exists(song_id).await;
+            self.download_song_if_exists(song_id);
         }
     }
     /// Drop strong reference from previous songs or songs above the buffer list
@@ -522,9 +592,20 @@ impl Playlist {
         // self.download_upcoming_songs().await;
     }
     /// Handle seek command (from global keypress).
-    pub async fn handle_seek(&mut self, inc: i8) {
+    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
         // Consider if we also want to update current duration.
-        send_or_error(&self.ui_tx, AppCallback::Seek(inc)).await;
+        add_cb_or_error(
+            &self.async_tx,
+            Seek {
+                duration,
+                direction,
+            },
+            |this, response| {
+                let Some(response) = response else { return };
+                this.handle_set_song_play_progress(response.duration, response.identifier)
+            },
+            None,
+        )
     }
     /// Handle next command (from global keypress), if currently playing.
     pub async fn handle_next(&mut self) {
@@ -542,24 +623,24 @@ impl Playlist {
     }
     /// Handle previous command (from global keypress).
     pub async fn handle_previous(&mut self) {
-        self.play_prev().await;
+        self.play_prev();
     }
     /// Play the song under the cursor (from local keypress)
-    pub async fn play_selected(&mut self) {
+    pub fn play_selected(&mut self) {
         let Some(id) = self.get_id_from_index(self.cur_selected) else {
             return;
         };
-        self.play_song_id(id).await;
+        self.play_song_id(id)
     }
     /// Delete the song under the cursor (from local keypress). If it was
     /// playing, stop it and set PlayState to NotPlaying.
-    pub async fn delete_selected(&mut self) {
+    pub fn delete_selected(&mut self) {
         let cur_selected_idx = self.cur_selected;
         // If current song is playing, stop it.
         if let Some(cur_playing_id) = self.get_cur_playing_id() {
             if Some(cur_selected_idx) == self.get_cur_playing_index() {
                 self.play_status = PlayState::NotPlaying;
-                send_or_error(&self.ui_tx, AppCallback::Stop(cur_playing_id)).await;
+                self.stop_song_id(cur_playing_id);
             }
         }
         self.list.remove_song_index(cur_selected_idx);
@@ -571,8 +652,8 @@ impl Playlist {
         }
     }
     /// Delete all songs.
-    pub async fn delete_all(&mut self) {
-        self.reset().await;
+    pub fn delete_all(&mut self) {
+        self.reset();
     }
     /// Change to Browser window.
     pub async fn view_browser(&mut self) {
@@ -596,13 +677,30 @@ impl Playlist {
             }
             _ => return,
         };
-        send_or_error(&self.ui_tx, AppCallback::PausePlay(id)).await;
+        add_cb_or_error(
+            &self.async_tx,
+            PausePlay(id),
+            |this, response| {
+                let Some(response) = response else { return };
+                match response {
+                    PausePlayResponse::Paused(id) => this.handle_paused(id),
+                    PausePlayResponse::Resumed(id) => this.handle_resumed(id),
+                };
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        );
     }
 }
 // Server handlers
 impl Playlist {
+    pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
+        // TODO: Size
+        self.async_tx.get_next_mutations(10).await
+    }
     /// Handle song progress update from server.
-    pub async fn handle_song_download_progress_update(
+    pub fn handle_song_download_progress_update(
         &mut self,
         update: DownloadProgressUpdateType,
         id: ListSongID,
@@ -627,16 +725,12 @@ impl Playlist {
                 }
             }
             DownloadProgressUpdateType::Completed(song_buf) => {
-                let fut = self
-                    .get_mut_song_from_id(id)
-                    .map(|s| {
-                        s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
-                        s.id
-                    })
-                    .map(|id| async move { self.handle_song_downloaded(id).await });
-                if let Some(f) = fut {
-                    f.await
-                }
+                if let Some(new_id) = self.get_mut_song_from_id(id).map(|s| {
+                    s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
+                    s.id
+                }) {
+                    self.handle_song_downloaded(new_id)
+                };
             }
             DownloadProgressUpdateType::Error => {
                 if let Some(song) = self.list.get_list_iter_mut().find(|x| x.id == id) {
@@ -656,11 +750,45 @@ impl Playlist {
         }
     }
     /// Handle volume message from server
-    pub fn handle_set_volume(&mut self, p: Percentage) {
-        self.volume = p;
+    pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
+        if let Some(v) = response {
+            self.volume = Percentage(v.0.into())
+        }
+    }
+    pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) {
+        match update {
+            PlayUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            PlayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
+            PlayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            // This is a player invariant.
+            PlayUpdate::Error(e) => error!("{e}"),
+        }
+    }
+    pub fn handle_queue_update(&mut self, update: QueueUpdate<ListSongID>) {
+        match update {
+            QueueUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            QueueUpdate::Queued(duration, id) => self.handle_queued(duration, id),
+            QueueUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            QueueUpdate::Error(e) => error!("{e}"),
+        }
+    }
+    pub fn handle_autoplay_update(&mut self, update: AutoplayUpdate<ListSongID>) {
+        match update {
+            AutoplayUpdate::PlayProgress(duration, id) => {
+                self.handle_set_song_play_progress(duration, id)
+            }
+            AutoplayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
+            AutoplayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            AutoplayUpdate::AutoplayQueued(id) => self.handle_autoplay_queued(id),
+            AutoplayUpdate::Error(e) => error!("{e}"),
+        }
     }
     /// Handle song progress message from server
-    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
         if !self.check_id_is_cur(id) {
             return;
         }
@@ -683,28 +811,29 @@ impl Playlist {
             {
                 if let Some(next_song) = self.get_next_song() {
                     if let DownloadStatus::Downloaded(song) = &next_song.download_status {
+                        // This task has the metadata of both DecodeSong and QueueSong and returns
+                        // Result<QueueUpdate>.
+                        let task =
+                            DecodeSong(song.clone()).map_stream(move |song| QueueSong { song, id });
                         info!("Queuing up song!");
-                        send_or_error(
-                            &self.ui_tx,
-                            AppCallback::QueueSong(song.clone(), next_song.id),
-                        )
-                        .await;
+                        let handle_update = move |this: &mut Self, update| {
+                            match update {
+                                Ok(u) => this.handle_queue_update(u),
+                                Err(e) => {
+                                    error!("Error {e} received when trying to decode {:?}", id);
+                                    this.handle_set_to_error(id);
+                                }
+                            };
+                        };
+                        add_stream_cb_or_error(&self.async_tx, task, handle_update, None);
                         self.queue_status = QueueState::Queued(next_song.id)
                     }
                 }
             }
         }
     }
-    /// Handle set to paused message from server
-    pub async fn handle_set_to_paused(&mut self, s_id: ListSongID) {
-        if let PlayState::Playing(p_id) = self.play_status {
-            if p_id == s_id {
-                self.play_status = PlayState::Paused(s_id)
-            }
-        }
-    }
     /// Handle done playing message from server
-    pub async fn handle_done_playing(&mut self, id: ListSongID) {
+    pub fn handle_done_playing(&mut self, id: ListSongID) {
         if QueueState::Queued(id) == self.queue_status {
             self.queue_status = QueueState::NotQueued;
             return;
@@ -712,7 +841,7 @@ impl Playlist {
         if !self.check_id_is_cur(id) {
             return;
         }
-        self.autoplay_next_or_stop(id).await;
+        self.autoplay_next_or_stop(id);
     }
     /// Handle queued message from server
     pub fn handle_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
@@ -735,14 +864,6 @@ impl Playlist {
             }
         }
     }
-    /// Handle resumed message from server
-    pub fn handle_resumed(&mut self, id: ListSongID) {
-        if let PlayState::Paused(p_id) = self.play_status {
-            if p_id == id {
-                self.play_status = PlayState::Playing(id)
-            }
-        }
-    }
     /// Handle playing message from server
     pub fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
         // NOTE: Happens twice, if song already was queued.
@@ -755,20 +876,38 @@ impl Playlist {
             }
         }
     }
-    /// Handle stopped message from server
-    pub fn handle_stopped(&mut self, id: ListSongID) {
-        info!("Received message that playback {:?} has been stopped", id);
-        if self.check_id_is_cur(id) {
-            info!("Stopping {:?}", id);
-            self.play_status = PlayState::Stopped
-        }
-    }
     /// Handle set to error message from server (playback)
     pub fn handle_set_to_error(&mut self, id: ListSongID) {
         info!("Received message that song had a playback error {:?}", id);
         if self.check_id_is_cur(id) {
             info!("Setting song state to Error {:?}", id);
             self.play_status = PlayState::Error(id)
+        }
+    }
+    /// Handle set to paused message from server
+    pub fn handle_paused(&mut self, s_id: ListSongID) {
+        if let PlayState::Playing(p_id) = self.play_status {
+            if p_id == s_id {
+                self.play_status = PlayState::Paused(s_id)
+            }
+        }
+    }
+    /// Handle resumed message from server
+    pub fn handle_resumed(&mut self, id: ListSongID) {
+        if let PlayState::Paused(p_id) = self.play_status {
+            if p_id == id {
+                self.play_status = PlayState::Playing(id)
+            }
+        }
+    }
+    /// Handle stopped message from server
+    pub fn handle_stopped(&mut self, id: Option<Stopped<ListSongID>>) {
+        let Some(Stopped(id)) = id else { return };
+        // TODO: Hoist info up.
+        info!("Received message that playback {:?} has been stopped", id);
+        if self.check_id_is_cur(id) {
+            info!("Stopping {:?}", id);
+            self.play_status = PlayState::Stopped
         }
     }
 }

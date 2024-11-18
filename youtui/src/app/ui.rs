@@ -8,15 +8,16 @@ use super::component::actionhandler::{
 use super::keycommand::{
     CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
 };
+use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
-use super::AppCallback;
-use crate::app::server::downloader::DownloadProgressUpdateType;
-use crate::core::send_or_error;
+use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
+use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
+use crate::core::{add_cb_or_error, send_or_error};
+use async_callback_manager::{AsyncCallbackSender, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ratatui::widgets::TableState;
 use tokio::sync::mpsc;
-use ytmapi_rs::common::SearchSuggestion;
-use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 
 mod browser;
 pub mod draw;
@@ -26,7 +27,7 @@ mod logger;
 mod playlist;
 
 const VOL_TICK: i8 = 5;
-const SEEK_AMOUNT_SECS: i8 = 5;
+const SEEK_AMOUNT: Duration = Duration::from_secs(5);
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -66,6 +67,7 @@ pub struct YoutuiWindow {
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
+    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 pub struct HelpMenu {
@@ -73,6 +75,7 @@ pub struct HelpMenu {
     cur: usize,
     len: usize,
     keybinds: Vec<KeyCommand<UIAction>>,
+    pub widget_state: TableState,
 }
 
 impl Default for HelpMenu {
@@ -82,6 +85,7 @@ impl Default for HelpMenu {
             cur: Default::default(),
             len: Default::default(),
             keybinds: help_keybinds(),
+            widget_state: Default::default(),
         }
     }
 }
@@ -211,8 +215,8 @@ impl ActionHandler<UIAction> for YoutuiWindow {
             UIAction::Pause => self.playlist.pauseplay().await,
             UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT_SECS).await,
-            UIAction::StepSeekBack => self.handle_seek(-SEEK_AMOUNT_SECS).await,
+            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
+            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
             UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             UIAction::ToggleHelp => self.toggle_help(),
             UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -250,8 +254,8 @@ impl Action for UIAction {
             UIAction::ViewLogs => "View Logs".into(),
             UIAction::HelpUp => "Help".into(),
             UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT_SECS).into(),
-            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT_SECS).into(),
+            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT.as_secs()).into(),
+            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
         }
     }
 }
@@ -295,19 +299,33 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(callback_tx: mpsc::Sender<AppCallback>) -> YoutuiWindow {
-        // TODO: derive default
+    pub fn new(
+        callback_tx: mpsc::Sender<AppCallback>,
+        callback_manager: &mut async_callback_manager::AsyncCallbackManager<
+            ArcServer,
+            TaskMetadata,
+        >,
+    ) -> YoutuiWindow {
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_tx.clone()),
-            browser: Browser::new(callback_tx.clone()),
+            playlist: Playlist::new(callback_manager, callback_tx.clone()),
+            browser: Browser::new(callback_manager, callback_tx.clone()),
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help: Default::default(),
             callback_tx,
+            async_tx: callback_manager.new_sender(ASYNC_CALLBACK_SENDER_CHANNEL_SIZE),
         }
+    }
+    // TODO: Move to future AsyncComponent trait.
+    pub async fn async_update(&mut self) {
+        tokio::select! {
+            b = self.browser.async_update() => b.map(|this: &mut Self| &mut this.browser),
+            p = self.playlist.async_update() => p.map(|this: &mut Self| &mut this.playlist),
+        }
+        .apply(self)
     }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_event(&mut self, event: crossterm::event::Event) {
@@ -333,92 +351,26 @@ impl YoutuiWindow {
     pub async fn handle_increase_volume(&mut self, inc: i8) {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        send_or_error(&self.callback_tx, AppCallback::IncreaseVolume(inc)).await;
+        add_cb_or_error(
+            &self.async_tx,
+            IncreaseVolume(inc),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        );
     }
-    pub async fn handle_seek(&mut self, inc: i8) {
-        self.playlist.handle_seek(inc).await
+    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
+        self.playlist.handle_seek(duration, direction);
     }
-    pub async fn handle_done_playing(&mut self, id: ListSongID) {
-        self.playlist.handle_done_playing(id).await
-    }
-    pub fn handle_song_queued(&mut self, duration: Option<Duration>, id: ListSongID) {
-        self.playlist.handle_queued(duration, id)
-    }
-    pub fn handle_song_autoplay_queued(&mut self, id: ListSongID) {
-        self.playlist.handle_autoplay_queued(id)
-    }
-    pub fn handle_song_resumed(&mut self, id: ListSongID) {
-        self.playlist.handle_resumed(id)
-    }
-    pub async fn handle_set_to_paused(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_paused(id).await
-    }
-    pub async fn handle_playing(&mut self, duration: Option<Duration>, id: ListSongID) {
-        self.playlist.handle_playing(duration, id)
-    }
-    pub async fn handle_stopped(&mut self, id: ListSongID) {
-        self.playlist.handle_stopped(id)
-    }
-    pub async fn handle_set_to_error(&mut self, id: ListSongID) {
-        self.playlist.handle_set_to_error(id)
-    }
-    pub fn handle_set_volume(&mut self, p: Percentage) {
-        self.playlist.handle_set_volume(p)
-    }
-    pub async fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
-        self.playlist.handle_set_song_play_progress(d, id).await;
-    }
-    pub async fn handle_song_download_progress_update(
-        &mut self,
-        update: DownloadProgressUpdateType,
-        playlist_id: ListSongID,
-    ) {
-        self.playlist
-            .handle_song_download_progress_update(update, playlist_id)
-            .await
-    }
-    pub async fn handle_replace_search_suggestions(
-        &mut self,
-        x: Vec<SearchSuggestion>,
-        search: String,
-    ) {
-        self.browser.handle_replace_search_suggestions(x, search);
-    }
-    pub async fn handle_replace_artist_list(&mut self, x: Vec<SearchResultArtist>) {
-        self.browser.handle_replace_artist_list(x).await;
-    }
-    pub fn handle_song_list_loaded(&mut self) {
-        self.browser.handle_song_list_loaded();
-    }
-    pub fn handle_song_list_loading(&mut self) {
-        self.browser.handle_song_list_loading();
-    }
-    pub fn handle_no_songs_found(&mut self) {
-        self.browser.handle_no_songs_found();
-    }
-    pub fn handle_append_song_list(
-        &mut self,
-        song_list: Vec<AlbumSong>,
-        album: String,
-        year: String,
-        artist: String,
-    ) {
-        self.browser
-            .handle_append_song_list(song_list, album, year, artist)
+    pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
+        self.playlist.handle_volume_update(update)
     }
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);
     }
-    pub async fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
-        self.playlist.reset().await;
+    pub fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
+        self.playlist.reset();
         let id = self.playlist.push_song_list(song_list);
-        self.playlist.play_song_id(id).await;
-    }
-    pub fn handle_songs_found(&mut self) {
-        self.browser.handle_songs_found();
-    }
-    pub fn handle_search_artist_error(&mut self) {
-        self.browser.handle_search_artist_error();
+        self.playlist.play_song_id(id);
     }
     fn is_dominant_keybinds(&self) -> bool {
         self.help.shown

@@ -77,11 +77,11 @@ pub fn draw_panel<S: AsRef<str>>(
     }
 }
 
-pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool, state: &mut ListState)
+pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool) -> ListState
 where
     L: ListView,
 {
-    // Set the state to the currently selected item.
+    let mut state = list.get_state();
     state.select(Some(list.get_selected_item()));
     // TODO: Scroll bars
     let list_title = list.get_title();
@@ -99,13 +99,15 @@ where
     let list_widget =
         List::new(list_items).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     let inner_chunk = draw_panel(f, list_title, None, chunk, selected);
-    f.render_stateful_widget(list_widget, inner_chunk, state);
+    f.render_stateful_widget(list_widget, inner_chunk, &mut state);
+    state
 }
 
-pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, state: &mut TableState, selected: bool)
+pub fn draw_table<T>(f: &mut Frame, table: &T, chunk: Rect, selected: bool) -> TableState
 where
     T: TableView,
 {
+    let mut state = table.get_state();
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     let cur_highlighted = table.get_highlighted_row();
@@ -146,10 +148,10 @@ where
     if table.is_loading() {
         draw_loading(f, inner_chunk)
     } else {
-        f.render_stateful_widget(table_widget, inner_chunk, state);
+        f.render_stateful_widget(table_widget, inner_chunk, &mut state);
         // Call this after rendering table, as offset is mutated.
         let mut scrollbar_state = ScrollbarState::default()
-            .position(state.offset().min(scrollable_lines))
+            .position(table.get_state().offset().min(scrollable_lines))
             .content_length(scrollable_lines);
         f.render_stateful_widget(
             scrollbar,
@@ -159,18 +161,15 @@ where
             }),
             &mut scrollbar_state,
         )
-    }
+    };
+    state
 }
 
-pub fn draw_sortable_table<T>(
-    f: &mut Frame,
-    table: &T,
-    chunk: Rect,
-    state: &mut TableState,
-    selected: bool,
-) where
+pub fn draw_sortable_table<T>(f: &mut Frame, table: &T, chunk: Rect, selected: bool) -> TableState
+where
     T: SortableTableView,
 {
+    let mut state = table.get_state();
     // Set the state to the currently selected item.
     state.select(Some(table.get_selected_item()));
     // TODO: theming
@@ -243,7 +242,7 @@ pub fn draw_sortable_table<T>(
     if table.is_loading() {
         draw_loading(f, inner_chunk)
     } else {
-        f.render_stateful_widget(table_widget, inner_chunk, state);
+        f.render_stateful_widget(table_widget, inner_chunk, &mut state);
         // Call this after rendering table, as offset is mutated.
         let mut scrollbar_state = ScrollbarState::default()
             .position(state.offset().min(scrollable_lines))
@@ -256,7 +255,8 @@ pub fn draw_sortable_table<T>(
             }),
             &mut scrollbar_state,
         )
-    }
+    };
+    state
 }
 
 pub fn draw_loading(f: &mut Frame, chunk: Rect) {

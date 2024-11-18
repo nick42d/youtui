@@ -12,3 +12,6 @@ readme = "README.md"
 [dependencies]
 serde = "1.0.209"
 serde_json = "1.0.127"
+
+[lints]
+workspace = true

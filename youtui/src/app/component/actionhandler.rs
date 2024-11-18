@@ -221,6 +221,7 @@ pub fn index_keymap<'a, A: Action>(
 }
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::todo)]
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
     use crate::app::{

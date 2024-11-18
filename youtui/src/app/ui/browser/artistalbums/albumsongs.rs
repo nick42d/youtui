@@ -14,6 +14,7 @@ use crate::app::{
 use crate::error::Error;
 use crate::Result;
 use crossterm::event::{KeyCode, KeyModifiers};
+use ratatui::widgets::TableState;
 use std::borrow::Cow;
 use tracing::warn;
 
@@ -33,6 +34,7 @@ pub struct AlbumSongsPanel {
     pub sort: SortManager,
     pub filter: FilterManager,
     cur_selected: usize,
+    pub widget_state: TableState,
 }
 
 // TODO: refactor
@@ -140,6 +142,7 @@ impl AlbumSongsPanel {
             route: Default::default(),
             sort: Default::default(),
             filter: Default::default(),
+            widget_state: Default::default(),
         }
     }
     pub fn subcolumns_of_vec() -> &'static [usize] {
@@ -388,6 +391,9 @@ impl Scrollable for AlbumSongsPanel {
 }
 
 impl TableView for AlbumSongsPanel {
+    fn get_state(&self) -> ratatui::widgets::TableState {
+        self.widget_state.clone()
+    }
     fn get_title(&self) -> Cow<str> {
         match self.list.state {
             ListStatus::New => "Songs".into(),

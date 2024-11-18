@@ -13,7 +13,7 @@ pub enum Error {
     Join(JoinError),
     // TODO: More advanced error conversions
     Api(ytmapi_rs::Error),
-    ApiErrorCloned(String),
+    ApiErrorString(String),
     Json(serde_json::Error),
     TomlDeserialization(toml::de::Error),
     WrongAuthType {
@@ -38,12 +38,13 @@ pub enum Error {
         directory: PathBuf,
         io_error: std::io::Error,
     },
-    // TODO: Remove this, catchall currentl
+    ManagerDropped,
+    // TODO: Remove this, catchall currently
     Other(String),
 }
 impl Error {
-    pub fn new_api_error_cloned(e: &Error) -> Self {
-        Self::ApiErrorCloned(format!("{:?}", e))
+    pub fn new_api_error_string(e: String) -> Self {
+        Self::ApiErrorString(e)
     }
     pub fn new_wrong_auth_token_error_browser<Q>(_query: Q, current_authtype: AuthType) -> Self {
         let expected_authtype = AuthType::Browser;
@@ -115,7 +116,8 @@ impl Display for Error {
             Error::AuthTokenParse { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
             Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
             Error::WrongAuthType { current_authtype, expected_authtype, query_type } => write!(f, "Query <{query_type}> not supported on auth type {:?}. Expected auth type: {:?}",current_authtype, expected_authtype),
-            Error::ApiErrorCloned(s) => write!(f, "{s}"),
+            Error::ApiErrorString(s) => write!(f, "{s}"),
+            Error::ManagerDropped => write!(f, "Async callback manager dropped"),
         }
     }
 }
@@ -152,5 +154,10 @@ impl From<toml::de::Error> for Error {
 impl From<ytmapi_rs::Error> for Error {
     fn from(value: ytmapi_rs::Error) -> Self {
         Error::Api(value)
+    }
+}
+impl From<async_callback_manager::Error> for Error {
+    fn from(_: async_callback_manager::Error) -> Self {
+        Error::ManagerDropped
     }
 }

@@ -1,42 +1,27 @@
-use super::{
-    messages::ServerResponse, spawn_run_or_kill, KillableTask, ServerComponent, AUDIO_QUALITY,
-    DL_CALLBACK_CHUNK_SIZE,
-};
+use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::{
     app::{
         server::MAX_RETRIES,
         structures::{ListSongID, Percentage},
-        taskmanager::TaskID,
+        CALLBACK_CHANNEL_SIZE,
     },
     core::send_or_error,
 };
+use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use std::sync::Arc;
-use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+// use tokio_stream::StreamExt;
 use tracing::{error, info, warn};
+use utils::into_futures_stream;
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
-#[derive(Debug)]
-pub enum KillableServerRequest {
-    DownloadSong(VideoID<'static>, ListSongID),
-}
-#[derive(Debug)]
-pub enum UnkillableServerRequest {}
+mod utils;
 
 #[derive(Debug)]
-pub enum Response {
-    DownloadProgressUpdate(DownloadProgressUpdateType, ListSongID),
-}
-
-/// Representation of a song in memory - an array of bytes.
-/// Newtype pattern is used to provide a cleaner Debug display.
-pub struct InMemSong(pub Vec<u8>);
-
-// Custom derive - otherwise will be displaying 3MB array of bytes...
-impl std::fmt::Debug for InMemSong {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Song").field(&"Vec<..>").finish()
-    }
+pub struct DownloadProgressUpdate {
+    pub kind: DownloadProgressUpdateType,
+    pub id: ListSongID,
 }
 
 #[derive(Debug)]
@@ -48,13 +33,22 @@ pub enum DownloadProgressUpdateType {
     Retrying { times_retried: usize },
 }
 
+/// Representation of a song in memory - an array of bytes.
+/// Newtype pattern is used to provide a cleaner Debug display.
+pub struct InMemSong(pub Vec<u8>);
+// Custom derive - otherwise will be displaying 3MB array of bytes...
+impl std::fmt::Debug for InMemSong {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("InMemSong").field(&"Vec<..>").finish()
+    }
+}
+
 pub struct Downloader {
     /// Shared by tasks.
     options: Arc<VideoOptions>,
-    response_tx: mpsc::Sender<ServerResponse>,
 }
 impl Downloader {
-    pub fn new(po_token: Option<String>, response_tx: mpsc::Sender<ServerResponse>) -> Self {
+    pub fn new(po_token: Option<String>) -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
@@ -72,126 +66,106 @@ impl Downloader {
                 ..Default::default()
             },
         });
-        Self {
-            options,
-            response_tx,
-        }
+        Self { options }
+    }
+    pub fn download_song(
+        &self,
+        song_video_id: VideoID<'static>,
+        song_playlist_id: ListSongID,
+    ) -> impl Stream<Item = DownloadProgressUpdate> {
+        download_song(self.options.clone(), song_video_id, song_playlist_id)
     }
 }
 
-impl ServerComponent for Downloader {
-    type KillableRequestType = KillableServerRequest;
-    type UnkillableRequestType = UnkillableServerRequest;
-
-    async fn handle_killable_request(
-        &self,
-        request: Self::KillableRequestType,
-        task: KillableTask,
-    ) -> crate::Result<()> {
-        let KillableTask {
-            id: task_id,
-            kill_rx,
-        } = task;
-        let tx = self.response_tx.clone();
-        let options = self.options.clone();
-        match request {
-            KillableServerRequest::DownloadSong(song_video_id, song_playlist_id) => {
-                spawn_run_or_kill(
-                    download_song(options, song_video_id, song_playlist_id, task_id, tx),
-                    kill_rx,
-                )
-            }
-        }
-        Ok(())
-    }
-    async fn handle_unkillable_request(
-        &self,
-        request: Self::UnkillableRequestType,
-        _: TaskID,
-    ) -> crate::Result<()> {
-        match request {}
-    }
-}
-
-async fn download_song(
+fn download_song(
     options: Arc<VideoOptions>,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
-    task_id: TaskID,
-    tx: mpsc::Sender<ServerResponse>,
-) {
-    tracing::info!("Running download");
-    send_or_error(
-        &tx,
-        ServerResponse::new_downloader(
-            task_id,
-            Response::DownloadProgressUpdate(DownloadProgressUpdateType::Started, song_playlist_id),
-        ),
-    )
-    .await;
-    let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
-        error!("Error received finding song");
+) -> impl Stream<Item = DownloadProgressUpdate> {
+    let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
+    tokio::spawn(async move {
+        tracing::info!("Running download");
         send_or_error(
             &tx,
-            ServerResponse::new_downloader(
-                task_id,
-                Response::DownloadProgressUpdate(
-                    DownloadProgressUpdateType::Error,
-                    song_playlist_id,
-                ),
-            ),
+            DownloadProgressUpdate {
+                kind: DownloadProgressUpdateType::Started,
+                id: song_playlist_id,
+            },
         )
         .await;
-        return;
-    };
-    let mut retries = 0;
-    let mut download_succeeded = false;
-    let mut songbuffer = Vec::new();
-    while retries <= MAX_RETRIES && !download_succeeded {
-        // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
-        let stream = match video.stream().await {
-            Ok(s) => s,
-            Err(e) => {
-                error!("Error <{e}> received converting song to stream");
-                send_or_error(
-                    &tx,
-                    ServerResponse::new_downloader(
-                        task_id,
-                        Response::DownloadProgressUpdate(
-                            DownloadProgressUpdateType::Error,
-                            song_playlist_id,
-                        ),
-                    ),
-                )
-                .await;
-                return;
-            }
+        let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
+            error!("Error received finding song");
+            send_or_error(
+                &tx,
+                DownloadProgressUpdate {
+                    kind: DownloadProgressUpdateType::Error,
+                    id: song_playlist_id,
+                },
+            )
+            .await;
+            return;
         };
-        let mut i = 0;
-        songbuffer.clear();
-        loop {
-            match stream.chunk().await {
-                Ok(Some(chunk)) => {
-                    i += 1;
-                    songbuffer.append(&mut chunk.into());
-                    let progress =
-                        (i * DL_CALLBACK_CHUNK_SIZE) * 100 / stream.content_length() as u64;
-                    info!("Sending song progress update");
+        let mut retries = 0;
+        while retries <= MAX_RETRIES {
+            // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
+            let stream = match video.stream().await {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("Error <{e}> received converting song to stream");
                     send_or_error(
                         &tx,
-                        ServerResponse::new_downloader(
-                            task_id,
-                            Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Downloading(Percentage(progress as u8)),
-                                song_playlist_id,
-                            ),
-                        ),
+                        DownloadProgressUpdate {
+                            kind: DownloadProgressUpdateType::Error,
+                            id: song_playlist_id,
+                        },
                     )
                     .await;
+                    return;
                 }
-                // SUCCESS
-                Ok(None) => {
-                    download_succeeded = true;
+            };
+            let content_length = stream.content_length();
+            let stream = into_futures_stream(stream);
+            let song = futures::StreamExt::enumerate(stream)
+                .then(|(idx, chunk)| {
+                    let tx = tx.clone();
+                    async move {
+                        let progress =
+                            (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
+                        info!("Sending song progress update");
+                        send_or_error(
+                            tx,
+                            DownloadProgressUpdate {
+                                kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                    progress as u8,
+                                )),
+                                id: song_playlist_id,
+                            },
+                        )
+                        .await;
+                        chunk
+                    }
+                })
+                .flat_map(|chunk| match chunk {
+                    Ok(chunk) => futures::future::Either::Left(futures::stream::iter(
+                        chunk.into_iter().map(Ok),
+                    )),
+                    Err(e) => {
+                        futures::future::Either::Right(futures::stream::once(async { Err(e) }))
+                    }
+                })
+                .try_collect::<Vec<u8>>()
+                .await;
+            match song {
+                Ok(song) => {
+                    info!("Song downloaded");
+                    send_or_error(
+                        &tx,
+                        DownloadProgressUpdate {
+                            kind: DownloadProgressUpdateType::Completed(InMemSong(song)),
+                            id: song_playlist_id,
+                        },
+                    )
+                    .await;
                     break;
                 }
                 Err(e) => {
@@ -201,13 +175,10 @@ async fn download_song(
                         error!("Max retries exceeded");
                         send_or_error(
                             &tx,
-                            ServerResponse::new_downloader(
-                                task_id,
-                                Response::DownloadProgressUpdate(
-                                    DownloadProgressUpdateType::Error,
-                                    song_playlist_id,
-                                ),
-                            ),
+                            DownloadProgressUpdate {
+                                kind: DownloadProgressUpdateType::Error,
+                                id: song_playlist_id,
+                            },
                         )
                         .await;
                         return;
@@ -215,32 +186,17 @@ async fn download_song(
                     warn!("Retrying - {} tries left", MAX_RETRIES - retries);
                     send_or_error(
                         &tx,
-                        ServerResponse::new_downloader(
-                            task_id,
-                            Response::DownloadProgressUpdate(
-                                DownloadProgressUpdateType::Retrying {
-                                    times_retried: retries,
-                                },
-                                song_playlist_id,
-                            ),
-                        ),
+                        DownloadProgressUpdate {
+                            kind: DownloadProgressUpdateType::Retrying {
+                                times_retried: retries,
+                            },
+                            id: song_playlist_id,
+                        },
                     )
                     .await;
-                    break;
                 }
             }
         }
-    }
-    info!("Song downloaded");
-    send_or_error(
-        &tx,
-        ServerResponse::new_downloader(
-            task_id,
-            Response::DownloadProgressUpdate(
-                DownloadProgressUpdateType::Completed(InMemSong(songbuffer)),
-                song_playlist_id,
-            ),
-        ),
-    )
-    .await;
+    });
+    ReceiverStream::new(rx)
 }
