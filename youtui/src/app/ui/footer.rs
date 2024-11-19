@@ -73,7 +73,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            .map(|s| s.get_album().to_owned())
+            .map(|s| s.album.as_ref().to_owned())
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),
         PlayState::Stopped => "".to_string(),
@@ -88,7 +88,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             // TODO: tidy this up as ListSong only contains one artist currently.
             // TODO: Remove allocation
             .map(|s| {
-                s.get_artists()
+                s.artists
                     .clone()
                     .first()
                     .map(|a| a.to_string())

@@ -4,6 +4,7 @@ use std::borrow::Cow;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
+use ytmapi_rs::common::AlbumID;
 use ytmapi_rs::parse::AlbumSong;
 
 pub trait SongListComponent {
@@ -31,9 +32,10 @@ pub struct ListSong {
     pub download_status: DownloadStatus,
     pub id: ListSongID,
     pub actual_duration: Option<Duration>,
-    year: Rc<String>,
-    artists: Vec<Rc<String>>,
-    album: Rc<String>,
+    pub year: Rc<String>,
+    pub artists: Vec<Rc<String>>,
+    pub album: Rc<String>,
+    pub album_id: Rc<AlbumID<'static>>,
 }
 #[derive(Clone)]
 pub enum ListStatus {
@@ -92,24 +94,6 @@ impl DownloadStatus {
 }
 
 impl ListSong {
-    fn _set_year(&mut self, year: Rc<String>) {
-        self.year = year;
-    }
-    fn _set_album(&mut self, album: Rc<String>) {
-        self.album = album;
-    }
-    pub fn get_year(&self) -> &String {
-        &self.year
-    }
-    fn _set_artists(&mut self, artists: Vec<Rc<String>>) {
-        self.artists = artists;
-    }
-    pub fn get_artists(&self) -> &Vec<Rc<String>> {
-        &self.artists
-    }
-    pub fn get_album(&self) -> &String {
-        &self.album
-    }
     pub fn get_track_no(&self) -> usize {
         self.raw.track_no
     }
@@ -128,16 +112,16 @@ impl ListSong {
                 }),
                 self.get_track_no().to_string().into(),
                 // TODO: Remove allocation
-                self.get_artists()
+                self.artists
                     .first()
                     .map(|a| a.to_string())
                     .unwrap_or_default()
                     .into(),
-                self.get_album().into(),
+                self.album.as_ref().into(),
                 (&self.raw.title).into(),
                 // TODO: Remove allocation
                 (&self.raw.duration).into(),
-                self.get_year().into(),
+                self.year.as_ref().into(),
             ]
             .into_iter(),
         )
@@ -185,6 +169,7 @@ impl AlbumSongsList {
         &mut self,
         raw_list: Vec<AlbumSong>,
         album: String,
+        album_id: AlbumID<'static>,
         year: String,
         artist: String,
     ) {
@@ -192,16 +177,24 @@ impl AlbumSongsList {
         // So no need to clone/allocate for eache one.
         // Instead we'll share ownership via Rc.
         let album = Rc::new(album);
+        let album_id = Rc::new(album_id);
         let year = Rc::new(year);
         let artist = Rc::new(artist);
         for song in raw_list {
-            self.add_raw_song(song, album.clone(), year.clone(), artist.clone());
+            self.add_raw_song(
+                song,
+                album.clone(),
+                album_id.clone(),
+                year.clone(),
+                artist.clone(),
+            );
         }
     }
     pub fn add_raw_song(
         &mut self,
         song: AlbumSong,
         album: Rc<String>,
+        album_id: Rc<AlbumID<'static>>,
         year: Rc<String>,
         artist: Rc<String>,
     ) -> ListSongID {
@@ -213,6 +206,7 @@ impl AlbumSongsList {
             year,
             artists: vec![artist],
             album,
+            album_id,
             actual_duration: None,
         });
         id

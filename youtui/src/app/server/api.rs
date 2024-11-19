@@ -168,6 +168,7 @@ pub enum GetArtistSongsProgressUpdate {
     Songs {
         song_list: Vec<AlbumSong>,
         album: String,
+        album_id: AlbumID<'static>,
         year: String,
         artist: String,
     },
@@ -277,15 +278,15 @@ fn get_artist_songs(
                 let api = api.clone();
                 async move {
                     let query = GetAlbumQuery::new(&a_id);
-                    query_api_with_retry(&api, query).await
+                    (query_api_with_retry(&api, query).await, a_id)
                 }
             })
             .collect::<FuturesOrdered<_>>();
-        while let Some(maybe_album) = stream.next().await {
+        while let Some((maybe_album, album_id)) = stream.next().await {
             let album = match maybe_album {
                 Ok(album) => album,
                 Err(e) => {
-                    error!("Error <{e}> getting album");
+                    error!("Error <{e}> getting album {:?}", album_id);
                     return;
                 }
             };
@@ -302,6 +303,7 @@ fn get_artist_songs(
                 GetArtistSongsProgressUpdate::Songs {
                     song_list: tracks,
                     album: title,
+                    album_id,
                     year,
                     artist: artists
                         .into_iter()
