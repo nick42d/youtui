@@ -83,7 +83,7 @@ impl TextHandler for Logger {
     fn get_text(&self) -> &str {
         Default::default()
     }
-    fn replace_text(&mut self, _text: String) {}
+    fn replace_text(&mut self, _text: impl Into<String>) {}
     fn clear_text(&mut self) -> bool {
         false
     }

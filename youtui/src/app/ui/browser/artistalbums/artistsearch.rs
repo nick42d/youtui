@@ -105,7 +105,7 @@ impl TextHandler for SearchBlock {
         self.search_contents.clear()
     }
     fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        match handle_events(&mut self.filter_text, true, event) {
+        match handle_events(&mut self.search_contents, true, event) {
             rat_text::event::TextOutcome::Continue => false,
             rat_text::event::TextOutcome::Unchanged => true,
             rat_text::event::TextOutcome::Changed => true,
@@ -127,14 +127,11 @@ impl SearchBlock {
             );
             // Safe - clamped above
             // Clone is ok here as we want to duplicate the search suggestion.
-            self.search_contents = self.search_suggestions
-                [self.suggestions_cur.expect("Set to non-None value above")]
-            .get_text();
-            self.move_cursor_to_end();
+            self.search_contents.set_text(
+                self.search_suggestions[self.suggestions_cur.expect("Set to non-None value above")]
+                    .get_text(),
+            );
         }
-    }
-    fn move_cursor_to_end(&mut self) {
-        self.text_cur = self.search_contents.len();
     }
 }
 
@@ -145,7 +142,7 @@ impl TextHandler for ArtistSearchPanel {
     fn get_text(&self) -> &str {
         self.search.get_text()
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         self.search.replace_text(text)
     }
     fn clear_text(&mut self) -> bool {

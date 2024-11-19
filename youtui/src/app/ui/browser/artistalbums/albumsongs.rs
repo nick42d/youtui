@@ -42,7 +42,7 @@ pub struct AlbumSongsPanel {
 #[derive(Clone)]
 pub struct FilterManager {
     filter_commands: Vec<TableFilterCommand>,
-    filter_text: TextInputState,
+    pub filter_text: TextInputState,
     pub shown: bool,
     keybinds: Vec<KeyCommand<BrowserAction>>,
 }
@@ -292,7 +292,7 @@ impl TextHandler for AlbumSongsPanel {
     fn get_text(&self) -> &str {
         self.filter.get_text()
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         self.filter.replace_text(text)
     }
     fn is_text_handling(&self) -> bool {

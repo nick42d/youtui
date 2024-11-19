@@ -98,7 +98,7 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
     f.render_stateful_widget(list, popup_chunk, &mut state);
 }
 
-fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+fn draw_filter_popup(f: &mut Frame, album_songs_panel: &mut AlbumSongsPanel, chunk: Rect) {
     let title = "Filter";
     // Hardocde dimensions of filter input.
     let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
@@ -106,8 +106,7 @@ fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: 
     draw_text_box(
         f,
         title,
-        album_songs_panel.filter.filter_text.as_ref(),
-        album_songs_panel.filter.filter_cur,
+        &mut album_songs_panel.filter.filter_text,
         popup_chunk,
     );
 }
