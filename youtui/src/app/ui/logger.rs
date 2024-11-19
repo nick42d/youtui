@@ -77,15 +77,19 @@ impl KeyRouter<LoggerAction> for Logger {
 }
 
 impl TextHandler for Logger {
-    fn push_text(&mut self, _c: char) {}
-    fn pop_text(&mut self) {}
     fn is_text_handling(&self) -> bool {
         false
     }
-    fn get_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         Default::default()
     }
     fn replace_text(&mut self, _text: String) {}
+    fn clear_text(&mut self) -> bool {
+        false
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        false
+    }
 }
 
 impl ActionHandler<LoggerAction> for Logger {

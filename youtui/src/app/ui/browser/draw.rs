@@ -7,6 +7,7 @@ use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
+use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
@@ -113,26 +114,26 @@ fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: 
 
 /// Draw a text input box
 // TODO: Shift to a more general module.
-fn draw_text_box<S: AsRef<str>>(f: &mut Frame, title: S, contents: S, cur: usize, chunk: Rect) {
+fn draw_text_box(
+    f: &mut Frame,
+    title: impl AsRef<str>,
+    contents: &mut TextInputState,
+    chunk: Rect,
+) {
     // TODO: Scrolling, if input larger than box.
-    let search_widget = Paragraph::new(contents.as_ref()).block(
+    let text_widget = TextInput::new().block(
         Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
             .title(title.as_ref()),
     );
-    f.render_widget(search_widget, chunk);
-    f.set_cursor_position((
-        (chunk.x + cur as u16 + 1).min(chunk.right().saturating_sub(2)),
-        chunk.y + 1,
-    ));
+    f.render_stateful_widget(text_widget, chunk, contents);
 }
-fn draw_search_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
+fn draw_search_box(f: &mut Frame, browser: &mut Browser, chunk: Rect) {
     draw_text_box(
         f,
         "Search",
-        browser.artist_list.search.search_contents.as_str(),
-        browser.artist_list.search.text_cur,
+        &mut browser.artist_list.search.search_contents,
         chunk,
     );
 }

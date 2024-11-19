@@ -164,7 +164,7 @@ impl Youtui {
     async fn handle_event(&mut self, event: AppEvent) {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
-            AppEvent::Crossterm(e) => self.window_state.handle_event(e).await,
+            AppEvent::Crossterm(e) => self.window_state.handle_initial_event(e).await,
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }

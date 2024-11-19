@@ -328,7 +328,10 @@ impl YoutuiWindow {
         .apply(self)
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_event(&mut self, event: crossterm::event::Event) {
+    pub async fn handle_initial_event(&mut self, event: crossterm::event::Event) {
+        if self.handle_event(&event) {
+            return;
+        }
         match event {
             Event::Key(k) => self.handle_key_event(k).await,
             Event::Mouse(m) => self.handle_mouse_event(m),
@@ -339,9 +342,6 @@ impl YoutuiWindow {
         self.playlist.handle_tick().await;
     }
     async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
-        if self.handle_event(key_event) {
-            return;
-        }
         self.key_stack.push(key_event);
         self.global_handle_key_stack().await;
     }

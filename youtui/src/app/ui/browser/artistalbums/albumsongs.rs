@@ -213,7 +213,6 @@ impl AlbumSongsPanel {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_cur = 0;
             self.filter.filter_text.clear();
             self.route = AlbumSongsInputRouting::Filter;
         } else {
