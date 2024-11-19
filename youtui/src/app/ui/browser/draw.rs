@@ -12,7 +12,7 @@ use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, ListState},
     Frame,
 };
 use ytmapi_rs::common::{SuggestionType, TextRun};
@@ -57,7 +57,7 @@ pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected:
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
     if browser.album_songs_list.filter.shown {
-        draw_filter_popup(f, &browser.album_songs_list, layout[1]);
+        draw_filter_popup(f, &mut browser.album_songs_list, layout[1]);
     }
 }
 
