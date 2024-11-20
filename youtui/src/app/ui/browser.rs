@@ -27,7 +27,7 @@ use std::{borrow::Cow, mem, sync::Arc};
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
-    common::SearchSuggestion,
+    common::{AlbumID, SearchSuggestion},
     parse::{AlbumSong, SearchResultArtist},
 };
 
@@ -361,7 +361,7 @@ impl Browser {
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
-            .filter(|song| song.get_album() == cur_song.get_album())
+            .filter(|song| song.album_id == cur_song.album_id)
             .cloned()
             .collect();
         send_or_error(
@@ -382,7 +382,7 @@ impl Browser {
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
-            .filter(|song| song.get_album() == cur_song.get_album())
+            .filter(|song| song.album_id == cur_song.album_id)
             // XXX: Could instead be inside an Rc.
             .cloned()
             .collect();
@@ -445,7 +445,8 @@ impl Browser {
                 album,
                 year,
                 artist,
-            } => this.handle_append_song_list(song_list, album, year, artist),
+                album_id,
+            } => this.handle_append_song_list(song_list, album, album_id, year, artist),
             GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
         };
 
@@ -509,12 +510,13 @@ impl Browser {
         &mut self,
         song_list: Vec<AlbumSong>,
         album: String,
+        album_id: AlbumID<'static>,
         year: String,
         artist: String,
     ) {
         self.album_songs_list
             .list
-            .append_raw_songs(song_list, album, year, artist);
+            .append_raw_songs(song_list, album, album_id, year, artist);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
         self.album_songs_list.apply_sort_commands();
