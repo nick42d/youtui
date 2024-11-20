@@ -18,14 +18,37 @@ C-c = "quit"
 # Global keybind mode names
 [mode_names]
 
-[keys.browser]
+[keys.playlist]
 F5 = {action = "view_browser", visibility = "global"}
-F2 = {action = "view_playlist", visibility = "global"}
+left = "left"
+right = "right"
+up = "up"
+down = "down"
+pgup = {action = "up", value = 10}
+pgdown = {action = "down", value = 10}
+enter.enter = "play_selected"
+enter.d = "delete_selected"
+enter.D = "delete_all"
+
+[mode_names.playlist]
+enter = "Playlist Action"
+
+[keys.browser]
+F5 = {action = "view_playlist", visibility = "global"}
+F2 = {action = "search", visibility = "global"}
 left = "left"
 right = "right"
 
 [keys.browser.artist_search_panel]
 enter = "display_selected_artist_albums"
+# Should value be required here?
+down = {action = "down", visibility = "hidden"}
+up = {action = "up", visibility = "hidden"}
+pgup = {action = "up", value = 10}
+pgdown = {action = "down", value = 10}
+
+[keys.browser.artist_search_panel.search]
+enter = "search_artist"
 down = "prev_search_suggestion"
 up = "next_search_suggestion"
 
@@ -43,25 +66,32 @@ enter.space = "add_song_to_playlist"
 enter.P = "add_songs_to_playlist"
 enter.A = "add_album_to_playlist"
 
-[keys.modal.help]
+[mode_names.browser.artist_songs_panel]
+enter = "Play"
+
+[keys.help]
+modal = true
 F1 = {action = "close_modal", visibility = "global"}
+esc = {action = "close_modal", visibility = "hidden"}
 up = {action = "up", value = 1, visibility = "hidden"}
 down = {action = "down", value = 1, visibility = "hidden"}
 
-[keys.modal.filter]
+[keys.filter]
+modal = true
 esc = {action = "close_modal", visibility = "hidden"}
 F3 = {action = "close_modal", visibility = "global"}
-F6 = {action = "filter", visibility = "global"}
+F6 = {action = "clear_filter", visibility = "global"}
 enter = {action = "submit", visibility = "global"}
 
-[keys.modal.sort]
+[keys.sort]
+modal = true
+enter = {action = "sort_selected_asc", visibility = "global"}
+C = {action = "clear_sort", visibility = "global"}
+A-enter = {action = "sort_selected_desc", visibility = "global"}
 esc = {action = "close_modal", visibility = "hidden"}
-F3 = {action = "close_modal", visibility = "global"}
-F6 = {action = "filter", visibility = "global"}
-enter = {action = "submit", visibility = "global"}
-
-[mode_names.browser.artist_songs_panel]
-enter = "Play"
+F4 = {action = "close_modal", visibility = "global"}
+up = {action = "up", value = 1, visibility = "hidden"}
+down = {action = "down", value = 1, visibility = "hidden"}
 
 [keys.text_entry]
 enter = "submit"
