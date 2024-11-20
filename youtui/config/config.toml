@@ -15,7 +15,6 @@ F12 = {action = "view_logs", visibility = "global"}
 space = "pause"
 C-c = "quit"
 
-
 # Global keybind mode names
 [mode_names]
 
@@ -43,6 +42,11 @@ enter.a = "play_album"
 enter.space = "add_song_to_playlist"
 enter.P = "add_songs_to_playlist"
 enter.A = "add_album_to_playlist"
+
+[keys.modal.help]
+F1 = {action = "close_modal", visibility = "global"}
+up = {action = "up", value = 1, visibility = "hidden"}
+down = {action = "down", value = 1, visibility = "hidden"}
 
 [keys.modal.filter]
 esc = {action = "close_modal", visibility = "hidden"}
