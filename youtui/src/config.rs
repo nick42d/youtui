@@ -1,6 +1,10 @@
+use std::collections::HashMap;
+
 use crate::get_config_dir;
 use crate::Result;
 use clap::ValueEnum;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::auth::OAuthToken;
 
@@ -23,9 +27,36 @@ impl std::fmt::Debug for ApiKey {
     }
 }
 
+#[derive(PartialEq, Debug, Clone)]
+pub struct Keybind {
+    code: KeyCode,
+    modifiers: KeyModifiers,
+}
+
+pub struct KeybindBasic {
+    sequence: Vec<Keybind>,
+    // Consider - can there be multiple actions?
+    // Consider - can an action access global commands? Or commands from another component?
+    action: String,
+    // Eg header, standard, hidden.
+    visibility: u8,
+}
+pub struct ModeBasic {
+    sequence: Vec<Keybind>,
+    name: String,
+}
+
+pub struct Keybinds {
+    binds: Vec<Keybind>,
+    mode_names: Vec<ModeBasic>,
+}
+
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub auth_type: AuthType,
+    // Consider - should keybinds be per module, e.g keybinds.playlist, keybinds.browser.
+    pub keybinds: HashMap<String, String>,
+    pub mode_names: HashMap<String, String>,
 }
 
 #[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
