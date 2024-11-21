@@ -1,15 +1,19 @@
 use std::borrow::Cow;
 
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
 use crossterm::event::KeyCode;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
+use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, Suggestable, TextHandler},
     keycommand::KeyCommand,
+    server::{ArcServer, GetSearchSuggestions, TaskMetadata},
     ui::browser::BrowserAction,
     view::{ListView, Loadable, Scrollable, SortableList},
+    CALLBACK_CHANNEL_SIZE,
 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -19,7 +23,6 @@ pub enum ArtistInputRouting {
     List,
 }
 
-#[derive(Default, Clone)]
 pub struct ArtistSearchPanel {
     pub list: Vec<SearchResultArtist>,
     // Duplicate of search popped?
@@ -34,11 +37,11 @@ pub struct ArtistSearchPanel {
     pub widget_state: ListState,
 }
 
-#[derive(Default, Clone)]
 pub struct SearchBlock {
     pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
+    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -56,11 +59,17 @@ pub enum ArtistAction {
 }
 
 impl ArtistSearchPanel {
-    pub fn new() -> Self {
+    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
         Self {
             keybinds: browser_artist_search_keybinds(),
             search_keybinds: search_keybinds(),
-            ..Default::default()
+            list: Default::default(),
+            route: Default::default(),
+            selected: Default::default(),
+            sort_commands_list: Default::default(),
+            search_popped: Default::default(),
+            search: SearchBlock::new(callback_manager),
+            widget_state: Default::default(),
         }
     }
     pub fn open_search(&mut self) {
@@ -109,12 +118,56 @@ impl TextHandler for SearchBlock {
             rat_text::event::TextOutcome::Continue => false,
             rat_text::event::TextOutcome::Unchanged => true,
             rat_text::event::TextOutcome::Changed => true,
-            rat_text::event::TextOutcome::TextChanged => true,
+            rat_text::event::TextOutcome::TextChanged => {
+                self.fetch_search_suggestions();
+                true
+            }
         }
     }
 }
 
 impl SearchBlock {
+    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+        Self {
+            search_contents: Default::default(),
+            search_suggestions: Default::default(),
+            suggestions_cur: Default::default(),
+            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
+        }
+    }
+    // Ask the UI for search suggestions for the current query
+    fn fetch_search_suggestions(&mut self) {
+        // No need to fetch search suggestions if contents is empty.
+        if self.search_contents.is_empty() {
+            self.search_suggestions.clear();
+            return;
+        }
+        let handler = |this: &mut Self, results| match results {
+            Ok((suggestions, text)) => {
+                this.replace_search_suggestions(suggestions, text);
+            }
+            Err(e) => {
+                error!("Error <{e}> recieved getting search suggestions");
+            }
+        };
+        if let Err(e) = self.async_tx.add_callback(
+            GetSearchSuggestions(self.get_text().to_string()),
+            handler,
+            Some(Constraint::new_kill_same_type()),
+        ) {
+            error!("Error <{e}> recieved sending message")
+        };
+    }
+    fn replace_search_suggestions(
+        &mut self,
+        search_suggestions: Vec<SearchSuggestion>,
+        search: String,
+    ) {
+        if self.get_text() == search {
+            self.search_suggestions = search_suggestions;
+            self.suggestions_cur = None;
+        }
+    }
     pub fn increment_list(&mut self, amount: isize) {
         if !self.search_suggestions.is_empty() {
             self.suggestions_cur = Some(
@@ -149,7 +202,7 @@ impl TextHandler for ArtistSearchPanel {
         self.search.clear_text()
     }
     fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        self.search.handle_event_repr(&event)
+        self.search.handle_event_repr(event)
     }
 }
 

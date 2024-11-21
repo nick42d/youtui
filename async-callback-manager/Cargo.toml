@@ -10,19 +10,19 @@ repository = "https://github.com/nick42d/youtui"
 readme = "README.md"
 
 [dependencies]
-futures = "0.3.30"
-reqwest = "0.12.7"
-tokio = { version = "1.40.0", default-features = false, features = ["macros"] }
+futures = "0.3.31"
+reqwest = "0.12.9"
+tokio = { version = "1.41.1", default-features = false, features = ["macros"] }
 tracing = "0.1.40"
 # For Then combinator
 tokio-stream = "0.1.16"
 
 [dev-dependencies]
 tokio-stream = "0.1.16"
-tokio = { version = "1.40.0", features = ["full"] }
-ratatui = "0.28.1"
+tokio = { version = "1.41.1", features = ["full"] }
+ratatui = "0.29.0"
 crossterm = { version = "0.28.1", features = ["event-stream"] }
-reqwest = { version = "0.12.7", features = [
+reqwest = { version = "0.12.9", features = [
   "http2",
   "charset",
   "rustls-tls"

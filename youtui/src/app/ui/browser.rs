@@ -257,7 +257,7 @@ impl Browser {
     ) -> Self {
         Self {
             callback_tx: ui_tx,
-            artist_list: ArtistSearchPanel::new(),
+            artist_list: ArtistSearchPanel::new(callback_manager),
             album_songs_list: AlbumSongsPanel::new(),
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
@@ -385,32 +385,6 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    // Ask the UI for search suggestions for the current query
-    // XXX: Currently has race conditions - if list is cleared response will arrive
-    // afterwards. Proposal: When recieving a message from the app validate
-    // against query string.
-    fn fetch_search_suggestions(&mut self) {
-        // No need to fetch search suggestions if contents is empty.
-        if self.artist_list.search.search_contents.is_empty() {
-            self.artist_list.search.search_suggestions.clear();
-            return;
-        }
-        let handler = |this: &mut Self, results| match results {
-            Ok((suggestions, text)) => {
-                this.replace_search_suggestions(suggestions, text);
-            }
-            Err(e) => {
-                error!("Error <{e}> recieved getting search suggestions");
-            }
-        };
-        if let Err(e) = self.async_tx.add_callback(
-            GetSearchSuggestions(self.artist_list.search.get_text().to_string()),
-            handler,
-            Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
-    }
     async fn get_songs(&mut self) {
         let selected = self.artist_list.get_selected_item();
         self.change_routing(InputRouting::Song);
@@ -483,16 +457,6 @@ impl Browser {
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
         self.increment_cur_list(0);
-    }
-    pub fn replace_search_suggestions(
-        &mut self,
-        search_suggestions: Vec<SearchSuggestion>,
-        search: String,
-    ) {
-        if self.artist_list.search.get_text() == search {
-            self.artist_list.search.search_suggestions = search_suggestions;
-            self.artist_list.search.suggestions_cur = None;
-        }
     }
     pub fn handle_no_songs_found(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loaded;
