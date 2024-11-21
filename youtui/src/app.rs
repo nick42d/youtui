@@ -19,7 +19,7 @@ use ui::WindowContext;
 use ui::YoutuiWindow;
 
 mod component;
-mod keycommand;
+pub mod keycommand;
 mod musiccache;
 mod server;
 mod structures;

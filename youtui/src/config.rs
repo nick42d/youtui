@@ -1,11 +1,13 @@
-use std::collections::HashMap;
-
+use crate::app::keycommand::CommandVisibility;
+use crate::app::keycommand::Keybind;
 use crate::get_config_dir;
 use crate::Result;
+use clap::Command;
 use clap::ValueEnum;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
@@ -25,12 +27,6 @@ impl std::fmt::Debug for ApiKey {
             ApiKey::BrowserToken(_) => write!(f, "BrowserToken(/* private fields */"),
         }
     }
-}
-
-#[derive(PartialEq, Debug, Clone)]
-pub struct Keybind {
-    code: KeyCode,
-    modifiers: KeyModifiers,
 }
 
 pub struct KeybindBasic {
@@ -57,6 +53,139 @@ pub struct Config {
     // Consider - should keybinds be per module, e.g keybinds.playlist, keybinds.browser.
     pub keybinds: HashMap<String, String>,
     pub mode_names: HashMap<String, String>,
+}
+
+enum AppAction {
+    VolUp(usize),
+    VolDown(usize),
+    NextSong,
+    PrevSong,
+    SeekForwardS(usize),
+    SeekBackS(usize),
+    ToggleHelp,
+    Quit,
+    ViewLogs,
+    Pause,
+    Playlist(PlaylistAction),
+    Browser(BrowserAction),
+    Filter(FilterAction),
+    Sort(SortAction),
+    Help(HelpAction),
+    BrowserArtists(BrowserArtistsAction),
+    BrowserSearch(BrowserSearchAction),
+    BrowserSongs(BrowserSongsAction),
+    Log(LogAction),
+}
+
+enum PlaylistAction {
+    ViewBrowser,
+    Left,
+    Right,
+    PlaySelected,
+    DeleteSelected,
+    DeleteAll,
+}
+
+enum BrowserAction {
+    ViewPlaylist,
+    Search,
+    Left,
+    Right,
+}
+
+enum BrowserArtistsAction {
+    DisplaySelectedArtistAlbums,
+}
+
+enum BrowserSearchAction {
+    SearchArtist,
+    PrevSearchSuggestion,
+    NextSearchSuggestion,
+}
+
+enum BrowserSongsAction {
+    Filter,
+    Sort,
+    PlaySong,
+    PlaySongs,
+    PlayAlbum,
+    AddSongToPlaylist,
+    AddSongsToPlaylist,
+    AddAlbumToPlaylist,
+}
+
+enum HelpAction {
+    CloseHelp,
+}
+
+enum FilterAction {
+    CloseFilter,
+    ClearFilter,
+}
+
+enum SortAction {
+    CloseSort,
+    ClearSort,
+    SortSelectedAsc,
+    SortSelectedDesc,
+}
+
+enum TextEntryAction {
+    Submit,
+    Left,
+    Right,
+    Backspace,
+}
+
+enum LogAction {}
+
+enum KeysEnum {
+    Key(KeyEnum),
+    Subcomponent,
+}
+
+enum KeyEnum {
+    Key {
+        action: String,
+        value: usize,
+        visibility: CommandVisibility,
+    },
+    Mode(HashMap<Key, KeyEnum>),
+}
+
+enum ModeNameEnum {
+    Name(String),
+    Submode(HashMap<Key, ModeNameEnum>),
+}
+
+pub struct Key;
+
+pub struct YoutuiKeymap {
+    global: HashMap<Keybind, KeyEnum>,
+    playlist: HashMap<Keybind, KeyEnum>,
+    browser: HashMap<Keybind, KeyEnum>,
+    browser_artists: HashMap<Keybind, KeyEnum>,
+    browser_search: HashMap<Keybind, KeyEnum>,
+    browser_songs: HashMap<Keybind, KeyEnum>,
+    help: HashMap<Keybind, KeyEnum>,
+    sort: HashMap<Keybind, KeyEnum>,
+    filter: HashMap<Keybind, KeyEnum>,
+    text_entry: HashMap<Keybind, KeyEnum>,
+    list: HashMap<Keybind, KeyEnum>,
+}
+
+pub struct YoutuiModeNames {
+    global: HashMap<Keybind, ModeNameEnum>,
+    playlist: HashMap<Keybind, ModeNameEnum>,
+    browser: HashMap<Keybind, ModeNameEnum>,
+    browser_artists: HashMap<Keybind, ModeNameEnum>,
+    browser_search: HashMap<Keybind, ModeNameEnum>,
+    browser_songs: HashMap<Keybind, ModeNameEnum>,
+    help: HashMap<Keybind, ModeNameEnum>,
+    sort: HashMap<Keybind, ModeNameEnum>,
+    filter: HashMap<Keybind, ModeNameEnum>,
+    text_entry: HashMap<Keybind, ModeNameEnum>,
+    list: HashMap<Keybind, ModeNameEnum>,
 }
 
 #[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
