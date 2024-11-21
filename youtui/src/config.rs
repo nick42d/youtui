@@ -29,32 +29,70 @@ impl std::fmt::Debug for ApiKey {
     }
 }
 
-pub struct KeybindBasic {
-    sequence: Vec<Keybind>,
-    // Consider - can there be multiple actions?
-    // Consider - can an action access global commands? Or commands from another component?
-    action: String,
-    // Eg header, standard, hidden.
-    visibility: u8,
-}
-pub struct ModeBasic {
-    sequence: Vec<Keybind>,
-    name: String,
-}
-
-pub struct Keybinds {
-    binds: Vec<Keybind>,
-    mode_names: Vec<ModeBasic>,
-}
-
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub auth_type: AuthType,
-    // Consider - should keybinds be per module, e.g keybinds.playlist, keybinds.browser.
-    pub keybinds: HashMap<String, String>,
-    pub mode_names: HashMap<String, String>,
+    pub keybinds: YoutuiKeymap,
+    pub mode_names: YoutuiModeNames,
 }
 
+#[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
+pub enum AuthType {
+    #[value(name = "oauth")]
+    OAuth,
+    #[default]
+    Browser,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct YoutuiKeymap {
+    global: HashMap<Keybind, KeyEnum>,
+    playlist: HashMap<Keybind, KeyEnum>,
+    browser: HashMap<Keybind, KeyEnum>,
+    browser_artists: HashMap<Keybind, KeyEnum>,
+    browser_search: HashMap<Keybind, KeyEnum>,
+    browser_songs: HashMap<Keybind, KeyEnum>,
+    help: HashMap<Keybind, KeyEnum>,
+    sort: HashMap<Keybind, KeyEnum>,
+    filter: HashMap<Keybind, KeyEnum>,
+    text_entry: HashMap<Keybind, KeyEnum>,
+    list: HashMap<Keybind, KeyEnum>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct YoutuiModeNames {
+    global: HashMap<Keybind, ModeNameEnum>,
+    playlist: HashMap<Keybind, ModeNameEnum>,
+    browser: HashMap<Keybind, ModeNameEnum>,
+    browser_artists: HashMap<Keybind, ModeNameEnum>,
+    browser_search: HashMap<Keybind, ModeNameEnum>,
+    browser_songs: HashMap<Keybind, ModeNameEnum>,
+    help: HashMap<Keybind, ModeNameEnum>,
+    sort: HashMap<Keybind, ModeNameEnum>,
+    filter: HashMap<Keybind, ModeNameEnum>,
+    text_entry: HashMap<Keybind, ModeNameEnum>,
+    list: HashMap<Keybind, ModeNameEnum>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+enum KeyEnum {
+    Key {
+        // Consider - can there be multiple actions?
+        // Consider - can an action access global commands? Or commands from another component?
+        action: AppAction,
+        value: usize,
+        visibility: CommandVisibility,
+    },
+    Mode(HashMap<Keybind, KeyEnum>),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+enum ModeNameEnum {
+    Name(String),
+    Submode(HashMap<Keybind, ModeNameEnum>),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 enum AppAction {
     VolUp(usize),
     VolDown(usize),
@@ -77,6 +115,7 @@ enum AppAction {
     Log(LogAction),
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum PlaylistAction {
     ViewBrowser,
     Left,
@@ -86,6 +125,7 @@ enum PlaylistAction {
     DeleteAll,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum BrowserAction {
     ViewPlaylist,
     Search,
@@ -93,16 +133,19 @@ enum BrowserAction {
     Right,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum BrowserArtistsAction {
     DisplaySelectedArtistAlbums,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum BrowserSearchAction {
     SearchArtist,
     PrevSearchSuggestion,
     NextSearchSuggestion,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum BrowserSongsAction {
     Filter,
     Sort,
@@ -114,15 +157,18 @@ enum BrowserSongsAction {
     AddAlbumToPlaylist,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum HelpAction {
     CloseHelp,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum FilterAction {
     CloseFilter,
     ClearFilter,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum SortAction {
     CloseSort,
     ClearSort,
@@ -130,6 +176,7 @@ enum SortAction {
     SortSelectedDesc,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum TextEntryAction {
     Submit,
     Left,
@@ -137,64 +184,8 @@ enum TextEntryAction {
     Backspace,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum LogAction {}
-
-enum KeysEnum {
-    Key(KeyEnum),
-    Subcomponent,
-}
-
-enum KeyEnum {
-    Key {
-        action: String,
-        value: usize,
-        visibility: CommandVisibility,
-    },
-    Mode(HashMap<Key, KeyEnum>),
-}
-
-enum ModeNameEnum {
-    Name(String),
-    Submode(HashMap<Key, ModeNameEnum>),
-}
-
-pub struct Key;
-
-pub struct YoutuiKeymap {
-    global: HashMap<Keybind, KeyEnum>,
-    playlist: HashMap<Keybind, KeyEnum>,
-    browser: HashMap<Keybind, KeyEnum>,
-    browser_artists: HashMap<Keybind, KeyEnum>,
-    browser_search: HashMap<Keybind, KeyEnum>,
-    browser_songs: HashMap<Keybind, KeyEnum>,
-    help: HashMap<Keybind, KeyEnum>,
-    sort: HashMap<Keybind, KeyEnum>,
-    filter: HashMap<Keybind, KeyEnum>,
-    text_entry: HashMap<Keybind, KeyEnum>,
-    list: HashMap<Keybind, KeyEnum>,
-}
-
-pub struct YoutuiModeNames {
-    global: HashMap<Keybind, ModeNameEnum>,
-    playlist: HashMap<Keybind, ModeNameEnum>,
-    browser: HashMap<Keybind, ModeNameEnum>,
-    browser_artists: HashMap<Keybind, ModeNameEnum>,
-    browser_search: HashMap<Keybind, ModeNameEnum>,
-    browser_songs: HashMap<Keybind, ModeNameEnum>,
-    help: HashMap<Keybind, ModeNameEnum>,
-    sort: HashMap<Keybind, ModeNameEnum>,
-    filter: HashMap<Keybind, ModeNameEnum>,
-    text_entry: HashMap<Keybind, ModeNameEnum>,
-    list: HashMap<Keybind, ModeNameEnum>,
-}
-
-#[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
-pub enum AuthType {
-    #[value(name = "oauth")]
-    OAuth,
-    #[default]
-    Browser,
-}
 
 impl Config {
     pub fn new() -> Result<Self> {

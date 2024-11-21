@@ -2,7 +2,7 @@
 auth_type = "Browser"
 
 # Global keybinds
-[keys]
+[keys.global]
 "+" = {action = "vol_up", value = 5}
 "-" = {action = "vol_down", value = 5}
 ">" = "next_song"
@@ -16,7 +16,7 @@ space = "pause"
 C-c = "quit"
 
 # Global keybind mode names
-[mode_names]
+[mode_names.global]
 
 [keys.playlist]
 F5 = {action = "view_browser", visibility = "global"}
