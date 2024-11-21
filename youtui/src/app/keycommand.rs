@@ -3,10 +3,12 @@
 //! A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
 use super::component::actionhandler::Action;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use std::{borrow::Cow, fmt::Display};
+use futures::Stream;
+use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
 // Should another type be GlobalHidden?
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub enum CommandVisibility {
     Standard,
     // Displayed on Header
@@ -21,7 +23,7 @@ pub struct KeyCommand<A: Action> {
     pub key_map: Keymap<A>,
     pub visibility: CommandVisibility,
 }
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct Keybind {
     code: KeyCode,
     modifiers: KeyModifiers,
@@ -248,5 +250,143 @@ impl<A: Action> KeyCommand<A> {
             key_map: Keymap::Mode(Mode { commands, name }),
             visibility: CommandVisibility::Standard,
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct KeybindParseError(String);
+
+impl FromStr for Keybind {
+    type Err = KeybindParseError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        fn parse_unmodified(s: &str) -> Result<KeyCode, &str> {
+            if let Ok(char) = char::from_str(s) {
+                return Ok(KeyCode::Char(char));
+            }
+            match s.to_lowercase().as_str() {
+                "enter" => return Ok(KeyCode::Enter),
+                "delete" => return Ok(KeyCode::Delete),
+                "up" => return Ok(KeyCode::Up),
+                "pageup" => return Ok(KeyCode::PageUp),
+                "down" => return Ok(KeyCode::Down),
+                "pagedown" => return Ok(KeyCode::PageDown),
+                "left" => return Ok(KeyCode::Left),
+                "right" => return Ok(KeyCode::Right),
+                "backspace" => return Ok(KeyCode::Backspace),
+                "tab" => return Ok(KeyCode::Tab),
+                "backtab" => return Ok(KeyCode::BackTab),
+                // Caps Lock key.
+                //
+                // **Note:** this key can only be read if
+                // [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has
+                // been enabled with
+                // [`PushKeyboardEnhancementFlags`].
+                "caps" => return Ok(KeyCode::CapsLock),
+                "home" => return Ok(KeyCode::Home),
+                "end" => return Ok(KeyCode::End),
+                "insert" => return Ok(KeyCode::Insert),
+                _ => (),
+            };
+            if let Some((before, Ok(num))) = s
+                .split_once("F")
+                .map(|(before, num)| (before, u8::from_str(num)))
+            {
+                if before.is_empty() {
+                    return Ok(KeyCode::F(num));
+                }
+            }
+            Err(s)
+        }
+        fn parse_modifier(c: char) -> Result<KeyModifiers, char> {
+            match c {
+                'A' => Ok(KeyModifiers::ALT),
+                'C' => Ok(KeyModifiers::CONTROL),
+                'S' => Ok(KeyModifiers::SHIFT),
+                // **Note:** `SUPER`, `HYPER`, and `META` can only be read if
+                // [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has
+                // been enabled with
+                // [`PushKeyboardEnhancementFlags`].
+                'H' => Ok(KeyModifiers::HYPER),
+                'M' => Ok(KeyModifiers::META),
+                'W' => Ok(KeyModifiers::SUPER),
+                c => Err(c),
+            }
+        }
+        if let Ok(code) = parse_unmodified(s) {
+            return Ok(Keybind::new(code, KeyModifiers::NONE));
+        };
+        let mut split = s.rsplit("-");
+        if let Some(Ok(code)) = split.next().map(parse_unmodified) {
+            if let Ok(Ok(modifiers)) = split
+                .map(char::from_str)
+                .map(|res| res.map(parse_modifier))
+                .collect::<Result<Result<KeyModifiers, char>, ParseCharError>>()
+            {
+                return Ok(Keybind::new(code, modifiers));
+            }
+        }
+        Err(KeybindParseError(s.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm::event::{KeyCode, KeyModifiers};
+
+    use super::Keybind;
+    use std::str::FromStr;
+
+    #[test]
+    fn parse_char_key() {
+        let kb = Keybind::from_str("a").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::Char('a'), KeyModifiers::NONE));
+    }
+    #[test]
+    fn parse_space() {
+        Keybind::from_str(" ").unwrap_err();
+        let kb = Keybind::from_str("space").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::Char(' '), KeyModifiers::NONE));
+    }
+    #[test]
+    fn parse_f_key() {
+        let kb = Keybind::from_str("F10").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::F(10), KeyModifiers::NONE));
+    }
+    #[test]
+    fn parse_enter() {
+        todo!("add test to parse all acceptable values");
+        let expected = Keybind::new(KeyCode::Enter, KeyModifiers::NONE);
+        let kb = Keybind::from_str("enter").unwrap();
+        assert_eq!(kb, expected);
+        let kb = Keybind::from_str("Enter").unwrap();
+        assert_eq!(kb, expected);
+    }
+    #[test]
+    fn parse_delete() {
+        let kb = Keybind::from_str("delete").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::Delete, KeyModifiers::NONE));
+    }
+    #[test]
+    fn parse_alt_key() {
+        let kb = Keybind::from_str("A-a").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::Char('a'), KeyModifiers::ALT));
+        let kb = Keybind::from_str("A-enter").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::Enter, KeyModifiers::ALT));
+    }
+    #[test]
+    fn parse_shift_key() {
+        let kb = Keybind::from_str("S-F1").unwrap();
+        assert_eq!(kb, Keybind::new(KeyCode::F(1), KeyModifiers::SHIFT));
+    }
+    #[test]
+    fn parse_ctrl_key() {
+        let kb = Keybind::from_str("C-A-x").unwrap();
+        assert_eq!(
+            kb,
+            Keybind::new(
+                KeyCode::Char('x'),
+                KeyModifiers::CONTROL | KeyModifiers::ALT
+            )
+        );
     }
 }
