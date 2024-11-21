@@ -8,6 +8,7 @@ use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
 use rat_text::text_input::{TextInput, TextInputState};
+use rat_text::HasScreenCursor;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
@@ -127,6 +128,9 @@ fn draw_text_box(
             .title(title.as_ref()),
     );
     f.render_stateful_widget(text_widget, chunk, contents);
+    if let Some(cursor_pos) = contents.screen_cursor() {
+        f.set_cursor_position(cursor_pos)
+    };
 }
 fn draw_search_box(f: &mut Frame, browser: &mut Browser, chunk: Rect) {
     draw_text_box(
