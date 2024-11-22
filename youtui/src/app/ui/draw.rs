@@ -198,7 +198,7 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
     let table_height = chunk.height.saturating_sub(4) as usize;
     let headings_iter = headings.iter().copied();
     let table_widget = Table::new(table_items, layout)
-        .highlight_style(highlight_style())
+        .row_highlight_style(highlight_style())
         .header(
             Row::new(headings_iter).style(
                 Style::default()

@@ -87,7 +87,7 @@ impl TextHandler for Logger {
     fn clear_text(&mut self) -> bool {
         false
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_event_repr(&mut self, _event: &crossterm::event::Event) -> bool {
         false
     }
 }
