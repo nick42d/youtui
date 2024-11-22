@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.18](https://github.com/nick42d/youtui/compare/youtui/v0.0.17...youtui/v0.0.18) - 2024-11-22
+
+### Added
+- Implement ability to move cursor within text box - closes [#154](https://github.com/nick42d/youtui/pull/154) ([#182](https://github.com/nick42d/youtui/pull/182))
+
+### Fixed
+- Use a unique identifier to add albums instead of the album name. Closes [#12](https://github.com/nick42d/youtui/pull/12). ([#183](https://github.com/nick42d/youtui/pull/183))
+
+
+
+
 ## [0.0.17](https://github.com/nick42d/youtui/compare/youtui/v0.0.16...youtui/v0.0.17) - 2024-11-18
 
 ### Added
