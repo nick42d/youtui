@@ -267,7 +267,10 @@ impl Browser {
     }
     pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
         // TODO: Size
-        self.async_tx.get_next_mutations(10).await
+        tokio::select! {
+            browser = self.async_tx.get_next_mutations(10) => browser,
+            search = self.artist_list.search.async_tx.get_next_mutations(10) => search.map(|b: &mut Self| &mut b.artist_list.search),
+        }
     }
     fn left(&mut self) {
         // Doesn't consider previous routing.

@@ -7,6 +7,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use log::LevelFilter;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{Server, TaskMetadata};
 use std::borrow::Cow;
@@ -210,6 +211,7 @@ fn init_tracing(debug: bool) -> Result<()> {
             .with(tui_logger_layer.and_then(log_file_layer))
             .with(context_layer)
             .init();
+        tui_logger::init_logger(LevelFilter::Debug);
         info!("Started in debug mode, logging to {:?}.", log_file_name);
     } else {
         // TODO: Confirm if this filter is correct.
@@ -219,6 +221,7 @@ fn init_tracing(debug: bool) -> Result<()> {
             .with(tui_logger_layer)
             .with(context_layer)
             .init();
+        tui_logger::init_logger(LevelFilter::Debug);
     }
     Ok(())
 }

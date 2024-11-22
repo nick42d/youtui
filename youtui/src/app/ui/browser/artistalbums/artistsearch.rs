@@ -41,7 +41,7 @@ pub struct SearchBlock {
     pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
-    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
+    pub async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

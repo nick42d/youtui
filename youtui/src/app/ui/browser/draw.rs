@@ -120,14 +120,21 @@ fn draw_text_box(
     contents: &mut TextInputState,
     chunk: Rect,
 ) {
+    let block_widget = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
+        .title(title.as_ref());
+    let text_chunk = block_widget.inner(chunk);
+    let text_chunk = Rect {
+        x: text_chunk.x,
+        y: text_chunk.y,
+        width: text_chunk.width.saturating_sub(1),
+        height: text_chunk.height,
+    };
     // TODO: Scrolling, if input larger than box.
-    let text_widget = TextInput::new().block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
-            .title(title.as_ref()),
-    );
-    f.render_stateful_widget(text_widget, chunk, contents);
+    let text_widget = TextInput::new();
+    f.render_widget(block_widget, chunk);
+    f.render_stateful_widget(text_widget, text_chunk, contents);
     if let Some(cursor_pos) = contents.screen_cursor() {
         f.set_cursor_position(cursor_pos)
     };

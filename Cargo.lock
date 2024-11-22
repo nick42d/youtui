@@ -4696,6 +4696,7 @@ dependencies = [
  "futures",
  "gag",
  "itertools 0.13.0",
+ "log",
  "rat-text",
  "ratatui",
  "rodio",
