@@ -11,7 +11,7 @@ use crate::app::{
         Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, GetSearchSuggestions,
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs,
         SearchArtists, Server, TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},

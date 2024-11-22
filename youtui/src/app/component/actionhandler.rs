@@ -1,5 +1,5 @@
 use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use crossterm::event::{Event, KeyEvent, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
