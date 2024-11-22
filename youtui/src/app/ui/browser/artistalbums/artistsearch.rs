@@ -109,8 +109,10 @@ impl TextHandler for SearchBlock {
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         self.search_contents.set_text(text);
+        self.search_contents.move_to_line_end(false);
     }
     fn clear_text(&mut self) -> bool {
+        self.search_suggestions.clear();
         self.search_contents.clear()
     }
     fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
@@ -180,7 +182,7 @@ impl SearchBlock {
             );
             // Safe - clamped above
             // Clone is ok here as we want to duplicate the search suggestion.
-            self.search_contents.set_text(
+            self.replace_text(
                 self.search_suggestions[self.suggestions_cur.expect("Set to non-None value above")]
                     .get_text(),
             );

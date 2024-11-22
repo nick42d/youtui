@@ -429,6 +429,7 @@ impl Browser {
     async fn search(&mut self) {
         self.artist_list.close_search();
         let search_query = self.artist_list.search.get_text().to_string();
+        self.artist_list.clear_text();
 
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
