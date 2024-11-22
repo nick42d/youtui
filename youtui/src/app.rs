@@ -211,17 +211,19 @@ fn init_tracing(debug: bool) -> Result<()> {
             .with(tui_logger_layer.and_then(log_file_layer))
             .with(context_layer)
             .init();
-        tui_logger::init_logger(LevelFilter::Debug);
+        tui_logger::init_logger(LevelFilter::Debug)
+            .expect("Expected logger to initialise succesfully");
         info!("Started in debug mode, logging to {:?}.", log_file_name);
     } else {
         // TODO: Confirm if this filter is correct.
         let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::TRACE);
+            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::INFO);
         tracing_subscriber::registry()
             .with(tui_logger_layer)
             .with(context_layer)
             .init();
-        tui_logger::init_logger(LevelFilter::Debug);
+        tui_logger::init_logger(LevelFilter::Info)
+            .expect("Expected logger to initialise succesfully");
     }
     Ok(())
 }
