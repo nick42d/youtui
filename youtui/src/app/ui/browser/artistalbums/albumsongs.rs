@@ -14,6 +14,7 @@ use crate::app::{
 use crate::error::Error;
 use crate::Result;
 use crossterm::event::{KeyCode, KeyModifiers};
+use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
 use std::borrow::Cow;
 use tracing::warn;
@@ -41,8 +42,7 @@ pub struct AlbumSongsPanel {
 #[derive(Clone)]
 pub struct FilterManager {
     filter_commands: Vec<TableFilterCommand>,
-    pub filter_text: String,
-    pub filter_cur: usize,
+    pub filter_text: TextInputState,
     pub shown: bool,
     keybinds: Vec<KeyCommand<BrowserAction>>,
 }
@@ -66,17 +66,10 @@ impl Default for SortManager {
         }
     }
 }
-impl FilterManager {
-    fn move_cursor_to_end(&mut self) {
-        self.filter_cur = self.filter_text.len();
-    }
-}
-
 impl Default for FilterManager {
     fn default() -> Self {
         Self {
             filter_text: Default::default(),
-            filter_cur: 0,
             filter_commands: Default::default(),
             shown: Default::default(),
             keybinds: filter_keybinds(),
@@ -85,26 +78,25 @@ impl Default for FilterManager {
 }
 
 impl TextHandler for FilterManager {
-    // XXX: This is copy/paste from SearchBlock, so can an interface be made for
-    // this?
-    fn push_text(&mut self, c: char) {
-        self.filter_text.push(c);
-        self.filter_cur += 1;
-    }
-    fn pop_text(&mut self) {
-        self.filter_text.pop();
-        self.filter_cur = self.filter_cur.saturating_sub(1);
-    }
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn take_text(&mut self) -> String {
-        self.filter_cur = 0;
-        std::mem::take(&mut self.filter_text)
+    fn get_text(&self) -> &str {
+        self.filter_text.text()
     }
-    fn replace_text(&mut self, text: String) {
-        self.filter_text = text;
-        self.move_cursor_to_end();
+    fn replace_text(&mut self, text: impl Into<String>) {
+        self.filter_text.set_text(text)
+    }
+    fn clear_text(&mut self) -> bool {
+        self.filter_text.clear()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        match handle_events(&mut self.filter_text, true, event) {
+            rat_text::event::TextOutcome::Continue => false,
+            rat_text::event::TextOutcome::Unchanged => true,
+            rat_text::event::TextOutcome::Changed => true,
+            rat_text::event::TextOutcome::TextChanged => true,
+        }
     }
 }
 
@@ -194,7 +186,7 @@ impl AlbumSongsPanel {
         }))
     }
     pub fn apply_filter(&mut self) {
-        let filter = self.filter.take_text();
+        let filter = self.filter.get_text().to_string();
         self.filter.shown = false;
         self.route = AlbumSongsInputRouting::List;
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
@@ -221,7 +213,6 @@ impl AlbumSongsPanel {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_cur = 0;
             self.filter.filter_text.clear();
             self.route = AlbumSongsInputRouting::Filter;
         } else {
@@ -298,24 +289,20 @@ impl SongListComponent for AlbumSongsPanel {
 }
 
 impl TextHandler for AlbumSongsPanel {
-    fn push_text(&mut self, c: char) {
-        self.filter.push_text(c)
+    fn get_text(&self) -> &str {
+        self.filter.get_text()
     }
-
-    fn pop_text(&mut self) {
-        self.filter.pop_text()
-    }
-
-    fn take_text(&mut self) -> String {
-        self.filter.take_text()
-    }
-
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         self.filter.replace_text(text)
     }
-
     fn is_text_handling(&self) -> bool {
         self.route == AlbumSongsInputRouting::Filter
+    }
+    fn clear_text(&mut self) -> bool {
+        self.filter.clear_text()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        self.filter.handle_event_repr(event)
     }
 }
 

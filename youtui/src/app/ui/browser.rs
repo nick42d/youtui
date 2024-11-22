@@ -11,7 +11,7 @@ use crate::app::{
         Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, GetSearchSuggestions,
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs,
         SearchArtists, Server, TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},
@@ -112,42 +112,34 @@ impl Suggestable for Browser {
     }
 }
 impl TextHandler for Browser {
-    fn push_text(&mut self, c: char) {
-        match self.input_routing {
-            InputRouting::Artist => {
-                self.artist_list.push_text(c);
-                // Should be on artist_list instead?
-                self.fetch_search_suggestions();
-            }
-            InputRouting::Song => self.album_songs_list.push_text(c),
-        }
-    }
-    fn pop_text(&mut self) {
-        match self.input_routing {
-            InputRouting::Artist => {
-                self.artist_list.pop_text();
-                // Should be on artist_list instead?
-                self.fetch_search_suggestions();
-            }
-            InputRouting::Song => self.album_songs_list.pop_text(),
-        }
-    }
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.is_text_handling(),
             InputRouting::Song => self.album_songs_list.is_text_handling(),
         }
     }
-    fn take_text(&mut self) -> String {
+    fn get_text(&self) -> &str {
         match self.input_routing {
-            InputRouting::Artist => self.artist_list.take_text(),
-            InputRouting::Song => self.album_songs_list.take_text(),
+            InputRouting::Artist => self.artist_list.get_text(),
+            InputRouting::Song => self.album_songs_list.get_text(),
         }
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.replace_text(text),
             InputRouting::Song => self.album_songs_list.replace_text(text),
+        }
+    }
+    fn clear_text(&mut self) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.clear_text(),
+            InputRouting::Song => self.album_songs_list.clear_text(),
+        }
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.handle_event_repr(event),
+            InputRouting::Song => self.album_songs_list.handle_event_repr(event),
         }
     }
 }
@@ -265,7 +257,7 @@ impl Browser {
     ) -> Self {
         Self {
             callback_tx: ui_tx,
-            artist_list: ArtistSearchPanel::new(),
+            artist_list: ArtistSearchPanel::new(callback_manager),
             album_songs_list: AlbumSongsPanel::new(),
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
@@ -275,7 +267,10 @@ impl Browser {
     }
     pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
         // TODO: Size
-        self.async_tx.get_next_mutations(10).await
+        tokio::select! {
+            browser = self.async_tx.get_next_mutations(10) => browser,
+            search = self.artist_list.search.async_tx.get_next_mutations(10) => search.map(|b: &mut Self| &mut b.artist_list.search),
+        }
     }
     fn left(&mut self) {
         // Doesn't consider previous routing.
@@ -393,32 +388,6 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    // Ask the UI for search suggestions for the current query
-    // XXX: Currently has race conditions - if list is cleared response will arrive
-    // afterwards. Proposal: When recieving a message from the app validate
-    // against query string.
-    fn fetch_search_suggestions(&mut self) {
-        // No need to fetch search suggestions if contents is empty.
-        if self.artist_list.search.search_contents.is_empty() {
-            self.artist_list.search.search_suggestions.clear();
-            return;
-        }
-        let handler = |this: &mut Self, results| match results {
-            Ok((suggestions, text)) => {
-                this.replace_search_suggestions(suggestions, text);
-            }
-            Err(e) => {
-                error!("Error <{e}> recieved getting search suggestions");
-            }
-        };
-        if let Err(e) = self.async_tx.add_callback(
-            GetSearchSuggestions(self.artist_list.search.search_contents.clone()),
-            handler,
-            Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
-    }
     async fn get_songs(&mut self) {
         let selected = self.artist_list.get_selected_item();
         self.change_routing(InputRouting::Song);
@@ -460,7 +429,8 @@ impl Browser {
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
-        let search_query = self.artist_list.search.take_text();
+        let search_query = self.artist_list.search.get_text().to_string();
+        self.artist_list.clear_text();
 
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
@@ -492,16 +462,6 @@ impl Browser {
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
         self.increment_cur_list(0);
-    }
-    pub fn replace_search_suggestions(
-        &mut self,
-        search_suggestions: Vec<SearchSuggestion>,
-        search: String,
-    ) {
-        if self.artist_list.search.search_contents == search {
-            self.artist_list.search.search_suggestions = search_suggestions;
-            self.artist_list.search.suggestions_cur = None;
-        }
     }
     pub fn handle_no_songs_found(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loaded;

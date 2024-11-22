@@ -7,11 +7,13 @@ use crate::app::view::{SortableTableView, TableView};
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
+use rat_text::text_input::{TextInput, TextInputState};
+use rat_text::HasScreenCursor;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, ListState},
     Frame,
 };
 use ytmapi_rs::common::{SuggestionType, TextRun};
@@ -56,7 +58,7 @@ pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected:
         draw_sort_popup(f, &browser.album_songs_list, layout[1]);
     }
     if browser.album_songs_list.filter.shown {
-        draw_filter_popup(f, &browser.album_songs_list, layout[1]);
+        draw_filter_popup(f, &mut browser.album_songs_list, layout[1]);
     }
 }
 
@@ -97,7 +99,7 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
     f.render_stateful_widget(list, popup_chunk, &mut state);
 }
 
-fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+fn draw_filter_popup(f: &mut Frame, album_songs_panel: &mut AlbumSongsPanel, chunk: Rect) {
     let title = "Filter";
     // Hardocde dimensions of filter input.
     let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
@@ -105,34 +107,43 @@ fn draw_filter_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: 
     draw_text_box(
         f,
         title,
-        album_songs_panel.filter.filter_text.as_ref(),
-        album_songs_panel.filter.filter_cur,
+        &mut album_songs_panel.filter.filter_text,
         popup_chunk,
     );
 }
 
 /// Draw a text input box
 // TODO: Shift to a more general module.
-fn draw_text_box<S: AsRef<str>>(f: &mut Frame, title: S, contents: S, cur: usize, chunk: Rect) {
+fn draw_text_box(
+    f: &mut Frame,
+    title: impl AsRef<str>,
+    contents: &mut TextInputState,
+    chunk: Rect,
+) {
+    let block_widget = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
+        .title(title.as_ref());
+    let text_chunk = block_widget.inner(chunk);
+    let text_chunk = Rect {
+        x: text_chunk.x,
+        y: text_chunk.y,
+        width: text_chunk.width.saturating_sub(1),
+        height: text_chunk.height,
+    };
     // TODO: Scrolling, if input larger than box.
-    let search_widget = Paragraph::new(contents.as_ref()).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
-            .title(title.as_ref()),
-    );
-    f.render_widget(search_widget, chunk);
-    f.set_cursor_position((
-        (chunk.x + cur as u16 + 1).min(chunk.right().saturating_sub(2)),
-        chunk.y + 1,
-    ));
+    let text_widget = TextInput::new();
+    f.render_widget(block_widget, chunk);
+    f.render_stateful_widget(text_widget, text_chunk, contents);
+    if let Some(cursor_pos) = contents.screen_cursor() {
+        f.set_cursor_position(cursor_pos)
+    };
 }
-fn draw_search_box(f: &mut Frame, browser: &Browser, chunk: Rect) {
+fn draw_search_box(f: &mut Frame, browser: &mut Browser, chunk: Rect) {
     draw_text_box(
         f,
         "Search",
-        browser.artist_list.search.search_contents.as_str(),
-        browser.artist_list.search.text_cur,
+        &mut browser.artist_list.search.search_contents,
         chunk,
     );
 }

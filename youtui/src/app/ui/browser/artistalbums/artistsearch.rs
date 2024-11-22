@@ -1,14 +1,19 @@
 use std::borrow::Cow;
 
+use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
 use crossterm::event::KeyCode;
+use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
+use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, Suggestable, TextHandler},
     keycommand::KeyCommand,
+    server::{ArcServer, GetSearchSuggestions, TaskMetadata},
     ui::browser::BrowserAction,
     view::{ListView, Loadable, Scrollable, SortableList},
+    CALLBACK_CHANNEL_SIZE,
 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -18,7 +23,6 @@ pub enum ArtistInputRouting {
     List,
 }
 
-#[derive(Default, Clone)]
 pub struct ArtistSearchPanel {
     pub list: Vec<SearchResultArtist>,
     // Duplicate of search popped?
@@ -33,12 +37,11 @@ pub struct ArtistSearchPanel {
     pub widget_state: ListState,
 }
 
-#[derive(Default, Clone)]
 pub struct SearchBlock {
-    pub search_contents: String,
+    pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
-    pub text_cur: usize,
     pub suggestions_cur: Option<usize>,
+    pub async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -56,11 +59,17 @@ pub enum ArtistAction {
 }
 
 impl ArtistSearchPanel {
-    pub fn new() -> Self {
+    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
         Self {
             keybinds: browser_artist_search_keybinds(),
             search_keybinds: search_keybinds(),
-            ..Default::default()
+            list: Default::default(),
+            route: Default::default(),
+            selected: Default::default(),
+            sort_commands_list: Default::default(),
+            search_popped: Default::default(),
+            search: SearchBlock::new(callback_manager),
+            widget_state: Default::default(),
         }
     }
     pub fn open_search(&mut self) {
@@ -92,29 +101,75 @@ impl Action for ArtistAction {
 }
 
 impl TextHandler for SearchBlock {
-    fn push_text(&mut self, c: char) {
-        self.search_contents.push(c);
-        self.text_cur += 1;
-    }
-    fn pop_text(&mut self) {
-        self.search_contents.pop();
-        self.text_cur = self.text_cur.saturating_sub(1);
-    }
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn take_text(&mut self) -> String {
-        self.text_cur = 0;
-        self.search_suggestions.clear();
-        std::mem::take(&mut self.search_contents)
+    fn get_text(&self) -> &str {
+        self.search_contents.text()
     }
-    fn replace_text(&mut self, text: String) {
-        self.search_contents = text;
-        self.move_cursor_to_end();
+    fn replace_text(&mut self, text: impl Into<String>) {
+        self.search_contents.set_text(text);
+        self.search_contents.move_to_line_end(false);
+    }
+    fn clear_text(&mut self) -> bool {
+        self.search_suggestions.clear();
+        self.search_contents.clear()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        match handle_events(&mut self.search_contents, true, event) {
+            rat_text::event::TextOutcome::Continue => false,
+            rat_text::event::TextOutcome::Unchanged => true,
+            rat_text::event::TextOutcome::Changed => true,
+            rat_text::event::TextOutcome::TextChanged => {
+                self.fetch_search_suggestions();
+                true
+            }
+        }
     }
 }
 
 impl SearchBlock {
+    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+        Self {
+            search_contents: Default::default(),
+            search_suggestions: Default::default(),
+            suggestions_cur: Default::default(),
+            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
+        }
+    }
+    // Ask the UI for search suggestions for the current query
+    fn fetch_search_suggestions(&mut self) {
+        // No need to fetch search suggestions if contents is empty.
+        if self.search_contents.is_empty() {
+            self.search_suggestions.clear();
+            return;
+        }
+        let handler = |this: &mut Self, results| match results {
+            Ok((suggestions, text)) => {
+                this.replace_search_suggestions(suggestions, text);
+            }
+            Err(e) => {
+                error!("Error <{e}> recieved getting search suggestions");
+            }
+        };
+        if let Err(e) = self.async_tx.add_callback(
+            GetSearchSuggestions(self.get_text().to_string()),
+            handler,
+            Some(Constraint::new_kill_same_type()),
+        ) {
+            error!("Error <{e}> recieved sending message")
+        };
+    }
+    fn replace_search_suggestions(
+        &mut self,
+        search_suggestions: Vec<SearchSuggestion>,
+        search: String,
+    ) {
+        if self.get_text() == search {
+            self.search_suggestions = search_suggestions;
+            self.suggestions_cur = None;
+        }
+    }
     pub fn increment_list(&mut self, amount: isize) {
         if !self.search_suggestions.is_empty() {
             self.suggestions_cur = Some(
@@ -127,32 +182,29 @@ impl SearchBlock {
             );
             // Safe - clamped above
             // Clone is ok here as we want to duplicate the search suggestion.
-            self.search_contents = self.search_suggestions
-                [self.suggestions_cur.expect("Set to non-None value above")]
-            .get_text();
-            self.move_cursor_to_end();
+            self.replace_text(
+                self.search_suggestions[self.suggestions_cur.expect("Set to non-None value above")]
+                    .get_text(),
+            );
         }
-    }
-    fn move_cursor_to_end(&mut self) {
-        self.text_cur = self.search_contents.len();
     }
 }
 
 impl TextHandler for ArtistSearchPanel {
-    fn push_text(&mut self, c: char) {
-        self.search.push_text(c);
-    }
-    fn pop_text(&mut self) {
-        self.search.pop_text();
-    }
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
     }
-    fn take_text(&mut self) -> String {
-        self.search.take_text()
+    fn get_text(&self) -> &str {
+        self.search.get_text()
     }
-    fn replace_text(&mut self, text: String) {
+    fn replace_text(&mut self, text: impl Into<String>) {
         self.search.replace_text(text)
+    }
+    fn clear_text(&mut self) -> bool {
+        self.search.clear_text()
+    }
+    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+        self.search.handle_event_repr(event)
     }
 }
 

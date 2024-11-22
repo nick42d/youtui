@@ -7,6 +7,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use log::LevelFilter;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{Server, TaskMetadata};
 use std::borrow::Cow;
@@ -164,7 +165,7 @@ impl Youtui {
     async fn handle_event(&mut self, event: AppEvent) {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
-            AppEvent::Crossterm(e) => self.window_state.handle_event(e).await,
+            AppEvent::Crossterm(e) => self.window_state.handle_initial_event(e).await,
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
@@ -210,15 +211,19 @@ fn init_tracing(debug: bool) -> Result<()> {
             .with(tui_logger_layer.and_then(log_file_layer))
             .with(context_layer)
             .init();
+        tui_logger::init_logger(LevelFilter::Debug)
+            .expect("Expected logger to initialise succesfully");
         info!("Started in debug mode, logging to {:?}.", log_file_name);
     } else {
         // TODO: Confirm if this filter is correct.
         let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::TRACE);
+            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::INFO);
         tracing_subscriber::registry()
             .with(tui_logger_layer)
             .with(context_layer)
             .init();
+        tui_logger::init_logger(LevelFilter::Info)
+            .expect("Expected logger to initialise succesfully");
     }
     Ok(())
 }

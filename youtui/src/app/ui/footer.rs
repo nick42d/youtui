@@ -9,7 +9,7 @@ use ratatui::{
     prelude::Alignment,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{block::Title, Block, Borders, Gauge, Paragraph},
+    widgets::{Block, Borders, Gauge, Paragraph},
     Frame,
 };
 
@@ -112,7 +112,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
     let block = Block::default()
         .title("Status")
-        .title(Title::from("Youtui").alignment(Alignment::Right))
+        .title(Line::from("Youtui").right_aligned())
         .borders(Borders::ALL);
     let block_inner = block.inner(chunk);
     let song_vol = Layout::default()

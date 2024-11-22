@@ -14,7 +14,6 @@ use ratatui::{
     symbols::{block, line},
     text::Line,
     widgets::{
-        block::{Position, Title},
         Block, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Scrollbar,
         ScrollbarOrientation, ScrollbarState, Table, TableState,
     },
@@ -60,7 +59,7 @@ pub fn draw_panel<S: AsRef<str>>(
     if let Some(s) = footer {
         let block = Block::new()
             .title(title.as_ref())
-            .title(Title::from(s.as_ref()).position(Position::Bottom))
+            .title_bottom(s.as_ref())
             .borders(Borders::ALL)
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
@@ -129,7 +128,7 @@ where
     ); // Minus block
     let heading_names = table.get_headings();
     let table_widget = Table::new(table_items, table_widths)
-        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
+        .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(heading_names).style(
                 Style::default()
@@ -217,7 +216,7 @@ where
         filter_str
     };
     let table_widget = Table::new(table_items, table_widths)
-        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
+        .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
             Row::new(combined_headings).style(
                 Style::default()
