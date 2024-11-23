@@ -1,9 +1,7 @@
 //! Example of using async-callback-manager in a ratatui app.
 #![allow(clippy::unwrap_used)]
 
-use async_callback_manager::{
-    AsyncCallbackManager, AsyncCallbackSender, BackendStreamingTask, BackendTask,
-};
+use async_callback_manager::{AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask};
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{stream, FutureExt};
 use ratatui::{
@@ -47,7 +45,6 @@ struct State {
     word: String,
     number: String,
     mode: Mode,
-    callback_handle: AsyncCallbackSender<reqwest::Client, Self, ()>,
 }
 impl State {
     fn draw(&self, f: &mut Frame) {
@@ -72,25 +69,21 @@ impl State {
     fn handle_toggle_mode(&mut self) {
         self.mode = self.mode.toggle()
     }
-    async fn handle_get_word(&mut self) {
+    async fn handle_get_word(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.word = "Loading".to_string();
-        self.callback_handle
-            .add_callback(
-                GetWordRequest,
-                |state, word| state.word = word,
-                (&self.mode).into(),
-            )
-            .unwrap()
+        AsyncTask::new_future(
+            GetWordRequest,
+            |state: &mut Self, word| state.word = word,
+            (&self.mode).into(),
+        )
     }
-    async fn handle_start_counter(&mut self) {
+    async fn handle_start_counter(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.number = "Loading".to_string();
-        self.callback_handle
-            .add_stream_callback(
-                CounterStream,
-                |state, num| state.number = num,
-                (&self.mode).into(),
-            )
-            .unwrap()
+        AsyncTask::new_stream(
+            CounterStream,
+            |state: &mut Self, num| state.number = num,
+            (&self.mode).into(),
+        )
     }
 }
 
@@ -103,7 +96,6 @@ async fn main() {
     let mut state = State {
         word: String::new(),
         number: String::new(),
-        callback_handle: manager.new_sender(50),
         mode: Default::default(),
     };
     loop {
@@ -111,14 +103,18 @@ async fn main() {
         tokio::select! {
             Some(action) = events.next() => match action {
                 Action::Quit => break,
-                Action::GetWord => state.handle_get_word().await,
-                Action::StartCounter => state.handle_start_counter().await,
+                Action::GetWord => {
+                    manager.spawn_task(&backend,
+                    state.handle_get_word().await)
+                },
+                Action::StartCounter => {
+                    manager.spawn_task(&backend,
+                    state.handle_start_counter().await)
+                },
                 Action::ToggleMode => state.handle_toggle_mode(),
             },
-            Some(manager_event) = manager.manage_next_event(&backend) => if manager_event.is_spawned_task() {
-                continue
-            },
-            mutations = state.callback_handle.get_next_mutations(10) => mutations.apply(&mut state),
+            Some(manager_event) = manager.manage_next_event(&backend) =>
+                manager.spawn_task(&backend, manager_event(&mut state)),
         };
     }
     ratatui::restore();

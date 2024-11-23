@@ -14,7 +14,7 @@ pub use adaptors::*;
 pub use error::*;
 pub use manager::*;
 pub use sender::*;
-pub use task::Constraint;
+pub use task::{AsyncTask, Constraint};
 
 pub trait BkendMap<Bkend> {
     fn map(backend: &Bkend) -> &Self;
@@ -75,7 +75,3 @@ fn kill_channel() -> (KillHandle, KillSignal) {
     let (tx, rx) = oneshot::channel();
     (KillHandle(Some(tx)), KillSignal(rx))
 }
-
-type DynFallibleFuture = Box<dyn Future<Output = Result<()>> + Unpin + Send>;
-type DynCallbackFn<Frntend> = Box<dyn FnOnce(&mut Frntend) + Send>;
-type DynBackendTask<Bkend> = Box<dyn FnOnce(&Bkend) -> DynFallibleFuture>;

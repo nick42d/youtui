@@ -1,10 +1,119 @@
-use crate::{DynBackendTask, DynFallibleFuture, KillHandle, SenderId, TaskId};
+use crate::{
+    BackendStreamingTask, BackendTask, DynFutureMutation, DynFutureTask, DynStateMutation,
+    DynStreamMutation, DynStreamTask, KillHandle, TaskId,
+};
 use futures::{stream::FuturesUnordered, StreamExt};
-use std::any::TypeId;
-use tokio::sync::{mpsc, oneshot};
+use std::any::{type_name, TypeId};
+use tokio::{
+    sync::{mpsc, oneshot},
+    task::JoinHandle,
+};
 
-pub(crate) struct TaskList<Cstrnt> {
-    pub inner: Vec<Task<Cstrnt>>,
+pub struct AsyncTask<Frntend, Bkend, Md> {
+    pub(crate) task: AsyncTaskKind<Frntend, Bkend, Md>,
+    pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
+    pub(crate) constraint: Option<Constraint<Md>>,
+    pub(crate) metadata: Vec<Md>,
+}
+
+pub(crate) enum AsyncTaskKind<Frntend, Bkend, Md> {
+    Future(DynFutureTask<Frntend, Bkend, Md>),
+    Stream(DynStreamTask<Frntend, Bkend, Md>),
+    NoOp,
+}
+
+impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
+    pub fn new_no_op() -> AsyncTask<Frntend, Bkend, Md> {
+        Self {
+            task: AsyncTaskKind::NoOp,
+            constraint: None,
+            metadata: vec![],
+            type_id: todo!(),
+            type_name: todo!(),
+        }
+    }
+    pub fn new_future<R>(
+        request: R,
+        handler: impl FnOnce(&mut Frntend, R::Output) + Send + 'static,
+        constraint: Option<Constraint<Md>>,
+    ) -> AsyncTask<Frntend, Bkend, Md>
+    where
+        R: BackendTask<Bkend, MetadataType = Md> + 'static,
+        Bkend: Send + 'static,
+        Frntend: 'static,
+    {
+        let metadata = R::metadata();
+        let type_id = request.type_id();
+        let type_name = type_name::<R>();
+        let task = Box::new(move |b: &Bkend| {
+            Box::new({
+                let future = request.into_future(b);
+                Box::pin(async move {
+                    let output = future.await;
+                    Box::new(move |frontend: &mut Frntend| {
+                        handler(frontend, output);
+                        AsyncTask::new_no_op()
+                    }) as DynStateMutation<Frntend, Bkend, Md>
+                })
+            }) as DynFutureMutation<Frntend, Bkend, Md>
+        }) as DynFutureTask<Frntend, Bkend, Md>;
+        AsyncTask {
+            task: AsyncTaskKind::Future(task),
+            constraint,
+            metadata,
+            type_id,
+            type_name,
+        }
+    }
+    pub fn new_stream<R>(
+        request: R,
+        // TODO: Review Clone bounds.
+        handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
+        constraint: Option<Constraint<Md>>,
+    ) -> AsyncTask<Frntend, Bkend, Md>
+    where
+        R: BackendStreamingTask<Bkend, MetadataType = Md> + 'static,
+        Bkend: Send + 'static,
+        Frntend: 'static,
+    {
+        let metadata = R::metadata();
+        let type_id = request.type_id();
+        let type_name = type_name::<R>();
+        let task = Box::new(move |b: &Bkend| {
+            let stream = request.into_stream(b);
+            Box::new({
+                stream.map(move |output| {
+                    Box::new({
+                        let handler = handler.clone();
+                        move |frontend: &mut Frntend| {
+                            handler.clone()(frontend, output);
+                            AsyncTask::new_no_op()
+                        }
+                    }) as DynStateMutation<Frntend, Bkend, Md>
+                })
+            }) as DynStreamMutation<Frntend, Bkend, Md>
+        }) as DynStreamTask<Frntend, Bkend, Md>;
+        AsyncTask {
+            task: AsyncTaskKind::Stream(task),
+            constraint,
+            metadata,
+            type_id,
+            type_name,
+        }
+    }
+}
+
+pub(crate) struct TaskList<Bkend, Frntend, Md> {
+    pub inner: Vec<SpawnedTask<Bkend, Frntend, Md>>,
+}
+
+pub(crate) struct SpawnedTask<Frntend, Bkend, Md> {
+    pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
+    pub(crate) receiver: TaskWaiter<Frntend, Bkend, Md>,
+    pub(crate) task_id: TaskId,
+    pub(crate) metadata: Vec<Md>,
 }
 
 // User visible struct for introspection.
@@ -12,7 +121,7 @@ pub(crate) struct TaskList<Cstrnt> {
 pub struct ResponseInformation {
     pub type_id: TypeId,
     pub type_name: &'static str,
-    pub sender_id: SenderId,
+    pub sender_id: (),
     pub task_id: TaskId,
     pub task_is_now_finished: bool,
 }
@@ -22,30 +131,20 @@ pub struct ResponseInformation {
 pub struct TaskInformation<'a, Cstrnt> {
     pub type_id: TypeId,
     pub type_name: &'static str,
-    pub sender_id: SenderId,
+    pub sender_id: (),
     pub constraint: &'a Option<Constraint<Cstrnt>>,
 }
 
-pub(crate) struct TaskFromFrontend<Bkend, Cstrnt> {
-    pub(crate) type_id: TypeId,
-    pub(crate) type_name: &'static str,
-    pub(crate) metadata: Vec<Cstrnt>,
-    pub(crate) task: DynBackendTask<Bkend>,
-    pub(crate) receiver: TaskReceiver,
-    pub(crate) sender_id: SenderId,
-    pub(crate) constraint: Option<Constraint<Cstrnt>>,
-    pub(crate) kill_handle: KillHandle,
-}
-
-pub(crate) struct Task<Cstrnt> {
-    pub(crate) type_id: TypeId,
-    pub(crate) type_name: &'static str,
-    pub(crate) receiver: TaskReceiver,
-    pub(crate) sender_id: SenderId,
-    pub(crate) task_id: TaskId,
-    pub(crate) kill_handle: KillHandle,
-    pub(crate) metadata: Vec<Cstrnt>,
-}
+// pub(crate) struct TaskFromFrontend<Bkend, Cstrnt> {
+//     pub(crate) type_id: TypeId,
+//     pub(crate) type_name: &'static str,
+//     pub(crate) metadata: Vec<Cstrnt>,
+//     pub(crate) task: DynBackendTask<Bkend>,
+//     pub(crate) receiver: TaskReceiver,
+//     pub(crate) sender_id: SenderId,
+//     pub(crate) constraint: Option<Constraint<Cstrnt>>,
+//     pub(crate) kill_handle: KillHandle,
+// }
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Constraint<Cstrnt> {
@@ -59,22 +158,24 @@ pub enum ConstraitType<Cstrnt> {
     BlockMatchingMetatdata(Cstrnt),
 }
 
-pub(crate) enum TaskReceiver {
-    Future(oneshot::Receiver<DynFallibleFuture>),
-    Stream(mpsc::Receiver<DynFallibleFuture>),
+pub(crate) enum TaskWaiter<Frntend, Bkend, Md> {
+    Future(JoinHandle<DynStateMutation<Frntend, Bkend, Md>>),
+    Stream {
+        receiver: mpsc::Receiver<DynStateMutation<Frntend, Bkend, Md>>,
+        kill_handle: KillHandle,
+    },
 }
-impl From<oneshot::Receiver<DynFallibleFuture>> for TaskReceiver {
-    fn from(value: oneshot::Receiver<DynFallibleFuture>) -> Self {
-        Self::Future(value)
-    }
-}
-impl From<mpsc::Receiver<DynFallibleFuture>> for TaskReceiver {
-    fn from(value: mpsc::Receiver<DynFallibleFuture>) -> Self {
-        Self::Stream(value)
+
+impl<Frntend, Bkend, Md> TaskWaiter<Frntend, Bkend, Md> {
+    fn kill(&mut self) -> crate::Result<()> {
+        match self {
+            TaskWaiter::Future(handle) => Ok(handle.abort()),
+            TaskWaiter::Stream { kill_handle, .. } => kill_handle.kill(),
+        }
     }
 }
 
-impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
+impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
     pub(crate) fn new() -> Self {
         Self { inner: vec![] }
     }
@@ -82,92 +183,74 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
     /// existed in the list, and it was processed. Returns None, if no tasks
     /// were in the list. The DynFallibleFuture represents a future that
     /// forwards messages from the manager back to the sender.
+    // TODO: How do I indicate the difference between None (no tasks in list) and
+    // None (stream closed)?
     pub(crate) async fn process_next_response(
         &mut self,
-    ) -> Option<(ResponseInformation, Option<DynFallibleFuture>)> {
+    ) -> Option<(
+        DynStateMutation<Frntend, Bkend, Md>,
+        TypeId,
+        &'static str,
+        TaskId,
+    )> {
         let task_completed = self
             .inner
             .iter_mut()
             .enumerate()
             .map(|(idx, task)| async move {
                 match task.receiver {
-                    TaskReceiver::Future(ref mut receiver) => {
-                        if let Ok(forwarder) = receiver.await {
-                            return (
-                                Some(idx),
-                                Some(forwarder),
-                                task.type_id,
-                                task.type_name,
-                                task.sender_id,
-                                task.task_id,
-                            );
-                        }
+                    TaskWaiter::Future(ref mut receiver) => {
+                        let Ok(mutation) = receiver.await else {
+                            todo!()
+                        };
+
                         (
                             Some(idx),
-                            None,
+                            Some(mutation),
                             task.type_id,
                             task.type_name,
-                            task.sender_id,
                             task.task_id,
                         )
                     }
-                    TaskReceiver::Stream(ref mut receiver) => {
-                        if let Some(forwarder) = receiver.recv().await {
+                    TaskWaiter::Stream {
+                        ref mut receiver, ..
+                    } => {
+                        if let Some(mutation) = receiver.recv().await {
                             return (
                                 None,
-                                Some(forwarder),
+                                Some(mutation),
                                 task.type_id,
                                 task.type_name,
-                                task.sender_id,
                                 task.task_id,
                             );
                         }
-                        (
-                            Some(idx),
-                            None,
-                            task.type_id,
-                            task.type_name,
-                            task.sender_id,
-                            task.task_id,
-                        )
+                        (Some(idx), None, task.type_id, task.type_name, task.task_id)
                     }
                 }
             })
             .collect::<FuturesUnordered<_>>()
             .next()
             .await;
-        let (maybe_completed_id, maybe_forwarder, type_id, type_name, sender_id, task_id) =
-            task_completed?;
+        let (maybe_completed_id, maybe_mutation, type_id, type_name, task_id) = task_completed?;
         if let Some(task_completed) = maybe_completed_id {
-            // Safe - this value is in range as produced from enumerate on original list.
+            // Safe - this value is in range as produced from enumerate on
+            // original list.
             self.inner.swap_remove(task_completed);
-        }
-        Some((
-            ResponseInformation {
-                type_id,
-                type_name,
-                sender_id,
-                task_id,
-                task_is_now_finished: maybe_completed_id.is_some(),
-            },
-            maybe_forwarder,
-        ))
+        };
+        Some((maybe_mutation?, type_id, type_name, task_id))
     }
-    pub(crate) fn push(&mut self, task: Task<Cstrnt>) {
+    pub(crate) fn push(&mut self, task: SpawnedTask<Frntend, Bkend, Md>) {
         self.inner.push(task)
     }
     // TODO: Tests
-    pub(crate) fn handle_constraint(
-        &mut self,
-        constraint: Constraint<Cstrnt>,
-        type_id: TypeId,
-        sender_id: SenderId,
-    ) {
+    pub(crate) fn handle_constraint(&mut self, constraint: Constraint<Md>, type_id: TypeId) {
+        // TODO: Consider the situation where one component kills tasks belonging to
+        // another component.
+        //
         // Assuming here that kill implies block also.
-        let task_doesnt_match_constraint =
-            |task: &Task<_>| (task.type_id != type_id) || (task.sender_id != sender_id);
+        let task_doesnt_match_constraint = |task: &SpawnedTask<_, _, _>| (task.type_id != type_id);
         let task_doesnt_match_metadata =
-            |task: &Task<_>, constraint| !task.metadata.contains(constraint);
+            |task: &SpawnedTask<_, _, _>, constraint| !task.metadata.contains(constraint);
         match constraint.constraint_type {
             ConstraitType::BlockMatchingMetatdata(metadata) => self
                 .inner
@@ -177,66 +260,12 @@ impl<Cstrnt: PartialEq> TaskList<Cstrnt> {
             }
             ConstraitType::KillSameType => self.inner.retain_mut(|task| {
                 if !task_doesnt_match_constraint(task) {
-                    task.kill_handle.kill().expect("Task should still be alive");
+                    // TODO: Handle this condition better.
+                    task.receiver.kill().expect("Task should still be alive");
                     return false;
                 }
                 true
             }),
-        }
-    }
-}
-
-impl<Bkend, Cstrnt> TaskFromFrontend<Bkend, Cstrnt> {
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn new(
-        type_id: TypeId,
-        type_name: &'static str,
-        metadata: Vec<Cstrnt>,
-        task: impl FnOnce(&Bkend) -> DynFallibleFuture + 'static,
-        receiver: impl Into<TaskReceiver>,
-        sender_id: SenderId,
-        constraint: Option<Constraint<Cstrnt>>,
-        kill_handle: KillHandle,
-    ) -> Self {
-        Self {
-            type_id,
-            type_name,
-            metadata,
-            task: Box::new(task),
-            receiver: receiver.into(),
-            sender_id,
-            constraint,
-            kill_handle,
-        }
-    }
-    pub(crate) fn get_information(&self) -> TaskInformation<'_, Cstrnt> {
-        TaskInformation {
-            type_id: self.type_id,
-            type_name: self.type_name,
-            sender_id: self.sender_id,
-            constraint: &self.constraint,
-        }
-    }
-}
-
-impl<Cstrnt> Task<Cstrnt> {
-    pub(crate) fn new(
-        type_id: TypeId,
-        type_name: &'static str,
-        metadata: Vec<Cstrnt>,
-        receiver: TaskReceiver,
-        sender_id: SenderId,
-        task_id: TaskId,
-        kill_handle: KillHandle,
-    ) -> Self {
-        Self {
-            type_id,
-            type_name,
-            receiver,
-            sender_id,
-            kill_handle,
-            task_id,
-            metadata,
         }
     }
 }
