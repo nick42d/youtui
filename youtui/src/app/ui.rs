@@ -13,6 +13,7 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
+use crate::config::Config;
 use crate::core::{add_cb_or_error, send_or_error};
 use async_callback_manager::{AsyncCallbackSender, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
@@ -305,6 +306,7 @@ impl YoutuiWindow {
             ArcServer,
             TaskMetadata,
         >,
+        config: &Config,
     ) -> YoutuiWindow {
         YoutuiWindow {
             context: WindowContext::Browser,

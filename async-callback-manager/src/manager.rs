@@ -7,7 +7,7 @@ use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct SenderId(usize);
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct TaskId(usize);
+pub struct TaskId(pub(crate) usize);
 
 type DynTaskReceivedCallback<Cstrnt> = dyn FnMut(TaskInformation<Cstrnt>);
 type DynResponseReceivedCallback = dyn FnMut(ResponseInformation);

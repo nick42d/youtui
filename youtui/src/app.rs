@@ -72,7 +72,7 @@ impl Youtui {
             api_key,
             debug,
             po_token,
-            ..
+            config,
         } = rt;
         // Setup tracing and link to tui_logger.
         init_tracing(debug)?;
@@ -109,7 +109,7 @@ impl Youtui {
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager);
+        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager, &config);
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,

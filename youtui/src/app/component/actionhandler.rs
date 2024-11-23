@@ -3,10 +3,13 @@ use crossterm::event::{Event, KeyEvent, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
-// An action that can be sent to a component.
+/// An action that can be applied to state.
 pub trait Action {
+    type State;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
+    // TODO: Return Task.
+    fn apply(self, state: &mut Self::State) -> ();
 }
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on

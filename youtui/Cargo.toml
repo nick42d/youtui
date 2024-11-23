@@ -39,7 +39,8 @@ itertools = "0.13.0"
 tokio-stream = "0.1.16"
 async_cell = "0.2.2"
 bytes = "1.8.0"
-# This could be removed if tui-logger can re-export LevelFilter.
+# This can be removed when tui-logger re-exports LevelFilter.
+# https://github.com/gin66/tui-logger/pull/74
 log = "0.4.22"
 
 [dependencies.rusty_ytdl]
