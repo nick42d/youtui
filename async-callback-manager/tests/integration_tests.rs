@@ -82,13 +82,19 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
 async fn drain_manager<Frntend, Bkend: Clone, Md: PartialEq>(
     mut manager: AsyncCallbackManager<Frntend, Bkend, Md>,
     s: &mut Frntend,
-    b: Bkend,
-) {
+    b: &Bkend,
+) where
+    Md: 'static,
+    Frntend: 'static,
+    Bkend: 'static,
+{
     loop {
-        if let Some(mutation) = manager.manage_next_event(&b).await {
-            mutation(s);
-        } else {
-            return;
+        match manager.get_next_response().await {
+            async_callback_manager::TaskOutcome::NoTasks => break,
+            async_callback_manager::TaskOutcome::StreamClosed => continue,
+            async_callback_manager::TaskOutcome::MutationReceived { mutation, .. } => {
+                manager.spawn_task(b, mutation(s))
+            }
         }
     }
 }
@@ -103,7 +109,7 @@ async fn test_mutate_once() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, ()).await;
+    drain_manager(manager, &mut state, &()).await;
     assert_eq!(state, "Hello from the future".to_string());
 }
 
@@ -123,7 +129,7 @@ async fn test_mutate_twice() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, ()).await;
+    drain_manager(manager, &mut state, &()).await;
     assert_eq!(
         state,
         vec!["Message 1".to_string(), "Message 2".to_string()]
@@ -140,7 +146,7 @@ async fn test_mutate_stream() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, ()).await;
+    drain_manager(manager, &mut state, &()).await;
     assert_eq!(state, (0..10).collect::<Vec<_>>());
 }
 
@@ -161,7 +167,7 @@ async fn test_mutate_stream_twice() {
         None,
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, backend).await;
+    drain_manager(manager, &mut state, &backend).await;
     // Streams should be interleaved
     assert_ne!(state, vec![0, 1, 2, 3, 4, 0, 1, 2, 3, 4]);
     // And should contain all values
@@ -186,7 +192,7 @@ async fn test_block_constraint() {
         Some(Constraint::new_block_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, backend.clone()).await;
+    drain_manager(manager, &mut state, &backend).await;
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 2)
@@ -209,7 +215,7 @@ async fn test_kill_constraint() {
         Some(Constraint::new_kill_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, backend.clone()).await;
+    drain_manager(manager, &mut state, &backend).await;
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 1)
@@ -232,7 +238,7 @@ async fn test_block_constraint_stream() {
         Some(Constraint::new_block_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, backend.clone()).await;
+    drain_manager(manager, &mut state, &backend).await;
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 10)
@@ -255,7 +261,7 @@ async fn test_kill_constraint_stream() {
         Some(Constraint::new_kill_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, backend.clone()).await;
+    drain_manager(manager, &mut state, &backend).await;
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 5)
@@ -310,5 +316,26 @@ async fn test_response_received_callback() {
 
 #[tokio::test]
 async fn test_task_spawns_task() {
+    let mut state: Vec<String> = vec![];
+    let mut manager = AsyncCallbackManager::new();
+    let task = AsyncTask::new_future_chained(
+        TextTask("Hello".to_string()),
+        |state: &mut Vec<_>, output| {
+            state.push(output);
+            AsyncTask::new_future(
+                TextTask("World".to_string()),
+                |state: &mut Vec<String>, output| state.push(output),
+                None,
+            )
+        },
+        None,
+    );
+    manager.spawn_task(&(), task);
+    drain_manager(manager, &mut state, &()).await;
+    assert_eq!(vec!["Hello".to_string(), "World".to_string()], state);
+}
+
+#[tokio::test]
+async fn test_recursive_map() {
     todo!()
 }

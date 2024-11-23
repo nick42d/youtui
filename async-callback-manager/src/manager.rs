@@ -1,14 +1,9 @@
-use std::{any::TypeId, future::Future};
-
-use crate::{
-    task::{
-        AsyncTask, AsyncTaskKind, ResponseInformation, SpawnedTask, TaskInformation, TaskList,
-        TaskWaiter,
-    },
-    Constraint,
+use crate::task::{
+    AsyncTask, AsyncTaskKind, ResponseInformation, SpawnedTask, TaskInformation, TaskList,
+    TaskOutcome, TaskWaiter,
 };
-use futures::Stream;
-use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
+use futures::{Stream, StreamExt};
+use std::future::Future;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(pub(crate) usize);
@@ -26,37 +21,7 @@ pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
 pub(crate) type DynTaskReceivedCallback<Cstrnt> = dyn FnMut(TaskInformation<Cstrnt>);
 pub(crate) type DynResponseReceivedCallback = dyn FnMut(ResponseInformation);
 
-/// A set of state mutations, that can be applied to a Frntend.
-pub struct StateMutationBundle<Frntend, Bkend, Md> {
-    mutation_list: Vec<DynStateMutation<Frntend, Bkend, Md>>,
-}
-// impl<Frntend: 'static> StateMutationBundle<Frntend> {
-//     pub fn map<NewFrntend>(
-//         self,
-//         mut nf: impl FnMut(&mut NewFrntend) -> &mut Frntend + Send + Copy +
-// 'static,     ) -> StateMutationBundle<NewFrntend> {
-//         let Self { mutation_list } = self;
-//         let mutation_list: Vec<DynCallbackFn<NewFrntend>> = mutation_list
-//             .into_iter()
-//             .map(|m| {
-//                 let closure = move |x: &mut NewFrntend| m(nf(x));
-//                 Box::new(closure) as DynCallbackFn<NewFrntend>
-//             })
-//             .collect();
-//         StateMutationBundle { mutation_list }
-//     }
-// }
-impl<Frntend, Bkend, Md> StateMutationBundle<Frntend, Bkend, Md> {
-    pub fn apply(self, frontend: &mut Frntend) -> Vec<AsyncTask<Frntend, Bkend, Md>> {
-        self.mutation_list
-            .into_iter()
-            .map(|mutation| mutation(frontend))
-            .collect()
-    }
-}
-
 pub struct AsyncCallbackManager<Frntend, Bkend, Md> {
-    next_sender_id: usize,
     next_task_id: usize,
     tasks_list: TaskList<Frntend, Bkend, Md>,
     // TODO: Make generic instead of dynamic.
@@ -76,7 +41,6 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
     // it allows senders to send without blocking.
     pub fn new() -> Self {
         Self {
-            next_sender_id: 0,
             next_task_id: 0,
             tasks_list: TaskList::new(),
             on_task_received: Box::new(|_| {}),
@@ -101,12 +65,8 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
     /// Combination of spawn_next_task and process_next_response.
     /// Returns Some(ManagedEventType), if something was processed.
     /// Returns None, if no senders or tasks exist.
-    pub async fn manage_next_event(
-        &mut self,
-        backend: &Bkend,
-    ) -> Option<DynStateMutation<Frntend, Bkend, Md>> {
-        let (mutation, _, _, _) = self.tasks_list.process_next_response().await?;
-        Some(mutation)
+    pub async fn get_next_response(&mut self) -> TaskOutcome<Frntend, Bkend, Md> {
+        self.tasks_list.process_next_response().await
     }
     pub fn spawn_task(&mut self, backend: &Bkend, task: AsyncTask<Frntend, Bkend, Md>)
     where
@@ -118,17 +78,44 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             task,
             constraint,
             metadata,
-            type_id,
-            type_name,
         } = task;
-        let waiter = match task {
-            AsyncTaskKind::Future(f) => {
-                let future = f(backend);
+        let (waiter, type_id, type_name) = match task {
+            AsyncTaskKind::Future {
+                task,
+                type_id,
+                type_name,
+            } => {
+                let future = task(backend);
                 let handle = tokio::spawn(future);
-
-                TaskWaiter::Future(handle)
+                (TaskWaiter::Future(handle), type_id, type_name)
             }
-            AsyncTaskKind::Stream(_) => todo!(),
+            AsyncTaskKind::Stream {
+                task,
+                type_id,
+                type_name,
+            } => {
+                let mut stream = task(backend);
+                // TODO: right sizing.
+                let (tx, rx) = tokio::sync::mpsc::channel(10);
+                let abort_handle = tokio::spawn(async move {
+                    loop {
+                        if let Some(mutation) = stream.next().await {
+                            tx.send(mutation).await;
+                            continue;
+                        }
+                        return;
+                    }
+                })
+                .abort_handle();
+                (
+                    TaskWaiter::Stream {
+                        receiver: rx,
+                        abort_handle,
+                    },
+                    type_id,
+                    type_name,
+                )
+            }
             AsyncTaskKind::NoOp => return,
         };
         let sp = SpawnedTask {

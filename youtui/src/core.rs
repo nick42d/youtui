@@ -1,4 +1,4 @@
-use async_callback_manager::{AsyncCallbackSender, BackendStreamingTask, BackendTask, Constraint};
+use async_callback_manager::{BackendStreamingTask, BackendTask, Constraint};
 use std::borrow::Borrow;
 use tokio::sync::mpsc;
 use tracing::error;

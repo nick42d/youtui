@@ -145,7 +145,7 @@ impl Youtui {
                         Some(callback) = self.callback_rx.recv() => self.handle_callback(callback),
                         // Process the next manager event.
                         // If all the manager has done is spawn tasks, there's no need to draw.
-                        Some(manager_event) = self.task_manager.manage_next_event(&self.server) => if manager_event.is_spawned_task() {
+                        Some(manager_event) = self.task_manager.get_next_response(&self.server) => if manager_event.is_spawned_task() {
                             self.redraw = false;
                         },
                         // If any state mutations have been received by the components, apply them.

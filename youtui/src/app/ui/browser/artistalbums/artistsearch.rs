@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
+use async_callback_manager::{AsyncCallbackManager, Constraint};
 use crossterm::event::KeyCode;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;

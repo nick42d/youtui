@@ -1,7 +1,9 @@
 //! Example of using async-callback-manager in a ratatui app.
 #![allow(clippy::unwrap_used)]
 
-use async_callback_manager::{AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask};
+use async_callback_manager::{
+    AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, TaskOutcome,
+};
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{stream, FutureExt};
 use ratatui::{
@@ -113,8 +115,8 @@ async fn main() {
                 },
                 Action::ToggleMode => state.handle_toggle_mode(),
             },
-            Some(manager_event) = manager.manage_next_event(&backend) =>
-                manager.spawn_task(&backend, manager_event(&mut state)),
+            TaskOutcome::MutationReceived { mutation, .. } = manager.get_next_response() =>
+                manager.spawn_task(&backend, mutation(&mut state)),
         };
     }
     ratatui::restore();
