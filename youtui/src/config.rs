@@ -1,6 +1,8 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::keycommand::CommandVisibility;
 use crate::app::keycommand::Keybind;
+use crate::app::ui::logger::LoggerActio;
+use crate::app::ui::YoutuiWindow;
 use crate::get_config_dir;
 use crate::Result;
 use clap::ValueEnum;
@@ -94,12 +96,18 @@ enum ModeNameEnum {
 }
 
 impl Action for AppAction {
-    type State = crate::app::Youtui;
+    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self {
+            AppAction::Log(a) => a.context(),
+            _ => todo!(),
+        }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self {
+            AppAction::Log(a) => a.describe(),
+            _ => todo!(),
+        }
     }
     async fn apply(
         self,
@@ -108,7 +116,13 @@ impl Action for AppAction {
     where
         Self: Sized,
     {
-        todo!()
+        match self {
+            AppAction::Log(a) => a
+                .apply(&mut state.logger)
+                .await
+                .map(|this: &mut Self::State| &mut this.logger),
+            _ => todo!(),
+        }
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -131,7 +145,7 @@ pub enum AppAction {
     BrowserArtists(BrowserArtistsAction),
     BrowserSearch(BrowserSearchAction),
     BrowserSongs(BrowserSongsAction),
-    Log(LogAction),
+    Log(LoggerActio),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -215,9 +229,6 @@ pub enum TextEntryAction {
     Right,
     Backspace,
 }
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum LogAction {}
 
 impl Config {
     pub fn new() -> Result<Self> {

@@ -42,7 +42,7 @@ pub trait Action {
 pub trait KeyRouter<A: Action> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_routed_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    fn get_active_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
     fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
@@ -58,11 +58,12 @@ pub trait KeyRouter<A: Action> {
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
         Box::new(
-            self.get_routed_keybinds()
+            self.get_active_keybinds()
                 .filter(|kb| kb.visibility == CommandVisibility::Global),
         )
     }
 }
+
 /// A component of the application that can block parent keybinds.
 /// For example, a component that can display a modal dialog that will prevent
 /// other inputs.
@@ -210,7 +211,7 @@ where
     A: Action<State = B> + Clone,
     B: KeyRouter<A> + Component,
 {
-    if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &key_stack) {
+    if let Some(subset) = get_key_subset(handler.get_active_keybinds(), &key_stack) {
         match &subset {
             Keymap::Action(a) => {
                 // As Action is simply a message that is being passed around

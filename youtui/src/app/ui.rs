@@ -11,7 +11,7 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::{self, Config};
+use crate::config::{self, Config, KeyEnum};
 use crate::core::send_or_error;
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
@@ -23,7 +23,7 @@ mod browser;
 pub mod draw;
 mod footer;
 mod header;
-mod logger;
+pub mod logger;
 mod playlist;
 
 const VOL_TICK: i8 = 5;
@@ -62,7 +62,7 @@ pub struct YoutuiWindow {
     prev_context: WindowContext,
     playlist: Playlist,
     browser: Browser,
-    logger: Logger,
+    pub logger: Logger,
     callback_tx: mpsc::Sender<AppCallback>,
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
@@ -512,7 +512,7 @@ impl YoutuiWindow {
         match self.context {
             WindowContext::Browser => {
                 if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.browser.get_routed_keybinds(), &self.key_stack)
+                    get_key_subset(self.browser.get_active_keybinds(), &self.key_stack)
                 {
                     return Some(DisplayableMode {
                         displayable_commands: mode.as_displayable_iter(),
@@ -522,7 +522,7 @@ impl YoutuiWindow {
             }
             WindowContext::Playlist => {
                 if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.playlist.get_routed_keybinds(), &self.key_stack)
+                    get_key_subset(self.playlist.get_active_keybinds(), &self.key_stack)
                 {
                     return Some(DisplayableMode {
                         displayable_commands: mode.as_displayable_iter(),
@@ -532,7 +532,7 @@ impl YoutuiWindow {
             }
             WindowContext::Logs => {
                 if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.logger.get_routed_keybinds(), &self.key_stack)
+                    get_key_subset(self.logger.get_active_keybinds(), &self.key_stack)
                 {
                     return Some(DisplayableMode {
                         displayable_commands: mode.as_displayable_iter(),
@@ -565,6 +565,42 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
     ]
 }
 fn help_keybinds(config: &Config) -> Vec<KeyCommand<UIAction>> {
+    let help = config
+        .keybinds
+        .help
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect();
+    let list = config
+        .keybinds
+        .list
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect();
     let list_keybinds: Vec<_> = config.keybinds.list.iter().collect();
     let help_keybinds: Vec<_> = config.keybinds.help.iter().collect();
     vec![

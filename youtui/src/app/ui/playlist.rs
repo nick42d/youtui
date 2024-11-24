@@ -106,9 +106,9 @@ impl KeyRouter<PlaylistAction> for Playlist {
     fn get_all_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
-        self.get_routed_keybinds()
+        self.get_active_keybinds()
     }
-    fn get_routed_keybinds<'a>(
+    fn get_active_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
         Box::new(self.keybinds.iter())

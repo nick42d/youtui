@@ -390,7 +390,7 @@ impl KeyRouter<BrowserAction> for AlbumSongsPanel {
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(self.keybinds.iter().chain(self.sort.keybinds.iter()))
     }
-    fn get_routed_keybinds<'a>(
+    fn get_active_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         Box::new(match self.route {

@@ -1,4 +1,4 @@
-use crate::config::KeyEnum::{Key, Mode};
+use crate::config::{AppAction, KeyEnum};
 use crate::core::send_or_error;
 use crate::{
     app::{
@@ -11,14 +11,14 @@ use crate::{
     config::Config,
 };
 use async_callback_manager::AsyncTask;
-use crossterm::event::KeyCode;
 use draw::draw_logger;
 use ratatui::{prelude::Rect, Frame};
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum LoggerAction {
     ToggleTargetSelector,
     ToggleTargetFocus,
@@ -33,10 +33,6 @@ pub enum LoggerAction {
     IncreaseCaptured,
     ExitPageMode,
     ViewBrowser,
-}
-impl Component for Logger {
-    type Bkend = ArcServer;
-    type Md = TaskMetadata;
 }
 impl Action for LoggerAction {
     type State = Logger;
@@ -85,8 +81,9 @@ impl Action for LoggerAction {
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
     ui_tx: Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<LoggerAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
 }
+impl_youtui_component!(Logger);
 
 impl Drawable for Logger {
     fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) {
@@ -96,7 +93,7 @@ impl Drawable for Logger {
 
 impl KeyRouter<LoggerAction> for Logger {
     // XXX: Duplication of effort here due to trait structure - not the worst.
-    fn get_routed_keybinds<'a>(
+    fn get_active_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
         Box::new(self.keybinds.iter())
@@ -104,7 +101,7 @@ impl KeyRouter<LoggerAction> for Logger {
     fn get_all_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
-        self.get_routed_keybinds()
+        self.get_active_keybinds()
     }
 }
 
@@ -180,13 +177,13 @@ impl Logger {
     }
 }
 
-fn logger_keybinds(config: &Config) -> Vec<KeyCommand<LoggerAction>> {
-    let cfg_keybinds: Vec<_> = config
+fn logger_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
         .keybinds
         .log
         .iter()
         .map(|(kb, ke)| match ke {
-            Key {
+            KeyEnum::Key {
                 action,
                 value,
                 visibility,
@@ -196,24 +193,9 @@ fn logger_keybinds(config: &Config) -> Vec<KeyCommand<LoggerAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            Mode(_) => todo!(),
+            KeyEnum::Mode(_) => todo!(),
         })
-        .collect();
-    vec![
-        KeyCommand::new_global_from_code(KeyCode::F(5), LoggerAction::ViewBrowser),
-        KeyCommand::new_from_code(KeyCode::Char('['), LoggerAction::ReduceCaptured),
-        KeyCommand::new_from_code(KeyCode::Char(']'), LoggerAction::IncreaseCaptured),
-        KeyCommand::new_from_code(KeyCode::Left, LoggerAction::ReduceShown),
-        KeyCommand::new_from_code(KeyCode::Right, LoggerAction::IncreaseShown),
-        KeyCommand::new_from_code(KeyCode::Up, LoggerAction::Up),
-        KeyCommand::new_from_code(KeyCode::Down, LoggerAction::Down),
-        KeyCommand::new_from_code(KeyCode::PageUp, LoggerAction::PageUp),
-        KeyCommand::new_from_code(KeyCode::PageDown, LoggerAction::PageDown),
-        KeyCommand::new_from_code(KeyCode::Char(' '), LoggerAction::ToggleHideFiltered),
-        KeyCommand::new_from_code(KeyCode::Esc, LoggerAction::ExitPageMode),
-        KeyCommand::new_from_code(KeyCode::Char('f'), LoggerAction::ToggleTargetFocus),
-        KeyCommand::new_from_code(KeyCode::Char('h'), LoggerAction::ToggleTargetSelector),
-    ]
+        .collect()
 }
 
 pub mod draw {

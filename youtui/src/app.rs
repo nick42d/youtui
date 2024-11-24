@@ -25,7 +25,7 @@ pub mod keycommand;
 mod musiccache;
 mod server;
 mod structures;
-mod ui;
+pub mod ui;
 mod view;
 
 // We need this thread_local to ensure we know which is the main thread. Panic

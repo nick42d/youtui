@@ -190,12 +190,12 @@ impl KeyRouter<BrowserAction> for Browser {
                 .chain(self.album_songs_list.get_all_keybinds()),
         )
     }
-    fn get_routed_keybinds<'a>(
+    fn get_active_keybinds<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
         let additional_binds = match self.input_routing {
-            InputRouting::Song => self.album_songs_list.get_routed_keybinds(),
-            InputRouting::Artist => self.artist_list.get_routed_keybinds(),
+            InputRouting::Song => self.album_songs_list.get_active_keybinds(),
+            InputRouting::Artist => self.artist_list.get_active_keybinds(),
         };
         // TODO: Better implementation
         if self.album_songs_list.dominant_keybinds_active()
