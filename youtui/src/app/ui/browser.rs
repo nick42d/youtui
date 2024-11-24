@@ -11,17 +11,15 @@ use crate::app::{
         Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs,
-        SearchArtists, Server, TaskMetadata,
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, Server,
+        TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
     CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
-use async_callback_manager::{
-    AsyncCallbackManager, AsyncCallbackSender, Constraint, StateMutationBundle,
-};
+use async_callback_manager::{AsyncCallbackManager, Constraint};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem, sync::Arc};
 use tokio::sync::mpsc;

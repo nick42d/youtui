@@ -1,4 +1,4 @@
-use crate::{BackendStreamingTask, BackendTask};
+use crate::{BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
 use std::future::Future;
 use tokio_stream::wrappers::ReceiverStream;
@@ -73,8 +73,7 @@ where
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let Map { first, create_next } = self;
         let backend = backend.clone();
-        // TODO: Channel size
-        let (tx, rx) = tokio::sync::mpsc::channel(30);
+        let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
             let seed = first.into_future(&backend).await;
             match seed {
@@ -149,8 +148,7 @@ where
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let Then { first, create_next } = self;
         let backend = backend.clone();
-        // TODO: Channel size
-        let (tx, rx) = tokio::sync::mpsc::channel(30);
+        let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
             let seed = first.into_future(&backend).await;
             let mut stream = create_next(seed).into_stream(&backend);

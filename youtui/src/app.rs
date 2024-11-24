@@ -42,12 +42,10 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    task_manager: AsyncCallbackManager<Arc<Server>, TaskMetadata>,
+    task_manager: AsyncCallbackManager<Self, Arc<Server>, TaskMetadata>,
     server: Arc<Server>,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
-    /// If Youtui will redraw on the next rendering loop.
-    redraw: bool,
 }
 
 #[derive(PartialEq)]
@@ -93,10 +91,10 @@ impl Youtui {
         // Setup components
         let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
         let mut task_manager = async_callback_manager::AsyncCallbackManager::new()
-            .with_on_task_received_callback(|task| {
+            .with_on_task_spawn_callback(|task| {
                 info!(
-                    "Received task {:?}: type_id: {:?}, sender_id: {:?}, constraint: {:?}",
-                    task.type_name, task.type_id, task.sender_id, task.constraint
+                    "Received task {:?}: type_id: {:?},  constraint: {:?}",
+                    task.type_debug, task.type_id, task.constraint
                 )
             })
             .with_on_response_received_callback(|response| {
@@ -118,7 +116,6 @@ impl Youtui {
             server,
             callback_rx,
             terminal,
-            redraw: true,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -129,12 +126,9 @@ impl Youtui {
                     // We draw after handling the event, as the event could be a keypress we want to
                     // instantly react to.
                     // Draw occurs before the first event, to ensure up loads immediately.
-                    if self.redraw {
-                        self.terminal.draw(|f| {
-                            ui::draw::draw_app(f, &mut self.window_state);
-                        })?;
-                    };
-                    self.redraw = true;
+                    self.terminal.draw(|f| {
+                        ui::draw::draw_app(f, &mut self.window_state);
+                    })?;
                     // When running, the app is event based, and will block until one of the
                     // following 4 message types is received.
                     tokio::select! {
@@ -145,11 +139,16 @@ impl Youtui {
                         Some(callback) = self.callback_rx.recv() => self.handle_callback(callback),
                         // Process the next manager event.
                         // If all the manager has done is spawn tasks, there's no need to draw.
-                        Some(manager_event) = self.task_manager.get_next_response(&self.server) => if manager_event.is_spawned_task() {
-                            self.redraw = false;
+                        Some(outcome) = self.task_manager.get_next_response() => {
+                            match outcome {
+                                async_callback_manager::TaskOutcome::StreamClosed => (),
+                                async_callback_manager::TaskOutcome::TaskPanicked { error, type_id, type_name, task_id } => panic!("Panicked running task {type_name}"),
+                                async_callback_manager::TaskOutcome::MutationReceived { mutation, type_id, type_name, task_id } => {
+                                    let next_task = mutation(self);
+                                    self.task_manager.spawn_task(&self.server,next_task);
+                                },
+                            }
                         },
-                        // If any state mutations have been received by the components, apply them.
-                        _ = self.window_state.async_update() => (),
                     }
                 }
                 AppStatus::Exiting(s) => {

@@ -115,13 +115,18 @@ async fn main() {
                 },
                 Action::ToggleMode => state.handle_toggle_mode(),
             },
-            TaskOutcome::MutationReceived { mutation, .. } = manager.get_next_response() =>
-                manager.spawn_task(&backend, mutation(&mut state)),
+            Some(outcome) = manager.get_next_response() => match outcome {
+                TaskOutcome::StreamClosed => continue,
+                TaskOutcome::TaskPanicked {error,..} => std::panic::resume_unwind(error.into_panic()),
+                TaskOutcome::MutationReceived { mutation, ..} =>
+                    manager.spawn_task(&backend, mutation(&mut state)),
+            },
         };
     }
     ratatui::restore();
 }
 
+#[derive(Debug)]
 struct GetWordRequest;
 impl BackendTask<reqwest::Client> for GetWordRequest {
     type MetadataType = ();
@@ -144,6 +149,7 @@ impl BackendTask<reqwest::Client> for GetWordRequest {
     }
 }
 
+#[derive(Debug)]
 struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;

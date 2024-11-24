@@ -7,11 +7,13 @@ use futures::{FutureExt, StreamExt};
 use std::{future::Future, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
-const DEFAULT_CHANNEL_SIZE: usize = 10;
-
+#[derive(Debug)]
 struct TextTask(String);
+#[derive(Debug)]
 struct DelayedBackendMutatingRequest(String);
+#[derive(Debug)]
 struct StreamingCounterTask(usize);
+#[derive(Debug)]
 struct DelayedBackendMutatingStreamingCounterTask(usize);
 #[derive(Default)]
 struct MockMutatingBackend {
@@ -79,22 +81,25 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
     }
 }
 
-async fn drain_manager<Frntend, Bkend: Clone, Md: PartialEq>(
+async fn drain_manager<Frntend, Bkend, Md>(
     mut manager: AsyncCallbackManager<Frntend, Bkend, Md>,
     s: &mut Frntend,
     b: &Bkend,
 ) where
-    Md: 'static,
+    Md: PartialEq + 'static,
     Frntend: 'static,
-    Bkend: 'static,
+    Bkend: Clone + 'static,
 {
     loop {
-        match manager.get_next_response().await {
-            async_callback_manager::TaskOutcome::NoTasks => break,
+        let Some(resp) = manager.get_next_response().await else {
+            return;
+        };
+        match resp {
             async_callback_manager::TaskOutcome::StreamClosed => continue,
             async_callback_manager::TaskOutcome::MutationReceived { mutation, .. } => {
                 manager.spawn_task(b, mutation(s))
             }
+            async_callback_manager::TaskOutcome::TaskPanicked { .. } => panic!(),
         }
     }
 }

@@ -321,14 +321,6 @@ impl YoutuiWindow {
             async_tx: callback_manager.new_sender(ASYNC_CALLBACK_SENDER_CHANNEL_SIZE),
         }
     }
-    // TODO: Move to future AsyncComponent trait.
-    pub async fn async_update(&mut self) {
-        tokio::select! {
-            b = self.browser.async_update() => b.map(|this: &mut Self| &mut this.browser),
-            p = self.playlist.async_update() => p.map(|this: &mut Self| &mut this.playlist),
-        }
-        .apply(self)
-    }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_initial_event(&mut self, event: crossterm::event::Event) {
         if self.handle_event(&event) {

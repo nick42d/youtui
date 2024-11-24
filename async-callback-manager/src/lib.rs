@@ -12,6 +12,10 @@ pub use error::*;
 pub use manager::*;
 pub use task::{AsyncTask, Constraint, TaskOutcome};
 
+// Size of the channel used for each stream task.
+// In future, this could be settable.
+pub(crate) const DEFAULT_STREAM_CHANNEL_SIZE: usize = 20;
+
 pub trait BkendMap<Bkend> {
     fn map(backend: &Bkend) -> &Self;
 }
