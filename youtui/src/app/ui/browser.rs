@@ -11,17 +11,15 @@ use crate::app::{
         Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, Server,
-        TaskMetadata,
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},
     view::{DrawableMut, Scrollable},
-    CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::KeyCode;
-use std::{borrow::Cow, mem, sync::Arc};
+use std::{borrow::Cow, mem};
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
@@ -98,8 +96,8 @@ impl Action for BrowserAction {
         Self: Sized,
     {
         match self {
-            BrowserAction::ArtistSongs(a) => state.handle_action(a).await,
-            BrowserAction::Artist(a) => state.handle_action(a).await,
+            BrowserAction::ArtistSongs(a) => return a.apply(state).await,
+            BrowserAction::Artist(a) => return a.apply(state).await,
             BrowserAction::Left => state.left(),
             BrowserAction::Right => state.right(),
             BrowserAction::ViewPlaylist => {
@@ -111,10 +109,11 @@ impl Action for BrowserAction {
             }
             BrowserAction::ToggleSearch => state.handle_toggle_search(),
         }
+        AsyncTask::new_no_op()
     }
 }
 // Should this really be implemented on the Browser...
-impl Suggestable<ArcServer, TaskMetadata> for Browser {
+impl Suggestable for Browser {
     fn get_search_suggestions(&self) -> &[SearchSuggestion] {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.get_search_suggestions(),
@@ -153,10 +152,19 @@ impl TextHandler for Browser {
             InputRouting::Song => self.album_songs_list.clear_text(),
         }
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_event_repr(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
         match self.input_routing {
-            InputRouting::Artist => self.artist_list.handle_event_repr(event),
-            InputRouting::Song => self.album_songs_list.handle_event_repr(event),
+            InputRouting::Artist => self
+                .artist_list
+                .handle_event_repr(event)
+                .map(|effect| effect.map(|this: &mut Self| &mut this.artist_list)),
+            InputRouting::Song => self
+                .album_songs_list
+                .handle_event_repr(event)
+                .map(|effect| effect.map(|this: &mut Self| &mut this.album_songs_list)),
         }
     }
 }
@@ -348,7 +356,7 @@ impl Browser {
             .map(|a| a.browse_id)
         else {
             tracing::warn!("Tried to get item from list with index out of range");
-            return;
+            return AsyncTask::new_no_op();
         };
 
         let handler = |this: &mut Self, item| match item {
@@ -372,7 +380,7 @@ impl Browser {
             Some(Constraint::new_kill_same_type()),
         )
     }
-    async fn search(&mut self) {
+    async fn search(&mut self) -> ComponentEffect<Self> {
         self.artist_list.close_search();
         let search_query = self.artist_list.search.get_text().to_string();
         self.artist_list.clear_text();
@@ -385,13 +393,11 @@ impl Browser {
                 error!("Error <{e}> recieved getting artists.");
             }
         };
-        if let Err(e) = self.async_tx.add_callback(
+        AsyncTask::new_future(
             SearchArtists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
+        )
     }
     pub fn handle_search_artist_error(&mut self) {
         self.album_songs_list.list.state = ListStatus::Error;

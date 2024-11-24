@@ -210,7 +210,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     /// overflow.
     pub fn map<NewFrntend>(
         self,
-        f: impl Fn(&mut NewFrntend) -> &mut Frntend + Send + Clone + 'static,
+        f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
     ) -> AsyncTask<NewFrntend, Bkend, Md>
     where
         Bkend: 'static,
@@ -427,13 +427,11 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
             .collect::<FuturesUnordered<_>>()
             .next()
             .await;
-        let Some((maybe_completed_id, outcome)) = task_completed else {
-            return None;
-        };
-        if let Some(task_completed) = maybe_completed_id {
+        let (maybe_completed_id, outcome) = task_completed?;
+        if let Some(completed_id) = maybe_completed_id {
             // Safe - this value is in range as produced from enumerate on
             // original list.
-            self.inner.swap_remove(task_completed);
+            self.inner.swap_remove(completed_id);
         };
         Some(outcome)
     }

@@ -1,8 +1,6 @@
-use std::time::Duration;
-
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, Component,
+    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ComponentEffect,
     DominantKeyRouter, KeyDisplayer, KeyHandleAction, KeyHandleOutcome, KeyRouter, TextHandler,
 };
 use super::keycommand::{
@@ -18,6 +16,7 @@ use crate::core::send_or_error;
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::widgets::TableState;
+use std::time::Duration;
 use tokio::sync::mpsc;
 
 mod browser;
@@ -69,6 +68,7 @@ pub struct YoutuiWindow {
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
 }
+impl_youtui_component!(YoutuiWindow);
 
 pub struct HelpMenu {
     shown: bool,
@@ -206,10 +206,6 @@ impl KeyDisplayer for YoutuiWindow {
         Box::new(kb.chain(cx))
     }
 }
-impl Component for YoutuiWindow {
-    type Bkend = ArcServer;
-    type Md = TaskMetadata;
-}
 impl Action for UIAction {
     type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
@@ -248,25 +244,44 @@ impl Action for UIAction {
         Self: Sized,
     {
         match self {
-            UIAction::Next => return state.playlist.handle_next().await,
-            UIAction::Prev => return state.playlist.handle_previous().await,
-            UIAction::Pause => return state.playlist.pauseplay().await,
+            UIAction::Next => {
+                return state
+                    .playlist
+                    .handle_next()
+                    .await
+                    .map(|this: &mut Self::State| &mut this.playlist)
+            }
+            UIAction::Prev => {
+                return state
+                    .playlist
+                    .handle_previous()
+                    .await
+                    .map(|this: &mut Self::State| &mut this.playlist)
+            }
+            UIAction::Pause => {
+                return state
+                    .playlist
+                    .pauseplay()
+                    .await
+                    .map(|this: &mut Self::State| &mut this.playlist)
+            }
             UIAction::StepVolUp => return state.handle_increase_volume(VOL_TICK).await,
             UIAction::StepVolDown => return state.handle_increase_volume(-VOL_TICK).await,
             UIAction::StepSeekForward => {
                 return state.handle_seek(SEEK_AMOUNT, SeekDirection::Forward)
             }
             UIAction::StepSeekBack => return state.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
-            UIAction::Quit => return send_or_error(&state.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => return state.toggle_help(),
-            UIAction::ViewLogs => return state.handle_change_context(WindowContext::Logs),
-            UIAction::HelpUp => return state.help.increment_list(-1),
-            UIAction::HelpDown => return state.help.increment_list(1),
+            UIAction::Quit => send_or_error(&state.callback_tx, AppCallback::Quit).await,
+            UIAction::ToggleHelp => state.toggle_help(),
+            UIAction::ViewLogs => state.handle_change_context(WindowContext::Logs),
+            UIAction::HelpUp => state.help.increment_list(-1),
+            UIAction::HelpDown => state.help.increment_list(1),
         }
+        AsyncTask::new_no_op()
     }
 }
 
-impl TextHandler<ArcServer, TaskMetadata> for YoutuiWindow {
+impl TextHandler for YoutuiWindow {
     fn is_text_handling(&self) -> bool {
         match self.context {
             WindowContext::Browser => self.browser.is_text_handling(),
@@ -295,7 +310,7 @@ impl TextHandler<ArcServer, TaskMetadata> for YoutuiWindow {
             WindowContext::Logs => self.logger.clear_text(),
         }
     }
-    fn handle_event_repr(&mut self, event: &Event) -> bool {
+    fn handle_event_repr(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
         match self.context {
             WindowContext::Browser => self.browser.handle_event_repr(event),
             WindowContext::Playlist => self.playlist.handle_event_repr(event),
@@ -363,8 +378,14 @@ impl YoutuiWindow {
             Some(Constraint::new_block_same_type()),
         )
     }
-    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
-        self.playlist.handle_seek(duration, direction);
+    pub fn handle_seek(
+        &mut self,
+        duration: Duration,
+        direction: SeekDirection,
+    ) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_seek(duration, direction)
+            .map(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
         self.playlist.handle_volume_update(update)

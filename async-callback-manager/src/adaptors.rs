@@ -1,6 +1,6 @@
 use crate::{BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
-use std::future::Future;
+use std::{fmt::Debug, future::Future};
 use tokio_stream::wrappers::ReceiverStream;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}
@@ -52,6 +52,19 @@ pub trait BackendTaskExt<Bkend>: BackendTask<Bkend> {
 pub struct Map<T, F> {
     first: T,
     create_next: F,
+}
+
+impl<T, F> Debug for Map<T, F>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Map")
+            .field("first", &self.first)
+            // TODO: we could deduce the type name returned by the closure
+            .field("create_next", &"..closure..")
+            .finish()
+    }
 }
 
 impl<Bkend, T, S, F, Ct, O, E> BackendStreamingTask<Bkend> for Map<T, F>

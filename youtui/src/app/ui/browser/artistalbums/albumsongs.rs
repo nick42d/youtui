@@ -1,5 +1,5 @@
 use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
+use crate::app::component::actionhandler::{ComponentEffect, DominantKeyRouter, TextHandler};
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::browser::{Browser, BrowserAction, PAGE_KEY_LINES};
@@ -14,6 +14,7 @@ use crate::app::{
 };
 use crate::error::Error;
 use crate::Result;
+use async_callback_manager::AsyncTask;
 use crossterm::event::{KeyCode, KeyModifiers};
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
@@ -92,12 +93,15 @@ impl TextHandler for FilterManager {
     fn clear_text(&mut self) -> bool {
         self.filter_text.clear()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_event_repr(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
         match handle_events(&mut self.filter_text, true, event) {
-            rat_text::event::TextOutcome::Continue => false,
-            rat_text::event::TextOutcome::Unchanged => true,
-            rat_text::event::TextOutcome::Changed => true,
-            rat_text::event::TextOutcome::TextChanged => true,
+            rat_text::event::TextOutcome::Continue => None,
+            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::TextChanged => Some(AsyncTask::new_no_op()),
         }
     }
 }
@@ -303,8 +307,13 @@ impl TextHandler for AlbumSongsPanel {
     fn clear_text(&mut self) -> bool {
         self.filter.clear_text()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        self.filter.handle_event_repr(event)
+    fn handle_event_repr(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
+        self.filter
+            .handle_event_repr(event)
+            .map(|effect| effect.map(|this: &mut AlbumSongsPanel| &mut this.filter))
     }
 }
 
@@ -365,6 +374,7 @@ impl Action for ArtistSongsAction {
             ArtistSongsAction::ApplyFilter => state.album_songs_list.apply_filter(),
             ArtistSongsAction::ClearFilter => state.album_songs_list.clear_filter(),
         }
+        AsyncTask::new_no_op()
     }
 }
 

@@ -1,8 +1,10 @@
 use crate::app::{
-    component::actionhandler::{Action, Component, KeyRouter, Suggestable, TextHandler},
+    component::actionhandler::{
+        Action, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
+    },
     keycommand::KeyCommand,
     server::{ArcServer, GetSearchSuggestions, TaskMetadata},
-    ui::browser::BrowserAction,
+    ui::browser::{Browser, BrowserAction},
     view::{ListView, Loadable, Scrollable, SortableList},
 };
 use async_callback_manager::{AsyncTask, Constraint};
@@ -83,7 +85,7 @@ impl Component for ArtistSearchPanel {
     type Md = TaskMetadata;
 }
 impl Action for ArtistAction {
-    type State = ArtistSearchPanel;
+    type State = Browser;
     fn context(&self) -> Cow<str> {
         "Artist Search Panel".into()
     }
@@ -100,19 +102,19 @@ impl Action for ArtistAction {
         }
         .into()
     }
-    async fn apply(self, state: &mut Self::State) -> AsyncTask<Self, ArcServer, TaskMetadata>
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Browser>
     where
         Self: Sized,
     {
         match self {
-            ArtistAction::DisplayAlbums => state.get_songs().await,
+            ArtistAction::DisplayAlbums => return state.get_songs().await,
             ArtistAction::Search => return state.search().await,
-            ArtistAction::Up => state.increment_list(-1),
-            ArtistAction::Down => state.increment_list(1),
-            ArtistAction::PageUp => state.increment_list(-10),
-            ArtistAction::PageDown => state.increment_list(10),
-            ArtistAction::PrevSearchSuggestion => state.search.increment_list(-1),
-            ArtistAction::NextSearchSuggestion => state.search.increment_list(1),
+            ArtistAction::Up => state.artist_list.increment_list(-1),
+            ArtistAction::Down => state.artist_list.increment_list(1),
+            ArtistAction::PageUp => state.artist_list.increment_list(-10),
+            ArtistAction::PageDown => state.artist_list.increment_list(10),
+            ArtistAction::PrevSearchSuggestion => state.artist_list.search.increment_list(-1),
+            ArtistAction::NextSearchSuggestion => state.artist_list.search.increment_list(1),
         }
         AsyncTask::new_no_op()
     }
@@ -133,15 +135,15 @@ impl TextHandler for SearchBlock {
         self.search_suggestions.clear();
         self.search_contents.clear()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_event_repr(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
         match handle_events(&mut self.search_contents, true, event) {
-            rat_text::event::TextOutcome::Continue => false,
-            rat_text::event::TextOutcome::Unchanged => true,
-            rat_text::event::TextOutcome::Changed => true,
-            rat_text::event::TextOutcome::TextChanged => {
-                self.fetch_search_suggestions();
-                true
-            }
+            rat_text::event::TextOutcome::Continue => None,
+            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::TextChanged => Some(self.fetch_search_suggestions()),
         }
     }
 }
@@ -218,8 +220,13 @@ impl TextHandler for ArtistSearchPanel {
     fn clear_text(&mut self) -> bool {
         self.search.clear_text()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        self.search.handle_event_repr(event)
+    fn handle_event_repr(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
+        self.search
+            .handle_event_repr(event)
+            .map(|effect| effect.map(|this: &mut Self| &mut this.search))
     }
 }
 
