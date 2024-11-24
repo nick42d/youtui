@@ -58,6 +58,27 @@ impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
 }
 
 impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
+    pub fn push(self, next: AsyncTask<Frntend, Bkend, Md>) -> AsyncTask<Frntend, Bkend, Md> {
+        match self.task {
+            AsyncTaskKind::Future(_) | AsyncTaskKind::Stream(_) => {
+                let v = vec![self, next];
+                AsyncTask {
+                    task: AsyncTaskKind::Multi(v),
+                    constraint: None,
+                    metadata: vec![],
+                }
+            }
+            AsyncTaskKind::Multi(mut m) => {
+                m.push(next);
+                AsyncTask {
+                    task: AsyncTaskKind::Multi(m),
+                    constraint: self.constraint,
+                    metadata: self.metadata,
+                }
+            }
+            AsyncTaskKind::NoOp => next,
+        }
+    }
     pub fn new_no_op() -> AsyncTask<Frntend, Bkend, Md> {
         Self {
             task: AsyncTaskKind::NoOp,
