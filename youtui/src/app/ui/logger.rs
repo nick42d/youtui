@@ -1,11 +1,12 @@
 use crate::app::{
-    component::actionhandler::{Action, Component, KeyRouter, TextHandler},
+    component::actionhandler::{Action, Component, ComponentEffect, KeyRouter, TextHandler},
     keycommand::KeyCommand,
     server::{ArcServer, TaskMetadata},
     ui::AppCallback,
     view::Drawable,
 };
 use crate::core::send_or_error;
+use async_callback_manager::AsyncTask;
 use crossterm::event::KeyCode;
 use draw::draw_logger;
 use ratatui::{prelude::Rect, Frame};
@@ -55,10 +56,7 @@ impl Action for LoggerAction {
             LoggerAction::ExitPageMode => "Exit Page Mode".into(),
         }
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
     where
         Self: Sized,
     {
@@ -77,6 +75,7 @@ impl Action for LoggerAction {
             LoggerAction::ExitPageMode => state.handle_exit_page_mode(),
             LoggerAction::ViewBrowser => state.handle_view_browser().await,
         }
+        AsyncTask::new_no_op()
     }
 }
 pub struct Logger {
@@ -116,8 +115,11 @@ impl TextHandler for Logger {
     fn clear_text(&mut self) -> bool {
         false
     }
-    fn handle_event_repr(&mut self, _event: &crossterm::event::Event) -> bool {
-        false
+    fn handle_event_repr(
+        &mut self,
+        _event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
+        None
     }
 }
 

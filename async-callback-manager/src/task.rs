@@ -6,6 +6,7 @@ use futures::{stream::FuturesUnordered, FutureExt, StreamExt};
 use std::{
     any::{type_name, TypeId},
     fmt::Debug,
+    sync::Arc,
 };
 use tokio::{
     sync::mpsc,
@@ -24,6 +25,7 @@ pub struct AsyncTask<Frntend, Bkend, Md> {
 pub(crate) enum AsyncTaskKind<Frntend, Bkend, Md> {
     Future(FutureTask<Frntend, Bkend, Md>),
     Stream(StreamTask<Frntend, Bkend, Md>),
+    Multi(Vec<AsyncTask<Frntend, Bkend, Md>>),
     NoOp,
 }
 
@@ -39,6 +41,20 @@ pub(crate) struct FutureTask<Frntend, Bkend, Md> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
+}
+
+impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
+    for AsyncTask<Frntend, Bkend, Md>
+{
+    fn from_iter<T: IntoIterator<Item = AsyncTask<Frntend, Bkend, Md>>>(iter: T) -> Self {
+        let v = iter.into_iter().collect();
+        // TODO: Better handle constraints / metadata.
+        AsyncTask {
+            task: AsyncTaskKind::Multi(v),
+            constraint: None,
+            metadata: vec![],
+        }
+    }
 }
 
 impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
@@ -286,6 +302,14 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
                 constraint,
                 metadata,
             },
+            AsyncTaskKind::Multi(v) => {
+                let mapped = v.into_iter().map(|task| task.map(f.clone())).collect();
+                AsyncTask {
+                    task: AsyncTaskKind::Multi(mapped),
+                    constraint,
+                    metadata,
+                }
+            }
         }
     }
 }
@@ -297,26 +321,18 @@ pub(crate) struct TaskList<Bkend, Frntend, Md> {
 pub(crate) struct SpawnedTask<Frntend, Bkend, Md> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
+    pub(crate) type_debug: Arc<String>,
     pub(crate) receiver: TaskWaiter<Frntend, Bkend, Md>,
     pub(crate) task_id: TaskId,
     pub(crate) metadata: Vec<Md>,
 }
 
-// User visible struct for introspection.
-#[derive(Debug, Clone)]
-pub struct ResponseInformation {
-    pub type_id: TypeId,
-    pub type_name: &'static str,
-    pub task_id: TaskId,
-    pub task_is_now_finished: bool,
-}
-
-// User visible struct for introspection.
+/// User visible struct for introspection.
 #[derive(Debug, Clone)]
 pub struct TaskInformation<'a, Cstrnt> {
     pub type_id: TypeId,
     pub type_name: &'static str,
-    pub type_debug: String,
+    pub type_debug: &'a str,
     pub constraint: &'a Option<Constraint<Cstrnt>>,
 }
 
@@ -363,6 +379,7 @@ pub enum TaskOutcome<Frntend, Bkend, Md> {
         error: JoinError,
         type_id: TypeId,
         type_name: &'static str,
+        type_debug: Arc<String>,
         task_id: TaskId,
     },
     /// Mutation was received from a task.
@@ -370,6 +387,7 @@ pub enum TaskOutcome<Frntend, Bkend, Md> {
         mutation: DynStateMutation<Frntend, Bkend, Md>,
         type_id: TypeId,
         type_name: &'static str,
+        type_debug: Arc<String>,
         task_id: TaskId,
     },
 }
@@ -392,8 +410,9 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                             TaskOutcome::MutationReceived {
                                 mutation,
                                 type_id: task.type_id,
-                                type_name: task.type_name,
+                                type_debug: task.type_debug.clone(),
                                 task_id: task.task_id,
+                                type_name: task.type_name,
                             },
                         ),
                         Err(error) => (
@@ -401,6 +420,7 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                             TaskOutcome::TaskPanicked {
                                 type_id: task.type_id,
                                 type_name: task.type_name,
+                                type_debug: task.type_debug.clone(),
                                 task_id: task.task_id,
                                 error,
                             },
@@ -417,6 +437,7 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                                     type_id: task.type_id,
                                     type_name: task.type_name,
                                     task_id: task.task_id,
+                                    type_debug: task.type_debug.clone(),
                                 },
                             );
                         }

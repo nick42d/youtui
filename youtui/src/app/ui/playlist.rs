@@ -219,9 +219,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(
-        ui_tx: mpsc::Sender<AppCallback>,
-    ) -> (Self, AsyncTask<Self, ArcServer, TaskMetadata>) {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -246,7 +244,7 @@ impl Playlist {
     /// Add a task to:
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
-    pub fn stop_song_id(&self, song_id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub fn stop_song_id(&self, song_id: ListSongID) -> ComponentEffect<Self> {
         AsyncTask::new_future(
             Stop(song_id),
             Self::handle_stopped,
@@ -258,11 +256,11 @@ impl Playlist {
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState. If the
     /// selected song is buffering, stop playback until it's complete.
-    pub fn play_song_id(&mut self, id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub fn play_song_id(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        self.download_upcoming_from_id(id);
+        let mut effects = vec![self.download_upcoming_from_id(id)];
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -278,37 +276,43 @@ impl Playlist {
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
                 ));
-                let handle_update = move |this: &mut Self, update| {
-                    match update {
-                        Ok(u) => this.handle_play_update(u),
-                        Err(e) => {
-                            error!("Error {e} received when trying to decode {:?}", id);
-                            this.handle_set_to_error(id);
-                            AsyncTask::new_no_op()
-                        }
-                    };
+                let handle_update = move |this: &mut Self, update| match update {
+                    Ok(u) => this.handle_play_update(u),
+                    Err(e) => {
+                        error!("Error {e} received when trying to decode {:?}", id);
+                        this.handle_set_to_error(id);
+                        AsyncTask::new_no_op()
+                    }
                 };
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
-                return AsyncTask::new_stream(task, handle_update, constraint);
+                effects.push(AsyncTask::new_stream_chained(
+                    task,
+                    handle_update,
+                    constraint,
+                ));
+                return effects.into_iter().collect();
             } else {
                 // Stop current song, but only if next song is buffering.
-                if let Some(cur_id) = self.get_cur_playing_id() {
-                    self.stop_song_id(cur_id);
-                }
+                let effect = self
+                    .get_cur_playing_id()
+                    .map(|cur_id| self.stop_song_id(cur_id));
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
+                if let Some(effect) = effect {
+                    effects.push(effect);
+                }
             }
         }
-        AsyncTask::new_no_op()
+        effects.into_iter().collect()
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
-    pub fn autoplay_song_id(&mut self, id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub fn autoplay_song_id(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        self.download_upcoming_from_id(id);
+        let mut effects = vec![self.download_upcoming_from_id(id)];
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -321,30 +325,32 @@ impl Playlist {
                 // Result<AutoplayUpdate>.
                 let task =
                     DecodeSong(pointer.clone()).map_stream(move |song| AutoplaySong { song, id });
-                let handle_update = move |this: &mut Self, update| {
-                    match update {
-                        Ok(u) => this.handle_autoplay_update(u),
-                        Err(e) => {
-                            error!("Error {e} received when trying to decode {:?}", id);
-                            this.handle_set_to_error(id);
-                            AsyncTask::new_no_op()
-                        }
-                    };
+                let handle_update = move |this: &mut Self, update| match update {
+                    Ok(u) => this.handle_autoplay_update(u),
+                    Err(e) => {
+                        error!("Error {e} received when trying to decode {:?}", id);
+                        this.handle_set_to_error(id);
+                        AsyncTask::new_no_op()
+                    }
                 };
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
-                return AsyncTask::new_stream(task, handle_update, None);
+                effects.push(AsyncTask::new_stream_chained(task, handle_update, None));
+                return effects.into_iter().collect();
             } else {
                 // Stop current song, but only if next song is buffering.
-                if let Some(cur_id) = self.get_cur_playing_id() {
+                let effect = self
+                    .get_cur_playing_id()
                     // TODO: Consider how race condition is supposed to be handled with this.
-                    self.stop_song_id(cur_id);
-                }
+                    .map(|cur_id| self.stop_song_id(cur_id));
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
+                if let Some(effect) = effect {
+                    effects.push(effect);
+                }
             }
         };
-        AsyncTask::new_no_op()
+        effects.into_iter().collect()
     }
     /// Stop playing and clear playlist.
     pub fn reset(&mut self) -> ComponentEffect<Self> {
@@ -397,19 +403,17 @@ impl Playlist {
         AsyncTask::new_no_op()
     }
     /// Play song at ID, if it was buffering.
-    pub fn handle_song_downloaded(&mut self, id: ListSongID) {
+    pub fn handle_song_downloaded(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
                 info!("Playing");
-                self.play_song_id(id);
+                return self.play_song_id(id);
             }
         }
+        AsyncTask::new_no_op()
     }
     /// Download song at ID, if it is still in the list.
-    pub fn download_song_if_exists(
-        &mut self,
-        id: ListSongID,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub fn download_song_if_exists(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         let Some(song_index) = self.get_index_from_id(id) else {
             return AsyncTask::new_no_op();
         };
@@ -427,11 +431,11 @@ impl Playlist {
         };
         song.download_status = DownloadStatus::Queued;
         // TODO: Consider how to handle race conditions.
-        AsyncTask::new_stream(
+        AsyncTask::new_stream_chained(
             DownloadSong(song.raw.video_id.clone(), id),
             |this: &mut Playlist, item| {
                 let DownloadProgressUpdate { kind, id } = item;
-                this.handle_song_download_progress_update(kind, id);
+                this.handle_song_download_progress_update(kind, id)
             },
             None,
         )
@@ -469,13 +473,11 @@ impl Playlist {
                     .map(|i| i + 1)
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
-                    Some(id) => {
-                        return self.play_song_id(id);
-                    }
+                    Some(id) => self.play_song_id(id),
                     None => {
                         info!("No next song - finishing playback");
                         self.queue_status = QueueState::NotQueued;
-                        return self.stop_song_id(*id);
+                        self.stop_song_id(*id)
                     }
                 }
             }
@@ -485,11 +487,12 @@ impl Playlist {
     /// stopped. This is triggered when a song has finished playing. The
     /// softer, Autoplay message, lets the Player use gapless playback if songs
     /// are queued correctly.
-    pub fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) {
+    pub fn autoplay_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play next, but not currently playing");
+                AsyncTask::new_no_op()
             }
             PlayState::Paused(id)
             | PlayState::Playing(id)
@@ -497,32 +500,30 @@ impl Playlist {
             | PlayState::Error(id) => {
                 // Guard against duplicate message received.
                 if id > &prev_id {
-                    return;
+                    return AsyncTask::new_no_op();
                 }
                 let next_song_id = self
                     .get_index_from_id(*id)
                     .map(|i| i + 1)
                     .and_then(|i| self.get_id_from_index(i));
                 match next_song_id {
-                    Some(id) => {
-                        self.autoplay_song_id(id);
-                    }
+                    Some(id) => self.autoplay_song_id(id),
                     None => {
                         info!("No next song - resetting play status");
                         self.queue_status = QueueState::NotQueued;
                         // As a neat hack I only need to ask the player to stop current ID - even if
                         // it's playing the queued track, it doesn't know about it.
-                        self.stop_song_id(*id);
+                        self.stop_song_id(*id)
                     }
                 }
             }
         }
     }
     /// Download some upcoming songs, if they aren't already downloaded.
-    pub fn download_upcoming_from_id(&mut self, id: ListSongID) {
+    pub fn download_upcoming_from_id(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         // Won't download if already downloaded.
         let Some(song_index) = self.get_index_from_id(id) else {
-            return;
+            return AsyncTask::new_no_op();
         };
         let mut song_ids_list = Vec::new();
         song_ids_list.push(id);
@@ -532,9 +533,12 @@ impl Playlist {
                 song_ids_list.push(id);
             }
         }
-        for song_id in song_ids_list {
-            self.download_song_if_exists(song_id);
-        }
+        // TODO: Don't love the way metadata and constraints are handled with this task
+        // type that is collected, find a better way.
+        song_ids_list
+            .into_iter()
+            .map(|song_id| self.download_song_if_exists(song_id))
+            .collect()
     }
     /// Drop strong reference from previous songs or songs above the buffer list
     /// size to drop them from memory.
@@ -607,7 +611,7 @@ impl Playlist {
         &mut self,
         duration: Duration,
         direction: SeekDirection,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    ) -> ComponentEffect<Self> {
         // Consider if we also want to update current duration.
         AsyncTask::new_future_chained(
             Seek {
@@ -682,7 +686,7 @@ impl Playlist {
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
     /// (server).
-    pub async fn pauseplay(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub async fn pauseplay(&mut self) -> ComponentEffect<Self> {
         let id = match self.play_status {
             PlayState::Playing(id) => {
                 self.play_status = PlayState::Paused(id);
@@ -716,18 +720,18 @@ impl Playlist {
         &mut self,
         update: DownloadProgressUpdateType,
         id: ListSongID,
-    ) {
+    ) -> ComponentEffect<Self> {
         // Not valid if song doesn't exist or hasn't initiated download (i.e - task
         // cancelled).
         if let Some(song) = self.get_song_from_id(id) {
             match song.download_status {
                 DownloadStatus::None | DownloadStatus::Downloaded(_) | DownloadStatus::Failed => {
-                    return
+                    return AsyncTask::new_no_op()
                 }
                 _ => (),
             }
         } else {
-            return;
+            return AsyncTask::new_no_op();
         }
         tracing::info!("Task valid - updating song download status");
         match update {
@@ -741,7 +745,7 @@ impl Playlist {
                     s.download_status = DownloadStatus::Downloaded(Arc::new(song_buf));
                     s.id
                 }) {
-                    self.handle_song_downloaded(new_id)
+                    return self.handle_song_downloaded(new_id);
                 };
             }
             DownloadProgressUpdateType::Error => {
@@ -760,6 +764,7 @@ impl Playlist {
                 }
             }
         }
+        AsyncTask::new_no_op()
     }
     /// Handle volume message from server
     pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
@@ -773,7 +778,7 @@ impl Playlist {
                 return self.handle_set_song_play_progress(duration, id)
             }
             PlayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
-            PlayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            PlayUpdate::DonePlaying(id) => return self.handle_done_playing(id),
             // This is a player invariant.
             PlayUpdate::Error(e) => error!("{e}"),
         }
@@ -788,7 +793,7 @@ impl Playlist {
                 return self.handle_set_song_play_progress(duration, id)
             }
             QueueUpdate::Queued(duration, id) => self.handle_queued(duration, id),
-            QueueUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            QueueUpdate::DonePlaying(id) => return self.handle_done_playing(id),
             QueueUpdate::Error(e) => error!("{e}"),
         }
         AsyncTask::new_no_op()
@@ -802,7 +807,7 @@ impl Playlist {
                 return self.handle_set_song_play_progress(duration, id)
             }
             AutoplayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
-            AutoplayUpdate::DonePlaying(id) => self.handle_done_playing(id),
+            AutoplayUpdate::DonePlaying(id) => return self.handle_done_playing(id),
             AutoplayUpdate::AutoplayQueued(id) => self.handle_autoplay_queued(id),
             AutoplayUpdate::Error(e) => error!("{e}"),
         }
@@ -813,7 +818,7 @@ impl Playlist {
         &mut self,
         d: Duration,
         id: ListSongID,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    ) -> ComponentEffect<Self> {
         if !self.check_id_is_cur(id) {
             return AsyncTask::new_no_op();
         }
@@ -841,18 +846,16 @@ impl Playlist {
                         let task =
                             DecodeSong(song.clone()).map_stream(move |song| QueueSong { song, id });
                         info!("Queuing up song!");
-                        let handle_update = move |this: &mut Self, update| {
-                            match update {
-                                Ok(u) => this.handle_queue_update(u),
-                                Err(e) => {
-                                    error!("Error {e} received when trying to decode {:?}", id);
-                                    this.handle_set_to_error(id);
-                                    AsyncTask::new_no_op()
-                                }
-                            };
+                        let handle_update = move |this: &mut Self, update| match update {
+                            Ok(u) => this.handle_queue_update(u),
+                            Err(e) => {
+                                error!("Error {e} received when trying to decode {:?}", id);
+                                this.handle_set_to_error(id);
+                                AsyncTask::new_no_op()
+                            }
                         };
                         self.queue_status = QueueState::Queued(next_song.id);
-                        return AsyncTask::new_stream(task, handle_update, None);
+                        return AsyncTask::new_stream_chained(task, handle_update, None);
                     }
                 }
             }
@@ -860,15 +863,15 @@ impl Playlist {
         AsyncTask::new_no_op()
     }
     /// Handle done playing message from server
-    pub fn handle_done_playing(&mut self, id: ListSongID) {
+    pub fn handle_done_playing(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         if QueueState::Queued(id) == self.queue_status {
             self.queue_status = QueueState::NotQueued;
-            return;
+            return AsyncTask::new_no_op();
         }
         if !self.check_id_is_cur(id) {
-            return;
+            return AsyncTask::new_no_op();
         }
-        self.autoplay_next_or_stop(id);
+        self.autoplay_next_or_stop(id)
     }
     /// Handle queued message from server
     pub fn handle_queued(&mut self, duration: Option<Duration>, id: ListSongID) {

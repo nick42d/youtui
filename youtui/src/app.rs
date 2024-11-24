@@ -14,7 +14,7 @@ use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::ListSong;
 use tokio::sync::mpsc;
-use tracing::info;
+use tracing::{error, info, warn};
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;
@@ -35,7 +35,6 @@ thread_local! {
 }
 
 const CALLBACK_CHANNEL_SIZE: usize = 64;
-const ASYNC_CALLBACK_SENDER_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug.log";
 
@@ -98,17 +97,18 @@ impl Youtui {
                     task.type_debug, task.type_id, task.constraint
                 )
             })
-            .with_on_response_received_callback(|response| {
-                info!(
-                    "Received response to {:?}: type_id: {:?}, sender_id: {:?}, task_id: {:?}",
-                    response.type_name, response.type_id, response.sender_id, response.task_id
-                )
-            });
+            .with_on_id_overflow_callback(|| warn!("Task IDs have overflowed. New tasks will temporarily not block or kill existing tasks"));
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx, &config);
+        let (window_state, effect) = YoutuiWindow::new(callback_tx, &config);
+        // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
+        // away.
+        task_manager.spawn_task(
+            &server,
+            effect.map(|this: &mut Self| &mut this.window_state),
+        );
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,
@@ -158,19 +158,26 @@ impl Youtui {
     }
     fn handle_effect(&mut self, effect: TaskOutcome<Self, ArcServer, TaskMetadata>) {
         match effect {
-            async_callback_manager::TaskOutcome::StreamClosed => (),
+            async_callback_manager::TaskOutcome::StreamClosed => {
+                info!("Received a stream closed message from task manager")
+            }
             async_callback_manager::TaskOutcome::TaskPanicked {
-                error,
-                type_id,
-                type_name,
-                task_id,
-            } => panic!("Panicked running task {type_name}"),
+                type_debug, error, ..
+            } => {
+                error!("Task {type_debug} panicked!");
+                std::panic::resume_unwind(error.into_panic())
+            }
             async_callback_manager::TaskOutcome::MutationReceived {
                 mutation,
                 type_id,
-                type_name,
+                type_debug,
                 task_id,
+                ..
             } => {
+                info!(
+                    "Received response to {:?}: type_id: {:?}, task_id: {:?}",
+                    type_debug, type_id, task_id
+                );
                 let next_task = mutation(self);
                 self.task_manager.spawn_task(&self.server, next_task);
             }

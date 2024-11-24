@@ -145,6 +145,23 @@ pub enum KeyHandleAction<A: Action> {
     Mode,
     NoMap,
 }
+impl<Frntend, Bkend, Md> KeyHandleOutcome<Frntend, Bkend, Md>
+where
+    Frntend: 'static,
+    Bkend: 'static,
+    Md: 'static,
+{
+    pub fn map<NewFrntend>(
+        self,
+        f: impl Fn(&mut NewFrntend) -> &mut Frntend + Send + Clone + 'static,
+    ) -> KeyHandleOutcome<NewFrntend, Bkend, Md> {
+        match self {
+            KeyHandleOutcome::Action(a) => KeyHandleOutcome::Action(a.map(f)),
+            KeyHandleOutcome::Mode => KeyHandleOutcome::Mode,
+            KeyHandleOutcome::NoMap => KeyHandleOutcome::NoMap,
+        }
+    }
+}
 /// The action from handling a key event (no Action type required)
 pub enum KeyHandleOutcome<Frntend, Bkend, Md> {
     Action(AsyncTask<Frntend, Bkend, Md>),

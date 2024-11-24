@@ -312,17 +312,29 @@ impl TextHandler for YoutuiWindow {
     }
     fn handle_event_repr(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
         match self.context {
-            WindowContext::Browser => self.browser.handle_event_repr(event),
-            WindowContext::Playlist => self.playlist.handle_event_repr(event),
-            WindowContext::Logs => self.logger.handle_event_repr(event),
+            WindowContext::Browser => self
+                .browser
+                .handle_event_repr(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.browser)),
+            WindowContext::Playlist => self
+                .playlist
+                .handle_event_repr(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.playlist)),
+            WindowContext::Logs => self
+                .logger
+                .handle_event_repr(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.logger)),
         }
     }
 }
 
 impl YoutuiWindow {
-    pub fn new(callback_tx: mpsc::Sender<AppCallback>, config: &Config) -> YoutuiWindow {
+    pub fn new(
+        callback_tx: mpsc::Sender<AppCallback>,
+        config: &Config,
+    ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
         let (playlist, task) = Playlist::new(callback_tx.clone());
-        YoutuiWindow {
+        let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
             playlist,
@@ -332,7 +344,8 @@ impl YoutuiWindow {
             key_stack: Vec::new(),
             help: Default::default(),
             callback_tx,
-        }
+        };
+        (this, task.map(|this: &mut Self| &mut this.playlist))
     }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_initial_event(
@@ -416,7 +429,7 @@ impl YoutuiWindow {
         // dominant. TODO: Remove allocation
         match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
             KeyHandleAction::Action(a) => {
-                let effect = a.apply(&mut self).await;
+                let effect = a.apply(self).await;
                 self.key_stack.clear();
                 return effect;
             }
@@ -433,19 +446,28 @@ impl YoutuiWindow {
         let subcomponents_outcome = match self.context {
             // TODO: Remove allocation
             WindowContext::Browser => {
-                handle_key_stack_and_action(&mut self.browser, self.key_stack.clone()).await
+                handle_key_stack_and_action(&mut self.browser, self.key_stack.clone())
+                    .await
+                    .map(|this: &mut Self| &mut this.browser)
             }
             WindowContext::Playlist => {
-                handle_key_stack_and_action(&mut self.playlist, self.key_stack.clone()).await
+                handle_key_stack_and_action(&mut self.playlist, self.key_stack.clone())
+                    .await
+                    .map(|this: &mut Self| &mut this.playlist)
             }
             WindowContext::Logs => {
-                handle_key_stack_and_action(&mut self.logger, self.key_stack.clone()).await
+                handle_key_stack_and_action(&mut self.logger, self.key_stack.clone())
+                    .await
+                    .map(|this: &mut Self| &mut this.logger)
             }
         };
-        if let KeyHandleAction::Mode = subcomponents_outcome {
-            return AsyncTask::new_no_op();
-        }
-        self.key_stack.clear()
+        let effect = match subcomponents_outcome {
+            KeyHandleOutcome::Action(a) => a,
+            KeyHandleOutcome::Mode => return AsyncTask::new_no_op(),
+            KeyHandleOutcome::NoMap => AsyncTask::new_no_op(),
+        };
+        self.key_stack.clear();
+        effect
     }
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
