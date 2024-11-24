@@ -1,3 +1,4 @@
+use crate::app::component::actionhandler::Component;
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -8,22 +9,18 @@ use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
-    component::actionhandler::{Action, ActionHandler, KeyRouter, TextHandler},
+    component::actionhandler::{Action, KeyRouter, TextHandler},
     keycommand::KeyCommand,
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{AppCallback, WindowContext},
 };
 
-use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::core::{add_cb_or_error, add_stream_cb_or_error};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
-use async_callback_manager::{
-    AsyncCallbackManager, AsyncCallbackSender, Constraint, StateMutationBundle, TryBackendTaskExt,
-};
+use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -46,7 +43,6 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
     keybinds: Vec<KeyCommand<PlaylistAction>>,
     cur_selected: usize,
     pub widget_state: TableState,
@@ -69,7 +65,10 @@ pub enum PlaylistAction {
     DeleteSelected,
     DeleteAll,
 }
-
+impl Component for Playlist {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
+}
 impl Action for PlaylistAction {
     fn context(&self) -> Cow<str> {
         "Playlist".into()
@@ -87,6 +86,22 @@ impl Action for PlaylistAction {
         }
         .into()
     }
+    type State = Playlist;
+    async fn apply(self, state: &mut Self::State) -> AsyncTask<Self, ArcServer, TaskMetadata>
+    where
+        Self: Sized,
+    {
+        match self {
+            PlaylistAction::ViewBrowser => state.view_browser().await,
+            PlaylistAction::Down => state.increment_list(1),
+            PlaylistAction::Up => state.increment_list(-1),
+            PlaylistAction::PageDown => state.increment_list(10),
+            PlaylistAction::PageUp => state.increment_list(-10),
+            PlaylistAction::PlaySelected => return state.play_selected(),
+            PlaylistAction::DeleteSelected => state.delete_selected(),
+            PlaylistAction::DeleteAll => state.delete_all(),
+        }
+    }
 }
 
 impl KeyRouter<PlaylistAction> for Playlist {
@@ -102,7 +117,7 @@ impl KeyRouter<PlaylistAction> for Playlist {
     }
 }
 
-impl TextHandler for Playlist {
+impl TextHandler<ArcServer, TaskMetadata> for Playlist {
     fn is_text_handling(&self) -> bool {
         false
     }
@@ -194,21 +209,6 @@ impl TableView for Playlist {
     }
 }
 
-impl ActionHandler<PlaylistAction> for Playlist {
-    async fn handle_action(&mut self, action: &PlaylistAction) {
-        match action {
-            PlaylistAction::ViewBrowser => self.view_browser().await,
-            PlaylistAction::Down => self.increment_list(1),
-            PlaylistAction::Up => self.increment_list(-1),
-            PlaylistAction::PageDown => self.increment_list(10),
-            PlaylistAction::PageUp => self.increment_list(-10),
-            PlaylistAction::PlaySelected => self.play_selected(),
-            PlaylistAction::DeleteSelected => self.delete_selected(),
-            PlaylistAction::DeleteAll => self.delete_all(),
-        }
-    }
-}
-
 impl SongListComponent for Playlist {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong> {
         self.list.get_list_iter().nth(idx)
@@ -217,22 +217,19 @@ impl SongListComponent for Playlist {
 
 // Primatives
 impl Playlist {
+    /// When creating a Playlist, an effect is also created.
     pub fn new(
-        callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
         ui_tx: mpsc::Sender<AppCallback>,
-    ) -> Self {
-        let async_tx = callback_manager.new_sender(CALLBACK_CHANNEL_SIZE);
+    ) -> (Self, AsyncTask<Self, ArcServer, TaskMetadata>) {
         // Ensure volume is synced with player.
-        async_tx
-            .add_callback(
-                // Since IncreaseVolume responds back with player volume after change, this is a
-                // neat hack.
-                IncreaseVolume(0),
-                Self::handle_volume_update,
-                Some(Constraint::new_block_same_type()),
-            )
-            .expect("Since we just created the sender, this shouldn't fail");
-        Playlist {
+        let task = AsyncTask::new_future(
+            // Since IncreaseVolume responds back with player volume after change, this is a
+            // neat hack.
+            IncreaseVolume(0),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        );
+        let playlist = Playlist {
             ui_tx,
             volume: Percentage(50),
             play_status: PlayState::NotPlaying,
@@ -241,16 +238,15 @@ impl Playlist {
             keybinds: playlist_keybinds(),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
-            async_tx,
             widget_state: Default::default(),
-        }
+        };
+        (playlist, task)
     }
     /// Add a task to:
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
-    pub fn stop_song_id(&self, song_id: ListSongID) {
-        add_cb_or_error(
-            &self.async_tx,
+    pub fn stop_song_id(&self, song_id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+        AsyncTask::new_future(
             Stop(song_id),
             Self::handle_stopped,
             Some(Constraint::new_block_matching_metadata(
@@ -261,7 +257,7 @@ impl Playlist {
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState. If the
     /// selected song is buffering, stop playback until it's complete.
-    pub fn play_song_id(&mut self, id: ListSongID) {
+    pub fn play_song_id(&mut self, id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
@@ -290,9 +286,9 @@ impl Playlist {
                         }
                     };
                 };
-                add_stream_cb_or_error(&self.async_tx, task, handle_update, constraint);
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
+                AsyncTask::new_stream(task, handle_update, constraint)
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
@@ -305,7 +301,7 @@ impl Playlist {
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
-    pub fn autoplay_song_id(&mut self, id: ListSongID) {
+    pub fn autoplay_song_id(&mut self, id: ListSongID) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
@@ -331,9 +327,9 @@ impl Playlist {
                         }
                     };
                 };
-                add_stream_cb_or_error(&self.async_tx, task, handle_update, None);
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
+                return AsyncTask::new_stream(task, handle_update, None);
             } else {
                 // Stop current song, but only if next song is buffering.
                 if let Some(cur_id) = self.get_cur_playing_id() {
@@ -402,7 +398,10 @@ impl Playlist {
         }
     }
     /// Download song at ID, if it is still in the list.
-    pub fn download_song_if_exists(&mut self, id: ListSongID) {
+    pub fn download_song_if_exists(
+        &mut self,
+        id: ListSongID,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         let Some(song_index) = self.get_index_from_id(id) else {
             return;
         };
@@ -418,17 +417,16 @@ impl Playlist {
             | DownloadStatus::Queued => return,
             _ => (),
         };
+        song.download_status = DownloadStatus::Queued;
         // TODO: Consider how to handle race conditions.
-        add_stream_cb_or_error(
-            &self.async_tx,
+        AsyncTask::new_stream(
             DownloadSong(song.raw.video_id.clone(), id),
             |this, item| {
                 let DownloadProgressUpdate { kind, id } = item;
                 this.handle_song_download_progress_update(kind, id);
             },
             None,
-        );
-        song.download_status = DownloadStatus::Queued;
+        )
     }
     /// Update the volume in the UI for immediate visual feedback - response
     /// will be delayed one tick. Note that this does not actually change the
@@ -596,10 +594,13 @@ impl Playlist {
         // self.download_upcoming_songs().await;
     }
     /// Handle seek command (from global keypress).
-    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
+    pub fn handle_seek(
+        &mut self,
+        duration: Duration,
+        direction: SeekDirection,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // Consider if we also want to update current duration.
-        add_cb_or_error(
-            &self.async_tx,
+        AsyncTask::new_future(
             Seek {
                 duration,
                 direction,
@@ -669,7 +670,7 @@ impl Playlist {
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
     /// (server).
-    pub async fn pauseplay(&mut self) {
+    pub async fn pauseplay(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         let id = match self.play_status {
             PlayState::Playing(id) => {
                 self.play_status = PlayState::Paused(id);
@@ -679,12 +680,11 @@ impl Playlist {
                 self.play_status = PlayState::Playing(id);
                 id
             }
-            _ => return,
+            _ => return AsyncTask::new_no_op(),
         };
-        add_cb_or_error(
-            &self.async_tx,
+        AsyncTask::new_future(
             PausePlay(id),
-            |this, response| {
+            |this: &mut Playlist, response| {
                 let Some(response) = response else { return };
                 match response {
                     PausePlayResponse::Paused(id) => this.handle_paused(id),
@@ -694,15 +694,11 @@ impl Playlist {
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
             )),
-        );
+        )
     }
 }
 // Server handlers
 impl Playlist {
-    pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
-        // TODO: Size
-        self.async_tx.get_next_mutations(10).await
-    }
     /// Handle song progress update from server.
     pub fn handle_song_download_progress_update(
         &mut self,
@@ -792,7 +788,11 @@ impl Playlist {
         }
     }
     /// Handle song progress message from server
-    pub fn handle_set_song_play_progress(&mut self, d: Duration, id: ListSongID) {
+    pub fn handle_set_song_play_progress(
+        &mut self,
+        d: Duration,
+        id: ListSongID,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         if !self.check_id_is_cur(id) {
             return;
         }
@@ -829,8 +829,8 @@ impl Playlist {
                                 }
                             };
                         };
-                        add_stream_cb_or_error(&self.async_tx, task, handle_update, None);
-                        self.queue_status = QueueState::Queued(next_song.id)
+                        self.queue_status = QueueState::Queued(next_song.id);
+                        return AsyncTask::new_stream(task, handle_update, None);
                     }
                 }
             }

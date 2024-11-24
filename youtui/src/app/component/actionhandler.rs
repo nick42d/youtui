@@ -1,15 +1,34 @@
 use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
+use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyEvent, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
+pub type ComponentEffect<C: Component> = AsyncTask<C, C::Bkend, C::Md>;
+/// A frontend component - has an associated backend and task metadata type.
+pub trait Component {
+    type Bkend;
+    type Md;
+}
+/// Macro to generate the boilerplate implementation of Component used in this
+/// app.
+macro_rules! impl_youtui_component {
+    ($t:ty) => {
+        impl crate::app::component::actionhandler::Component for $t {
+            type Bkend = ArcServer;
+            type Md = TaskMetadata;
+        }
+    };
+}
 /// An action that can be applied to state.
 pub trait Action {
-    type State;
+    type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
     // TODO: Return Task.
-    fn apply(self, state: &mut Self::State) -> ();
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
+    where
+        Self: Sized;
 }
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
@@ -77,7 +96,7 @@ pub trait KeyDisplayer {
 }
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
-pub trait TextHandler {
+pub trait TextHandler: Component {
     /// Get a reference to the text.
     fn get_text(&self) -> &str;
     /// Clear text, returning false if it was already clear.
@@ -87,13 +106,21 @@ pub trait TextHandler {
     /// Text handling could be a subset of the component. Return true if the
     /// text handling subset is active.
     fn is_text_handling(&self) -> bool;
-    /// Handle a crossterm event, returning true if an event was handled.
-    fn handle_event_repr(&mut self, event: &Event) -> bool;
+    /// Handle a crossterm event, returning a task if an event was handled.
+    fn handle_event_repr(
+        &mut self,
+        event: &Event,
+    ) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    where
+        Self: Sized;
     /// Default behaviour is to only handle an event if is_text_handling() ==
     /// true.
-    fn handle_event(&mut self, event: &Event) -> bool {
+    fn handle_event(&mut self, event: &Event) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    where
+        Self: Sized,
+    {
         if !self.is_text_handling() {
-            return false;
+            return None;
         }
         self.handle_event_repr(event)
     }
@@ -103,12 +130,6 @@ pub trait TextHandler {
 pub trait Suggestable: TextHandler {
     fn get_search_suggestions(&self) -> &[SearchSuggestion];
     fn has_search_suggestions(&self) -> bool;
-}
-/// A component of the application that handles actions.
-/// Where an action is a message specifically sent to the component.
-/// Consider if this should be inside ActionProcessor
-pub trait ActionHandler<A: Action + Clone> {
-    async fn handle_action(&mut self, action: &A);
 }
 
 pub trait MouseHandler {
@@ -125,8 +146,8 @@ pub enum KeyHandleAction<A: Action> {
     NoMap,
 }
 /// The action from handling a key event (no Action type required)
-pub enum KeyHandleOutcome {
-    Action,
+pub enum KeyHandleOutcome<Frntend, Bkend, Md> {
+    Action(AsyncTask<Frntend, Bkend, Md>),
     Mode,
     NoMap,
 }
@@ -167,10 +188,10 @@ where
 pub async fn handle_key_stack_and_action<'a, A, B>(
     handler: &mut B,
     key_stack: Vec<KeyEvent>,
-) -> KeyHandleOutcome
+) -> KeyHandleOutcome<B, B::Bkend, B::Md>
 where
-    A: Action + Clone,
-    B: KeyRouter<A> + ActionHandler<A>,
+    A: Action<State = B> + Clone,
+    B: KeyRouter<A> + Component,
 {
     if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &key_stack) {
         match &subset {
@@ -178,8 +199,8 @@ where
                 // As Action is simply a message that is being passed around
                 // I am comfortable to clone it. Receiver should own the message.
                 // We may be able to improve on this using GATs or reference counting.
-                handler.handle_action(&a.clone()).await;
-                return KeyHandleOutcome::Action;
+                let effect = a.clone().apply(handler).await;
+                return KeyHandleOutcome::Action(effect);
             }
             Keymap::Mode(_) => return KeyHandleOutcome::Mode,
         }
@@ -221,7 +242,7 @@ mod tests {
         keycommand::Mode,
     };
 
-    use super::{index_keymap, Action, KeyCommand};
+    use super::{index_keymap, Action, Component, KeyCommand};
 
     #[derive(PartialEq, Debug)]
     enum TestAction {
@@ -230,12 +251,22 @@ mod tests {
         Test3,
         TestStack,
     }
+    impl Component for () {
+        type Bkend = ();
+        type Md = ();
+    }
     impl Action for TestAction {
         fn context(&self) -> std::borrow::Cow<str> {
             todo!()
         }
-
         fn describe(&self) -> std::borrow::Cow<str> {
+            todo!()
+        }
+        type State = ();
+        async fn apply(self, _: &mut Self::State) -> async_callback_manager::AsyncTask<(), (), ()>
+        where
+            Self: Sized,
+        {
             todo!()
         }
     }

@@ -8,7 +8,7 @@ use self::{
 use super::{AppCallback, WindowContext};
 use crate::app::{
     component::actionhandler::{
-        Action, ActionHandler, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
+        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
     server::{
         api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, Server,
@@ -19,7 +19,7 @@ use crate::app::{
     CALLBACK_CHANNEL_SIZE,
 };
 use crate::{app::keycommand::KeyCommand, core::send_or_error};
-use async_callback_manager::{AsyncCallbackManager, Constraint};
+use async_callback_manager::{AsyncCallbackManager, AsyncTask, Constraint};
 use crossterm::event::KeyCode;
 use std::{borrow::Cow, mem, sync::Arc};
 use tokio::sync::mpsc;
@@ -57,7 +57,6 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<BrowserAction>>,
-    async_tx: AsyncCallbackSender<Arc<Server>, Self, TaskMetadata>,
 }
 
 impl InputRouting {
@@ -75,6 +74,7 @@ impl InputRouting {
     }
 }
 impl Action for BrowserAction {
+    type State = Browser;
     fn context(&self) -> Cow<str> {
         let context = "Browser";
         match self {
@@ -93,9 +93,28 @@ impl Action for BrowserAction {
             Self::ArtistSongs(x) => x.describe(),
         }
     }
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            BrowserAction::ArtistSongs(a) => state.handle_action(a).await,
+            BrowserAction::Artist(a) => state.handle_action(a).await,
+            BrowserAction::Left => state.left(),
+            BrowserAction::Right => state.right(),
+            BrowserAction::ViewPlaylist => {
+                send_or_error(
+                    &state.callback_tx,
+                    AppCallback::ChangeContext(WindowContext::Playlist),
+                )
+                .await
+            }
+            BrowserAction::ToggleSearch => state.handle_toggle_search(),
+        }
+    }
 }
 // Should this really be implemented on the Browser...
-impl Suggestable for Browser {
+impl Suggestable<ArcServer, TaskMetadata> for Browser {
     fn get_search_suggestions(&self) -> &[SearchSuggestion] {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.get_search_suggestions(),
@@ -180,65 +199,6 @@ impl KeyRouter<BrowserAction> for Browser {
         }
     }
 }
-impl ActionHandler<ArtistAction> for Browser {
-    async fn handle_action(&mut self, action: &ArtistAction) {
-        match action {
-            ArtistAction::DisplayAlbums => self.get_songs().await,
-            ArtistAction::Search => self.search().await,
-            ArtistAction::Up => self.artist_list.increment_list(-1),
-            ArtistAction::Down => self.artist_list.increment_list(1),
-            ArtistAction::PageUp => self.artist_list.increment_list(-10),
-            ArtistAction::PageDown => self.artist_list.increment_list(10),
-            ArtistAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
-            ArtistAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
-        }
-    }
-}
-impl ActionHandler<ArtistSongsAction> for Browser {
-    async fn handle_action(&mut self, action: &ArtistSongsAction) {
-        match action {
-            ArtistSongsAction::PlayAlbum => self.play_album().await,
-            ArtistSongsAction::PlaySong => self.play_song().await,
-            ArtistSongsAction::PlaySongs => self.play_songs().await,
-            ArtistSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
-            ArtistSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
-            ArtistSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
-            ArtistSongsAction::Up => self.album_songs_list.increment_list(-1),
-            ArtistSongsAction::Down => self.album_songs_list.increment_list(1),
-            ArtistSongsAction::PageUp => self.album_songs_list.increment_list(-PAGE_KEY_LINES),
-            ArtistSongsAction::PageDown => self.album_songs_list.increment_list(PAGE_KEY_LINES),
-            ArtistSongsAction::PopSort => self.album_songs_list.handle_pop_sort(),
-            ArtistSongsAction::CloseSort => self.album_songs_list.close_sort(),
-            ArtistSongsAction::ClearSort => self.album_songs_list.handle_clear_sort(),
-            ArtistSongsAction::SortUp => self.album_songs_list.handle_sort_up(),
-            ArtistSongsAction::SortDown => self.album_songs_list.handle_sort_down(),
-            ArtistSongsAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
-            ArtistSongsAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
-            ArtistSongsAction::ToggleFilter => self.album_songs_list.toggle_filter(),
-            ArtistSongsAction::ApplyFilter => self.album_songs_list.apply_filter(),
-            ArtistSongsAction::ClearFilter => self.album_songs_list.clear_filter(),
-        }
-    }
-}
-impl ActionHandler<BrowserAction> for Browser {
-    async fn handle_action(&mut self, action: &BrowserAction) {
-        match action {
-            BrowserAction::ArtistSongs(a) => self.handle_action(a).await,
-            BrowserAction::Artist(a) => self.handle_action(a).await,
-            BrowserAction::Left => self.left(),
-            BrowserAction::Right => self.right(),
-            BrowserAction::ViewPlaylist => {
-                send_or_error(
-                    &self.callback_tx,
-                    AppCallback::ChangeContext(WindowContext::Playlist),
-                )
-                .await
-            }
-            BrowserAction::ToggleSearch => self.handle_toggle_search(),
-        }
-    }
-}
-
 impl DominantKeyRouter for Browser {
     fn dominant_keybinds_active(&self) -> bool {
         match self.input_routing {
@@ -249,25 +209,14 @@ impl DominantKeyRouter for Browser {
 }
 
 impl Browser {
-    pub fn new(
-        callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>,
-        ui_tx: mpsc::Sender<AppCallback>,
-    ) -> Self {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
         Self {
             callback_tx: ui_tx,
-            artist_list: ArtistSearchPanel::new(callback_manager),
+            artist_list: ArtistSearchPanel::new(),
             album_songs_list: AlbumSongsPanel::new(),
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
             keybinds: browser_keybinds(),
-            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
-        }
-    }
-    pub async fn async_update(&mut self) -> StateMutationBundle<Self> {
-        // TODO: Size
-        tokio::select! {
-            browser = self.async_tx.get_next_mutations(10) => browser,
-            search = self.artist_list.search.async_tx.get_next_mutations(10) => search.map(|b: &mut Self| &mut b.artist_list.search),
         }
     }
     fn left(&mut self) {
@@ -386,7 +335,7 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn get_songs(&mut self) {
+    async fn get_songs(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         let selected = self.artist_list.get_selected_item();
         self.change_routing(InputRouting::Song);
         self.album_songs_list.list.clear();
@@ -417,13 +366,11 @@ impl Browser {
             GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
         };
 
-        if let Err(e) = self.async_tx.add_stream_callback(
+        AsyncTask::new_stream(
             GetArtistSongs(cur_artist_id),
             handler,
             Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
+        )
     }
     async fn search(&mut self) {
         self.artist_list.close_search();
@@ -502,6 +449,10 @@ impl Browser {
     pub fn change_routing(&mut self, input_routing: InputRouting) {
         self.prev_input_routing = mem::replace(&mut self.input_routing, input_routing);
     }
+}
+impl Component for Browser {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
 }
 
 fn browser_keybinds() -> Vec<KeyCommand<BrowserAction>> {

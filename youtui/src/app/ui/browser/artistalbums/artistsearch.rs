@@ -1,20 +1,17 @@
-use std::borrow::Cow;
-
-use async_callback_manager::{AsyncCallbackManager, Constraint};
-use crossterm::event::KeyCode;
-use rat_text::text_input::{handle_events, TextInputState};
-use ratatui::widgets::ListState;
-use tracing::error;
-use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
-
 use crate::app::{
-    component::actionhandler::{Action, KeyRouter, Suggestable, TextHandler},
+    component::actionhandler::{Action, Component, KeyRouter, Suggestable, TextHandler},
     keycommand::KeyCommand,
     server::{ArcServer, GetSearchSuggestions, TaskMetadata},
     ui::browser::BrowserAction,
     view::{ListView, Loadable, Scrollable, SortableList},
-    CALLBACK_CHANNEL_SIZE,
 };
+use async_callback_manager::{AsyncTask, Constraint};
+use crossterm::event::KeyCode;
+use rat_text::text_input::{handle_events, TextInputState};
+use ratatui::widgets::ListState;
+use std::borrow::Cow;
+use tracing::error;
+use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {
@@ -41,8 +38,8 @@ pub struct SearchBlock {
     pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
-    pub async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
+impl_youtui_component!(SearchBlock);
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ArtistAction {
@@ -59,7 +56,7 @@ pub enum ArtistAction {
 }
 
 impl ArtistSearchPanel {
-    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+    pub fn new() -> Self {
         Self {
             keybinds: browser_artist_search_keybinds(),
             search_keybinds: search_keybinds(),
@@ -68,7 +65,7 @@ impl ArtistSearchPanel {
             selected: Default::default(),
             sort_commands_list: Default::default(),
             search_popped: Default::default(),
-            search: SearchBlock::new(callback_manager),
+            search: SearchBlock::new(),
             widget_state: Default::default(),
         }
     }
@@ -81,7 +78,12 @@ impl ArtistSearchPanel {
         self.route = ArtistInputRouting::List;
     }
 }
+impl Component for ArtistSearchPanel {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
+}
 impl Action for ArtistAction {
+    type State = ArtistSearchPanel;
     fn context(&self) -> Cow<str> {
         "Artist Search Panel".into()
     }
@@ -97,6 +99,22 @@ impl Action for ArtistAction {
             ArtistAction::NextSearchSuggestion => "Prev Search Suggestion",
         }
         .into()
+    }
+    async fn apply(self, state: &mut Self::State) -> AsyncTask<Self, ArcServer, TaskMetadata>
+    where
+        Self: Sized,
+    {
+        match self {
+            ArtistAction::DisplayAlbums => state.get_songs().await,
+            ArtistAction::Search => return state.search().await,
+            ArtistAction::Up => state.increment_list(-1),
+            ArtistAction::Down => state.increment_list(1),
+            ArtistAction::PageUp => state.increment_list(-10),
+            ArtistAction::PageDown => state.increment_list(10),
+            ArtistAction::PrevSearchSuggestion => state.search.increment_list(-1),
+            ArtistAction::NextSearchSuggestion => state.search.increment_list(1),
+        }
+        AsyncTask::new_no_op()
     }
 }
 
@@ -129,20 +147,19 @@ impl TextHandler for SearchBlock {
 }
 
 impl SearchBlock {
-    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+    pub fn new() -> Self {
         Self {
             search_contents: Default::default(),
             search_suggestions: Default::default(),
             suggestions_cur: Default::default(),
-            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
         }
     }
     // Ask the UI for search suggestions for the current query
-    fn fetch_search_suggestions(&mut self) {
+    fn fetch_search_suggestions(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // No need to fetch search suggestions if contents is empty.
         if self.search_contents.is_empty() {
             self.search_suggestions.clear();
-            return;
+            return AsyncTask::new_no_op();
         }
         let handler = |this: &mut Self, results| match results {
             Ok((suggestions, text)) => {
@@ -152,13 +169,11 @@ impl SearchBlock {
                 error!("Error <{e}> recieved getting search suggestions");
             }
         };
-        if let Err(e) = self.async_tx.add_callback(
+        AsyncTask::new_future(
             GetSearchSuggestions(self.get_text().to_string()),
             handler,
             Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
+        )
     }
     fn replace_search_suggestions(
         &mut self,

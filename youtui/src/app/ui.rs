@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ActionHandler,
+    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, Component,
     DominantKeyRouter, KeyDisplayer, KeyHandleAction, KeyHandleOutcome, KeyRouter, TextHandler,
 };
 use super::keycommand::{
@@ -11,11 +11,11 @@ use super::keycommand::{
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
-use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
+use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
-use crate::core::{add_cb_or_error, send_or_error};
-use async_callback_manager::{AsyncCallbackSender, Constraint};
+use crate::core::send_or_error;
+use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::widgets::TableState;
 use tokio::sync::mpsc;
@@ -68,7 +68,6 @@ pub struct YoutuiWindow {
     keybinds: Vec<KeyCommand<UIAction>>,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
-    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
 }
 
 pub struct HelpMenu {
@@ -207,27 +206,12 @@ impl KeyDisplayer for YoutuiWindow {
         Box::new(kb.chain(cx))
     }
 }
-
-impl ActionHandler<UIAction> for YoutuiWindow {
-    async fn handle_action(&mut self, action: &UIAction) {
-        match action {
-            UIAction::Next => self.playlist.handle_next().await,
-            UIAction::Prev => self.playlist.handle_previous().await,
-            UIAction::Pause => self.playlist.pauseplay().await,
-            UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
-            UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
-            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
-            UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => self.toggle_help(),
-            UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
-            UIAction::HelpUp => self.help.increment_list(-1),
-            UIAction::HelpDown => self.help.increment_list(1),
-        }
-    }
+impl Component for YoutuiWindow {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
 }
-
 impl Action for UIAction {
+    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
@@ -259,9 +243,30 @@ impl Action for UIAction {
             UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
         }
     }
+    async fn apply(self, state: &mut Self::State) -> AsyncTask<Self::State, ArcServer, TaskMetadata>
+    where
+        Self: Sized,
+    {
+        match self {
+            UIAction::Next => return state.playlist.handle_next().await,
+            UIAction::Prev => return state.playlist.handle_previous().await,
+            UIAction::Pause => return state.playlist.pauseplay().await,
+            UIAction::StepVolUp => return state.handle_increase_volume(VOL_TICK).await,
+            UIAction::StepVolDown => return state.handle_increase_volume(-VOL_TICK).await,
+            UIAction::StepSeekForward => {
+                return state.handle_seek(SEEK_AMOUNT, SeekDirection::Forward)
+            }
+            UIAction::StepSeekBack => return state.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
+            UIAction::Quit => return send_or_error(&state.callback_tx, AppCallback::Quit).await,
+            UIAction::ToggleHelp => return state.toggle_help(),
+            UIAction::ViewLogs => return state.handle_change_context(WindowContext::Logs),
+            UIAction::HelpUp => return state.help.increment_list(-1),
+            UIAction::HelpDown => return state.help.increment_list(1),
+        }
+    }
 }
 
-impl TextHandler for YoutuiWindow {
+impl TextHandler<ArcServer, TaskMetadata> for YoutuiWindow {
     fn is_text_handling(&self) -> bool {
         match self.context {
             WindowContext::Browser => self.browser.is_text_handling(),
@@ -300,57 +305,63 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(
-        callback_tx: mpsc::Sender<AppCallback>,
-        callback_manager: &mut async_callback_manager::AsyncCallbackManager<
-            ArcServer,
-            TaskMetadata,
-        >,
-        config: &Config,
-    ) -> YoutuiWindow {
+    pub fn new(callback_tx: mpsc::Sender<AppCallback>, config: &Config) -> YoutuiWindow {
+        let (playlist, task) = Playlist::new(callback_tx.clone());
         YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_manager, callback_tx.clone()),
-            browser: Browser::new(callback_manager, callback_tx.clone()),
+            playlist,
+            browser: Browser::new(callback_tx.clone()),
             logger: Logger::new(callback_tx.clone()),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
             help: Default::default(),
             callback_tx,
-            async_tx: callback_manager.new_sender(ASYNC_CALLBACK_SENDER_CHANNEL_SIZE),
         }
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_initial_event(&mut self, event: crossterm::event::Event) {
-        if self.handle_event(&event) {
-            return;
-        }
+    pub async fn handle_initial_event(
+        &mut self,
+        event: crossterm::event::Event,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+        if let Some(effect) = self.handle_event(&event) {
+            return effect;
+        };
         match event {
-            Event::Key(k) => self.handle_key_event(k).await,
-            Event::Mouse(m) => self.handle_mouse_event(m),
+            Event::Key(k) => return self.handle_key_event(k).await,
+            Event::Mouse(m) => return self.handle_mouse_event(m),
             other => tracing::warn!("Received unimplemented {:?} event", other),
         }
+        AsyncTask::new_no_op()
     }
     pub async fn handle_tick(&mut self) {
         self.playlist.handle_tick().await;
     }
-    async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
+    async fn handle_key_event(
+        &mut self,
+        key_event: crossterm::event::KeyEvent,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         self.key_stack.push(key_event);
-        self.global_handle_key_stack().await;
+        self.global_handle_key_stack().await
     }
-    fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
+    fn handle_mouse_event(
+        &mut self,
+        mouse_event: crossterm::event::MouseEvent,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
+        AsyncTask::new_no_op()
     }
-    pub async fn handle_increase_volume(&mut self, inc: i8) {
+    pub async fn handle_increase_volume(
+        &mut self,
+        inc: i8,
+    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        add_cb_or_error(
-            &self.async_tx,
+        AsyncTask::new_future(
             IncreaseVolume(inc),
             Self::handle_volume_update,
             Some(Constraint::new_block_same_type()),
-        );
+        )
     }
     pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
         self.playlist.handle_seek(duration, direction);
@@ -379,26 +390,26 @@ impl YoutuiWindow {
         })
     }
 
-    async fn global_handle_key_stack(&mut self) {
+    async fn global_handle_key_stack(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // First handle my own keybinds, otherwise forward if our keybinds are not
         // dominant. TODO: Remove allocation
         match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
             KeyHandleAction::Action(a) => {
-                self.handle_action(&a).await;
+                let effect = a.apply(&mut self).await;
                 self.key_stack.clear();
-                return;
+                return effect;
             }
             KeyHandleAction::Mode => {
-                return;
+                return AsyncTask::new_no_op();
             }
             KeyHandleAction::NoMap => {
                 if self.is_dominant_keybinds() {
                     self.key_stack.clear();
-                    return;
+                    return AsyncTask::new_no_op();
                 }
             }
         };
-        if let KeyHandleOutcome::Mode = match self.context {
+        let subcomponents_outcome = match self.context {
             // TODO: Remove allocation
             WindowContext::Browser => {
                 handle_key_stack_and_action(&mut self.browser, self.key_stack.clone()).await
@@ -409,8 +420,9 @@ impl YoutuiWindow {
             WindowContext::Logs => {
                 handle_key_stack_and_action(&mut self.logger, self.key_stack.clone()).await
             }
-        } {
-            return;
+        };
+        if let KeyHandleAction::Mode = subcomponents_outcome {
+            return AsyncTask::new_no_op();
         }
         self.key_stack.clear()
     }

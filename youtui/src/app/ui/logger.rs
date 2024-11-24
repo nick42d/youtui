@@ -1,6 +1,7 @@
 use crate::app::{
-    component::actionhandler::{Action, ActionHandler, KeyRouter, TextHandler},
+    component::actionhandler::{Action, Component, KeyRouter, TextHandler},
     keycommand::KeyCommand,
+    server::{ArcServer, TaskMetadata},
     ui::AppCallback,
     view::Drawable,
 };
@@ -28,7 +29,12 @@ pub enum LoggerAction {
     ExitPageMode,
     ViewBrowser,
 }
+impl Component for Logger {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
+}
 impl Action for LoggerAction {
+    type State = Logger;
     fn context(&self) -> Cow<str> {
         "Logger".into()
     }
@@ -47,6 +53,29 @@ impl Action for LoggerAction {
             LoggerAction::ReduceCaptured => "Reduce CAPTURED (!) Messages".into(),
             LoggerAction::IncreaseCaptured => "Increase CAPTURED (!) Messages".into(),
             LoggerAction::ExitPageMode => "Exit Page Mode".into(),
+        }
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            LoggerAction::ToggleTargetSelector => state.handle_toggle_target_selector(),
+            LoggerAction::ToggleTargetFocus => state.handle_toggle_target_focus(),
+            LoggerAction::ToggleHideFiltered => state.handle_toggle_hide_filtered(),
+            LoggerAction::Up => state.handle_up(),
+            LoggerAction::Down => state.handle_down(),
+            LoggerAction::PageUp => state.handle_pgup(),
+            LoggerAction::PageDown => state.handle_pgdown(),
+            LoggerAction::ReduceShown => state.handle_reduce_shown(),
+            LoggerAction::IncreaseShown => state.handle_increase_shown(),
+            LoggerAction::ReduceCaptured => state.handle_reduce_captured(),
+            LoggerAction::IncreaseCaptured => state.handle_increase_captured(),
+            LoggerAction::ExitPageMode => state.handle_exit_page_mode(),
+            LoggerAction::ViewBrowser => state.handle_view_browser().await,
         }
     }
 }
@@ -89,26 +118,6 @@ impl TextHandler for Logger {
     }
     fn handle_event_repr(&mut self, _event: &crossterm::event::Event) -> bool {
         false
-    }
-}
-
-impl ActionHandler<LoggerAction> for Logger {
-    async fn handle_action(&mut self, action: &LoggerAction) {
-        match action {
-            LoggerAction::ToggleTargetSelector => self.handle_toggle_target_selector(),
-            LoggerAction::ToggleTargetFocus => self.handle_toggle_target_focus(),
-            LoggerAction::ToggleHideFiltered => self.handle_toggle_hide_filtered(),
-            LoggerAction::Up => self.handle_up(),
-            LoggerAction::Down => self.handle_down(),
-            LoggerAction::PageUp => self.handle_pgup(),
-            LoggerAction::PageDown => self.handle_pgdown(),
-            LoggerAction::ReduceShown => self.handle_reduce_shown(),
-            LoggerAction::IncreaseShown => self.handle_increase_shown(),
-            LoggerAction::ReduceCaptured => self.handle_reduce_captured(),
-            LoggerAction::IncreaseCaptured => self.handle_increase_captured(),
-            LoggerAction::ExitPageMode => self.handle_exit_page_mode(),
-            LoggerAction::ViewBrowser => self.handle_view_browser().await,
-        }
     }
 }
 

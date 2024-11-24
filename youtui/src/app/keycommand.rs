@@ -3,7 +3,6 @@
 //! A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
 use super::component::actionhandler::Action;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use futures::Stream;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 

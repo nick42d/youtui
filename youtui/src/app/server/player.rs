@@ -10,6 +10,13 @@ use std::time::Duration;
 pub struct DecodedInMemSong(Decoder<Cursor<ArcInMemSong>>);
 struct ArcInMemSong(Arc<InMemSong>);
 
+// Derive to assist with debub printing tasks
+impl std::fmt::Debug for DecodedInMemSong {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("DecodedInMemSong").field(&"..").finish()
+    }
+}
+
 impl AsRef<[u8]> for ArcInMemSong {
     fn as_ref(&self) -> &[u8] {
         self.0.as_ref().0.as_ref()

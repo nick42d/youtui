@@ -14,6 +14,7 @@ use tokio::{
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
+#[must_use = "AsyncTasks do nothing unless you run them"]
 pub struct AsyncTask<Frntend, Bkend, Md> {
     pub(crate) task: AsyncTaskKind<Frntend, Bkend, Md>,
     pub(crate) constraint: Option<Constraint<Md>>,

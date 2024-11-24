@@ -1,7 +1,8 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
+use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::browser::BrowserAction;
+use crate::app::ui::browser::{Browser, BrowserAction, PAGE_KEY_LINES};
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
@@ -37,6 +38,7 @@ pub struct AlbumSongsPanel {
     cur_selected: usize,
     pub widget_state: TableState,
 }
+impl_youtui_component!(AlbumSongsPanel);
 
 // TODO: refactor
 #[derive(Clone)]
@@ -46,6 +48,7 @@ pub struct FilterManager {
     pub shown: bool,
     keybinds: Vec<KeyCommand<BrowserAction>>,
 }
+impl_youtui_component!(FilterManager);
 
 // TODO: refactor
 #[derive(Clone)]
@@ -76,7 +79,6 @@ impl Default for FilterManager {
         }
     }
 }
-
 impl TextHandler for FilterManager {
     fn is_text_handling(&self) -> bool {
         true
@@ -307,6 +309,7 @@ impl TextHandler for AlbumSongsPanel {
 }
 
 impl Action for ArtistSongsAction {
+    type State = Browser;
     fn context(&self) -> Cow<str> {
         "Artist Songs Panel".into()
     }
@@ -332,6 +335,36 @@ impl Action for ArtistSongsAction {
             ArtistSongsAction::SortSelectedDesc => "Sort descending",
         }
         .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            ArtistSongsAction::PlayAlbum => state.play_album().await,
+            ArtistSongsAction::PlaySong => state.play_song().await,
+            ArtistSongsAction::PlaySongs => state.play_songs().await,
+            ArtistSongsAction::AddAlbumToPlaylist => state.add_album_to_playlist().await,
+            ArtistSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
+            ArtistSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
+            ArtistSongsAction::Up => state.album_songs_list.increment_list(-1),
+            ArtistSongsAction::Down => state.album_songs_list.increment_list(1),
+            ArtistSongsAction::PageUp => state.album_songs_list.increment_list(-PAGE_KEY_LINES),
+            ArtistSongsAction::PageDown => state.album_songs_list.increment_list(PAGE_KEY_LINES),
+            ArtistSongsAction::PopSort => state.album_songs_list.handle_pop_sort(),
+            ArtistSongsAction::CloseSort => state.album_songs_list.close_sort(),
+            ArtistSongsAction::ClearSort => state.album_songs_list.handle_clear_sort(),
+            ArtistSongsAction::SortUp => state.album_songs_list.handle_sort_up(),
+            ArtistSongsAction::SortDown => state.album_songs_list.handle_sort_down(),
+            ArtistSongsAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
+            ArtistSongsAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
+            ArtistSongsAction::ToggleFilter => state.album_songs_list.toggle_filter(),
+            ArtistSongsAction::ApplyFilter => state.album_songs_list.apply_filter(),
+            ArtistSongsAction::ClearFilter => state.album_songs_list.clear_filter(),
+        }
     }
 }
 

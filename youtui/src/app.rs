@@ -1,7 +1,7 @@
 use super::appevent::{AppEvent, EventHandler};
 use super::Result;
 use crate::{get_data_dir, RuntimeInfo};
-use async_callback_manager::AsyncCallbackManager;
+use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -9,7 +9,7 @@ use crossterm::{
 };
 use log::LevelFilter;
 use ratatui::{backend::CrosstermBackend, Terminal};
-use server::{Server, TaskMetadata};
+use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::ListSong;
@@ -19,6 +19,7 @@ use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;
 
+#[macro_use]
 mod component;
 pub mod keycommand;
 mod musiccache;
@@ -107,7 +108,7 @@ impl Youtui {
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let window_state = YoutuiWindow::new(callback_tx, &mut task_manager, &config);
+        let window_state = YoutuiWindow::new(callback_tx, &config);
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,
@@ -134,21 +135,15 @@ impl Youtui {
                     tokio::select! {
                         // Get the next event from the event_handler and process it.
                         // TODO: Consider checking here if redraw is required.
-                        Some(event) = self.event_handler.next() => self.handle_event(event).await,
+                        Some(event) = self.event_handler.next() =>
+                            self.handle_event(event).await,
                         // Process any top-level callbacks in the queue.
-                        Some(callback) = self.callback_rx.recv() => self.handle_callback(callback),
+                        Some(callback) = self.callback_rx.recv() =>
+                            self.handle_callback(callback),
                         // Process the next manager event.
                         // If all the manager has done is spawn tasks, there's no need to draw.
-                        Some(outcome) = self.task_manager.get_next_response() => {
-                            match outcome {
-                                async_callback_manager::TaskOutcome::StreamClosed => (),
-                                async_callback_manager::TaskOutcome::TaskPanicked { error, type_id, type_name, task_id } => panic!("Panicked running task {type_name}"),
-                                async_callback_manager::TaskOutcome::MutationReceived { mutation, type_id, type_name, task_id } => {
-                                    let next_task = mutation(self);
-                                    self.task_manager.spawn_task(&self.server,next_task);
-                                },
-                            }
-                        },
+                        Some(outcome) = self.task_manager.get_next_response() =>
+                            self.handle_effect(outcome),
                     }
                 }
                 AppStatus::Exiting(s) => {
@@ -161,10 +156,36 @@ impl Youtui {
         }
         Ok(())
     }
+    fn handle_effect(&mut self, effect: TaskOutcome<Self, ArcServer, TaskMetadata>) {
+        match effect {
+            async_callback_manager::TaskOutcome::StreamClosed => (),
+            async_callback_manager::TaskOutcome::TaskPanicked {
+                error,
+                type_id,
+                type_name,
+                task_id,
+            } => panic!("Panicked running task {type_name}"),
+            async_callback_manager::TaskOutcome::MutationReceived {
+                mutation,
+                type_id,
+                type_name,
+                task_id,
+            } => {
+                let next_task = mutation(self);
+                self.task_manager.spawn_task(&self.server, next_task);
+            }
+        }
+    }
     async fn handle_event(&mut self, event: AppEvent) {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
-            AppEvent::Crossterm(e) => self.window_state.handle_initial_event(e).await,
+            AppEvent::Crossterm(e) => {
+                let task = self.window_state.handle_initial_event(e).await;
+                self.task_manager.spawn_task(
+                    &self.server,
+                    task.map(|this: &mut Self| &mut this.window_state),
+                );
+            }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
