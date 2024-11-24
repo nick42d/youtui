@@ -42,7 +42,7 @@ pub struct Youtui {
     status: AppStatus,
     event_handler: EventHandler,
     window_state: YoutuiWindow,
-    task_manager: AsyncCallbackManager<Self, Arc<Server>, TaskMetadata>,
+    task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
@@ -105,10 +105,7 @@ impl Youtui {
         let (window_state, effect) = YoutuiWindow::new(callback_tx, &config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
-        task_manager.spawn_task(
-            &server,
-            effect.map(|this: &mut Self| &mut this.window_state),
-        );
+        task_manager.spawn_task(&server, effect);
         Ok(Youtui {
             status: AppStatus::Running,
             event_handler,
@@ -156,7 +153,7 @@ impl Youtui {
         }
         Ok(())
     }
-    fn handle_effect(&mut self, effect: TaskOutcome<Self, ArcServer, TaskMetadata>) {
+    fn handle_effect(&mut self, effect: TaskOutcome<YoutuiWindow, ArcServer, TaskMetadata>) {
         match effect {
             async_callback_manager::TaskOutcome::StreamClosed => {
                 info!("Received a stream closed message from task manager")
@@ -178,7 +175,7 @@ impl Youtui {
                     "Received response to {:?}: type_id: {:?}, task_id: {:?}",
                     type_debug, type_id, task_id
                 );
-                let next_task = mutation(self);
+                let next_task = mutation(&mut self.window_state);
                 self.task_manager.spawn_task(&self.server, next_task);
             }
         }
@@ -188,24 +185,23 @@ impl Youtui {
             AppEvent::Tick => self.window_state.handle_tick().await,
             AppEvent::Crossterm(e) => {
                 let task = self.window_state.handle_initial_event(e).await;
-                self.task_manager.spawn_task(
-                    &self.server,
-                    task.map(|this: &mut Self| &mut this.window_state),
-                );
+                self.task_manager.spawn_task(&self.server, task);
             }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
-    pub fn handle_callback(&mut self, callback: AppCallback) {
+    fn handle_callback(&mut self, callback: AppCallback) {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
             AppCallback::AddSongsToPlaylist(song_list) => {
-                self.window_state.handle_add_songs_to_playlist(song_list);
+                self.window_state.handle_add_songs_to_playlist(song_list)
             }
-            AppCallback::AddSongsToPlaylistAndPlay(song_list) => self
-                .window_state
-                .handle_add_songs_to_playlist_and_play(song_list),
+            AppCallback::AddSongsToPlaylistAndPlay(song_list) => self.task_manager.spawn_task(
+                &self.server,
+                self.window_state
+                    .handle_add_songs_to_playlist_and_play(song_list),
+            ),
         }
     }
 }

@@ -239,7 +239,7 @@ impl Action for UIAction {
             UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
         }
     }
-    async fn apply(self, state: &mut Self::State) -> AsyncTask<Self::State, ArcServer, TaskMetadata>
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
     where
         Self: Sized,
     {
@@ -351,7 +351,7 @@ impl YoutuiWindow {
     pub async fn handle_initial_event(
         &mut self,
         event: crossterm::event::Event,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    ) -> ComponentEffect<Self> {
         if let Some(effect) = self.handle_event(&event) {
             return effect;
         };
@@ -368,21 +368,18 @@ impl YoutuiWindow {
     async fn handle_key_event(
         &mut self,
         key_event: crossterm::event::KeyEvent,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    ) -> ComponentEffect<Self> {
         self.key_stack.push(key_event);
         self.global_handle_key_stack().await
     }
     fn handle_mouse_event(
         &mut self,
         mouse_event: crossterm::event::MouseEvent,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    ) -> ComponentEffect<Self> {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
         AsyncTask::new_no_op()
     }
-    pub async fn handle_increase_volume(
-        &mut self,
-        inc: i8,
-    ) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub async fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
         AsyncTask::new_future(
@@ -406,10 +403,15 @@ impl YoutuiWindow {
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);
     }
-    pub fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
-        self.playlist.reset();
+    pub fn handle_add_songs_to_playlist_and_play(
+        &mut self,
+        song_list: Vec<ListSong>,
+    ) -> ComponentEffect<Self> {
+        let effect = self.playlist.reset();
         let id = self.playlist.push_song_list(song_list);
-        self.playlist.play_song_id(id);
+        effect
+            .push(self.playlist.play_song_id(id))
+            .map(|this: &mut Self| &mut this.playlist)
     }
     fn is_dominant_keybinds(&self) -> bool {
         self.help.shown
@@ -424,7 +426,7 @@ impl YoutuiWindow {
         })
     }
 
-    async fn global_handle_key_stack(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
         // First handle my own keybinds, otherwise forward if our keybinds are not
         // dominant. TODO: Remove allocation
         match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {

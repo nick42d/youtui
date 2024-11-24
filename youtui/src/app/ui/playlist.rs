@@ -260,7 +260,7 @@ impl Playlist {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        let mut effects = vec![self.download_upcoming_from_id(id)];
+        let mut effect = self.download_upcoming_from_id(id);
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -284,27 +284,27 @@ impl Playlist {
                         AsyncTask::new_no_op()
                     }
                 };
-                self.play_status = PlayState::Playing(id);
-                self.queue_status = QueueState::NotQueued;
-                effects.push(AsyncTask::new_stream_chained(
+                let effect = effect.push(AsyncTask::new_stream_chained(
                     task,
                     handle_update,
                     constraint,
                 ));
-                return effects.into_iter().collect();
+                self.play_status = PlayState::Playing(id);
+                self.queue_status = QueueState::NotQueued;
+                return effect;
             } else {
                 // Stop current song, but only if next song is buffering.
-                let effect = self
+                let maybe_effect = self
                     .get_cur_playing_id()
                     .map(|cur_id| self.stop_song_id(cur_id));
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
-                if let Some(effect) = effect {
-                    effects.push(effect);
+                if let Some(stop_effect) = maybe_effect {
+                    effect = effect.push(stop_effect);
                 }
             }
         }
-        effects.into_iter().collect()
+        effect
     }
     /// Drop downloads no longer relevant for ID, download new
     /// relevant downloads, start playing song at ID, set PlayState.
@@ -312,7 +312,7 @@ impl Playlist {
         // Drop previous songs
         self.drop_unscoped_from_id(id);
         // Queue next downloads
-        let mut effects = vec![self.download_upcoming_from_id(id)];
+        let mut effect = self.download_upcoming_from_id(id);
         // Reset duration
         self.cur_played_dur = None;
         if let Some(song_index) = self.get_index_from_id(id) {
@@ -333,24 +333,24 @@ impl Playlist {
                         AsyncTask::new_no_op()
                     }
                 };
+                let effect = effect.push(AsyncTask::new_stream_chained(task, handle_update, None));
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
-                effects.push(AsyncTask::new_stream_chained(task, handle_update, None));
-                return effects.into_iter().collect();
+                return effect;
             } else {
                 // Stop current song, but only if next song is buffering.
-                let effect = self
+                let maybe_effect = self
                     .get_cur_playing_id()
                     // TODO: Consider how race condition is supposed to be handled with this.
                     .map(|cur_id| self.stop_song_id(cur_id));
                 self.play_status = PlayState::Buffering(id);
                 self.queue_status = QueueState::NotQueued;
-                if let Some(effect) = effect {
-                    effects.push(effect);
+                if let Some(stop_effect) = maybe_effect {
+                    effect = effect.push(stop_effect);
                 }
             }
         };
-        effects.into_iter().collect()
+        effect
     }
     /// Stop playing and clear playlist.
     pub fn reset(&mut self) -> ComponentEffect<Self> {
@@ -429,16 +429,17 @@ impl Playlist {
             | DownloadStatus::Queued => return AsyncTask::new_no_op(),
             _ => (),
         };
-        song.download_status = DownloadStatus::Queued;
         // TODO: Consider how to handle race conditions.
-        AsyncTask::new_stream_chained(
+        let effect = AsyncTask::new_stream_chained(
             DownloadSong(song.raw.video_id.clone(), id),
             |this: &mut Playlist, item| {
                 let DownloadProgressUpdate { kind, id } = item;
                 this.handle_song_download_progress_update(kind, id)
             },
             None,
-        )
+        );
+        song.download_status = DownloadStatus::Queued;
+        effect
     }
     /// Update the volume in the UI for immediate visual feedback - response
     /// will be delayed one tick. Note that this does not actually change the
@@ -854,8 +855,9 @@ impl Playlist {
                                 AsyncTask::new_no_op()
                             }
                         };
+                        let effect = AsyncTask::new_stream_chained(task, handle_update, None);
                         self.queue_status = QueueState::Queued(next_song.id);
-                        return AsyncTask::new_stream_chained(task, handle_update, None);
+                        return effect;
                     }
                 }
             }
