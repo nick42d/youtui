@@ -1,3 +1,4 @@
+use crate::app::component::actionhandler::Action;
 use crate::app::keycommand::CommandVisibility;
 use crate::app::keycommand::Keybind;
 use crate::get_config_dir;
@@ -43,17 +44,18 @@ pub enum AuthType {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct YoutuiKeymap {
-    global: HashMap<Keybind, KeyEnum>,
-    playlist: HashMap<Keybind, KeyEnum>,
-    browser: HashMap<Keybind, KeyEnum>,
-    browser_artists: HashMap<Keybind, KeyEnum>,
-    browser_search: HashMap<Keybind, KeyEnum>,
-    browser_songs: HashMap<Keybind, KeyEnum>,
-    help: HashMap<Keybind, KeyEnum>,
-    sort: HashMap<Keybind, KeyEnum>,
-    filter: HashMap<Keybind, KeyEnum>,
-    text_entry: HashMap<Keybind, KeyEnum>,
-    list: HashMap<Keybind, KeyEnum>,
+    pub global: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub browser: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub browser_artists: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub browser_search: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub browser_songs: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub help: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub sort: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub filter: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub text_entry: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub list: HashMap<Keybind, KeyEnum<AppAction>>,
+    pub log: HashMap<Keybind, KeyEnum<AppAction>>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -72,15 +74,17 @@ pub struct YoutuiModeNames {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-enum KeyEnum {
+pub enum KeyEnum<Action> {
     Key {
         // Consider - can there be multiple actions?
         // Consider - can an action access global commands? Or commands from another component?
-        action: AppAction,
+        // Consider - case where component has list and help keybinds, but some keybinds share a
+        // mode. What happens here.
+        action: Action,
         value: usize,
         visibility: CommandVisibility,
     },
-    Mode(HashMap<Keybind, KeyEnum>),
+    Mode(HashMap<Keybind, KeyEnum<Action>>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,8 +93,26 @@ enum ModeNameEnum {
     Submode(HashMap<Keybind, ModeNameEnum>),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum AppAction {
+impl Action for AppAction {
+    type State = crate::app::Youtui;
+    fn context(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        todo!()
+    }
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum AppAction {
     VolUp(usize),
     VolDown(usize),
     NextSong,
@@ -112,8 +134,8 @@ enum AppAction {
     Log(LogAction),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum PlaylistAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PlaylistAction {
     ViewBrowser,
     Left,
     Right,
@@ -122,28 +144,28 @@ enum PlaylistAction {
     DeleteAll,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum BrowserAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BrowserAction {
     ViewPlaylist,
     Search,
     Left,
     Right,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum BrowserArtistsAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BrowserArtistsAction {
     DisplaySelectedArtistAlbums,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum BrowserSearchAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BrowserSearchAction {
     SearchArtist,
     PrevSearchSuggestion,
     NextSearchSuggestion,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum BrowserSongsAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BrowserSongsAction {
     Filter,
     Sort,
     PlaySong,
@@ -154,35 +176,48 @@ enum BrowserSongsAction {
     AddAlbumToPlaylist,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum HelpAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum HelpAction {
     CloseHelp,
+    ListAction(ListAction),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum FilterAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ListAction {
+    Up(usize),
+    Down(usize),
+}
+
+impl From<ListAction> for HelpAction {
+    fn from(value: ListAction) -> Self {
+        HelpAction::ListAction(value)
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum FilterAction {
     CloseFilter,
     ClearFilter,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum SortAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SortAction {
     CloseSort,
     ClearSort,
     SortSelectedAsc,
     SortSelectedDesc,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum TextEntryAction {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TextEntryAction {
     Submit,
     Left,
     Right,
     Backspace,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum LogAction {}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum LogAction {}
 
 impl Config {
     pub fn new() -> Result<Self> {

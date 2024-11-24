@@ -11,7 +11,7 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::Config;
+use crate::config::{self, Config};
 use crate::core::send_or_error;
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
@@ -78,13 +78,13 @@ pub struct HelpMenu {
     pub widget_state: TableState,
 }
 
-impl Default for HelpMenu {
-    fn default() -> Self {
+impl HelpMenu {
+    fn new(config: &Config) -> Self {
         HelpMenu {
             shown: Default::default(),
             cur: Default::default(),
             len: Default::default(),
-            keybinds: help_keybinds(),
+            keybinds: help_keybinds(config),
             widget_state: Default::default(),
         }
     }
@@ -339,10 +339,10 @@ impl YoutuiWindow {
             prev_context: WindowContext::Browser,
             playlist,
             browser: Browser::new(callback_tx.clone()),
-            logger: Logger::new(callback_tx.clone()),
+            logger: Logger::new(callback_tx.clone(), config),
             keybinds: global_keybinds(),
             key_stack: Vec::new(),
-            help: Default::default(),
+            help: HelpMenu::new(config),
             callback_tx,
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
@@ -564,7 +564,9 @@ fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
         ),
     ]
 }
-fn help_keybinds() -> Vec<KeyCommand<UIAction>> {
+fn help_keybinds(config: &Config) -> Vec<KeyCommand<UIAction>> {
+    let list_keybinds: Vec<_> = config.keybinds.list.iter().collect();
+    let help_keybinds: Vec<_> = config.keybinds.help.iter().collect();
     vec![
         KeyCommand::new_hidden_from_code(KeyCode::Down, UIAction::HelpDown),
         KeyCommand::new_hidden_from_code(KeyCode::Up, UIAction::HelpUp),

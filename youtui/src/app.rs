@@ -20,7 +20,7 @@ use ui::WindowContext;
 use ui::YoutuiWindow;
 
 #[macro_use]
-mod component;
+pub mod component;
 pub mod keycommand;
 mod musiccache;
 mod server;
@@ -47,6 +47,8 @@ pub struct Youtui {
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
 }
+//TODO: Remove me!
+impl_youtui_component!(Youtui);
 
 #[derive(PartialEq)]
 pub enum AppStatus {

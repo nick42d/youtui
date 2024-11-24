@@ -1,11 +1,15 @@
-use crate::app::{
-    component::actionhandler::{Action, Component, ComponentEffect, KeyRouter, TextHandler},
-    keycommand::KeyCommand,
-    server::{ArcServer, TaskMetadata},
-    ui::AppCallback,
-    view::Drawable,
-};
+use crate::config::KeyEnum::{Key, Mode};
 use crate::core::send_or_error;
+use crate::{
+    app::{
+        component::actionhandler::{Action, Component, ComponentEffect, KeyRouter, TextHandler},
+        keycommand::KeyCommand,
+        server::{ArcServer, TaskMetadata},
+        ui::AppCallback,
+        view::Drawable,
+    },
+    config::Config,
+};
 use async_callback_manager::AsyncTask;
 use crossterm::event::KeyCode;
 use draw::draw_logger;
@@ -124,11 +128,11 @@ impl TextHandler for Logger {
 }
 
 impl Logger {
-    pub fn new(ui_tx: Sender<AppCallback>) -> Self {
+    pub fn new(ui_tx: Sender<AppCallback>, config: &Config) -> Self {
         Self {
             ui_tx,
             logger_state: tui_logger::TuiWidgetState::default(),
-            keybinds: logger_keybinds(),
+            keybinds: logger_keybinds(config),
         }
     }
     async fn handle_view_browser(&mut self) {
@@ -176,7 +180,25 @@ impl Logger {
     }
 }
 
-fn logger_keybinds() -> Vec<KeyCommand<LoggerAction>> {
+fn logger_keybinds(config: &Config) -> Vec<KeyCommand<LoggerAction>> {
+    let cfg_keybinds: Vec<_> = config
+        .keybinds
+        .log
+        .iter()
+        .map(|(kb, ke)| match ke {
+            Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            Mode(_) => todo!(),
+        })
+        .collect();
     vec![
         KeyCommand::new_global_from_code(KeyCode::F(5), LoggerAction::ViewBrowser),
         KeyCommand::new_from_code(KeyCode::Char('['), LoggerAction::ReduceCaptured),

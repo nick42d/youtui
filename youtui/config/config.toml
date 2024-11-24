@@ -70,7 +70,19 @@ esc = {action = "sort.close", visibility = "hidden"}
 F4 = {action = "sort.close", visibility = "global"}
 
 [keys.log]
-todo!(),
+F5 = {action = "viewbrowser", visibility = "global"}
+"[" = "reducecaptured"
+"]" = "increasecaptured"
+left = "reduceshown"
+right = "increaseshown"
+up = "up"
+down = "down"
+pageup = "pageup"
+pagedown = "pagedown"
+space = "togglehidefiltered"
+esc = "exitpagemode"
+f = "toggletargetfocus"
+h = "toggletargetselector"
 
 [keys.text_entry]
 enter = "text_entry.submit"

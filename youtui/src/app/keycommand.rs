@@ -24,8 +24,8 @@ pub struct KeyCommand<A: Action> {
 }
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Deserialize, Serialize)]
 pub struct Keybind {
-    code: KeyCode,
-    modifiers: KeyModifiers,
+    pub code: KeyCode,
+    pub modifiers: KeyModifiers,
 }
 #[derive(PartialEq, Debug, Clone)]
 pub enum Keymap<A: Action> {
@@ -194,6 +194,18 @@ impl<A: Action> KeyCommand<A> {
             visibility: CommandVisibility::Standard,
         }
     }
+    pub fn new_modified_from_code_with_visibility(
+        code: KeyCode,
+        modifiers: KeyModifiers,
+        visibility: CommandVisibility,
+        action: A,
+    ) -> KeyCommand<A> {
+        KeyCommand {
+            keybinds: vec![Keybind::new(code, modifiers)],
+            key_map: Keymap::Action(action),
+            visibility,
+        }
+    }
     pub fn new_global_modified_from_code(
         code: KeyCode,
         modifiers: KeyModifiers,
@@ -284,6 +296,7 @@ impl FromStr for Keybind {
                 "home" => return Ok(KeyCode::Home),
                 "end" => return Ok(KeyCode::End),
                 "insert" => return Ok(KeyCode::Insert),
+                "space" => return Ok(KeyCode::Char(' ')),
                 _ => (),
             };
             if let Some((before, Ok(num))) = s
@@ -301,13 +314,6 @@ impl FromStr for Keybind {
                 'A' => Ok(KeyModifiers::ALT),
                 'C' => Ok(KeyModifiers::CONTROL),
                 'S' => Ok(KeyModifiers::SHIFT),
-                // **Note:** `SUPER`, `HYPER`, and `META` can only be read if
-                // [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has
-                // been enabled with
-                // [`PushKeyboardEnhancementFlags`].
-                'H' => Ok(KeyModifiers::HYPER),
-                'M' => Ok(KeyModifiers::META),
-                'W' => Ok(KeyModifiers::SUPER),
                 c => Err(c),
             }
         }
