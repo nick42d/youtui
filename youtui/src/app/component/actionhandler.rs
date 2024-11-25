@@ -39,29 +39,13 @@ pub trait Action {
 /// NOTE: To implment this, the component can only have a single Action type.
 // XXX: Could possibly be a part of EventHandler instead.
 // XXX: Does this actually need to be a keyhandler?
-pub trait KeyRouter<A: Action> {
+pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
-    // e.g - for use in help menu.
-    fn get_all_visible_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
-        Box::new(
-            self.get_all_keybinds()
-                .filter(|kb| kb.visibility != CommandVisibility::Hidden),
-        )
-    }
-    // e.g - for use in header.
-    fn get_routed_global_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
-        Box::new(
-            self.get_active_keybinds()
-                .filter(|kb| kb.visibility == CommandVisibility::Global),
-        )
-    }
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a;
 }
 
 /// A component of the application that can block parent keybinds.
@@ -72,28 +56,51 @@ pub trait DominantKeyRouter {
     fn dominant_keybinds_active(&self) -> bool;
 }
 
-/// A component of the application that can display all it's keybinds.
-/// Not every KeyHandler/KeyRouter is a DisplayableKeyRouter - as
-/// DisplayAbleKeyRouter unables conversion of typed Actions to generic.
-// TODO: Type safety
-// Could possibly be a part of EventHandler instead.
-pub trait KeyDisplayer {
-    // XXX: Can these all just be derived from KeyRouter?
-    /// Get the list of all keybinds that the KeyHandler and any child items can
-    /// contain, regardless of context.
-    fn get_all_visible_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
-    /// Get the list of all non-hidden keybinds that the KeyHandler and any
-    /// child items can contain, regardless of context.
-    fn get_all_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
-    /// Get a context-specific list of all keybinds marked global.
-    // TODO: Put under DisplayableKeyHandler
-    fn get_context_global_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
+// XXX: Can these all just be derived from KeyRouter?
+/// Get the list of all keybinds that the KeyHandler and any child items can
+/// contain, regardless of context.
+fn get_all_visible_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
+    component: &'a K,
+) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
+    component
+        .get_active_keybinds()
+        .filter(|kc| kc.visibility != CommandVisibility::Hidden)
+        .map(|kb| kb.as_displayable())
+}
+/// Get the list of all non-hidden keybinds that the KeyHandler and any
+/// child items can contain, regardless of context.
+fn get_all_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
+    component: &'a K,
+) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
+    component
+        .get_active_keybinds()
+        .map(|kb| kb.as_displayable())
+}
+/// Get a context-specific list of all keybinds marked global.
+// TODO: Put under DisplayableKeyHandler
+fn get_context_global_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
+    component: &'a K,
+) -> impl Iterator<Item = DisplayableCommand<'a>> + 'a {
+    component
+        .get_active_keybinds()
+        .filter(|kc| kc.visibility == CommandVisibility::Global)
+        .map(|kb| kb.as_displayable())
+}
+// e.g - for use in help menu.
+fn get_all_visible_keybinds<'a, K: KeyRouter<A>, A: Action + 'static>(
+    component: &'a K,
+) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a {
+    component
+        .get_all_keybinds()
+        .filter(|kb| kb.visibility != CommandVisibility::Hidden)
+}
+// e.g - for use in header.
+fn get_routed_global_keybinds<'a, K: KeyRouter<A>, A: Action + 'static>(
+    component: &'a K,
+) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a {
+    component
+        .get_active_keybinds()
+        .filter(|kb| kb.visibility == CommandVisibility::Global)
 }
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
@@ -116,7 +123,7 @@ pub trait TextHandler: Component {
         Self: Sized;
     /// Default behaviour is to only handle an event if is_text_handling() ==
     /// true.
-    fn handle_event(&mut self, event: &Event) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    fn try_handle_text(&mut self, event: &Event) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
     where
         Self: Sized,
     {

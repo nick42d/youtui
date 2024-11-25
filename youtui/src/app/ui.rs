@@ -352,7 +352,7 @@ impl YoutuiWindow {
         &mut self,
         event: crossterm::event::Event,
     ) -> ComponentEffect<Self> {
-        if let Some(effect) = self.handle_event(&event) {
+        if let Some(effect) = self.try_handle_text(&event) {
             return effect;
         };
         match event {

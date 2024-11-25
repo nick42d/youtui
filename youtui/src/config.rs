@@ -1,7 +1,7 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::keycommand::CommandVisibility;
 use crate::app::keycommand::Keybind;
-use crate::app::ui::logger::LoggerActio;
+use crate::app::ui::logger::LoggerAction;
 use crate::app::ui::YoutuiWindow;
 use crate::get_config_dir;
 use crate::Result;
@@ -145,7 +145,7 @@ pub enum AppAction {
     BrowserArtists(BrowserArtistsAction),
     BrowserSearch(BrowserSearchAction),
     BrowserSongs(BrowserSongsAction),
-    Log(LoggerActio),
+    Log(LoggerAction),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

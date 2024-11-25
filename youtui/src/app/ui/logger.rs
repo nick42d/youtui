@@ -91,16 +91,11 @@ impl Drawable for Logger {
     }
 }
 
-impl KeyRouter<LoggerAction> for Logger {
-    // XXX: Duplication of effort here due to trait structure - not the worst.
-    fn get_active_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
-        Box::new(self.keybinds.iter())
+impl KeyRouter<AppAction> for Logger {
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        self.keybinds.iter()
     }
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<LoggerAction>> + 'a> {
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
         self.get_active_keybinds()
     }
 }

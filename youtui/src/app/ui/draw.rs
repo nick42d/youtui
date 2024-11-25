@@ -1,5 +1,4 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::KeyDisplayer;
 use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
