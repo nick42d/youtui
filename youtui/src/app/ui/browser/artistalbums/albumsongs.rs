@@ -321,67 +321,6 @@ impl TextHandler for AlbumSongsPanel {
     }
 }
 
-impl Action for ArtistSongsAction {
-    type State = Browser;
-    fn context(&self) -> Cow<str> {
-        "Artist Songs Panel".into()
-    }
-    fn describe(&self) -> Cow<str> {
-        match &self {
-            ArtistSongsAction::PlaySong => "Play song",
-            ArtistSongsAction::PlaySongs => "Play songs",
-            ArtistSongsAction::PlayAlbum => "Play album",
-            ArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
-            ArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            ArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
-            ArtistSongsAction::Up | Self::SortUp => "Up",
-            ArtistSongsAction::Down | Self::SortDown => "Down",
-            ArtistSongsAction::PageUp => "Page Up",
-            ArtistSongsAction::PageDown => "Page Down",
-            ArtistSongsAction::PopSort => "Sort",
-            ArtistSongsAction::ToggleFilter => "Filter",
-            ArtistSongsAction::ApplyFilter => "Apply filter",
-            ArtistSongsAction::ClearFilter => "Clear filter",
-            ArtistSongsAction::CloseSort => "Close sort",
-            ArtistSongsAction::ClearSort => "Clear sort",
-            ArtistSongsAction::SortSelectedAsc => "Sort ascending",
-            ArtistSongsAction::SortSelectedDesc => "Sort descending",
-        }
-        .into()
-    }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            ArtistSongsAction::PlayAlbum => state.play_album().await,
-            ArtistSongsAction::PlaySong => state.play_song().await,
-            ArtistSongsAction::PlaySongs => state.play_songs().await,
-            ArtistSongsAction::AddAlbumToPlaylist => state.add_album_to_playlist().await,
-            ArtistSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
-            ArtistSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
-            ArtistSongsAction::Up => state.album_songs_list.increment_list(-1),
-            ArtistSongsAction::Down => state.album_songs_list.increment_list(1),
-            ArtistSongsAction::PageUp => state.album_songs_list.increment_list(-PAGE_KEY_LINES),
-            ArtistSongsAction::PageDown => state.album_songs_list.increment_list(PAGE_KEY_LINES),
-            ArtistSongsAction::PopSort => state.album_songs_list.handle_pop_sort(),
-            ArtistSongsAction::CloseSort => state.album_songs_list.close_sort(),
-            ArtistSongsAction::ClearSort => state.album_songs_list.handle_clear_sort(),
-            ArtistSongsAction::SortUp => state.album_songs_list.handle_sort_up(),
-            ArtistSongsAction::SortDown => state.album_songs_list.handle_sort_down(),
-            ArtistSongsAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
-            ArtistSongsAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
-            ArtistSongsAction::ToggleFilter => state.album_songs_list.toggle_filter(),
-            ArtistSongsAction::ApplyFilter => state.album_songs_list.apply_filter(),
-            ArtistSongsAction::ClearFilter => state.album_songs_list.clear_filter(),
-        }
-        AsyncTask::new_no_op()
-    }
-}
-
 impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
     fn dominant_keybinds_active(&self) -> bool {
         self.sort.shown || self.filter.shown

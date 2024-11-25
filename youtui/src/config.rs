@@ -421,14 +421,29 @@ pub enum BrowserSongsAction {
     AddSongToPlaylist,
     AddSongsToPlaylist,
     AddAlbumToPlaylist,
+    List(ListAction),
 }
 impl Action for BrowserSongsAction {
-    type State = AlbumSongsPanel;
+    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
+        "Artist Songs Panel".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match &self {
+            BrowserSongsAction::PlaySong => "Play song",
+            BrowserSongsAction::PlaySongs => "Play songs",
+            BrowserSongsAction::PlayAlbum => "Play album",
+            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            BrowserSongsAction::List(a) => match a {
+                ListAction::Up(n) => "Up",
+                ListAction::Down(n) => "Down",
+            },
+            BrowserSongsAction::Sort => "Sort",
+            BrowserSongsAction::Filter => "Filter",
+        }
+        .into()
     }
     async fn apply(
         self,
@@ -437,7 +452,21 @@ impl Action for BrowserSongsAction {
     where
         Self: Sized,
     {
-        todo!()
+        match self {
+            BrowserSongsAction::PlayAlbum => state.play_album().await,
+            BrowserSongsAction::PlaySong => state.play_song().await,
+            BrowserSongsAction::PlaySongs => state.play_songs().await,
+            BrowserSongsAction::AddAlbumToPlaylist => state.add_album_to_playlist().await,
+            BrowserSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
+            BrowserSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
+            BrowserSongsAction::List(a) => match a {
+                ListAction::Up(n) => state.album_songs_list.increment_list(-1),
+                ListAction::Down(n) => state.album_songs_list.increment_list(1),
+            },
+            BrowserSongsAction::Sort => state.album_songs_list.handle_pop_sort(),
+            BrowserSongsAction::Filter => state.album_songs_list.filter(),
+        }
+        AsyncTask::new_no_op()
     }
 }
 
@@ -493,14 +522,20 @@ impl From<ListAction> for HelpAction {
 pub enum FilterAction {
     CloseFilter,
     ClearFilter,
+    ApplyFilter,
 }
 impl Action for FilterAction {
-    type State = FilterManager;
+    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
+        "Filter".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self {
+            FilterAction::CloseFilter => "Close Filter",
+            FilterAction::ApplyFilter => "Apply filter",
+            FilterAction::ClearFilter => "Clear filter",
+        }
+        .into()
     }
     async fn apply(
         self,
@@ -509,7 +544,12 @@ impl Action for FilterAction {
     where
         Self: Sized,
     {
-        todo!()
+        match self {
+            FilterAction::CloseFilter => state.album_songs_list.toggle_filter(),
+            FilterAction::ApplyFilter => state.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => state.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
     }
 }
 
@@ -521,12 +561,18 @@ pub enum SortAction {
     SortSelectedDesc,
 }
 impl Action for SortAction {
-    type State = SortManager;
+    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
+        "Filter".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self {
+            SortAction::CloseSort => "Close sort",
+            SortAction::ClearSort => "Clear sort",
+            SortAction::SortSelectedAsc => "Sort ascending",
+            SortAction::SortSelectedDesc => "Sort descending",
+        }
+        .into()
     }
     async fn apply(
         self,
@@ -535,7 +581,13 @@ impl Action for SortAction {
     where
         Self: Sized,
     {
-        todo!()
+        match self {
+            SortAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
+            SortAction::CloseSort => state.album_songs_list.close_sort(),
+            SortAction::ClearSort => state.album_songs_list.handle_clear_sort(),
+        }
+        AsyncTask::new_no_op()
     }
 }
 

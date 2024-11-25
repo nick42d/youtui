@@ -203,7 +203,7 @@ impl Browser {
             self.change_routing(InputRouting::Artist);
         }
     }
-    async fn play_song(&mut self) {
+    pub async fn play_song(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_song_idx = self.album_songs_list.get_selected_item();
         if let Some(cur_song) = self.album_songs_list.get_song_from_idx(cur_song_idx) {
@@ -215,7 +215,7 @@ impl Browser {
         }
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn play_songs(&mut self) {
+    pub async fn play_songs(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_list.get_selected_item();
         let song_list = self
@@ -231,7 +231,7 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn add_songs_to_playlist(&mut self) {
+    pub async fn add_songs_to_playlist(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_list.get_selected_item();
         let song_list = self
@@ -247,7 +247,7 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn add_song_to_playlist(&mut self) {
+    pub async fn add_song_to_playlist(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_list.get_selected_item();
         if let Some(cur_song) = self.album_songs_list.get_song_from_idx(cur_idx) {
@@ -259,7 +259,7 @@ impl Browser {
         }
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn add_album_to_playlist(&mut self) {
+    pub async fn add_album_to_playlist(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_list.get_selected_item();
         let Some(cur_song) = self.album_songs_list.get_song_from_idx(cur_idx) else {
@@ -280,7 +280,7 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn play_album(&mut self) {
+    pub async fn play_album(&mut self) {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_list.get_selected_item();
         let Some(cur_song) = self.album_songs_list.get_song_from_idx(cur_idx) else {
