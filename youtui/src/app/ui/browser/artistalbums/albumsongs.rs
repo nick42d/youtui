@@ -1,24 +1,27 @@
 use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::{ComponentEffect, DominantKeyRouter, TextHandler};
+use crate::app::component::actionhandler::{
+    ComponentEffect, DominantKeyRouter, DynKeybindsIter, TextHandler,
+};
+use crate::app::keycommand::KeyCommand;
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::browser::{Browser, BrowserAction, PAGE_KEY_LINES};
+use crate::app::ui::browser::{Browser, PAGE_KEY_LINES};
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
-    keycommand::KeyCommand,
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
+use crate::config::{AppAction, Config, KeyEnum};
 use crate::error::Error;
 use crate::Result;
 use async_callback_manager::AsyncTask;
-use crossterm::event::{KeyCode, KeyModifiers};
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
 use std::borrow::Cow;
+use std::iter::Iterator;
 use tracing::warn;
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -32,7 +35,7 @@ pub enum AlbumSongsInputRouting {
 #[derive(Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
@@ -47,7 +50,7 @@ pub struct FilterManager {
     filter_commands: Vec<TableFilterCommand>,
     pub filter_text: TextInputState,
     pub shown: bool,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
 }
 impl_youtui_component!(FilterManager);
 
@@ -57,26 +60,27 @@ pub struct SortManager {
     sort_commands: Vec<TableSortCommand>,
     pub shown: bool,
     pub cur: usize,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
 }
+impl_youtui_component!(SortManager);
 
-impl Default for SortManager {
-    fn default() -> Self {
+impl SortManager {
+    fn new(config: &Config) -> Self {
         Self {
             sort_commands: Default::default(),
             shown: Default::default(),
             cur: Default::default(),
-            keybinds: sort_keybinds(),
+            keybinds: sort_keybinds(config),
         }
     }
 }
-impl Default for FilterManager {
-    fn default() -> Self {
+impl FilterManager {
+    fn new(config: &Config) -> Self {
         Self {
             filter_text: Default::default(),
             filter_commands: Default::default(),
             shown: Default::default(),
-            keybinds: filter_keybinds(),
+            keybinds: filter_keybinds(config),
         }
     }
 }
@@ -132,14 +136,14 @@ pub enum ArtistSongsAction {
 }
 
 impl AlbumSongsPanel {
-    pub fn new() -> AlbumSongsPanel {
+    pub fn new(config: &Config) -> AlbumSongsPanel {
         AlbumSongsPanel {
-            keybinds: songs_keybinds(),
+            keybinds: songs_keybinds(config),
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
-            sort: Default::default(),
-            filter: Default::default(),
+            sort: SortManager::new(config),
+            filter: FilterManager::new(config),
             widget_state: Default::default(),
         }
     }
@@ -378,26 +382,26 @@ impl Action for ArtistSongsAction {
     }
 }
 
-impl DominantKeyRouter for AlbumSongsPanel {
+impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
     fn dominant_keybinds_active(&self) -> bool {
         self.sort.shown || self.filter.shown
     }
+
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+        self.get_active_keybinds()
+    }
 }
 
-impl KeyRouter<BrowserAction> for AlbumSongsPanel {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(self.keybinds.iter().chain(self.sort.keybinds.iter()))
+impl KeyRouter<AppAction> for AlbumSongsPanel {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+        self.keybinds.iter().chain(self.sort.keybinds.iter())
     }
-    fn get_active_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
         Box::new(match self.route {
             AlbumSongsInputRouting::List => self.keybinds.iter(),
             AlbumSongsInputRouting::Sort => self.sort.keybinds.iter(),
             AlbumSongsInputRouting::Filter => self.filter.keybinds.iter(),
-        })
+        }) as DynKeybindsIter<'_, AppAction>
     }
 }
 
@@ -531,122 +535,65 @@ impl SortableTableView for AlbumSongsPanel {
     }
 }
 
-fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands
-    // being received.
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(4),
-            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Enter,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedAsc),
-        ),
-        // Seems to not work on Windows.
-        KeyCommand::new_global_modified_from_code(
-            KeyCode::Enter,
-            KeyModifiers::ALT,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedDesc),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Char('C'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Esc,
-            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
-        ),
-        // XXX: Consider if these type of actions can be for all lists.
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Down,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortDown),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Up,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortUp),
-        ),
-    ]
+fn sort_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .sort
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }
 
-fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands
-    // being received.
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(3),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::F(6),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ClearFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Enter,
-            BrowserAction::ArtistSongs(ArtistSongsAction::ApplyFilter),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Esc,
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-    ]
+fn filter_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .filter
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }
 
-pub fn songs_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(3),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::F(4),
-            BrowserAction::ArtistSongs(ArtistSongsAction::PopSort),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::PageUp,
-            BrowserAction::ArtistSongs(ArtistSongsAction::PageUp),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::PageDown,
-            BrowserAction::ArtistSongs(ArtistSongsAction::PageDown),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Down,
-            BrowserAction::ArtistSongs(ArtistSongsAction::Down),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Up,
-            BrowserAction::ArtistSongs(ArtistSongsAction::Up),
-        ),
-        KeyCommand::new_action_only_mode(
-            vec![
-                (
-                    KeyCode::Enter,
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlaySong),
-                ),
-                (
-                    KeyCode::Char('p'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlaySongs),
-                ),
-                (
-                    KeyCode::Char('a'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlayAlbum),
-                ),
-                (
-                    KeyCode::Char(' '),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongToPlaylist),
-                ),
-                (
-                    KeyCode::Char('P'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongsToPlaylist),
-                ),
-                (
-                    KeyCode::Char('A'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddAlbumToPlaylist),
-                ),
-            ],
-            KeyCode::Enter,
-            "Play",
-        ),
-    ]
+pub fn songs_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .browser_songs
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }

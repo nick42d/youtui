@@ -1,4 +1,5 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
+use crate::app::component::actionhandler::get_all_visible_keybinds_as_readable_iter;
 use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
@@ -108,7 +109,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
 fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be
     // cut off.
-    let commands = w.get_all_visible_keybinds_as_readable_iter();
+    let commands = get_all_visible_keybinds_as_readable_iter(w);
     // Get the maximum length of each element in the tuple vector created above, as
     // well as the number of items. XXX: Probably don't need to map then fold,
     // just fold. XXX: Fold closure could be written as a function, then becomes
@@ -133,7 +134,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Naive implementation
     // XXX: We're running get_all_visible_keybinds a second time here.
     // Better to move to the fold above.
-    let commands_table = w.get_all_visible_keybinds_as_readable_iter().map(
+    let commands_table = get_all_visible_keybinds_as_readable_iter(w).map(
         |DisplayableCommand {
              keybinds,
              context,

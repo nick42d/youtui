@@ -1,17 +1,19 @@
-use crate::app::{
-    component::actionhandler::{
-        Action, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
+use crate::{
+    app::{
+        component::actionhandler::{
+            Action, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
+        },
+        keycommand::KeyCommand,
+        server::{ArcServer, GetSearchSuggestions, TaskMetadata},
+        ui::browser::Browser,
+        view::{ListView, Loadable, Scrollable, SortableList},
     },
-    keycommand::KeyCommand,
-    server::{ArcServer, GetSearchSuggestions, TaskMetadata},
-    ui::browser::{Browser, BrowserAction},
-    view::{ListView, Loadable, Scrollable, SortableList},
+    config::{AppAction, Config, KeyEnum},
 };
 use async_callback_manager::{AsyncTask, Constraint};
-use crossterm::event::KeyCode;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
-use std::borrow::Cow;
+use std::{borrow::Cow, iter::Iterator};
 use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
@@ -29,8 +31,8 @@ pub struct ArtistSearchPanel {
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
-    search_keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
+    search_keybinds: Vec<KeyCommand<AppAction>>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -58,10 +60,10 @@ pub enum ArtistAction {
 }
 
 impl ArtistSearchPanel {
-    pub fn new() -> Self {
+    pub fn new(config: &Config) -> Self {
         Self {
-            keybinds: browser_artist_search_keybinds(),
-            search_keybinds: search_keybinds(),
+            keybinds: browser_artist_search_keybinds(config),
+            search_keybinds: search_keybinds(config),
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
@@ -83,41 +85,6 @@ impl ArtistSearchPanel {
 impl Component for ArtistSearchPanel {
     type Bkend = ArcServer;
     type Md = TaskMetadata;
-}
-impl Action for ArtistAction {
-    type State = Browser;
-    fn context(&self) -> Cow<str> {
-        "Artist Search Panel".into()
-    }
-    fn describe(&self) -> Cow<str> {
-        match &self {
-            Self::Search => "Search",
-            Self::DisplayAlbums => "Display albums for selected artist",
-            Self::Up => "Up",
-            Self::Down => "Down",
-            Self::PageUp => "Page Up",
-            Self::PageDown => "Page Down",
-            ArtistAction::PrevSearchSuggestion => "Next Search Suggestion",
-            ArtistAction::NextSearchSuggestion => "Prev Search Suggestion",
-        }
-        .into()
-    }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Browser>
-    where
-        Self: Sized,
-    {
-        match self {
-            ArtistAction::DisplayAlbums => return state.get_songs().await,
-            ArtistAction::Search => return state.search().await,
-            ArtistAction::Up => state.artist_list.increment_list(-1),
-            ArtistAction::Down => state.artist_list.increment_list(1),
-            ArtistAction::PageUp => state.artist_list.increment_list(-10),
-            ArtistAction::PageDown => state.artist_list.increment_list(10),
-            ArtistAction::PrevSearchSuggestion => state.artist_list.search.increment_list(-1),
-            ArtistAction::NextSearchSuggestion => state.artist_list.search.increment_list(1),
-        }
-        AsyncTask::new_no_op()
-    }
 }
 
 impl TextHandler for SearchBlock {
@@ -239,19 +206,15 @@ impl Suggestable for ArtistSearchPanel {
     }
 }
 
-impl KeyRouter<BrowserAction> for ArtistSearchPanel {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(self.keybinds.iter().chain(self.search_keybinds.iter()))
+impl KeyRouter<AppAction> for ArtistSearchPanel {
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        self.keybinds.iter().chain(self.search_keybinds.iter())
     }
-    fn get_active_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(match self.route {
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        match self.route {
             ArtistInputRouting::List => self.keybinds.iter(),
             ArtistInputRouting::Search => self.search_keybinds.iter(),
-        })
+        }
     }
 }
 
@@ -298,32 +261,43 @@ impl ListView for ArtistSearchPanel {
         "Artists".into()
     }
 }
-fn search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_from_code(KeyCode::Enter, BrowserAction::Artist(ArtistAction::Search)),
-        KeyCommand::new_from_code(
-            KeyCode::Down,
-            BrowserAction::Artist(ArtistAction::NextSearchSuggestion),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::Up,
-            BrowserAction::Artist(ArtistAction::PrevSearchSuggestion),
-        ),
-    ]
+fn search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .browser_search
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }
-fn browser_artist_search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_from_code(
-            KeyCode::Enter,
-            BrowserAction::Artist(ArtistAction::DisplayAlbums),
-        ),
-        // XXX: Consider if these type of actions can be for all lists.
-        KeyCommand::new_hidden_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
-        KeyCommand::new_hidden_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
-        KeyCommand::new_from_code(KeyCode::PageUp, BrowserAction::Artist(ArtistAction::PageUp)),
-        KeyCommand::new_from_code(
-            KeyCode::PageDown,
-            BrowserAction::Artist(ArtistAction::PageDown),
-        ),
-    ]
+fn browser_artist_search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .browser_artists
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }

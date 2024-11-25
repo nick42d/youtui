@@ -1,30 +1,27 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ComponentEffect,
-    DominantKeyRouter, KeyDisplayer, KeyHandleAction, KeyHandleOutcome, KeyRouter, TextHandler,
+    get_all_visible_keybinds, get_key_subset, handle_key_stack, Action, ComponentEffect,
+    DominantKeyRouter, DynKeybindsIter, KeyHandleAction, KeyRouter, TextHandler,
 };
-use super::keycommand::{
-    CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
-};
+use super::keycommand::{DisplayableMode, KeyCommand, Keymap};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::{self, Config, KeyEnum};
-use crate::core::send_or_error;
+use crate::config::{AppAction, Config, KeyEnum};
 use async_callback_manager::{AsyncTask, Constraint};
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, KeyEvent};
 use ratatui::widgets::TableState;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
-mod browser;
+pub mod browser;
 pub mod draw;
 mod footer;
 mod header;
 pub mod logger;
-mod playlist;
+pub mod playlist;
 
 const VOL_TICK: i8 = 5;
 const SEEK_AMOUNT: Duration = Duration::from_secs(5);
@@ -40,41 +37,24 @@ pub enum WindowContext {
     Logs,
 }
 
-// An Action that can be triggered from a keybind.
-#[derive(Clone, Debug, PartialEq)]
-pub enum UIAction {
-    Quit,
-    Next,
-    Prev,
-    Pause,
-    StepVolUp,
-    StepVolDown,
-    StepSeekForward,
-    StepSeekBack,
-    ToggleHelp,
-    HelpUp,
-    HelpDown,
-    ViewLogs,
-}
-
 pub struct YoutuiWindow {
     context: WindowContext,
     prev_context: WindowContext,
-    playlist: Playlist,
-    browser: Browser,
+    pub playlist: Playlist,
+    pub browser: Browser,
     pub logger: Logger,
-    callback_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<UIAction>>,
+    pub callback_tx: mpsc::Sender<AppCallback>,
+    keybinds: Vec<KeyCommand<AppAction>>,
     key_stack: Vec<KeyEvent>,
-    help: HelpMenu,
+    pub help: HelpMenu,
 }
 impl_youtui_component!(YoutuiWindow);
 
 pub struct HelpMenu {
-    shown: bool,
+    pub shown: bool,
     cur: usize,
     len: usize,
-    keybinds: Vec<KeyCommand<UIAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
     pub widget_state: TableState,
 }
 
@@ -89,6 +69,7 @@ impl HelpMenu {
         }
     }
 }
+impl_youtui_component!(HelpMenu);
 
 impl Scrollable for HelpMenu {
     fn increment_list(&mut self, amount: isize) {
@@ -103,7 +84,7 @@ impl Scrollable for HelpMenu {
     }
 }
 
-impl DominantKeyRouter for YoutuiWindow {
+impl DominantKeyRouter<AppAction> for YoutuiWindow {
     fn dominant_keybinds_active(&self) -> bool {
         self.help.shown
             || match self.context {
@@ -112,172 +93,45 @@ impl DominantKeyRouter for YoutuiWindow {
                 WindowContext::Logs => false,
             }
     }
-}
 
-// We can't implement KeyRouter, as it would require us to have a single Action
-// type for the whole application.
-impl KeyDisplayer for YoutuiWindow {
-    // XXX: Can turn these boxed iterators into types.
-    fn get_all_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<(dyn Iterator<Item = DisplayableCommand<'a>> + 'a)> {
-        let kb = self.keybinds.iter().map(|kb| kb.as_displayable());
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_all_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_all_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
+    fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        if self.help.shown {
+            return Box::new(self.help.keybinds.iter()) as DynKeybindsIter<'a, AppAction>;
+        }
+        match self.context {
+            WindowContext::Browser => {
+                Box::new(self.browser.get_dominant_keybinds()) as DynKeybindsIter<'a, AppAction>
+            }
+            WindowContext::Playlist => {
+                Box::new(self.playlist.get_active_keybinds()) as DynKeybindsIter<'a, AppAction>
+            }
             WindowContext::Logs => {
-                Box::new(self.logger.get_all_keybinds().map(|kb| kb.as_displayable()))
-                    as Box<dyn Iterator<Item = DisplayableCommand>>
+                Box::new(self.logger.get_active_keybinds()) as DynKeybindsIter<'a, AppAction>
             }
-        };
-        Box::new(kb.chain(cx))
-    }
-
-    fn get_context_global_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
-        let kb = self
-            .get_this_keybinds()
-            .filter(|kc| kc.visibility == CommandVisibility::Global)
-            .map(|kb| kb.as_displayable());
-        if self.is_dominant_keybinds() {
-            return Box::new(kb);
         }
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Logs => Box::new(
-                self.logger
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-        };
-        Box::new(kb.chain(cx))
-    }
-
-    fn get_all_visible_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
-        // Self.keybinds is incorrect
-        let kb = self
-            .keybinds
-            .iter()
-            .filter(|kb| kb.visibility != CommandVisibility::Hidden)
-            .map(|kb| kb.as_displayable());
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Logs => Box::new(
-                self.logger
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-        };
-        Box::new(kb.chain(cx))
     }
 }
-impl Action for UIAction {
-    type State = YoutuiWindow;
-    fn context(&self) -> std::borrow::Cow<str> {
-        match self {
-            UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
-                "Global".into()
+
+impl KeyRouter<AppAction> for YoutuiWindow {
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        // If Browser has dominant keybinds, self keybinds shouldn't be visible.
+        let kb = self.keybinds.iter();
+        match self.context {
+            WindowContext::Browser => Box::new(kb.chain(self.browser.get_all_keybinds()))
+                as DynKeybindsIter<'a, AppAction>,
+            WindowContext::Playlist => Box::new(kb.chain(self.playlist.get_all_keybinds()))
+                as DynKeybindsIter<'a, AppAction>,
+            WindowContext::Logs => {
+                Box::new(kb.chain(self.logger.get_all_keybinds())) as DynKeybindsIter<'a, AppAction>
             }
-            UIAction::Quit => "Global".into(),
-            UIAction::ToggleHelp => "Global".into(),
-            UIAction::ViewLogs => "Global".into(),
-            UIAction::Pause => "Global".into(),
-            UIAction::HelpUp => "Help".into(),
-            UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => "Global".into(),
-            UIAction::StepSeekBack => "Global".into(),
         }
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            UIAction::Quit => "Quit".into(),
-            UIAction::Prev => "Prev Song".into(),
-            UIAction::Next => "Next Song".into(),
-            UIAction::Pause => "Pause".into(),
-            UIAction::StepVolUp => "Vol Up".into(),
-            UIAction::StepVolDown => "Vol Down".into(),
-            UIAction::ToggleHelp => "Toggle Help".into(),
-            UIAction::ViewLogs => "View Logs".into(),
-            UIAction::HelpUp => "Help".into(),
-            UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT.as_secs()).into(),
-            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
-        }
-    }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            UIAction::Next => {
-                return state
-                    .playlist
-                    .handle_next()
-                    .await
-                    .map(|this: &mut Self::State| &mut this.playlist)
-            }
-            UIAction::Prev => {
-                return state
-                    .playlist
-                    .handle_previous()
-                    .await
-                    .map(|this: &mut Self::State| &mut this.playlist)
-            }
-            UIAction::Pause => {
-                return state
-                    .playlist
-                    .pauseplay()
-                    .await
-                    .map(|this: &mut Self::State| &mut this.playlist)
-            }
-            UIAction::StepVolUp => return state.handle_increase_volume(VOL_TICK).await,
-            UIAction::StepVolDown => return state.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => {
-                return state.handle_seek(SEEK_AMOUNT, SeekDirection::Forward)
-            }
-            UIAction::StepSeekBack => return state.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
-            UIAction::Quit => send_or_error(&state.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => state.toggle_help(),
-            UIAction::ViewLogs => state.handle_change_context(WindowContext::Logs),
-            UIAction::HelpUp => state.help.increment_list(-1),
-            UIAction::HelpDown => state.help.increment_list(1),
-        }
-        AsyncTask::new_no_op()
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+        self.keybinds
+            .iter()
+            .chain(self.browser.get_all_keybinds())
+            .chain(self.playlist.get_all_keybinds())
+            .chain(self.logger.get_all_keybinds())
     }
 }
 
@@ -333,14 +187,14 @@ impl YoutuiWindow {
         callback_tx: mpsc::Sender<AppCallback>,
         config: &Config,
     ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
-        let (playlist, task) = Playlist::new(callback_tx.clone());
+        let (playlist, task) = Playlist::new(callback_tx.clone(), config);
         let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
             playlist,
-            browser: Browser::new(callback_tx.clone()),
+            browser: Browser::new(callback_tx.clone(), config),
             logger: Logger::new(callback_tx.clone(), config),
-            keybinds: global_keybinds(),
+            keybinds: global_keybinds(config),
             key_stack: Vec::new(),
             help: HelpMenu::new(config),
             callback_tx,
@@ -379,6 +233,21 @@ impl YoutuiWindow {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
         AsyncTask::new_no_op()
     }
+    pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .pauseplay()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_next(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_next()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_prev(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_previous()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
     pub async fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
@@ -413,68 +282,24 @@ impl YoutuiWindow {
             .push(self.playlist.play_song_id(id))
             .map(|this: &mut Self| &mut this.playlist)
     }
-    fn is_dominant_keybinds(&self) -> bool {
-        self.help.shown
-    }
-    fn get_this_keybinds(&self) -> Box<dyn Iterator<Item = &KeyCommand<UIAction>> + '_> {
-        Box::new(if self.help.shown {
-            Box::new(self.help.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        } else if self.dominant_keybinds_active() {
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        } else {
-            Box::new(self.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        })
-    }
-
     async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
-        // First handle my own keybinds, otherwise forward if our keybinds are not
-        // dominant. TODO: Remove allocation
-        match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
+        match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
                 let effect = a.apply(self).await;
                 self.key_stack.clear();
-                return effect;
+                effect
             }
-            KeyHandleAction::Mode => {
-                return AsyncTask::new_no_op();
-            }
+            KeyHandleAction::Mode => AsyncTask::new_no_op(),
             KeyHandleAction::NoMap => {
-                if self.is_dominant_keybinds() {
-                    self.key_stack.clear();
-                    return AsyncTask::new_no_op();
-                }
+                self.key_stack.clear();
+                AsyncTask::new_no_op()
             }
-        };
-        let subcomponents_outcome = match self.context {
-            // TODO: Remove allocation
-            WindowContext::Browser => {
-                handle_key_stack_and_action(&mut self.browser, self.key_stack.clone())
-                    .await
-                    .map(|this: &mut Self| &mut this.browser)
-            }
-            WindowContext::Playlist => {
-                handle_key_stack_and_action(&mut self.playlist, self.key_stack.clone())
-                    .await
-                    .map(|this: &mut Self| &mut this.playlist)
-            }
-            WindowContext::Logs => {
-                handle_key_stack_and_action(&mut self.logger, self.key_stack.clone())
-                    .await
-                    .map(|this: &mut Self| &mut this.logger)
-            }
-        };
-        let effect = match subcomponents_outcome {
-            KeyHandleOutcome::Action(a) => a,
-            KeyHandleOutcome::Mode => return AsyncTask::new_no_op(),
-            KeyHandleOutcome::NoMap => AsyncTask::new_no_op(),
-        };
-        self.key_stack.clear();
-        effect
+        }
     }
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
     }
-    fn toggle_help(&mut self) {
+    pub fn toggle_help(&mut self) {
         if self.help.shown {
             self.help.shown = false;
         } else {
@@ -483,7 +308,7 @@ impl YoutuiWindow {
             self.help.cur = 0;
             // We have to get the keybind length this way as the help menu iterator is not
             // ExactSized
-            self.help.len = self.get_all_visible_keybinds_as_readable_iter().count();
+            self.help.len = get_all_visible_keybinds(self).count();
         }
     }
     /// Visually increment the volume, note, does not actually change the
@@ -502,7 +327,8 @@ impl YoutuiWindow {
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
     fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
-        if let Some(Keymap::Mode(mode)) = get_key_subset(self.get_this_keybinds(), &self.key_stack)
+        if let Some(Keymap::Mode(mode)) =
+            get_key_subset(self.get_active_keybinds(), &self.key_stack)
         {
             return Some(DisplayableMode {
                 displayable_commands: mode.as_displayable_iter(),
@@ -545,29 +371,10 @@ impl YoutuiWindow {
     }
 }
 
-fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
-    vec![
-        KeyCommand::new_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
-        KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
-        KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
-        KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
-        KeyCommand::new_from_code(KeyCode::Char('['), UIAction::StepSeekBack),
-        KeyCommand::new_from_code(KeyCode::Char(']'), UIAction::StepSeekForward),
-        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
-        KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
-        KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
-        KeyCommand::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
-        KeyCommand::new_modified_from_code(
-            KeyCode::Char('c'),
-            KeyModifiers::CONTROL,
-            UIAction::Quit,
-        ),
-    ]
-}
-fn help_keybinds(config: &Config) -> Vec<KeyCommand<UIAction>> {
-    let help = config
+fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
         .keybinds
-        .help
+        .global
         .iter()
         .map(|(kb, ke)| match ke {
             KeyEnum::Key {
@@ -582,8 +389,23 @@ fn help_keybinds(config: &Config) -> Vec<KeyCommand<UIAction>> {
             ),
             KeyEnum::Mode(_) => todo!(),
         })
-        .collect();
-    let list = config
+        .collect()
+}
+fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    let help = config.keybinds.help.iter().map(|(kb, ke)| match ke {
+        KeyEnum::Key {
+            action,
+            value,
+            visibility,
+        } => KeyCommand::new_modified_from_code_with_visibility(
+            kb.code,
+            kb.modifiers,
+            visibility.clone(),
+            action.clone(),
+        ),
+        KeyEnum::Mode(_) => todo!(),
+    });
+    config
         .keybinds
         .list
         .iter()
@@ -600,13 +422,6 @@ fn help_keybinds(config: &Config) -> Vec<KeyCommand<UIAction>> {
             ),
             KeyEnum::Mode(_) => todo!(),
         })
-        .collect();
-    let list_keybinds: Vec<_> = config.keybinds.list.iter().collect();
-    let help_keybinds: Vec<_> = config.keybinds.help.iter().collect();
-    vec![
-        KeyCommand::new_hidden_from_code(KeyCode::Down, UIAction::HelpDown),
-        KeyCommand::new_hidden_from_code(KeyCode::Up, UIAction::HelpUp),
-        KeyCommand::new_hidden_from_code(KeyCode::Esc, UIAction::ToggleHelp),
-        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
-    ]
+        .chain(help)
+        .collect()
 }

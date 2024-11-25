@@ -1,5 +1,8 @@
 use crate::{
-    app::{component::actionhandler::KeyDisplayer, keycommand::DisplayableCommand},
+    app::{
+        component::actionhandler::get_active_global_keybinds_as_readable_iter,
+        keycommand::DisplayableCommand,
+    },
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
 };
 use ratatui::{
@@ -11,7 +14,7 @@ use ratatui::{
 };
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
-    let keybinds = w.get_context_global_keybinds_as_readable_iter();
+    let keybinds = get_active_global_keybinds_as_readable_iter(w);
 
     let help_string = Line::from(
         keybinds

@@ -1,25 +1,30 @@
 use self::{
-    artistalbums::{
-        albumsongs::{AlbumSongsPanel, ArtistSongsAction},
-        artistsearch::{ArtistAction, ArtistSearchPanel},
-    },
+    artistalbums::{albumsongs::AlbumSongsPanel, artistsearch::ArtistSearchPanel},
     draw::draw_browser,
 };
-use super::{AppCallback, WindowContext};
-use crate::app::{
-    component::actionhandler::{
-        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
-    },
-    server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
-    },
-    structures::{ListStatus, SongListComponent},
-    view::{DrawableMut, Scrollable},
+use super::AppCallback;
+use crate::{
+    app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
+    config::{Config, KeyEnum},
+    core::send_or_error,
 };
-use crate::{app::keycommand::KeyCommand, core::send_or_error};
+use crate::{
+    app::{
+        component::actionhandler::{
+            Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
+        },
+        server::{
+            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
+            TaskMetadata,
+        },
+        structures::{ListStatus, SongListComponent},
+        view::{DrawableMut, Scrollable},
+    },
+    config::AppAction,
+};
 use async_callback_manager::{AsyncTask, Constraint};
-use crossterm::event::KeyCode;
-use std::{borrow::Cow, mem};
+use itertools::Either;
+use std::{iter::Iterator, mem};
 use tokio::sync::mpsc;
 use tracing::error;
 use ytmapi_rs::{
@@ -29,18 +34,8 @@ use ytmapi_rs::{
 
 const PAGE_KEY_LINES: isize = 10;
 
-mod artistalbums;
+pub mod artistalbums;
 mod draw;
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum BrowserAction {
-    ViewPlaylist,
-    ToggleSearch,
-    Left,
-    Right,
-    Artist(ArtistAction),
-    ArtistSongs(ArtistSongsAction),
-}
 
 #[derive(PartialEq)]
 pub enum InputRouting {
@@ -49,12 +44,12 @@ pub enum InputRouting {
 }
 
 pub struct Browser {
-    callback_tx: mpsc::Sender<AppCallback>,
+    pub callback_tx: mpsc::Sender<AppCallback>,
     pub input_routing: InputRouting,
     pub prev_input_routing: InputRouting,
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
 }
 
 impl InputRouting {
@@ -69,47 +64,6 @@ impl InputRouting {
             Self::Artist => Self::Song,
             Self::Song => Self::Song,
         }
-    }
-}
-impl Action for BrowserAction {
-    type State = Browser;
-    fn context(&self) -> Cow<str> {
-        let context = "Browser";
-        match self {
-            Self::Artist(a) => format!("{context}->{}", a.context()).into(),
-            Self::ArtistSongs(a) => format!("{context}->{}", a.context()).into(),
-            _ => context.into(),
-        }
-    }
-    fn describe(&self) -> Cow<str> {
-        match self {
-            Self::Left => "Left".into(),
-            Self::Right => "Right".into(),
-            Self::ViewPlaylist => "View Playlist".into(),
-            Self::ToggleSearch => "Toggle Search".into(),
-            Self::Artist(x) => x.describe(),
-            Self::ArtistSongs(x) => x.describe(),
-        }
-    }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            BrowserAction::ArtistSongs(a) => return a.apply(state).await,
-            BrowserAction::Artist(a) => return a.apply(state).await,
-            BrowserAction::Left => state.left(),
-            BrowserAction::Right => state.right(),
-            BrowserAction::ViewPlaylist => {
-                send_or_error(
-                    &state.callback_tx,
-                    AppCallback::ChangeContext(WindowContext::Playlist),
-                )
-                .await
-            }
-            BrowserAction::ToggleSearch => state.handle_toggle_search(),
-        }
-        AsyncTask::new_no_op()
     }
 }
 // Should this really be implemented on the Browser...
@@ -179,10 +133,8 @@ impl DrawableMut for Browser {
         draw_browser(f, self, chunk, selected);
     }
 }
-impl KeyRouter<BrowserAction> for Browser {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
+impl KeyRouter<AppAction> for Browser {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
         Box::new(
             self.keybinds
                 .iter()
@@ -190,12 +142,13 @@ impl KeyRouter<BrowserAction> for Browser {
                 .chain(self.album_songs_list.get_all_keybinds()),
         )
     }
-    fn get_active_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
         let additional_binds = match self.input_routing {
-            InputRouting::Song => self.album_songs_list.get_active_keybinds(),
-            InputRouting::Artist => self.artist_list.get_active_keybinds(),
+            InputRouting::Song => Box::new(self.album_songs_list.get_active_keybinds())
+                as DynKeybindsIter<'_, AppAction>,
+            InputRouting::Artist => {
+                Box::new(self.artist_list.get_active_keybinds()) as DynKeybindsIter<'_, AppAction>
+            }
         };
         // TODO: Better implementation
         if self.album_songs_list.dominant_keybinds_active()
@@ -203,39 +156,45 @@ impl KeyRouter<BrowserAction> for Browser {
         {
             additional_binds
         } else {
-            Box::new(self.keybinds.iter().chain(additional_binds))
+            Box::new(self.keybinds.iter().chain(additional_binds)) as DynKeybindsIter<'_, AppAction>
         }
     }
 }
-impl DominantKeyRouter for Browser {
+impl DominantKeyRouter<AppAction> for Browser {
     fn dominant_keybinds_active(&self) -> bool {
         match self.input_routing {
             InputRouting::Artist => false,
             InputRouting::Song => self.album_songs_list.dominant_keybinds_active(),
         }
     }
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+        match self.input_routing {
+            InputRouting::Artist => Either::Left(self.artist_list.get_active_keybinds()),
+            InputRouting::Song => Either::Right(self.album_songs_list.get_dominant_keybinds()),
+        }
+    }
 }
 
 impl Browser {
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> Self {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>, config: &Config) -> Self {
         Self {
             callback_tx: ui_tx,
-            artist_list: ArtistSearchPanel::new(),
-            album_songs_list: AlbumSongsPanel::new(),
+            artist_list: ArtistSearchPanel::new(config),
+            album_songs_list: AlbumSongsPanel::new(config),
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
-            keybinds: browser_keybinds(),
+            keybinds: browser_keybinds(config),
         }
     }
-    fn left(&mut self) {
+    pub fn left(&mut self) {
         // Doesn't consider previous routing.
         self.input_routing = self.input_routing.left();
     }
-    fn right(&mut self) {
+    pub fn right(&mut self) {
         // Doesn't consider previous routing.
         self.input_routing = self.input_routing.right();
     }
-    fn handle_toggle_search(&mut self) {
+    pub fn handle_toggle_search(&mut self) {
         if self.artist_list.search_popped {
             self.artist_list.close_search();
             self.revert_routing();
@@ -343,7 +302,7 @@ impl Browser {
         .await;
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    async fn get_songs(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    pub fn get_songs(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         let selected = self.artist_list.get_selected_item();
         self.change_routing(InputRouting::Song);
         self.album_songs_list.list.clear();
@@ -380,7 +339,7 @@ impl Browser {
             Some(Constraint::new_kill_same_type()),
         )
     }
-    async fn search(&mut self) -> ComponentEffect<Self> {
+    pub fn search(&mut self) -> ComponentEffect<Self> {
         self.artist_list.close_search();
         let search_query = self.artist_list.search.get_text().to_string();
         self.artist_list.clear_text();
@@ -461,11 +420,23 @@ impl Component for Browser {
     type Md = TaskMetadata;
 }
 
-fn browser_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_global_from_code(KeyCode::F(5), BrowserAction::ViewPlaylist),
-        KeyCommand::new_global_from_code(KeyCode::F(2), BrowserAction::ToggleSearch),
-        KeyCommand::new_from_code(KeyCode::Left, BrowserAction::Left),
-        KeyCommand::new_from_code(KeyCode::Right, BrowserAction::Right),
-    ]
+fn browser_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .browser
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }

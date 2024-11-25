@@ -26,7 +26,7 @@ mod musiccache;
 mod server;
 mod structures;
 pub mod ui;
-mod view;
+pub mod view;
 
 // We need this thread_local to ensure we know which is the main thread. Panic
 // hook that destructs terminal should only run on the main thread.

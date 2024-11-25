@@ -1,4 +1,5 @@
 use crate::app::component::actionhandler::ComponentEffect;
+use crate::app::keycommand::KeyCommand;
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -10,7 +11,6 @@ use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
 use crate::app::view::{Loadable, Scrollable, TableView};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, TextHandler},
-    keycommand::KeyCommand,
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
     ui::{AppCallback, WindowContext},
 };
@@ -18,9 +18,9 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
+use crate::config::{AppAction, Config, KeyEnum};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
-use crossterm::event::KeyCode;
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
 use std::iter;
@@ -43,7 +43,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<PlaylistAction>>,
+    keybinds: Vec<KeyCommand<AppAction>>,
     cur_selected: usize,
     pub widget_state: TableState,
 }
@@ -55,63 +55,12 @@ pub enum QueueState {
     Queued(ListSongID),
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PlaylistAction {
-    ViewBrowser,
-    Down,
-    Up,
-    PageDown,
-    PageUp,
-    PlaySelected,
-    DeleteSelected,
-    DeleteAll,
-}
-impl Action for PlaylistAction {
-    type State = Playlist;
-    fn context(&self) -> Cow<str> {
-        "Playlist".into()
-    }
-    fn describe(&self) -> Cow<str> {
-        match self {
-            PlaylistAction::ViewBrowser => "View Browser",
-            PlaylistAction::Down => "Down",
-            PlaylistAction::Up => "Up",
-            PlaylistAction::PageDown => "Page Down",
-            PlaylistAction::PageUp => "Page Up",
-            PlaylistAction::PlaySelected => "Play Selected",
-            PlaylistAction::DeleteSelected => "Delete Selected",
-            PlaylistAction::DeleteAll => "Delete All",
-        }
-        .into()
-    }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Playlist>
-    where
-        Self: Sized,
-    {
-        match self {
-            PlaylistAction::ViewBrowser => state.view_browser().await,
-            PlaylistAction::Down => state.increment_list(1),
-            PlaylistAction::Up => state.increment_list(-1),
-            PlaylistAction::PageDown => state.increment_list(10),
-            PlaylistAction::PageUp => state.increment_list(-10),
-            PlaylistAction::PlaySelected => return state.play_selected(),
-            PlaylistAction::DeleteSelected => return state.delete_selected(),
-            PlaylistAction::DeleteAll => return state.delete_all(),
-        }
-        AsyncTask::new_no_op()
-    }
-}
-
-impl KeyRouter<PlaylistAction> for Playlist {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
+impl KeyRouter<AppAction> for Playlist {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
         self.get_active_keybinds()
     }
-    fn get_active_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a crate::app::keycommand::KeyCommand<PlaylistAction>> + 'a> {
-        Box::new(self.keybinds.iter())
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+        self.keybinds.iter()
     }
 }
 
@@ -219,7 +168,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>) -> (Self, ComponentEffect<Self>) {
+    pub fn new(ui_tx: mpsc::Sender<AppCallback>, config: &Config) -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -234,7 +183,7 @@ impl Playlist {
             play_status: PlayState::NotPlaying,
             list: Default::default(),
             cur_played_dur: None,
-            keybinds: playlist_keybinds(),
+            keybinds: playlist_keybinds(config),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             widget_state: Default::default(),
@@ -454,7 +403,7 @@ impl Playlist {
         // Consider then triggering the download function.
     }
     /// Play the next song in the list if it exists, otherwise, stop playing.
-    pub async fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
+    pub fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
         let cur = &self.play_status;
         match cur {
             PlayState::NotPlaying | PlayState::Stopped => {
@@ -629,7 +578,7 @@ impl Playlist {
         )
     }
     /// Handle next command (from global keypress), if currently playing.
-    pub async fn handle_next(&mut self) -> ComponentEffect<Self> {
+    pub fn handle_next(&mut self) -> ComponentEffect<Self> {
         match self.play_status {
             PlayState::NotPlaying | PlayState::Stopped => {
                 warn!("Asked to play next, but not currently playing");
@@ -638,11 +587,11 @@ impl Playlist {
             PlayState::Paused(id)
             | PlayState::Playing(id)
             | PlayState::Buffering(id)
-            | PlayState::Error(id) => self.play_next_or_stop(id).await,
+            | PlayState::Error(id) => self.play_next_or_stop(id),
         }
     }
     /// Handle previous command (from global keypress).
-    pub async fn handle_previous(&mut self) -> ComponentEffect<Self> {
+    pub fn handle_previous(&mut self) -> ComponentEffect<Self> {
         self.play_prev()
     }
     /// Play the song under the cursor (from local keypress)
@@ -687,7 +636,7 @@ impl Playlist {
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
     /// (server).
-    pub async fn pauseplay(&mut self) -> ComponentEffect<Self> {
+    pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
         let id = match self.play_status {
             PlayState::Playing(id) => {
                 self.play_status = PlayState::Paused(id);
@@ -944,21 +893,23 @@ impl Playlist {
     }
 }
 
-fn playlist_keybinds() -> Vec<KeyCommand<PlaylistAction>> {
-    vec![
-        KeyCommand::new_global_from_code(KeyCode::F(5), PlaylistAction::ViewBrowser),
-        KeyCommand::new_hidden_from_code(KeyCode::Down, PlaylistAction::Down),
-        KeyCommand::new_hidden_from_code(KeyCode::Up, PlaylistAction::Up),
-        KeyCommand::new_from_code(KeyCode::PageDown, PlaylistAction::PageDown),
-        KeyCommand::new_from_code(KeyCode::PageUp, PlaylistAction::PageUp),
-        KeyCommand::new_action_only_mode(
-            vec![
-                (KeyCode::Enter, PlaylistAction::PlaySelected),
-                (KeyCode::Char('d'), PlaylistAction::DeleteSelected),
-                (KeyCode::Char('D'), PlaylistAction::DeleteAll),
-            ],
-            KeyCode::Enter,
-            "Playlist Action",
-        ),
-    ]
+fn playlist_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+    config
+        .keybinds
+        .playlist
+        .iter()
+        .map(|(kb, ke)| match ke {
+            KeyEnum::Key {
+                action,
+                value,
+                visibility,
+            } => KeyCommand::new_modified_from_code_with_visibility(
+                kb.code,
+                kb.modifiers,
+                visibility.clone(),
+                action.clone(),
+            ),
+            KeyEnum::Mode(_) => todo!(),
+        })
+        .collect()
 }

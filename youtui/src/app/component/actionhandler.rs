@@ -1,7 +1,7 @@
 use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyEvent, MouseEvent};
-use std::borrow::Cow;
+use std::{borrow::Cow, marker::PhantomData};
 use ytmapi_rs::common::SearchSuggestion;
 
 pub type ComponentEffect<C: Component> = AsyncTask<C, C::Bkend, C::Md>;
@@ -20,6 +20,35 @@ macro_rules! impl_youtui_component {
         }
     };
 }
+pub struct Map<A, F, N> {
+    action: A,
+    f: F,
+    p: PhantomData<N>,
+}
+impl<A, F, N> Action for Map<A, F, N>
+where
+    A: Action,
+    F: Fn(&mut N) -> &mut A::State + Clone + Send + 'static,
+    N: Component<Bkend = <A::State as Component>::Bkend, Md = <A::State as Component>::Md>,
+    <A::State as Component>::Bkend: 'static,
+    <A::State as Component>::Md: 'static,
+    A::State: 'static,
+{
+    type State = N;
+    fn context(&self) -> Cow<str> {
+        self.action.context()
+    }
+    fn describe(&self) -> Cow<str> {
+        self.action.describe()
+    }
+    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        self.action.apply((self.f)(state)).await.map(self.f)
+    }
+}
+
 /// An action that can be applied to state.
 pub trait Action {
     type State: Component;
@@ -29,7 +58,20 @@ pub trait Action {
     async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
     where
         Self: Sized;
+    fn map<N, F>(self, f: F) -> Map<Self, F, N>
+    where
+        F: Fn(&mut N) -> &mut Self::State,
+        Self: Sized,
+    {
+        Map {
+            action: self,
+            f,
+            p: PhantomData,
+        }
+    }
 }
+pub type DynKeybindsIter<'a, A: Action + 'static> =
+    Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and
@@ -42,26 +84,27 @@ pub trait Action {
 pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a;
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a;
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
 }
 
 /// A component of the application that can block parent keybinds.
 /// For example, a component that can display a modal dialog that will prevent
 /// other inputs.
-pub trait DominantKeyRouter {
+pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
 }
 
 // XXX: Can these all just be derived from KeyRouter?
 /// Get the list of all keybinds that the KeyHandler and any child items can
 /// contain, regardless of context.
-fn get_all_visible_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
-    component: &'a K,
-) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
+pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
+    component: &K,
+) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
         .filter(|kc| kc.visibility != CommandVisibility::Hidden)
@@ -69,38 +112,36 @@ fn get_all_visible_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 's
 }
 /// Get the list of all non-hidden keybinds that the KeyHandler and any
 /// child items can contain, regardless of context.
-fn get_all_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
-    component: &'a K,
-) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
+pub fn get_all_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
+    component: &K,
+) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
+    component.get_all_keybinds().map(|kb| kb.as_displayable())
+}
+// e.g - for use in header.
+pub fn get_active_global_keybinds<K: KeyRouter<A>, A: Action + 'static>(
+    component: &K,
+) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_ {
     component
         .get_active_keybinds()
-        .map(|kb| kb.as_displayable())
+        .filter(|kb| kb.visibility == CommandVisibility::Global)
 }
 /// Get a context-specific list of all keybinds marked global.
 // TODO: Put under DisplayableKeyHandler
-fn get_context_global_keybinds_as_readable_iter<'a, K: KeyRouter<A>, A: Action + 'static>(
-    component: &'a K,
-) -> impl Iterator<Item = DisplayableCommand<'a>> + 'a {
+pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
+    component: &K,
+) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
         .filter(|kc| kc.visibility == CommandVisibility::Global)
         .map(|kb| kb.as_displayable())
 }
 // e.g - for use in help menu.
-fn get_all_visible_keybinds<'a, K: KeyRouter<A>, A: Action + 'static>(
-    component: &'a K,
-) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a {
+pub fn get_all_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(
+    component: &K,
+) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_ {
     component
         .get_all_keybinds()
         .filter(|kb| kb.visibility != CommandVisibility::Hidden)
-}
-// e.g - for use in header.
-fn get_routed_global_keybinds<'a, K: KeyRouter<A>, A: Action + 'static>(
-    component: &'a K,
-) -> impl Iterator<Item = &'a KeyCommand<A>> + 'a {
-    component
-        .get_active_keybinds()
-        .filter(|kb| kb.visibility == CommandVisibility::Global)
 }
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
@@ -179,7 +220,7 @@ pub enum KeyHandleOutcome<Frntend, Bkend, Md> {
 /// Return a list of the current keymap for the provided stack of key_codes.
 /// Note, if multiple options are available returns the first one.
 pub fn get_key_subset<'a, A: Action>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
+    binds: impl Iterator<Item = &'a KeyCommand<A>> + 'a,
     key_stack: &[KeyEvent],
 ) -> Option<&'a Keymap<A>> {
     let first = index_keybinds(binds, key_stack.first()?)?;
@@ -188,13 +229,13 @@ pub fn get_key_subset<'a, A: Action>(
 /// Check if key stack will result in an action for binds.
 // Requires returning an action type so can be awkward.
 pub fn handle_key_stack<'a, A>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
-    key_stack: Vec<KeyEvent>,
+    binds: impl Iterator<Item = &'a KeyCommand<A>> + 'a,
+    key_stack: &[KeyEvent],
 ) -> KeyHandleAction<A>
 where
-    A: Action + Clone,
+    A: Action + Clone + 'a,
 {
-    if let Some(subset) = get_key_subset(binds, &key_stack) {
+    if let Some(subset) = get_key_subset(binds, key_stack) {
         match &subset {
             Keymap::Action(a) => {
                 // As Action is simply a message that is being passed around
@@ -215,7 +256,7 @@ pub async fn handle_key_stack_and_action<'a, A, B>(
     key_stack: Vec<KeyEvent>,
 ) -> KeyHandleOutcome<B, B::Bkend, B::Md>
 where
-    A: Action<State = B> + Clone,
+    A: Action<State = B> + Clone + 'static,
     B: KeyRouter<A> + Component,
 {
     if let Some(subset) = get_key_subset(handler.get_active_keybinds(), &key_stack) {
@@ -235,7 +276,7 @@ where
 /// If a list of Keybinds contains a binding for the index KeyEvent, return that
 /// KeyEvent.
 pub fn index_keybinds<'a, A: Action>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
+    binds: impl Iterator<Item = &'a KeyCommand<A>> + 'a,
     index: &KeyEvent,
 ) -> Option<&'a Keymap<A>> {
     let mut binds = binds;
