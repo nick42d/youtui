@@ -98,8 +98,7 @@ impl Youtui {
                     "Received task {:?}: type_id: {:?},  constraint: {:?}",
                     task.type_debug, task.type_id, task.constraint
                 )
-            })
-            .with_on_id_overflow_callback(|| warn!("Task IDs have overflowed. New tasks will temporarily not block or kill existing tasks"));
+            });
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;

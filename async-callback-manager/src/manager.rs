@@ -9,7 +9,7 @@ use futures::{Stream, StreamExt};
 use std::{any::TypeId, future::Future, sync::Arc};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct TaskId(pub(crate) usize);
+pub struct TaskId(pub(crate) u64);
 
 pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
@@ -25,12 +25,11 @@ pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
 pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
 
 pub struct AsyncCallbackManager<Frntend, Bkend, Md> {
-    next_task_id: usize,
+    next_task_id: u64,
     tasks_list: TaskList<Frntend, Bkend, Md>,
-    // It could be possible to make these generic instead of dynamic, however this type would then
-    // require 2 more type parameters.
+    // It could be possible to make this generic instead of dynamic, however this type would then
+    // require more type parameters.
     on_task_spawn: Box<DynTaskSpawnCallback<Md>>,
-    on_id_overflow: Box<dyn Fn()>,
 }
 
 /// Temporary struct to store task details before it is added to the task list.
@@ -54,12 +53,7 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             next_task_id: Default::default(),
             tasks_list: TaskList::new(),
             on_task_spawn: Box::new(|_| {}),
-            on_id_overflow: Box::new(|| {}),
         }
-    }
-    pub fn with_on_id_overflow_callback(mut self, cb: impl Fn() + 'static) -> Self {
-        self.on_id_overflow = Box::new(cb);
-        self
     }
     pub fn with_on_task_spawn_callback(
         mut self,
@@ -122,13 +116,14 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             receiver: waiter,
             metadata,
         };
-        let (new_id, overflowed) = self.next_task_id.overflowing_add(1);
-        if overflowed {
-            // Note that the danger of overflow is that kill/block will stop working
-            // correctly. An alternative could be to use a BigInt such as
-            // ibig::Uint for the ids, however this would make TaskId no longer Copy.
-            (self.on_id_overflow)()
-        }
+        // At one task per nanosecond, it would take 584.6 years for a library user to
+        // trigger overflow.
+        //
+        // https://www.wolframalpha.com/input?i=2%5E64+nanoseconds
+        let new_id = self
+            .next_task_id
+            .checked_add(1)
+            .expect("u64 shouldn't overflow!");
         self.next_task_id = new_id;
         if let Some(constraint) = constraint {
             self.tasks_list.handle_constraint(constraint, type_id);
