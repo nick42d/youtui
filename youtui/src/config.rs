@@ -1,9 +1,6 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::keycommand::CommandVisibility;
 use crate::app::keycommand::Keybind;
-use crate::app::ui::browser::artistalbums::albumsongs::AlbumSongsPanel;
-use crate::app::ui::browser::artistalbums::albumsongs::FilterManager;
-use crate::app::ui::browser::artistalbums::albumsongs::SortManager;
 use crate::app::ui::browser::Browser;
 use crate::app::ui::logger::LoggerAction;
 use crate::app::ui::playlist::Playlist;
@@ -21,6 +18,7 @@ use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
+use tracing::info;
 use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
@@ -198,13 +196,13 @@ impl Action for AppAction {
             }
             AppAction::Filter(a) => {
                 return a
-                    .map(|this: &mut Self::State| &mut this.browser.album_songs_list.filter)
+                    .map(|this: &mut Self::State| &mut this.browser)
                     .apply(state)
                     .await
             }
             AppAction::Sort(a) => {
                 return a
-                    .map(|this: &mut Self::State| &mut this.browser.album_songs_list.sort)
+                    .map(|this: &mut Self::State| &mut this.browser)
                     .apply(state)
                     .await
             }
@@ -228,7 +226,7 @@ impl Action for AppAction {
             }
             AppAction::BrowserSongs(a) => {
                 return a
-                    .map(|this: &mut Self::State| &mut this.browser.album_songs_list)
+                    .map(|this: &mut Self::State| &mut this.browser)
                     .apply(state)
                     .await
             }
@@ -464,7 +462,7 @@ impl Action for BrowserSongsAction {
                 ListAction::Down(n) => state.album_songs_list.increment_list(1),
             },
             BrowserSongsAction::Sort => state.album_songs_list.handle_pop_sort(),
-            BrowserSongsAction::Filter => state.album_songs_list.filter(),
+            BrowserSongsAction::Filter => state.album_songs_list.toggle_filter(),
         }
         AsyncTask::new_no_op()
     }
@@ -520,9 +518,9 @@ impl From<ListAction> for HelpAction {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum FilterAction {
-    CloseFilter,
-    ClearFilter,
-    ApplyFilter,
+    Close,
+    Clear,
+    Apply,
 }
 impl Action for FilterAction {
     type State = Browser;
@@ -531,9 +529,9 @@ impl Action for FilterAction {
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            FilterAction::CloseFilter => "Close Filter",
-            FilterAction::ApplyFilter => "Apply filter",
-            FilterAction::ClearFilter => "Clear filter",
+            FilterAction::Close => "Close Filter",
+            FilterAction::Apply => "Apply filter",
+            FilterAction::Clear => "Clear filter",
         }
         .into()
     }
@@ -545,9 +543,9 @@ impl Action for FilterAction {
         Self: Sized,
     {
         match self {
-            FilterAction::CloseFilter => state.album_songs_list.toggle_filter(),
-            FilterAction::ApplyFilter => state.album_songs_list.apply_filter(),
-            FilterAction::ClearFilter => state.album_songs_list.clear_filter(),
+            FilterAction::Close => state.album_songs_list.toggle_filter(),
+            FilterAction::Apply => state.album_songs_list.apply_filter(),
+            FilterAction::Clear => state.album_songs_list.clear_filter(),
         };
         AsyncTask::new_no_op()
     }
@@ -609,10 +607,17 @@ pub enum TextEntryAction {
 
 impl Config {
     pub fn new() -> Result<Self> {
+        // NOTE: This happens before logging is initialised...
         let config_dir = get_config_dir()?;
-        if let Ok(config_file) = std::fs::read_to_string(config_dir.join(CONFIG_FILE_NAME)) {
+        let config_file_location = config_dir.join(CONFIG_FILE_NAME);
+        if let Ok(config_file) = std::fs::read_to_string(&config_file_location) {
+            info!(
+                "Loading config from {}",
+                config_file_location.to_string_lossy()
+            );
             Ok(toml::from_str(&config_file)?)
         } else {
+            info!("Config file not found, using defaults");
             Ok(Self::default())
         }
     }
