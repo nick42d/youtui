@@ -7,8 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
 // Should another type be GlobalHidden?
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[derive(PartialEq, Default, Debug, Clone, Deserialize, Serialize)]
 pub enum CommandVisibility {
+    #[default]
     Standard,
     // Displayed on Header
     Global,
@@ -22,10 +23,17 @@ pub struct KeyCommand<A: Action> {
     pub key_map: Keymap<A>,
     pub visibility: CommandVisibility,
 }
-#[derive(Hash, Eq, PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[derive(Hash, Eq, PartialEq, Debug, Deserialize, Clone, Serialize)]
+#[serde(try_from = "String")]
 pub struct Keybind {
     pub code: KeyCode,
     pub modifiers: KeyModifiers,
+}
+impl TryFrom<String> for Keybind {
+    type Error = <Keybind as FromStr>::Err;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        FromStr::from_str(&value)
+    }
 }
 #[derive(PartialEq, Debug, Clone)]
 pub enum Keymap<A: Action> {
@@ -266,6 +274,11 @@ impl<A: Action> KeyCommand<A> {
 
 #[derive(Debug)]
 pub struct KeybindParseError(String);
+impl std::fmt::Display for KeybindParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
 
 impl FromStr for Keybind {
     type Err = KeybindParseError;

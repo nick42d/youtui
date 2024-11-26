@@ -15,8 +15,16 @@ use crate::get_config_dir;
 use crate::Result;
 use async_callback_manager::AsyncTask;
 use clap::ValueEnum;
+use serde::de;
+use serde::de::MapAccess;
+use serde::de::Visitor;
+use serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::convert::Infallible;
+use std::fmt;
+use std::marker::PhantomData;
+use std::str::FromStr;
 use std::time::Duration;
 use tracing::info;
 use ytmapi_rs::auth::OAuthToken;
@@ -43,6 +51,7 @@ impl std::fmt::Debug for ApiKey {
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub auth_type: AuthType,
+    #[serde(rename = "keys")]
     pub keybinds: YoutuiKeymap,
     pub mode_names: YoutuiModeNames,
 }
@@ -56,6 +65,7 @@ pub enum AuthType {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -72,6 +82,7 @@ pub struct YoutuiKeymap {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct YoutuiModeNames {
     global: HashMap<Keybind, ModeNameEnum>,
     playlist: HashMap<Keybind, ModeNameEnum>,
@@ -87,23 +98,81 @@ pub struct YoutuiModeNames {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub enum KeyEnum<Action> {
-    Key {
-        // Consider - can there be multiple actions?
-        // Consider - can an action access global commands? Or commands from another component?
-        // Consider - case where component has list and help keybinds, but some keybinds share a
-        // mode. What happens here.
-        action: Action,
-        value: usize,
-        visibility: CommandVisibility,
-    },
-    Mode(HashMap<Keybind, KeyEnum<Action>>),
+pub enum KeyEnum<A> {
+    #[serde(deserialize_with = "string_or_struct")]
+    Key(KeyEnumKey<A>),
+    Mode(HashMap<Keybind, KeyEnum<A>>),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct KeyEnumKey<A> {
+    // Consider - can there be multiple actions?
+    // Consider - can an action access global commands? Or commands from another component?
+    // Consider - case where component has list and help keybinds, but some keybinds share a
+    // mode. What happens here.
+    pub action: A,
+    #[serde(default)]
+    pub value: usize,
+    #[serde(default)]
+    pub visibility: CommandVisibility,
+}
+
+impl<A> FromStr for KeyEnumKey<A> {
+    type Err = Infallible;
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        todo!()
+    }
+}
+
+fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
+where
+    T: Deserialize<'de> + FromStr<Err = Infallible>,
+    D: Deserializer<'de>,
+{
+    // This is a Visitor that forwards string types to T's `FromStr` impl and
+    // forwards map types to T's `Deserialize` impl. The `PhantomData` is to
+    // keep the compiler from complaining about T being an unused generic type
+    // parameter. We need T in order to know the Value type for the Visitor
+    // impl.
+    struct StringOrStruct<T>(PhantomData<fn() -> T>);
+
+    impl<'de, T> Visitor<'de> for StringOrStruct<T>
+    where
+        T: Deserialize<'de> + FromStr<Err = Infallible>,
+    {
+        type Value = T;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("string or map")
+        }
+
+        fn visit_str<E>(self, value: &str) -> std::result::Result<T, E>
+        where
+            E: de::Error,
+        {
+            Ok(FromStr::from_str(value).unwrap())
+        }
+
+        fn visit_map<M>(self, map: M) -> std::result::Result<T, M::Error>
+        where
+            M: MapAccess<'de>,
+        {
+            // `MapAccessDeserializer` is a wrapper that turns a `MapAccess`
+            // into a `Deserializer`, allowing it to be used as the input to T's
+            // `Deserialize` implementation. T then deserializes itself using
+            // the entries from the map visitor.
+            Deserialize::deserialize(de::value::MapAccessDeserializer::new(map))
+        }
+    }
+
+    deserializer.deserialize_any(StringOrStruct(PhantomData))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 enum ModeNameEnum {
-    Name(String),
     Submode(HashMap<Keybind, ModeNameEnum>),
+    #[serde(untagged)]
+    Name(String),
 }
 
 impl Action for AppAction {
@@ -606,18 +675,25 @@ pub enum TextEntryAction {
 }
 
 impl Config {
-    pub fn new() -> Result<Self> {
+    pub fn new(debug: bool) -> Result<Self> {
         // NOTE: This happens before logging is initialised...
         let config_dir = get_config_dir()?;
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
         if let Ok(config_file) = std::fs::read_to_string(&config_file_location) {
-            info!(
-                "Loading config from {}",
-                config_file_location.to_string_lossy()
-            );
+            if debug {
+                println!(
+                    "Loading config from {}",
+                    config_file_location.to_string_lossy()
+                );
+            }
             Ok(toml::from_str(&config_file)?)
         } else {
-            info!("Config file not found, using defaults");
+            if debug {
+                println!(
+                    "Config file not found in {}, using defaults",
+                    config_file_location.to_string_lossy()
+                );
+            }
             Ok(Self::default())
         }
     }

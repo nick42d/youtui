@@ -14,7 +14,7 @@ use crate::app::{
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
-use crate::config::{AppAction, Config, KeyEnum};
+use crate::config::{AppAction, Config, KeyEnum, KeyEnumKey};
 use crate::error::Error;
 use crate::Result;
 use async_callback_manager::AsyncTask;
@@ -480,11 +480,11 @@ fn sort_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .sort
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),
