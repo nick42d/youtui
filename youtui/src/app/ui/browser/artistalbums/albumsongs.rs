@@ -501,11 +501,11 @@ fn filter_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .filter
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),
@@ -522,11 +522,11 @@ pub fn songs_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .browser_songs
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),

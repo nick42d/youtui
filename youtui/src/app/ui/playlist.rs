@@ -18,7 +18,7 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::config::{AppAction, Config, KeyEnum};
+use crate::config::{AppAction, Config, KeyEnum, KeyEnumKey};
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
@@ -899,11 +899,11 @@ fn playlist_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .playlist
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),

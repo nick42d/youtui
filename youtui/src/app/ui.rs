@@ -9,7 +9,7 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::{AppAction, Config, KeyEnum};
+use crate::config::{AppAction, Config, KeyEnum, KeyEnumKey};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use ratatui::widgets::TableState;
@@ -377,11 +377,11 @@ fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .global
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),
@@ -393,11 +393,11 @@ fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
 }
 fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
     let help = config.keybinds.help.iter().map(|(kb, ke)| match ke {
-        KeyEnum::Key {
+        KeyEnum::Key(KeyEnumKey {
             action,
             value,
             visibility,
-        } => KeyCommand::new_modified_from_code_with_visibility(
+        }) => KeyCommand::new_modified_from_code_with_visibility(
             kb.code,
             kb.modifiers,
             visibility.clone(),
@@ -410,11 +410,11 @@ fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .list
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),

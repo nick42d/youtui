@@ -5,7 +5,7 @@ use self::{
 use super::AppCallback;
 use crate::{
     app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
-    config::{Config, KeyEnum},
+    config::{Config, KeyEnum, KeyEnumKey},
     core::send_or_error,
 };
 use crate::{
@@ -426,11 +426,11 @@ fn browser_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .browser
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),

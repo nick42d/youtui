@@ -8,7 +8,7 @@ use crate::{
         ui::browser::Browser,
         view::{ListView, Loadable, Scrollable, SortableList},
     },
-    config::{AppAction, Config, KeyEnum},
+    config::{AppAction, Config, KeyEnum, KeyEnumKey},
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
@@ -267,11 +267,11 @@ fn search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .browser_search
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),
@@ -287,11 +287,11 @@ fn browser_artist_search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>>
         .browser_artists
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),

@@ -1,4 +1,4 @@
-use crate::config::{AppAction, KeyEnum};
+use crate::config::{AppAction, KeyEnum, KeyEnumKey};
 use crate::core::send_or_error;
 use crate::{
     app::{
@@ -178,11 +178,11 @@ fn logger_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .log
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key {
+            KeyEnum::Key(KeyEnumKey {
                 action,
                 value,
                 visibility,
-            } => KeyCommand::new_modified_from_code_with_visibility(
+            }) => KeyCommand::new_modified_from_code_with_visibility(
                 kb.code,
                 kb.modifiers,
                 visibility.clone(),
