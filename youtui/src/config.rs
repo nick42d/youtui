@@ -15,6 +15,7 @@ use crate::get_config_dir;
 use crate::Result;
 use async_callback_manager::AsyncTask;
 use clap::ValueEnum;
+use itertools::Itertools;
 use serde::de;
 use serde::de::MapAccess;
 use serde::de::Visitor;
@@ -48,11 +49,17 @@ impl std::fmt::Debug for ApiKey {
     }
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Config {
     pub auth_type: AuthType,
-    #[serde(rename = "keys")]
     pub keybinds: YoutuiKeymap,
+    pub mode_names: YoutuiModeNames,
+}
+
+#[derive(Default, Debug, Deserialize)]
+pub struct ConfigIR {
+    pub auth_type: AuthType,
+    pub keybinds: YoutuiKeymapIR,
     pub mode_names: YoutuiModeNames,
 }
 
@@ -64,8 +71,7 @@ pub enum AuthType {
     Browser,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
-#[serde(default)]
+#[derive(Debug)]
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -79,6 +85,23 @@ pub struct YoutuiKeymap {
     pub text_entry: HashMap<Keybind, KeyEnum<AppAction>>,
     pub list: HashMap<Keybind, KeyEnum<AppAction>>,
     pub log: HashMap<Keybind, KeyEnum<AppAction>>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct YoutuiKeymapIR {
+    pub global: HashMap<Keybind, KeyEnumString>,
+    pub playlist: HashMap<Keybind, KeyEnumString>,
+    pub browser: HashMap<Keybind, KeyEnumString>,
+    pub browser_artists: HashMap<Keybind, KeyEnumString>,
+    pub browser_search: HashMap<Keybind, KeyEnumString>,
+    pub browser_songs: HashMap<Keybind, KeyEnumString>,
+    pub help: HashMap<Keybind, KeyEnumString>,
+    pub sort: HashMap<Keybind, KeyEnumString>,
+    pub filter: HashMap<Keybind, KeyEnumString>,
+    pub text_entry: HashMap<Keybind, KeyEnumString>,
+    pub list: HashMap<Keybind, KeyEnumString>,
+    pub log: HashMap<Keybind, KeyEnumString>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -97,10 +120,16 @@ pub struct YoutuiModeNames {
     list: HashMap<Keybind, ModeNameEnum>,
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum KeyEnum<A: Default + From<String>> {
+pub enum KeyEnumString {
     #[serde(deserialize_with = "string_or_struct")]
+    Key(KeyEnumKey<String>),
+    Mode(HashMap<Keybind, KeyEnumString>),
+}
+
+#[derive(Debug)]
+pub enum KeyEnum<A: Default> {
     Key(KeyEnumKey<A>),
     Mode(HashMap<Keybind, KeyEnum<A>>),
 }
@@ -118,11 +147,11 @@ pub struct KeyEnumKey<A: Default> {
     pub visibility: CommandVisibility,
 }
 
-impl<A: Default + From<String>> FromStr for KeyEnumKey<A> {
+impl FromStr for KeyEnumKey<String> {
     type Err = Infallible;
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         Ok(KeyEnumKey {
-            action: s.to_string().into(),
+            action: s.to_string(),
             value: Default::default(),
             visibility: Default::default(),
         })
@@ -140,24 +169,20 @@ where
     // parameter. We need T in order to know the Value type for the Visitor
     // impl.
     struct StringOrStruct<T>(PhantomData<fn() -> T>);
-
     impl<'de, T> Visitor<'de> for StringOrStruct<T>
     where
         T: Deserialize<'de> + FromStr<Err = Infallible>,
     {
         type Value = T;
-
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
             formatter.write_str("string or map")
         }
-
         fn visit_str<E>(self, value: &str) -> std::result::Result<T, E>
         where
             E: de::Error,
         {
             Ok(FromStr::from_str(value).unwrap())
         }
-
         fn visit_map<M>(self, map: M) -> std::result::Result<T, M::Error>
         where
             M: MapAccess<'de>,
@@ -169,7 +194,6 @@ where
             Deserialize::deserialize(de::value::MapAccessDeserializer::new(map))
         }
     }
-
     deserializer.deserialize_any(StringOrStruct(PhantomData))
 }
 
@@ -332,10 +356,36 @@ pub enum AppAction {
     Log(LoggerAction),
     Playlist(PlaylistAction),
 }
-
 impl From<String> for AppAction {
     fn from(value: String) -> Self {
-        todo!()
+        let mut vec = value
+            .split('.')
+            .take(3)
+            .map(ToString::to_string)
+            .collect::<Vec<String>>();
+        if vec.len() >= 3 {
+            // return Err(format!(
+            //     "Action {value} had too many subscripts, expected 1 max"
+            // ));
+            panic!("Action {value} had too many subscripts, expected 1 max")
+        };
+        if vec.len() == 0 {
+            // return Err(format!("Action was empty!"));
+            panic!("Action was empty!")
+        };
+        let back = vec.pop().expect("Length checked above");
+        let front = vec.pop();
+        if let Some(tag) = front {
+            match tag.as_str() {
+                "playlist" => return AppAction::Playlist(PlaylistAction::ViewBrowser),
+                _ => todo!(),
+            }
+        } else {
+            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(
+                back,
+            ))
+            .unwrap()
+        }
     }
 }
 
@@ -703,7 +753,8 @@ impl Config {
                     config_file_location.to_string_lossy()
                 );
             }
-            Ok(toml::from_str(&config_file)?)
+            todo!()
+            // Ok(toml::from_str(&config_file)?)
         } else {
             if debug {
                 println!(
@@ -711,73 +762,53 @@ impl Config {
                     config_file_location.to_string_lossy()
                 );
             }
-            Ok(Self::default())
+            todo!()
+            // Ok(Self::default())
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{KeyEnum, ModeNameEnum};
-    use crate::{app::keycommand::Keybind, config::CONFIG_FILE_NAME, get_config_dir};
+    use super::{AppAction, KeyEnum, ModeNameEnum};
+    use crate::{
+        app::keycommand::Keybind,
+        config::{ConfigIR, CONFIG_FILE_NAME},
+        get_config_dir,
+    };
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
 
-    #[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
-    pub struct Config {
-        pub auth_type: AuthType,
-        #[serde(rename = "keys")]
-        pub keybinds: YoutuiKeymap,
-        pub mode_names: YoutuiModeNames,
-    }
+    const CFG_TST: &str = r#"[global]
+"+" = {action = "vol_up", value = 5}
+"-" = {action = "vol_down", value = 5}
+">" = "next_song"
+"<" = "prev_song"
+"]" = {action = "seek_forward_s", value = 5}
+"[" = {action = "seek_back_s", value = 5}
+F1 = {action = "toggle_help", visibility = "global"}
+F10 = {action = "quit", visibility = "global"}
+F12 = {action = "view_logs", visibility = "global"}
+space = "pause"
+C-c = "quit"
 
-    #[derive(Copy, PartialEq, Clone, Default, Debug, Serialize, Deserialize)]
-    pub enum AuthType {
-        OAuth,
-        #[default]
-        Browser,
-    }
-
-    #[derive(Default, PartialEq, Debug, Serialize, Deserialize)]
-    #[serde(default)]
-    pub struct YoutuiKeymap {
-        pub global: HashMap<Keybind, KeyEnum<String>>,
-        pub playlist: HashMap<Keybind, KeyEnum<String>>,
-        pub browser: HashMap<Keybind, KeyEnum<String>>,
-        pub browser_artists: HashMap<Keybind, KeyEnum<String>>,
-        pub browser_search: HashMap<Keybind, KeyEnum<String>>,
-        pub browser_songs: HashMap<Keybind, KeyEnum<String>>,
-        pub help: HashMap<Keybind, KeyEnum<String>>,
-        pub sort: HashMap<Keybind, KeyEnum<String>>,
-        pub filter: HashMap<Keybind, KeyEnum<String>>,
-        pub text_entry: HashMap<Keybind, KeyEnum<String>>,
-        pub list: HashMap<Keybind, KeyEnum<String>>,
-        pub log: HashMap<Keybind, KeyEnum<String>>,
-    }
-
-    #[derive(Default, Debug, PartialEq, Serialize, Deserialize)]
-    #[serde(default)]
-    pub struct YoutuiModeNames {
-        global: HashMap<Keybind, ModeNameEnum>,
-        playlist: HashMap<Keybind, ModeNameEnum>,
-        browser: HashMap<Keybind, ModeNameEnum>,
-        browser_artists: HashMap<Keybind, ModeNameEnum>,
-        browser_search: HashMap<Keybind, ModeNameEnum>,
-        browser_songs: HashMap<Keybind, ModeNameEnum>,
-        help: HashMap<Keybind, ModeNameEnum>,
-        sort: HashMap<Keybind, ModeNameEnum>,
-        filter: HashMap<Keybind, ModeNameEnum>,
-        text_entry: HashMap<Keybind, ModeNameEnum>,
-        list: HashMap<Keybind, ModeNameEnum>,
-    }
+[playlist]
+F5 = {action = "playlist.view_browser", visibility = "global"}
+enter.enter = "playlist.play_selected"
+enter.d = "playlist.delete_selected"
+enter.D = "playlist.delete_all""#;
     #[tokio::test]
-    async fn test_deserialize_basic() {
+    async fn test_deserialize_config_basic() {
         let config_dir = get_config_dir().unwrap();
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
         let config_file = tokio::fs::read_to_string(&config_file_location)
             .await
             .unwrap();
-        let x: Config = toml::from_str(&config_file).unwrap();
+        let x: ConfigIR = toml::from_str(&config_file).unwrap();
+    }
+    #[tokio::test]
+    async fn test_deserialize_config_special_enums() {
+        let x: ConfigIR = toml::from_str(CFG_TST).unwrap();
         eprintln!("{:#?}", x);
     }
 }
