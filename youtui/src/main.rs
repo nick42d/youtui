@@ -268,7 +268,7 @@ async fn try_main() -> Result<()> {
     // Config and API key files will be in OS directories.
     // Create them if they don't exist.
     initialise_directories().await?;
-    let mut config = config::Config::new(debug)?;
+    let mut config = config::Config::new(debug).await?;
     // Command line flag for auth_type should override config for auth_type.
     if let Some(auth_type) = auth_type {
         config.auth_type = auth_type

@@ -19,7 +19,7 @@ C-c = "quit"
 [mode_names.global]
 
 [keys.playlist]
-F5 = {action = "view_browser", visibility = "global"}
+F5 = {action = "playlist.view_browser", visibility = "global"}
 enter.enter = "playlist.play_selected"
 enter.d = "playlist.delete_selected"
 enter.D = "playlist.delete_all"
@@ -28,7 +28,7 @@ enter.D = "playlist.delete_all"
 enter = "Playlist Action"
 
 [keys.browser]
-F5 = {action = "view_playlist", visibility = "global"}
+F5 = {action = "browser.view_playlist", visibility = "global"}
 F2 = {action = "browser.search", visibility = "global"}
 left = "browser.left"
 right = "browser.right"
@@ -93,5 +93,5 @@ backspace = "text_entry.backspace"
 [keys.list]
 up = {action = "list.up", value = 1, visibility = "hidden"}
 down = {action = "list.down", value = 1, visibility = "hidden"}
-pgup = {action = "list.up", value = 10}
-pgdown = {action = "list.down", value = 10}
+pageup = {action = "list.up", value = 10}
+pagedown = {action = "list.down", value = 10}

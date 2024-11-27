@@ -8,6 +8,7 @@ use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
 // Should another type be GlobalHidden?
 #[derive(PartialEq, Default, Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum CommandVisibility {
     #[default]
     Standard,
@@ -299,6 +300,7 @@ impl FromStr for Keybind {
                 "backspace" => return Ok(KeyCode::Backspace),
                 "tab" => return Ok(KeyCode::Tab),
                 "backtab" => return Ok(KeyCode::BackTab),
+                "esc" => return Ok(KeyCode::Esc),
                 // Caps Lock key.
                 //
                 // **Note:** this key can only be read if

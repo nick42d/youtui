@@ -97,15 +97,16 @@ pub struct YoutuiModeNames {
     list: HashMap<Keybind, ModeNameEnum>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum KeyEnum<A> {
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum KeyEnum<A: Default + From<String>> {
     #[serde(deserialize_with = "string_or_struct")]
     Key(KeyEnumKey<A>),
     Mode(HashMap<Keybind, KeyEnum<A>>),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct KeyEnumKey<A> {
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct KeyEnumKey<A: Default> {
     // Consider - can there be multiple actions?
     // Consider - can an action access global commands? Or commands from another component?
     // Consider - case where component has list and help keybinds, but some keybinds share a
@@ -117,10 +118,14 @@ pub struct KeyEnumKey<A> {
     pub visibility: CommandVisibility,
 }
 
-impl<A> FromStr for KeyEnumKey<A> {
+impl<A: Default + From<String>> FromStr for KeyEnumKey<A> {
     type Err = Infallible;
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        todo!()
+        Ok(KeyEnumKey {
+            action: s.to_string().into(),
+            value: Default::default(),
+            visibility: Default::default(),
+        })
     }
 }
 
@@ -168,7 +173,7 @@ where
     deserializer.deserialize_any(StringOrStruct(PhantomData))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
 enum ModeNameEnum {
     Submode(HashMap<Keybind, ModeNameEnum>),
     #[serde(untagged)]
@@ -179,12 +184,12 @@ impl Action for AppAction {
     type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
-            AppAction::VolUp(_)
-            | AppAction::VolDown(_)
+            AppAction::VolUp
+            | AppAction::VolDown
             | AppAction::NextSong
             | AppAction::PrevSong
-            | AppAction::SeekForwardS(_)
-            | AppAction::SeekBackS(_)
+            | AppAction::SeekForwardS
+            | AppAction::SeekBackS
             | AppAction::ToggleHelp
             | AppAction::Quit
             | AppAction::ViewLogs
@@ -206,12 +211,12 @@ impl Action for AppAction {
             AppAction::PrevSong => "Prev Song".into(),
             AppAction::NextSong => "Next Song".into(),
             AppAction::Pause => "Pause".into(),
-            AppAction::VolUp(n) => format!("Vol Up {n}").into(),
-            AppAction::VolDown(n) => format!("Vol Down {n}").into(),
+            AppAction::VolUp => format!("Vol Up 5").into(),
+            AppAction::VolDown => format!("Vol Down 5").into(),
             AppAction::ToggleHelp => "Toggle Help".into(),
             AppAction::ViewLogs => "View Logs".into(),
-            AppAction::SeekForwardS(s) => format!("Seek Forward {s}s").into(),
-            AppAction::SeekBackS(s) => format!("Seek Back {s}s").into(),
+            AppAction::SeekForwardS => format!("Seek Forward 5s").into(),
+            AppAction::SeekBackS => format!("Seek Back 5s").into(),
             AppAction::Log(a) => a.describe(),
             AppAction::Playlist(a) => a.describe(),
             AppAction::Browser(a) => a.describe(),
@@ -231,15 +236,15 @@ impl Action for AppAction {
         Self: Sized,
     {
         match self {
-            AppAction::VolUp(n) => return state.handle_increase_volume(n).await,
-            AppAction::VolDown(n) => return state.handle_increase_volume(-n).await,
+            AppAction::VolUp => return state.handle_increase_volume(5).await,
+            AppAction::VolDown => return state.handle_increase_volume(-5).await,
             AppAction::NextSong => return state.handle_next(),
             AppAction::PrevSong => return state.handle_prev(),
-            AppAction::SeekForwardS(s) => {
-                return state.handle_seek(Duration::from_secs(s as u64), SeekDirection::Forward)
+            AppAction::SeekForwardS => {
+                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Forward)
             }
-            AppAction::SeekBackS(s) => {
-                return state.handle_seek(Duration::from_secs(s as u64), SeekDirection::Back)
+            AppAction::SeekBackS => {
+                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Back)
             }
             AppAction::ToggleHelp => state.toggle_help(),
             AppAction::Quit => send_or_error(&state.callback_tx, AppCallback::Quit).await,
@@ -303,19 +308,20 @@ impl Action for AppAction {
         AsyncTask::new_no_op()
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum AppAction {
-    VolUp(i8),
-    VolDown(i8),
+    #[default]
+    Quit,
+    VolUp,
+    VolDown,
     NextSong,
     PrevSong,
-    SeekForwardS(usize),
-    SeekBackS(usize),
+    SeekForwardS,
+    SeekBackS,
     ToggleHelp,
-    Quit,
     ViewLogs,
     Pause,
-    Playlist(PlaylistAction),
     Browser(BrowserAction),
     Filter(FilterAction),
     Sort(SortAction),
@@ -324,13 +330,24 @@ pub enum AppAction {
     BrowserSearch(BrowserSearchAction),
     BrowserSongs(BrowserSongsAction),
     Log(LoggerAction),
+    Playlist(PlaylistAction),
+}
+
+impl From<String> for AppAction {
+    fn from(value: String) -> Self {
+        todo!()
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum PlaylistAction {
+    #[serde(rename = "playlist.view_browser")]
     ViewBrowser,
+    #[serde(rename = "playlist.play_selected")]
     PlaySelected,
+    #[serde(rename = "playlist.delete_selected")]
     DeleteSelected,
+    #[serde(rename = "playlist.delete_all")]
     DeleteAll,
     List(ListAction),
 }
@@ -675,11 +692,11 @@ pub enum TextEntryAction {
 }
 
 impl Config {
-    pub fn new(debug: bool) -> Result<Self> {
-        // NOTE: This happens before logging is initialised...
+    pub async fn new(debug: bool) -> Result<Self> {
         let config_dir = get_config_dir()?;
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
-        if let Ok(config_file) = std::fs::read_to_string(&config_file_location) {
+        if let Ok(config_file) = tokio::fs::read_to_string(&config_file_location).await {
+            // NOTE: This happens before logging / app is initialised.
             if debug {
                 println!(
                     "Loading config from {}",
@@ -696,5 +713,71 @@ impl Config {
             }
             Ok(Self::default())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{KeyEnum, ModeNameEnum};
+    use crate::{app::keycommand::Keybind, config::CONFIG_FILE_NAME, get_config_dir};
+    use serde::{Deserialize, Serialize};
+    use std::collections::HashMap;
+
+    #[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
+    pub struct Config {
+        pub auth_type: AuthType,
+        #[serde(rename = "keys")]
+        pub keybinds: YoutuiKeymap,
+        pub mode_names: YoutuiModeNames,
+    }
+
+    #[derive(Copy, PartialEq, Clone, Default, Debug, Serialize, Deserialize)]
+    pub enum AuthType {
+        OAuth,
+        #[default]
+        Browser,
+    }
+
+    #[derive(Default, PartialEq, Debug, Serialize, Deserialize)]
+    #[serde(default)]
+    pub struct YoutuiKeymap {
+        pub global: HashMap<Keybind, KeyEnum<String>>,
+        pub playlist: HashMap<Keybind, KeyEnum<String>>,
+        pub browser: HashMap<Keybind, KeyEnum<String>>,
+        pub browser_artists: HashMap<Keybind, KeyEnum<String>>,
+        pub browser_search: HashMap<Keybind, KeyEnum<String>>,
+        pub browser_songs: HashMap<Keybind, KeyEnum<String>>,
+        pub help: HashMap<Keybind, KeyEnum<String>>,
+        pub sort: HashMap<Keybind, KeyEnum<String>>,
+        pub filter: HashMap<Keybind, KeyEnum<String>>,
+        pub text_entry: HashMap<Keybind, KeyEnum<String>>,
+        pub list: HashMap<Keybind, KeyEnum<String>>,
+        pub log: HashMap<Keybind, KeyEnum<String>>,
+    }
+
+    #[derive(Default, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(default)]
+    pub struct YoutuiModeNames {
+        global: HashMap<Keybind, ModeNameEnum>,
+        playlist: HashMap<Keybind, ModeNameEnum>,
+        browser: HashMap<Keybind, ModeNameEnum>,
+        browser_artists: HashMap<Keybind, ModeNameEnum>,
+        browser_search: HashMap<Keybind, ModeNameEnum>,
+        browser_songs: HashMap<Keybind, ModeNameEnum>,
+        help: HashMap<Keybind, ModeNameEnum>,
+        sort: HashMap<Keybind, ModeNameEnum>,
+        filter: HashMap<Keybind, ModeNameEnum>,
+        text_entry: HashMap<Keybind, ModeNameEnum>,
+        list: HashMap<Keybind, ModeNameEnum>,
+    }
+    #[tokio::test]
+    async fn test_deserialize_basic() {
+        let config_dir = get_config_dir().unwrap();
+        let config_file_location = config_dir.join(CONFIG_FILE_NAME);
+        let config_file = tokio::fs::read_to_string(&config_file_location)
+            .await
+            .unwrap();
+        let x: Config = toml::from_str(&config_file).unwrap();
+        eprintln!("{:#?}", x);
     }
 }

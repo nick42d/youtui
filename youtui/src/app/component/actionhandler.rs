@@ -4,7 +4,8 @@ use crossterm::event::{Event, KeyEvent, MouseEvent};
 use std::{borrow::Cow, marker::PhantomData};
 use ytmapi_rs::common::SearchSuggestion;
 
-pub type ComponentEffect<C: Component> = AsyncTask<C, C::Bkend, C::Md>;
+pub type ComponentEffect<C: Component> =
+    AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
 /// A frontend component - has an associated backend and task metadata type.
 pub trait Component {
     type Bkend;
