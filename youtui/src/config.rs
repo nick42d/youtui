@@ -17,6 +17,7 @@ use async_callback_manager::AsyncTask;
 use clap::ValueEnum;
 use itertools::Itertools;
 use serde::de;
+use serde::de::DeserializeOwned;
 use serde::de::MapAccess;
 use serde::de::Visitor;
 use serde::Deserializer;
@@ -104,6 +105,40 @@ pub struct YoutuiKeymapIR {
     pub log: HashMap<Keybind, KeyEnumString>,
 }
 
+impl TryFrom<YoutuiKeymapIR> for YoutuiKeymap {
+    type Error = String;
+    fn try_from(value: YoutuiKeymapIR) -> std::result::Result<Self, Self::Error> {
+        let YoutuiKeymapIR {
+            global,
+            playlist,
+            browser,
+            browser_artists,
+            browser_search,
+            browser_songs,
+            help,
+            sort,
+            filter,
+            text_entry,
+            list,
+            log,
+        } = value;
+        Ok(Self {
+            global: global.try_into()?,
+            playlist: playlist.try_into()?,
+            browser: browser.try_into()?,
+            browser_artists: browser_artists.try_into()?,
+            browser_search: browser_search.try_into()?,
+            browser_songs: browser_songs.try_into()?,
+            help: help.try_into()?,
+            sort: sort.try_into()?,
+            filter: filter.try_into()?,
+            text_entry: text_entry.try_into()?,
+            list: list.try_into()?,
+            log: log.try_into()?,
+        })
+    }
+}
+
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct YoutuiModeNames {
@@ -134,6 +169,21 @@ pub enum KeyEnum<A: Default> {
     Mode(HashMap<Keybind, KeyEnum<A>>),
 }
 
+impl TryFrom<KeyEnumString> for KeyEnum<AppAction> {
+    type Error = String;
+    fn try_from(value: KeyEnumString) -> std::result::Result<Self, Self::Error> {
+        let new: KeyEnum<AppAction> = match value {
+            KeyEnumString::Key(k) => KeyEnum::Key(k.try_map(TryInto::try_into)?),
+            KeyEnumString::Mode(m) => KeyEnum::Mode(
+                m.into_iter()
+                    .map(|(k, a)| Ok::<_, String>((k, KeyEnum::<AppAction>::try_from(a)?)))
+                    .collect::<std::result::Result<_, _>>()?,
+            ),
+        };
+        Ok(new)
+    }
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct KeyEnumKey<A: Default> {
     // Consider - can there be multiple actions?
@@ -145,6 +195,24 @@ pub struct KeyEnumKey<A: Default> {
     pub value: usize,
     #[serde(default)]
     pub visibility: CommandVisibility,
+}
+
+impl<A: Default> KeyEnumKey<A> {
+    fn try_map<U: Default, E>(
+        self,
+        f: impl FnOnce(A) -> std::result::Result<U, E>,
+    ) -> std::result::Result<KeyEnumKey<U>, E> {
+        let Self {
+            action,
+            value,
+            visibility,
+        } = self;
+        Ok(KeyEnumKey {
+            action: f(action)?,
+            value,
+            visibility,
+        })
+    }
 }
 
 impl FromStr for KeyEnumKey<String> {
@@ -332,7 +400,7 @@ impl Action for AppAction {
         AsyncTask::new_no_op()
     }
 }
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AppAction {
     #[default]
@@ -356,48 +424,52 @@ pub enum AppAction {
     Log(LoggerAction),
     Playlist(PlaylistAction),
 }
-impl From<String> for AppAction {
-    fn from(value: String) -> Self {
+impl TryFrom<String> for AppAction {
+    type Error = String;
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        fn deserialize_enum<T: DeserializeOwned>(s: String) -> std::result::Result<T, String> {
+            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(s))
+                .map_err(|e| e.to_string())
+        }
         let mut vec = value
             .split('.')
             .take(3)
             .map(ToString::to_string)
             .collect::<Vec<String>>();
         if vec.len() >= 3 {
-            // return Err(format!(
-            //     "Action {value} had too many subscripts, expected 1 max"
-            // ));
-            panic!("Action {value} had too many subscripts, expected 1 max")
+            return Err(format!(
+                "Action {value} had too many subscripts, expected 1 max"
+            ));
         };
-        if vec.len() == 0 {
-            // return Err(format!("Action was empty!"));
-            panic!("Action was empty!")
+        if vec.is_empty() {
+            return Err("Action was empty!".to_string());
         };
         let back = vec.pop().expect("Length checked above");
         let front = vec.pop();
         if let Some(tag) = front {
             match tag.as_str() {
-                "playlist" => return AppAction::Playlist(PlaylistAction::ViewBrowser),
-                _ => todo!(),
+                "playlist" => Ok(AppAction::Playlist(deserialize_enum(back)?)),
+                "browser" => Ok(AppAction::Browser(deserialize_enum(back)?)),
+                "browser_artists" => Ok(AppAction::BrowserArtists(deserialize_enum(back)?)),
+                "browser_songs" => Ok(AppAction::BrowserSongs(deserialize_enum(back)?)),
+                "browser_search" => Ok(AppAction::BrowserSearch(deserialize_enum(back)?)),
+                "log" => Ok(AppAction::Log(deserialize_enum(back)?)),
+                "help" => Ok(AppAction::Help(deserialize_enum(back)?)),
+                "filter" => Ok(AppAction::Filter(deserialize_enum(back)?)),
+                "sort" => Ok(AppAction::Sort(deserialize_enum(back)?)),
+                _ => Err(format!("Unrecognised action {back}")),
             }
         } else {
-            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(
-                back,
-            ))
-            .unwrap()
+            deserialize_enum(back)
         }
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 pub enum PlaylistAction {
-    #[serde(rename = "playlist.view_browser")]
     ViewBrowser,
-    #[serde(rename = "playlist.play_selected")]
     PlaySelected,
-    #[serde(rename = "playlist.delete_selected")]
     DeleteSelected,
-    #[serde(rename = "playlist.delete_all")]
     DeleteAll,
     List(ListAction),
 }
@@ -435,7 +507,8 @@ impl Action for PlaylistAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BrowserAction {
     ViewPlaylist,
     ToggleSearch,
@@ -479,7 +552,8 @@ impl Action for BrowserAction {
         AsyncTask::new_no_op()
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BrowserArtistsAction {
     DisplaySelectedArtistAlbums,
 }
@@ -508,7 +582,8 @@ impl Action for BrowserArtistsAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BrowserSearchAction {
     SearchArtist,
     PrevSearchSuggestion,
@@ -545,7 +620,8 @@ impl Action for BrowserSearchAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BrowserSongsAction {
     Filter,
     Sort,
@@ -604,7 +680,8 @@ impl Action for BrowserSongsAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HelpAction {
     CloseHelp,
     ListAction(ListAction),
@@ -652,7 +729,8 @@ impl From<ListAction> for HelpAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum FilterAction {
     Close,
     Clear,
@@ -687,7 +765,8 @@ impl Action for FilterAction {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SortAction {
     CloseSort,
     ClearSort,
@@ -727,13 +806,15 @@ impl Action for SortAction {
 
 // SPECIAL CASES
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ListAction {
     Up(isize),
     Down(isize),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TextEntryAction {
     Submit,
     Left,
@@ -808,7 +889,9 @@ enter.D = "playlist.delete_all""#;
     }
     #[tokio::test]
     async fn test_deserialize_config_special_enums() {
-        let x: ConfigIR = toml::from_str(CFG_TST).unwrap();
-        eprintln!("{:#?}", x);
+        let text = "browser.view_playlist";
+        let expected = AppAction::Browser(crate::config::BrowserAction::ViewPlaylist);
+        let actual = AppAction::try_from(text.to_string()).unwrap();
+        assert_eq!(expected, actual)
     }
 }
