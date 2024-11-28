@@ -1,3 +1,5 @@
+use crate::app::component::actionhandler::Action;
+
 #[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AppAction {

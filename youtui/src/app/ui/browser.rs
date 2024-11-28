@@ -2,28 +2,25 @@ use self::{
     artistalbums::{albumsongs::AlbumSongsPanel, artistsearch::ArtistSearchPanel},
     draw::draw_browser,
 };
-use super::AppCallback;
-use crate::{
-    app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
-    config::{Config, KeyEnum, KeyEnumKey},
-    core::send_or_error,
+use super::{action::AppAction, AppCallback, WindowContext};
+use crate::app::{
+    component::actionhandler::{
+        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
+    },
+    server::{
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
+    },
+    structures::{ListStatus, SongListComponent},
+    view::{DrawableMut, Scrollable},
 };
 use crate::{
-    app::{
-        component::actionhandler::{
-            Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
-        },
-        server::{
-            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
-            TaskMetadata,
-        },
-        structures::{ListStatus, SongListComponent},
-        view::{DrawableMut, Scrollable},
-    },
-    config::AppAction,
+    app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
+    config::Config,
+    core::send_or_error,
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
+use serde::{Deserialize, Serialize};
 use std::{iter::Iterator, mem};
 use tokio::sync::mpsc;
 use tracing::error;
@@ -50,6 +47,52 @@ pub struct Browser {
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
     keybinds: Vec<KeyCommand<AppAction>>,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserAction {
+    ViewPlaylist,
+    Search,
+    Left,
+    Right,
+}
+
+impl Action for BrowserAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Browser".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            BrowserAction::ViewPlaylist => "View Playlist",
+            BrowserAction::Search => "Toggle Search",
+            BrowserAction::Left => "Left",
+            BrowserAction::Right => "Right",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            BrowserAction::Left => state.left(),
+            BrowserAction::Right => state.right(),
+            BrowserAction::ViewPlaylist => {
+                send_or_error(
+                    &state.callback_tx,
+                    AppCallback::ChangeContext(WindowContext::Playlist),
+                )
+                .await
+            }
+            BrowserAction::Search => state.handle_toggle_search(),
+        }
+        AsyncTask::new_no_op()
+    }
 }
 
 impl InputRouting {
