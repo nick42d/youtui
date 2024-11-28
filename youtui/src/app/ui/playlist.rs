@@ -23,6 +23,7 @@ use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
+use serde::{Deserialize, Serialize};
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
@@ -48,6 +49,46 @@ pub struct Playlist {
     pub widget_state: TableState,
 }
 impl_youtui_component!(Playlist);
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PlaylistAction {
+    ViewBrowser,
+    PlaySelected,
+    DeleteSelected,
+    DeleteAll,
+}
+
+impl Action for PlaylistAction {
+    type State = Playlist;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Playlist".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            PlaylistAction::ViewBrowser => "View Browser",
+            PlaylistAction::PlaySelected => "Play Selected",
+            PlaylistAction::DeleteSelected => "Delete Selected",
+            PlaylistAction::DeleteAll => "Delete All",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            PlaylistAction::ViewBrowser => state.view_browser().await,
+            PlaylistAction::PlaySelected => return state.play_selected(),
+            PlaylistAction::DeleteSelected => return state.delete_selected(),
+            PlaylistAction::DeleteAll => return state.delete_all(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum QueueState {

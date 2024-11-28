@@ -16,6 +16,7 @@ use ratatui::widgets::TableState;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
+pub mod action;
 pub mod browser;
 pub mod draw;
 mod footer;

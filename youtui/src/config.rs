@@ -1,32 +1,21 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::keycommand::CommandVisibility;
 use crate::app::keycommand::Keybind;
+use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::Browser;
-use crate::app::ui::logger::LoggerAction;
-use crate::app::ui::playlist::Playlist;
 use crate::app::ui::HelpMenu;
 use crate::app::ui::WindowContext;
-use crate::app::ui::YoutuiWindow;
 use crate::app::view::Scrollable;
 use crate::app::AppCallback;
-use crate::async_rodio_sink::SeekDirection;
 use crate::core::send_or_error;
 use crate::get_config_dir;
 use crate::Result;
 use async_callback_manager::AsyncTask;
 use clap::ValueEnum;
-use serde::de;
-use serde::de::DeserializeOwned;
-use serde::de::MapAccess;
-use serde::de::Visitor;
-use serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::fmt;
-use std::marker::PhantomData;
 use std::str::FromStr;
-use std::time::Duration;
 use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
@@ -209,7 +198,7 @@ pub struct YoutuiModeNames {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum KeyEnumString {
-    #[serde(deserialize_with = "string_or_struct")]
+    #[serde(deserialize_with = "super::core::string_or_struct")]
     Key(KeyEnumKey<String>),
     Mode(HashMap<Keybind, KeyEnumString>),
 }
@@ -277,296 +266,11 @@ impl FromStr for KeyEnumKey<String> {
     }
 }
 
-fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
-where
-    T: Deserialize<'de> + FromStr<Err = Infallible>,
-    D: Deserializer<'de>,
-{
-    // This is a Visitor that forwards string types to T's `FromStr` impl and
-    // forwards map types to T's `Deserialize` impl. The `PhantomData` is to
-    // keep the compiler from complaining about T being an unused generic type
-    // parameter. We need T in order to know the Value type for the Visitor
-    // impl.
-    struct StringOrStruct<T>(PhantomData<fn() -> T>);
-    impl<'de, T> Visitor<'de> for StringOrStruct<T>
-    where
-        T: Deserialize<'de> + FromStr<Err = Infallible>,
-    {
-        type Value = T;
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("string or map")
-        }
-        fn visit_str<E>(self, value: &str) -> std::result::Result<T, E>
-        where
-            E: de::Error,
-        {
-            Ok(FromStr::from_str(value).unwrap())
-        }
-        fn visit_map<M>(self, map: M) -> std::result::Result<T, M::Error>
-        where
-            M: MapAccess<'de>,
-        {
-            // `MapAccessDeserializer` is a wrapper that turns a `MapAccess`
-            // into a `Deserializer`, allowing it to be used as the input to T's
-            // `Deserialize` implementation. T then deserializes itself using
-            // the entries from the map visitor.
-            Deserialize::deserialize(de::value::MapAccessDeserializer::new(map))
-        }
-    }
-    deserializer.deserialize_any(StringOrStruct(PhantomData))
-}
-
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 enum ModeNameEnum {
     Submode(HashMap<Keybind, ModeNameEnum>),
     #[serde(untagged)]
     Name(String),
-}
-
-impl Action for AppAction {
-    type State = YoutuiWindow;
-    fn context(&self) -> std::borrow::Cow<str> {
-        match self {
-            AppAction::VolUp
-            | AppAction::VolDown
-            | AppAction::NextSong
-            | AppAction::PrevSong
-            | AppAction::SeekForwardS
-            | AppAction::SeekBackS
-            | AppAction::ToggleHelp
-            | AppAction::Quit
-            | AppAction::ViewLogs
-            | AppAction::Pause => "Global".into(),
-            AppAction::Log(a) => a.context(),
-            AppAction::Playlist(a) => a.context(),
-            AppAction::Browser(a) => a.context(),
-            AppAction::Filter(a) => a.context(),
-            AppAction::Sort(a) => a.context(),
-            AppAction::Help(a) => a.context(),
-            AppAction::BrowserArtists(a) => a.context(),
-            AppAction::BrowserSearch(a) => a.context(),
-            AppAction::BrowserSongs(a) => a.context(),
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
-        }
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            AppAction::Quit => "Quit".into(),
-            AppAction::PrevSong => "Prev Song".into(),
-            AppAction::NextSong => "Next Song".into(),
-            AppAction::Pause => "Pause".into(),
-            AppAction::VolUp => format!("Vol Up 5").into(),
-            AppAction::VolDown => format!("Vol Down 5").into(),
-            AppAction::ToggleHelp => "Toggle Help".into(),
-            AppAction::ViewLogs => "View Logs".into(),
-            AppAction::SeekForwardS => format!("Seek Forward 5s").into(),
-            AppAction::SeekBackS => format!("Seek Back 5s").into(),
-            AppAction::Log(a) => a.describe(),
-            AppAction::Playlist(a) => a.describe(),
-            AppAction::Browser(a) => a.describe(),
-            AppAction::Filter(a) => a.describe(),
-            AppAction::Sort(a) => a.describe(),
-            AppAction::Help(a) => a.describe(),
-            AppAction::BrowserArtists(a) => a.describe(),
-            AppAction::BrowserSearch(a) => a.describe(),
-            AppAction::BrowserSongs(a) => a.describe(),
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
-        }
-    }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            AppAction::VolUp => return state.handle_increase_volume(5).await,
-            AppAction::VolDown => return state.handle_increase_volume(-5).await,
-            AppAction::NextSong => return state.handle_next(),
-            AppAction::PrevSong => return state.handle_prev(),
-            AppAction::SeekForwardS => {
-                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Forward)
-            }
-            AppAction::SeekBackS => {
-                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Back)
-            }
-            AppAction::ToggleHelp => state.toggle_help(),
-            AppAction::Quit => send_or_error(&state.callback_tx, AppCallback::Quit).await,
-            AppAction::ViewLogs => state.handle_change_context(WindowContext::Logs),
-            AppAction::Pause => return state.pauseplay(),
-            AppAction::Log(a) => {
-                return a
-                    .apply(&mut state.logger)
-                    .await
-                    .map(|this: &mut Self::State| &mut this.logger)
-            }
-            AppAction::Playlist(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.playlist)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Browser(a) => {
-                return a
-                    .apply(&mut state.browser)
-                    .await
-                    .map(|this: &mut Self::State| &mut this.browser)
-            }
-            AppAction::Filter(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Sort(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Help(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.help)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserArtists(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserSearch(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserSongs(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
-        };
-        AsyncTask::new_no_op()
-    }
-}
-#[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum AppAction {
-    #[default]
-    Quit,
-    VolUp,
-    VolDown,
-    NextSong,
-    PrevSong,
-    SeekForwardS,
-    SeekBackS,
-    ToggleHelp,
-    ViewLogs,
-    Pause,
-    Browser(BrowserAction),
-    Filter(FilterAction),
-    Sort(SortAction),
-    Help(HelpAction),
-    BrowserArtists(BrowserArtistsAction),
-    BrowserSearch(BrowserSearchAction),
-    BrowserSongs(BrowserSongsAction),
-    Log(LoggerAction),
-    Playlist(PlaylistAction),
-    TextEntry(TextEntryAction),
-    List(ListAction),
-}
-impl TryFrom<String> for AppAction {
-    type Error = String;
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        fn deserialize_enum<T: DeserializeOwned>(s: String) -> std::result::Result<T, String> {
-            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(s))
-                .map_err(|e| e.to_string())
-        }
-        let mut vec = value
-            .split('.')
-            .take(3)
-            .map(ToString::to_string)
-            .collect::<Vec<String>>();
-        if vec.len() >= 3 {
-            return Err(format!(
-                "Action {value} had too many subscripts, expected 1 max"
-            ));
-        };
-        if vec.is_empty() {
-            return Err("Action was empty!".to_string());
-        };
-        let back = vec.pop().expect("Length checked above");
-        let front = vec.pop();
-        if let Some(tag) = front {
-            match tag.as_str() {
-                "playlist" => Ok(AppAction::Playlist(deserialize_enum(back)?)),
-                "browser" => Ok(AppAction::Browser(deserialize_enum(back)?)),
-                "browser_artists" => Ok(AppAction::BrowserArtists(deserialize_enum(back)?)),
-                "browser_songs" => Ok(AppAction::BrowserSongs(deserialize_enum(back)?)),
-                "browser_search" => Ok(AppAction::BrowserSearch(deserialize_enum(back)?)),
-                "log" => Ok(AppAction::Log(deserialize_enum(back)?)),
-                "help" => Ok(AppAction::Help(deserialize_enum(back)?)),
-                "filter" => Ok(AppAction::Filter(deserialize_enum(back)?)),
-                "sort" => Ok(AppAction::Sort(deserialize_enum(back)?)),
-                "text_entry" => Ok(AppAction::TextEntry(deserialize_enum(back)?)),
-                "list" => Ok(AppAction::List(deserialize_enum(back)?)),
-                _ => Err(format!("Unrecognised action category {tag}")),
-            }
-        } else {
-            deserialize_enum(back)
-        }
-    }
-}
-
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PlaylistAction {
-    ViewBrowser,
-    PlaySelected,
-    DeleteSelected,
-    DeleteAll,
-    List(ListAction),
-}
-impl Action for PlaylistAction {
-    type State = Playlist;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Playlist".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            PlaylistAction::ViewBrowser => "View Browser",
-            PlaylistAction::PlaySelected => "Play Selected",
-            PlaylistAction::DeleteSelected => "Delete Selected",
-            PlaylistAction::DeleteAll => "Delete All",
-            PlaylistAction::List(a) => todo!(),
-        }
-        .into()
-    }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            PlaylistAction::ViewBrowser => state.view_browser().await,
-            PlaylistAction::List(ListAction::Down) => state.increment_list(1),
-            PlaylistAction::List(ListAction::Up) => state.increment_list(-1),
-            PlaylistAction::PlaySelected => return state.play_selected(),
-            PlaylistAction::DeleteSelected => return state.delete_selected(),
-            PlaylistAction::DeleteAll => return state.delete_all(),
-        }
-        AsyncTask::new_no_op()
-    }
 }
 
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
