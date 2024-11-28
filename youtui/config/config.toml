@@ -2,7 +2,7 @@
 auth_type = "Browser"
 
 # Global keybinds
-[keys.global]
+[keybinds.global]
 "+" = {action = "vol_up", value = 5}
 "-" = {action = "vol_down", value = 5}
 ">" = "next_song"
@@ -18,7 +18,7 @@ C-c = "quit"
 # Global keybind mode names
 [mode_names.global]
 
-[keys.playlist]
+[keybinds.playlist]
 F5 = {action = "playlist.view_browser", visibility = "global"}
 enter.enter = "playlist.play_selected"
 enter.d = "playlist.delete_selected"
@@ -27,20 +27,20 @@ enter.D = "playlist.delete_all"
 [mode_names.playlist]
 enter = "Playlist Action"
 
-[keys.browser]
+[keybinds.browser]
 F5 = {action = "browser.view_playlist", visibility = "global"}
 F2 = {action = "browser.search", visibility = "global"}
-left = "browser.left"
-right = "browser.right"
+# left = "browser.left"
+# right = "browser.right"
 
-[keys.browser_artists]
+[keybinds.browser_artists]
 enter = "browser_artists.display_selected_artist_albums"
 
-[keys.browser_search]
+[keybinds.browser_search]
 down = "browser_search.prev_search_suggestion"
 up = "browser_search.next_search_suggestion"
 
-[keys.browser_songs]
+[keybinds.browser_songs]
 F3 = {action = "browser_songs.filter", visibility = "global"}
 F4 = {action = "browser_songs.sort", visibility = "global"}
 enter.enter = "browser_songs.play_song"
@@ -53,44 +53,44 @@ enter.A = "browser_songs.add_album_to_playlist"
 [mode_names.browser_songs]
 enter = "Play"
 
-[keys.help]
+[keybinds.help]
 F1 = {action = "help.close", visibility = "global"}
 esc = {action = "help.close", visibility = "hidden"}
 
-[keys.filter]
+[keybinds.filter]
 esc = {action = "filter.close", visibility = "hidden"}
 F3 = {action = "filter.close", visibility = "global"}
 F6 = {action = "filter.clear_filter", visibility = "global"}
 
-[keys.sort]
+[keybinds.sort]
 enter = {action = "sort.sort_selected_asc", visibility = "global"}
 A-enter = {action = "sort.sort_selected_desc", visibility = "global"}
 C = {action = "sort.clear_sort", visibility = "global"}
 esc = {action = "sort.close", visibility = "hidden"}
 F4 = {action = "sort.close", visibility = "global"}
 
-[keys.log]
-F5 = {action = "viewbrowser", visibility = "global"}
-"[" = "reducecaptured"
-"]" = "increasecaptured"
-left = "reduceshown"
-right = "increaseshown"
-up = "up"
-down = "down"
-pageup = "pageup"
-pagedown = "pagedown"
-space = "togglehidefiltered"
-esc = "exitpagemode"
-f = "toggletargetfocus"
-h = "toggletargetselector"
+[keybinds.log]
+F5 = {action = "log.view_browser", visibility = "global"}
+"[" = "log.reduce_captured"
+"]" = "log.increase_captured"
+left = "log.reduce_shown"
+right = "log.increase_shown"
+up = "log.up"
+down = "log.down"
+pageup = "log.page_up"
+pagedown = "log.page_down"
+space = "log.toggle_hide_filtered"
+esc = "log.exit_page_mode"
+f = "log.toggle_target_focus"
+h = "log.toggle_target_selector"
 
-[keys.text_entry]
+[keybinds.text_entry]
 enter = "text_entry.submit"
 left = "text_entry.left"
 right = "text_entry.right"
 backspace = "text_entry.backspace"
 
-[keys.list]
+[keybinds.list]
 up = {action = "list.up", value = 1, visibility = "hidden"}
 down = {action = "list.down", value = 1, visibility = "hidden"}
 pageup = {action = "list.up", value = 10}

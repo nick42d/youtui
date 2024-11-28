@@ -19,6 +19,7 @@ use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum LoggerAction {
     ToggleTargetSelector,
     ToggleTargetFocus,

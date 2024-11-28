@@ -15,7 +15,6 @@ use crate::get_config_dir;
 use crate::Result;
 use async_callback_manager::AsyncTask;
 use clap::ValueEnum;
-use itertools::Itertools;
 use serde::de;
 use serde::de::DeserializeOwned;
 use serde::de::MapAccess;
@@ -28,7 +27,6 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::str::FromStr;
 use std::time::Duration;
-use tracing::info;
 use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
@@ -58,10 +56,27 @@ pub struct Config {
 }
 
 #[derive(Default, Debug, Deserialize)]
+#[serde(default)]
 pub struct ConfigIR {
     pub auth_type: AuthType,
     pub keybinds: YoutuiKeymapIR,
     pub mode_names: YoutuiModeNames,
+}
+
+impl TryFrom<ConfigIR> for Config {
+    type Error = String;
+    fn try_from(value: ConfigIR) -> std::result::Result<Self, Self::Error> {
+        let ConfigIR {
+            auth_type,
+            keybinds,
+            mode_names,
+        } = value;
+        Ok(Config {
+            auth_type,
+            keybinds: keybinds.try_into()?,
+            mode_names,
+        })
+    }
 }
 
 #[derive(ValueEnum, Copy, Clone, Default, Debug, Serialize, Deserialize)]
@@ -123,18 +138,54 @@ impl TryFrom<YoutuiKeymapIR> for YoutuiKeymap {
             log,
         } = value;
         Ok(Self {
-            global: global.try_into()?,
-            playlist: playlist.try_into()?,
-            browser: browser.try_into()?,
-            browser_artists: browser_artists.try_into()?,
-            browser_search: browser_search.try_into()?,
-            browser_songs: browser_songs.try_into()?,
-            help: help.try_into()?,
-            sort: sort.try_into()?,
-            filter: filter.try_into()?,
-            text_entry: text_entry.try_into()?,
-            list: list.try_into()?,
-            log: log.try_into()?,
+            global: global
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            playlist: playlist
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            browser: browser
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            browser_artists: browser_artists
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            browser_search: browser_search
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            browser_songs: browser_songs
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            help: help
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            sort: sort
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            filter: filter
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            text_entry: text_entry
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            list: list
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+            log: log
+                .into_iter()
+                .map(|(k, v)| Ok((k, v.try_into()?)))
+                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
         })
     }
 }
@@ -295,6 +346,8 @@ impl Action for AppAction {
             AppAction::BrowserArtists(a) => a.context(),
             AppAction::BrowserSearch(a) => a.context(),
             AppAction::BrowserSongs(a) => a.context(),
+            AppAction::TextEntry(_) => todo!(),
+            AppAction::List(_) => todo!(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -318,6 +371,8 @@ impl Action for AppAction {
             AppAction::BrowserArtists(a) => a.describe(),
             AppAction::BrowserSearch(a) => a.describe(),
             AppAction::BrowserSongs(a) => a.describe(),
+            AppAction::TextEntry(_) => todo!(),
+            AppAction::List(_) => todo!(),
         }
     }
     async fn apply(
@@ -396,6 +451,8 @@ impl Action for AppAction {
                     .apply(state)
                     .await
             }
+            AppAction::TextEntry(_) => todo!(),
+            AppAction::List(_) => todo!(),
         };
         AsyncTask::new_no_op()
     }
@@ -423,6 +480,8 @@ pub enum AppAction {
     BrowserSongs(BrowserSongsAction),
     Log(LoggerAction),
     Playlist(PlaylistAction),
+    TextEntry(TextEntryAction),
+    List(ListAction),
 }
 impl TryFrom<String> for AppAction {
     type Error = String;
@@ -457,7 +516,9 @@ impl TryFrom<String> for AppAction {
                 "help" => Ok(AppAction::Help(deserialize_enum(back)?)),
                 "filter" => Ok(AppAction::Filter(deserialize_enum(back)?)),
                 "sort" => Ok(AppAction::Sort(deserialize_enum(back)?)),
-                _ => Err(format!("Unrecognised action {back}")),
+                "text_entry" => Ok(AppAction::TextEntry(deserialize_enum(back)?)),
+                "list" => Ok(AppAction::List(deserialize_enum(back)?)),
+                _ => Err(format!("Unrecognised action category {tag}")),
             }
         } else {
             deserialize_enum(back)
@@ -466,6 +527,7 @@ impl TryFrom<String> for AppAction {
 }
 
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PlaylistAction {
     ViewBrowser,
     PlaySelected,
@@ -497,8 +559,8 @@ impl Action for PlaylistAction {
     {
         match self {
             PlaylistAction::ViewBrowser => state.view_browser().await,
-            PlaylistAction::List(ListAction::Down(n)) => state.increment_list(n),
-            PlaylistAction::List(ListAction::Up(n)) => state.increment_list(-n),
+            PlaylistAction::List(ListAction::Down) => state.increment_list(1),
+            PlaylistAction::List(ListAction::Up) => state.increment_list(-1),
             PlaylistAction::PlaySelected => return state.play_selected(),
             PlaylistAction::DeleteSelected => return state.delete_selected(),
             PlaylistAction::DeleteAll => return state.delete_all(),
@@ -511,7 +573,7 @@ impl Action for PlaylistAction {
 #[serde(rename_all = "snake_case")]
 pub enum BrowserAction {
     ViewPlaylist,
-    ToggleSearch,
+    Search,
     Left,
     Right,
 }
@@ -524,7 +586,7 @@ impl Action for BrowserAction {
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
             BrowserAction::ViewPlaylist => "View Playlist",
-            BrowserAction::ToggleSearch => "Toggle Search",
+            BrowserAction::Search => "Toggle Search",
             BrowserAction::Left => "Left",
             BrowserAction::Right => "Right",
         }
@@ -547,7 +609,7 @@ impl Action for BrowserAction {
                 )
                 .await
             }
-            BrowserAction::ToggleSearch => state.handle_toggle_search(),
+            BrowserAction::Search => state.handle_toggle_search(),
         }
         AsyncTask::new_no_op()
     }
@@ -647,8 +709,8 @@ impl Action for BrowserSongsAction {
             BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
             BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
             BrowserSongsAction::List(a) => match a {
-                ListAction::Up(n) => "Up",
-                ListAction::Down(n) => "Down",
+                ListAction::Up => "Up",
+                ListAction::Down => "Down",
             },
             BrowserSongsAction::Sort => "Sort",
             BrowserSongsAction::Filter => "Filter",
@@ -670,8 +732,8 @@ impl Action for BrowserSongsAction {
             BrowserSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
             BrowserSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
             BrowserSongsAction::List(a) => match a {
-                ListAction::Up(n) => state.album_songs_list.increment_list(-1),
-                ListAction::Down(n) => state.album_songs_list.increment_list(1),
+                ListAction::Up => state.album_songs_list.increment_list(-1),
+                ListAction::Down => state.album_songs_list.increment_list(1),
             },
             BrowserSongsAction::Sort => state.album_songs_list.handle_pop_sort(),
             BrowserSongsAction::Filter => state.album_songs_list.toggle_filter(),
@@ -683,26 +745,26 @@ impl Action for BrowserSongsAction {
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HelpAction {
-    CloseHelp,
+    Close,
     ListAction(ListAction),
 }
 impl Action for HelpAction {
     type State = HelpMenu;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
-            HelpAction::CloseHelp => "Help".into(),
+            HelpAction::Close => "Help".into(),
             HelpAction::ListAction(a) => match a {
-                ListAction::Up(_) => "Help".into(),
-                ListAction::Down(_) => "Help".into(),
+                ListAction::Up => "Help".into(),
+                ListAction::Down => "Help".into(),
             },
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            HelpAction::CloseHelp => "Close Help".into(),
+            HelpAction::Close => "Close Help".into(),
             HelpAction::ListAction(a) => match a {
-                ListAction::Up(n) => format!("Up {n}").into(),
-                ListAction::Down(n) => format!("Down {n}").into(),
+                ListAction::Up => format!("Up 1").into(),
+                ListAction::Down => format!("Down 1").into(),
             },
         }
     }
@@ -714,10 +776,10 @@ impl Action for HelpAction {
         Self: Sized,
     {
         match self {
-            HelpAction::CloseHelp => state.shown = false,
+            HelpAction::Close => state.shown = false,
             HelpAction::ListAction(a) => match a {
-                ListAction::Up(n) => state.increment_list(n),
-                ListAction::Down(n) => state.increment_list(-n),
+                ListAction::Up => state.increment_list(1),
+                ListAction::Down => state.increment_list(-1),
             },
         }
         AsyncTask::new_no_op()
@@ -733,7 +795,7 @@ impl From<ListAction> for HelpAction {
 #[serde(rename_all = "snake_case")]
 pub enum FilterAction {
     Close,
-    Clear,
+    ClearFilter,
     Apply,
 }
 impl Action for FilterAction {
@@ -745,7 +807,7 @@ impl Action for FilterAction {
         match self {
             FilterAction::Close => "Close Filter",
             FilterAction::Apply => "Apply filter",
-            FilterAction::Clear => "Clear filter",
+            FilterAction::ClearFilter => "Clear filter",
         }
         .into()
     }
@@ -759,7 +821,7 @@ impl Action for FilterAction {
         match self {
             FilterAction::Close => state.album_songs_list.toggle_filter(),
             FilterAction::Apply => state.album_songs_list.apply_filter(),
-            FilterAction::Clear => state.album_songs_list.clear_filter(),
+            FilterAction::ClearFilter => state.album_songs_list.clear_filter(),
         };
         AsyncTask::new_no_op()
     }
@@ -768,7 +830,7 @@ impl Action for FilterAction {
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SortAction {
-    CloseSort,
+    Close,
     ClearSort,
     SortSelectedAsc,
     SortSelectedDesc,
@@ -780,7 +842,7 @@ impl Action for SortAction {
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            SortAction::CloseSort => "Close sort",
+            SortAction::Close => "Close sort",
             SortAction::ClearSort => "Clear sort",
             SortAction::SortSelectedAsc => "Sort ascending",
             SortAction::SortSelectedDesc => "Sort descending",
@@ -797,7 +859,7 @@ impl Action for SortAction {
         match self {
             SortAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
             SortAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
-            SortAction::CloseSort => state.album_songs_list.close_sort(),
+            SortAction::Close => state.album_songs_list.close_sort(),
             SortAction::ClearSort => state.album_songs_list.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
@@ -809,8 +871,8 @@ impl Action for SortAction {
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ListAction {
-    Up(isize),
-    Down(isize),
+    Up,
+    Down,
 }
 
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
@@ -854,13 +916,13 @@ mod tests {
     use super::{AppAction, KeyEnum, ModeNameEnum};
     use crate::{
         app::keycommand::Keybind,
-        config::{ConfigIR, CONFIG_FILE_NAME},
+        config::{Config, ConfigIR, CONFIG_FILE_NAME},
         get_config_dir,
     };
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
 
-    const CFG_TST: &str = r#"[global]
+    const CFG_TST: &str = r#"[keybinds.global]
 "+" = {action = "vol_up", value = 5}
 "-" = {action = "vol_down", value = 5}
 ">" = "next_song"
@@ -873,7 +935,7 @@ F12 = {action = "view_logs", visibility = "global"}
 space = "pause"
 C-c = "quit"
 
-[playlist]
+[keybinds.playlist]
 F5 = {action = "playlist.view_browser", visibility = "global"}
 enter.enter = "playlist.play_selected"
 enter.d = "playlist.delete_selected"
@@ -886,6 +948,8 @@ enter.D = "playlist.delete_all""#;
             .await
             .unwrap();
         let x: ConfigIR = toml::from_str(&config_file).unwrap();
+        let cfg = Config::try_from(x).unwrap();
+        eprintln!("{:#?}", cfg)
     }
     #[tokio::test]
     async fn test_deserialize_config_special_enums() {
