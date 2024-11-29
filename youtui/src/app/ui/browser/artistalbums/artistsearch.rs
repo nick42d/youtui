@@ -5,14 +5,18 @@ use crate::{
         },
         keycommand::KeyCommand,
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
-        ui::browser::Browser,
+        ui::{action::AppAction, browser::Browser},
         view::{ListView, Loadable, Scrollable, SortableList},
     },
-    config::{AppAction, Config, KeyEnum, KeyEnumKey},
+    config::{
+        keybinds::{KeyEnum, KeyEnumKey},
+        Config,
+    },
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
+use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, iter::Iterator};
 use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
@@ -45,18 +49,72 @@ pub struct SearchBlock {
 }
 impl_youtui_component!(SearchBlock);
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ArtistAction {
-    DisplayAlbums,
-    // XXX: This could be a subset - eg ListAction
-    Up,
-    Down,
-    PageUp,
-    PageDown,
-    // XXX: Could be a subset just for search
-    Search,
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserArtistsAction {
+    DisplaySelectedArtistAlbums,
+}
+
+impl Action for BrowserArtistsAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Search Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            Self::DisplaySelectedArtistAlbums => "Display albums for selected artist",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            BrowserArtistsAction::DisplaySelectedArtistAlbums => state.get_songs(),
+        }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSearchAction {
+    SearchArtist,
     PrevSearchSuggestion,
     NextSearchSuggestion,
+}
+impl Action for BrowserSearchAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Search Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            BrowserSearchAction::SearchArtist => "Search",
+            BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
+            BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            BrowserSearchAction::SearchArtist => return state.search(),
+            BrowserSearchAction::PrevSearchSuggestion => {
+                state.artist_list.search.increment_list(-1)
+            }
+            BrowserSearchAction::NextSearchSuggestion => state.artist_list.search.increment_list(1),
+        }
+        AsyncTask::new_no_op()
+    }
 }
 
 impl ArtistSearchPanel {

@@ -1,8 +1,8 @@
-use crate::config::{AppAction, KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyEnum, KeyEnumKey};
 use crate::core::send_or_error;
 use crate::{
     app::{
-        component::actionhandler::{Action, Component, ComponentEffect, KeyRouter, TextHandler},
+        component::actionhandler::{Action, ComponentEffect, KeyRouter, TextHandler},
         keycommand::KeyCommand,
         server::{ArcServer, TaskMetadata},
         ui::AppCallback,
@@ -17,6 +17,8 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
+
+use super::action::AppAction;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -2,9 +2,13 @@ use std::{collections::HashMap, convert::Infallible, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::app::keycommand::Keybind;
+use crate::app::{
+    keycommand::{CommandVisibility, Keybind},
+    ui::action::AppAction,
+};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Default)]
+// TODO: What are the action default keybinds?
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -107,7 +111,7 @@ impl TryFrom<YoutuiKeymapIR> for YoutuiKeymap {
     }
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct YoutuiModeNames {
     global: HashMap<Keybind, ModeNameEnum>,
@@ -126,12 +130,12 @@ pub struct YoutuiModeNames {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum KeyEnumString {
-    #[serde(deserialize_with = "super::core::string_or_struct")]
+    #[serde(deserialize_with = "crate::core::string_or_struct")]
     Key(KeyEnumKey<String>),
     Mode(HashMap<Keybind, KeyEnumString>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum KeyEnum<A: Default> {
     Key(KeyEnumKey<A>),
     Mode(HashMap<Keybind, KeyEnum<A>>),

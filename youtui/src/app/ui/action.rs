@@ -1,4 +1,28 @@
-use crate::app::component::actionhandler::Action;
+use std::time::Duration;
+
+use async_callback_manager::AsyncTask;
+use serde::{
+    de::{self, DeserializeOwned},
+    Deserialize, Serialize,
+};
+
+use crate::{
+    app::{component::actionhandler::Action, AppCallback},
+    async_rodio_sink::{send_or_error, SeekDirection},
+};
+
+use super::{
+    browser::{
+        artistalbums::{
+            albumsongs::{BrowserSongsAction, FilterAction, SortAction},
+            artistsearch::{BrowserArtistsAction, BrowserSearchAction},
+        },
+        BrowserAction,
+    },
+    logger::LoggerAction,
+    playlist::PlaylistAction,
+    HelpMenu, WindowContext, YoutuiWindow,
+};
 
 #[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -25,6 +49,28 @@ pub enum AppAction {
     Playlist(PlaylistAction),
     TextEntry(TextEntryAction),
     List(ListAction),
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum HelpAction {
+    Close,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ListAction {
+    Up,
+    Down,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TextEntryAction {
+    Submit,
+    Left,
+    Right,
+    Backspace,
 }
 
 impl Action for AppAction {
@@ -202,5 +248,31 @@ impl TryFrom<String> for AppAction {
         } else {
             deserialize_enum(back)
         }
+    }
+}
+
+impl Action for HelpAction {
+    type State = HelpMenu;
+    fn context(&self) -> std::borrow::Cow<str> {
+        match self {
+            HelpAction::Close => "Help".into(),
+        }
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            HelpAction::Close => "Close Help".into(),
+        }
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            HelpAction::Close => state.shown = false,
+        }
+        AsyncTask::new_no_op()
     }
 }

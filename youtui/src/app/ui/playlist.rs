@@ -18,7 +18,8 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::config::{AppAction, Config, KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::Config;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
@@ -31,6 +32,8 @@ use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
+
+use super::action::AppAction;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;

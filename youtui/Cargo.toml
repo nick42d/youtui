@@ -42,6 +42,7 @@ bytes = "1.8.0"
 # This can be removed when tui-logger re-exports LevelFilter.
 # https://github.com/gin66/tui-logger/pull/74
 log = "0.4.22"
+anyhow = "1.0.93"
 
 [dependencies.rusty_ytdl]
 # version = "0.7.4"

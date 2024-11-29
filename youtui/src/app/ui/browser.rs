@@ -3,20 +3,25 @@ use self::{
     draw::draw_browser,
 };
 use super::{action::AppAction, AppCallback, WindowContext};
-use crate::app::{
-    component::actionhandler::{
-        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
-    },
-    server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
-    },
-    structures::{ListStatus, SongListComponent},
-    view::{DrawableMut, Scrollable},
-};
 use crate::{
     app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
     config::Config,
     core::send_or_error,
+};
+use crate::{
+    app::{
+        component::actionhandler::{
+            Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable,
+            TextHandler,
+        },
+        server::{
+            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
+            TaskMetadata,
+        },
+        structures::{ListStatus, SongListComponent},
+        view::{DrawableMut, Scrollable},
+    },
+    config::keybinds::{KeyEnum, KeyEnumKey},
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;

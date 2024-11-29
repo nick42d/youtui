@@ -5,6 +5,7 @@ use crate::app::component::actionhandler::{
 use crate::app::keycommand::KeyCommand;
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
+use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::{Browser, PAGE_KEY_LINES};
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -14,12 +15,14 @@ use crate::app::{
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
-use crate::config::{AppAction, Config, KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::Config;
 use crate::error::Error;
 use crate::Result;
 use async_callback_manager::AsyncTask;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::iter::Iterator;
 use tracing::warn;
@@ -63,6 +66,135 @@ pub struct SortManager {
     keybinds: Vec<KeyCommand<AppAction>>,
 }
 impl_youtui_component!(SortManager);
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSongsAction {
+    Filter,
+    Sort,
+    PlaySong,
+    PlaySongs,
+    PlayAlbum,
+    AddSongToPlaylist,
+    AddSongsToPlaylist,
+    AddAlbumToPlaylist,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FilterAction {
+    Close,
+    ClearFilter,
+    Apply,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SortAction {
+    Close,
+    ClearSort,
+    SortSelectedAsc,
+    SortSelectedDesc,
+}
+
+impl Action for FilterAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Filter".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            FilterAction::Close => "Close Filter",
+            FilterAction::Apply => "Apply filter",
+            FilterAction::ClearFilter => "Clear filter",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            FilterAction::Close => state.album_songs_list.toggle_filter(),
+            FilterAction::Apply => state.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => state.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+
+impl Action for SortAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Filter".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            SortAction::Close => "Close sort",
+            SortAction::ClearSort => "Clear sort",
+            SortAction::SortSelectedAsc => "Sort ascending",
+            SortAction::SortSelectedDesc => "Sort descending",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            SortAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
+            SortAction::Close => state.album_songs_list.close_sort(),
+            SortAction::ClearSort => state.album_songs_list.handle_clear_sort(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
+
+impl Action for BrowserSongsAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Songs Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match &self {
+            BrowserSongsAction::PlaySong => "Play song",
+            BrowserSongsAction::PlaySongs => "Play songs",
+            BrowserSongsAction::PlayAlbum => "Play album",
+            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            BrowserSongsAction::Sort => "Sort",
+            BrowserSongsAction::Filter => "Filter",
+        }
+        .into()
+    }
+    async fn apply(
+        self,
+        state: &mut Self::State,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
+    where
+        Self: Sized,
+    {
+        match self {
+            BrowserSongsAction::PlayAlbum => state.play_album().await,
+            BrowserSongsAction::PlaySong => state.play_song().await,
+            BrowserSongsAction::PlaySongs => state.play_songs().await,
+            BrowserSongsAction::AddAlbumToPlaylist => state.add_album_to_playlist().await,
+            BrowserSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
+            BrowserSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
+            BrowserSongsAction::Sort => state.album_songs_list.handle_pop_sort(),
+            BrowserSongsAction::Filter => state.album_songs_list.toggle_filter(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
 
 impl SortManager {
     fn new(config: &Config) -> Self {
