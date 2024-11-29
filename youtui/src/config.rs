@@ -102,6 +102,7 @@ mod tests {
         config::{Config, ConfigIR, CONFIG_FILE_NAME},
         get_config_dir,
     };
+    use pretty_assertions::assert_eq;
 
     #[tokio::test]
     async fn test_deserialize_default_config_to_ir() {
