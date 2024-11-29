@@ -1,5 +1,4 @@
 use crate::app::component::actionhandler::Action;
-use crate::app::ui::action::AppAction;
 use crate::get_config_dir;
 use crate::Result;
 use clap::ValueEnum;

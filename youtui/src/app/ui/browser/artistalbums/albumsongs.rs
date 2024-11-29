@@ -6,7 +6,7 @@ use crate::app::keycommand::KeyCommand;
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::action::AppAction;
-use crate::app::ui::browser::{Browser, PAGE_KEY_LINES};
+use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };

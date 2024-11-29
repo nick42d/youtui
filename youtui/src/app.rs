@@ -14,7 +14,7 @@ use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::ListSong;
 use tokio::sync::mpsc;
-use tracing::{error, info, warn};
+use tracing::{error, info};
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
 use ui::YoutuiWindow;
