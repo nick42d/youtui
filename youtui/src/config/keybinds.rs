@@ -1,10 +1,15 @@
 use std::{collections::HashMap, convert::Infallible, str::FromStr};
 
+use crossterm::event::KeyModifiers;
+use rodio::source::from_iter;
 use serde::{Deserialize, Serialize};
 
 use crate::app::{
     keycommand::{CommandVisibility, Keybind},
-    ui::action::AppAction,
+    ui::{
+        action::AppAction,
+        playlist::PlaylistAction::{DeleteSelected, PlaySelected, ViewBrowser},
+    },
 };
 
 #[derive(Debug, PartialEq)]
@@ -26,18 +31,18 @@ pub struct YoutuiKeymap {
 impl Default for YoutuiKeymap {
     fn default() -> Self {
         Self {
-            global: todo!(),
-            playlist: todo!(),
-            browser: todo!(),
-            browser_artists: todo!(),
-            browser_search: todo!(),
-            browser_songs: todo!(),
-            help: todo!(),
-            sort: todo!(),
-            filter: todo!(),
-            text_entry: todo!(),
-            list: todo!(),
-            log: todo!(),
+            global: default_global_keybinds(),
+            playlist: default_playlist_keybings(),
+            browser: default_browser_keybings(),
+            browser_artists: default_browser_artists_keybings(),
+            browser_search: default_browser_search_keybings(),
+            browser_songs: default_browser_songs_keybings(),
+            help: default_help_keybings(),
+            sort: default_sort_keybings(),
+            filter: default_filter_keybings(),
+            text_entry: default_text_entry_keybings(),
+            list: default_list_keybings(),
+            log: default_log_keybings(),
         }
     }
 }
@@ -165,6 +170,29 @@ pub enum KeyEnum<A: Default> {
     Mode(HashMap<Keybind, KeyEnum<A>>),
 }
 
+impl<A: Default> KeyEnum<A> {
+    fn new_key_defaulted(action: A) -> Self {
+        Self::Key(KeyEnumKey {
+            action,
+            value: Default::default(),
+            visibility: Default::default(),
+        })
+    }
+    fn new_key(action: A, value: usize, visibility: CommandVisibility) -> Self {
+        Self::Key(KeyEnumKey {
+            action,
+            value,
+            visibility,
+        })
+    }
+    fn new_mode<I>(binds: I) -> Self
+    where
+        I: IntoIterator<Item = (Keybind, KeyEnum<A>)>,
+    {
+        Self::Mode(FromIterator::from_iter(binds))
+    }
+}
+
 impl TryFrom<KeyEnumString> for KeyEnum<AppAction> {
     type Error = String;
     fn try_from(value: KeyEnumString) -> std::result::Result<Self, Self::Error> {
@@ -227,4 +255,104 @@ enum ModeNameEnum {
     Submode(HashMap<Keybind, ModeNameEnum>),
     #[serde(untagged)]
     Name(String),
+}
+
+fn default_global_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    FromIterator::from_iter([
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('+')),
+            KeyEnum::new_key(AppAction::VolUp, 5, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('-')),
+            KeyEnum::new_key(AppAction::VolDown, 5, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('>')),
+            KeyEnum::new_key_defaulted(AppAction::NextSong),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('<')),
+            KeyEnum::new_key_defaulted(AppAction::PrevSong),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char(']')),
+            KeyEnum::new_key(AppAction::SeekForwardS, 5, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('[')),
+            KeyEnum::new_key(AppAction::SeekBackS, 5, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
+            KeyEnum::new_key(AppAction::ToggleHelp, 1, CommandVisibility::Global),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(10)),
+            KeyEnum::new_key(AppAction::Quit, 1, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(12)),
+            KeyEnum::new_key(AppAction::ViewLogs, 1, CommandVisibility::Standard),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
+            KeyEnum::new_key_defaulted(AppAction::Pause),
+        ),
+        (
+            Keybind::new(crossterm::event::KeyCode::Char('c'), KeyModifiers::CONTROL),
+            KeyEnum::new_key_defaulted(AppAction::Quit),
+        ),
+    ])
+}
+fn default_playlist_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    FromIterator::from_iter([
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
+            KeyEnum::new_key_defaulted(AppAction::Playlist(ViewBrowser)),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyEnum::new_mode([
+                (
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                    KeyEnum::new_key_defaulted(AppAction::Playlist(PlaySelected)),
+                ),
+                (
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Char('d')),
+                    KeyEnum::new_key_defaulted(AppAction::Playlist(DeleteSelected)),
+                ),
+            ]),
+        ),
+    ])
+}
+fn default_browser_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_browser_artists_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_browser_search_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_browser_songs_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_help_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_sort_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_filter_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_text_entry_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_log_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
+}
+fn default_list_keybings() -> HashMap<Keybind, KeyEnum<AppAction>> {
+    todo!()
 }

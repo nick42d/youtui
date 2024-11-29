@@ -70,8 +70,14 @@ impl<'a, A: Action + 'a> From<&'a KeyCommand<A>> for DisplayableCommand<'a> {
 }
 
 impl Keybind {
-    fn new(code: KeyCode, modifiers: KeyModifiers) -> Self {
+    pub fn new(code: KeyCode, modifiers: KeyModifiers) -> Self {
         Self { code, modifiers }
+    }
+    pub fn new_unmodified(code: KeyCode) -> Self {
+        Self {
+            code,
+            modifiers: KeyModifiers::NONE,
+        }
     }
     fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         match self.code {

@@ -46,6 +46,7 @@ pub struct Config {
 
 #[derive(Default, Debug, Deserialize)]
 #[serde(default)]
+/// Intermediate representation of Config for serde.
 pub struct ConfigIR {
     pub auth_type: AuthType,
     pub keybinds: YoutuiKeymapIR,
