@@ -60,7 +60,7 @@ version = "0.20.1"
 features = ["symphonia-all"]
 
 [dev-dependencies]
-pretty_assertions = "1.4.1"
+pretty_assertions_sorted = "1.2.3"
 
 [lints]
 workspace = true

@@ -1,4 +1,3 @@
-use crate::app::component::actionhandler::Action;
 use crate::get_config_dir;
 use crate::Result;
 use clap::ValueEnum;
@@ -102,7 +101,7 @@ mod tests {
         config::{Config, ConfigIR, CONFIG_FILE_NAME},
         get_config_dir,
     };
-    use pretty_assertions::assert_eq;
+    use pretty_assertions_sorted::assert_eq_sorted;
 
     #[tokio::test]
     async fn test_deserialize_default_config_to_ir() {
@@ -133,6 +132,6 @@ mod tests {
         let ir: ConfigIR = toml::from_str(&config_file).unwrap();
         let output = Config::try_from(ir).unwrap();
         let expected = Config::default();
-        assert_eq!(output, expected);
+        assert_eq_sorted!(output, expected);
     }
 }

@@ -10,7 +10,7 @@ use crate::app::{
             BrowserAction,
         },
         logger::LoggerAction,
-        playlist::PlaylistAction::{DeleteSelected, PlaySelected, ViewBrowser},
+        playlist::PlaylistAction::{self, DeleteSelected, PlaySelected, ViewBrowser},
     },
 };
 use crossterm::event::KeyModifiers;
@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, convert::Infallible, str::FromStr};
 
 #[derive(Debug, PartialEq)]
+#[cfg_attr(test, derive(PartialOrd))]
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -197,10 +198,17 @@ impl<A: Default> KeyEnum<A> {
             visibility: Default::default(),
         })
     }
+    fn new_key_with_visibility(action: A, visibility: CommandVisibility) -> Self {
+        Self::Key(KeyEnumKey {
+            action,
+            value: Default::default(),
+            visibility,
+        })
+    }
     fn new_key(action: A, value: usize, visibility: CommandVisibility) -> Self {
         Self::Key(KeyEnumKey {
             action,
-            value,
+            value: Some(value),
             visibility,
         })
     }
@@ -235,7 +243,7 @@ pub struct KeyEnumKey<A: Default> {
     // mode. What happens here.
     pub action: A,
     #[serde(default)]
-    pub value: usize,
+    pub value: Option<usize>,
     #[serde(default)]
     pub visibility: CommandVisibility,
 }
@@ -304,15 +312,15 @@ fn default_global_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
-            KeyEnum::new_key(AppAction::ToggleHelp, 1, CommandVisibility::Global),
+            KeyEnum::new_key_with_visibility(AppAction::ToggleHelp, CommandVisibility::Global),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(10)),
-            KeyEnum::new_key(AppAction::Quit, 1, CommandVisibility::Standard),
+            KeyEnum::new_key_with_visibility(AppAction::Quit, CommandVisibility::Global),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(12)),
-            KeyEnum::new_key(AppAction::ViewLogs, 1, CommandVisibility::Standard),
+            KeyEnum::new_key_with_visibility(AppAction::ViewLogs, CommandVisibility::Global),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
@@ -328,22 +336,25 @@ fn default_playlist_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
-            KeyEnum::new_key_defaulted(AppAction::Playlist(ViewBrowser)),
+            KeyEnum::new_key_with_visibility(
+                AppAction::Playlist(ViewBrowser),
+                CommandVisibility::Global,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
             KeyEnum::new_mode([
                 (
                     Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
-                    KeyEnum::new_key_defaulted(AppAction::Playlist(PlaySelected)),
+                    KeyEnum::new_key_defaulted(AppAction::Playlist(PlaylistAction::PlaySelected)),
                 ),
                 (
                     Keybind::new_unmodified(crossterm::event::KeyCode::Char('d')),
-                    KeyEnum::new_key_defaulted(AppAction::Playlist(DeleteSelected)),
+                    KeyEnum::new_key_defaulted(AppAction::Playlist(PlaylistAction::DeleteSelected)),
                 ),
                 (
                     Keybind::new_unmodified(crossterm::event::KeyCode::Char('D')),
-                    KeyEnum::new_key_defaulted(AppAction::Playlist(DeleteSelected)),
+                    KeyEnum::new_key_defaulted(AppAction::Playlist(PlaylistAction::DeleteAll)),
                 ),
             ]),
         ),
@@ -353,19 +364,25 @@ fn default_browser_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Browser(BrowserAction::ViewPlaylist),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(2)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Browser(BrowserAction::Search),
-                1,
                 CommandVisibility::Global,
             ),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Left),
+            KeyEnum::new_key_defaulted(AppAction::Browser(BrowserAction::Left)),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Right),
+            KeyEnum::new_key_defaulted(AppAction::Browser(BrowserAction::Right)),
         ),
     ])
 }
@@ -397,17 +414,15 @@ fn default_browser_songs_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::BrowserSongs(BrowserSongsAction::Filter),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(4)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::BrowserSongs(BrowserSongsAction::Sort),
-                1,
                 CommandVisibility::Global,
             ),
         ),
@@ -461,10 +476,9 @@ fn default_help_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
             KeyEnum::new_key_defaulted(AppAction::Help(HelpAction::Close)),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
-            KeyEnum::new_key(
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
+            KeyEnum::new_key_with_visibility(
                 AppAction::Help(HelpAction::Close),
-                1,
                 CommandVisibility::Global,
             ),
         ),
@@ -474,41 +488,36 @@ fn default_sort_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Sort(SortAction::SortSelectedAsc),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new(crossterm::event::KeyCode::Enter, KeyModifiers::ALT),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Sort(SortAction::SortSelectedDesc),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('C')),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Sort(SortAction::ClearSort),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Sort(SortAction::Close),
-                1,
                 CommandVisibility::Hidden,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(4)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Sort(SortAction::Close),
-                1,
                 CommandVisibility::Global,
             ),
         ),
@@ -518,25 +527,22 @@ fn default_filter_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Filter(FilterAction::Close),
-                1,
                 CommandVisibility::Hidden,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Filter(FilterAction::Close),
-                1,
                 CommandVisibility::Global,
             ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(6)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Filter(FilterAction::ClearFilter),
-                1,
                 CommandVisibility::Global,
             ),
         ),
@@ -566,9 +572,8 @@ fn default_log_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
-            KeyEnum::new_key(
+            KeyEnum::new_key_with_visibility(
                 AppAction::Log(LoggerAction::ViewBrowser),
-                0,
                 CommandVisibility::Global,
             ),
         ),
@@ -613,12 +618,12 @@ fn default_log_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
             KeyEnum::new_key_defaulted(AppAction::Log(LoggerAction::ExitPageMode)),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char('h')),
-            KeyEnum::new_key_defaulted(AppAction::Log(LoggerAction::ToggleTargetSelector)),
-        ),
-        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('f')),
             KeyEnum::new_key_defaulted(AppAction::Log(LoggerAction::ToggleTargetFocus)),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('h')),
+            KeyEnum::new_key_defaulted(AppAction::Log(LoggerAction::ToggleTargetSelector)),
         ),
     ])
 }

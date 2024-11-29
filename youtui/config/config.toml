@@ -30,15 +30,15 @@ enter = "Playlist Action"
 [keybinds.browser]
 F5 = {action = "browser.view_playlist", visibility = "global"}
 F2 = {action = "browser.search", visibility = "global"}
-# left = "browser.left"
-# right = "browser.right"
+left = "browser.left"
+right = "browser.right"
 
 [keybinds.browser_artists]
 enter = "browser_artists.display_selected_artist_albums"
 
 [keybinds.browser_search]
-down = "browser_search.prev_search_suggestion"
-up = "browser_search.next_search_suggestion"
+down = "browser_search.next_search_suggestion"
+up = "browser_search.prev_search_suggestion"
 
 [keybinds.browser_songs]
 F3 = {action = "browser_songs.filter", visibility = "global"}
