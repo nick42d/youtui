@@ -7,8 +7,7 @@ use crate::app::{
     ui::action::AppAction,
 };
 
-#[derive(Debug, PartialEq, Default)]
-// TODO: What are the action default keybinds?
+#[derive(Debug, PartialEq)]
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -22,6 +21,25 @@ pub struct YoutuiKeymap {
     pub text_entry: HashMap<Keybind, KeyEnum<AppAction>>,
     pub list: HashMap<Keybind, KeyEnum<AppAction>>,
     pub log: HashMap<Keybind, KeyEnum<AppAction>>,
+}
+
+impl Default for YoutuiKeymap {
+    fn default() -> Self {
+        Self {
+            global: todo!(),
+            playlist: todo!(),
+            browser: todo!(),
+            browser_artists: todo!(),
+            browser_search: todo!(),
+            browser_songs: todo!(),
+            help: todo!(),
+            sort: todo!(),
+            filter: todo!(),
+            text_entry: todo!(),
+            list: todo!(),
+            log: todo!(),
+        }
+    }
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -111,7 +129,7 @@ impl TryFrom<YoutuiKeymapIR> for YoutuiKeymap {
     }
 }
 
-#[derive(Default, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct YoutuiModeNames {
     global: HashMap<Keybind, ModeNameEnum>,
@@ -125,6 +143,12 @@ pub struct YoutuiModeNames {
     filter: HashMap<Keybind, ModeNameEnum>,
     text_entry: HashMap<Keybind, ModeNameEnum>,
     list: HashMap<Keybind, ModeNameEnum>,
+}
+
+impl Default for YoutuiModeNames {
+    fn default() -> Self {
+        todo!()
+    }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
