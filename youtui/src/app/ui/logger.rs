@@ -1,4 +1,4 @@
-use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::core::send_or_error;
 use crate::{
     app::{
@@ -181,7 +181,7 @@ fn logger_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .log
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -191,7 +191,7 @@ fn logger_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .collect()
 }

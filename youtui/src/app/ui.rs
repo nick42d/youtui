@@ -9,11 +9,12 @@ use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::config::Config;
 use action::AppAction;
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
+use itertools::Either;
 use ratatui::widgets::TableState;
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -99,18 +100,16 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 
     fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
         if self.help.shown {
-            return Box::new(self.help.keybinds.iter()) as DynKeybindsIter<'a, AppAction>;
+            return Either::Right(Either::Right(self.help.keybinds.iter()));
         }
         match self.context {
             WindowContext::Browser => {
-                Box::new(self.browser.get_dominant_keybinds()) as DynKeybindsIter<'a, AppAction>
+                Either::Left(Either::Left(self.browser.get_dominant_keybinds()))
             }
             WindowContext::Playlist => {
-                Box::new(self.playlist.get_active_keybinds()) as DynKeybindsIter<'a, AppAction>
+                Either::Left(Either::Right(self.playlist.get_active_keybinds()))
             }
-            WindowContext::Logs => {
-                Box::new(self.logger.get_active_keybinds()) as DynKeybindsIter<'a, AppAction>
-            }
+            WindowContext::Logs => Either::Right(Either::Left(self.logger.get_active_keybinds())),
         }
     }
 }
@@ -120,13 +119,13 @@ impl KeyRouter<AppAction> for YoutuiWindow {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = self.keybinds.iter();
         match self.context {
-            WindowContext::Browser => Box::new(kb.chain(self.browser.get_all_keybinds()))
-                as DynKeybindsIter<'a, AppAction>,
-            WindowContext::Playlist => Box::new(kb.chain(self.playlist.get_all_keybinds()))
-                as DynKeybindsIter<'a, AppAction>,
-            WindowContext::Logs => {
-                Box::new(kb.chain(self.logger.get_all_keybinds())) as DynKeybindsIter<'a, AppAction>
+            WindowContext::Browser => {
+                Either::Left(Either::Left(kb.chain(self.browser.get_all_keybinds())))
             }
+            WindowContext::Playlist => {
+                Either::Left(Either::Right(kb.chain(self.playlist.get_all_keybinds())))
+            }
+            WindowContext::Logs => Either::Right(kb.chain(self.logger.get_all_keybinds())),
         }
     }
     fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
@@ -380,7 +379,7 @@ fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .global
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -390,13 +389,13 @@ fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .collect()
 }
 fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
     let help = config.keybinds.help.iter().map(|(kb, ke)| match ke {
-        KeyEnum::Key(KeyEnumKey {
+        KeyActionTree::Key(KeyAction {
             action,
             value,
             visibility,
@@ -406,14 +405,14 @@ fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
             visibility.clone(),
             action.clone(),
         ),
-        KeyEnum::Mode(_) => todo!(),
+        KeyActionTree::Mode { .. } => todo!(),
     });
     config
         .keybinds
         .list
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -423,7 +422,7 @@ fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .chain(help)
         .collect()

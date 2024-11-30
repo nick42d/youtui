@@ -9,7 +9,7 @@ use crate::{
         view::{ListView, Loadable, Scrollable, SortableList},
     },
     config::{
-        keybinds::{KeyEnum, KeyEnumKey},
+        keybinds::{KeyAction, KeyActionTree},
         Config,
     },
 };
@@ -325,7 +325,7 @@ fn search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .browser_search
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -335,7 +335,7 @@ fn search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .collect()
 }
@@ -345,7 +345,7 @@ fn browser_artist_search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>>
         .browser_artists
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -355,7 +355,7 @@ fn browser_artist_search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>>
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .collect()
 }

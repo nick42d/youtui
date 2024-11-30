@@ -1,5 +1,5 @@
-use crate::app::component::actionhandler::ComponentEffect;
-use crate::app::keycommand::KeyCommand;
+use crate::app::component::actionhandler::{ComponentEffect, Keymap};
+use crate::app::keycommand::Keybind;
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -18,13 +18,14 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::keybinds::KeyActionTree;
 use crate::config::Config;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
@@ -47,7 +48,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: HashMap<Keybind, KeyActionTree<AppAction>>,
     cur_selected: usize,
     pub widget_state: TableState,
 }
@@ -100,11 +101,11 @@ pub enum QueueState {
 }
 
 impl KeyRouter<AppAction> for Playlist {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         self.get_active_keybinds()
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
-        self.keybinds.iter()
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        std::iter::once(&self.keybinds)
     }
 }
 
@@ -937,23 +938,6 @@ impl Playlist {
     }
 }
 
-fn playlist_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .playlist
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyEnum::Mode(_) => todo!(),
-        })
-        .collect()
+fn playlist_keybinds(config: &Config) -> HashMap<Keybind, KeyActionTree<AppAction>> {
+    config.keybinds.playlist.clone()
 }

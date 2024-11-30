@@ -1,7 +1,11 @@
-use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
+use crate::{
+    app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keybind},
+    config::keybinds::{KeyAction, KeyActionTree},
+};
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyEvent, MouseEvent};
-use std::{borrow::Cow, marker::PhantomData};
+use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
+use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
 pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
@@ -71,6 +75,7 @@ pub trait Action {
     }
 }
 pub type DynKeybindsIter<'a, A> = Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+pub type Keymap<A> = HashMap<Keybind, KeyActionTree<A>>;
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and
@@ -83,10 +88,10 @@ pub type DynKeybindsIter<'a, A> = Box<dyn Iterator<Item = &'a KeyCommand<A>> + '
 pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
 }
 
 /// A component of the application that can block parent keybinds.
@@ -95,7 +100,7 @@ pub trait KeyRouter<A: Action + 'static> {
 pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_;
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
 }
 
 // XXX: Can these all just be derived from KeyRouter?
@@ -106,6 +111,7 @@ pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 's
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
+        .flat_map(|keymap| keymap.into_iter())
         .filter(|kc| kc.visibility != CommandVisibility::Hidden)
         .map(|kb| kb.as_displayable())
 }
@@ -216,6 +222,53 @@ pub enum KeyHandleOutcome<Frntend, Bkend, Md> {
     Mode,
     NoMap,
 }
+
+pub async fn handle_key_stack_and_action_new<'a, A, C, I>(
+    keys: I,
+    key_stack: Vec<KeyEvent>,
+    state: &mut C,
+) -> KeyHandleOutcome<C, C::Bkend, C::Md>
+where
+    A: Action<State = C> + Clone + 'static,
+    C: Component,
+    I: IntoIterator<Item = Keymap<A>>,
+{
+    let convert = |k: KeyEvent| {
+        let KeyEvent {
+            code,
+            modifiers,
+            kind,
+            state,
+        } = k;
+        Keybind { code, modifiers }
+    };
+    let mut is_mode = false;
+    // let mut next_keys = None;
+    let mut next_keys = Box::new(keys.into_iter()) as Box<dyn Iterator<Item = Keymap<A>>>;
+    for k in key_stack {
+        let next_found = next_keys.find_map(|km| km.get(&convert(k)));
+        match next_found {
+            Some(KeyActionTree::Key(KeyAction { action, value, .. })) => {
+                if let Some(v) = value {
+                    warn!("Keybind had value {v}, currently unhandled");
+                }
+                let effect = action.apply(state).await;
+                return KeyHandleOutcome::Action(effect);
+            }
+            Some(KeyActionTree::Mode { name, keys }) => {
+                is_mode = true;
+                // The 'Once' here is a neat hack, could be improved.
+                next_keys = Box::new(std::iter::once(keys))
+            }
+            None => is_mode = false,
+        };
+    }
+    if is_mode {
+        return KeyHandleOutcome::Mode;
+    }
+    KeyHandleOutcome::NoMap
+}
+
 /// Return a list of the current keymap for the provided stack of key_codes.
 /// Note, if multiple options are available returns the first one.
 pub fn get_key_subset<'a, A: Action>(
@@ -352,7 +405,7 @@ mod tests {
                     (KeyCode::Char('A'), TestAction::TestStack),
                 ],
                 KeyCode::Enter,
-                "Play",
+                "Play".into(),
             ),
         ];
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
@@ -382,7 +435,7 @@ mod tests {
                     (KeyCode::Char('A'), TestAction::TestStack),
                 ],
                 KeyCode::Enter,
-                "Play",
+                "Play".into(),
             ),
         ];
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
@@ -408,7 +461,7 @@ mod tests {
                     (KeyCode::Char('a'), TestAction::Test3),
                 ],
                 KeyCode::Enter,
-                "Play",
+                "Play".into(),
             ),
         ];
         let ks = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
@@ -419,7 +472,7 @@ mod tests {
                 (KeyCode::Char('a'), TestAction::Test3),
             ],
             KeyCode::Enter,
-            "Play",
+            "Play".into(),
         )
         .key_map;
         assert_eq!(idx, Some(&eq));
@@ -438,10 +491,10 @@ mod tests {
                         (KeyCode::Char('a'), TestAction::Test3),
                     ],
                     KeyCode::Enter,
-                    "Play",
+                    "Play".into(),
                 ),
             ],
-            name: "test",
+            name: "test".into(),
         });
         let ks = [KeyEvent::new(KeyCode::Enter, KeyModifiers::empty())];
         let idx = index_keymap(&kb, &ks);
@@ -451,7 +504,7 @@ mod tests {
                 (KeyCode::Char('a'), TestAction::Test3),
             ],
             KeyCode::Enter,
-            "Play",
+            "Play".into(),
         )
         .key_map;
         assert_eq!(idx, Some(&eq));

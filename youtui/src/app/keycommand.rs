@@ -43,7 +43,7 @@ pub enum Keymap<A: Action> {
 }
 #[derive(PartialEq, Debug, Clone)]
 pub struct Mode<A: Action> {
-    pub name: &'static str,
+    pub name: String,
     pub commands: Vec<KeyCommand<A>>,
 }
 #[derive(PartialEq, Debug, Clone)]
@@ -79,7 +79,7 @@ impl Keybind {
             modifiers: KeyModifiers::NONE,
         }
     }
-    fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
+    pub fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
         match self.code {
             // If key code is a character it may have shift pressed, if that's the case ignore the
             // shift As may have been used to capitalise the letter, which will already
@@ -146,7 +146,7 @@ impl<A: Action> Mode<A> {
             .unwrap_or_default()
     }
     pub fn describe(&self) -> Cow<str> {
-        self.name.into()
+        Cow::Borrowed(&self.name)
     }
     pub fn as_displayable_iter<'a>(
         &'a self,
@@ -255,7 +255,7 @@ impl<A: Action> KeyCommand<A> {
     pub fn new_action_only_mode(
         actions: Vec<(KeyCode, A)>,
         code: KeyCode,
-        name: &'static str,
+        name: String,
     ) -> KeyCommand<A> {
         let commands = actions
             .into_iter()
@@ -273,6 +273,29 @@ impl<A: Action> KeyCommand<A> {
                 code,
                 modifiers: KeyModifiers::empty(),
             }],
+            key_map: Keymap::Mode(Mode { commands, name }),
+            visibility: CommandVisibility::Standard,
+        }
+    }
+    pub fn new_mode<I>(
+        actions: I,
+        code: KeyCode,
+        modifiers: KeyModifiers,
+        name: String,
+    ) -> KeyCommand<A>
+    where
+        I: IntoIterator<Item = (KeyCode, A, CommandVisibility, KeyModifiers)>,
+    {
+        let commands = actions
+            .into_iter()
+            .map(|(code, action, visibility, modifiers)| KeyCommand {
+                keybinds: vec![Keybind { code, modifiers }],
+                key_map: Keymap::Action(action),
+                visibility,
+            })
+            .collect();
+        KeyCommand {
+            keybinds: vec![Keybind { code, modifiers }],
             key_map: Keymap::Mode(Mode { commands, name }),
             visibility: CommandVisibility::Standard,
         }

@@ -15,7 +15,7 @@ use crate::app::{
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
-use crate::config::keybinds::{KeyEnum, KeyEnumKey};
+use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::config::Config;
 use crate::error::Error;
 use crate::Result;
@@ -607,64 +607,13 @@ impl SortableTableView for AlbumSongsPanel {
 }
 
 fn sort_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .sort
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyEnum::Mode(_) => todo!(),
-        })
-        .collect()
+    todo!()
 }
 
 fn filter_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .filter
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyEnum::Mode(_) => todo!(),
-        })
-        .collect()
+    todo!()
 }
 
 pub fn songs_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .browser_songs
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyEnum::Mode(_) => todo!(),
-        })
-        .collect()
+    todo!()
 }

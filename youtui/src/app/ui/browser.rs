@@ -21,7 +21,7 @@ use crate::{
         structures::{ListStatus, SongListComponent},
         view::{DrawableMut, Scrollable},
     },
-    config::keybinds::{KeyEnum, KeyEnumKey},
+    config::keybinds::{KeyAction, KeyActionTree},
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
@@ -474,7 +474,7 @@ fn browser_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
         .browser
         .iter()
         .map(|(kb, ke)| match ke {
-            KeyEnum::Key(KeyEnumKey {
+            KeyActionTree::Key(KeyAction {
                 action,
                 value,
                 visibility,
@@ -484,7 +484,7 @@ fn browser_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
                 visibility.clone(),
                 action.clone(),
             ),
-            KeyEnum::Mode(_) => todo!(),
+            KeyActionTree::Mode { .. } => todo!(),
         })
         .collect()
 }

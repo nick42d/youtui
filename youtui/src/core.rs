@@ -3,9 +3,20 @@ use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
-use std::{borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, str::FromStr};
+use std::{
+    borrow::Borrow, collections::HashMap, convert::Infallible, fmt, marker::PhantomData,
+    str::FromStr,
+};
 use tokio::sync::mpsc;
 use tracing::error;
+
+use crate::{
+    app::{
+        component::actionhandler::Action,
+        keycommand::{KeyCommand, Keybind},
+    },
+    config::keybinds::{KeyAction, KeyActionTree, ModeNameEnum},
+};
 
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
 /// log an error with Tracing.
@@ -16,6 +27,7 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
+/// From serde documentation: [https://serde.rs/string-or-struct.html]
 pub fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
 where
     T: Deserialize<'de> + FromStr<Err = Infallible>,

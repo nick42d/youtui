@@ -3,7 +3,7 @@ use crate::Result;
 use clap::ValueEnum;
 use keybinds::YoutuiKeymap;
 use keybinds::YoutuiKeymapIR;
-use keybinds::YoutuiModeNames;
+use keybinds::YoutuiModeNamesIR;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::auth::OAuthToken;
 
@@ -40,7 +40,6 @@ pub enum AuthType {
 pub struct Config {
     pub auth_type: AuthType,
     pub keybinds: YoutuiKeymap,
-    pub mode_names: YoutuiModeNames,
 }
 
 #[derive(Default, Debug, Deserialize)]
@@ -49,7 +48,7 @@ pub struct Config {
 pub struct ConfigIR {
     pub auth_type: AuthType,
     pub keybinds: YoutuiKeymapIR,
-    pub mode_names: YoutuiModeNames,
+    pub mode_names: YoutuiModeNamesIR,
 }
 
 impl TryFrom<ConfigIR> for Config {
@@ -62,8 +61,7 @@ impl TryFrom<ConfigIR> for Config {
         } = value;
         Ok(Config {
             auth_type,
-            keybinds: keybinds.try_into()?,
-            mode_names,
+            keybinds: YoutuiKeymap::try_from_stringy(keybinds, mode_names)?,
         })
     }
 }
@@ -133,7 +131,6 @@ mod tests {
         let Config {
             auth_type,
             keybinds,
-            mode_names,
         } = Config::try_from(ir).unwrap();
         let YoutuiKeymap {
             global,
@@ -152,7 +149,6 @@ mod tests {
         let Config {
             auth_type: def_auth_type,
             keybinds: def_keybinds,
-            mode_names: def_mode_names,
         } = Config::default();
         let YoutuiKeymap {
             global: def_global,
@@ -170,7 +166,6 @@ mod tests {
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
         assert_eq!(auth_type, def_auth_type);
-        assert_eq!(mode_names, def_mode_names);
         assert_eq!(global, def_global);
         assert_eq!(playlist, def_playlist);
         assert_eq!(browser, def_browser);
