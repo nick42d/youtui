@@ -82,7 +82,7 @@ impl Config {
                 );
             }
             let ir: ConfigIR = toml::from_str(&config_file)?;
-            Ok(Config::try_from(ir).map_err(|e| crate::Error::Other(e))?)
+            Ok(Config::try_from(ir).map_err(crate::Error::Other)?)
         } else {
             if debug {
                 println!(
@@ -98,10 +98,10 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use crate::{
-        config::{Config, ConfigIR, CONFIG_FILE_NAME},
+        config::{keybinds::YoutuiKeymap, Config, ConfigIR, CONFIG_FILE_NAME},
         get_config_dir,
     };
-    use pretty_assertions_sorted::assert_eq_sorted;
+    use pretty_assertions::assert_eq;
 
     #[tokio::test]
     async fn test_deserialize_default_config_to_ir() {
@@ -130,8 +130,58 @@ mod tests {
             .await
             .unwrap();
         let ir: ConfigIR = toml::from_str(&config_file).unwrap();
-        let output = Config::try_from(ir).unwrap();
-        let expected = Config::default();
-        assert_eq_sorted!(output, expected);
+        let Config {
+            auth_type,
+            keybinds,
+            mode_names,
+        } = Config::try_from(ir).unwrap();
+        let YoutuiKeymap {
+            global,
+            playlist,
+            browser,
+            browser_artists,
+            browser_search,
+            browser_songs,
+            help,
+            sort,
+            filter,
+            text_entry,
+            list,
+            log,
+        } = keybinds;
+        let Config {
+            auth_type: def_auth_type,
+            keybinds: def_keybinds,
+            mode_names: def_mode_names,
+        } = Config::default();
+        let YoutuiKeymap {
+            global: def_global,
+            playlist: def_playlist,
+            browser: def_browser,
+            browser_artists: def_browser_artists,
+            browser_search: def_browser_search,
+            browser_songs: def_browser_songs,
+            help: def_help,
+            sort: def_sort,
+            filter: def_filter,
+            text_entry: def_text_entry,
+            list: def_list,
+            log: def_log,
+        } = def_keybinds;
+        // Assertions are split up here, to better narrow down errors.
+        assert_eq!(auth_type, def_auth_type);
+        assert_eq!(mode_names, def_mode_names);
+        assert_eq!(global, def_global);
+        assert_eq!(playlist, def_playlist);
+        assert_eq!(browser, def_browser);
+        assert_eq!(browser_artists, def_browser_artists);
+        assert_eq!(browser_search, def_browser_search);
+        assert_eq!(browser_songs, def_browser_songs);
+        assert_eq!(help, def_help);
+        assert_eq!(sort, def_sort);
+        assert_eq!(filter, def_filter);
+        assert_eq!(text_entry, def_text_entry);
+        assert_eq!(list, def_list);
+        assert_eq!(log, def_log);
     }
 }

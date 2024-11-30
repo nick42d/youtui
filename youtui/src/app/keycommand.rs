@@ -24,8 +24,7 @@ pub struct KeyCommand<A: Action> {
     pub key_map: Keymap<A>,
     pub visibility: CommandVisibility,
 }
-#[derive(Hash, Eq, PartialEq, Debug, Deserialize, Clone, Serialize)]
-#[cfg_attr(test, derive(PartialOrd))]
+#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
 #[serde(try_from = "String")]
 pub struct Keybind {
     pub code: KeyCode,

@@ -18,7 +18,6 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, convert::Infallible, str::FromStr};
 
 #[derive(Debug, PartialEq)]
-#[cfg_attr(test, derive(PartialOrd))]
 pub struct YoutuiKeymap {
     pub global: HashMap<Keybind, KeyEnum<AppAction>>,
     pub playlist: HashMap<Keybind, KeyEnum<AppAction>>,
@@ -473,7 +472,10 @@ fn default_help_keybinds() -> HashMap<Keybind, KeyEnum<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
-            KeyEnum::new_key_defaulted(AppAction::Help(HelpAction::Close)),
+            KeyEnum::new_key_with_visibility(
+                AppAction::Help(HelpAction::Close),
+                CommandVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
