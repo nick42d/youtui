@@ -1,5 +1,6 @@
 use crate::app::{
-    keycommand::{CommandVisibility, Keybind},
+    component::actionhandler::Action,
+    keycommand::{CommandVisibility, DisplayableCommand, Keybind},
     ui::{
         action::{AppAction, HelpAction, ListAction, TextEntryAction},
         browser::{
@@ -239,7 +240,7 @@ pub enum KeyActionTree<A> {
     },
 }
 
-impl<A: Default> KeyActionTree<A> {
+impl<A> KeyActionTree<A> {
     fn new_key_defaulted(action: A) -> Self {
         Self::Key(KeyAction {
             action,
@@ -301,6 +302,15 @@ impl<A: Default> KeyActionTree<A> {
         };
         Ok(new)
     }
+    /// # Note
+    /// Currently, visibility for a mode can't be set in config, so it is set to
+    /// the default.
+    pub fn get_visibility(&self) -> CommandVisibility {
+        match self {
+            KeyActionTree::Key(k) => k.visibility,
+            KeyActionTree::Mode { name, keys } => CommandVisibility::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -316,8 +326,8 @@ pub struct KeyAction<A> {
     pub visibility: CommandVisibility,
 }
 
-impl<A: Default> KeyAction<A> {
-    fn try_map<U: Default, E>(
+impl<A> KeyAction<A> {
+    fn try_map<U, E>(
         self,
         f: impl FnOnce(A) -> std::result::Result<U, E>,
     ) -> std::result::Result<KeyAction<U>, E> {

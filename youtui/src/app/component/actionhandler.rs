@@ -4,6 +4,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyEvent, MouseEvent};
+use rodio::cpal::FromSample;
 use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
@@ -112,23 +113,18 @@ pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 's
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.into_iter())
-        .filter(|kc| kc.visibility != CommandVisibility::Hidden)
-        .map(|kb| kb.as_displayable())
+        .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
+        .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Get the list of all non-hidden keybinds that the KeyHandler and any
 /// child items can contain, regardless of context.
 pub fn get_all_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
     component: &K,
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
-    component.get_all_keybinds().map(|kb| kb.as_displayable())
-}
-// e.g - for use in header.
-pub fn get_active_global_keybinds<K: KeyRouter<A>, A: Action + 'static>(
-    component: &K,
-) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_ {
     component
-        .get_active_keybinds()
-        .filter(|kb| kb.visibility == CommandVisibility::Global)
+        .get_all_keybinds()
+        .flat_map(|keymap| keymap.into_iter())
+        .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Get a context-specific list of all keybinds marked global.
 // TODO: Put under DisplayableKeyHandler
@@ -137,16 +133,17 @@ pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
-        .filter(|kc| kc.visibility == CommandVisibility::Global)
-        .map(|kb| kb.as_displayable())
+        .flat_map(|keymap| keymap.into_iter())
+        .filter(|(_, kt)| (*kt).get_visibility() == CommandVisibility::Global)
+        .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 // e.g - for use in help menu.
-pub fn get_all_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(
-    component: &K,
-) -> impl Iterator<Item = &'_ KeyCommand<A>> + '_ {
+pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &K) -> usize {
     component
-        .get_all_keybinds()
-        .filter(|kb| kb.visibility != CommandVisibility::Hidden)
+        .get_active_keybinds()
+        .flat_map(|keymap| keymap.into_iter())
+        .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
+        .count()
 }
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
@@ -229,9 +226,9 @@ pub async fn handle_key_stack_and_action_new<'a, A, C, I>(
     state: &mut C,
 ) -> KeyHandleOutcome<C, C::Bkend, C::Md>
 where
-    A: Action<State = C> + Clone + 'static,
+    A: Action<State = C> + Copy + 'static,
     C: Component,
-    I: IntoIterator<Item = Keymap<A>>,
+    I: IntoIterator<Item = &'a Keymap<A>>,
 {
     let convert = |k: KeyEvent| {
         let KeyEvent {
@@ -244,7 +241,7 @@ where
     };
     let mut is_mode = false;
     // let mut next_keys = None;
-    let mut next_keys = Box::new(keys.into_iter()) as Box<dyn Iterator<Item = Keymap<A>>>;
+    let mut next_keys = Box::new(keys.into_iter()) as Box<dyn Iterator<Item = &Keymap<A>>>;
     for k in key_stack {
         let next_found = next_keys.find_map(|km| km.get(&convert(k)));
         match next_found {

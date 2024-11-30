@@ -3,20 +3,9 @@ use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
-use std::{
-    borrow::Borrow, collections::HashMap, convert::Infallible, fmt, marker::PhantomData,
-    str::FromStr,
-};
+use std::{borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, str::FromStr};
 use tokio::sync::mpsc;
 use tracing::error;
-
-use crate::{
-    app::{
-        component::actionhandler::Action,
-        keycommand::{KeyCommand, Keybind},
-    },
-    config::keybinds::{KeyAction, KeyActionTree, ModeNameEnum},
-};
 
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
 /// log an error with Tracing.

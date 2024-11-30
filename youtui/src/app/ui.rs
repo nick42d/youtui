@@ -310,7 +310,7 @@ impl YoutuiWindow {
             self.help.cur = 0;
             // We have to get the keybind length this way as the help menu iterator is not
             // ExactSized
-            self.help.len = get_all_visible_keybinds(self).count();
+            self.help.len = count_visible_keybinds(self);
         }
     }
     /// Visually increment the volume, note, does not actually change the

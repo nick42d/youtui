@@ -1,13 +1,15 @@
 //! KeyCommand and Keybind model.
 //! A KeyCommand is a pairing of Keybinds to an Action or a Mode.
 //! A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
+use crate::config::keybinds::KeyActionTree;
+
 use super::component::actionhandler::Action;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
 // Should another type be GlobalHidden?
-#[derive(PartialEq, Default, Debug, Clone, Deserialize, Serialize)]
+#[derive(PartialEq, Copy, Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CommandVisibility {
     #[default]
@@ -56,6 +58,28 @@ pub struct DisplayableCommand<'a> {
 pub struct DisplayableMode<'a> {
     pub displayable_commands: Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>,
     pub description: Cow<'a, str>,
+}
+
+impl<'a> DisplayableCommand<'a> {
+    pub fn from_command<A: Action + 'a>(key: &'a Keybind, value: &'a KeyActionTree<A>) -> Self {
+        // NOTE: Currently, sub-keys of modes are not displayed.
+        match value {
+            KeyActionTree::Key(k) => DisplayableCommand {
+                keybinds: key.to_string().into(),
+                context: k.action.context(),
+                description: k.action.describe(),
+            },
+            KeyActionTree::Mode { name, .. } => DisplayableCommand {
+                keybinds: key.to_string().into(),
+                context: "TODO".into(),
+                description: name
+                    .as_ref()
+                    .map(ToOwned::to_owned)
+                    .unwrap_or_else(|| key.to_string())
+                    .into(),
+            },
+        }
+    }
 }
 
 impl<'a, A: Action + 'a> From<&'a KeyCommand<A>> for DisplayableCommand<'a> {
