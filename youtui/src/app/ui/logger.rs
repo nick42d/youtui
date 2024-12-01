@@ -1,10 +1,8 @@
 use crate::app::component::actionhandler::Keymap;
-use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::core::send_or_error;
 use crate::{
     app::{
         component::actionhandler::{Action, ComponentEffect, KeyRouter, TextHandler},
-        keycommand::KeyCommand,
         server::{ArcServer, TaskMetadata},
         ui::AppCallback,
         view::Drawable,
@@ -21,7 +19,7 @@ use tui_logger::TuiWidgetEvent;
 
 use super::action::AppAction;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum LoggerAction {
     ToggleTargetSelector,
@@ -85,7 +83,7 @@ impl Action for LoggerAction {
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
     ui_tx: Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(Logger);
 
@@ -97,7 +95,7 @@ impl Drawable for Logger {
 
 impl KeyRouter<AppAction> for Logger {
     fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        self.keybinds.iter()
+        std::iter::once(&self.keybinds)
     }
     fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         self.get_active_keybinds()
@@ -176,25 +174,8 @@ impl Logger {
     }
 }
 
-fn logger_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .log
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .collect()
+fn logger_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.log.clone()
 }
 
 pub mod draw {

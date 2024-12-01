@@ -4,6 +4,11 @@ use self::{
 };
 use super::{action::AppAction, AppCallback, WindowContext};
 use crate::{
+    app::{component::actionhandler::Keymap, keycommand::KeyCommand},
+    config::Config,
+    core::send_or_error,
+};
+use crate::{
     app::{
         component::actionhandler::{
             Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable,
@@ -17,14 +22,6 @@ use crate::{
         view::{DrawableMut, Scrollable},
     },
     config::keybinds::{KeyAction, KeyActionTree},
-};
-use crate::{
-    app::{
-        component::actionhandler::{DynKeybindsIter, Keymap},
-        keycommand::KeyCommand,
-    },
-    config::Config,
-    core::send_or_error,
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
@@ -57,7 +54,7 @@ pub struct Browser {
     keybinds: Vec<KeyCommand<AppAction>>,
 }
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserAction {
     ViewPlaylist,
@@ -218,7 +215,7 @@ impl DominantKeyRouter<AppAction> for Browser {
             InputRouting::Song => self.album_songs_list.dominant_keybinds_active(),
         }
     }
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
         match self.input_routing {
             InputRouting::Artist => Either::Left(self.artist_list.get_active_keybinds()),
             InputRouting::Song => Either::Right(self.album_songs_list.get_dominant_keybinds()),

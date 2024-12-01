@@ -1,8 +1,7 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{
-    ComponentEffect, DominantKeyRouter, DynKeybindsIter, TextHandler,
+    ComponentEffect, DominantKeyRouter, Keymap, TextHandler,
 };
-use crate::app::keycommand::KeyCommand;
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::action::AppAction;
@@ -15,11 +14,11 @@ use crate::app::{
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
-use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::config::Config;
 use crate::error::Error;
 use crate::Result;
 use async_callback_manager::AsyncTask;
+use itertools::Either;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
@@ -38,7 +37,7 @@ pub enum AlbumSongsInputRouting {
 #[derive(Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
@@ -53,7 +52,7 @@ pub struct FilterManager {
     filter_commands: Vec<TableFilterCommand>,
     pub filter_text: TextInputState,
     pub shown: bool,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(FilterManager);
 
@@ -63,11 +62,11 @@ pub struct SortManager {
     sort_commands: Vec<TableSortCommand>,
     pub shown: bool,
     pub cur: usize,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(SortManager);
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserSongsAction {
     Filter,
@@ -80,7 +79,7 @@ pub enum BrowserSongsAction {
     AddAlbumToPlaylist,
 }
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FilterAction {
     Close,
@@ -88,7 +87,7 @@ pub enum FilterAction {
     Apply,
 }
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SortAction {
     Close,
@@ -458,21 +457,25 @@ impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
         self.sort.shown || self.filter.shown
     }
 
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
         self.get_active_keybinds()
     }
 }
 
 impl KeyRouter<AppAction> for AlbumSongsPanel {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
-        self.keybinds.iter().chain(self.sort.keybinds.iter())
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+        [&self.keybinds, &self.sort.keybinds].into_iter()
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
-        Box::new(match self.route {
-            AlbumSongsInputRouting::List => self.keybinds.iter(),
-            AlbumSongsInputRouting::Sort => self.sort.keybinds.iter(),
-            AlbumSongsInputRouting::Filter => self.filter.keybinds.iter(),
-        }) as DynKeybindsIter<'_, AppAction>
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+        match self.route {
+            AlbumSongsInputRouting::List => {
+                Either::Left(Either::Left(std::iter::once(&self.keybinds)))
+            }
+            AlbumSongsInputRouting::Sort => {
+                Either::Left(Either::Right(std::iter::once(&self.sort.keybinds)))
+            }
+            AlbumSongsInputRouting::Filter => Either::Right(std::iter::once(&self.filter.keybinds)),
+        }
     }
 }
 
@@ -606,14 +609,14 @@ impl SortableTableView for AlbumSongsPanel {
     }
 }
 
-fn sort_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
     todo!()
 }
 
-fn filter_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
     todo!()
 }
 
-pub fn songs_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
+pub fn songs_keybinds(config: &Config) -> Keymap<AppAction> {
     todo!()
 }

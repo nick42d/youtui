@@ -49,7 +49,7 @@ pub struct SearchBlock {
 }
 impl_youtui_component!(SearchBlock);
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserArtistsAction {
     DisplaySelectedArtistAlbums,
@@ -79,7 +79,7 @@ impl Action for BrowserArtistsAction {
     }
 }
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserSearchAction {
     SearchArtist,

@@ -74,7 +74,6 @@ pub trait Action {
         }
     }
 }
-pub type DynKeybindsIter<'a, A> = Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
 pub type Keymap<A> = HashMap<Keybind, KeyActionTree<A>>;
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on

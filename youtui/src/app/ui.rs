@@ -1,9 +1,9 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, get_key_subset, handle_key_stack_2, Action, ComponentEffect,
-    DominantKeyRouter, KeyHandleAction, KeyRouter, Keymap, TextHandler,
+    count_visible_keybinds, handle_key_stack_2, Action, ComponentEffect, DominantKeyRouter,
+    KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
-use super::keycommand::{DisplayableMode, KeyCommand};
+use super::keycommand::DisplayableMode;
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
@@ -99,7 +99,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 
     fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         if self.help.shown {
-            return Either::Right(Either::Right(self.help.keybinds.iter()));
+            return Either::Right(Either::Right(std::iter::once(&self.help.keybinds)));
         }
         match self.context {
             WindowContext::Browser => {
@@ -116,20 +116,19 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
-        let kb = self.keybinds.iter();
+        let kb = std::iter::once(&self.keybinds);
         match self.context {
             WindowContext::Browser => {
-                Either::Left(Either::Left(kb.chain(self.browser.get_all_keybinds())))
+                Either::Left(Either::Left(kb.chain(self.browser.get_active_keybinds())))
             }
             WindowContext::Playlist => {
-                Either::Left(Either::Right(kb.chain(self.playlist.get_all_keybinds())))
+                Either::Left(Either::Right(kb.chain(self.playlist.get_active_keybinds())))
             }
-            WindowContext::Logs => Either::Right(kb.chain(self.logger.get_all_keybinds())),
+            WindowContext::Logs => Either::Right(kb.chain(self.logger.get_active_keybinds())),
         }
     }
     fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        self.keybinds
-            .iter()
+        std::iter::once(&self.keybinds)
             .chain(self.browser.get_all_keybinds())
             .chain(self.playlist.get_all_keybinds())
             .chain(self.logger.get_all_keybinds())
@@ -325,47 +324,48 @@ impl YoutuiWindow {
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
     fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
-        if let Some(Keymap::Mode(mode)) =
-            get_key_subset(self.get_active_keybinds(), &self.key_stack)
-        {
-            return Some(DisplayableMode {
-                displayable_commands: mode.as_displayable_iter(),
-                description: mode.describe(),
-            });
-        }
-        match self.context {
-            WindowContext::Browser => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.browser.get_active_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-            WindowContext::Playlist => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.playlist.get_active_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-            WindowContext::Logs => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.logger.get_active_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-        }
-        None
+        // if let Some(Keymap::Mode(mode)) =
+        //     get_key_subset(self.get_active_keybinds(), &self.key_stack)
+        // {
+        //     return Some(DisplayableMode {
+        //         displayable_commands: mode.as_displayable_iter(),
+        //         description: mode.describe(),
+        //     });
+        // }
+        // match self.context {
+        //     WindowContext::Browser => {
+        //         if let Some(Keymap::Mode(mode)) =
+        //             get_key_subset(self.browser.get_active_keybinds(),
+        // &self.key_stack)         {
+        //             return Some(DisplayableMode {
+        //                 displayable_commands: mode.as_displayable_iter(),
+        //                 description: mode.describe(),
+        //             });
+        //         }
+        //     }
+        //     WindowContext::Playlist => {
+        //         if let Some(Keymap::Mode(mode)) =
+        //             get_key_subset(self.playlist.get_active_keybinds(),
+        // &self.key_stack)         {
+        //             return Some(DisplayableMode {
+        //                 displayable_commands: mode.as_displayable_iter(),
+        //                 description: mode.describe(),
+        //             });
+        //         }
+        //     }
+        //     WindowContext::Logs => {
+        //         if let Some(Keymap::Mode(mode)) =
+        //             get_key_subset(self.logger.get_active_keybinds(),
+        // &self.key_stack)         {
+        //             return Some(DisplayableMode {
+        //                 displayable_commands: mode.as_displayable_iter(),
+        //                 description: mode.describe(),
+        //             });
+        //         }
+        //     }
+        // }
+        // None
+        todo!()
     }
 }
 
