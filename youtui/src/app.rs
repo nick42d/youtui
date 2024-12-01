@@ -185,7 +185,7 @@ impl Youtui {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
             AppEvent::Crossterm(e) => {
-                let task = self.window_state.handle_initial_event(e).await;
+                let task = self.window_state.handle_event(e).await;
                 self.task_manager.spawn_task(&self.server, task);
             }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),

@@ -160,7 +160,7 @@ impl TextHandler for SearchBlock {
         self.search_suggestions.clear();
         self.search_contents.clear()
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
@@ -245,12 +245,12 @@ impl TextHandler for ArtistSearchPanel {
     fn clear_text(&mut self) -> bool {
         self.search.clear_text()
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
         self.search
-            .handle_event_repr(event)
+            .handle_text_event_impl(event)
             .map(|effect| effect.map(|this: &mut Self| &mut this.search))
     }
 }

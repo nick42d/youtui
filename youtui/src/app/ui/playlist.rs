@@ -120,7 +120,7 @@ impl TextHandler for Playlist {
     fn clear_text(&mut self) -> bool {
         false
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         _event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {

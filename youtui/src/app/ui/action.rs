@@ -24,7 +24,7 @@ use super::{
     HelpMenu, WindowContext, YoutuiWindow,
 };
 
-#[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AppAction {
     #[default]

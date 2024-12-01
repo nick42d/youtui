@@ -1,15 +1,14 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_all_visible_keybinds, get_key_subset, handle_key_stack, Action, ComponentEffect,
-    DominantKeyRouter, DynKeybindsIter, KeyHandleAction, KeyRouter, TextHandler,
+    count_visible_keybinds, get_key_subset, handle_key_stack_2, Action, ComponentEffect,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
-use super::keycommand::{DisplayableMode, KeyCommand, Keymap};
+use super::keycommand::{DisplayableMode, KeyCommand};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::config::Config;
 use action::AppAction;
 use async_callback_manager::{AsyncTask, Constraint};
@@ -48,7 +47,7 @@ pub struct YoutuiWindow {
     pub browser: Browser,
     pub logger: Logger,
     pub callback_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
     key_stack: Vec<KeyEvent>,
     pub help: HelpMenu,
 }
@@ -58,7 +57,7 @@ pub struct HelpMenu {
     pub shown: bool,
     cur: usize,
     len: usize,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
     pub widget_state: TableState,
 }
 
@@ -98,7 +97,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
             }
     }
 
-    fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         if self.help.shown {
             return Either::Right(Either::Right(self.help.keybinds.iter()));
         }
@@ -115,7 +114,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 }
 
 impl KeyRouter<AppAction> for YoutuiWindow {
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = self.keybinds.iter();
         match self.context {
@@ -128,7 +127,7 @@ impl KeyRouter<AppAction> for YoutuiWindow {
             WindowContext::Logs => Either::Right(kb.chain(self.logger.get_all_keybinds())),
         }
     }
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         self.keybinds
             .iter()
             .chain(self.browser.get_all_keybinds())
@@ -166,19 +165,19 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.clear_text(),
         }
     }
-    fn handle_event_repr(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
+    fn handle_text_event_impl(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
         match self.context {
             WindowContext::Browser => self
                 .browser
-                .handle_event_repr(event)
+                .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.browser)),
             WindowContext::Playlist => self
                 .playlist
-                .handle_event_repr(event)
+                .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.playlist)),
             WindowContext::Logs => self
                 .logger
-                .handle_event_repr(event)
+                .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.logger)),
         }
     }
@@ -204,10 +203,7 @@ impl YoutuiWindow {
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_initial_event(
-        &mut self,
-        event: crossterm::event::Event,
-    ) -> ComponentEffect<Self> {
+    pub async fn handle_event(&mut self, event: crossterm::event::Event) -> ComponentEffect<Self> {
         if let Some(effect) = self.try_handle_text(&event) {
             return effect;
         };
@@ -285,7 +281,7 @@ impl YoutuiWindow {
             .map(|this: &mut Self| &mut this.playlist)
     }
     async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
-        match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
+        match handle_key_stack_2(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
                 let effect = a.apply(self).await;
                 self.key_stack.clear();
@@ -373,57 +369,9 @@ impl YoutuiWindow {
     }
 }
 
-fn global_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .global
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .collect()
+fn global_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.global.clone()
 }
-fn help_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    let help = config.keybinds.help.iter().map(|(kb, ke)| match ke {
-        KeyActionTree::Key(KeyAction {
-            action,
-            value,
-            visibility,
-        }) => KeyCommand::new_modified_from_code_with_visibility(
-            kb.code,
-            kb.modifiers,
-            visibility.clone(),
-            action.clone(),
-        ),
-        KeyActionTree::Mode { .. } => todo!(),
-    });
-    config
-        .keybinds
-        .list
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .chain(help)
-        .collect()
+fn help_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.help.clone()
 }

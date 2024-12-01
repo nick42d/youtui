@@ -4,11 +4,6 @@ use self::{
 };
 use super::{action::AppAction, AppCallback, WindowContext};
 use crate::{
-    app::{component::actionhandler::DynKeybindsIter, keycommand::KeyCommand},
-    config::Config,
-    core::send_or_error,
-};
-use crate::{
     app::{
         component::actionhandler::{
             Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable,
@@ -22,6 +17,14 @@ use crate::{
         view::{DrawableMut, Scrollable},
     },
     config::keybinds::{KeyAction, KeyActionTree},
+};
+use crate::{
+    app::{
+        component::actionhandler::{DynKeybindsIter, Keymap},
+        keycommand::KeyCommand,
+    },
+    config::Config,
+    core::send_or_error,
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
@@ -154,18 +157,18 @@ impl TextHandler for Browser {
             InputRouting::Song => self.album_songs_list.clear_text(),
         }
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
         match self.input_routing {
             InputRouting::Artist => self
                 .artist_list
-                .handle_event_repr(event)
+                .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut Self| &mut this.artist_list)),
             InputRouting::Song => self
                 .album_songs_list
-                .handle_event_repr(event)
+                .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut Self| &mut this.album_songs_list)),
         }
     }
@@ -182,7 +185,7 @@ impl DrawableMut for Browser {
     }
 }
 impl KeyRouter<AppAction> for Browser {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
         Box::new(
             self.keybinds
                 .iter()
@@ -190,7 +193,7 @@ impl KeyRouter<AppAction> for Browser {
                 .chain(self.album_songs_list.get_all_keybinds()),
         )
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ KeyCommand<AppAction>> + '_ {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
         let additional_binds = match self.input_routing {
             InputRouting::Song => Box::new(self.album_songs_list.get_active_keybinds())
                 as DynKeybindsIter<'_, AppAction>,

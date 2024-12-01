@@ -229,7 +229,7 @@ impl TextHandler for FilterManager {
     fn clear_text(&mut self) -> bool {
         self.filter_text.clear()
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
@@ -443,12 +443,12 @@ impl TextHandler for AlbumSongsPanel {
     fn clear_text(&mut self) -> bool {
         self.filter.clear_text()
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
         self.filter
-            .handle_event_repr(event)
+            .handle_text_event_impl(event)
             .map(|effect| effect.map(|this: &mut AlbumSongsPanel| &mut this.filter))
     }
 }

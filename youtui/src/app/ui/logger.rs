@@ -1,3 +1,4 @@
+use crate::app::component::actionhandler::Keymap;
 use crate::config::keybinds::{KeyAction, KeyActionTree};
 use crate::core::send_or_error;
 use crate::{
@@ -95,10 +96,10 @@ impl Drawable for Logger {
 }
 
 impl KeyRouter<AppAction> for Logger {
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         self.keybinds.iter()
     }
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         self.get_active_keybinds()
     }
 }
@@ -114,7 +115,7 @@ impl TextHandler for Logger {
     fn clear_text(&mut self) -> bool {
         false
     }
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         _event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {

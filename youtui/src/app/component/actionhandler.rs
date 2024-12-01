@@ -59,7 +59,6 @@ pub trait Action {
     type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
-    // TODO: Return Task.
     async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
     where
         Self: Sized;
@@ -158,7 +157,7 @@ pub trait TextHandler: Component {
     /// text handling subset is active.
     fn is_text_handling(&self) -> bool;
     /// Handle a crossterm event, returning a task if an event was handled.
-    fn handle_event_repr(
+    fn handle_text_event_impl(
         &mut self,
         event: &Event,
     ) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
@@ -173,7 +172,7 @@ pub trait TextHandler: Component {
         if !self.is_text_handling() {
             return None;
         }
-        self.handle_event_repr(event)
+        self.handle_text_event_impl(event)
     }
 }
 // A text handler that can receive suggestions
@@ -220,14 +219,9 @@ pub enum KeyHandleOutcome<Frntend, Bkend, Md> {
     NoMap,
 }
 
-pub async fn handle_key_stack_and_action_new<'a, A, C, I>(
-    keys: I,
-    key_stack: Vec<KeyEvent>,
-    state: &mut C,
-) -> KeyHandleOutcome<C, C::Bkend, C::Md>
+pub fn handle_key_stack_2<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<A>
 where
-    A: Action<State = C> + Copy + 'static,
-    C: Component,
+    A: Action + Copy + 'static,
     I: IntoIterator<Item = &'a Keymap<A>>,
 {
     let convert = |k: KeyEvent| {
@@ -243,14 +237,13 @@ where
     // let mut next_keys = None;
     let mut next_keys = Box::new(keys.into_iter()) as Box<dyn Iterator<Item = &Keymap<A>>>;
     for k in key_stack {
-        let next_found = next_keys.find_map(|km| km.get(&convert(k)));
+        let next_found = next_keys.find_map(|km| km.get(&convert(*k)));
         match next_found {
             Some(KeyActionTree::Key(KeyAction { action, value, .. })) => {
                 if let Some(v) = value {
                     warn!("Keybind had value {v}, currently unhandled");
                 }
-                let effect = action.apply(state).await;
-                return KeyHandleOutcome::Action(effect);
+                return KeyHandleAction::Action(*action);
             }
             Some(KeyActionTree::Mode { name, keys }) => {
                 is_mode = true;
@@ -261,9 +254,9 @@ where
         };
     }
     if is_mode {
-        return KeyHandleOutcome::Mode;
+        return KeyHandleAction::Mode;
     }
-    KeyHandleOutcome::NoMap
+    KeyHandleAction::NoMap
 }
 
 /// Return a list of the current keymap for the provided stack of key_codes.
