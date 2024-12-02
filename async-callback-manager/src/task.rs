@@ -524,3 +524,50 @@ impl<Cstrnt> Constraint<Cstrnt> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::pin::pin;
+
+    use futures::{stream::IntoAsyncRead, StreamExt};
+
+    use crate::{AsyncTask, BackendStreamingTask, BackendTask};
+    #[derive(Debug)]
+    struct Task1;
+    struct Task2;
+    struct StreamingTask;
+    impl BackendTask<()> for Task1 {
+        type Output = ();
+        type MetadataType = ();
+        fn into_future(
+            self,
+            backend: &(),
+        ) -> impl std::future::Future<Output = Self::Output> + Send + 'static {
+            async {}
+        }
+    }
+    impl BackendTask<()> for Task2 {
+        type Output = ();
+        type MetadataType = ();
+        fn into_future(
+            self,
+            backend: &(),
+        ) -> impl std::future::Future<Output = Self::Output> + Send + 'static {
+            async {}
+        }
+    }
+    impl BackendStreamingTask<()> for StreamingTask {
+        type Output = ();
+        type MetadataType = ();
+        fn into_stream(
+            self,
+            backend: &(),
+        ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+            futures::stream::once(async move {}).boxed()
+        }
+    }
+    #[tokio::test]
+    async fn test_recursive_map() {
+        let task = AsyncTask::new_future(Task1, |_: &mut (), _| {}, None);
+    }
+}

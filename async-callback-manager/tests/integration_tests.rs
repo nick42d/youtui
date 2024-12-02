@@ -309,8 +309,3 @@ async fn test_task_spawns_task() {
     drain_manager(manager, &mut state, &()).await;
     assert_eq!(vec!["Hello".to_string(), "World".to_string()], state);
 }
-
-#[tokio::test]
-async fn test_recursive_map() {
-    todo!()
-}

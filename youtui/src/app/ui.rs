@@ -347,3 +347,9 @@ fn global_keybinds(config: &Config) -> Keymap<AppAction> {
 fn help_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.help.clone()
 }
+fn list_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.list.clone()
+}
+fn text_entry_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.text_entry.clone()
+}
