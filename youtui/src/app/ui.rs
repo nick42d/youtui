@@ -1,6 +1,6 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, handle_key_stack_2, Action, ComponentEffect, DominantKeyRouter,
+    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, DominantKeyRouter,
     KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
 use super::keycommand::DisplayableMode;
@@ -280,13 +280,13 @@ impl YoutuiWindow {
             .map(|this: &mut Self| &mut this.playlist)
     }
     async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
-        match handle_key_stack_2(self.get_active_keybinds(), &self.key_stack) {
+        match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
                 let effect = a.apply(self).await;
                 self.key_stack.clear();
                 effect
             }
-            KeyHandleAction::Mode => AsyncTask::new_no_op(),
+            KeyHandleAction::Mode(_) => AsyncTask::new_no_op(),
             KeyHandleAction::NoMap => {
                 self.key_stack.clear();
                 AsyncTask::new_no_op()

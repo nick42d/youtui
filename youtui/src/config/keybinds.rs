@@ -241,28 +241,28 @@ pub enum KeyActionTree<A> {
 }
 
 impl<A> KeyActionTree<A> {
-    fn new_key_defaulted(action: A) -> Self {
+    pub fn new_key_defaulted(action: A) -> Self {
         Self::Key(KeyAction {
             action,
             value: Default::default(),
             visibility: Default::default(),
         })
     }
-    fn new_key_with_visibility(action: A, visibility: CommandVisibility) -> Self {
+    pub fn new_key_with_visibility(action: A, visibility: CommandVisibility) -> Self {
         Self::Key(KeyAction {
             action,
             value: Default::default(),
             visibility,
         })
     }
-    fn new_key(action: A, value: usize, visibility: CommandVisibility) -> Self {
+    pub fn new_key(action: A, value: usize, visibility: CommandVisibility) -> Self {
         Self::Key(KeyAction {
             action,
             value: Some(value),
             visibility,
         })
     }
-    fn new_mode<I>(binds: I, name: String) -> Self
+    pub fn new_mode<I>(binds: I, name: String) -> Self
     where
         I: IntoIterator<Item = (Keybind, KeyActionTree<A>)>,
     {
