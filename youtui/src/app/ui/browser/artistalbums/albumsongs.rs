@@ -241,31 +241,6 @@ impl TextHandler for FilterManager {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ArtistSongsAction {
-    PlaySong,
-    PlaySongs,
-    PlayAlbum,
-    AddSongToPlaylist,
-    AddSongsToPlaylist,
-    AddAlbumToPlaylist,
-    Up,
-    Down,
-    PageUp,
-    PageDown,
-    SortUp,
-    SortDown,
-    // Could just be two commands.
-    PopSort,
-    CloseSort,
-    ClearSort,
-    SortSelectedAsc,
-    SortSelectedDesc,
-    ToggleFilter,
-    ApplyFilter,
-    ClearFilter,
-}
-
 impl AlbumSongsPanel {
     pub fn new(config: &Config) -> AlbumSongsPanel {
         AlbumSongsPanel {

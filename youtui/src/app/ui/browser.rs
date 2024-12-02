@@ -3,26 +3,17 @@ use self::{
     draw::draw_browser,
 };
 use super::{action::AppAction, AppCallback, WindowContext};
-use crate::{
-    app::{component::actionhandler::Keymap, keycommand::KeyCommand},
-    config::Config,
-    core::send_or_error,
-};
-use crate::{
-    app::{
-        component::actionhandler::{
-            Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable,
-            TextHandler,
-        },
-        server::{
-            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
-            TaskMetadata,
-        },
-        structures::{ListStatus, SongListComponent},
-        view::{DrawableMut, Scrollable},
+use crate::app::{
+    component::actionhandler::{
+        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
     },
-    config::keybinds::{KeyAction, KeyActionTree},
+    server::{
+        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
+    },
+    structures::{ListStatus, SongListComponent},
+    view::{DrawableMut, Scrollable},
 };
+use crate::{app::component::actionhandler::Keymap, config::Config, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use serde::{Deserialize, Serialize};

@@ -3,15 +3,11 @@ use crate::{
         component::actionhandler::{
             Action, Component, ComponentEffect, KeyRouter, Keymap, Suggestable, TextHandler,
         },
-        keycommand::KeyCommand,
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
         ui::{action::AppAction, browser::Browser},
         view::{ListView, Loadable, Scrollable, SortableList},
     },
-    config::{
-        keybinds::{KeyAction, KeyActionTree},
-        Config,
-    },
+    config::Config,
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};

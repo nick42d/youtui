@@ -177,13 +177,13 @@ pub trait MouseHandler {
 }
 
 /// The action to do after handling a key event
-pub enum KeyHandleAction<A: Action> {
+pub enum KeyHandleAction<'a, A: Action> {
     Action(A),
-    Mode { name: String, keys: Keymap<A> },
+    Mode { name: String, keys: &'a Keymap<A> },
     NoMap,
 }
 
-pub fn handle_key_stack<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<A>
+pub fn handle_key_stack<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<'a, A>
 where
     A: Action + Copy + 'static,
     I: IntoIterator<Item = &'a Keymap<A>>,
@@ -195,48 +195,7 @@ where
         } = k;
         Keybind { code, modifiers }
     };
-    let mut is_mode = false;
-    // let mut next_keys = None;
-    let mut next_keys = Box::new(keys.into_iter()) as Box<dyn Iterator<Item = &Keymap<A>>>;
-    for k in key_stack {
-        let next_found = next_keys.find_map(|km| km.get(&convert(*k)));
-        match next_found {
-            Some(KeyActionTree::Key(KeyAction { action, value, .. })) => {
-                if let Some(v) = value {
-                    warn!("Keybind had value {v}, currently unhandled");
-                }
-                return KeyHandleAction::Action(*action);
-            }
-            Some(KeyActionTree::Mode { name, keys }) => {
-                is_mode = true;
-                // The 'Once' here is a neat hack, could be improved.
-                next_keys = Box::new(std::iter::once(keys))
-            }
-            None => is_mode = false,
-        };
-    }
-    if is_mode {
-        return KeyHandleAction::Mode {
-            name: next_keys.0,
-            keys: next_keys.1,
-        };
-    }
-    KeyHandleAction::NoMap
-}
-
-pub fn index_key_stack<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<A>
-where
-    A: Action + Copy + 'static,
-    I: IntoIterator<Item = &'a Keymap<A>>,
-{
-    let convert = |k: KeyEvent| {
-        // NOTE: kind and state fields currently unused.
-        let KeyEvent {
-            code, modifiers, ..
-        } = k;
-        Keybind { code, modifiers }
-    };
-    let mut key_stack_iter = key_stack.into_iter();
+    let mut key_stack_iter = key_stack.iter();
     // First iteration - iterator of hashmaps.
     let Some(first_key) = key_stack_iter.next() else {
         return KeyHandleAction::NoMap;
@@ -265,8 +224,10 @@ where
             None => return KeyHandleAction::NoMap,
         };
     }
-    // TODO: Add name, keys
-    KeyHandleAction::Mode
+    KeyHandleAction::Mode {
+        name: next_mode.0.as_deref().unwrap_or("UNNAMED MODE").to_string(),
+        keys: next_mode.1,
+    }
 }
 
 #[cfg(test)]
@@ -282,6 +243,7 @@ mod tests {
 
     use super::{Action, Component};
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+    use pretty_assertions::assert_eq;
 
     #[derive(PartialEq, Debug, Copy, Clone)]
     enum TestAction {
@@ -378,7 +340,7 @@ mod tests {
     }
     #[test]
     fn test_key_stack() {
-        let kb = test_keymap;
+        let kb = test_keymap();
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::empty());
         let key_stack = [ks1, ks2];
@@ -393,50 +355,40 @@ mod tests {
     fn test_index_keybinds() {
         let kb = test_keymap();
         let ks = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
-        let idx = index_keybinds(Box::new(kb.iter()), &ks);
-        let eq = KeyCommand::new_action_only_mode(
-            vec![
-                (KeyCode::Char('A'), TestAction::Test2),
-                (KeyCode::Char('a'), TestAction::Test3),
-            ],
-            KeyCode::Enter,
-            "Play".into(),
-        )
-        .key_map;
-        // assert_eq!(idx, Some(&eq));
-        todo!()
-    }
-    #[test]
-    fn test_index_keymap() {
-        // let kb = Keymap::Mode(Mode {
-        //     commands: vec![
-        //         KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-        //         KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-        //         KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-        //         KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-        //         KeyCommand::new_action_only_mode(
-        //             vec![
-        //                 (KeyCode::Char('A'), TestAction::Test2),
-        //                 (KeyCode::Char('a'), TestAction::Test3),
-        //             ],
-        //             KeyCode::Enter,
-        //             "Play".into(),
-        //         ),
-        //     ],
-        //     name: "test".into(),
-        // });
-        // let ks = [KeyEvent::new(KeyCode::Enter, KeyModifiers::empty())];
-        // let idx = index_keymap(&kb, &ks);
-        // let eq = KeyCommand::new_action_only_mode(
-        //     vec![
-        //         (KeyCode::Char('A'), TestAction::Test2),
-        //         (KeyCode::Char('a'), TestAction::Test3),
-        //     ],
-        //     KeyCode::Enter,
-        //     "Play".into(),
-        // )
-        // .key_map;
-        // assert_eq!(idx, Some(&eq));
-        todo!()
+        let expected_keys = [
+            (
+                Keybind::new_unmodified(KeyCode::Enter),
+                KeyActionTree::new_key_defaulted(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('a')),
+                KeyActionTree::new_key_defaulted(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('p')),
+                KeyActionTree::new_key_defaulted(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char(' ')),
+                KeyActionTree::new_key_defaulted(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('P')),
+                KeyActionTree::new_key_defaulted(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('A')),
+                KeyActionTree::new_key_defaulted(TestAction::TestStack),
+            ),
+        ]
+        .into_iter()
+        .collect::<Keymap<_>>();
+        let expected_name = "Play".to_string();
+        let KeyHandleAction::Mode { keys, name } = handle_key_stack(std::iter::once(&kb), &[ks])
+        else {
+            panic!("Expected keyhandleoutcome::mode");
+        };
+        assert_eq!(name, expected_name);
+        assert_eq!(keys, &expected_keys);
     }
 }

@@ -94,10 +94,10 @@ impl Drawable for Logger {
 }
 
 impl KeyRouter<AppAction> for Logger {
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         std::iter::once(&self.keybinds)
     }
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         self.get_active_keybinds()
     }
 }

@@ -20,12 +20,6 @@ pub enum CommandVisibility {
     Hidden,
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub struct KeyCommand<A: Action> {
-    pub keybinds: Vec<Keybind>,
-    pub key_map: Keymap<A>,
-    pub visibility: CommandVisibility,
-}
 #[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
 #[serde(try_from = "String")]
 pub struct Keybind {
@@ -39,24 +33,14 @@ impl TryFrom<String> for Keybind {
     }
 }
 #[derive(PartialEq, Debug, Clone)]
-pub enum Keymap<A: Action> {
-    Action(A),
-    Mode(Mode<A>),
-}
-#[derive(PartialEq, Debug, Clone)]
-pub struct Mode<A: Action> {
-    pub name: String,
-    pub commands: Vec<KeyCommand<A>>,
-}
-#[derive(PartialEq, Debug, Clone)]
 pub struct DisplayableCommand<'a> {
     // XXX: Do we also want to display sub-keys in Modes?
     pub keybinds: Cow<'a, str>,
     pub context: Cow<'a, str>,
     pub description: Cow<'a, str>,
 }
-pub struct DisplayableMode<'a> {
-    pub displayable_commands: Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>,
+pub struct DisplayableMode<'a, I: Iterator<Item = DisplayableCommand<'a>>> {
+    pub displayable_commands: I,
     pub description: Cow<'a, str>,
 }
 
@@ -78,17 +62,6 @@ impl<'a> DisplayableCommand<'a> {
                     .unwrap_or_else(|| key.to_string())
                     .into(),
             },
-        }
-    }
-}
-
-impl<'a, A: Action + 'a> From<&'a KeyCommand<A>> for DisplayableCommand<'a> {
-    fn from(value: &'a KeyCommand<A>) -> Self {
-        // XXX: Do we also want to display sub-keys in Modes?
-        Self {
-            keybinds: value.to_string().into(),
-            context: value.context(),
-            description: value.describe(),
         }
     }
 }
@@ -118,22 +91,6 @@ impl Keybind {
     }
 }
 
-impl<A: Action> Display for KeyCommand<A> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let w: String =
-            // NOTE: Replace with standard library method once stabilised.
-            itertools::intersperse(
-                self
-                    .keybinds
-                    .iter()
-                    .map(|kb| Cow::from(kb.to_string()))
-                ," / ".into()
-            )
-            .collect();
-        write!(f, "{w}")
-    }
-}
-
 impl Display for Keybind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let code: Cow<str> = match self.code {
@@ -157,171 +114,6 @@ impl Display for Keybind {
             KeyModifiers::ALT => write!(f, "A-{code}"),
             KeyModifiers::SHIFT => write!(f, "S-{code}"),
             _ => write!(f, "{code}"),
-        }
-    }
-}
-
-// Is this an implementation of Action?
-impl<A: Action> Mode<A> {
-    pub fn context(&self) -> Cow<str> {
-        self.commands
-            .first()
-            .map(|kb| kb.context())
-            .unwrap_or_default()
-    }
-    pub fn describe(&self) -> Cow<str> {
-        Cow::Borrowed(&self.name)
-    }
-    pub fn as_displayable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a> {
-        Box::new(self.commands.iter().map(|bind| bind.as_displayable()))
-    }
-}
-
-impl<A: Action> KeyCommand<A> {
-    // Is this an implementation of Action?
-    pub fn context(&self) -> Cow<str> {
-        match &self.key_map {
-            Keymap::Action(a) => a.context(),
-            Keymap::Mode(m) => m.context(),
-        }
-    }
-    pub fn describe(&self) -> Cow<str> {
-        match &self.key_map {
-            Keymap::Action(a) => a.describe(),
-            Keymap::Mode(m) => m.describe(),
-        }
-    }
-    pub fn as_displayable(&self) -> DisplayableCommand<'_> {
-        self.into()
-    }
-    pub fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
-        for kb in self.keybinds.iter() {
-            if kb.contains_keyevent(keyevent) {
-                return true;
-            }
-        }
-        false
-    }
-    pub fn new_from_codes(code: Vec<KeyCode>, action: A) -> KeyCommand<A> {
-        let keybinds = code
-            .into_iter()
-            .map(|kc| Keybind::new(kc, KeyModifiers::empty()))
-            .collect();
-        KeyCommand {
-            keybinds,
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Standard,
-        }
-    }
-    pub fn new_from_code(code: KeyCode, action: A) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind::new(code, KeyModifiers::empty())],
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Standard,
-        }
-    }
-    pub fn new_modified_from_code(
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        action: A,
-    ) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind::new(code, modifiers)],
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Standard,
-        }
-    }
-    pub fn new_modified_from_code_with_visibility(
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        visibility: CommandVisibility,
-        action: A,
-    ) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind::new(code, modifiers)],
-            key_map: Keymap::Action(action),
-            visibility,
-        }
-    }
-    pub fn new_global_modified_from_code(
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        action: A,
-    ) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind { code, modifiers }],
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Global,
-        }
-    }
-    pub fn new_global_from_code(code: KeyCode, action: A) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind {
-                code,
-                modifiers: KeyModifiers::empty(),
-            }],
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Global,
-        }
-    }
-    pub fn new_hidden_from_code(code: KeyCode, action: A) -> KeyCommand<A> {
-        KeyCommand {
-            keybinds: vec![Keybind {
-                code,
-                modifiers: KeyModifiers::empty(),
-            }],
-            key_map: Keymap::Action(action),
-            visibility: CommandVisibility::Hidden,
-        }
-    }
-    pub fn new_action_only_mode(
-        actions: Vec<(KeyCode, A)>,
-        code: KeyCode,
-        name: String,
-    ) -> KeyCommand<A> {
-        let commands = actions
-            .into_iter()
-            .map(|(code, action)| KeyCommand {
-                keybinds: vec![Keybind {
-                    code,
-                    modifiers: KeyModifiers::empty(),
-                }],
-                key_map: Keymap::Action(action),
-                visibility: CommandVisibility::Standard,
-            })
-            .collect();
-        KeyCommand {
-            keybinds: vec![Keybind {
-                code,
-                modifiers: KeyModifiers::empty(),
-            }],
-            key_map: Keymap::Mode(Mode { commands, name }),
-            visibility: CommandVisibility::Standard,
-        }
-    }
-    pub fn new_mode<I>(
-        actions: I,
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        name: String,
-    ) -> KeyCommand<A>
-    where
-        I: IntoIterator<Item = (KeyCode, A, CommandVisibility, KeyModifiers)>,
-    {
-        let commands = actions
-            .into_iter()
-            .map(|(code, action, visibility, modifiers)| KeyCommand {
-                keybinds: vec![Keybind { code, modifiers }],
-                key_map: Keymap::Action(action),
-                visibility,
-            })
-            .collect();
-        KeyCommand {
-            keybinds: vec![Keybind { code, modifiers }],
-            key_map: Keymap::Mode(Mode { commands, name }),
-            visibility: CommandVisibility::Standard,
         }
     }
 }
@@ -427,11 +219,10 @@ mod tests {
     }
     #[test]
     fn parse_enter() {
-        todo!("add test to parse all acceptable values");
         let expected = Keybind::new(KeyCode::Enter, KeyModifiers::NONE);
         let kb = Keybind::from_str("enter").unwrap();
         assert_eq!(kb, expected);
-        let kb = Keybind::from_str("Enter").unwrap();
+        let kb = Keybind::from_str("EnTeR").unwrap();
         assert_eq!(kb, expected);
     }
     #[test]

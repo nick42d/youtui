@@ -3,7 +3,7 @@ use super::component::actionhandler::{
     count_visible_keybinds, handle_key_stack, Action, ComponentEffect, DominantKeyRouter,
     KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
-use super::keycommand::DisplayableMode;
+use super::keycommand::{DisplayableCommand, DisplayableMode};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
@@ -97,7 +97,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
             }
     }
 
-    fn get_dominant_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         if self.help.shown {
             return Either::Right(Either::Right(std::iter::once(&self.help.keybinds)));
         }
@@ -114,7 +114,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 }
 
 impl KeyRouter<AppAction> for YoutuiWindow {
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = std::iter::once(&self.keybinds);
         match self.context {
@@ -127,7 +127,7 @@ impl KeyRouter<AppAction> for YoutuiWindow {
             WindowContext::Logs => Either::Right(kb.chain(self.logger.get_active_keybinds())),
         }
     }
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         std::iter::once(&self.keybinds)
             .chain(self.browser.get_all_keybinds())
             .chain(self.playlist.get_all_keybinds())
@@ -286,7 +286,7 @@ impl YoutuiWindow {
                 self.key_stack.clear();
                 effect
             }
-            KeyHandleAction::Mode(_) => AsyncTask::new_no_op(),
+            KeyHandleAction::Mode { .. } => AsyncTask::new_no_op(),
             KeyHandleAction::NoMap => {
                 self.key_stack.clear();
                 AsyncTask::new_no_op()
@@ -323,49 +323,21 @@ impl YoutuiWindow {
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
-        // if let Some(Keymap::Mode(mode)) =
-        //     get_key_subset(self.get_active_keybinds(), &self.key_stack)
-        // {
-        //     return Some(DisplayableMode {
-        //         displayable_commands: mode.as_displayable_iter(),
-        //         description: mode.describe(),
-        //     });
-        // }
-        // match self.context {
-        //     WindowContext::Browser => {
-        //         if let Some(Keymap::Mode(mode)) =
-        //             get_key_subset(self.browser.get_active_keybinds(),
-        // &self.key_stack)         {
-        //             return Some(DisplayableMode {
-        //                 displayable_commands: mode.as_displayable_iter(),
-        //                 description: mode.describe(),
-        //             });
-        //         }
-        //     }
-        //     WindowContext::Playlist => {
-        //         if let Some(Keymap::Mode(mode)) =
-        //             get_key_subset(self.playlist.get_active_keybinds(),
-        // &self.key_stack)         {
-        //             return Some(DisplayableMode {
-        //                 displayable_commands: mode.as_displayable_iter(),
-        //                 description: mode.describe(),
-        //             });
-        //         }
-        //     }
-        //     WindowContext::Logs => {
-        //         if let Some(Keymap::Mode(mode)) =
-        //             get_key_subset(self.logger.get_active_keybinds(),
-        // &self.key_stack)         {
-        //             return Some(DisplayableMode {
-        //                 displayable_commands: mode.as_displayable_iter(),
-        //                 description: mode.describe(),
-        //             });
-        //         }
-        //     }
-        // }
-        // None
-        todo!()
+    fn get_cur_displayable_mode(
+        &self,
+    ) -> Option<DisplayableMode<'_, impl Iterator<Item = DisplayableCommand<'_>>>> {
+        let KeyHandleAction::Mode { name, keys } =
+            handle_key_stack(self.get_active_keybinds(), &self.key_stack)
+        else {
+            return None;
+        };
+        let displayable_commands = keys
+            .iter()
+            .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt));
+        Some(DisplayableMode {
+            displayable_commands,
+            description: name.into(),
+        })
     }
 }
 

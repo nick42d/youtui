@@ -273,50 +273,20 @@ async fn test_kill_constraint_stream() {
 }
 
 #[tokio::test]
-async fn test_task_received_callback() {
-    //     let mut manager = AsyncCallbackManager::new();
-    //     let task_received = Arc::new(std::sync::Mutex::new(false));
-    //     let task_received_clone = task_received.clone();
-    //     let mut manager = manager.with_on_task_received_callback(move |resp| {
-    //         eprintln!("Response {:?} received", resp);
-    //         *task_received_clone.lock().unwrap() = true;
-    //     });
-    //     state_receiver
-    //         .add_callback(
-    //             TextTask("Hello from the future".to_string()),
-    //             |_, _| {},
-    //             None,
-    //         )
-    //         .unwrap();
-    //     manager.manage_next_event(&()).await.unwrap();
-    //     assert!(*task_received.lock().unwrap());
-    todo!()
-}
-
-#[tokio::test]
-async fn test_response_received_callback() {
-    // let (manager, state_receiver) = init::<(), (), _>();
-    // let response_received = Arc::new(std::sync::Mutex::new(false));
-    // let response_received_clone = response_received.clone();
-    // let task_is_now_finished = Arc::new(std::sync::Mutex::new(false));
-    // let task_is_now_finished_clone = task_is_now_finished.clone();
-    // let mut manager = manager.with_on_response_received_callback(move |resp| {
-    //     eprintln!("Response {:?} received", resp);
-    //     *response_received_clone.lock().unwrap() = true;
-    //     *task_is_now_finished_clone.lock().unwrap() = resp.task_is_now_finished;
-    // });
-    // state_receiver
-    //     .add_callback(
-    //         TextTask("Hello from the future".to_string()),
-    //         |_, _| {},
-    //         None,
-    //     )
-    //     .unwrap();
-    // manager.manage_next_event(&()).await.unwrap();
-    // manager.manage_next_event(&()).await.unwrap();
-    // assert!(*response_received.lock().unwrap());
-    // assert!(*task_is_now_finished.lock().unwrap());
-    todo!()
+async fn test_task_spawn_callback() {
+    let task_received = Arc::new(std::sync::Mutex::new(false));
+    let task_received_clone = task_received.clone();
+    let mut manager = AsyncCallbackManager::new().with_on_task_spawn_callback(move |resp| {
+        eprintln!("Response {:?} received", resp);
+        *task_received_clone.lock().unwrap() = true;
+    });
+    let task = AsyncTask::new_future(
+        TextTask("Hello from the future".to_string()),
+        |_: &mut (), _| {},
+        None,
+    );
+    manager.spawn_task(&(), task);
+    assert!(*task_received.lock().unwrap());
 }
 
 #[tokio::test]

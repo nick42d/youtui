@@ -1,6 +1,5 @@
 use crate::app::{
-    component::actionhandler::Action,
-    keycommand::{CommandVisibility, DisplayableCommand, Keybind},
+    keycommand::{CommandVisibility, Keybind},
     ui::{
         action::{AppAction, HelpAction, ListAction, TextEntryAction},
         browser::{
@@ -282,7 +281,7 @@ impl<A> KeyActionTree<A> {
         let new: KeyActionTree<A> = match stringy {
             KeyStringTree::Key(k) => KeyActionTree::Key(k.try_map(TryInto::try_into)?),
             KeyStringTree::Mode(m) => {
-                let mode_name_enum = mode_names.and_then(|m| m.remove(&key));
+                let mode_name_enum = mode_names.and_then(|m| m.remove(key));
                 let (mut next_modes, cur_mode_name) = match mode_name_enum {
                     Some(ModeNameEnum::Submode { name, keys }) => (Some(keys), name),
                     Some(ModeNameEnum::Name(name)) => (None, Some(name)),
@@ -308,7 +307,7 @@ impl<A> KeyActionTree<A> {
     pub fn get_visibility(&self) -> CommandVisibility {
         match self {
             KeyActionTree::Key(k) => k.visibility,
-            KeyActionTree::Mode { name, keys } => CommandVisibility::default(),
+            KeyActionTree::Mode { .. } => CommandVisibility::default(),
         }
     }
 }
