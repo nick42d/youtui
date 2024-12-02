@@ -51,7 +51,7 @@ pub struct Browser {
     pub prev_input_routing: InputRouting,
     pub artist_list: ArtistSearchPanel,
     pub album_songs_list: AlbumSongsPanel,
-    keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -183,28 +183,22 @@ impl DrawableMut for Browser {
 }
 impl KeyRouter<AppAction> for Browser {
     fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
-        Box::new(
-            self.keybinds
-                .iter()
-                .chain(self.artist_list.get_all_keybinds())
-                .chain(self.album_songs_list.get_all_keybinds()),
-        )
+        std::iter::once(&self.keybinds)
+            .chain(self.artist_list.get_all_keybinds())
+            .chain(self.album_songs_list.get_all_keybinds())
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
         let additional_binds = match self.input_routing {
-            InputRouting::Song => Box::new(self.album_songs_list.get_active_keybinds())
-                as DynKeybindsIter<'_, AppAction>,
-            InputRouting::Artist => {
-                Box::new(self.artist_list.get_active_keybinds()) as DynKeybindsIter<'_, AppAction>
-            }
+            InputRouting::Song => Either::Left(self.album_songs_list.get_active_keybinds()),
+            InputRouting::Artist => Either::Right(self.artist_list.get_active_keybinds()),
         };
         // TODO: Better implementation
         if self.album_songs_list.dominant_keybinds_active()
             || self.album_songs_list.dominant_keybinds_active()
         {
-            additional_binds
+            Either::Left(additional_binds)
         } else {
-            Box::new(self.keybinds.iter().chain(additional_binds)) as DynKeybindsIter<'_, AppAction>
+            Either::Right(std::iter::once(&self.keybinds).chain(additional_binds))
         }
     }
 }
@@ -468,23 +462,6 @@ impl Component for Browser {
     type Md = TaskMetadata;
 }
 
-fn browser_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .browser
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .collect()
+fn browser_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser.clone()
 }

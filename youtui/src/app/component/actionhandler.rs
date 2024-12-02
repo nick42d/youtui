@@ -4,7 +4,6 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyEvent, MouseEvent};
-use rodio::cpal::FromSample;
 use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
@@ -87,10 +86,10 @@ pub type Keymap<A> = HashMap<Keybind, KeyActionTree<A>>;
 pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
 }
 
 /// A component of the application that can block parent keybinds.
@@ -110,7 +109,7 @@ pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 's
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
-        .flat_map(|keymap| keymap.into_iter())
+        .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
@@ -121,7 +120,7 @@ pub fn get_all_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_all_keybinds()
-        .flat_map(|keymap| keymap.into_iter())
+        .flat_map(|keymap| keymap.iter())
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Get a context-specific list of all keybinds marked global.
@@ -131,7 +130,7 @@ pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
     component
         .get_active_keybinds()
-        .flat_map(|keymap| keymap.into_iter())
+        .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() == CommandVisibility::Global)
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
@@ -139,7 +138,7 @@ pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 
 pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &K) -> usize {
     component
         .get_active_keybinds()
-        .flat_map(|keymap| keymap.into_iter())
+        .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
         .count()
 }
@@ -276,18 +275,19 @@ pub fn handle_key_stack<'a, A>(
 where
     A: Action + Clone + 'a,
 {
-    if let Some(subset) = get_key_subset(binds, key_stack) {
-        match &subset {
-            Keymap::Action(a) => {
-                // As Action is simply a message that is being passed around
-                // I am comfortable to clone it. Receiver should own the message.
-                // We may be able to improve on this using GATs or reference counting.
-                return KeyHandleAction::Action(a.clone());
-            }
-            Keymap::Mode(_) => return KeyHandleAction::Mode,
-        }
-    }
-    KeyHandleAction::NoMap
+    // if let Some(subset) = get_key_subset(binds, key_stack) {
+    //     match &subset {
+    //         Keymap::Action(a) => {
+    //             // As Action is simply a message that is being passed around
+    //             // I am comfortable to clone it. Receiver should own the message.
+    //             // We may be able to improve on this using GATs or reference
+    // counting.             return KeyHandleAction::Action(a.clone());
+    //         }
+    //         Keymap::Mode(_) => return KeyHandleAction::Mode,
+    //     }
+    // }
+    // KeyHandleAction::NoMap
+    todo!()
 }
 /// Try to handle the passed key_stack if it processes an action.
 /// Returns if it was handled or why it was not.
@@ -300,19 +300,20 @@ where
     A: Action<State = B> + Clone + 'static,
     B: KeyRouter<A> + Component,
 {
-    if let Some(subset) = get_key_subset(handler.get_active_keybinds(), &key_stack) {
-        match &subset {
-            Keymap::Action(a) => {
-                // As Action is simply a message that is being passed around
-                // I am comfortable to clone it. Receiver should own the message.
-                // We may be able to improve on this using GATs or reference counting.
-                let effect = a.clone().apply(handler).await;
-                return KeyHandleOutcome::Action(effect);
-            }
-            Keymap::Mode(_) => return KeyHandleOutcome::Mode,
-        }
-    }
-    KeyHandleOutcome::NoMap
+    // if let Some(subset) = get_key_subset(handler.get_active_keybinds(),
+    // &key_stack) {     match &subset {
+    //         Keymap::Action(a) => {
+    //             // As Action is simply a message that is being passed around
+    //             // I am comfortable to clone it. Receiver should own the message.
+    //             // We may be able to improve on this using GATs or reference
+    // counting.             let effect = a.clone().apply(handler).await;
+    //             return KeyHandleOutcome::Action(effect);
+    //         }
+    //         Keymap::Mode(_) => return KeyHandleOutcome::Mode,
+    //     }
+    // }
+    // KeyHandleOutcome::NoMap
+    todo!()
 }
 /// If a list of Keybinds contains a binding for the index KeyEvent, return that
 /// KeyEvent.
@@ -320,10 +321,11 @@ pub fn index_keybinds<'a, A: Action>(
     binds: impl Iterator<Item = &'a KeyCommand<A>> + 'a,
     index: &KeyEvent,
 ) -> Option<&'a Keymap<A>> {
-    let mut binds = binds;
-    binds
-        .find(|kb| kb.contains_keyevent(index))
-        .map(|kb| &kb.key_map)
+    // let mut binds = binds;
+    // binds
+    //     .find(|kb| kb.contains_keyevent(index))
+    //     .map(|kb| &kb.key_map)
+    todo!()
 }
 /// Recursively indexes into a Keymap using a list of KeyEvents. Yields the
 /// presented Keymap,
@@ -332,12 +334,13 @@ pub fn index_keymap<'a, A: Action>(
     map: &'a Keymap<A>,
     indexes: &[KeyEvent],
 ) -> Option<&'a Keymap<A>> {
-    indexes
-        .iter()
-        .try_fold(map, move |target, i| match &target {
-            Keymap::Action(_) => None,
-            Keymap::Mode(m) => index_keybinds(Box::new(m.commands.iter()), i),
-        })
+    // indexes
+    //     .iter()
+    //     .try_fold(map, move |target, i| match &target {
+    //         Keymap::Action(_) => None,
+    //         Keymap::Mode(m) => index_keybinds(Box::new(m.commands.iter()), i),
+    //     })
+    todo!()
 }
 #[cfg(test)]
 mod tests {
@@ -402,10 +405,11 @@ mod tests {
         let key_stack = [ks1, ks2];
         let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
         let act = index_keymap(first, key_stack.get(1..).unwrap());
-        let Some(Keymap::Action(a)) = act else {
-            panic!();
-        };
-        assert_eq!(*a, TestAction::TestStack);
+        // let Some(Keymap::Action(a)) = act else {
+        //     panic!();
+        // };
+        // assert_eq!(*a, TestAction::TestStack);
+        todo!()
     }
     #[test]
     fn test_key_stack() {
@@ -432,10 +436,11 @@ mod tests {
         let key_stack = [ks1, ks2];
         let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
         let act = index_keymap(first, key_stack.get(1..).unwrap());
-        let Some(Keymap::Action(a)) = act else {
-            panic!();
-        };
-        assert_eq!(*a, TestAction::TestStack);
+        // let Some(Keymap::Action(a)) = act else {
+        //     panic!();
+        // };
+        // assert_eq!(*a, TestAction::TestStack);
+        todo!()
     }
     #[test]
     fn test_index_keybinds() {
@@ -464,38 +469,40 @@ mod tests {
             "Play".into(),
         )
         .key_map;
-        assert_eq!(idx, Some(&eq));
+        // assert_eq!(idx, Some(&eq));
+        todo!()
     }
     #[test]
     fn test_index_keymap() {
-        let kb = Keymap::Mode(Mode {
-            commands: vec![
-                KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-                KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-                KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-                KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-                KeyCommand::new_action_only_mode(
-                    vec![
-                        (KeyCode::Char('A'), TestAction::Test2),
-                        (KeyCode::Char('a'), TestAction::Test3),
-                    ],
-                    KeyCode::Enter,
-                    "Play".into(),
-                ),
-            ],
-            name: "test".into(),
-        });
-        let ks = [KeyEvent::new(KeyCode::Enter, KeyModifiers::empty())];
-        let idx = index_keymap(&kb, &ks);
-        let eq = KeyCommand::new_action_only_mode(
-            vec![
-                (KeyCode::Char('A'), TestAction::Test2),
-                (KeyCode::Char('a'), TestAction::Test3),
-            ],
-            KeyCode::Enter,
-            "Play".into(),
-        )
-        .key_map;
-        assert_eq!(idx, Some(&eq));
+        // let kb = Keymap::Mode(Mode {
+        //     commands: vec![
+        //         KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
+        //         KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
+        //         KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
+        //         KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
+        //         KeyCommand::new_action_only_mode(
+        //             vec![
+        //                 (KeyCode::Char('A'), TestAction::Test2),
+        //                 (KeyCode::Char('a'), TestAction::Test3),
+        //             ],
+        //             KeyCode::Enter,
+        //             "Play".into(),
+        //         ),
+        //     ],
+        //     name: "test".into(),
+        // });
+        // let ks = [KeyEvent::new(KeyCode::Enter, KeyModifiers::empty())];
+        // let idx = index_keymap(&kb, &ks);
+        // let eq = KeyCommand::new_action_only_mode(
+        //     vec![
+        //         (KeyCode::Char('A'), TestAction::Test2),
+        //         (KeyCode::Char('a'), TestAction::Test3),
+        //     ],
+        //     KeyCode::Enter,
+        //     "Play".into(),
+        // )
+        // .key_map;
+        // assert_eq!(idx, Some(&eq));
+        todo!()
     }
 }

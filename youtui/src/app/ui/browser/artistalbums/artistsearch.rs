@@ -1,7 +1,7 @@
 use crate::{
     app::{
         component::actionhandler::{
-            Action, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
+            Action, Component, ComponentEffect, KeyRouter, Keymap, Suggestable, TextHandler,
         },
         keycommand::KeyCommand,
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
@@ -35,8 +35,8 @@ pub struct ArtistSearchPanel {
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
-    keybinds: Vec<KeyCommand<AppAction>>,
-    search_keybinds: Vec<KeyCommand<AppAction>>,
+    keybinds: Keymap<AppAction>,
+    search_keybinds: Keymap<AppAction>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -265,13 +265,13 @@ impl Suggestable for ArtistSearchPanel {
 }
 
 impl KeyRouter<AppAction> for ArtistSearchPanel {
-    fn get_all_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
-        self.keybinds.iter().chain(self.search_keybinds.iter())
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        [&self.keybinds, &self.search_keybinds].into_iter()
     }
-    fn get_active_keybinds<'a>(&'a self) -> impl Iterator<Item = &'a KeyCommand<AppAction>> + 'a {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.route {
-            ArtistInputRouting::List => self.keybinds.iter(),
-            ArtistInputRouting::Search => self.search_keybinds.iter(),
+            ArtistInputRouting::List => std::iter::once(&self.keybinds),
+            ArtistInputRouting::Search => std::iter::once(&self.search_keybinds),
         }
     }
 }
@@ -319,43 +319,9 @@ impl ListView for ArtistSearchPanel {
         "Artists".into()
     }
 }
-fn search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .browser_search
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .collect()
+fn search_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser_search.clone()
 }
-fn browser_artist_search_keybinds(config: &Config) -> Vec<KeyCommand<AppAction>> {
-    config
-        .keybinds
-        .browser_artists
-        .iter()
-        .map(|(kb, ke)| match ke {
-            KeyActionTree::Key(KeyAction {
-                action,
-                value,
-                visibility,
-            }) => KeyCommand::new_modified_from_code_with_visibility(
-                kb.code,
-                kb.modifiers,
-                visibility.clone(),
-                action.clone(),
-            ),
-            KeyActionTree::Mode { .. } => todo!(),
-        })
-        .collect()
+fn browser_artist_search_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser_artists.clone()
 }
