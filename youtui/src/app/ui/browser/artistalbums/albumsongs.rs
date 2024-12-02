@@ -610,13 +610,13 @@ impl SortableTableView for AlbumSongsPanel {
 }
 
 fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
-    todo!()
+    config.keybinds.sort.clone()
 }
 
 fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
-    todo!()
+    config.keybinds.filter.clone()
 }
 
 pub fn songs_keybinds(config: &Config) -> Keymap<AppAction> {
-    todo!()
+    config.keybinds.browser_songs.clone()
 }
