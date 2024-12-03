@@ -3,7 +3,7 @@ use crate::{
     config::keybinds::{KeyAction, KeyActionTree},
 };
 use async_callback_manager::AsyncTask;
-use crossterm::event::{Event, KeyEvent, MouseEvent};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
@@ -177,6 +177,7 @@ pub trait MouseHandler {
 }
 
 /// The action to do after handling a key event
+#[derive(Debug)]
 pub enum KeyHandleAction<'a, A: Action> {
     Action(A),
     Mode { name: String, keys: &'a Keymap<A> },
@@ -191,8 +192,16 @@ where
     let convert = |k: KeyEvent| {
         // NOTE: kind and state fields currently unused.
         let KeyEvent {
-            code, modifiers, ..
+            code,
+            mut modifiers,
+            ..
         } = k;
+        // If the keycode is a character, then the shift modifier should be removed. It
+        // will be encoded in the character already. This same stripping occurs when
+        // parsing the keycode in Keybind::from_str(..).
+        if let KeyCode::Char(_) = code {
+            modifiers = modifiers.difference(KeyModifiers::SHIFT);
+        }
         Keybind { code, modifiers }
     };
     let mut key_stack_iter = key_stack.iter();
@@ -332,8 +341,9 @@ mod tests {
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::SHIFT);
         let key_stack = [ks1, ks2];
         let expected = TestAction::TestStack;
-        let KeyHandleAction::Action(output) = handle_key_stack(std::iter::once(&kb), &key_stack)
-        else {
+        let output = handle_key_stack(std::iter::once(&kb), &key_stack);
+        println!("{:?}", output);
+        let KeyHandleAction::Action(output) = output else {
             panic!("Expected keyhandleoutcome::action");
         };
         assert_eq!(expected, output);

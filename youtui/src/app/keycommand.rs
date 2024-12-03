@@ -5,6 +5,7 @@ use crate::config::keybinds::KeyActionTree;
 
 use super::component::actionhandler::Action;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use rat_text::event::crossterm::modifiers;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
@@ -74,19 +75,6 @@ impl Keybind {
         Self {
             code,
             modifiers: KeyModifiers::NONE,
-        }
-    }
-    pub fn contains_keyevent(&self, keyevent: &KeyEvent) -> bool {
-        match self.code {
-            // If key code is a character it may have shift pressed, if that's the case ignore the
-            // shift As may have been used to capitalise the letter, which will already
-            // be counted in the key code.
-            KeyCode::Char(_) => {
-                self.code == keyevent.code
-                    && self.modifiers.union(KeyModifiers::SHIFT)
-                        == keyevent.modifiers.union(KeyModifiers::SHIFT)
-            }
-            _ => self.code == keyevent.code && self.modifiers == keyevent.modifiers,
         }
     }
 }
@@ -177,16 +165,24 @@ impl FromStr for Keybind {
                 c => Err(c),
             }
         }
-        if let Ok(code) = parse_unmodified(s) {
+        // For ergonomics and to reduce edge cases, all whitespace is removed prior to
+        // parsing.
+        let s = s.split_whitespace().collect::<String>();
+        if let Ok(code) = parse_unmodified(&s) {
             return Ok(Keybind::new(code, KeyModifiers::NONE));
         };
         let mut split = s.rsplit("-");
         if let Some(Ok(code)) = split.next().map(parse_unmodified) {
-            if let Ok(Ok(modifiers)) = split
+            if let Ok(Ok(mut modifiers)) = split
                 .map(char::from_str)
                 .map(|res| res.map(parse_modifier))
                 .collect::<Result<Result<KeyModifiers, char>, ParseCharError>>()
             {
+                // If the keycode is a character, then the shift modifier should be removed. It
+                // will be encoded in the character already.
+                if let KeyCode::Char(_) = code {
+                    modifiers = modifiers.difference(KeyModifiers::SHIFT);
+                }
                 return Ok(Keybind::new(code, modifiers));
             }
         }
