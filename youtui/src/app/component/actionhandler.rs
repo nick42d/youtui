@@ -131,6 +131,9 @@ pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &
         .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
         .count()
 }
+pub trait ContainsList {
+    fn list_is_active(&self) -> bool;
+}
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
 pub trait TextHandler: Component {

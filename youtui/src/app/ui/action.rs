@@ -201,8 +201,8 @@ impl Action for AppAction {
                     .apply(state)
                     .await
             }
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
+            AppAction::TextEntry(a) => return state.handle_text_entry_action(a),
+            AppAction::List(a) => return state.handle_list_action(a),
         };
         AsyncTask::new_no_op()
     }
@@ -260,7 +260,7 @@ impl Action for HelpAction {
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            HelpAction::Close => "Close Help".into(),
+            HelpAction::Close => "Close Help".return state.handle_text_entry_action(a)into(),
         }
     }
     async fn apply(

@@ -1,7 +1,7 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, DominantKeyRouter,
-    KeyHandleAction, KeyRouter, Keymap, TextHandler,
+    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, ContainsList,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
 use super::keycommand::{DisplayableCommand, DisplayableMode};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
@@ -10,7 +10,7 @@ use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
-use action::AppAction;
+use action::{AppAction, ListAction, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
@@ -48,6 +48,8 @@ pub struct YoutuiWindow {
     pub logger: Logger,
     pub callback_tx: mpsc::Sender<AppCallback>,
     keybinds: Keymap<AppAction>,
+    list_keybinds: Keymap<AppAction>,
+    text_entry_keybinds: Keymap<AppAction>,
     key_stack: Vec<KeyEvent>,
     pub help: HelpMenu,
 }
@@ -87,6 +89,21 @@ impl Scrollable for HelpMenu {
     }
 }
 
+impl ContainsList for YoutuiWindow {
+    // TODO: propogate implementation down.
+    fn list_is_active(&self) -> bool {
+        self.help.shown
+            || match self.context {
+                WindowContext::Browser => {
+                    !self.browser.artist_list.search_popped
+                        || self.browser.input_routing == browser::InputRouting::Song
+                }
+                WindowContext::Playlist => true,
+                WindowContext::Logs => false,
+            }
+    }
+}
+
 impl DominantKeyRouter<AppAction> for YoutuiWindow {
     fn dominant_keybinds_active(&self) -> bool {
         self.help.shown
@@ -117,6 +134,16 @@ impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = std::iter::once(&self.keybinds);
+        let kb = if self.list_is_active() {
+            Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
+        } else {
+            Either::Right(kb)
+        };
+        let kb = if self.is_text_handling() {
+            Either::Left(kb.chain(std::iter::once(&self.text_entry_keybinds)))
+        } else {
+            Either::Right(kb)
+        };
         match self.context {
             WindowContext::Browser => {
                 Either::Left(Either::Left(kb.chain(self.browser.get_active_keybinds())))
@@ -194,15 +221,19 @@ impl YoutuiWindow {
             playlist,
             browser: Browser::new(callback_tx.clone(), config),
             logger: Logger::new(callback_tx.clone(), config),
-            keybinds: global_keybinds(config),
             key_stack: Vec::new(),
             help: HelpMenu::new(config),
             callback_tx,
+            keybinds: global_keybinds(config),
+            list_keybinds: list_keybinds(config),
+            text_entry_keybinds: text_entry_keybinds(config),
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_event(&mut self, event: crossterm::event::Event) -> ComponentEffect<Self> {
+        // TODO: This should be intercepted and keycodes mapped by us instead of going
+        // direct to rat-text.
         if let Some(effect) = self.try_handle_text(&event) {
             return effect;
         };
@@ -230,6 +261,17 @@ impl YoutuiWindow {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
         AsyncTask::new_no_op()
     }
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.help.shown {
+            todo!();
+        }
+        match self.context {
+            WindowContext::Browser => todo!(),
+            WindowContext::Playlist => todo!(),
+            WindowContext::Logs => AsyncTask::new_no_op(),
+        }
+    }
+    pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {}
     pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .pauseplay()
