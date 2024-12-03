@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::action::AppAction;
+use crate::app::ui::action::{AppAction, ListAction};
 use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -340,6 +340,23 @@ impl AlbumSongsPanel {
         self.sort.shown = false;
         self.route = AlbumSongsInputRouting::List;
     }
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.sort.shown {
+            match action {
+                ListAction::Up => self.handle_sort_up(),
+                ListAction::Down => self.handle_sort_down(),
+            }
+            return AsyncTask::new_no_op();
+        }
+        if self.filter.shown {
+            return AsyncTask::new_no_op();
+        }
+        match action {
+            ListAction::Up => self.increment_list(-1),
+            ListAction::Down => self.increment_list(1),
+        }
+        AsyncTask::new_no_op()
+    }
     pub fn handle_pop_sort(&mut self) {
         // If no sortable columns, should we not handle this command?
         self.sort.cur = 0;
@@ -470,6 +487,9 @@ impl Scrollable for AlbumSongsPanel {
     }
     fn get_selected_item(&self) -> usize {
         self.cur_selected
+    }
+    fn is_scrollable(&self) -> bool {
+        todo!()
     }
 }
 

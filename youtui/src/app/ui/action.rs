@@ -260,7 +260,7 @@ impl Action for HelpAction {
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            HelpAction::Close => "Close Help".return state.handle_text_entry_action(a)into(),
+            HelpAction::Close => "Close Help".into(),
         }
     }
     async fn apply(

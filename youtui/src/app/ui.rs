@@ -1,7 +1,7 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, ContainsList,
-    DominantKeyRouter, KeyHandleAction, KeyRouter, Keymap, TextHandler,
+    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, DominantKeyRouter,
+    KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
 use super::keycommand::{DisplayableCommand, DisplayableMode};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
@@ -83,24 +83,11 @@ impl Scrollable for HelpMenu {
             .saturating_add_signed(amount)
             .min(self.len.saturating_sub(1));
     }
-
     fn get_selected_item(&self) -> usize {
         self.cur
     }
-}
-
-impl ContainsList for YoutuiWindow {
-    // TODO: propogate implementation down.
-    fn list_is_active(&self) -> bool {
-        self.help.shown
-            || match self.context {
-                WindowContext::Browser => {
-                    !self.browser.artist_list.search_popped
-                        || self.browser.input_routing == browser::InputRouting::Song
-                }
-                WindowContext::Playlist => true,
-                WindowContext::Logs => false,
-            }
+    fn is_scrollable(&self) -> bool {
+        todo!()
     }
 }
 
@@ -130,11 +117,31 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
     }
 }
 
+impl Scrollable for YoutuiWindow {
+    fn increment_list(&mut self, amount: isize) {
+        todo!()
+    }
+    fn get_selected_item(&self) -> usize {
+        todo!()
+    }
+    fn is_scrollable(&self) -> bool {
+        self.help.shown
+            || match self.context {
+                WindowContext::Browser => {
+                    !self.browser.artist_list.search_popped
+                        || self.browser.input_routing == browser::InputRouting::Song
+                }
+                WindowContext::Playlist => true,
+                WindowContext::Logs => false,
+            }
+    }
+}
+
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = std::iter::once(&self.keybinds);
-        let kb = if self.list_is_active() {
+        let kb = if self.is_scrollable() {
             Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
         } else {
             Either::Right(kb)
@@ -164,6 +171,9 @@ impl KeyRouter<AppAction> for YoutuiWindow {
 
 impl TextHandler for YoutuiWindow {
     fn is_text_handling(&self) -> bool {
+        if self.help.shown {
+            return false;
+        }
         match self.context {
             WindowContext::Browser => self.browser.is_text_handling(),
             WindowContext::Playlist => self.playlist.is_text_handling(),
@@ -263,15 +273,37 @@ impl YoutuiWindow {
     }
     pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
         if self.help.shown {
-            todo!();
+            match action {
+                ListAction::Up => self.help.increment_list(-1),
+                ListAction::Down => self.help.increment_list(1),
+            }
+            return AsyncTask::new_no_op();
         }
         match self.context {
-            WindowContext::Browser => todo!(),
-            WindowContext::Playlist => todo!(),
+            WindowContext::Browser => self
+                .browser
+                .handle_list_action(action)
+                .map(|this: &mut Self| &mut this.browser),
+            WindowContext::Playlist => self
+                .playlist
+                .handle_list_action(action)
+                .map(|this: &mut Self| &mut this.playlist),
             WindowContext::Logs => AsyncTask::new_no_op(),
         }
     }
-    pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {}
+    pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
+        if !self.is_text_handling() {
+            return AsyncTask::new_no_op();
+        }
+        match self.context {
+            WindowContext::Browser => self
+                .browser
+                .handle_text_entry_action(action)
+                .map(|this: &mut Self| &mut this.browser),
+            WindowContext::Playlist => AsyncTask::new_no_op(),
+            WindowContext::Logs => AsyncTask::new_no_op(),
+        }
+    }
     pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .pauseplay()

@@ -129,6 +129,7 @@ pub trait Scrollable {
     // Increment the list by the specified amount.
     fn increment_list(&mut self, amount: isize);
     fn get_selected_item(&self) -> usize;
+    fn is_scrollable(&self) -> bool;
 }
 /// A struct that can either be scrolled or forward scroll commands to a
 /// component.

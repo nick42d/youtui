@@ -4,7 +4,10 @@ use crate::{
             Action, Component, ComponentEffect, KeyRouter, Keymap, Suggestable, TextHandler,
         },
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
-        ui::{action::AppAction, browser::Browser},
+        ui::{
+            action::{AppAction, ListAction},
+            browser::Browser,
+        },
         view::{ListView, Loadable, Scrollable, SortableList},
     },
     config::Config,
@@ -134,6 +137,16 @@ impl ArtistSearchPanel {
     pub fn close_search(&mut self) {
         self.search_popped = false;
         self.route = ArtistInputRouting::List;
+    }
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.route != ArtistInputRouting::List {
+            return AsyncTask::new_no_op();
+        }
+        match action {
+            ListAction::Up => self.increment_list(-1),
+            ListAction::Down => self.increment_list(1),
+        }
+        AsyncTask::new_no_op()
     }
 }
 impl Component for ArtistSearchPanel {
@@ -282,6 +295,9 @@ impl Scrollable for ArtistSearchPanel {
     }
     fn get_selected_item(&self) -> usize {
         self.selected
+    }
+    fn is_scrollable(&self) -> bool {
+        todo!()
     }
 }
 
