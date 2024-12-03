@@ -248,7 +248,9 @@ impl Browser {
             && self.input_routing == InputRouting::Artist
         {
             match action {
-                TextEntryAction::Submit => return self.get_songs(),
+                TextEntryAction::Submit => {
+                    return self.search();
+                }
                 // Handled by old handle_text_event_impl.
                 //
                 // TODO: remove the duplication of responsibilities between this function and
