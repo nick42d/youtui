@@ -583,6 +583,7 @@ mod tests {
         );
         // Here, it's expected that this is succesful.
         // TODO: Run the task for an expected outcome.
-        let mapped_task = recursive_task.map(|tmp: &mut ()| tmp);
+        #[allow(unused_must_use)]
+        let _ = recursive_task.map(|tmp: &mut ()| tmp);
     }
 }

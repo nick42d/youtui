@@ -144,15 +144,15 @@ impl Scrollable for Playlist {
             .saturating_add_signed(amount)
             .min(self.list.get_list_iter().len().saturating_sub(1))
     }
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected
-    }
     fn is_scrollable(&self) -> bool {
         true
     }
 }
 
 impl TableView for Playlist {
+    fn get_selected_item(&self) -> usize {
+        self.cur_selected
+    }
     fn get_state(&self) -> TableState {
         self.widget_state.clone()
     }

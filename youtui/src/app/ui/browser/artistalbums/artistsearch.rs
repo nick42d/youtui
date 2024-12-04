@@ -289,9 +289,6 @@ impl Scrollable for ArtistSearchPanel {
             .unwrap_or(0)
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
     }
-    fn get_selected_item(&self) -> usize {
-        self.selected
-    }
     fn is_scrollable(&self) -> bool {
         todo!()
     }
@@ -313,6 +310,9 @@ impl Loadable for ArtistSearchPanel {
     }
 }
 impl ListView for ArtistSearchPanel {
+    fn get_selected_item(&self) -> usize {
+        self.selected
+    }
     type DisplayItem = String;
     fn get_state(&self) -> ratatui::widgets::ListState {
         self.widget_state.clone()

@@ -638,6 +638,13 @@ fn default_filter_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::Filter(FilterAction::Apply),
+                CommandVisibility::Global,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(6)),
             KeyActionTree::new_key_with_visibility(
                 AppAction::Filter(FilterAction::ClearFilter),

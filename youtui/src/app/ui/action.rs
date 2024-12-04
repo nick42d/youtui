@@ -117,8 +117,8 @@ impl Action for AppAction {
             AppAction::BrowserArtists(a) => a.context(),
             AppAction::BrowserSearch(a) => a.context(),
             AppAction::BrowserSongs(a) => a.context(),
-            AppAction::TextEntry(a) => "Global".into(),
-            AppAction::List(a) => "Global".into(),
+            AppAction::TextEntry(a) => a.context(),
+            AppAction::List(a) => a.context(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {

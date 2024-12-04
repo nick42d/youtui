@@ -12,7 +12,7 @@ auth_type = "Browser"
 F1 = {action = "toggle_help", visibility = "global"}
 F10 = {action = "quit", visibility = "global"}
 F12 = {action = "view_logs", visibility = "global"}
-space = "pause"
+space = {action = "pause", visibility = "global"}
 C-c = "quit"
 
 # Global keybind mode names
@@ -60,6 +60,7 @@ esc = {action = "help.close", visibility = "hidden"}
 [keybinds.filter]
 esc = {action = "filter.close", visibility = "hidden"}
 F3 = {action = "filter.close", visibility = "global"}
+Enter = {action = "filter.apply", visibility = "global"}
 F6 = {action = "filter.clear_filter", visibility = "global"}
 
 [keybinds.sort]

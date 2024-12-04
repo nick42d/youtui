@@ -84,11 +84,8 @@ impl Scrollable for HelpMenu {
             .saturating_add_signed(amount)
             .min(self.len.saturating_sub(1));
     }
-    fn get_selected_item(&self) -> usize {
-        self.cur
-    }
     fn is_scrollable(&self) -> bool {
-        todo!()
+        true
     }
 }
 

@@ -481,15 +481,15 @@ impl Scrollable for AlbumSongsPanel {
             .saturating_add_signed(amount)
             .min(self.get_filtered_items().count().saturating_sub(1))
     }
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected
-    }
     fn is_scrollable(&self) -> bool {
-        todo!()
+        true
     }
 }
 
 impl TableView for AlbumSongsPanel {
+    fn get_selected_item(&self) -> usize {
+        self.cur_selected
+    }
     fn get_state(&self) -> ratatui::widgets::TableState {
         self.widget_state.clone()
     }

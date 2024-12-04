@@ -15,7 +15,7 @@ use crate::app::{
         api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
     },
     structures::{ListStatus, SongListComponent},
-    view::{DrawableMut, Scrollable},
+    view::{DrawableMut, ListView, Scrollable, TableView},
 };
 use crate::{app::component::actionhandler::Keymap, config::Config, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint};
@@ -90,10 +90,16 @@ impl InputRouting {
 }
 impl Scrollable for Browser {
     fn increment_list(&mut self, amount: isize) {
-        todo!()
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.increment_list(amount),
+            InputRouting::Song => self.artist_list.increment_list(amount),
+        }
     }
     fn is_scrollable(&self) -> bool {
-        todo!()
+        match self.input_routing {
+            InputRouting::Artist => self.artist_list.is_scrollable(),
+            InputRouting::Song => self.artist_list.is_scrollable(),
+        }
     }
 }
 impl ActionHandler<BrowserAction> for Browser {

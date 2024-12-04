@@ -114,16 +114,8 @@ impl Display for Keybind {
     }
 }
 
-#[derive(Debug)]
-pub struct KeybindParseError(String);
-impl std::fmt::Display for KeybindParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 impl FromStr for Keybind {
-    type Err = KeybindParseError;
+    type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         fn parse_unmodified(s: &str) -> Result<KeyCode, &str> {
             if let Ok(char) = char::from_str(s) {
@@ -194,7 +186,7 @@ impl FromStr for Keybind {
                 return Ok(Keybind::new(code, modifiers));
             }
         }
-        Err(KeybindParseError(s.to_string()))
+        Err(s.to_string())
     }
 }
 
