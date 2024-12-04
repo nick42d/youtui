@@ -4,6 +4,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use itertools::Itertools;
 use std::{borrow::Cow, collections::BTreeMap};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;

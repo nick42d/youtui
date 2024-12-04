@@ -407,7 +407,7 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
-            KeyActionTree::new_key_defaulted(AppAction::Pause),
+            KeyActionTree::new_key_with_visibility(AppAction::Pause, CommandVisibility::Global),
         ),
         (
             Keybind::new(crossterm::event::KeyCode::Char('c'), KeyModifiers::CONTROL),

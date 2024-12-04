@@ -27,7 +27,9 @@ pub struct Keybind {
     pub modifiers: KeyModifiers,
 }
 // Since KeyCode and KeyModifiers derive PartialOrd, it's safe to implement this
-// as per below. TODO: PR upstream
+// as per below.
+//
+// Upstream PR that would allow derive(Ord): https://github.com/crossterm-rs/crossterm/pull/951
 #[allow(clippy::derive_ord_xor_partial_ord)]
 impl Ord for Keybind {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
