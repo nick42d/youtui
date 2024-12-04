@@ -4,12 +4,14 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use itertools::Itertools;
 use std::{borrow::Cow, collections::BTreeMap};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
+/// Convenience type alias
 pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
+/// Convenience type alias
+pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
 /// A frontend component - has an associated backend and task metadata type.
 pub trait Component {
     type Bkend;
@@ -29,6 +31,7 @@ macro_rules! impl_youtui_component {
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
     async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
+    /// Apply an action that can be mapped to Self.
     async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
     where
         B: Action,
@@ -50,7 +53,6 @@ pub trait Action {
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
-pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and
@@ -90,7 +92,6 @@ pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 's
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Get a context-specific list of all keybinds marked global.
-// TODO: Put under DisplayableKeyHandler
 pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
     component: &K,
 ) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
@@ -100,7 +101,7 @@ pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 
         .filter(|(_, kt)| (*kt).get_visibility() == CommandVisibility::Global)
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
-// e.g - for use in help menu.
+/// Count the number of visible keybinds - helper for Help menu.
 pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &K) -> usize {
     component
         .get_active_keybinds()
@@ -161,6 +162,8 @@ pub enum KeyHandleAction<'a, A: Action> {
     NoMap,
 }
 
+/// Check the current stack of keys, to see if an action is produced, a mode is
+/// produced, or nothing produced.
 pub fn handle_key_stack<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<'a, A>
 where
     A: Action + Copy + 'static,

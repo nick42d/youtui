@@ -67,6 +67,33 @@ pub enum TextEntryAction {
     Backspace,
 }
 
+impl Action for TextEntryAction {
+    type State = YoutuiWindow;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Global".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            TextEntryAction::Submit => "Submit".into(),
+            TextEntryAction::Left => "Left".into(),
+            TextEntryAction::Right => "Right".into(),
+            TextEntryAction::Backspace => "Backspace".into(),
+        }
+    }
+}
+impl Action for ListAction {
+    type State = YoutuiWindow;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Global".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            ListAction::Up => "List Up".into(),
+            ListAction::Down => "List Down".into(),
+        }
+    }
+}
+
 impl Action for AppAction {
     type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
@@ -90,8 +117,8 @@ impl Action for AppAction {
             AppAction::BrowserArtists(a) => a.context(),
             AppAction::BrowserSearch(a) => a.context(),
             AppAction::BrowserSongs(a) => a.context(),
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
+            AppAction::TextEntry(a) => "Global".into(),
+            AppAction::List(a) => "Global".into(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -115,8 +142,8 @@ impl Action for AppAction {
             AppAction::BrowserArtists(a) => a.describe(),
             AppAction::BrowserSearch(a) => a.describe(),
             AppAction::BrowserSongs(a) => a.describe(),
-            AppAction::TextEntry(_) => todo!(),
-            AppAction::List(_) => todo!(),
+            AppAction::TextEntry(a) => a.describe(),
+            AppAction::List(a) => a.describe(),
         }
     }
 }

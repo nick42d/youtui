@@ -1,9 +1,8 @@
 //! KeyCommand and Keybind model.
 //! A KeyCommand is a pairing of Keybinds to an Action or a Mode.
 //! A Mode is a modified set of KeyCommands accessible after pressing Keybinds.
-use crate::config::keybinds::KeyActionTree;
-
 use super::component::actionhandler::Action;
+use crate::config::keybinds::KeyActionTree;
 use crossterm::event::{KeyCode, KeyModifiers};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};

@@ -88,6 +88,14 @@ impl InputRouting {
         }
     }
 }
+impl Scrollable for Browser {
+    fn increment_list(&mut self, amount: isize) {
+        todo!()
+    }
+    fn is_scrollable(&self) -> bool {
+        todo!()
+    }
+}
 impl ActionHandler<BrowserAction> for Browser {
     async fn apply_action(
         &mut self,

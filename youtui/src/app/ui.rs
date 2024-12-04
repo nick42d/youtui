@@ -120,10 +120,14 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 
 impl Scrollable for YoutuiWindow {
     fn increment_list(&mut self, amount: isize) {
-        todo!()
-    }
-    fn get_selected_item(&self) -> usize {
-        todo!()
+        if self.help.shown {
+            return self.help.increment_list(amount);
+        }
+        match self.context {
+            WindowContext::Browser => self.browser.increment_list(amount),
+            WindowContext::Playlist => self.playlist.increment_list(amount),
+            WindowContext::Logs => (),
+        }
     }
     fn is_scrollable(&self) -> bool {
         self.help.shown
