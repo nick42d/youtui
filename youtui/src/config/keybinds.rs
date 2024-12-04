@@ -15,22 +15,22 @@ use crate::app::{
 };
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, convert::Infallible, str::FromStr};
+use std::{collections::BTreeMap, convert::Infallible, str::FromStr};
 
 #[derive(Debug, PartialEq)]
 pub struct YoutuiKeymap {
-    pub global: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub playlist: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub browser: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub browser_artists: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub browser_search: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub browser_songs: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub help: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub sort: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub filter: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub text_entry: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub list: HashMap<Keybind, KeyActionTree<AppAction>>,
-    pub log: HashMap<Keybind, KeyActionTree<AppAction>>,
+    pub global: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub playlist: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser_artists: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser_search: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser_songs: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub help: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub sort: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub filter: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub text_entry: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub list: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub log: BTreeMap<Keybind, KeyActionTree<AppAction>>,
 }
 
 impl Default for YoutuiKeymap {
@@ -55,18 +55,18 @@ impl Default for YoutuiKeymap {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct YoutuiKeymapIR {
-    pub global: HashMap<Keybind, KeyStringTree>,
-    pub playlist: HashMap<Keybind, KeyStringTree>,
-    pub browser: HashMap<Keybind, KeyStringTree>,
-    pub browser_artists: HashMap<Keybind, KeyStringTree>,
-    pub browser_search: HashMap<Keybind, KeyStringTree>,
-    pub browser_songs: HashMap<Keybind, KeyStringTree>,
-    pub help: HashMap<Keybind, KeyStringTree>,
-    pub sort: HashMap<Keybind, KeyStringTree>,
-    pub filter: HashMap<Keybind, KeyStringTree>,
-    pub text_entry: HashMap<Keybind, KeyStringTree>,
-    pub list: HashMap<Keybind, KeyStringTree>,
-    pub log: HashMap<Keybind, KeyStringTree>,
+    pub global: BTreeMap<Keybind, KeyStringTree>,
+    pub playlist: BTreeMap<Keybind, KeyStringTree>,
+    pub browser: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_artists: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_search: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_songs: BTreeMap<Keybind, KeyStringTree>,
+    pub help: BTreeMap<Keybind, KeyStringTree>,
+    pub sort: BTreeMap<Keybind, KeyStringTree>,
+    pub filter: BTreeMap<Keybind, KeyStringTree>,
+    pub text_entry: BTreeMap<Keybind, KeyStringTree>,
+    pub list: BTreeMap<Keybind, KeyStringTree>,
+    pub log: BTreeMap<Keybind, KeyStringTree>,
 }
 
 impl YoutuiKeymap {
@@ -109,21 +109,21 @@ impl YoutuiKeymap {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             playlist: playlist
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             browser: browser
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             browser_artists: browser_artists
                 .into_iter()
                 .map(|(k, v)| {
@@ -134,7 +134,7 @@ impl YoutuiKeymap {
                     )?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             browser_search: browser_search
                 .into_iter()
                 .map(|(k, v)| {
@@ -145,7 +145,7 @@ impl YoutuiKeymap {
                     )?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             browser_songs: browser_songs
                 .into_iter()
                 .map(|(k, v)| {
@@ -156,7 +156,7 @@ impl YoutuiKeymap {
                     )?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             text_entry: text_entry
                 .into_iter()
                 .map(|(k, v)| {
@@ -164,42 +164,42 @@ impl YoutuiKeymap {
                         KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             help: help
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             sort: sort
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             filter: filter
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             list: list
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
             log: log
                 .into_iter()
                 .map(|(k, v)| {
                     let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
                     Ok((k, v))
                 })
-                .collect::<std::result::Result<HashMap<_, _>, String>>()?,
+                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
         })
     }
 }
@@ -208,18 +208,18 @@ impl YoutuiKeymap {
 #[serde(default)]
 // TODO: Mode visibility
 pub struct YoutuiModeNamesIR {
-    global: HashMap<Keybind, ModeNameEnum>,
-    playlist: HashMap<Keybind, ModeNameEnum>,
-    browser: HashMap<Keybind, ModeNameEnum>,
-    browser_artists: HashMap<Keybind, ModeNameEnum>,
-    browser_search: HashMap<Keybind, ModeNameEnum>,
-    browser_songs: HashMap<Keybind, ModeNameEnum>,
-    help: HashMap<Keybind, ModeNameEnum>,
-    sort: HashMap<Keybind, ModeNameEnum>,
-    filter: HashMap<Keybind, ModeNameEnum>,
-    text_entry: HashMap<Keybind, ModeNameEnum>,
-    list: HashMap<Keybind, ModeNameEnum>,
-    log: HashMap<Keybind, ModeNameEnum>,
+    global: BTreeMap<Keybind, ModeNameEnum>,
+    playlist: BTreeMap<Keybind, ModeNameEnum>,
+    browser: BTreeMap<Keybind, ModeNameEnum>,
+    browser_artists: BTreeMap<Keybind, ModeNameEnum>,
+    browser_search: BTreeMap<Keybind, ModeNameEnum>,
+    browser_songs: BTreeMap<Keybind, ModeNameEnum>,
+    help: BTreeMap<Keybind, ModeNameEnum>,
+    sort: BTreeMap<Keybind, ModeNameEnum>,
+    filter: BTreeMap<Keybind, ModeNameEnum>,
+    text_entry: BTreeMap<Keybind, ModeNameEnum>,
+    list: BTreeMap<Keybind, ModeNameEnum>,
+    log: BTreeMap<Keybind, ModeNameEnum>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -227,7 +227,7 @@ pub struct YoutuiModeNamesIR {
 pub enum KeyStringTree {
     #[serde(deserialize_with = "crate::core::string_or_struct")]
     Key(KeyAction<String>),
-    Mode(HashMap<Keybind, KeyStringTree>),
+    Mode(BTreeMap<Keybind, KeyStringTree>),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -235,7 +235,7 @@ pub enum KeyActionTree<A> {
     Key(KeyAction<A>),
     Mode {
         name: Option<String>,
-        keys: HashMap<Keybind, KeyActionTree<A>>,
+        keys: BTreeMap<Keybind, KeyActionTree<A>>,
     },
 }
 
@@ -273,7 +273,7 @@ impl<A> KeyActionTree<A> {
     fn try_from_stringy(
         key: &Keybind,
         stringy: KeyStringTree,
-        mode_names: Option<&mut HashMap<Keybind, ModeNameEnum>>,
+        mode_names: Option<&mut BTreeMap<Keybind, ModeNameEnum>>,
     ) -> std::result::Result<Self, String>
     where
         A: TryFrom<String, Error = String>,
@@ -358,13 +358,13 @@ impl FromStr for KeyAction<String> {
 pub enum ModeNameEnum {
     Submode {
         name: Option<String>,
-        keys: HashMap<Keybind, ModeNameEnum>,
+        keys: BTreeMap<Keybind, ModeNameEnum>,
     },
     #[serde(untagged)]
     Name(String),
 }
 
-fn default_global_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('+')),
@@ -415,7 +415,7 @@ fn default_global_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_playlist_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_playlist_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
@@ -452,7 +452,7 @@ fn default_playlist_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_browser_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_browser_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
@@ -478,7 +478,7 @@ fn default_browser_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_browser_artists_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_browser_artists_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([(
         Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
         KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
@@ -486,7 +486,7 @@ fn default_browser_artists_keybinds() -> HashMap<Keybind, KeyActionTree<AppActio
         )),
     )])
 }
-fn default_browser_search_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_browser_search_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Down),
@@ -502,7 +502,7 @@ fn default_browser_search_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction
         ),
     ])
 }
-fn default_browser_songs_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_browser_songs_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
@@ -564,7 +564,7 @@ fn default_browser_songs_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>
         ),
     ])
 }
-fn default_help_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_help_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
@@ -582,7 +582,7 @@ fn default_help_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_sort_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_sort_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
@@ -621,7 +621,7 @@ fn default_sort_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_filter_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_filter_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Esc),
@@ -646,7 +646,7 @@ fn default_filter_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_text_entry_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_text_entry_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
@@ -666,7 +666,7 @@ fn default_text_entry_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_log_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_log_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(5)),
@@ -725,7 +725,7 @@ fn default_log_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
         ),
     ])
 }
-fn default_list_keybinds() -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn default_list_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Up),

@@ -5,7 +5,6 @@ use crate::config::keybinds::KeyActionTree;
 
 use super::component::actionhandler::Action;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use rat_text::event::crossterm::modifiers;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
@@ -21,7 +20,7 @@ pub enum CommandVisibility {
     Hidden,
 }
 
-#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
+#[derive(Hash, Ord, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
 #[serde(try_from = "String")]
 pub struct Keybind {
     pub code: KeyCode,

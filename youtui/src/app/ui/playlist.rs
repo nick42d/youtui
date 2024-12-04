@@ -48,7 +48,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     ui_tx: mpsc::Sender<AppCallback>,
-    keybinds: HashMap<Keybind, KeyActionTree<AppAction>>,
+    keybinds: Keymap<AppAction>,
     cur_selected: usize,
     pub widget_state: TableState,
 }
@@ -948,6 +948,6 @@ impl Playlist {
     }
 }
 
-fn playlist_keybinds(config: &Config) -> HashMap<Keybind, KeyActionTree<AppAction>> {
+fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.playlist.clone()
 }

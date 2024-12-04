@@ -4,7 +4,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::BTreeMap};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
@@ -49,7 +49,7 @@ pub trait Action {
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
-pub type Keymap<A> = HashMap<Keybind, KeyActionTree<A>>;
+pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and
