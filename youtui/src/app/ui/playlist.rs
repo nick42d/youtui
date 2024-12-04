@@ -1,5 +1,4 @@
 use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Keymap};
-use crate::app::keycommand::Keybind;
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -18,14 +17,12 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::config::keybinds::KeyActionTree;
 use crate::config::Config;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
