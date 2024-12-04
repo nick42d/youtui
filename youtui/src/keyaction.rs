@@ -1,9 +1,8 @@
 use crate::{
     app::component::actionhandler::Action, config::keymap::KeyActionTree, keybind::Keybind,
 };
-use crossterm::event::{KeyCode, KeyModifiers};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
+use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// This is an Action that will be triggered when pressing a particular Keybind.
