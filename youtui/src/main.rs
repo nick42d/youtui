@@ -16,6 +16,8 @@ mod config;
 mod core;
 mod drawutils;
 mod error;
+mod keyaction;
+mod keybind;
 #[cfg(test)]
 mod tests;
 

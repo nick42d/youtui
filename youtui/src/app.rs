@@ -22,7 +22,6 @@ use ui::YoutuiWindow;
 #[macro_use]
 pub mod component;
 pub mod keycommand;
-mod musiccache;
 mod server;
 mod structures;
 pub mod ui;

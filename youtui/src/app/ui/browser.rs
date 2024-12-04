@@ -6,18 +6,22 @@ use super::{
     action::{AppAction, ListAction, TextEntryAction},
     AppCallback, WindowContext,
 };
-use crate::app::{
-    component::actionhandler::{
-        Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
-        Suggestable, TextHandler,
+use crate::{
+    app::{
+        component::actionhandler::{
+            Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
+            Suggestable, TextHandler,
+        },
+        server::{
+            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
+            TaskMetadata,
+        },
+        structures::{ListStatus, SongListComponent},
+        view::{DrawableMut, ListView, Scrollable, TableView},
     },
-    server::{
-        api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
-    },
-    structures::{ListStatus, SongListComponent},
-    view::{DrawableMut, ListView, Scrollable, TableView},
+    config::keymap::Keymap,
 };
-use crate::{app::component::actionhandler::Keymap, config::Config, core::send_or_error};
+use crate::{config::Config, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use serde::{Deserialize, Serialize};

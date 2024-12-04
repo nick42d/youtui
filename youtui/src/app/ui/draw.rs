@@ -1,12 +1,12 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::component::actionhandler::get_all_visible_keybinds_as_readable_iter;
-use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
+use crate::keyaction::{DisplayableCommand, DisplayableMode};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};

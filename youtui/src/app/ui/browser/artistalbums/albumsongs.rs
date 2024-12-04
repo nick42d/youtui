@@ -1,6 +1,6 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, DominantKeyRouter, Keymap, TextHandler,
+    ActionHandler, ComponentEffect, DominantKeyRouter, TextHandler,
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
@@ -14,6 +14,7 @@ use crate::app::{
     structures::{AlbumSongsList, ListStatus, Percentage},
     view::{BasicConstraint, Loadable, Scrollable, TableView},
 };
+use crate::config::keymap::Keymap;
 use crate::config::Config;
 use crate::error::Error;
 use crate::Result;

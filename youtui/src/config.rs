@@ -1,15 +1,15 @@
 use crate::get_config_dir;
 use crate::Result;
 use clap::ValueEnum;
-use keybinds::YoutuiKeymap;
-use keybinds::YoutuiKeymapIR;
-use keybinds::YoutuiModeNamesIR;
+use keymap::YoutuiKeymap;
+use keymap::YoutuiKeymapIR;
+use keymap::YoutuiModeNamesIR;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::auth::OAuthToken;
 
 const CONFIG_FILE_NAME: &str = "config.toml";
 
-pub mod keybinds;
+pub mod keymap;
 
 #[derive(Serialize, Deserialize)]
 pub enum ApiKey {
@@ -71,7 +71,7 @@ impl Config {
         let config_dir = get_config_dir()?;
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
         if let Ok(config_file) = tokio::fs::read_to_string(&config_file_location).await {
-            // NOTE: This happens before logging / app is initialised, so `eprintln!` is
+            // NOTE: This happens before logging / app is initialised, so `println!` is
             // used instead of `info!`
             if debug {
                 println!(
@@ -96,7 +96,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use crate::{
-        config::{keybinds::YoutuiKeymap, Config, ConfigIR, CONFIG_FILE_NAME},
+        config::{keymap::YoutuiKeymap, Config, ConfigIR, CONFIG_FILE_NAME},
         get_config_dir,
     };
     use pretty_assertions::assert_eq;

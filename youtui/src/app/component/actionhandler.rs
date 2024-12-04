@@ -1,17 +1,16 @@
 use crate::{
-    app::keycommand::{CommandVisibility, DisplayableCommand, Keybind},
-    config::keybinds::{KeyAction, KeyActionTree},
+    config::keymap::{KeyActionTree, Keymap},
+    keyaction::{DisplayableCommand, KeyAction, KeyActionVisibility},
+    keybind::Keybind,
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use std::{borrow::Cow, collections::BTreeMap};
+use std::borrow::Cow;
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
 /// Convenience type alias
 pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
-/// Convenience type alias
-pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
 /// A frontend component - has an associated backend and task metadata type.
 pub trait Component {
     type Bkend;
@@ -77,7 +76,7 @@ pub trait KeyRouter<A: Action + 'static> {
 pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<A>> + '_;
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
 }
 
 /// Get the list of all keybinds that the KeyHandler and any child items can
@@ -88,7 +87,7 @@ pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 's
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.iter())
-        .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
+        .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Get a context-specific list of all keybinds marked global.
@@ -98,7 +97,7 @@ pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.iter())
-        .filter(|(_, kt)| (*kt).get_visibility() == CommandVisibility::Global)
+        .filter(|(_, kt)| (*kt).get_visibility() == KeyActionVisibility::Global)
         .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
 }
 /// Count the number of visible keybinds - helper for Help menu.
@@ -106,7 +105,7 @@ pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.iter())
-        .filter(|(_, kt)| (*kt).get_visibility() != CommandVisibility::Hidden)
+        .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
         .count()
 }
 /// A component of the application that handles text entry, currently designed
@@ -222,15 +221,12 @@ where
 #[cfg(test)]
 mod tests {
     #![allow(clippy::todo)]
-    use crate::{
-        app::{
-            component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap},
-            keycommand::Keybind,
-        },
-        config::keybinds::KeyActionTree,
-    };
-
     use super::{Action, Component};
+    use crate::{
+        app::component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap},
+        config::keymap::KeyActionTree,
+        keybind::Keybind,
+    };
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use pretty_assertions::assert_eq;
 

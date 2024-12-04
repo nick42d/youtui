@@ -77,11 +77,11 @@ impl UnfilteredSearchType for BasicSearch {}
 impl UnfilteredSearchType for UploadSearch {}
 impl UnfilteredSearchType for LibrarySearch {}
 
-impl<'a, S: UnfilteredSearchType, A: AuthToken> Query<A> for SearchQuery<'a, S> {
+impl<S: UnfilteredSearchType, A: AuthToken> Query<A> for SearchQuery<'_, S> {
     type Output = SearchResults;
     type Method = PostMethod;
 }
-impl<'a, S: UnfilteredSearchType> PostQuery for SearchQuery<'a, S> {
+impl<S: UnfilteredSearchType> PostQuery for SearchQuery<'_, S> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
     }

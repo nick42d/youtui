@@ -1,8 +1,7 @@
 use crate::{
     app::{
         component::actionhandler::{
-            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Keymap, Suggestable,
-            TextHandler,
+            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
         },
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
         ui::{
@@ -11,7 +10,7 @@ use crate::{
         },
         view::{ListView, Loadable, Scrollable, SortableList},
     },
-    config::Config,
+    config::{keymap::Keymap, Config},
 };
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
