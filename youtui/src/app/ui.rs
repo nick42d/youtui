@@ -11,7 +11,7 @@ use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::keymap::Keymap;
 use crate::config::Config;
 use crate::core::send_or_error;
-use crate::keyaction::{DisplayableCommand, DisplayableMode};
+use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use action::{AppAction, ListAction, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
@@ -474,7 +474,7 @@ impl YoutuiWindow {
     // Consider a way to set this in the in state memory.
     fn get_cur_displayable_mode(
         &self,
-    ) -> Option<DisplayableMode<'_, impl Iterator<Item = DisplayableCommand<'_>>>> {
+    ) -> Option<DisplayableMode<'_, impl Iterator<Item = DisplayableKeyAction<'_>>>> {
         let KeyHandleAction::Mode { name, keys } =
             handle_key_stack(self.get_active_keybinds(), &self.key_stack)
         else {
@@ -482,7 +482,7 @@ impl YoutuiWindow {
         };
         let displayable_commands = keys
             .iter()
-            .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt));
+            .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt));
         Some(DisplayableMode {
             displayable_commands,
             description: name.into(),

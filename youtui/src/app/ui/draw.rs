@@ -6,7 +6,7 @@ use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
-use crate::keyaction::{DisplayableCommand, DisplayableMode};
+use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};
@@ -69,7 +69,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     let (shortcut_len, description_len, commands_vec) = shortcuts_descriptions.iter().fold(
         (0, 0, Vec::new()),
         |(acc1, acc2, mut commands_vec),
-         DisplayableCommand {
+         DisplayableKeyAction {
              keybinds,
              context: _,
              description,
@@ -116,7 +116,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // testable.
     let (mut s_len, mut c_len, mut d_len, items) = commands
         .map(
-            |DisplayableCommand {
+            |DisplayableKeyAction {
                  keybinds,
                  context,
                  description,
@@ -135,7 +135,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // XXX: We're running get_all_visible_keybinds a second time here.
     // Better to move to the fold above.
     let commands_table = get_all_visible_keybinds_as_readable_iter(w).map(
-        |DisplayableCommand {
+        |DisplayableKeyAction {
              keybinds,
              context,
              description,

@@ -1,6 +1,6 @@
 use crate::{
     config::keymap::{KeyActionTree, Keymap},
-    keyaction::{DisplayableCommand, KeyAction, KeyActionVisibility},
+    keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
     keybind::Keybind,
 };
 use async_callback_manager::AsyncTask;
@@ -83,22 +83,22 @@ pub trait DominantKeyRouter<A: Action + 'static> {
 /// contain, regardless of context.
 pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
     component: &K,
-) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
+) -> impl Iterator<Item = DisplayableKeyAction<'_>> + '_ {
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
-        .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
+        .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
 }
 /// Get a context-specific list of all keybinds marked global.
 pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
     component: &K,
-) -> impl Iterator<Item = DisplayableCommand<'_>> + '_ {
+) -> impl Iterator<Item = DisplayableKeyAction<'_>> + '_ {
     component
         .get_active_keybinds()
         .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() == KeyActionVisibility::Global)
-        .map(|(kb, kt)| DisplayableCommand::from_command(kb, kt))
+        .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
 }
 /// Count the number of visible keybinds - helper for Help menu.
 pub fn count_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &K) -> usize {

@@ -30,28 +30,32 @@ pub enum KeyActionVisibility {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-/// Type-erased KeyAction
-pub struct DisplayableCommand<'a> {
+/// Type-erased keybinding for displaying.
+pub struct DisplayableKeyAction<'a> {
     // XXX: Do we also want to display sub-keys in Modes?
     pub keybinds: Cow<'a, str>,
     pub context: Cow<'a, str>,
     pub description: Cow<'a, str>,
 }
-pub struct DisplayableMode<'a, I: Iterator<Item = DisplayableCommand<'a>>> {
+/// Type-erased mode for displaying its actions.
+pub struct DisplayableMode<'a, I: Iterator<Item = DisplayableKeyAction<'a>>> {
     pub displayable_commands: I,
     pub description: Cow<'a, str>,
 }
 
-impl<'a> DisplayableCommand<'a> {
-    pub fn from_command<A: Action + 'a>(key: &'a Keybind, value: &'a KeyActionTree<A>) -> Self {
+impl<'a> DisplayableKeyAction<'a> {
+    pub fn from_keybind_and_action_tree<A: Action + 'a>(
+        key: &'a Keybind,
+        value: &'a KeyActionTree<A>,
+    ) -> Self {
         // NOTE: Currently, sub-keys of modes are not displayed.
         match value {
-            KeyActionTree::Key(k) => DisplayableCommand {
+            KeyActionTree::Key(k) => DisplayableKeyAction {
                 keybinds: key.to_string().into(),
                 context: k.action.context(),
                 description: k.action.describe(),
             },
-            KeyActionTree::Mode { name, .. } => DisplayableCommand {
+            KeyActionTree::Mode { name, .. } => DisplayableKeyAction {
                 keybinds: key.to_string().into(),
                 context: "TODO".into(),
                 description: name

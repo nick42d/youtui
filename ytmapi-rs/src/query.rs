@@ -431,7 +431,7 @@ pub mod song {
         signature_timestamp: u64,
     }
 
-    impl<'a> GetSongTrackingUrlQuery<'a> {
+    impl GetSongTrackingUrlQuery<'_> {
         /// # NOTE
         /// A GetSongTrackingUrlQuery stores a timestamp, it's not recommended
         /// to store these for a long period of time. The constructor can fail
@@ -445,11 +445,11 @@ pub mod song {
         }
     }
 
-    impl<'a, A: AuthToken> Query<A> for GetSongTrackingUrlQuery<'a> {
+    impl<A: AuthToken> Query<A> for GetSongTrackingUrlQuery<'_> {
         type Output = SongTrackingUrl<'static>;
         type Method = PostMethod;
     }
-    impl<'a> PostQuery for GetSongTrackingUrlQuery<'a> {
+    impl PostQuery for GetSongTrackingUrlQuery<'_> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([
                 (

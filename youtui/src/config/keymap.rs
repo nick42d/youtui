@@ -54,6 +54,41 @@ pub struct YoutuiKeymap {
     pub log: BTreeMap<Keybind, KeyActionTree<AppAction>>,
 }
 
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct YoutuiKeymapIR {
+    pub global: BTreeMap<Keybind, KeyStringTree>,
+    pub playlist: BTreeMap<Keybind, KeyStringTree>,
+    pub browser: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_artists: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_search: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_songs: BTreeMap<Keybind, KeyStringTree>,
+    pub help: BTreeMap<Keybind, KeyStringTree>,
+    pub sort: BTreeMap<Keybind, KeyStringTree>,
+    pub filter: BTreeMap<Keybind, KeyStringTree>,
+    pub text_entry: BTreeMap<Keybind, KeyStringTree>,
+    pub list: BTreeMap<Keybind, KeyStringTree>,
+    pub log: BTreeMap<Keybind, KeyStringTree>,
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize, Default)]
+#[serde(default)]
+// TODO: Mode visibility
+pub struct YoutuiModeNamesIR {
+    global: BTreeMap<Keybind, ModeNameEnum>,
+    playlist: BTreeMap<Keybind, ModeNameEnum>,
+    browser: BTreeMap<Keybind, ModeNameEnum>,
+    browser_artists: BTreeMap<Keybind, ModeNameEnum>,
+    browser_search: BTreeMap<Keybind, ModeNameEnum>,
+    browser_songs: BTreeMap<Keybind, ModeNameEnum>,
+    help: BTreeMap<Keybind, ModeNameEnum>,
+    sort: BTreeMap<Keybind, ModeNameEnum>,
+    filter: BTreeMap<Keybind, ModeNameEnum>,
+    text_entry: BTreeMap<Keybind, ModeNameEnum>,
+    list: BTreeMap<Keybind, ModeNameEnum>,
+    log: BTreeMap<Keybind, ModeNameEnum>,
+}
+
 impl Default for YoutuiKeymap {
     fn default() -> Self {
         Self {
@@ -71,23 +106,6 @@ impl Default for YoutuiKeymap {
             log: default_log_keybinds(),
         }
     }
-}
-
-#[derive(Default, Debug, Serialize, Deserialize)]
-#[serde(default)]
-pub struct YoutuiKeymapIR {
-    pub global: BTreeMap<Keybind, KeyStringTree>,
-    pub playlist: BTreeMap<Keybind, KeyStringTree>,
-    pub browser: BTreeMap<Keybind, KeyStringTree>,
-    pub browser_artists: BTreeMap<Keybind, KeyStringTree>,
-    pub browser_search: BTreeMap<Keybind, KeyStringTree>,
-    pub browser_songs: BTreeMap<Keybind, KeyStringTree>,
-    pub help: BTreeMap<Keybind, KeyStringTree>,
-    pub sort: BTreeMap<Keybind, KeyStringTree>,
-    pub filter: BTreeMap<Keybind, KeyStringTree>,
-    pub text_entry: BTreeMap<Keybind, KeyStringTree>,
-    pub list: BTreeMap<Keybind, KeyStringTree>,
-    pub log: BTreeMap<Keybind, KeyStringTree>,
 }
 
 impl YoutuiKeymap {
@@ -223,24 +241,6 @@ impl YoutuiKeymap {
                 .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
         })
     }
-}
-
-#[derive(PartialEq, Debug, Serialize, Deserialize, Default)]
-#[serde(default)]
-// TODO: Mode visibility
-pub struct YoutuiModeNamesIR {
-    global: BTreeMap<Keybind, ModeNameEnum>,
-    playlist: BTreeMap<Keybind, ModeNameEnum>,
-    browser: BTreeMap<Keybind, ModeNameEnum>,
-    browser_artists: BTreeMap<Keybind, ModeNameEnum>,
-    browser_search: BTreeMap<Keybind, ModeNameEnum>,
-    browser_songs: BTreeMap<Keybind, ModeNameEnum>,
-    help: BTreeMap<Keybind, ModeNameEnum>,
-    sort: BTreeMap<Keybind, ModeNameEnum>,
-    filter: BTreeMap<Keybind, ModeNameEnum>,
-    text_entry: BTreeMap<Keybind, ModeNameEnum>,
-    list: BTreeMap<Keybind, ModeNameEnum>,
-    log: BTreeMap<Keybind, ModeNameEnum>,
 }
 
 impl<A> KeyActionTree<A> {
