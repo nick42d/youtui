@@ -1,7 +1,8 @@
 use crate::{
     app::{
         component::actionhandler::{
-            Action, Component, ComponentEffect, KeyRouter, Keymap, Suggestable, TextHandler,
+            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Keymap, Suggestable,
+            TextHandler,
         },
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
         ui::{
@@ -65,17 +66,6 @@ impl Action for BrowserArtistsAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            BrowserArtistsAction::DisplaySelectedArtistAlbums => state.get_songs(),
-        }
-    }
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -98,24 +88,30 @@ impl Action for BrowserSearchAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            BrowserSearchAction::SearchArtist => return state.search(),
-            BrowserSearchAction::PrevSearchSuggestion => {
-                state.artist_list.search.increment_list(-1)
-            }
-            BrowserSearchAction::NextSearchSuggestion => state.artist_list.search.increment_list(1),
+}
+impl ActionHandler<BrowserArtistsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistsAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
+        }
+    }
+}
+impl ActionHandler<BrowserSearchAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserSearchAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserSearchAction::SearchArtist => return self.search(),
+            BrowserSearchAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
+            BrowserSearchAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
         }
         AsyncTask::new_no_op()
     }
 }
-
 impl ArtistSearchPanel {
     pub fn new(config: &Config) -> Self {
         Self {

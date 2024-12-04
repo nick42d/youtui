@@ -4,7 +4,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
+use std::{borrow::Cow, collections::HashMap};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
@@ -24,32 +24,22 @@ macro_rules! impl_youtui_component {
         }
     };
 }
-pub struct Map<A, F, N> {
-    action: A,
-    f: F,
-    p: PhantomData<N>,
-}
-impl<A, F, N> Action for Map<A, F, N>
-where
-    A: Action,
-    F: Fn(&mut N) -> &mut A::State + Clone + Send + 'static,
-    N: Component<Bkend = <A::State as Component>::Bkend, Md = <A::State as Component>::Md>,
-    <A::State as Component>::Bkend: 'static,
-    <A::State as Component>::Md: 'static,
-    A::State: 'static,
-{
-    type State = N;
-    fn context(&self) -> Cow<str> {
-        self.action.context()
-    }
-    fn describe(&self) -> Cow<str> {
-        self.action.describe()
-    }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
+
+/// A component that can handle actions.
+pub trait ActionHandler<A: Action>: Component + Sized {
+    async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
+    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
     where
-        Self: Sized,
+        B: Action,
+        C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
+        F: Fn(&mut Self) -> &mut C + Send + Clone + 'static,
+        Self::Bkend: 'static,
+        Self::Md: 'static,
     {
-        self.action.apply((self.f)(state)).await.map(self.f)
+        f(self)
+            .apply_action(action)
+            .await
+            .map(move |this: &mut Self| f(this))
     }
 }
 
@@ -58,20 +48,6 @@ pub trait Action {
     type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
-    where
-        Self: Sized;
-    fn map<N, F>(self, f: F) -> Map<Self, F, N>
-    where
-        F: Fn(&mut N) -> &mut Self::State,
-        Self: Sized,
-    {
-        Map {
-            action: self,
-            f,
-            p: PhantomData,
-        }
-    }
 }
 pub type Keymap<A> = HashMap<Keybind, KeyActionTree<A>>;
 /// A component of the application that has different keybinds depending on what
@@ -273,12 +249,6 @@ mod tests {
             todo!()
         }
         type State = ();
-        async fn apply(self, _: &mut Self::State) -> async_callback_manager::AsyncTask<(), (), ()>
-        where
-            Self: Sized,
-        {
-            todo!()
-        }
     }
     fn test_keymap() -> Keymap<TestAction> {
         [

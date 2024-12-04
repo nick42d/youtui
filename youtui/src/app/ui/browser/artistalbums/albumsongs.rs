@@ -1,6 +1,6 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{
-    ComponentEffect, DominantKeyRouter, Keymap, TextHandler,
+    ActionHandler, ComponentEffect, DominantKeyRouter, Keymap, TextHandler,
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
@@ -109,20 +109,6 @@ impl Action for FilterAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            FilterAction::Close => state.album_songs_list.toggle_filter(),
-            FilterAction::Apply => state.album_songs_list.apply_filter(),
-            FilterAction::ClearFilter => state.album_songs_list.clear_filter(),
-        };
-        AsyncTask::new_no_op()
-    }
 }
 
 impl Action for SortAction {
@@ -138,21 +124,6 @@ impl Action for SortAction {
             SortAction::SortSelectedDesc => "Sort descending",
         }
         .into()
-    }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            SortAction::SortSelectedAsc => state.album_songs_list.handle_sort_cur_asc(),
-            SortAction::SortSelectedDesc => state.album_songs_list.handle_sort_cur_desc(),
-            SortAction::Close => state.album_songs_list.close_sort(),
-            SortAction::ClearSort => state.album_songs_list.handle_clear_sort(),
-        }
-        AsyncTask::new_no_op()
     }
 }
 
@@ -174,27 +145,52 @@ impl Action for BrowserSongsAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            BrowserSongsAction::PlayAlbum => state.play_album().await,
-            BrowserSongsAction::PlaySong => state.play_song().await,
-            BrowserSongsAction::PlaySongs => state.play_songs().await,
-            BrowserSongsAction::AddAlbumToPlaylist => state.add_album_to_playlist().await,
-            BrowserSongsAction::AddSongToPlaylist => state.add_song_to_playlist().await,
-            BrowserSongsAction::AddSongsToPlaylist => state.add_songs_to_playlist().await,
-            BrowserSongsAction::Sort => state.album_songs_list.handle_pop_sort(),
-            BrowserSongsAction::Filter => state.album_songs_list.toggle_filter(),
+}
+impl ActionHandler<FilterAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: FilterAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            FilterAction::Close => self.album_songs_list.toggle_filter(),
+            FilterAction::Apply => self.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<SortAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: SortAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
+            SortAction::Close => self.album_songs_list.close_sort(),
+            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
     }
 }
-
+impl ActionHandler<BrowserSongsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserSongsAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserSongsAction::PlayAlbum => self.play_album().await,
+            BrowserSongsAction::PlaySong => self.play_song().await,
+            BrowserSongsAction::PlaySongs => self.play_songs().await,
+            BrowserSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
+            BrowserSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
+            BrowserSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
+            BrowserSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
+            BrowserSongsAction::Filter => self.album_songs_list.toggle_filter(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
 impl SortManager {
     fn new(config: &Config) -> Self {
         Self {
@@ -455,10 +451,10 @@ impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
 }
 
 impl KeyRouter<AppAction> for AlbumSongsPanel {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         [&self.keybinds, &self.sort.keybinds].into_iter()
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.route {
             AlbumSongsInputRouting::List => {
                 Either::Left(Either::Left(std::iter::once(&self.keybinds)))

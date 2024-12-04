@@ -1,4 +1,4 @@
-use crate::app::component::actionhandler::{ComponentEffect, Keymap};
+use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Keymap};
 use crate::app::keycommand::Keybind;
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
@@ -77,27 +77,27 @@ impl Action for PlaylistAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            PlaylistAction::ViewBrowser => state.view_browser().await,
-            PlaylistAction::PlaySelected => return state.play_selected(),
-            PlaylistAction::DeleteSelected => return state.delete_selected(),
-            PlaylistAction::DeleteAll => return state.delete_all(),
-        }
-        AsyncTask::new_no_op()
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum QueueState {
     NotQueued,
     Queued(ListSongID),
+}
+
+impl ActionHandler<PlaylistAction> for Playlist {
+    async fn apply_action(
+        &mut self,
+        action: PlaylistAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            PlaylistAction::ViewBrowser => self.view_browser().await,
+            PlaylistAction::PlaySelected => return self.play_selected(),
+            PlaylistAction::DeleteSelected => return self.delete_selected(),
+            PlaylistAction::DeleteAll => return self.delete_all(),
+        }
+        AsyncTask::new_no_op()
+    }
 }
 
 impl KeyRouter<AppAction> for Playlist {

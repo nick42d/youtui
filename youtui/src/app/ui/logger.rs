@@ -1,4 +1,4 @@
-use crate::app::component::actionhandler::Keymap;
+use crate::app::component::actionhandler::{ActionHandler, Keymap};
 use crate::core::send_or_error;
 use crate::{
     app::{
@@ -58,27 +58,6 @@ impl Action for LoggerAction {
             LoggerAction::ExitPageMode => "Exit Page Mode".into(),
         }
     }
-    async fn apply(self, state: &mut Self::State) -> ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            LoggerAction::ToggleTargetSelector => state.handle_toggle_target_selector(),
-            LoggerAction::ToggleTargetFocus => state.handle_toggle_target_focus(),
-            LoggerAction::ToggleHideFiltered => state.handle_toggle_hide_filtered(),
-            LoggerAction::Up => state.handle_up(),
-            LoggerAction::Down => state.handle_down(),
-            LoggerAction::PageUp => state.handle_pgup(),
-            LoggerAction::PageDown => state.handle_pgdown(),
-            LoggerAction::ReduceShown => state.handle_reduce_shown(),
-            LoggerAction::IncreaseShown => state.handle_increase_shown(),
-            LoggerAction::ReduceCaptured => state.handle_reduce_captured(),
-            LoggerAction::IncreaseCaptured => state.handle_increase_captured(),
-            LoggerAction::ExitPageMode => state.handle_exit_page_mode(),
-            LoggerAction::ViewBrowser => state.handle_view_browser().await,
-        }
-        AsyncTask::new_no_op()
-    }
 }
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
@@ -87,6 +66,26 @@ pub struct Logger {
 }
 impl_youtui_component!(Logger);
 
+impl ActionHandler<LoggerAction> for Logger {
+    async fn apply_action(&mut self, action: LoggerAction) -> ComponentEffect<Self> {
+        match action {
+            LoggerAction::ToggleTargetSelector => self.handle_toggle_target_selector(),
+            LoggerAction::ToggleTargetFocus => self.handle_toggle_target_focus(),
+            LoggerAction::ToggleHideFiltered => self.handle_toggle_hide_filtered(),
+            LoggerAction::Up => self.handle_up(),
+            LoggerAction::Down => self.handle_down(),
+            LoggerAction::PageUp => self.handle_pgup(),
+            LoggerAction::PageDown => self.handle_pgdown(),
+            LoggerAction::ReduceShown => self.handle_reduce_shown(),
+            LoggerAction::IncreaseShown => self.handle_increase_shown(),
+            LoggerAction::ReduceCaptured => self.handle_reduce_captured(),
+            LoggerAction::IncreaseCaptured => self.handle_increase_captured(),
+            LoggerAction::ExitPageMode => self.handle_exit_page_mode(),
+            LoggerAction::ViewBrowser => self.handle_view_browser().await,
+        }
+        AsyncTask::new_no_op()
+    }
+}
 impl Drawable for Logger {
     fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool) {
         draw_logger(f, self, chunk, selected)

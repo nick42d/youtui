@@ -1,6 +1,6 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, handle_key_stack, Action, ComponentEffect, DominantKeyRouter,
+    count_visible_keybinds, handle_key_stack, ActionHandler, ComponentEffect, DominantKeyRouter,
     KeyHandleAction, KeyRouter, Keymap, TextHandler,
 };
 use super::keycommand::{DisplayableCommand, DisplayableMode};
@@ -10,6 +10,7 @@ use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
+use crate::core::send_or_error;
 use action::{AppAction, ListAction, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
@@ -219,6 +220,78 @@ impl TextHandler for YoutuiWindow {
     }
 }
 
+impl ActionHandler<AppAction> for YoutuiWindow {
+    async fn apply_action(
+        &mut self,
+        action: AppAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            AppAction::VolUp => return self.handle_increase_volume(5).await,
+            AppAction::VolDown => return self.handle_increase_volume(-5).await,
+            AppAction::NextSong => return self.handle_next(),
+            AppAction::PrevSong => return self.handle_prev(),
+            AppAction::SeekForwardS => {
+                return self.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Forward)
+            }
+            AppAction::SeekBackS => {
+                return self.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Back)
+            }
+            AppAction::ToggleHelp => self.toggle_help(),
+            AppAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
+            AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
+            AppAction::Pause => return self.pauseplay(),
+            AppAction::Log(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.logger)
+                    .await
+            }
+            AppAction::Playlist(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.playlist)
+                    .await
+            }
+            AppAction::Browser(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Filter(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Sort(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Help(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.help)
+                    .await
+            }
+            AppAction::BrowserArtists(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::BrowserSearch(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::BrowserSongs(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::TextEntry(a) => return self.handle_text_entry_action(a),
+            AppAction::List(a) => return self.handle_list_action(a),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+
 impl YoutuiWindow {
     pub fn new(
         callback_tx: mpsc::Sender<AppCallback>,
@@ -356,7 +429,7 @@ impl YoutuiWindow {
     async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
         match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
-                let effect = a.apply(self).await;
+                let effect = self.apply_action(a).await;
                 self.key_stack.clear();
                 effect
             }

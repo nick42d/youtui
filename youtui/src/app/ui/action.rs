@@ -1,14 +1,8 @@
-use std::time::Duration;
-
+use crate::app::component::actionhandler::{Action, ActionHandler};
 use async_callback_manager::AsyncTask;
 use serde::{
     de::{self, DeserializeOwned},
     Deserialize, Serialize,
-};
-
-use crate::{
-    app::{component::actionhandler::Action, AppCallback},
-    async_rodio_sink::{send_or_error, SeekDirection},
 };
 
 use super::{
@@ -21,7 +15,7 @@ use super::{
     },
     logger::LoggerAction,
     playlist::PlaylistAction,
-    HelpMenu, WindowContext, YoutuiWindow,
+    HelpMenu, YoutuiWindow,
 };
 
 #[derive(Clone, Copy, PartialEq, Default, Debug, Serialize, Deserialize)]
@@ -125,87 +119,6 @@ impl Action for AppAction {
             AppAction::List(_) => todo!(),
         }
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            AppAction::VolUp => return state.handle_increase_volume(5).await,
-            AppAction::VolDown => return state.handle_increase_volume(-5).await,
-            AppAction::NextSong => return state.handle_next(),
-            AppAction::PrevSong => return state.handle_prev(),
-            AppAction::SeekForwardS => {
-                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Forward)
-            }
-            AppAction::SeekBackS => {
-                return state.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Back)
-            }
-            AppAction::ToggleHelp => state.toggle_help(),
-            AppAction::Quit => send_or_error(&state.callback_tx, AppCallback::Quit).await,
-            AppAction::ViewLogs => state.handle_change_context(WindowContext::Logs),
-            AppAction::Pause => return state.pauseplay(),
-            AppAction::Log(a) => {
-                return a
-                    .apply(&mut state.logger)
-                    .await
-                    .map(|this: &mut Self::State| &mut this.logger)
-            }
-            AppAction::Playlist(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.playlist)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Browser(a) => {
-                return a
-                    .apply(&mut state.browser)
-                    .await
-                    .map(|this: &mut Self::State| &mut this.browser)
-            }
-            AppAction::Filter(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Sort(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::Help(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.help)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserArtists(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserSearch(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::BrowserSongs(a) => {
-                return a
-                    .map(|this: &mut Self::State| &mut this.browser)
-                    .apply(state)
-                    .await
-            }
-            AppAction::TextEntry(a) => return state.handle_text_entry_action(a),
-            AppAction::List(a) => return state.handle_list_action(a),
-        };
-        AsyncTask::new_no_op()
-    }
 }
 
 impl TryFrom<String> for AppAction {
@@ -263,15 +176,14 @@ impl Action for HelpAction {
             HelpAction::Close => "Close Help".into(),
         }
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            HelpAction::Close => state.shown = false,
+}
+impl ActionHandler<HelpAction> for HelpMenu {
+    async fn apply_action(
+        &mut self,
+        action: HelpAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            HelpAction::Close => self.shown = false,
         }
         AsyncTask::new_no_op()
     }

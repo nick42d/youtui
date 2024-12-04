@@ -8,7 +8,8 @@ use super::{
 };
 use crate::app::{
     component::actionhandler::{
-        Action, Component, ComponentEffect, DominantKeyRouter, KeyRouter, Suggestable, TextHandler,
+        Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
+        Suggestable, TextHandler,
     },
     server::{
         api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists, TaskMetadata,
@@ -71,27 +72,6 @@ impl Action for BrowserAction {
         }
         .into()
     }
-    async fn apply(
-        self,
-        state: &mut Self::State,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self::State>
-    where
-        Self: Sized,
-    {
-        match self {
-            BrowserAction::Left => state.left(),
-            BrowserAction::Right => state.right(),
-            BrowserAction::ViewPlaylist => {
-                send_or_error(
-                    &state.callback_tx,
-                    AppCallback::ChangeContext(WindowContext::Playlist),
-                )
-                .await
-            }
-            BrowserAction::Search => state.handle_toggle_search(),
-        }
-        AsyncTask::new_no_op()
-    }
 }
 
 impl InputRouting {
@@ -106,6 +86,29 @@ impl InputRouting {
             Self::Artist => Self::Song,
             Self::Song => Self::Song,
         }
+    }
+}
+impl ActionHandler<BrowserAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self>
+    where
+        Self: Sized,
+    {
+        match action {
+            BrowserAction::Left => self.left(),
+            BrowserAction::Right => self.right(),
+            BrowserAction::ViewPlaylist => {
+                send_or_error(
+                    &self.callback_tx,
+                    AppCallback::ChangeContext(WindowContext::Playlist),
+                )
+                .await
+            }
+            BrowserAction::Search => self.handle_toggle_search(),
+        }
+        AsyncTask::new_no_op()
     }
 }
 // Should this really be implemented on the Browser...
@@ -176,12 +179,12 @@ impl DrawableMut for Browser {
     }
 }
 impl KeyRouter<AppAction> for Browser {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         std::iter::once(&self.keybinds)
             .chain(self.artist_list.get_all_keybinds())
             .chain(self.album_songs_list.get_all_keybinds())
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         let additional_binds = match self.input_routing {
             InputRouting::Song => Either::Left(self.album_songs_list.get_active_keybinds()),
             InputRouting::Artist => Either::Right(self.artist_list.get_active_keybinds()),
@@ -219,7 +222,7 @@ impl Browser {
             album_songs_list: AlbumSongsPanel::new(config),
             input_routing: InputRouting::Artist,
             prev_input_routing: InputRouting::Artist,
-            keybinds: browser_keybinds(config),
+            keybinds: config.keybinds.browser.clone(),
         }
     }
     pub fn left(&mut self) {
@@ -486,8 +489,4 @@ impl Browser {
 impl Component for Browser {
     type Bkend = ArcServer;
     type Md = TaskMetadata;
-}
-
-fn browser_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.browser.clone()
 }
