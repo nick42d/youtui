@@ -1,4 +1,6 @@
-use crate::config::keymap::KeyActionTree;
+use crate::{
+    app::component::actionhandler::Action, config::keymap::KeyActionTree, keybind::Keybind,
+};
 use crossterm::event::{KeyCode, KeyModifiers};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};

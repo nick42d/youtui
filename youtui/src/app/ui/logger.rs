@@ -1,4 +1,5 @@
-use crate::app::component::actionhandler::{ActionHandler, Keymap};
+use crate::app::component::actionhandler::ActionHandler;
+use crate::config::keymap::Keymap;
 use crate::core::send_or_error;
 use crate::{
     app::{

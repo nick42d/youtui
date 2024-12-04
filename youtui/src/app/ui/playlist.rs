@@ -1,4 +1,4 @@
-use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Keymap};
+use crate::app::component::actionhandler::{ActionHandler, ComponentEffect};
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -17,6 +17,7 @@ use crate::async_rodio_sink::{
     AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
+use crate::config::keymap::Keymap;
 use crate::config::Config;
 use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};

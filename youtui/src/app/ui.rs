@@ -1,16 +1,17 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     count_visible_keybinds, handle_key_stack, ActionHandler, ComponentEffect, DominantKeyRouter,
-    KeyHandleAction, KeyRouter, Keymap, TextHandler,
+    KeyHandleAction, KeyRouter, TextHandler,
 };
-use super::keycommand::{DisplayableCommand, DisplayableMode};
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
 use super::view::Scrollable;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
+use crate::config::keymap::Keymap;
 use crate::config::Config;
 use crate::core::send_or_error;
+use crate::keyaction::{DisplayableCommand, DisplayableMode};
 use action::{AppAction, ListAction, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};

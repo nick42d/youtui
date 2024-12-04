@@ -1,9 +1,7 @@
 use crate::{
-    app::{
-        component::actionhandler::get_active_global_keybinds_as_readable_iter,
-        keycommand::DisplayableCommand,
-    },
+    app::component::actionhandler::get_active_global_keybinds_as_readable_iter,
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
+    keyaction::DisplayableCommand,
 };
 use ratatui::{
     layout::Rect,
