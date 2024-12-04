@@ -4,7 +4,7 @@
 use crate::config::keybinds::KeyActionTree;
 
 use super::component::actionhandler::Action;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyModifiers};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, char::ParseCharError, fmt::Display, str::FromStr};
 
@@ -20,11 +20,19 @@ pub enum CommandVisibility {
     Hidden,
 }
 
-#[derive(Hash, Ord, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
+#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Deserialize, Clone, Serialize)]
 #[serde(try_from = "String")]
 pub struct Keybind {
     pub code: KeyCode,
     pub modifiers: KeyModifiers,
+}
+// Since KeyCode and KeyModifiers derive PartialOrd, it's safe to implement this
+// as per below. TODO: PR upstream
+#[allow(clippy::derive_ord_xor_partial_ord)]
+impl Ord for Keybind {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).expect("Keybind should be able to provide ordering for any values. Has crossterm made a breaking change?")
+    }
 }
 impl TryFrom<String> for Keybind {
     type Error = <Keybind as FromStr>::Err;
