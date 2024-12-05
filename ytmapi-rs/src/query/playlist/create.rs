@@ -40,12 +40,12 @@ impl CreatePlaylistType for BasicCreatePlaylist {
         None
     }
 }
-impl<'a> CreatePlaylistType for CreatePlaylistFromVideos<'a> {
+impl CreatePlaylistType for CreatePlaylistFromVideos<'_> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         Some(("videoIds".into(), json!(self.video_ids)))
     }
 }
-impl<'a> CreatePlaylistType for CreatePlaylistFromPlaylist<'a> {
+impl CreatePlaylistType for CreatePlaylistFromPlaylist<'_> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         Some(("sourcePlaylistId".into(), json!(self.source_playlist)))
     }
@@ -92,7 +92,7 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
     pub fn with_video_ids(
         self,
         video_ids: Vec<VideoID<'a>>,
-    ) -> CreatePlaylistQuery<'a, CreatePlaylistFromVideos> {
+    ) -> CreatePlaylistQuery<'a, CreatePlaylistFromVideos<'a>> {
         let CreatePlaylistQuery {
             title,
             description,

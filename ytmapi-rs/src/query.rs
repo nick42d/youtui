@@ -156,11 +156,11 @@ pub mod album {
     pub struct GetAlbumQuery<'a> {
         browse_id: AlbumID<'a>,
     }
-    impl<'a, A: AuthToken> Query<A> for GetAlbumQuery<'a> {
+    impl<A: AuthToken> Query<A> for GetAlbumQuery<'_> {
         type Output = GetAlbum;
         type Method = PostMethod;
     }
-    impl<'a> PostQuery for GetAlbumQuery<'a> {
+    impl PostQuery for GetAlbumQuery<'_> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                  "browseId" : self.browse_id.get_raw(),
@@ -197,11 +197,11 @@ pub mod lyrics {
     pub struct GetLyricsQuery<'a> {
         id: LyricsID<'a>,
     }
-    impl<'a, A: AuthToken> Query<A> for GetLyricsQuery<'a> {
+    impl<A: AuthToken> Query<A> for GetLyricsQuery<'_> {
         type Output = Lyrics;
         type Method = PostMethod;
     }
-    impl<'a> PostQuery for GetLyricsQuery<'a> {
+    impl PostQuery for GetLyricsQuery<'_> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             let serde_json::Value::Object(map) = json!({
                 "browseId": self.id.get_raw(),
@@ -246,7 +246,7 @@ pub mod watch {
         playlist_id: PlaylistID<'a>,
     }
 
-    impl<'a> GetWatchPlaylistQueryID for VideoAndPlaylistID<'a> {
+    impl GetWatchPlaylistQueryID for VideoAndPlaylistID<'_> {
         fn get_video_id(&self) -> Option<Cow<str>> {
             Some(self.video_id.get_raw().into())
         }
@@ -255,7 +255,7 @@ pub mod watch {
             self.playlist_id.get_raw().into()
         }
     }
-    impl<'a> GetWatchPlaylistQueryID for VideoID<'a> {
+    impl GetWatchPlaylistQueryID for VideoID<'_> {
         fn get_video_id(&self) -> Option<Cow<str>> {
             Some(self.get_raw().into())
         }
@@ -264,7 +264,7 @@ pub mod watch {
             format!("RDAMVM{}", self.get_raw()).into()
         }
     }
-    impl<'a> GetWatchPlaylistQueryID for PlaylistID<'a> {
+    impl GetWatchPlaylistQueryID for PlaylistID<'_> {
         fn get_video_id(&self) -> Option<Cow<str>> {
             None
         }
@@ -308,7 +308,7 @@ pub mod watch {
         pub fn with_playlist_id(
             self,
             playlist_id: PlaylistID<'a>,
-        ) -> GetWatchPlaylistQuery<VideoAndPlaylistID> {
+        ) -> GetWatchPlaylistQuery<VideoAndPlaylistID<'a>> {
             GetWatchPlaylistQuery {
                 id: VideoAndPlaylistID {
                     video_id: self.id,
@@ -324,7 +324,7 @@ pub mod watch {
         pub fn with_video_id(
             self,
             video_id: VideoID<'a>,
-        ) -> GetWatchPlaylistQuery<VideoAndPlaylistID> {
+        ) -> GetWatchPlaylistQuery<VideoAndPlaylistID<'a>> {
             GetWatchPlaylistQuery {
                 id: VideoAndPlaylistID {
                     video_id,
@@ -368,11 +368,11 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a, A: AuthToken> Query<A> for RateSongQuery<'a> {
+    impl<A: AuthToken> Query<A> for RateSongQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }
-    impl<'a> PostQuery for RateSongQuery<'a> {
+    impl PostQuery for RateSongQuery<'_> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([(
                 "target".to_string(),
@@ -388,12 +388,12 @@ pub mod rate {
     }
 
     // AUTH REQUIRED
-    impl<'a, A: AuthToken> Query<A> for RatePlaylistQuery<'a> {
+    impl<A: AuthToken> Query<A> for RatePlaylistQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }
 
-    impl<'a> PostQuery for RatePlaylistQuery<'a> {
+    impl PostQuery for RatePlaylistQuery<'_> {
         fn header(&self) -> serde_json::Map<String, serde_json::Value> {
             serde_json::Map::from_iter([(
                 "target".to_string(),

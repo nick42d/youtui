@@ -224,7 +224,7 @@ impl DominantKeyRouter<AppAction> for Browser {
             InputRouting::Song => self.album_songs_list.dominant_keybinds_active(),
         }
     }
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.input_routing {
             InputRouting::Artist => Either::Left(self.artist_list.get_active_keybinds()),
             InputRouting::Song => Either::Right(self.album_songs_list.get_dominant_keybinds()),

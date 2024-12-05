@@ -221,11 +221,11 @@ impl<'a, S: Into<Cow<'a, str>>> From<S> for GetSearchSuggestionsQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetSearchSuggestionsQuery<'a> {
+impl<A: AuthToken> Query<A> for GetSearchSuggestionsQuery<'_> {
     type Output = Vec<SearchSuggestion>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetSearchSuggestionsQuery<'a> {
+impl PostQuery for GetSearchSuggestionsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let value = self.query.as_ref().into();
         serde_json::Map::from_iter([("input".into(), value)])
@@ -252,6 +252,6 @@ fn search_query_header<S: SearchType>(
         serde_json::Map::from_iter([("query".to_string(), value)])
     }
 }
-fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<str>> {
+fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<'a, str>> {
     query.search_type.specialised_params(&query.spelling_mode)
 }

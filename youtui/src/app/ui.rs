@@ -227,6 +227,9 @@ impl ActionHandler<AppAction> for YoutuiWindow {
         &mut self,
         action: AppAction,
     ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        // NOTE: This is the place to check if we _should_ be handling an action.
+        // For example if a user has set custom 'playlist' keybinds that trigger
+        // 'browser' actions, this could be filtered out here.
         match action {
             AppAction::VolUp => return self.handle_increase_volume(5).await,
             AppAction::VolDown => return self.handle_increase_volume(-5).await,

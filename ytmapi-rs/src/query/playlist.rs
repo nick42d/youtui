@@ -73,11 +73,11 @@ impl<'a> RemovePlaylistItemsQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetPlaylistQuery<'a> {
+impl<A: AuthToken> Query<A> for GetPlaylistQuery<'_> {
     type Output = GetPlaylist;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetPlaylistQuery<'a> {
+impl PostQuery for GetPlaylistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -95,11 +95,11 @@ impl<'a> PostQuery for GetPlaylistQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for DeletePlaylistQuery<'a> {
+impl<A: AuthToken> Query<A> for DeletePlaylistQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a> PostQuery for DeletePlaylistQuery<'a> {
+impl PostQuery for DeletePlaylistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to remove 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
@@ -122,11 +122,11 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'a> {
+impl<A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a> PostQuery for RemovePlaylistItemsQuery<'a> {
+impl PostQuery for RemovePlaylistItemsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({
             "playlistId": self.id,

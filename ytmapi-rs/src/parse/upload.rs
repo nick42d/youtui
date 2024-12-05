@@ -185,7 +185,7 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
+impl ParseFrom<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumQuery>) -> Result<Self> {
         fn parse_playlist_upload_song(
             mut json_crawler: JsonCrawlerOwned,
@@ -251,7 +251,7 @@ impl<'a> ParseFrom<GetLibraryUploadAlbumQuery<'a>> for GetLibraryUploadAlbum {
         })
     }
 }
-impl<'a> ParseFrom<GetLibraryUploadArtistQuery<'a>> for Vec<TableListUploadSong> {
+impl ParseFrom<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
     fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistQuery>) -> Result<Self> {
         let crawler: JsonCrawlerOwned = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(

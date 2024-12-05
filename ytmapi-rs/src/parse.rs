@@ -143,13 +143,13 @@ impl<'a, Q> ProcessedResult<'a, Q> {
     }
 }
 
-impl<'a, Q> ProcessedResult<'a, Q> {
+impl<Q> ProcessedResult<'_, Q> {
     pub fn parse_into<O: ParseFrom<Q>>(self) -> Result<O> {
         O::parse_from(self)
     }
 }
 
-impl<'a, Q> From<ProcessedResult<'a, Q>> for JsonCrawlerOwned {
+impl<Q> From<ProcessedResult<'_, Q>> for JsonCrawlerOwned {
     fn from(value: ProcessedResult<Q>) -> Self {
         let (_, source, crawler) = value.destructure();
         JsonCrawlerOwned::new(source, crawler)
