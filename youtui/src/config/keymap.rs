@@ -314,6 +314,15 @@ impl<A> KeyActionTree<A> {
             KeyActionTree::Mode { .. } => KeyActionVisibility::default(),
         }
     }
+    /// If a key, get the context of the key's action.
+    /// If a mode, recursively get the context of the first key's keyactiontree.
+    /// Returns String::default() if no keys in the mode.
+    pub fn get_context(&self) -> String {
+        match self {
+            KeyActionTree::Key(k) => k.action.context()
+            KeyActionTree::Mode { keys, .. } => keys.iter().next().unwrap_or_default().1.get_context(),
+        }
+    }
 }
 
 impl<A> KeyAction<A> {

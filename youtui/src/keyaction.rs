@@ -55,9 +55,9 @@ impl<'a> DisplayableKeyAction<'a> {
                 context: k.action.context(),
                 description: k.action.describe(),
             },
-            KeyActionTree::Mode { name, .. } => DisplayableKeyAction {
+            KeyActionTree::Mode { ref mut name, keys } => DisplayableKeyAction {
                 keybinds: key.to_string().into(),
-                context: "TODO".into(),
+                context: keys.iter().next().unwrap_or_default().1.get_context(),
                 description: name
                     .as_ref()
                     .map(ToOwned::to_owned)
