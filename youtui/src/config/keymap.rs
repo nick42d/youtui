@@ -1,28 +1,40 @@
-use crate::{
-    app::{
-        component::actionhandler::Action,
-        ui::{
-            action::{AppAction, HelpAction, ListAction, TextEntryAction},
-            browser::{
-                artistalbums::{
-                    albumsongs::{BrowserSongsAction, FilterAction, SortAction},
-                    artistsearch::{BrowserArtistsAction, BrowserSearchAction},
-                },
-                BrowserAction,
-            },
-            logger::LoggerAction,
-            playlist::PlaylistAction::{self, ViewBrowser},
-        },
-    },
-    keyaction::{KeyAction, KeyActionVisibility},
-    keybind::Keybind,
+use crate::app::component::actionhandler::Action;
+use crate::app::ui::action::{AppAction, HelpAction, ListAction, TextEntryAction};
+use crate::app::ui::browser::artistalbums::albumsongs::{
+    BrowserSongsAction, FilterAction, SortAction,
 };
+use crate::app::ui::browser::artistalbums::artistsearch::{
+    BrowserArtistsAction, BrowserSearchAction,
+};
+use crate::app::ui::browser::BrowserAction;
+use crate::app::ui::logger::LoggerAction;
+use crate::app::ui::playlist::PlaylistAction::{self, ViewBrowser};
+use crate::keyaction::{KeyAction, KeyActionVisibility};
+use crate::keybind::Keybind;
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
+use std::collections::btree_map::Entry;
 use std::{borrow::Cow, collections::BTreeMap, convert::Infallible, str::FromStr};
 
 /// Convenience type alias
 pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
+
+/// Merge `other` into `this` leaving `this` empty and returning the merged
+/// keymap. This recurively handles modes, merging them also.
+fn merge_keymaps<A>(this: &mut Keymap<A>, other: Keymap<A>) {
+    for (other_key, other_tree) in other {
+        let entry = this.entry(other_key);
+        match entry {
+            Entry::Vacant(e) => {
+                e.insert(other_tree);
+            }
+            Entry::Occupied(mut e) => {
+                let this_tree = e.get_mut();
+                this_tree.merge(other_tree);
+            }
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -39,6 +51,28 @@ pub enum KeyActionTree<A> {
         name: Option<String>,
         keys: BTreeMap<Keybind, KeyActionTree<A>>,
     },
+}
+impl<A> KeyActionTree<A> {
+    fn merge(&mut self, other: KeyActionTree<A>) {
+        match self {
+            KeyActionTree::Key(_) => *self = other,
+            KeyActionTree::Mode {
+                name: this_name,
+                keys: keys_this,
+            } => match other {
+                KeyActionTree::Key(key_action) => *self = KeyActionTree::Key(key_action),
+                KeyActionTree::Mode {
+                    name: other_name,
+                    keys: keys_other,
+                } => {
+                    if other_name.is_some() {
+                        *this_name = other_name;
+                    }
+                    merge_keymaps(keys_this, keys_other);
+                }
+            },
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -777,4 +811,63 @@ fn default_list_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
     ])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{default_list_keybinds, merge_keymaps, KeyActionTree};
+    use crate::{
+        app::ui::action::{AppAction, ListAction},
+        keyaction::KeyActionVisibility,
+        keybind::Keybind,
+    };
+
+    #[test]
+    fn test_add_key() {
+        let mut keys = default_list_keybinds();
+        let to_add = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+            KeyActionTree::new_key_defaulted(AppAction::Quit),
+        )]);
+        merge_keymaps(&mut keys, to_add);
+        let expected = FromIterator::from_iter([
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                KeyActionTree::new_key(
+                    AppAction::List(ListAction::Up),
+                    1,
+                    KeyActionVisibility::Hidden,
+                ),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Down),
+                KeyActionTree::new_key(
+                    AppAction::List(ListAction::Down),
+                    1,
+                    KeyActionVisibility::Hidden,
+                ),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::PageUp),
+                KeyActionTree::new_key(
+                    AppAction::List(ListAction::Up),
+                    10,
+                    KeyActionVisibility::Standard,
+                ),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::PageDown),
+                KeyActionTree::new_key(
+                    AppAction::List(ListAction::Down),
+                    10,
+                    KeyActionVisibility::Standard,
+                ),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                KeyActionTree::new_key_defaulted(AppAction::Quit),
+            ),
+        ]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
 }
