@@ -217,16 +217,11 @@ fn destruct_terminal() -> Result<()> {
 /// # Panics
 /// If tracing fails to initialise, function will panic
 fn init_tracing(debug: bool) -> Result<()> {
-    // NOTE: It seems that tui-logger only displays events at info or higher,
-    // possibly a limitation with the implementation.
-    // https://github.com/gin66/tui-logger/issues/66
-    // TODO: PR upstream
     let tui_logger_layer = tui_logger::tracing_subscriber_layer();
     if debug {
         let log_file_name = get_data_dir()?.join(LOG_FILE_NAME);
         let log_file = std::fs::File::create(&log_file_name)?;
         let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
-        // TODO: Confirm if this filter is correct.
         let context_layer =
             tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::DEBUG);
         tracing_subscriber::registry()
@@ -237,7 +232,6 @@ fn init_tracing(debug: bool) -> Result<()> {
             .expect("Expected logger to initialise succesfully");
         info!("Started in debug mode, logging to {:?}.", log_file_name);
     } else {
-        // TODO: Confirm if this filter is correct.
         let context_layer =
             tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::INFO);
         tracing_subscriber::registry()

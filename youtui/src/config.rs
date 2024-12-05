@@ -95,38 +95,29 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        config::{keymap::YoutuiKeymap, Config, ConfigIR, CONFIG_FILE_NAME},
-        get_config_dir,
-    };
+    use crate::config::{keymap::YoutuiKeymap, Config, ConfigIR};
     use pretty_assertions::assert_eq;
+
+    async fn example_config_file() -> String {
+        tokio::fs::read_to_string("./config/config.toml")
+            .await
+            .unwrap()
+    }
 
     #[tokio::test]
     async fn test_deserialize_default_config_to_ir() {
-        let config_dir = get_config_dir().unwrap();
-        let config_file_location = config_dir.join(CONFIG_FILE_NAME);
-        let config_file = tokio::fs::read_to_string(&config_file_location)
-            .await
-            .unwrap();
+        let config_file = example_config_file().await;
         toml::from_str::<ConfigIR>(&config_file).unwrap();
     }
     #[tokio::test]
     async fn test_convert_ir_to_config() {
-        let config_dir = get_config_dir().unwrap();
-        let config_file_location = config_dir.join(CONFIG_FILE_NAME);
-        let config_file = tokio::fs::read_to_string(&config_file_location)
-            .await
-            .unwrap();
+        let config_file = example_config_file().await;
         let ir: ConfigIR = toml::from_str(&config_file).unwrap();
         Config::try_from(ir).unwrap();
     }
     #[tokio::test]
     async fn test_default_config_equals_deserialized_config() {
-        let config_dir = get_config_dir().unwrap();
-        let config_file_location = config_dir.join(CONFIG_FILE_NAME);
-        let config_file = tokio::fs::read_to_string(&config_file_location)
-            .await
-            .unwrap();
+        let config_file = example_config_file().await;
         let ir: ConfigIR = toml::from_str(&config_file).unwrap();
         let Config {
             auth_type,

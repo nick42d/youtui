@@ -31,6 +31,7 @@ async fn test_get_oauth_code() {
 
 // NOTE: Internal only - due to use of error.is_oauth_expired()
 #[tokio::test]
+#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_expired_oauth() {
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
@@ -257,17 +258,7 @@ async fn test_get_mood_playlists() {
         .next()
         .unwrap();
     let query = GetMoodPlaylistsQuery::new(first_mood_playlist.params);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to
-        //date, just refresh it each time.
-        api.refresh_token().await.unwrap();
-        api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
+    browser_api.query(query.clone()).await.unwrap();
 }
 
 #[ignore = "Ignored by default due to quota"]
@@ -282,17 +273,7 @@ async fn test_get_library_upload_artist() {
         .next()
         .expect("To run this test, you will need to upload songs from at least one artist");
     let query = GetLibraryUploadArtistQuery::new(first_artist.artist_id);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to date, just
-        // refresh it each time.
-        api.refresh_token().await.unwrap();
-        let _ = api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
+    browser_api.query(query.clone()).await.unwrap();
 }
 
 #[ignore = "Ignored by default due to quota"]
@@ -307,17 +288,7 @@ async fn test_get_library_upload_album() {
         .next()
         .expect("To run this test, you will need to upload songs from at least one album");
     let query = GetLibraryUploadAlbumQuery::new(first_album.album_id);
-    let oauth_fut = async {
-        let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-        // Don't stuff around trying the keep the local OAuth secret up to date, just
-        // refresh it each time.
-        api.refresh_token().await.unwrap();
-        let _ = api.query(query.clone()).await.unwrap();
-    };
-    let browser_fut = async {
-        browser_api.query(query.clone()).await.unwrap();
-    };
-    tokio::join!(oauth_fut, browser_fut);
+    browser_api.query(query.clone()).await.unwrap();
 }
 
 #[tokio::test]
@@ -447,7 +418,7 @@ async fn test_add_remove_history_items() {
 }
 
 #[tokio::test]
-#[ignore = "Ignored by default due to quota"]
+#[ignore = "Ignored by default due to quota, also oauth is broken"]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -642,6 +613,7 @@ async fn test_edit_playlist() {
 // # BASIC TESTS WITH ADDITIONAL ASSERTIONS
 
 #[tokio::test]
+#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -657,6 +629,7 @@ async fn test_get_library_playlists() {
     assert!(!res.playlists.is_empty());
 }
 #[tokio::test]
+#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_get_library_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
