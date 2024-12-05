@@ -1,22 +1,25 @@
 use crate::{
-    app::ui::{
-        action::{AppAction, HelpAction, ListAction, TextEntryAction},
-        browser::{
-            artistalbums::{
-                albumsongs::{BrowserSongsAction, FilterAction, SortAction},
-                artistsearch::{BrowserArtistsAction, BrowserSearchAction},
+    app::{
+        component::actionhandler::Action,
+        ui::{
+            action::{AppAction, HelpAction, ListAction, TextEntryAction},
+            browser::{
+                artistalbums::{
+                    albumsongs::{BrowserSongsAction, FilterAction, SortAction},
+                    artistsearch::{BrowserArtistsAction, BrowserSearchAction},
+                },
+                BrowserAction,
             },
-            BrowserAction,
+            logger::LoggerAction,
+            playlist::PlaylistAction::{self, ViewBrowser},
         },
-        logger::LoggerAction,
-        playlist::PlaylistAction::{self, ViewBrowser},
     },
     keyaction::{KeyAction, KeyActionVisibility},
     keybind::Keybind,
 };
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, convert::Infallible, str::FromStr};
+use std::{borrow::Cow, collections::BTreeMap, convert::Infallible, str::FromStr};
 
 /// Convenience type alias
 pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
@@ -243,7 +246,7 @@ impl YoutuiKeymap {
     }
 }
 
-impl<A> KeyActionTree<A> {
+impl<A: Action> KeyActionTree<A> {
     pub fn new_key_defaulted(action: A) -> Self {
         Self::Key(KeyAction {
             action,
@@ -317,10 +320,14 @@ impl<A> KeyActionTree<A> {
     /// If a key, get the context of the key's action.
     /// If a mode, recursively get the context of the first key's keyactiontree.
     /// Returns String::default() if no keys in the mode.
-    pub fn get_context(&self) -> String {
+    pub fn get_context(&self) -> Cow<str> {
         match self {
-            KeyActionTree::Key(k) => k.action.context()
-            KeyActionTree::Mode { keys, .. } => keys.iter().next().unwrap_or_default().1.get_context(),
+            KeyActionTree::Key(k) => k.action.context(),
+            KeyActionTree::Mode { keys, .. } => keys
+                .iter()
+                .next()
+                .map(|(_, kt)| kt.get_context())
+                .unwrap_or_default(),
         }
     }
 }
