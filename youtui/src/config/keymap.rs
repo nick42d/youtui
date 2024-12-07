@@ -21,7 +21,7 @@ pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
 
 /// Merge `other` into `this` leaving `this` empty and returning the merged
 /// keymap. This recurively handles modes, merging them also.
-fn merge_keymaps<A>(this: &mut Keymap<A>, other: Keymap<A>) {
+fn merge_keymaps<A: Action>(this: &mut Keymap<A>, other: Keymap<A>) {
     for (other_key, other_tree) in other {
         let entry = this.entry(other_key);
         match entry {
@@ -34,6 +34,18 @@ fn merge_keymaps<A>(this: &mut Keymap<A>, other: Keymap<A>) {
             }
         }
     }
+}
+/// If self is a key with action `action`, return None.
+/// If self is a mode, remove any actions `action` from it, and if there are
+/// none left, also return None.
+fn remove_action_from_keymap<A: Action + PartialEq>(this: &mut Keymap<A>, action: &A) {
+    this.retain(|_, v| match v {
+        KeyActionTree::Key(ka) => &ka.action != action,
+        KeyActionTree::Mode { keys, .. } => {
+            remove_action_from_keymap(keys, action);
+            !keys.is_empty()
+        }
+    })
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -49,30 +61,8 @@ pub enum KeyActionTree<A> {
     Key(KeyAction<A>),
     Mode {
         name: Option<String>,
-        keys: BTreeMap<Keybind, KeyActionTree<A>>,
+        keys: Keymap<A>,
     },
-}
-impl<A> KeyActionTree<A> {
-    fn merge(&mut self, other: KeyActionTree<A>) {
-        match self {
-            KeyActionTree::Key(_) => *self = other,
-            KeyActionTree::Mode {
-                name: this_name,
-                keys: keys_this,
-            } => match other {
-                KeyActionTree::Key(key_action) => *self = KeyActionTree::Key(key_action),
-                KeyActionTree::Mode {
-                    name: other_name,
-                    keys: keys_other,
-                } => {
-                    if other_name.is_some() {
-                        *this_name = other_name;
-                    }
-                    merge_keymaps(keys_this, keys_other);
-                }
-            },
-        }
-    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -178,105 +168,120 @@ impl YoutuiKeymap {
             list: mut list_mode_names,
             log: mut log_mode_names,
         } = mode_names;
-        Ok(Self {
-            global: global
-                .into_iter()
-                .map(move |(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            playlist: playlist
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            browser: browser
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            browser_artists: browser_artists
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(
-                        &k,
-                        v,
-                        Some(&mut browser_artists_mode_names),
-                    )?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            browser_search: browser_search
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(
-                        &k,
-                        v,
-                        Some(&mut browser_search_mode_names),
-                    )?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            browser_songs: browser_songs
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(
-                        &k,
-                        v,
-                        Some(&mut browser_songs_mode_names),
-                    )?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            text_entry: text_entry
-                .into_iter()
-                .map(|(k, v)| {
-                    let v =
-                        KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            help: help
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            sort: sort
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            filter: filter
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            list: list
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-            log: log
-                .into_iter()
-                .map(|(k, v)| {
-                    let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
-                    Ok((k, v))
-                })
-                .collect::<std::result::Result<BTreeMap<_, _>, String>>()?,
-        })
+
+        let mut global = global
+            .into_iter()
+            .map(move |(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut playlist = playlist
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut browser = browser
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut browser_artists = browser_artists
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_artists_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut browser_search = browser_search
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_search_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut browser_songs = browser_songs
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_songs_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut text_entry = text_entry
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut help = help
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut sort = sort
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut filter = filter
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut list = list
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut log = log
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+        let mut keymap = YoutuiKeymap::default();
+        merge_keymaps(&mut keymap.global, global);
+        merge_keymaps(&mut keymap.playlist, playlist);
+        merge_keymaps(&mut keymap.browser, browser);
+        merge_keymaps(&mut keymap.browser_artists, browser_artists);
+        merge_keymaps(&mut keymap.browser_search, browser_search);
+        merge_keymaps(&mut keymap.browser_songs, browser_songs);
+        merge_keymaps(&mut keymap.text_entry, text_entry);
+        merge_keymaps(&mut keymap.help, help);
+        merge_keymaps(&mut keymap.sort, sort);
+        merge_keymaps(&mut keymap.filter, filter);
+        merge_keymaps(&mut keymap.list, list);
+        merge_keymaps(&mut keymap.log, log);
+        remove_action_from_keymap(&mut keymap.global, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.playlist, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser_artists, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser_search, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser_songs, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.text_entry, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.help, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.sort, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.filter, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.list, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.log, &AppAction::NoOp);
+        Ok(keymap)
     }
 }
 
@@ -311,6 +316,28 @@ impl<A: Action> KeyActionTree<A> {
             name: Some(name),
         }
     }
+    /// Merge this KeyActionTree with another.
+    fn merge(&mut self, other: KeyActionTree<A>) {
+        match self {
+            KeyActionTree::Key(_) => *self = other,
+            KeyActionTree::Mode {
+                name: this_name,
+                keys: keys_this,
+            } => match other {
+                KeyActionTree::Key(key_action) => *self = KeyActionTree::Key(key_action),
+                KeyActionTree::Mode {
+                    name: other_name,
+                    keys: keys_other,
+                } => {
+                    if other_name.is_some() {
+                        *this_name = other_name;
+                    }
+                    merge_keymaps(keys_this, keys_other);
+                }
+            },
+        }
+    }
+    /// Try to create a KeyActionTree from a KeyStringTree.
     fn try_from_stringy(
         key: &Keybind,
         stringy: KeyStringTree,
@@ -815,16 +842,26 @@ fn default_list_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{default_list_keybinds, merge_keymaps, KeyActionTree};
+    use super::{merge_keymaps, KeyActionTree};
     use crate::{
-        app::ui::action::{AppAction, ListAction},
-        keyaction::KeyActionVisibility,
+        app::ui::{
+            action::AppAction,
+            browser::artistalbums::{
+                albumsongs::BrowserSongsAction, artistsearch::BrowserArtistsAction,
+            },
+        },
+        config::keymap::{remove_action_from_keymap, Keymap},
         keybind::Keybind,
     };
 
     #[test]
     fn test_add_key() {
-        let mut keys = default_list_keybinds();
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                BrowserArtistsAction::DisplaySelectedArtistAlbums,
+            )),
+        )]);
         let to_add = FromIterator::from_iter([(
             Keybind::new_unmodified(crossterm::event::KeyCode::Up),
             KeyActionTree::new_key_defaulted(AppAction::Quit),
@@ -832,42 +869,191 @@ mod tests {
         merge_keymaps(&mut keys, to_add);
         let expected = FromIterator::from_iter([
             (
-                Keybind::new_unmodified(crossterm::event::KeyCode::Up),
-                KeyActionTree::new_key(
-                    AppAction::List(ListAction::Up),
-                    1,
-                    KeyActionVisibility::Hidden,
-                ),
-            ),
-            (
-                Keybind::new_unmodified(crossterm::event::KeyCode::Down),
-                KeyActionTree::new_key(
-                    AppAction::List(ListAction::Down),
-                    1,
-                    KeyActionVisibility::Hidden,
-                ),
-            ),
-            (
-                Keybind::new_unmodified(crossterm::event::KeyCode::PageUp),
-                KeyActionTree::new_key(
-                    AppAction::List(ListAction::Up),
-                    10,
-                    KeyActionVisibility::Standard,
-                ),
-            ),
-            (
-                Keybind::new_unmodified(crossterm::event::KeyCode::PageDown),
-                KeyActionTree::new_key(
-                    AppAction::List(ListAction::Down),
-                    10,
-                    KeyActionVisibility::Standard,
-                ),
+                Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                    BrowserArtistsAction::DisplaySelectedArtistAlbums,
+                )),
             ),
             (
                 Keybind::new_unmodified(crossterm::event::KeyCode::Up),
                 KeyActionTree::new_key_defaulted(AppAction::Quit),
             ),
         ]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_add_key_overrides_old() {
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::Quit),
+        )]);
+        let to_add = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::NoOp),
+        )]);
+        merge_keymaps(&mut keys, to_add);
+        let expected = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::NoOp),
+        )]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_add_mode() {
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                BrowserArtistsAction::DisplaySelectedArtistAlbums,
+            )),
+        )]);
+        let to_add = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+            KeyActionTree::new_mode(
+                [(
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                    KeyActionTree::new_key_defaulted(AppAction::Quit),
+                )],
+                "New Modename".into(),
+            ),
+        )]);
+        merge_keymaps(&mut keys, to_add);
+        let expected = Keymap::from_iter([
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                    BrowserArtistsAction::DisplaySelectedArtistAlbums,
+                )),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                KeyActionTree::new_mode(
+                    [(
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                        KeyActionTree::new_key_defaulted(AppAction::Quit),
+                    )],
+                    "New Modename".into(),
+                ),
+            ),
+        ]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_add_key_to_mode() {
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_mode(
+                [(
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
+                    KeyActionTree::new_key_defaulted(AppAction::BrowserSongs(
+                        BrowserSongsAction::AddSongToPlaylist,
+                    )),
+                )],
+                "Play".into(),
+            ),
+        )]);
+        let to_add = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_mode(
+                [(
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                    KeyActionTree::new_key_defaulted(AppAction::Quit),
+                )],
+                "New Modename".into(),
+            ),
+        )]);
+        merge_keymaps(&mut keys, to_add);
+        let expected = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_mode(
+                [
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
+                        KeyActionTree::new_key_defaulted(AppAction::BrowserSongs(
+                            BrowserSongsAction::AddSongToPlaylist,
+                        )),
+                    ),
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                        KeyActionTree::new_key_defaulted(AppAction::Quit),
+                    ),
+                ],
+                "New Modename".into(),
+            ),
+        )]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_remove_action() {
+        let mut keys = Keymap::from_iter([
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                    BrowserArtistsAction::DisplaySelectedArtistAlbums,
+                )),
+            ),
+            (
+                Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                KeyActionTree::new_key_defaulted(AppAction::Quit),
+            ),
+        ]);
+        remove_action_from_keymap(&mut keys, &AppAction::Quit);
+        let expected = FromIterator::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                BrowserArtistsAction::DisplaySelectedArtistAlbums,
+            )),
+        )]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_remove_action_from_mode() {
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+            KeyActionTree::new_mode(
+                [
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                        KeyActionTree::new_key_defaulted(AppAction::Quit),
+                    ),
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                        KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                            BrowserArtistsAction::DisplaySelectedArtistAlbums,
+                        )),
+                    ),
+                ],
+                "New Modename".into(),
+            ),
+        )]);
+        remove_action_from_keymap(&mut keys, &AppAction::Quit);
+        let expected = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+            KeyActionTree::new_mode(
+                [(
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                    KeyActionTree::new_key_defaulted(AppAction::BrowserArtists(
+                        BrowserArtistsAction::DisplaySelectedArtistAlbums,
+                    )),
+                )],
+                "New Modename".into(),
+            ),
+        )]);
+        pretty_assertions::assert_eq!(keys, expected);
+    }
+    #[test]
+    fn test_remove_action_removes_mode() {
+        let mut keys = Keymap::from_iter([(
+            Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+            KeyActionTree::new_mode(
+                [(
+                    Keybind::new_unmodified(crossterm::event::KeyCode::Up),
+                    KeyActionTree::new_key_defaulted(AppAction::Quit),
+                )],
+                "New Modename".into(),
+            ),
+        )]);
+        remove_action_from_keymap(&mut keys, &AppAction::Quit);
+        let expected = Keymap::from_iter([]);
         pretty_assertions::assert_eq!(keys, expected);
     }
 }

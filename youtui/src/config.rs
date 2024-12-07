@@ -96,7 +96,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use crate::config::{keymap::YoutuiKeymap, Config, ConfigIR};
-    use pretty_assertions::assert_eq;
+    use pretty_assertions::{assert_eq, assert_ne};
 
     async fn example_config_file() -> String {
         tokio::fs::read_to_string("./config/config.toml")
@@ -169,5 +169,69 @@ mod tests {
         assert_eq!(text_entry, def_text_entry);
         assert_eq!(list, def_list);
         assert_eq!(log, def_log);
+    }
+    #[tokio::test]
+    async fn test_default_config_equals_blank_config() {
+        let ir: ConfigIR = toml::from_str("").unwrap();
+        let Config {
+            auth_type,
+            keybinds,
+        } = Config::try_from(ir).unwrap();
+        let YoutuiKeymap {
+            global,
+            playlist,
+            browser,
+            browser_artists,
+            browser_search,
+            browser_songs,
+            help,
+            sort,
+            filter,
+            text_entry,
+            list,
+            log,
+        } = keybinds;
+        let Config {
+            auth_type: def_auth_type,
+            keybinds: def_keybinds,
+        } = Config::default();
+        let YoutuiKeymap {
+            global: def_global,
+            playlist: def_playlist,
+            browser: def_browser,
+            browser_artists: def_browser_artists,
+            browser_search: def_browser_search,
+            browser_songs: def_browser_songs,
+            help: def_help,
+            sort: def_sort,
+            filter: def_filter,
+            text_entry: def_text_entry,
+            list: def_list,
+            log: def_log,
+        } = def_keybinds;
+        // Assertions are split up here, to better narrow down errors.
+        assert_eq!(auth_type, def_auth_type);
+        assert_eq!(global, def_global);
+        assert_eq!(playlist, def_playlist);
+        assert_eq!(browser, def_browser);
+        assert_eq!(browser_artists, def_browser_artists);
+        assert_eq!(browser_search, def_browser_search);
+        assert_eq!(browser_songs, def_browser_songs);
+        assert_eq!(help, def_help);
+        assert_eq!(sort, def_sort);
+        assert_eq!(filter, def_filter);
+        assert_eq!(text_entry, def_text_entry);
+        assert_eq!(list, def_list);
+        assert_eq!(log, def_log);
+    }
+    #[tokio::test]
+    async fn test_different_config_to_default() {
+        let config_file = tokio::fs::read_to_string("./config/config.toml.vim-example")
+            .await
+            .unwrap();
+        let ir: ConfigIR = toml::from_str(&config_file).unwrap();
+        let config = Config::try_from(ir).unwrap();
+        let def_config = Config::default();
+        assert_ne!(config, def_config)
     }
 }

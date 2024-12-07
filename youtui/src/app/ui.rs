@@ -292,6 +292,7 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a),
             AppAction::List(a) => return self.handle_list_action(a),
+            AppAction::NoOp => (),
         };
         AsyncTask::new_no_op()
     }

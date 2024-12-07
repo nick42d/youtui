@@ -32,6 +32,7 @@ pub enum AppAction {
     ToggleHelp,
     ViewLogs,
     Pause,
+    NoOp,
     Browser(BrowserAction),
     Filter(FilterAction),
     Sort(SortAction),
@@ -107,6 +108,7 @@ impl Action for AppAction {
             | AppAction::ToggleHelp
             | AppAction::Quit
             | AppAction::ViewLogs
+            | AppAction::NoOp
             | AppAction::Pause => "Global".into(),
             AppAction::Log(a) => a.context(),
             AppAction::Playlist(a) => a.context(),
@@ -133,6 +135,7 @@ impl Action for AppAction {
             AppAction::ViewLogs => "View Logs".into(),
             AppAction::SeekForwardS => format!("Seek Forward 5s").into(),
             AppAction::SeekBackS => format!("Seek Back 5s").into(),
+            AppAction::NoOp => "No Operation".into(),
             AppAction::Log(a) => a.describe(),
             AppAction::Playlist(a) => a.describe(),
             AppAction::Browser(a) => a.describe(),
