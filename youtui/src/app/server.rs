@@ -54,10 +54,14 @@ pub enum TaskMetadata {
     PlayPause,
 }
 
+#[derive(Debug)]
 pub struct GetSearchSuggestions(pub String);
+#[derive(Debug)]
 pub struct SearchArtists(pub String);
+#[derive(Debug)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
 
+#[derive(Debug)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 
 // Player Requests documentation:
@@ -71,26 +75,34 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Send IncreaseVolume(5)
 // Send IncreaseVolume(5), killing previous task
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
+#[derive(Debug)]
 pub struct IncreaseVolume(pub i8);
+#[derive(Debug)]
 pub struct Seek {
     pub duration: Duration,
     pub direction: SeekDirection,
 }
+#[derive(Debug)]
 pub struct Stop(pub ListSongID);
+#[derive(Debug)]
 pub struct PausePlay(pub ListSongID);
 /// Decode a song into a format that can be played.
+#[derive(Debug)]
 pub struct DecodeSong(pub Arc<InMemSong>);
-// Play a song, starting from the start, regardless what's queued.
+/// Play a song, starting from the start, regardless what's queued.
+#[derive(Debug)]
 pub struct PlaySong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
-// Play a song, unless it's already queued.
+/// Play a song, unless it's already queued.
+#[derive(Debug)]
 pub struct AutoplaySong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
-// Queue a song to play next.
+/// Queue a song to play next.
+#[derive(Debug)]
 pub struct QueueSong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,

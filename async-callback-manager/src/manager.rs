@@ -1,160 +1,206 @@
 use crate::{
-    task::{ResponseInformation, Task, TaskFromFrontend, TaskInformation, TaskList},
-    AsyncCallbackSender,
+    task::{
+        AsyncTask, AsyncTaskKind, FutureTask, SpawnedTask, StreamTask, TaskInformation, TaskList,
+        TaskOutcome, TaskWaiter,
+    },
+    Constraint, DEFAULT_STREAM_CHANNEL_SIZE,
 };
-use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
+use futures::{Stream, StreamExt};
+use std::{any::TypeId, future::Future, sync::Arc};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct SenderId(usize);
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct TaskId(usize);
+pub struct TaskId(pub(crate) u64);
 
-type DynTaskReceivedCallback<Cstrnt> = dyn FnMut(TaskInformation<Cstrnt>);
-type DynResponseReceivedCallback = dyn FnMut(ResponseInformation);
+pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
+    Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
+pub(crate) type DynMutationFuture<Frntend, Bkend, Md> =
+    Box<dyn Future<Output = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
+pub(crate) type DynMutationStream<Frntend, Bkend, Md> =
+    Box<dyn Stream<Item = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
+pub(crate) type DynFutureTask<Frntend, Bkend, Md> =
+    Box<dyn FnOnce(&Bkend) -> DynMutationFuture<Frntend, Bkend, Md>>;
+pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
+    Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
-pub struct AsyncCallbackManager<Bkend, Cstrnt> {
-    next_sender_id: usize,
-    next_task_id: usize,
-    this_sender: UnboundedSender<TaskFromFrontend<Bkend, Cstrnt>>,
-    this_receiver: UnboundedReceiver<TaskFromFrontend<Bkend, Cstrnt>>,
-    tasks_list: TaskList<Cstrnt>,
-    // TODO: Make generic instead of dynamic.
-    on_task_received: Box<DynTaskReceivedCallback<Cstrnt>>,
-    on_response_received: Box<DynResponseReceivedCallback>,
+pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
+
+pub struct AsyncCallbackManager<Frntend, Bkend, Md> {
+    next_task_id: u64,
+    tasks_list: TaskList<Frntend, Bkend, Md>,
+    // It could be possible to make this generic instead of dynamic, however this type would then
+    // require more type parameters.
+    on_task_spawn: Box<DynTaskSpawnCallback<Md>>,
 }
 
-#[derive(Eq, PartialEq, Clone, Copy, Debug)]
-pub enum ManagedEventType {
-    SpawnedTask,
-    ReceivedResponse,
-}
-impl ManagedEventType {
-    pub fn is_spawned_task(&self) -> bool {
-        self == &ManagedEventType::SpawnedTask
-    }
-    pub fn is_received_response(&self) -> bool {
-        self == &ManagedEventType::ReceivedResponse
-    }
+/// Temporary struct to store task details before it is added to the task list.
+pub(crate) struct TempSpawnedTask<Frntend, Bkend, Md> {
+    waiter: TaskWaiter<Frntend, Bkend, Md>,
+    type_id: TypeId,
+    type_name: &'static str,
+    type_debug: Arc<String>,
 }
 
-impl<Bkend, Cstrnt: PartialEq> Default for AsyncCallbackManager<Bkend, Cstrnt> {
+impl<Frntend, Bkend, Md: PartialEq> Default for AsyncCallbackManager<Frntend, Bkend, Md> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<Bkend, Cstrnt: PartialEq> AsyncCallbackManager<Bkend, Cstrnt> {
+
+impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
     /// Get a new AsyncCallbackManager.
-    // TODO: Consider if this should be bounded. Unbounded has been chose for now as
-    // it allows senders to send without blocking.
     pub fn new() -> Self {
-        let (tx, rx) = mpsc::unbounded_channel();
-        AsyncCallbackManager {
-            next_sender_id: 0,
-            next_task_id: 0,
-            this_receiver: rx,
-            this_sender: tx,
+        Self {
+            next_task_id: Default::default(),
             tasks_list: TaskList::new(),
-            on_task_received: Box::new(|_| {}),
-            on_response_received: Box::new(|_| {}),
+            on_task_spawn: Box::new(|_| {}),
         }
     }
-    pub fn with_on_task_received_callback(
+    pub fn with_on_task_spawn_callback(
         mut self,
-        cb: impl FnMut(TaskInformation<Cstrnt>) + 'static,
+        cb: impl Fn(TaskInformation<Md>) + 'static,
     ) -> Self {
-        self.on_task_received = Box::new(cb);
+        self.on_task_spawn = Box::new(cb);
         self
     }
-    pub fn with_on_response_received_callback(
-        mut self,
-        cb: impl FnMut(ResponseInformation) + 'static,
-    ) -> Self {
-        self.on_response_received = Box::new(cb);
-        self
+    /// Await for the next response from one of the spawned tasks, or returns
+    /// None if no tasks were in the list.
+    pub async fn get_next_response(&mut self) -> Option<TaskOutcome<Frntend, Bkend, Md>> {
+        self.tasks_list.get_next_response().await
     }
-    /// Creates a new AsyncCallbackSender that sends to this Manager.
-    /// Channel size refers to number of number of state mutations that can be
-    /// buffered from tasks.
-    pub fn new_sender<Frntend>(
-        &mut self,
-        channel_size: usize,
-    ) -> AsyncCallbackSender<Bkend, Frntend, Cstrnt> {
-        let (tx, rx) = mpsc::channel(channel_size);
-        let task_function_sender = self.this_sender.clone();
-        let id = SenderId(self.next_sender_id);
-        let (new_id, overflowed) = self.next_sender_id.overflowing_add(1);
-        if overflowed {
-            eprintln!("WARN: SenderID has overflowed");
-        }
-        self.next_sender_id = new_id;
-        AsyncCallbackSender {
-            id,
-            this_sender: tx,
-            this_receiver: rx,
-            runner_sender: task_function_sender,
-        }
-    }
-    /// Manage the next event in the queue.
-    /// Combination of spawn_next_task and process_next_response.
-    /// Returns Some(ManagedEventType), if something was processed.
-    /// Returns None, if no senders or tasks exist.
-    pub async fn manage_next_event(&mut self, backend: &Bkend) -> Option<ManagedEventType> {
-        tokio::select! {
-            Some(task) = self.this_receiver.recv() => {
-                self.spawn_task(backend, task);
-                Some(ManagedEventType::SpawnedTask)
-            },
-            Some((response, forwarder)) = self.tasks_list.process_next_response() => {
-                if let Some(forwarder) = forwarder {
-                    let _ = forwarder.await;
-                }
-                (self.on_response_received)(response);
-                Some(ManagedEventType::ReceivedResponse)
+    pub fn spawn_task(&mut self, backend: &Bkend, task: AsyncTask<Frntend, Bkend, Md>)
+    where
+        Frntend: 'static,
+        Bkend: 'static,
+        Md: 'static,
+    {
+        let AsyncTask {
+            task,
+            constraint,
+            metadata,
+        } = task;
+        match task {
+            AsyncTaskKind::Future(future_task) => {
+                let outcome = self.spawn_future_task(backend, future_task, &constraint);
+                self.add_task_to_list(outcome, metadata, constraint);
             }
-            else => None
+            AsyncTaskKind::Stream(stream_task) => {
+                let outcome = self.spawn_stream_task(backend, stream_task, &constraint);
+                self.add_task_to_list(outcome, metadata, constraint);
+            }
+            // Don't call (self.on_task_spawn)() for NoOp.
+            AsyncTaskKind::Multi(tasks) => {
+                for task in tasks {
+                    self.spawn_task(backend, task)
+                }
+            }
+            AsyncTaskKind::NoOp => (),
         }
     }
-    /// Spawns the next incoming task from a sender.
-    /// Returns Some(()), if a task was spawned.
-    /// Returns None, if no senders.
-    pub async fn spawn_next_task(&mut self, backend: &Bkend) -> Option<()> {
-        let task = self.this_receiver.recv().await?;
-        self.spawn_task(backend, task);
-        Some(())
-    }
-    /// Spawns the next incoming task from a sender.
-    /// Returns Some(ResponseInformation), if a task was spawned.
-    /// Returns None, if no senders.
-    /// Note that the 'on_next_response' callback is not called, you're given
-    /// the ResponseInformation directly.
-    pub async fn process_next_response(&mut self) -> Option<ResponseInformation> {
-        let (response, forwarder) = self.tasks_list.process_next_response().await?;
-        if let Some(forwarder) = forwarder {
-            let _ = forwarder.await;
-        }
-        Some(response)
-    }
-    fn spawn_task(&mut self, backend: &Bkend, task: TaskFromFrontend<Bkend, Cstrnt>) {
-        (self.on_task_received)(task.get_information());
-        if let Some(constraint) = task.constraint {
-            self.tasks_list
-                .handle_constraint(constraint, task.type_id, task.sender_id);
-        }
-        self.tasks_list.push(Task::new(
-            task.type_id,
-            task.type_name,
-            task.metadata,
-            task.receiver,
-            task.sender_id,
-            TaskId(self.next_task_id),
-            task.kill_handle,
-        ));
-        let (new_id, overflowed) = self.next_task_id.overflowing_add(1);
-        if overflowed {
-            eprintln!("WARN: TaskID has overflowed");
-        }
+    fn add_task_to_list(
+        &mut self,
+        details: TempSpawnedTask<Frntend, Bkend, Md>,
+        metadata: Vec<Md>,
+        constraint: Option<Constraint<Md>>,
+    ) {
+        let TempSpawnedTask {
+            waiter,
+            type_id,
+            type_name,
+            type_debug,
+        } = details;
+        let sp = SpawnedTask {
+            type_id,
+            task_id: TaskId(self.next_task_id),
+            type_name,
+            type_debug,
+            receiver: waiter,
+            metadata,
+        };
+        // At one task per nanosecond, it would take 584.6 years for a library user to
+        // trigger overflow.
+        //
+        // https://www.wolframalpha.com/input?i=2%5E64+nanoseconds
+        let new_id = self
+            .next_task_id
+            .checked_add(1)
+            .expect("u64 shouldn't overflow!");
         self.next_task_id = new_id;
-        let fut = (task.task)(backend);
-        tokio::spawn(fut);
+        if let Some(constraint) = constraint {
+            self.tasks_list.handle_constraint(constraint, type_id);
+        }
+        self.tasks_list.push(sp);
+    }
+    fn spawn_future_task(
+        &self,
+        backend: &Bkend,
+        future_task: FutureTask<Frntend, Bkend, Md>,
+        constraint: &Option<Constraint<Md>>,
+    ) -> TempSpawnedTask<Frntend, Bkend, Md>
+    where
+        Frntend: 'static,
+        Bkend: 'static,
+        Md: 'static,
+    {
+        (self.on_task_spawn)(TaskInformation {
+            type_id: future_task.type_id,
+            type_name: future_task.type_name,
+            type_debug: &future_task.type_debug,
+            constraint,
+        });
+        let future = (future_task.task)(backend);
+        let handle = tokio::spawn(future);
+        TempSpawnedTask {
+            waiter: TaskWaiter::Future(handle),
+            type_id: future_task.type_id,
+            type_name: future_task.type_name,
+            type_debug: Arc::new(future_task.type_debug),
+        }
+    }
+    fn spawn_stream_task(
+        &self,
+        backend: &Bkend,
+        stream_task: StreamTask<Frntend, Bkend, Md>,
+        constraint: &Option<Constraint<Md>>,
+    ) -> TempSpawnedTask<Frntend, Bkend, Md>
+    where
+        Frntend: 'static,
+        Bkend: 'static,
+        Md: 'static,
+    {
+        let StreamTask {
+            task,
+            type_id,
+            type_name,
+            type_debug,
+        } = stream_task;
+        (self.on_task_spawn)(TaskInformation {
+            type_id,
+            type_name,
+            type_debug: &type_debug,
+            constraint,
+        });
+        let mut stream = task(backend);
+        let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
+        let abort_handle = tokio::spawn(async move {
+            loop {
+                if let Some(mutation) = stream.next().await {
+                    // Error could occur here if receiver is dropped.
+                    // Doesn't seem to be a big deal to ignore this error.
+                    let _ = tx.send(mutation).await;
+                    continue;
+                }
+                return;
+            }
+        })
+        .abort_handle();
+        TempSpawnedTask {
+            waiter: TaskWaiter::Stream {
+                receiver: rx,
+                abort_handle,
+            },
+            type_id,
+            type_name,
+            type_debug: Arc::new(type_debug),
+        }
     }
 }

@@ -56,19 +56,19 @@ impl<'a> GetEpisodeQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetChannelQuery<'a> {
+impl<A: AuthToken> Query<A> for GetChannelQuery<'_> {
     type Output = GetPodcastChannel;
     type Method = PostMethod;
 }
-impl<'a, A: AuthToken> Query<A> for GetChannelEpisodesQuery<'a> {
+impl<A: AuthToken> Query<A> for GetChannelEpisodesQuery<'_> {
     type Output = Vec<Episode>;
     type Method = PostMethod;
 }
-impl<'a, A: AuthToken> Query<A> for GetPodcastQuery<'a> {
+impl<A: AuthToken> Query<A> for GetPodcastQuery<'_> {
     type Output = GetPodcast;
     type Method = PostMethod;
 }
-impl<'a, A: AuthToken> Query<A> for GetEpisodeQuery<'a> {
+impl<A: AuthToken> Query<A> for GetEpisodeQuery<'_> {
     type Output = GetEpisode;
     type Method = PostMethod;
 }
@@ -77,7 +77,7 @@ impl<A: AuthToken> Query<A> for GetNewEpisodesQuery {
     type Method = PostMethod;
 }
 
-impl<'a> PostQuery for GetChannelQuery<'a> {
+impl PostQuery for GetChannelQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([("browseId".into(), json!(self.channel_id))])
     }
@@ -88,7 +88,7 @@ impl<'a> PostQuery for GetChannelQuery<'a> {
         "browse"
     }
 }
-impl<'a> PostQuery for GetChannelEpisodesQuery<'a> {
+impl PostQuery for GetChannelEpisodesQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([
             ("browseId".into(), json!(self.channel_id)),
@@ -103,7 +103,7 @@ impl<'a> PostQuery for GetChannelEpisodesQuery<'a> {
     }
 }
 // TODO: Continuations
-impl<'a> PostQuery for GetPodcastQuery<'a> {
+impl PostQuery for GetPodcastQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if any parsing required
         FromIterator::from_iter([("browseId".into(), json!(self.podcast_id))])
@@ -115,7 +115,7 @@ impl<'a> PostQuery for GetPodcastQuery<'a> {
         "browse"
     }
 }
-impl<'a> PostQuery for GetEpisodeQuery<'a> {
+impl PostQuery for GetEpisodeQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if any parsing required
         FromIterator::from_iter([("browseId".into(), json!(self.episode_id))])

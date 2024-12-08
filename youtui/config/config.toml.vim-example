@@ -1,0 +1,17 @@
+# Example config.toml file for youtui with basic vim navigation keybinds.
+
+[keybinds.browser]
+left = "no_op"
+right = "no_op"
+h = "browser.left"
+l = "browser.right"
+
+[keybinds.list]
+up = "no_op"
+down = "no_op"
+pageup = "no_op"
+pagedown = "no_op"
+k = {action = "list.up", visibility = "hidden"}
+j = {action = "list.down", visibility = "hidden"}
+C-b = "list.page_up"
+C-f = "list.page_down"

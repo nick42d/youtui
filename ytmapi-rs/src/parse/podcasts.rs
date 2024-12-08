@@ -95,7 +95,7 @@ pub struct GetEpisode {
 
 // NOTE: This is technically the same page as the GetArtist page. It's possible
 // this could be generalised.
-impl<'a> ParseFrom<GetChannelQuery<'a>> for GetPodcastChannel {
+impl ParseFrom<GetChannelQuery<'_>> for GetPodcastChannel {
     fn parse_from(p: crate::ProcessedResult<GetChannelQuery>) -> Result<Self> {
         fn parse_podcast(crawler: impl JsonCrawler) -> Result<GetPodcastChannelPodcast> {
             let mut podcast = crawler.navigate_pointer(MTRIR)?;
@@ -164,7 +164,7 @@ impl<'a> ParseFrom<GetChannelQuery<'a>> for GetPodcastChannel {
         })
     }
 }
-impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<Episode> {
+impl ParseFrom<GetChannelEpisodesQuery<'_>> for Vec<Episode> {
     fn parse_from(p: crate::ProcessedResult<GetChannelEpisodesQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
@@ -174,7 +174,7 @@ impl<'a> ParseFrom<GetChannelEpisodesQuery<'a>> for Vec<Episode> {
             .collect()
     }
 }
-impl<'a> ParseFrom<GetPodcastQuery<'a>> for GetPodcast {
+impl ParseFrom<GetPodcastQuery<'_>> for GetPodcast {
     fn parse_from(p: crate::ProcessedResult<GetPodcastQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;
@@ -217,7 +217,7 @@ impl<'a> ParseFrom<GetPodcastQuery<'a>> for GetPodcast {
         })
     }
 }
-impl<'a> ParseFrom<GetEpisodeQuery<'a>> for GetEpisode {
+impl ParseFrom<GetEpisodeQuery<'_>> for GetEpisode {
     fn parse_from(p: crate::ProcessedResult<GetEpisodeQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         let mut two_column = json_crawler.navigate_pointer(TWO_COLUMN)?;

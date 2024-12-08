@@ -33,7 +33,7 @@ pub struct AddVideosToPlaylist<'a> {
 pub struct AddPlaylistToPlaylist<'a> {
     source_playlist: PlaylistID<'a>,
 }
-impl<'a> SpecialisedQuery for AddVideosToPlaylist<'a> {
+impl SpecialisedQuery for AddVideosToPlaylist<'_> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         let actions = self
             .video_ids
@@ -52,7 +52,7 @@ impl<'a> SpecialisedQuery for AddVideosToPlaylist<'a> {
         Some(("actions".to_string(), actions.collect()))
     }
 }
-impl<'a> SpecialisedQuery for AddPlaylistToPlaylist<'a> {
+impl SpecialisedQuery for AddPlaylistToPlaylist<'_> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         Some((
             "actions".to_string(),
@@ -91,11 +91,11 @@ impl<'a> AddPlaylistItemsQuery<'a, AddVideosToPlaylist<'a>> {
     }
 }
 
-impl<'a, A: AuthToken, T: SpecialisedQuery> Query<A> for AddPlaylistItemsQuery<'a, T> {
+impl<A: AuthToken, T: SpecialisedQuery> Query<A> for AddPlaylistItemsQuery<'_, T> {
     type Output = Vec<AddPlaylistItem>;
     type Method = PostMethod;
 }
-impl<'a, T: SpecialisedQuery> PostQuery for AddPlaylistItemsQuery<'a, T> {
+impl<T: SpecialisedQuery> PostQuery for AddPlaylistItemsQuery<'_, T> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let serde_json::Value::Object(mut map) = json!({
             "playlistId" : self.id,

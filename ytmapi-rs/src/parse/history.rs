@@ -123,7 +123,7 @@ impl ParseFrom<GetHistoryQuery> for Vec<HistoryPeriod> {
             .collect()
     }
 }
-impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
+impl ParseFrom<RemoveHistoryItemsQuery<'_>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<RemoveHistoryItemsQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler
@@ -145,7 +145,7 @@ impl<'a> ParseFrom<RemoveHistoryItemsQuery<'a>> for Vec<ApiOutcome> {
             .map_err(Into::into)
     }
 }
-impl<'a> ParseFrom<AddHistoryItemQuery<'a>> for () {
+impl ParseFrom<AddHistoryItemQuery<'_>> for () {
     fn parse_from(_: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
         // Api only returns an empty string, no way of validating if correct or not.
         Ok(())
