@@ -122,20 +122,12 @@ pub fn basic_constraints_to_table_constraints(
         .collect()
 }
 
-// A struct that is able to be "scrolled". An item will always be selected.
-// XXX: Should a Scrollable also be a KeyHandler? This way, can potentially have
-// common keybinds.
-pub trait Scrollable {
-    // Increment the list by the specified amount.
-    fn increment_list(&mut self, amount: isize);
-    fn is_scrollable(&self) -> bool;
-}
-
 /// A simple row in a table.
 pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
 
 /// A struct that we are able to draw a table from using the underlying data.
-pub trait TableView: Scrollable + Loadable {
+pub trait TableView: Loadable {
+    /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
     /// Get an owned version of the widget state, e.g scroll offset position.
     /// In practice this will clone, and this is acceptable due to the low cost.
@@ -173,8 +165,9 @@ pub trait SortableTableView: TableView {
     fn clear_filter_commands(&mut self);
 }
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: Scrollable + SortableList + Loadable {
+pub trait ListView: SortableList + Loadable {
     type DisplayItem: Display;
+    /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
     /// Get an owned version of the widget state, e.g scroll offset position.
     /// In practice this will clone, and this is acceptable due to the low cost.

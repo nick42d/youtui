@@ -26,6 +26,13 @@ macro_rules! impl_youtui_component {
     };
 }
 
+/// An action that can be applied to state.
+pub trait Action {
+    type State: Component;
+    fn context(&self) -> Cow<str>;
+    fn describe(&self) -> Cow<str>;
+}
+
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
     async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
@@ -45,12 +52,15 @@ pub trait ActionHandler<A: Action>: Component + Sized {
     }
 }
 
-/// An action that can be applied to state.
-pub trait Action {
-    type State: Component;
-    fn context(&self) -> Cow<str>;
-    fn describe(&self) -> Cow<str>;
+/// A struct that is able to be "scrolled".
+pub trait Scrollable {
+    /// Increment the list by the specified amount.
+    fn increment_list(&mut self, amount: isize);
+    /// Check if the Scrollable actually is scrollable right now, some other
+    /// part of it may be selected.
+    fn is_scrollable(&self) -> bool;
 }
+
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and

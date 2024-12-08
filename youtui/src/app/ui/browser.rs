@@ -10,14 +10,14 @@ use crate::{
     app::{
         component::actionhandler::{
             Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
-            Suggestable, TextHandler,
+            Scrollable, Suggestable, TextHandler,
         },
         server::{
             api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
             TaskMetadata,
         },
         structures::{ListStatus, SongListComponent},
-        view::{DrawableMut, ListView, Scrollable, TableView},
+        view::{DrawableMut, ListView, TableView},
     },
     config::keymap::Keymap,
 };

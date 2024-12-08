@@ -1,4 +1,4 @@
-use crate::app::component::actionhandler::{ActionHandler, ComponentEffect};
+use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Scrollable};
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -7,7 +7,7 @@ use crate::app::server::{
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
-use crate::app::view::{Loadable, Scrollable, TableView};
+use crate::app::view::{Loadable, TableView};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, TextHandler},
     structures::{AlbumSongsList, ListSong, ListSongID, PlayState},

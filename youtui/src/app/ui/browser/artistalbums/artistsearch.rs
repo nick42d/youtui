@@ -1,14 +1,15 @@
 use crate::{
     app::{
         component::actionhandler::{
-            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Suggestable, TextHandler,
+            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable,
+            TextHandler,
         },
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
         ui::{
             action::{AppAction, ListAction, PAGE_KEY_LINES},
             browser::Browser,
         },
-        view::{ListView, Loadable, Scrollable, SortableList},
+        view::{ListView, Loadable, SortableList},
     },
     config::{keymap::Keymap, Config},
 };
