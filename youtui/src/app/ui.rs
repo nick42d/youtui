@@ -1,7 +1,7 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_visible_keybinds, handle_key_stack, ActionHandler, ComponentEffect, DominantKeyRouter,
-    KeyHandleAction, KeyRouter, Scrollable, TextHandler,
+    count_all_visible_keybinds, handle_key_stack, ActionHandler, ComponentEffect,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
@@ -138,7 +138,6 @@ impl Scrollable for YoutuiWindow {
 
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        // If Browser has dominant keybinds, self keybinds shouldn't be visible.
         let kb = std::iter::once(&self.keybinds);
         let kb = if self.is_scrollable() {
             Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
@@ -452,7 +451,7 @@ impl YoutuiWindow {
             self.help.cur = 0;
             // We have to get the keybind length this way as the help menu iterator is not
             // ExactSized
-            self.help.len = count_visible_keybinds(self);
+            self.help.len = count_all_visible_keybinds(self);
         }
     }
     /// Visually increment the volume, note, does not actually change the
