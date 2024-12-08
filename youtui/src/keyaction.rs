@@ -8,10 +8,7 @@ use std::borrow::Cow;
 /// This is an Action that will be triggered when pressing a particular Keybind.
 pub struct KeyAction<A> {
     // Consider - can there be multiple actions?
-    // Consider - can an action access global commands? Or commands from another component?
     pub action: A,
-    #[serde(default)]
-    pub value: Option<usize>,
     #[serde(default)]
     pub visibility: KeyActionVisibility,
 }

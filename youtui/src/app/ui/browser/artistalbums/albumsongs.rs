@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::action::{AppAction, ListAction};
+use crate::app::ui::action::{AppAction, ListAction, PAGE_KEY_LINES};
 use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -342,6 +342,9 @@ impl AlbumSongsPanel {
             match action {
                 ListAction::Up => self.handle_sort_up(),
                 ListAction::Down => self.handle_sort_down(),
+                // TODO: Handle PgUp / PgDown specially.
+                ListAction::PageUp => self.handle_sort_up(),
+                ListAction::PageDown => self.handle_sort_up(),
             }
             return AsyncTask::new_no_op();
         }
@@ -351,6 +354,8 @@ impl AlbumSongsPanel {
         match action {
             ListAction::Up => self.increment_list(-1),
             ListAction::Down => self.increment_list(1),
+            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
         }
         AsyncTask::new_no_op()
     }
@@ -446,7 +451,7 @@ impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
         self.sort.shown || self.filter.shown
     }
 
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &'_ Keymap<AppAction>> + '_ {
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         self.get_active_keybinds()
     }
 }

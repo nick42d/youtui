@@ -6,7 +6,6 @@ use crate::{
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
-use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
 /// Convenience type alias
@@ -190,10 +189,7 @@ where
     };
     let first_found = keys.into_iter().find_map(|km| km.get(&convert(*first_key)));
     let mut next_mode = match first_found {
-        Some(KeyActionTree::Key(KeyAction { action, value, .. })) => {
-            if let Some(v) = value {
-                warn!("Keybind had value {v}, currently unhandled");
-            }
+        Some(KeyActionTree::Key(KeyAction { action, .. })) => {
             return KeyHandleAction::Action(*action);
         }
         Some(KeyActionTree::Mode { name, keys }) => (name, keys),
@@ -202,10 +198,7 @@ where
     for key in key_stack_iter {
         let next_found = next_mode.1.get(&convert(*key));
         match next_found {
-            Some(KeyActionTree::Key(KeyAction { action, value, .. })) => {
-                if let Some(v) = value {
-                    warn!("Keybind had value {v}, currently unhandled");
-                }
+            Some(KeyActionTree::Key(KeyAction { action, .. })) => {
                 return KeyHandleAction::Action(*action);
             }
             Some(KeyActionTree::Mode { name, keys }) => next_mode = (name, keys),
@@ -254,19 +247,19 @@ mod tests {
         [
             (
                 Keybind::new_unmodified(KeyCode::F(10)),
-                KeyActionTree::new_key_defaulted(TestAction::Test1),
+                KeyActionTree::new_key(TestAction::Test1),
             ),
             (
                 Keybind::new_unmodified(KeyCode::F(12)),
-                KeyActionTree::new_key_defaulted(TestAction::Test2),
+                KeyActionTree::new_key(TestAction::Test2),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Left),
-                KeyActionTree::new_key_defaulted(TestAction::Test3),
+                KeyActionTree::new_key(TestAction::Test3),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Right),
-                KeyActionTree::new_key_defaulted(TestAction::Test3),
+                KeyActionTree::new_key(TestAction::Test3),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Enter),
@@ -274,27 +267,27 @@ mod tests {
                     [
                         (
                             Keybind::new_unmodified(KeyCode::Enter),
-                            KeyActionTree::new_key_defaulted(TestAction::Test2),
+                            KeyActionTree::new_key(TestAction::Test2),
                         ),
                         (
                             Keybind::new_unmodified(KeyCode::Char('a')),
-                            KeyActionTree::new_key_defaulted(TestAction::Test3),
+                            KeyActionTree::new_key(TestAction::Test3),
                         ),
                         (
                             Keybind::new_unmodified(KeyCode::Char('p')),
-                            KeyActionTree::new_key_defaulted(TestAction::Test2),
+                            KeyActionTree::new_key(TestAction::Test2),
                         ),
                         (
                             Keybind::new_unmodified(KeyCode::Char(' ')),
-                            KeyActionTree::new_key_defaulted(TestAction::Test3),
+                            KeyActionTree::new_key(TestAction::Test3),
                         ),
                         (
                             Keybind::new_unmodified(KeyCode::Char('P')),
-                            KeyActionTree::new_key_defaulted(TestAction::Test2),
+                            KeyActionTree::new_key(TestAction::Test2),
                         ),
                         (
                             Keybind::new_unmodified(KeyCode::Char('A')),
-                            KeyActionTree::new_key_defaulted(TestAction::TestStack),
+                            KeyActionTree::new_key(TestAction::TestStack),
                         ),
                     ],
                     "Play".into(),
@@ -338,27 +331,27 @@ mod tests {
         let expected_keys = [
             (
                 Keybind::new_unmodified(KeyCode::Enter),
-                KeyActionTree::new_key_defaulted(TestAction::Test2),
+                KeyActionTree::new_key(TestAction::Test2),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Char('a')),
-                KeyActionTree::new_key_defaulted(TestAction::Test3),
+                KeyActionTree::new_key(TestAction::Test3),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Char('p')),
-                KeyActionTree::new_key_defaulted(TestAction::Test2),
+                KeyActionTree::new_key(TestAction::Test2),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Char(' ')),
-                KeyActionTree::new_key_defaulted(TestAction::Test3),
+                KeyActionTree::new_key(TestAction::Test3),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Char('P')),
-                KeyActionTree::new_key_defaulted(TestAction::Test2),
+                KeyActionTree::new_key(TestAction::Test2),
             ),
             (
                 Keybind::new_unmodified(KeyCode::Char('A')),
-                KeyActionTree::new_key_defaulted(TestAction::TestStack),
+                KeyActionTree::new_key(TestAction::TestStack),
             ),
         ]
         .into_iter()

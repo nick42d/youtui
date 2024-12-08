@@ -1,10 +1,3 @@
-use crate::app::component::actionhandler::{Action, ActionHandler};
-use async_callback_manager::AsyncTask;
-use serde::{
-    de::{self, DeserializeOwned},
-    Deserialize, Serialize,
-};
-
 use super::{
     browser::{
         artistalbums::{
@@ -17,6 +10,17 @@ use super::{
     playlist::PlaylistAction,
     HelpMenu, YoutuiWindow,
 };
+use crate::app::component::actionhandler::{Action, ActionHandler};
+use async_callback_manager::AsyncTask;
+use serde::{
+    de::{self},
+    Deserialize, Serialize,
+};
+use std::time::Duration;
+
+pub const VOL_TICK: i8 = 5;
+pub const SEEK_AMOUNT: Duration = Duration::from_secs(5);
+pub const PAGE_KEY_LINES: isize = 10;
 
 #[derive(Clone, Copy, PartialEq, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -27,8 +31,8 @@ pub enum AppAction {
     VolDown,
     NextSong,
     PrevSong,
-    SeekForwardS,
-    SeekBackS,
+    SeekForward,
+    SeekBack,
     ToggleHelp,
     ViewLogs,
     Pause,
@@ -57,6 +61,8 @@ pub enum HelpAction {
 pub enum ListAction {
     Up,
     Down,
+    PageUp,
+    PageDown,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -91,6 +97,8 @@ impl Action for ListAction {
         match self {
             ListAction::Up => "List Up".into(),
             ListAction::Down => "List Down".into(),
+            ListAction::PageUp => "List PageUp".into(),
+            ListAction::PageDown => "List PageDown".into(),
         }
     }
 }
@@ -103,8 +111,8 @@ impl Action for AppAction {
             | AppAction::VolDown
             | AppAction::NextSong
             | AppAction::PrevSong
-            | AppAction::SeekForwardS
-            | AppAction::SeekBackS
+            | AppAction::SeekForward
+            | AppAction::SeekBack
             | AppAction::ToggleHelp
             | AppAction::Quit
             | AppAction::ViewLogs
@@ -129,12 +137,12 @@ impl Action for AppAction {
             AppAction::PrevSong => "Prev Song".into(),
             AppAction::NextSong => "Next Song".into(),
             AppAction::Pause => "Pause".into(),
-            AppAction::VolUp => format!("Vol Up 5").into(),
-            AppAction::VolDown => format!("Vol Down 5").into(),
+            AppAction::VolUp => format!("Vol Up {VOL_TICK}").into(),
+            AppAction::VolDown => format!("Vol Down {VOL_TICK}").into(),
             AppAction::ToggleHelp => "Toggle Help".into(),
             AppAction::ViewLogs => "View Logs".into(),
-            AppAction::SeekForwardS => format!("Seek Forward 5s").into(),
-            AppAction::SeekBackS => format!("Seek Back 5s").into(),
+            AppAction::SeekForward => format!("Seek Forward {}s", SEEK_AMOUNT.as_secs()).into(),
+            AppAction::SeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
             AppAction::NoOp => "No Operation".into(),
             AppAction::Log(a) => a.describe(),
             AppAction::Playlist(a) => a.describe(),
@@ -154,10 +162,6 @@ impl Action for AppAction {
 impl TryFrom<String> for AppAction {
     type Error = String;
     fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        fn deserialize_enum<T: DeserializeOwned>(s: String) -> std::result::Result<T, String> {
-            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(s))
-                .map_err(|e| e.to_string())
-        }
         let mut vec = value
             .split('.')
             .take(3)
@@ -174,22 +178,15 @@ impl TryFrom<String> for AppAction {
         let back = vec.pop().expect("Length checked above");
         let front = vec.pop();
         if let Some(tag) = front {
-            match tag.as_str() {
-                "playlist" => Ok(AppAction::Playlist(deserialize_enum(back)?)),
-                "browser" => Ok(AppAction::Browser(deserialize_enum(back)?)),
-                "browser_artists" => Ok(AppAction::BrowserArtists(deserialize_enum(back)?)),
-                "browser_songs" => Ok(AppAction::BrowserSongs(deserialize_enum(back)?)),
-                "browser_search" => Ok(AppAction::BrowserSearch(deserialize_enum(back)?)),
-                "log" => Ok(AppAction::Log(deserialize_enum(back)?)),
-                "help" => Ok(AppAction::Help(deserialize_enum(back)?)),
-                "filter" => Ok(AppAction::Filter(deserialize_enum(back)?)),
-                "sort" => Ok(AppAction::Sort(deserialize_enum(back)?)),
-                "text_entry" => Ok(AppAction::TextEntry(deserialize_enum(back)?)),
-                "list" => Ok(AppAction::List(deserialize_enum(back)?)),
-                _ => Err(format!("Unrecognised action category {tag}")),
-            }
+            // Neat hack to turn tag.back into any of the nested enum variants.
+            let json = serde_json::json!({tag : back});
+            serde_json::from_value(json).map_err(|e| e.to_string())
         } else {
-            deserialize_enum(back)
+            // Neat hack to turn back into any of the non-nested enum variants.
+            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(
+                back,
+            ))
+            .map_err(|e| e.to_string())
         }
     }
 }

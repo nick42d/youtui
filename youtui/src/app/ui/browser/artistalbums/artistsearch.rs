@@ -5,7 +5,7 @@ use crate::{
         },
         server::{ArcServer, GetSearchSuggestions, TaskMetadata},
         ui::{
-            action::{AppAction, ListAction},
+            action::{AppAction, ListAction, PAGE_KEY_LINES},
             browser::Browser,
         },
         view::{ListView, Loadable, Scrollable, SortableList},
@@ -140,6 +140,8 @@ impl ArtistSearchPanel {
         match action {
             ListAction::Up => self.increment_list(-1),
             ListAction::Down => self.increment_list(1),
+            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
         }
         AsyncTask::new_no_op()
     }

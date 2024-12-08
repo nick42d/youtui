@@ -12,7 +12,7 @@ use crate::config::keymap::Keymap;
 use crate::config::Config;
 use crate::core::send_or_error;
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
-use action::{AppAction, ListAction, TextEntryAction};
+use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
@@ -27,9 +27,6 @@ mod footer;
 mod header;
 pub mod logger;
 pub mod playlist;
-
-const VOL_TICK: i8 = 5;
-const SEEK_AMOUNT: Duration = Duration::from_secs(5);
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -235,12 +232,8 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::VolDown => return self.handle_increase_volume(-5).await,
             AppAction::NextSong => return self.handle_next(),
             AppAction::PrevSong => return self.handle_prev(),
-            AppAction::SeekForwardS => {
-                return self.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Forward)
-            }
-            AppAction::SeekBackS => {
-                return self.handle_seek(Duration::from_secs(5 as u64), SeekDirection::Back)
-            }
+            AppAction::SeekForward => return self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
+            AppAction::SeekBack => return self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
             AppAction::ToggleHelp => self.toggle_help(),
             AppAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
             AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
@@ -355,6 +348,8 @@ impl YoutuiWindow {
             match action {
                 ListAction::Up => self.help.increment_list(-1),
                 ListAction::Down => self.help.increment_list(1),
+                ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+                ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
             }
             return AsyncTask::new_no_op();
         }

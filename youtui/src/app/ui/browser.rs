@@ -33,8 +33,6 @@ use ytmapi_rs::{
     parse::{AlbumSong, SearchResultArtist},
 };
 
-const PAGE_KEY_LINES: isize = 10;
-
 pub mod artistalbums;
 mod draw;
 

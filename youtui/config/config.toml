@@ -3,12 +3,12 @@ auth_type = "Browser"
 
 # Global keybinds
 [keybinds.global]
-"+" = {action = "vol_up", value = 5}
-"-" = {action = "vol_down", value = 5}
+"+" = "vol_up"
+"-" = "vol_down"
 ">" = "next_song"
 "<" = "prev_song"
-"]" = {action = "seek_forward_s", value = 5}
-"[" = {action = "seek_back_s", value = 5}
+"]" = "seek_forward"
+"[" = "seek_back"
 F1 = {action = "toggle_help", visibility = "global"}
 F10 = {action = "quit", visibility = "global"}
 F12 = {action = "view_logs", visibility = "global"}
@@ -92,7 +92,7 @@ right = "text_entry.right"
 backspace = "text_entry.backspace"
 
 [keybinds.list]
-up = {action = "list.up", value = 1, visibility = "hidden"}
-down = {action = "list.down", value = 1, visibility = "hidden"}
-pageup = {action = "list.up", value = 10}
-pagedown = {action = "list.down", value = 10}
+up = {action = "list.up", visibility = "hidden"}
+down = {action = "list.down", visibility = "hidden"}
+pageup = "list.page_up"  
+pagedown = "list.page_down"  
