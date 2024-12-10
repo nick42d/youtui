@@ -1,7 +1,8 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    count_all_visible_keybinds, handle_key_stack, ActionHandler, ComponentEffect,
-    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
+    get_global_keybinds_as_readable_iter, get_visible_keybinds_as_readable_iter, handle_key_stack,
+    ActionHandler, ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable,
+    TextHandler,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
@@ -310,6 +311,24 @@ impl YoutuiWindow {
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
+    pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
+        match self.context {
+            WindowContext::Browser => {
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
+            }
+            WindowContext::Playlist => {
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
+            }
+            WindowContext::Logs => {
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
+            }
+        }
+        .chain(get_visible_keybinds_as_readable_iter(
+            std::iter::once(&self.keybinds)
+                .chain(std::iter::once(&self.list_keybinds))
+                .chain(std::iter::once(&self.text_entry_keybinds)),
+        ))
+    }
     // Splitting out event types removes one layer of indentation.
     pub async fn handle_event(&mut self, event: crossterm::event::Event) -> ComponentEffect<Self> {
         // TODO: This should be intercepted and keycodes mapped by us instead of going
@@ -451,7 +470,7 @@ impl YoutuiWindow {
             self.help.cur = 0;
             // We have to get the keybind length this way as the help menu iterator is not
             // ExactSized
-            self.help.len = count_all_visible_keybinds(self);
+            self.help.len = self.get_help_list_items().count();
         }
     }
     /// Visually increment the volume, note, does not actually change the

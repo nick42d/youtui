@@ -90,29 +90,19 @@ pub trait DominantKeyRouter<A: Action + 'static> {
 
 /// Get the list of all keybinds that the KeyHandler and any child items can
 /// contain, regardless of context.
-pub fn get_all_visible_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
-    component: &K,
-) -> impl Iterator<Item = DisplayableKeyAction<'_>> + '_ {
-    component
-        .get_active_keybinds()
+pub fn get_visible_keybinds_as_readable_iter<'a, A: Action + 'static>(
+    keybinds: impl Iterator<Item = &'a Keymap<A>> + 'a,
+) -> impl Iterator<Item = DisplayableKeyAction<'a>> + 'a {
+    keybinds
         .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
         .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
 }
-/// Count the number of visible keybinds - helper for Help menu.
-pub fn count_all_visible_keybinds<K: KeyRouter<A>, A: Action + 'static>(component: &K) -> usize {
-    component
-        .get_active_keybinds()
-        .flat_map(|keymap| keymap.iter())
-        .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
-        .count()
-}
 /// Get a context-specific list of all keybinds marked global.
-pub fn get_active_global_keybinds_as_readable_iter<K: KeyRouter<A>, A: Action + 'static>(
-    component: &K,
-) -> impl Iterator<Item = DisplayableKeyAction<'_>> + '_ {
-    component
-        .get_active_keybinds()
+pub fn get_global_keybinds_as_readable_iter<'a, A: Action + 'static>(
+    keybinds: impl Iterator<Item = &'a Keymap<A>> + 'a,
+) -> impl Iterator<Item = DisplayableKeyAction<'a>> + 'a {
+    keybinds
         .flat_map(|keymap| keymap.iter())
         .filter(|(_, kt)| (*kt).get_visibility() == KeyActionVisibility::Global)
         .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
