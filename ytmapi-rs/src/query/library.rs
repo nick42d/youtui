@@ -221,11 +221,11 @@ impl PostQuery for GetLibraryArtistSubscriptionsQuery {
 }
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
-impl<'a, A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'a> {
+impl<A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for EditSongLibraryStatusQuery<'a> {
+impl PostQuery for EditSongLibraryStatusQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let add_feedback_tokens_raw = self
             .add_to_library_feedback_tokens

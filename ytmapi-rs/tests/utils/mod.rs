@@ -56,22 +56,30 @@ macro_rules! generate_query_test {
     $fname:ident,$query:expr) => {
         #[tokio::test]
         async fn $fname() {
-            let oauth_future = async {
-                let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-                // Don't stuff around trying the keep the local OAuth secret up to date, just
-                // refresh it each time.
-                api.refresh_token().await.unwrap();
-                api.query($query)
-                    .await
-                    .expect("Expected query to run succesfully under oauth");
-            };
-            let browser_auth_future = async {
-                let api = crate::utils::new_standard_api().await.unwrap();
-                api.query($query)
-                    .await
-                    .expect("Expected query to run succesfully under browser auth");
-            };
-            tokio::join!(oauth_future, browser_auth_future);
+            // NOTE: Code to handle Oath and Browser tests commented out due to oauth
+            // issues.
+            //
+            // https://github.com/nick42d/youtui/issues/179
+            // let oauth_future = async {
+            //     let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+            //     // Don't stuff around trying the keep the local OAuth secret up to date,
+            // just     // refresh it each time.
+            //     api.refresh_token().await.unwrap();
+            //     api.query($query)
+            //         .await
+            //         .expect("Expected query to run succesfully under oauth");
+            // };
+            // let browser_auth_future = async {
+            //     let api = crate::utils::new_standard_api().await.unwrap();
+            //     api.query($query)
+            //         .await
+            //         .expect("Expected query to run succesfully under browser auth");
+            // };
+            // tokio::join!(oauth_future, browser_auth_future);
+            let api = crate::utils::new_standard_api().await.unwrap();
+            api.query($query)
+                .await
+                .expect("Expected query to run succesfully under browser auth");
         }
     };
 }
@@ -85,33 +93,47 @@ macro_rules! generate_stream_test {
     $fname:ident,$query:expr) => {
         #[tokio::test]
         async fn $fname() {
+            // NOTE: Code to handle Oath and Browser tests commented out due to oauth
+            // issues.
+            //
+            // https://github.com/nick42d/youtui/issues/179
             use futures::stream::{StreamExt, TryStreamExt};
-            let oauth_future = async {
-                let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
-                // Don't stuff around trying the keep the local OAuth secret up to date, just
-                // refresh it each time.
-                api.refresh_token().await.unwrap();
-                let query = $query;
-                let stream = api.stream(&query);
-                tokio::pin!(stream);
-                stream
-                    .try_collect::<Vec<_>>()
-                    .await
-                    .expect("Expected all results from oauth stream to suceed");
-            };
-            let browser_auth_future = async {
-                let api = crate::utils::new_standard_api().await.unwrap();
-                let query = $query;
-                let stream = api.stream(&query);
-                tokio::pin!(stream);
-                stream
-                    // limit test to 5 results to avoid overload
-                    .take(5)
-                    .try_collect::<Vec<_>>()
-                    .await
-                    .expect("Expected all results from browser stream to suceed");
-            };
-            tokio::join!(oauth_future, browser_auth_future);
+            // let oauth_future = async {
+            //     let mut api = crate::utils::new_standard_oauth_api().await.unwrap();
+            //     // Don't stuff around trying the keep the local OAuth secret up to date,
+            // just     // refresh it each time.
+            //     api.refresh_token().await.unwrap();
+            //     let query = $query;
+            //     let stream = api.stream(&query);
+            //     tokio::pin!(stream);
+            //     stream
+            //         .try_collect::<Vec<_>>()
+            //         .await
+            //         .expect("Expected all results from oauth stream to suceed");
+            // };
+            // let browser_auth_future = async {
+            //     let api = crate::utils::new_standard_api().await.unwrap();
+            //     let query = $query;
+            //     let stream = api.stream(&query);
+            //     tokio::pin!(stream);
+            //     stream
+            //         // limit test to 5 results to avoid overload
+            //         .take(5)
+            //         .try_collect::<Vec<_>>()
+            //         .await
+            //         .expect("Expected all results from browser stream to suceed");
+            // };
+            // tokio::join!(oauth_future, browser_auth_future);
+            let api = crate::utils::new_standard_api().await.unwrap();
+            let query = $query;
+            let stream = api.stream(&query);
+            tokio::pin!(stream);
+            stream
+                // limit test to 5 results to avoid overload
+                .take(5)
+                .try_collect::<Vec<_>>()
+                .await
+                .expect("Expected all results from browser stream to suceed");
         }
     };
 }

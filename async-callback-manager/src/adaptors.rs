@@ -1,6 +1,6 @@
-use crate::{BackendStreamingTask, BackendTask};
+use crate::{BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
-use std::future::Future;
+use std::{fmt::Debug, future::Future};
 use tokio_stream::wrappers::ReceiverStream;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}
@@ -54,6 +54,19 @@ pub struct Map<T, F> {
     create_next: F,
 }
 
+impl<T, F> Debug for Map<T, F>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Map")
+            .field("first", &self.first)
+            // TODO: we could deduce the type name returned by the closure
+            .field("create_next", &"..closure..")
+            .finish()
+    }
+}
+
 impl<Bkend, T, S, F, Ct, O, E> BackendStreamingTask<Bkend> for Map<T, F>
 where
     Bkend: Clone + Sync + Send + 'static,
@@ -73,8 +86,7 @@ where
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let Map { first, create_next } = self;
         let backend = backend.clone();
-        // TODO: Channel size
-        let (tx, rx) = tokio::sync::mpsc::channel(30);
+        let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
             let seed = first.into_future(&backend).await;
             match seed {
@@ -149,8 +161,7 @@ where
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
         let Then { first, create_next } = self;
         let backend = backend.clone();
-        // TODO: Channel size
-        let (tx, rx) = tokio::sync::mpsc::channel(30);
+        let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
             let seed = first.into_future(&backend).await;
             let mut stream = create_next(seed).into_stream(&backend);

@@ -64,11 +64,11 @@ impl<'a> DeleteUploadEntityQuery<'a> {
     }
 }
 // Auth required
-impl<'a, A: AuthToken> Query<A> for GetLibraryUploadAlbumQuery<'a> {
+impl<A: AuthToken> Query<A> for GetLibraryUploadAlbumQuery<'_> {
     type Output = GetLibraryUploadAlbum;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetLibraryUploadAlbumQuery<'a> {
+impl PostQuery for GetLibraryUploadAlbumQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_album_id))])
     }
@@ -80,11 +80,11 @@ impl<'a> PostQuery for GetLibraryUploadAlbumQuery<'a> {
     }
 }
 // Auth required
-impl<'a, A: AuthToken> Query<A> for GetLibraryUploadArtistQuery<'a> {
+impl<A: AuthToken> Query<A> for GetLibraryUploadArtistQuery<'_> {
     type Output = Vec<TableListUploadSong>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetLibraryUploadArtistQuery<'a> {
+impl PostQuery for GetLibraryUploadArtistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_artist_id))])
     }
@@ -186,11 +186,11 @@ impl PostQuery for GetLibraryUploadArtistsQuery {
     }
 }
 // Auth required
-impl<'a, A: AuthToken> Query<A> for DeleteUploadEntityQuery<'a> {
+impl<A: AuthToken> Query<A> for DeleteUploadEntityQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a> PostQuery for DeleteUploadEntityQuery<'a> {
+impl PostQuery for DeleteUploadEntityQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("entityId".to_string(), json!(self.upload_entity_id))])
     }

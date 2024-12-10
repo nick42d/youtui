@@ -57,9 +57,9 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
 }
 
 // Default implementation is correct, due to implementation of size_hint.
-impl<'a> ExactSizeIterator for JsonCrawlerArrayIterMut<'a> {}
+impl ExactSizeIterator for JsonCrawlerArrayIterMut<'_> {}
 
-impl<'a> DoubleEndedIterator for JsonCrawlerArrayIterMut<'a> {
+impl DoubleEndedIterator for JsonCrawlerArrayIterMut<'_> {
     fn next_back(&mut self) -> Option<Self::Item> {
         let crawler = self.array.next_back()?;
         let out = Some(JsonCrawlerBorrowed {
@@ -75,7 +75,7 @@ impl<'a> DoubleEndedIterator for JsonCrawlerArrayIterMut<'a> {
     }
 }
 
-impl<'a> JsonCrawlerIterator for JsonCrawlerArrayIterMut<'a> {
+impl JsonCrawlerIterator for JsonCrawlerArrayIterMut<'_> {
     fn find_path(mut self, path: impl AsRef<str>) -> CrawlerResult<Self::Item> {
         self.find_map(|crawler| crawler.navigate_pointer(path.as_ref()).ok())
             .ok_or_else(|| {

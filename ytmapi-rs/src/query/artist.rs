@@ -37,11 +37,11 @@ impl<'a, T: Into<ArtistChannelID<'a>>> From<T> for GetArtistQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetArtistQuery<'a> {
+impl<A: AuthToken> Query<A> for GetArtistQuery<'_> {
     type Output = ArtistParams;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetArtistQuery<'a> {
+impl PostQuery for GetArtistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
         // or even better, could do this first time called, and store state so not
@@ -62,11 +62,11 @@ impl<'a> PostQuery for GetArtistQuery<'a> {
     }
 }
 // TODO: Check if the MPLA strip is correct for both of these.
-impl<'a, A: AuthToken> Query<A> for GetArtistAlbumsQuery<'a> {
+impl<A: AuthToken> Query<A> for GetArtistAlbumsQuery<'_> {
     type Output = Vec<GetArtistAlbumsAlbum>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetArtistAlbumsQuery<'a> {
+impl PostQuery for GetArtistAlbumsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: should do in new
         // XXX: Think I could remove allocation here
