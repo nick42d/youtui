@@ -72,24 +72,24 @@ F4 = {action = "sort.close", visibility = "global"}
 
 [keybinds.log]
 F5 = {action = "log.view_browser", visibility = "global"}
-"[" = "log.reduce_captured"
-"]" = "log.increase_captured"
+S-left = "log.reduce_captured"
+S-right = "log.increase_captured"
 left = "log.reduce_shown"
 right = "log.increase_shown"
 up = "log.up"
 down = "log.down"
 pageup = "log.page_up"
 pagedown = "log.page_down"
-space = "log.toggle_hide_filtered"
+t = "log.toggle_hide_filtered"
 esc = "log.exit_page_mode"
 f = "log.toggle_target_focus"
 h = "log.toggle_target_selector"
 
 [keybinds.text_entry]
-enter = "text_entry.submit"
-left = "text_entry.left"
-right = "text_entry.right"
-backspace = "text_entry.backspace"
+enter = {action = "text_entry.submit", visibility = "hidden"}
+left = {action = "text_entry.left", visibility = "hidden"}
+right = {action = "text_entry.right", visibility = "hidden"}
+backspace = {action = "text_entry.backspace", visibility = "hidden"}
 
 [keybinds.list]
 up = {action = "list.up", visibility = "hidden"}

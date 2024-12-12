@@ -39,6 +39,9 @@ impl TryFrom<String> for Keybind {
 impl FromStr for Keybind {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        /// Note - currently doesn't parse keybinds that require additional
+        /// crossterm config to receive, e.g CapsLock.
+        // TODO: Consider ensuring this has 1:1 parity with crossterm Keybind.
         fn parse_unmodified(s: &str) -> Result<KeyCode, &str> {
             if let Ok(char) = char::from_str(s) {
                 return Ok(KeyCode::Char(char));
@@ -56,13 +59,6 @@ impl FromStr for Keybind {
                 "tab" => return Ok(KeyCode::Tab),
                 "backtab" => return Ok(KeyCode::BackTab),
                 "esc" => return Ok(KeyCode::Esc),
-                // Caps Lock key.
-                //
-                // **Note:** this key can only be read if
-                // [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has
-                // been enabled with
-                // [`PushKeyboardEnhancementFlags`].
-                "caps" => return Ok(KeyCode::CapsLock),
                 "home" => return Ok(KeyCode::Home),
                 "end" => return Ok(KeyCode::End),
                 "insert" => return Ok(KeyCode::Insert),
@@ -126,8 +122,24 @@ impl Display for Keybind {
                 ' ' => "Space".into(),
                 c => c.to_string().into(),
             },
+            KeyCode::Backspace => "Backspace".into(),
             KeyCode::F(x) => format!("F{x}").into(),
-            _ => "".into(),
+            KeyCode::Home => "Home".into(),
+            KeyCode::End => "End".into(),
+            KeyCode::Tab => "Tab".into(),
+            KeyCode::BackTab => "BackTab".into(),
+            KeyCode::Delete => "Delete".into(),
+            KeyCode::Insert => "Ins".into(),
+            KeyCode::Null => "Null".into(),
+            KeyCode::CapsLock => "CapsLock".into(),
+            KeyCode::ScrollLock => "ScrLock".into(),
+            KeyCode::NumLock => "NumLock".into(),
+            KeyCode::PrintScreen => "PrtScrn".into(),
+            KeyCode::Pause => "Pause".into(),
+            KeyCode::Menu => "Menu".into(),
+            KeyCode::KeypadBegin => "Begin".into(),
+            KeyCode::Media(media_key_code) => media_key_code.to_string().into(),
+            KeyCode::Modifier(modifier_key_code) => modifier_key_code.to_string().into(),
         };
         match self.modifiers {
             KeyModifiers::CONTROL => write!(f, "C-{code}"),
@@ -172,6 +184,11 @@ mod tests {
     fn parse_delete() {
         let kb = Keybind::from_str("delete").unwrap();
         assert_eq!(kb, Keybind::new(KeyCode::Delete, KeyModifiers::NONE));
+    }
+    #[test]
+    fn parse_unrecognised() {
+        let kb = Keybind::from_str("random").unwrap_err();
+        assert_eq!(kb, "random".to_string());
     }
     #[test]
     fn parse_alt_key() {

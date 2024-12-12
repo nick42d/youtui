@@ -201,18 +201,16 @@ impl KeyRouter<AppAction> for Browser {
             .chain(self.album_songs_list.get_all_keybinds())
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        let additional_binds = match self.input_routing {
-            InputRouting::Song => Either::Left(self.album_songs_list.get_active_keybinds()),
-            InputRouting::Artist => Either::Right(self.artist_list.get_active_keybinds()),
-        };
-        // TODO: Better implementation
-        if self.album_songs_list.dominant_keybinds_active()
-            || self.album_songs_list.dominant_keybinds_active()
-        {
-            Either::Left(additional_binds)
-        } else {
-            Either::Right(std::iter::once(&self.keybinds).chain(additional_binds))
+        if self.dominant_keybinds_active() {
+            return Either::Left(self.get_dominant_keybinds());
         }
+        Either::Right(
+            match self.input_routing {
+                InputRouting::Song => Either::Left(self.album_songs_list.get_active_keybinds()),
+                InputRouting::Artist => Either::Right(self.artist_list.get_active_keybinds()),
+            }
+            .chain(std::iter::once(&self.keybinds)),
+        )
     }
 }
 impl DominantKeyRouter<AppAction> for Browser {

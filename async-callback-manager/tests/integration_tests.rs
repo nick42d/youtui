@@ -276,8 +276,7 @@ async fn test_kill_constraint_stream() {
 async fn test_task_spawn_callback() {
     let task_received = Arc::new(std::sync::Mutex::new(false));
     let task_received_clone = task_received.clone();
-    let mut manager = AsyncCallbackManager::new().with_on_task_spawn_callback(move |resp| {
-        eprintln!("Response {:?} received", resp);
+    let mut manager = AsyncCallbackManager::new().with_on_task_spawn_callback(move |_| {
         *task_received_clone.lock().unwrap() = true;
     });
     let task = AsyncTask::new_future(

@@ -305,7 +305,6 @@ mod tests {
         let key_stack = [ks1, ks2];
         let expected = TestAction::TestStack;
         let output = handle_key_stack(std::iter::once(&kb), &key_stack);
-        println!("{:?}", output);
         let KeyHandleAction::Action(output) = output else {
             panic!("Expected keyhandleoutcome::action");
         };

@@ -1,8 +1,7 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_global_keybinds_as_readable_iter, get_visible_keybinds_as_readable_iter, handle_key_stack,
-    ActionHandler, ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable,
-    TextHandler,
+    get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler, ComponentEffect,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
@@ -17,6 +16,7 @@ use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use ratatui::widgets::TableState;
+use std::convert::Infallible;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -99,7 +99,9 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
 
     fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         if self.help.shown {
-            return Either::Right(Either::Right(std::iter::once(&self.help.keybinds)));
+            return Either::Right(Either::Right(
+                [&self.help.keybinds, &self.list_keybinds].into_iter(),
+            ));
         }
         match self.context {
             WindowContext::Browser => {
@@ -139,6 +141,9 @@ impl Scrollable for YoutuiWindow {
 
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        if self.dominant_keybinds_active() {
+            return Either::Right(Either::Right(self.get_dominant_keybinds()));
+        }
         let kb = std::iter::once(&self.keybinds);
         let kb = if self.is_scrollable() {
             Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
@@ -157,7 +162,9 @@ impl KeyRouter<AppAction> for YoutuiWindow {
             WindowContext::Playlist => {
                 Either::Left(Either::Right(kb.chain(self.playlist.get_active_keybinds())))
             }
-            WindowContext::Logs => Either::Right(kb.chain(self.logger.get_active_keybinds())),
+            WindowContext::Logs => {
+                Either::Right(Either::Left(kb.chain(self.logger.get_active_keybinds())))
+            }
         }
     }
     fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
@@ -313,15 +320,15 @@ impl YoutuiWindow {
     }
     pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
         match self.context {
-            WindowContext::Browser => {
-                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
-            }
-            WindowContext::Playlist => {
-                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
-            }
-            WindowContext::Logs => {
-                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds())
-            }
+            WindowContext::Browser => Either::Left(Either::Right(
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds()),
+            )),
+            WindowContext::Playlist => Either::Right(get_visible_keybinds_as_readable_iter(
+                self.playlist.get_all_keybinds(),
+            )),
+            WindowContext::Logs => Either::Left(Either::Left(
+                get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds()),
+            )),
         }
         .chain(get_visible_keybinds_as_readable_iter(
             std::iter::once(&self.keybinds)

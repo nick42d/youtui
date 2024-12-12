@@ -156,19 +156,31 @@ mod tests {
             log: def_log,
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
-        assert_eq!(auth_type, def_auth_type);
-        assert_eq!(global, def_global);
-        assert_eq!(playlist, def_playlist);
-        assert_eq!(browser, def_browser);
-        assert_eq!(browser_artists, def_browser_artists);
-        assert_eq!(browser_search, def_browser_search);
-        assert_eq!(browser_songs, def_browser_songs);
-        assert_eq!(help, def_help);
-        assert_eq!(sort, def_sort);
-        assert_eq!(filter, def_filter);
-        assert_eq!(text_entry, def_text_entry);
-        assert_eq!(list, def_list);
-        assert_eq!(log, def_log);
+        assert_eq!(auth_type, def_auth_type, "auth_type keybinds don't match");
+        assert_eq!(global, def_global, "global keybinds don't match");
+        assert_eq!(playlist, def_playlist, "playlist keybinds don't match");
+        assert_eq!(browser, def_browser, "browser keybinds don't match");
+        assert_eq!(
+            browser_artists, def_browser_artists,
+            "browser_artists keybinds don't match"
+        );
+        assert_eq!(
+            browser_search, def_browser_search,
+            "browser_search keybinds don't match"
+        );
+        assert_eq!(
+            browser_songs, def_browser_songs,
+            "browser_songs keybinds don't match"
+        );
+        assert_eq!(help, def_help, "help keybinds don't match");
+        assert_eq!(sort, def_sort, "sort keybinds don't match");
+        assert_eq!(filter, def_filter, "filter keybinds don't match");
+        assert_eq!(
+            text_entry, def_text_entry,
+            "text_entry keybinds don't match"
+        );
+        assert_eq!(list, def_list, "list keybinds don't match");
+        assert_eq!(log, def_log, "log keybinds don't match");
     }
     #[tokio::test]
     async fn test_default_config_equals_blank_config() {

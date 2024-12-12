@@ -1,5 +1,4 @@
-use super::{footer, header, SongListComponent, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::{get_visible_keybinds_as_readable_iter, KeyRouter};
+use super::{footer, header, WindowContext, YoutuiWindow};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::{

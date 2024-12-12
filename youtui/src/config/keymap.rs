@@ -704,19 +704,31 @@ fn default_text_entry_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> 
     FromIterator::from_iter([
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
-            KeyActionTree::new_key(AppAction::TextEntry(TextEntryAction::Submit)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::TextEntry(TextEntryAction::Submit),
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Left),
-            KeyActionTree::new_key(AppAction::TextEntry(TextEntryAction::Left)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::TextEntry(TextEntryAction::Left),
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Right),
-            KeyActionTree::new_key(AppAction::TextEntry(TextEntryAction::Right)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::TextEntry(TextEntryAction::Right),
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Backspace),
-            KeyActionTree::new_key(AppAction::TextEntry(TextEntryAction::Backspace)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::TextEntry(TextEntryAction::Backspace),
+                KeyActionVisibility::Hidden,
+            ),
         ),
     ])
 }
@@ -730,11 +742,11 @@ fn default_log_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char('[')),
+            Keybind::new(crossterm::event::KeyCode::Left, KeyModifiers::SHIFT),
             KeyActionTree::new_key(AppAction::Log(LoggerAction::ReduceCaptured)),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char(']')),
+            Keybind::new(crossterm::event::KeyCode::Right, KeyModifiers::SHIFT),
             KeyActionTree::new_key(AppAction::Log(LoggerAction::IncreaseCaptured)),
         ),
         (
@@ -762,7 +774,7 @@ fn default_log_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             KeyActionTree::new_key(AppAction::Log(LoggerAction::PageDown)),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('t')),
             KeyActionTree::new_key(AppAction::Log(LoggerAction::ToggleHideFiltered)),
         ),
         (
