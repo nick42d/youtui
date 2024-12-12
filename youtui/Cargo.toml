@@ -15,7 +15,7 @@ rust-version = "1.79"
 
 [dependencies]
 clap = { version = "4.5.21", features = ["derive"] }
-crossterm = { version = "0.28.1", features = ["event-stream"] }
+crossterm = { version = "0.28.1", features = ["event-stream", "serde"] }
 futures = "0.3.31"
 rat-text = "0.29.0"
 ratatui = { version = "0.29.0", features = ["all-widgets"] }
@@ -39,7 +39,10 @@ itertools = "0.13.0"
 tokio-stream = "0.1.16"
 async_cell = "0.2.2"
 bytes = "1.8.0"
+# This can be removed when tui-logger re-exports LevelFilter.
+# https://github.com/gin66/tui-logger/pull/74
 log = "0.4.22"
+anyhow = "1.0.93"
 
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
@@ -55,6 +58,9 @@ version = "0.20.1"
 # version = "0.19.0-youtui-vendored.1"
 # package = "youtui-vendored-rodio"
 features = ["symphonia-all"]
+
+[dev-dependencies]
+pretty_assertions= "1.4.1"
 
 [lints]
 workspace = true

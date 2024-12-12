@@ -113,11 +113,11 @@ impl PostQuery for GetMoodCategoriesQuery {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetMoodPlaylistsQuery<'a> {
+impl<A: AuthToken> Query<A> for GetMoodPlaylistsQuery<'_> {
     type Output = Vec<MoodPlaylistCategory>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetMoodPlaylistsQuery<'a> {
+impl PostQuery for GetMoodPlaylistsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([
             (

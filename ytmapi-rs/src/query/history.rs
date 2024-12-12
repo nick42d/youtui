@@ -47,11 +47,11 @@ impl PostQuery for GetHistoryQuery {
 }
 
 // NOTE: Does not work on brand accounts
-impl<'a, A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'a> {
+impl<A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for RemoveHistoryItemsQuery<'a> {
+impl PostQuery for RemoveHistoryItemsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(self.feedback_tokens))])
     }
@@ -63,12 +63,12 @@ impl<'a> PostQuery for RemoveHistoryItemsQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for AddHistoryItemQuery<'a> {
+impl<A: AuthToken> Query<A> for AddHistoryItemQuery<'_> {
     type Output = ();
     type Method = GetMethod;
 }
 
-impl<'a> GetQuery for AddHistoryItemQuery<'a> {
+impl GetQuery for AddHistoryItemQuery<'_> {
     fn url(&self) -> &str {
         self.song_url.get_raw()
     }

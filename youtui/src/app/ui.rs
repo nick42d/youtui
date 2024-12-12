@@ -1,33 +1,31 @@
-use std::time::Duration;
-
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_key_subset, handle_key_stack, handle_key_stack_and_action, Action, ActionHandler,
-    DominantKeyRouter, KeyDisplayer, KeyHandleAction, KeyHandleOutcome, KeyRouter, TextHandler,
-};
-use super::keycommand::{
-    CommandVisibility, DisplayableCommand, DisplayableMode, KeyCommand, Keymap,
+    get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler, ComponentEffect,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
-use super::view::Scrollable;
-use super::{AppCallback, ASYNC_CALLBACK_SENDER_CHANNEL_SIZE};
+use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::core::{add_cb_or_error, send_or_error};
-use async_callback_manager::{AsyncCallbackSender, Constraint};
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crate::config::keymap::Keymap;
+use crate::config::Config;
+use crate::core::send_or_error;
+use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
+use async_callback_manager::{AsyncTask, Constraint};
+use crossterm::event::{Event, KeyEvent};
+use itertools::Either;
 use ratatui::widgets::TableState;
+use std::time::Duration;
 use tokio::sync::mpsc;
 
-mod browser;
+pub mod action;
+pub mod browser;
 pub mod draw;
 mod footer;
 mod header;
-mod logger;
-mod playlist;
-
-const VOL_TICK: i8 = 5;
-const SEEK_AMOUNT: Duration = Duration::from_secs(5);
+pub mod logger;
+pub mod playlist;
 
 // Which app level keyboard shortcuts function.
 // What is displayed in header
@@ -40,55 +38,41 @@ pub enum WindowContext {
     Logs,
 }
 
-// An Action that can be triggered from a keybind.
-#[derive(Clone, Debug, PartialEq)]
-pub enum UIAction {
-    Quit,
-    Next,
-    Prev,
-    Pause,
-    StepVolUp,
-    StepVolDown,
-    StepSeekForward,
-    StepSeekBack,
-    ToggleHelp,
-    HelpUp,
-    HelpDown,
-    ViewLogs,
-}
-
 pub struct YoutuiWindow {
     context: WindowContext,
     prev_context: WindowContext,
-    playlist: Playlist,
-    browser: Browser,
-    logger: Logger,
-    callback_tx: mpsc::Sender<AppCallback>,
-    keybinds: Vec<KeyCommand<UIAction>>,
+    pub playlist: Playlist,
+    pub browser: Browser,
+    pub logger: Logger,
+    pub callback_tx: mpsc::Sender<AppCallback>,
+    keybinds: Keymap<AppAction>,
+    list_keybinds: Keymap<AppAction>,
+    text_entry_keybinds: Keymap<AppAction>,
     key_stack: Vec<KeyEvent>,
-    help: HelpMenu,
-    async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
+    pub help: HelpMenu,
 }
+impl_youtui_component!(YoutuiWindow);
 
 pub struct HelpMenu {
-    shown: bool,
+    pub shown: bool,
     cur: usize,
     len: usize,
-    keybinds: Vec<KeyCommand<UIAction>>,
+    keybinds: Keymap<AppAction>,
     pub widget_state: TableState,
 }
 
-impl Default for HelpMenu {
-    fn default() -> Self {
+impl HelpMenu {
+    fn new(config: &Config) -> Self {
         HelpMenu {
             shown: Default::default(),
             cur: Default::default(),
             len: Default::default(),
-            keybinds: help_keybinds(),
+            keybinds: help_keybinds(config),
             widget_state: Default::default(),
         }
     }
 }
+impl_youtui_component!(HelpMenu);
 
 impl Scrollable for HelpMenu {
     fn increment_list(&mut self, amount: isize) {
@@ -97,13 +81,12 @@ impl Scrollable for HelpMenu {
             .saturating_add_signed(amount)
             .min(self.len.saturating_sub(1));
     }
-
-    fn get_selected_item(&self) -> usize {
-        self.cur
+    fn is_scrollable(&self) -> bool {
+        true
     }
 }
 
-impl DominantKeyRouter for YoutuiWindow {
+impl DominantKeyRouter<AppAction> for YoutuiWindow {
     fn dominant_keybinds_active(&self) -> bool {
         self.help.shown
             || match self.context {
@@ -112,156 +95,90 @@ impl DominantKeyRouter for YoutuiWindow {
                 WindowContext::Logs => false,
             }
     }
+
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        if self.help.shown {
+            return Either::Right(Either::Right(
+                [&self.help.keybinds, &self.list_keybinds].into_iter(),
+            ));
+        }
+        match self.context {
+            WindowContext::Browser => {
+                Either::Left(Either::Left(self.browser.get_dominant_keybinds()))
+            }
+            WindowContext::Playlist => {
+                Either::Left(Either::Right(self.playlist.get_active_keybinds()))
+            }
+            WindowContext::Logs => Either::Right(Either::Left(self.logger.get_active_keybinds())),
+        }
+    }
 }
 
-// We can't implement KeyRouter, as it would require us to have a single Action
-// type for the whole application.
-impl KeyDisplayer for YoutuiWindow {
-    // XXX: Can turn these boxed iterators into types.
-    fn get_all_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<(dyn Iterator<Item = DisplayableCommand<'a>> + 'a)> {
-        let kb = self.keybinds.iter().map(|kb| kb.as_displayable());
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_all_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_all_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
+impl Scrollable for YoutuiWindow {
+    fn increment_list(&mut self, amount: isize) {
+        if self.help.shown {
+            return self.help.increment_list(amount);
+        }
+        match self.context {
+            WindowContext::Browser => self.browser.increment_list(amount),
+            WindowContext::Playlist => self.playlist.increment_list(amount),
+            WindowContext::Logs => (),
+        }
+    }
+    fn is_scrollable(&self) -> bool {
+        self.help.shown
+            || match self.context {
+                WindowContext::Browser => {
+                    !self.browser.artist_list.search_popped
+                        || self.browser.input_routing == browser::InputRouting::Song
+                }
+                WindowContext::Playlist => true,
+                WindowContext::Logs => false,
+            }
+    }
+}
+
+impl KeyRouter<AppAction> for YoutuiWindow {
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        if self.dominant_keybinds_active() {
+            return Either::Right(Either::Right(self.get_dominant_keybinds()));
+        }
+        let kb = std::iter::once(&self.keybinds);
+        let kb = if self.is_scrollable() {
+            Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
+        } else {
+            Either::Right(kb)
+        };
+        let kb = if self.is_text_handling() {
+            Either::Left(kb.chain(std::iter::once(&self.text_entry_keybinds)))
+        } else {
+            Either::Right(kb)
+        };
+        match self.context {
+            WindowContext::Browser => {
+                Either::Left(Either::Left(kb.chain(self.browser.get_active_keybinds())))
+            }
+            WindowContext::Playlist => {
+                Either::Left(Either::Right(kb.chain(self.playlist.get_active_keybinds())))
+            }
             WindowContext::Logs => {
-                Box::new(self.logger.get_all_keybinds().map(|kb| kb.as_displayable()))
-                    as Box<dyn Iterator<Item = DisplayableCommand>>
+                Either::Right(Either::Left(kb.chain(self.logger.get_active_keybinds())))
             }
-        };
-        Box::new(kb.chain(cx))
-    }
-
-    fn get_context_global_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
-        let kb = self
-            .get_this_keybinds()
-            .filter(|kc| kc.visibility == CommandVisibility::Global)
-            .map(|kb| kb.as_displayable());
-        if self.is_dominant_keybinds() {
-            return Box::new(kb);
-        }
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Logs => Box::new(
-                self.logger
-                    .get_routed_global_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-        };
-        Box::new(kb.chain(cx))
-    }
-
-    fn get_all_visible_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand> + 'a> {
-        // Self.keybinds is incorrect
-        let kb = self
-            .keybinds
-            .iter()
-            .filter(|kb| kb.visibility != CommandVisibility::Hidden)
-            .map(|kb| kb.as_displayable());
-        let cx = match self.context {
-            // Consider if double boxing can be removed.
-            WindowContext::Browser => Box::new(
-                self.browser
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Playlist => Box::new(
-                self.playlist
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            )
-                as Box<dyn Iterator<Item = DisplayableCommand>>,
-            WindowContext::Logs => Box::new(
-                self.logger
-                    .get_all_visible_keybinds()
-                    .map(|kb| kb.as_displayable()),
-            ) as Box<dyn Iterator<Item = DisplayableCommand>>,
-        };
-        Box::new(kb.chain(cx))
-    }
-}
-
-impl ActionHandler<UIAction> for YoutuiWindow {
-    async fn handle_action(&mut self, action: &UIAction) {
-        match action {
-            UIAction::Next => self.playlist.handle_next().await,
-            UIAction::Prev => self.playlist.handle_previous().await,
-            UIAction::Pause => self.playlist.pauseplay().await,
-            UIAction::StepVolUp => self.handle_increase_volume(VOL_TICK).await,
-            UIAction::StepVolDown => self.handle_increase_volume(-VOL_TICK).await,
-            UIAction::StepSeekForward => self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
-            UIAction::StepSeekBack => self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
-            UIAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
-            UIAction::ToggleHelp => self.toggle_help(),
-            UIAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
-            UIAction::HelpUp => self.help.increment_list(-1),
-            UIAction::HelpDown => self.help.increment_list(1),
         }
     }
-}
-
-impl Action for UIAction {
-    fn context(&self) -> std::borrow::Cow<str> {
-        match self {
-            UIAction::Next | UIAction::Prev | UIAction::StepVolUp | UIAction::StepVolDown => {
-                "Global".into()
-            }
-            UIAction::Quit => "Global".into(),
-            UIAction::ToggleHelp => "Global".into(),
-            UIAction::ViewLogs => "Global".into(),
-            UIAction::Pause => "Global".into(),
-            UIAction::HelpUp => "Help".into(),
-            UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => "Global".into(),
-            UIAction::StepSeekBack => "Global".into(),
-        }
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            UIAction::Quit => "Quit".into(),
-            UIAction::Prev => "Prev Song".into(),
-            UIAction::Next => "Next Song".into(),
-            UIAction::Pause => "Pause".into(),
-            UIAction::StepVolUp => "Vol Up".into(),
-            UIAction::StepVolDown => "Vol Down".into(),
-            UIAction::ToggleHelp => "Toggle Help".into(),
-            UIAction::ViewLogs => "View Logs".into(),
-            UIAction::HelpUp => "Help".into(),
-            UIAction::HelpDown => "Help".into(),
-            UIAction::StepSeekForward => format!("Seek Forward {}s", SEEK_AMOUNT.as_secs()).into(),
-            UIAction::StepSeekBack => format!("Seek Back {}s", SEEK_AMOUNT.as_secs()).into(),
-        }
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        std::iter::once(&self.keybinds)
+            .chain(self.browser.get_all_keybinds())
+            .chain(self.playlist.get_all_keybinds())
+            .chain(self.logger.get_all_keybinds())
     }
 }
 
 impl TextHandler for YoutuiWindow {
     fn is_text_handling(&self) -> bool {
+        if self.help.shown {
+            return false;
+        }
         match self.context {
             WindowContext::Browser => self.browser.is_text_handling(),
             WindowContext::Playlist => self.playlist.is_text_handling(),
@@ -289,77 +206,233 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.clear_text(),
         }
     }
-    fn handle_event_repr(&mut self, event: &Event) -> bool {
+    fn handle_text_event_impl(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
         match self.context {
-            WindowContext::Browser => self.browser.handle_event_repr(event),
-            WindowContext::Playlist => self.playlist.handle_event_repr(event),
-            WindowContext::Logs => self.logger.handle_event_repr(event),
+            WindowContext::Browser => self
+                .browser
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.browser)),
+            WindowContext::Playlist => self
+                .playlist
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.playlist)),
+            WindowContext::Logs => self
+                .logger
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.logger)),
         }
+    }
+}
+
+impl ActionHandler<AppAction> for YoutuiWindow {
+    async fn apply_action(
+        &mut self,
+        action: AppAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        // NOTE: This is the place to check if we _should_ be handling an action.
+        // For example if a user has set custom 'playlist' keybinds that trigger
+        // 'browser' actions, this could be filtered out here.
+        match action {
+            AppAction::VolUp => return self.handle_increase_volume(5).await,
+            AppAction::VolDown => return self.handle_increase_volume(-5).await,
+            AppAction::NextSong => return self.handle_next(),
+            AppAction::PrevSong => return self.handle_prev(),
+            AppAction::SeekForward => return self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward),
+            AppAction::SeekBack => return self.handle_seek(SEEK_AMOUNT, SeekDirection::Back),
+            AppAction::ToggleHelp => self.toggle_help(),
+            AppAction::Quit => send_or_error(&self.callback_tx, AppCallback::Quit).await,
+            AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
+            AppAction::Pause => return self.pauseplay(),
+            AppAction::Log(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.logger)
+                    .await
+            }
+            AppAction::Playlist(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.playlist)
+                    .await
+            }
+            AppAction::Browser(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Filter(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Sort(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::Help(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.help)
+                    .await
+            }
+            AppAction::BrowserArtists(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::BrowserSearch(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::BrowserSongs(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
+            AppAction::TextEntry(a) => return self.handle_text_entry_action(a),
+            AppAction::List(a) => return self.handle_list_action(a),
+            AppAction::NoOp => (),
+        };
+        AsyncTask::new_no_op()
     }
 }
 
 impl YoutuiWindow {
     pub fn new(
         callback_tx: mpsc::Sender<AppCallback>,
-        callback_manager: &mut async_callback_manager::AsyncCallbackManager<
-            ArcServer,
-            TaskMetadata,
-        >,
-    ) -> YoutuiWindow {
-        YoutuiWindow {
+        config: &Config,
+    ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
+        let (playlist, task) = Playlist::new(callback_tx.clone(), config);
+        let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
-            playlist: Playlist::new(callback_manager, callback_tx.clone()),
-            browser: Browser::new(callback_manager, callback_tx.clone()),
-            logger: Logger::new(callback_tx.clone()),
-            keybinds: global_keybinds(),
+            playlist,
+            browser: Browser::new(callback_tx.clone(), config),
+            logger: Logger::new(callback_tx.clone(), config),
             key_stack: Vec::new(),
-            help: Default::default(),
+            help: HelpMenu::new(config),
             callback_tx,
-            async_tx: callback_manager.new_sender(ASYNC_CALLBACK_SENDER_CHANNEL_SIZE),
-        }
+            keybinds: global_keybinds(config),
+            list_keybinds: list_keybinds(config),
+            text_entry_keybinds: text_entry_keybinds(config),
+        };
+        (this, task.map(|this: &mut Self| &mut this.playlist))
     }
-    // TODO: Move to future AsyncComponent trait.
-    pub async fn async_update(&mut self) {
-        tokio::select! {
-            b = self.browser.async_update() => b.map(|this: &mut Self| &mut this.browser),
-            p = self.playlist.async_update() => p.map(|this: &mut Self| &mut this.playlist),
+    pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
+        match self.context {
+            WindowContext::Browser => Either::Left(Either::Right(
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds()),
+            )),
+            WindowContext::Playlist => Either::Right(get_visible_keybinds_as_readable_iter(
+                self.playlist.get_all_keybinds(),
+            )),
+            WindowContext::Logs => Either::Left(Either::Left(
+                get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds()),
+            )),
         }
-        .apply(self)
+        .chain(get_visible_keybinds_as_readable_iter(
+            std::iter::once(&self.keybinds)
+                .chain(std::iter::once(&self.list_keybinds))
+                .chain(std::iter::once(&self.text_entry_keybinds)),
+        ))
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_initial_event(&mut self, event: crossterm::event::Event) {
-        if self.handle_event(&event) {
-            return;
-        }
+    pub async fn handle_event(&mut self, event: crossterm::event::Event) -> ComponentEffect<Self> {
+        // TODO: This should be intercepted and keycodes mapped by us instead of going
+        // direct to rat-text.
+        if let Some(effect) = self.try_handle_text(&event) {
+            return effect;
+        };
         match event {
-            Event::Key(k) => self.handle_key_event(k).await,
-            Event::Mouse(m) => self.handle_mouse_event(m),
+            Event::Key(k) => return self.handle_key_event(k).await,
+            Event::Mouse(m) => return self.handle_mouse_event(m),
             other => tracing::warn!("Received unimplemented {:?} event", other),
         }
+        AsyncTask::new_no_op()
     }
     pub async fn handle_tick(&mut self) {
         self.playlist.handle_tick().await;
     }
-    async fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) {
+    async fn handle_key_event(
+        &mut self,
+        key_event: crossterm::event::KeyEvent,
+    ) -> ComponentEffect<Self> {
         self.key_stack.push(key_event);
-        self.global_handle_key_stack().await;
+        self.global_handle_key_stack().await
     }
-    fn handle_mouse_event(&mut self, mouse_event: crossterm::event::MouseEvent) {
+    fn handle_mouse_event(
+        &mut self,
+        mouse_event: crossterm::event::MouseEvent,
+    ) -> ComponentEffect<Self> {
         tracing::warn!("Received unimplemented {:?} mouse event", mouse_event);
+        AsyncTask::new_no_op()
     }
-    pub async fn handle_increase_volume(&mut self, inc: i8) {
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.help.shown {
+            match action {
+                ListAction::Up => self.help.increment_list(-1),
+                ListAction::Down => self.help.increment_list(1),
+                ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+                ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
+            }
+            return AsyncTask::new_no_op();
+        }
+        match self.context {
+            WindowContext::Browser => self
+                .browser
+                .handle_list_action(action)
+                .map(|this: &mut Self| &mut this.browser),
+            WindowContext::Playlist => self
+                .playlist
+                .handle_list_action(action)
+                .map(|this: &mut Self| &mut this.playlist),
+            WindowContext::Logs => AsyncTask::new_no_op(),
+        }
+    }
+    pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
+        if !self.is_text_handling() {
+            return AsyncTask::new_no_op();
+        }
+        match self.context {
+            WindowContext::Browser => self
+                .browser
+                .handle_text_entry_action(action)
+                .map(|this: &mut Self| &mut this.browser),
+            WindowContext::Playlist => AsyncTask::new_no_op(),
+            WindowContext::Logs => AsyncTask::new_no_op(),
+        }
+    }
+    pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .pauseplay()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_next(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_next()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_prev(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_previous()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub async fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        add_cb_or_error(
-            &self.async_tx,
+        AsyncTask::new_future(
             IncreaseVolume(inc),
             Self::handle_volume_update,
             Some(Constraint::new_block_same_type()),
-        );
+        )
     }
-    pub fn handle_seek(&mut self, duration: Duration, direction: SeekDirection) {
-        self.playlist.handle_seek(duration, direction);
+    pub fn handle_seek(
+        &mut self,
+        duration: Duration,
+        direction: SeekDirection,
+    ) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_seek(duration, direction)
+            .map(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
         self.playlist.handle_volume_update(update)
@@ -367,63 +440,34 @@ impl YoutuiWindow {
     pub fn handle_add_songs_to_playlist(&mut self, song_list: Vec<ListSong>) {
         let _ = self.playlist.push_song_list(song_list);
     }
-    pub fn handle_add_songs_to_playlist_and_play(&mut self, song_list: Vec<ListSong>) {
-        self.playlist.reset();
+    pub fn handle_add_songs_to_playlist_and_play(
+        &mut self,
+        song_list: Vec<ListSong>,
+    ) -> ComponentEffect<Self> {
+        let effect = self.playlist.reset();
         let id = self.playlist.push_song_list(song_list);
-        self.playlist.play_song_id(id);
+        effect
+            .push(self.playlist.play_song_id(id))
+            .map(|this: &mut Self| &mut this.playlist)
     }
-    fn is_dominant_keybinds(&self) -> bool {
-        self.help.shown
-    }
-    fn get_this_keybinds(&self) -> Box<dyn Iterator<Item = &KeyCommand<UIAction>> + '_> {
-        Box::new(if self.help.shown {
-            Box::new(self.help.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        } else if self.dominant_keybinds_active() {
-            Box::new(std::iter::empty()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        } else {
-            Box::new(self.keybinds.iter()) as Box<dyn Iterator<Item = &KeyCommand<UIAction>>>
-        })
-    }
-
-    async fn global_handle_key_stack(&mut self) {
-        // First handle my own keybinds, otherwise forward if our keybinds are not
-        // dominant. TODO: Remove allocation
-        match handle_key_stack(self.get_this_keybinds(), self.key_stack.clone()) {
+    async fn global_handle_key_stack(&mut self) -> ComponentEffect<Self> {
+        match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
-                self.handle_action(&a).await;
+                let effect = self.apply_action(a).await;
                 self.key_stack.clear();
-                return;
+                effect
             }
-            KeyHandleAction::Mode => {
-                return;
-            }
+            KeyHandleAction::Mode { .. } => AsyncTask::new_no_op(),
             KeyHandleAction::NoMap => {
-                if self.is_dominant_keybinds() {
-                    self.key_stack.clear();
-                    return;
-                }
+                self.key_stack.clear();
+                AsyncTask::new_no_op()
             }
-        };
-        if let KeyHandleOutcome::Mode = match self.context {
-            // TODO: Remove allocation
-            WindowContext::Browser => {
-                handle_key_stack_and_action(&mut self.browser, self.key_stack.clone()).await
-            }
-            WindowContext::Playlist => {
-                handle_key_stack_and_action(&mut self.playlist, self.key_stack.clone()).await
-            }
-            WindowContext::Logs => {
-                handle_key_stack_and_action(&mut self.logger, self.key_stack.clone()).await
-            }
-        } {
-            return;
         }
-        self.key_stack.clear()
     }
     fn key_pending(&self) -> bool {
         !self.key_stack.is_empty()
     }
-    fn toggle_help(&mut self) {
+    pub fn toggle_help(&mut self) {
         if self.help.shown {
             self.help.shown = false;
         } else {
@@ -432,7 +476,7 @@ impl YoutuiWindow {
             self.help.cur = 0;
             // We have to get the keybind length this way as the help menu iterator is not
             // ExactSized
-            self.help.len = self.get_all_visible_keybinds_as_readable_iter().count();
+            self.help.len = self.get_help_list_items().count();
         }
     }
     /// Visually increment the volume, note, does not actually change the
@@ -450,74 +494,33 @@ impl YoutuiWindow {
     // The downside of this approach is that if draw_popup is calling this function,
     // it is gettign called every tick.
     // Consider a way to set this in the in state memory.
-    fn get_cur_displayable_mode(&self) -> Option<DisplayableMode<'_>> {
-        if let Some(Keymap::Mode(mode)) = get_key_subset(self.get_this_keybinds(), &self.key_stack)
-        {
-            return Some(DisplayableMode {
-                displayable_commands: mode.as_displayable_iter(),
-                description: mode.describe(),
-            });
-        }
-        match self.context {
-            WindowContext::Browser => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.browser.get_routed_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-            WindowContext::Playlist => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.playlist.get_routed_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-            WindowContext::Logs => {
-                if let Some(Keymap::Mode(mode)) =
-                    get_key_subset(self.logger.get_routed_keybinds(), &self.key_stack)
-                {
-                    return Some(DisplayableMode {
-                        displayable_commands: mode.as_displayable_iter(),
-                        description: mode.describe(),
-                    });
-                }
-            }
-        }
-        None
+    fn get_cur_displayable_mode(
+        &self,
+    ) -> Option<DisplayableMode<'_, impl Iterator<Item = DisplayableKeyAction<'_>>>> {
+        let KeyHandleAction::Mode { name, keys } =
+            handle_key_stack(self.get_active_keybinds(), &self.key_stack)
+        else {
+            return None;
+        };
+        let displayable_commands = keys
+            .iter()
+            .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt));
+        Some(DisplayableMode {
+            displayable_commands,
+            description: name.into(),
+        })
     }
 }
 
-fn global_keybinds() -> Vec<KeyCommand<UIAction>> {
-    vec![
-        KeyCommand::new_from_code(KeyCode::Char('+'), UIAction::StepVolUp),
-        KeyCommand::new_from_code(KeyCode::Char('-'), UIAction::StepVolDown),
-        KeyCommand::new_from_code(KeyCode::Char('<'), UIAction::Prev),
-        KeyCommand::new_from_code(KeyCode::Char('>'), UIAction::Next),
-        KeyCommand::new_from_code(KeyCode::Char('['), UIAction::StepSeekBack),
-        KeyCommand::new_from_code(KeyCode::Char(']'), UIAction::StepSeekForward),
-        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
-        KeyCommand::new_global_from_code(KeyCode::F(10), UIAction::Quit),
-        KeyCommand::new_global_from_code(KeyCode::F(12), UIAction::ViewLogs),
-        KeyCommand::new_global_from_code(KeyCode::Char(' '), UIAction::Pause),
-        KeyCommand::new_modified_from_code(
-            KeyCode::Char('c'),
-            KeyModifiers::CONTROL,
-            UIAction::Quit,
-        ),
-    ]
+fn global_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.global.clone()
 }
-fn help_keybinds() -> Vec<KeyCommand<UIAction>> {
-    vec![
-        KeyCommand::new_hidden_from_code(KeyCode::Down, UIAction::HelpDown),
-        KeyCommand::new_hidden_from_code(KeyCode::Up, UIAction::HelpUp),
-        KeyCommand::new_hidden_from_code(KeyCode::Esc, UIAction::ToggleHelp),
-        KeyCommand::new_global_from_code(KeyCode::F(1), UIAction::ToggleHelp),
-    ]
+fn help_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.help.clone()
+}
+fn list_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.list.clone()
+}
+fn text_entry_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.text_entry.clone()
 }

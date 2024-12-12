@@ -223,7 +223,7 @@ impl Continuable<GetLibraryPlaylistsQuery> for GetLibraryPlaylists {
     }
 }
 
-impl<'a> ParseFrom<EditSongLibraryStatusQuery<'a>> for Vec<ApiOutcome> {
+impl ParseFrom<EditSongLibraryStatusQuery<'_>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
         json_crawler

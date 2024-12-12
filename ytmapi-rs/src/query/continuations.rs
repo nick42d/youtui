@@ -35,7 +35,7 @@ impl<'a, Q> GetContinuationsQuery<'a, Q> {
     }
 }
 
-impl<'a, Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'a, Q>
+impl<Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'_, Q>
 where
     Q: PostQuery,
     Q::Output: ParseFrom<Self>,
@@ -44,7 +44,7 @@ where
     type Method = PostMethod;
 }
 
-impl<'a, Q> PostQuery for GetContinuationsQuery<'a, Q>
+impl<Q> PostQuery for GetContinuationsQuery<'_, Q>
 where
     Q: PostQuery,
 {

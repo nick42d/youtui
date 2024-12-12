@@ -1,20 +1,25 @@
-use std::borrow::Cow;
-
-use async_callback_manager::{AsyncCallbackManager, AsyncCallbackSender, Constraint};
-use crossterm::event::KeyCode;
+use crate::{
+    app::{
+        component::actionhandler::{
+            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable,
+            TextHandler,
+        },
+        server::{ArcServer, GetSearchSuggestions, TaskMetadata},
+        ui::{
+            action::{AppAction, ListAction, PAGE_KEY_LINES},
+            browser::Browser,
+        },
+        view::{ListView, Loadable, SortableList},
+    },
+    config::{keymap::Keymap, Config},
+};
+use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
+use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, iter::Iterator};
 use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
-
-use crate::app::{
-    component::actionhandler::{Action, KeyRouter, Suggestable, TextHandler},
-    keycommand::KeyCommand,
-    server::{ArcServer, GetSearchSuggestions, TaskMetadata},
-    ui::browser::BrowserAction,
-    view::{ListView, Loadable, Scrollable, SortableList},
-    CALLBACK_CHANNEL_SIZE,
-};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {
@@ -30,8 +35,8 @@ pub struct ArtistSearchPanel {
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
-    search_keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Keymap<AppAction>,
+    search_keybinds: Keymap<AppAction>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -41,34 +46,83 @@ pub struct SearchBlock {
     pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
-    pub async_tx: AsyncCallbackSender<ArcServer, Self, TaskMetadata>,
+}
+impl_youtui_component!(SearchBlock);
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserArtistsAction {
+    DisplaySelectedArtistAlbums,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ArtistAction {
-    DisplayAlbums,
-    // XXX: This could be a subset - eg ListAction
-    Up,
-    Down,
-    PageUp,
-    PageDown,
-    // XXX: Could be a subset just for search
-    Search,
+impl Action for BrowserArtistsAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Search Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            Self::DisplaySelectedArtistAlbums => "Display albums for selected artist",
+        }
+        .into()
+    }
+}
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSearchAction {
+    SearchArtist,
     PrevSearchSuggestion,
     NextSearchSuggestion,
 }
-
+impl Action for BrowserSearchAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Search Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            BrowserSearchAction::SearchArtist => "Search",
+            BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
+            BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
+        }
+        .into()
+    }
+}
+impl ActionHandler<BrowserArtistsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistsAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
+        }
+    }
+}
+impl ActionHandler<BrowserSearchAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserSearchAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserSearchAction::SearchArtist => return self.search(),
+            BrowserSearchAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
+            BrowserSearchAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
+        }
+        AsyncTask::new_no_op()
+    }
+}
 impl ArtistSearchPanel {
-    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+    pub fn new(config: &Config) -> Self {
         Self {
-            keybinds: browser_artist_search_keybinds(),
-            search_keybinds: search_keybinds(),
+            keybinds: browser_artist_search_keybinds(config),
+            search_keybinds: search_keybinds(config),
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
             sort_commands_list: Default::default(),
             search_popped: Default::default(),
-            search: SearchBlock::new(callback_manager),
+            search: SearchBlock::new(),
             widget_state: Default::default(),
         }
     }
@@ -80,24 +134,22 @@ impl ArtistSearchPanel {
         self.search_popped = false;
         self.route = ArtistInputRouting::List;
     }
-}
-impl Action for ArtistAction {
-    fn context(&self) -> Cow<str> {
-        "Artist Search Panel".into()
-    }
-    fn describe(&self) -> Cow<str> {
-        match &self {
-            Self::Search => "Search",
-            Self::DisplayAlbums => "Display albums for selected artist",
-            Self::Up => "Up",
-            Self::Down => "Down",
-            Self::PageUp => "Page Up",
-            Self::PageDown => "Page Down",
-            ArtistAction::PrevSearchSuggestion => "Next Search Suggestion",
-            ArtistAction::NextSearchSuggestion => "Prev Search Suggestion",
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.route != ArtistInputRouting::List {
+            return AsyncTask::new_no_op();
         }
-        .into()
+        match action {
+            ListAction::Up => self.increment_list(-1),
+            ListAction::Down => self.increment_list(1),
+            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
+        }
+        AsyncTask::new_no_op()
     }
+}
+impl Component for ArtistSearchPanel {
+    type Bkend = ArcServer;
+    type Md = TaskMetadata;
 }
 
 impl TextHandler for SearchBlock {
@@ -115,34 +167,33 @@ impl TextHandler for SearchBlock {
         self.search_suggestions.clear();
         self.search_contents.clear()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_text_event_impl(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
         match handle_events(&mut self.search_contents, true, event) {
-            rat_text::event::TextOutcome::Continue => false,
-            rat_text::event::TextOutcome::Unchanged => true,
-            rat_text::event::TextOutcome::Changed => true,
-            rat_text::event::TextOutcome::TextChanged => {
-                self.fetch_search_suggestions();
-                true
-            }
+            rat_text::event::TextOutcome::Continue => None,
+            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::TextChanged => Some(self.fetch_search_suggestions()),
         }
     }
 }
 
 impl SearchBlock {
-    pub fn new(callback_manager: &mut AsyncCallbackManager<ArcServer, TaskMetadata>) -> Self {
+    pub fn new() -> Self {
         Self {
             search_contents: Default::default(),
             search_suggestions: Default::default(),
             suggestions_cur: Default::default(),
-            async_tx: callback_manager.new_sender(CALLBACK_CHANNEL_SIZE),
         }
     }
     // Ask the UI for search suggestions for the current query
-    fn fetch_search_suggestions(&mut self) {
+    fn fetch_search_suggestions(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
         // No need to fetch search suggestions if contents is empty.
         if self.search_contents.is_empty() {
             self.search_suggestions.clear();
-            return;
+            return AsyncTask::new_no_op();
         }
         let handler = |this: &mut Self, results| match results {
             Ok((suggestions, text)) => {
@@ -152,13 +203,11 @@ impl SearchBlock {
                 error!("Error <{e}> recieved getting search suggestions");
             }
         };
-        if let Err(e) = self.async_tx.add_callback(
+        AsyncTask::new_future(
             GetSearchSuggestions(self.get_text().to_string()),
             handler,
             Some(Constraint::new_kill_same_type()),
-        ) {
-            error!("Error <{e}> recieved sending message")
-        };
+        )
     }
     fn replace_search_suggestions(
         &mut self,
@@ -203,8 +252,13 @@ impl TextHandler for ArtistSearchPanel {
     fn clear_text(&mut self) -> bool {
         self.search.clear_text()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        self.search.handle_event_repr(event)
+    fn handle_text_event_impl(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
+        self.search
+            .handle_text_event_impl(event)
+            .map(|effect| effect.map(|this: &mut Self| &mut this.search))
     }
 }
 
@@ -217,19 +271,15 @@ impl Suggestable for ArtistSearchPanel {
     }
 }
 
-impl KeyRouter<BrowserAction> for ArtistSearchPanel {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(self.keybinds.iter().chain(self.search_keybinds.iter()))
+impl KeyRouter<AppAction> for ArtistSearchPanel {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        [&self.keybinds, &self.search_keybinds].into_iter()
     }
-    fn get_routed_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(match self.route {
-            ArtistInputRouting::List => self.keybinds.iter(),
-            ArtistInputRouting::Search => self.search_keybinds.iter(),
-        })
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        match self.route {
+            ArtistInputRouting::List => std::iter::once(&self.keybinds),
+            ArtistInputRouting::Search => std::iter::once(&self.search_keybinds),
+        }
     }
 }
 
@@ -241,8 +291,8 @@ impl Scrollable for ArtistSearchPanel {
             .unwrap_or(0)
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
     }
-    fn get_selected_item(&self) -> usize {
-        self.selected
+    fn is_scrollable(&self) -> bool {
+        todo!()
     }
 }
 
@@ -262,6 +312,9 @@ impl Loadable for ArtistSearchPanel {
     }
 }
 impl ListView for ArtistSearchPanel {
+    fn get_selected_item(&self) -> usize {
+        self.selected
+    }
     type DisplayItem = String;
     fn get_state(&self) -> ratatui::widgets::ListState {
         self.widget_state.clone()
@@ -276,32 +329,9 @@ impl ListView for ArtistSearchPanel {
         "Artists".into()
     }
 }
-fn search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_from_code(KeyCode::Enter, BrowserAction::Artist(ArtistAction::Search)),
-        KeyCommand::new_from_code(
-            KeyCode::Down,
-            BrowserAction::Artist(ArtistAction::NextSearchSuggestion),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::Up,
-            BrowserAction::Artist(ArtistAction::PrevSearchSuggestion),
-        ),
-    ]
+fn search_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser_search.clone()
 }
-fn browser_artist_search_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_from_code(
-            KeyCode::Enter,
-            BrowserAction::Artist(ArtistAction::DisplayAlbums),
-        ),
-        // XXX: Consider if these type of actions can be for all lists.
-        KeyCommand::new_hidden_from_code(KeyCode::Down, BrowserAction::Artist(ArtistAction::Down)),
-        KeyCommand::new_hidden_from_code(KeyCode::Up, BrowserAction::Artist(ArtistAction::Up)),
-        KeyCommand::new_from_code(KeyCode::PageUp, BrowserAction::Artist(ArtistAction::PageUp)),
-        KeyCommand::new_from_code(
-            KeyCode::PageDown,
-            BrowserAction::Artist(ArtistAction::PageDown),
-        ),
-    ]
+fn browser_artist_search_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser_artists.clone()
 }

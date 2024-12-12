@@ -1,20 +1,20 @@
 use futures::Future;
-use futures::FutureExt;
 use futures::Stream;
 use std::any::Any;
-use tokio::sync::oneshot;
 
 mod adaptors;
 mod error;
 mod manager;
-mod sender;
 mod task;
 
 pub use adaptors::*;
 pub use error::*;
 pub use manager::*;
-pub use sender::*;
-pub use task::Constraint;
+pub use task::{AsyncTask, Constraint, TaskOutcome};
+
+// Size of the channel used for each stream task.
+// In future, this could be settable.
+pub(crate) const DEFAULT_STREAM_CHANNEL_SIZE: usize = 20;
 
 pub trait BkendMap<Bkend> {
     fn map(backend: &Bkend) -> &Self;
@@ -50,32 +50,3 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
         vec![]
     }
 }
-
-struct KillHandle(Option<oneshot::Sender<()>>);
-struct KillSignal(oneshot::Receiver<()>);
-
-impl KillHandle {
-    fn kill(&mut self) -> Result<()> {
-        if let Some(tx) = self.0.take() {
-            return tx.send(()).map_err(|_| Error::ReceiverDropped);
-        }
-        Ok(())
-    }
-}
-impl Future for KillSignal {
-    type Output = Result<()>;
-    fn poll(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
-        self.0.poll_unpin(cx).map_err(|_| Error::ReceiverDropped)
-    }
-}
-fn kill_channel() -> (KillHandle, KillSignal) {
-    let (tx, rx) = oneshot::channel();
-    (KillHandle(Some(tx)), KillSignal(rx))
-}
-
-type DynFallibleFuture = Box<dyn Future<Output = Result<()>> + Unpin + Send>;
-type DynCallbackFn<Frntend> = Box<dyn FnOnce(&mut Frntend) + Send>;
-type DynBackendTask<Bkend> = Box<dyn FnOnce(&Bkend) -> DynFallibleFuture>;

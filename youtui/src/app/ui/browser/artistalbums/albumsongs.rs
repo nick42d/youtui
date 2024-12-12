@@ -1,22 +1,30 @@
 use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::{DominantKeyRouter, TextHandler};
+use crate::app::component::actionhandler::{
+    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler,
+};
+use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::browser::BrowserAction;
+use crate::app::ui::action::{AppAction, ListAction, PAGE_KEY_LINES};
+use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
-    keycommand::KeyCommand,
     structures::{AlbumSongsList, ListStatus, Percentage},
-    view::{BasicConstraint, Loadable, Scrollable, TableView},
+    view::{BasicConstraint, Loadable, TableView},
 };
+use crate::config::keymap::Keymap;
+use crate::config::Config;
 use crate::error::Error;
 use crate::Result;
-use crossterm::event::{KeyCode, KeyModifiers};
+use async_callback_manager::AsyncTask;
+use itertools::Either;
 use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::iter::Iterator;
 use tracing::warn;
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -30,13 +38,14 @@ pub enum AlbumSongsInputRouting {
 #[derive(Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Keymap<AppAction>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
     cur_selected: usize,
     pub widget_state: TableState,
 }
+impl_youtui_component!(AlbumSongsPanel);
 
 // TODO: refactor
 #[derive(Clone)]
@@ -44,8 +53,9 @@ pub struct FilterManager {
     filter_commands: Vec<TableFilterCommand>,
     pub filter_text: TextInputState,
     pub shown: bool,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Keymap<AppAction>,
 }
+impl_youtui_component!(FilterManager);
 
 // TODO: refactor
 #[derive(Clone)]
@@ -53,30 +63,155 @@ pub struct SortManager {
     sort_commands: Vec<TableSortCommand>,
     pub shown: bool,
     pub cur: usize,
-    keybinds: Vec<KeyCommand<BrowserAction>>,
+    keybinds: Keymap<AppAction>,
+}
+impl_youtui_component!(SortManager);
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSongsAction {
+    Filter,
+    Sort,
+    PlaySong,
+    PlaySongs,
+    PlayAlbum,
+    AddSongToPlaylist,
+    AddSongsToPlaylist,
+    AddAlbumToPlaylist,
 }
 
-impl Default for SortManager {
-    fn default() -> Self {
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FilterAction {
+    Close,
+    ClearFilter,
+    Apply,
+}
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SortAction {
+    Close,
+    ClearSort,
+    SortSelectedAsc,
+    SortSelectedDesc,
+}
+
+impl Action for FilterAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Filter".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            FilterAction::Close => "Close Filter",
+            FilterAction::Apply => "Apply filter",
+            FilterAction::ClearFilter => "Clear filter",
+        }
+        .into()
+    }
+}
+
+impl Action for SortAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Filter".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            SortAction::Close => "Close sort",
+            SortAction::ClearSort => "Clear sort",
+            SortAction::SortSelectedAsc => "Sort ascending",
+            SortAction::SortSelectedDesc => "Sort descending",
+        }
+        .into()
+    }
+}
+
+impl Action for BrowserSongsAction {
+    type State = Browser;
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Songs Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match &self {
+            BrowserSongsAction::PlaySong => "Play song",
+            BrowserSongsAction::PlaySongs => "Play songs",
+            BrowserSongsAction::PlayAlbum => "Play album",
+            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            BrowserSongsAction::Sort => "Sort",
+            BrowserSongsAction::Filter => "Filter",
+        }
+        .into()
+    }
+}
+impl ActionHandler<FilterAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: FilterAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            FilterAction::Close => self.album_songs_list.toggle_filter(),
+            FilterAction::Apply => self.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<SortAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: SortAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
+            SortAction::Close => self.album_songs_list.close_sort(),
+            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<BrowserSongsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserSongsAction,
+    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+        match action {
+            BrowserSongsAction::PlayAlbum => self.play_album().await,
+            BrowserSongsAction::PlaySong => self.play_song().await,
+            BrowserSongsAction::PlaySongs => self.play_songs().await,
+            BrowserSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
+            BrowserSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
+            BrowserSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
+            BrowserSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
+            BrowserSongsAction::Filter => self.album_songs_list.toggle_filter(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
+impl SortManager {
+    fn new(config: &Config) -> Self {
         Self {
             sort_commands: Default::default(),
             shown: Default::default(),
             cur: Default::default(),
-            keybinds: sort_keybinds(),
+            keybinds: sort_keybinds(config),
         }
     }
 }
-impl Default for FilterManager {
-    fn default() -> Self {
+impl FilterManager {
+    fn new(config: &Config) -> Self {
         Self {
             filter_text: Default::default(),
             filter_commands: Default::default(),
             shown: Default::default(),
-            keybinds: filter_keybinds(),
+            keybinds: filter_keybinds(config),
         }
     }
 }
-
 impl TextHandler for FilterManager {
     fn is_text_handling(&self) -> bool {
         true
@@ -90,50 +225,28 @@ impl TextHandler for FilterManager {
     fn clear_text(&mut self) -> bool {
         self.filter_text.clear()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
+    fn handle_text_event_impl(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
         match handle_events(&mut self.filter_text, true, event) {
-            rat_text::event::TextOutcome::Continue => false,
-            rat_text::event::TextOutcome::Unchanged => true,
-            rat_text::event::TextOutcome::Changed => true,
-            rat_text::event::TextOutcome::TextChanged => true,
+            rat_text::event::TextOutcome::Continue => None,
+            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
+            rat_text::event::TextOutcome::TextChanged => Some(AsyncTask::new_no_op()),
         }
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ArtistSongsAction {
-    PlaySong,
-    PlaySongs,
-    PlayAlbum,
-    AddSongToPlaylist,
-    AddSongsToPlaylist,
-    AddAlbumToPlaylist,
-    Up,
-    Down,
-    PageUp,
-    PageDown,
-    SortUp,
-    SortDown,
-    // Could just be two commands.
-    PopSort,
-    CloseSort,
-    ClearSort,
-    SortSelectedAsc,
-    SortSelectedDesc,
-    ToggleFilter,
-    ApplyFilter,
-    ClearFilter,
-}
-
 impl AlbumSongsPanel {
-    pub fn new() -> AlbumSongsPanel {
+    pub fn new(config: &Config) -> AlbumSongsPanel {
         AlbumSongsPanel {
-            keybinds: songs_keybinds(),
+            keybinds: songs_keybinds(config),
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
-            sort: Default::default(),
-            filter: Default::default(),
+            sort: SortManager::new(config),
+            filter: FilterManager::new(config),
             widget_state: Default::default(),
         }
     }
@@ -224,6 +337,28 @@ impl AlbumSongsPanel {
         self.sort.shown = false;
         self.route = AlbumSongsInputRouting::List;
     }
+    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
+        if self.sort.shown {
+            match action {
+                ListAction::Up => self.handle_sort_up(),
+                ListAction::Down => self.handle_sort_down(),
+                // TODO: Handle PgUp / PgDown specially.
+                ListAction::PageUp => self.handle_sort_up(),
+                ListAction::PageDown => self.handle_sort_up(),
+            }
+            return AsyncTask::new_no_op();
+        }
+        if self.filter.shown {
+            return AsyncTask::new_no_op();
+        }
+        match action {
+            ListAction::Up => self.increment_list(-1),
+            ListAction::Down => self.increment_list(1),
+            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
+            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
+        }
+        AsyncTask::new_no_op()
+    }
     pub fn handle_pop_sort(&mut self) {
         // If no sortable columns, should we not handle this command?
         self.sort.cur = 0;
@@ -301,60 +436,40 @@ impl TextHandler for AlbumSongsPanel {
     fn clear_text(&mut self) -> bool {
         self.filter.clear_text()
     }
-    fn handle_event_repr(&mut self, event: &crossterm::event::Event) -> bool {
-        self.filter.handle_event_repr(event)
+    fn handle_text_event_impl(
+        &mut self,
+        event: &crossterm::event::Event,
+    ) -> Option<ComponentEffect<Self>> {
+        self.filter
+            .handle_text_event_impl(event)
+            .map(|effect| effect.map(|this: &mut AlbumSongsPanel| &mut this.filter))
     }
 }
 
-impl Action for ArtistSongsAction {
-    fn context(&self) -> Cow<str> {
-        "Artist Songs Panel".into()
-    }
-    fn describe(&self) -> Cow<str> {
-        match &self {
-            ArtistSongsAction::PlaySong => "Play song",
-            ArtistSongsAction::PlaySongs => "Play songs",
-            ArtistSongsAction::PlayAlbum => "Play album",
-            ArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
-            ArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            ArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
-            ArtistSongsAction::Up | Self::SortUp => "Up",
-            ArtistSongsAction::Down | Self::SortDown => "Down",
-            ArtistSongsAction::PageUp => "Page Up",
-            ArtistSongsAction::PageDown => "Page Down",
-            ArtistSongsAction::PopSort => "Sort",
-            ArtistSongsAction::ToggleFilter => "Filter",
-            ArtistSongsAction::ApplyFilter => "Apply filter",
-            ArtistSongsAction::ClearFilter => "Clear filter",
-            ArtistSongsAction::CloseSort => "Close sort",
-            ArtistSongsAction::ClearSort => "Clear sort",
-            ArtistSongsAction::SortSelectedAsc => "Sort ascending",
-            ArtistSongsAction::SortSelectedDesc => "Sort descending",
-        }
-        .into()
-    }
-}
-
-impl DominantKeyRouter for AlbumSongsPanel {
+impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
     fn dominant_keybinds_active(&self) -> bool {
         self.sort.shown || self.filter.shown
     }
+
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        self.get_active_keybinds()
+    }
 }
 
-impl KeyRouter<BrowserAction> for AlbumSongsPanel {
-    fn get_all_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(self.keybinds.iter().chain(self.sort.keybinds.iter()))
+impl KeyRouter<AppAction> for AlbumSongsPanel {
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        [&self.keybinds, &self.sort.keybinds].into_iter()
     }
-    fn get_routed_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<BrowserAction>> + 'a> {
-        Box::new(match self.route {
-            AlbumSongsInputRouting::List => self.keybinds.iter(),
-            AlbumSongsInputRouting::Sort => self.sort.keybinds.iter(),
-            AlbumSongsInputRouting::Filter => self.filter.keybinds.iter(),
-        })
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+        match self.route {
+            AlbumSongsInputRouting::List => {
+                Either::Left(Either::Left(std::iter::once(&self.keybinds)))
+            }
+            AlbumSongsInputRouting::Sort => {
+                Either::Left(Either::Right(std::iter::once(&self.sort.keybinds)))
+            }
+            AlbumSongsInputRouting::Filter => Either::Right(std::iter::once(&self.filter.keybinds)),
+        }
     }
 }
 
@@ -372,12 +487,15 @@ impl Scrollable for AlbumSongsPanel {
             .saturating_add_signed(amount)
             .min(self.get_filtered_items().count().saturating_sub(1))
     }
-    fn get_selected_item(&self) -> usize {
-        self.cur_selected
+    fn is_scrollable(&self) -> bool {
+        true
     }
 }
 
 impl TableView for AlbumSongsPanel {
+    fn get_selected_item(&self) -> usize {
+        self.cur_selected
+    }
     fn get_state(&self) -> ratatui::widgets::TableState {
         self.widget_state.clone()
     }
@@ -488,122 +606,14 @@ impl SortableTableView for AlbumSongsPanel {
     }
 }
 
-fn sort_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands
-    // being received.
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(4),
-            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Enter,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedAsc),
-        ),
-        // Seems to not work on Windows.
-        KeyCommand::new_global_modified_from_code(
-            KeyCode::Enter,
-            KeyModifiers::ALT,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortSelectedDesc),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Char('C'),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ClearSort),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Esc,
-            BrowserAction::ArtistSongs(ArtistSongsAction::CloseSort),
-        ),
-        // XXX: Consider if these type of actions can be for all lists.
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Down,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortDown),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Up,
-            BrowserAction::ArtistSongs(ArtistSongsAction::SortUp),
-        ),
-    ]
+fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.sort.clone()
 }
 
-fn filter_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    // Consider a blocking type of keybind for this that stops all other commands
-    // being received.
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(3),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::F(6),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ClearFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::Enter,
-            BrowserAction::ArtistSongs(ArtistSongsAction::ApplyFilter),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Esc,
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-    ]
+fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.filter.clone()
 }
 
-pub fn songs_keybinds() -> Vec<KeyCommand<BrowserAction>> {
-    vec![
-        KeyCommand::new_global_from_code(
-            KeyCode::F(3),
-            BrowserAction::ArtistSongs(ArtistSongsAction::ToggleFilter),
-        ),
-        KeyCommand::new_global_from_code(
-            KeyCode::F(4),
-            BrowserAction::ArtistSongs(ArtistSongsAction::PopSort),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::PageUp,
-            BrowserAction::ArtistSongs(ArtistSongsAction::PageUp),
-        ),
-        KeyCommand::new_from_code(
-            KeyCode::PageDown,
-            BrowserAction::ArtistSongs(ArtistSongsAction::PageDown),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Down,
-            BrowserAction::ArtistSongs(ArtistSongsAction::Down),
-        ),
-        KeyCommand::new_hidden_from_code(
-            KeyCode::Up,
-            BrowserAction::ArtistSongs(ArtistSongsAction::Up),
-        ),
-        KeyCommand::new_action_only_mode(
-            vec![
-                (
-                    KeyCode::Enter,
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlaySong),
-                ),
-                (
-                    KeyCode::Char('p'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlaySongs),
-                ),
-                (
-                    KeyCode::Char('a'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::PlayAlbum),
-                ),
-                (
-                    KeyCode::Char(' '),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongToPlaylist),
-                ),
-                (
-                    KeyCode::Char('P'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddSongsToPlaylist),
-                ),
-                (
-                    KeyCode::Char('A'),
-                    BrowserAction::ArtistSongs(ArtistSongsAction::AddAlbumToPlaylist),
-                ),
-            ],
-            KeyCode::Enter,
-            "Play",
-        ),
-    ]
+pub fn songs_keybinds(config: &Config) -> Keymap<AppAction> {
+    config.keybinds.browser_songs.clone()
 }

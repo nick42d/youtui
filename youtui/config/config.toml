@@ -1,0 +1,98 @@
+# Example config.toml file for youtui containing the application defaults.
+auth_type = "Browser"
+
+# Global keybinds
+[keybinds.global]
+"+" = "vol_up"
+"-" = "vol_down"
+">" = "next_song"
+"<" = "prev_song"
+"]" = "seek_forward"
+"[" = "seek_back"
+F1 = {action = "toggle_help", visibility = "global"}
+F10 = {action = "quit", visibility = "global"}
+F12 = {action = "view_logs", visibility = "global"}
+space = {action = "pause", visibility = "global"}
+C-c = "quit"
+
+# Global keybind mode names
+[mode_names.global]
+
+[keybinds.playlist]
+F5 = {action = "playlist.view_browser", visibility = "global"}
+enter.enter = "playlist.play_selected"
+enter.d = "playlist.delete_selected"
+enter.D = "playlist.delete_all"
+
+[mode_names.playlist]
+enter = "Playlist Action"
+
+[keybinds.browser]
+F5 = {action = "browser.view_playlist", visibility = "global"}
+F2 = {action = "browser.search", visibility = "global"}
+left = "browser.left"
+right = "browser.right"
+
+[keybinds.browser_artists]
+enter = "browser_artists.display_selected_artist_albums"
+
+[keybinds.browser_search]
+down = "browser_search.next_search_suggestion"
+up = "browser_search.prev_search_suggestion"
+
+[keybinds.browser_songs]
+F3 = {action = "browser_songs.filter", visibility = "global"}
+F4 = {action = "browser_songs.sort", visibility = "global"}
+enter.enter = "browser_songs.play_song"
+enter.p = "browser_songs.play_songs"
+enter.a = "browser_songs.play_album"
+enter.space = "browser_songs.add_song_to_playlist"
+enter.P = "browser_songs.add_songs_to_playlist"
+enter.A = "browser_songs.add_album_to_playlist"
+
+[mode_names.browser_songs]
+enter = "Play"
+
+[keybinds.help]
+F1 = {action = "help.close", visibility = "global"}
+esc = {action = "help.close", visibility = "hidden"}
+
+[keybinds.filter]
+esc = {action = "filter.close", visibility = "hidden"}
+F3 = {action = "filter.close", visibility = "global"}
+Enter = {action = "filter.apply", visibility = "global"}
+F6 = {action = "filter.clear_filter", visibility = "global"}
+
+[keybinds.sort]
+enter = {action = "sort.sort_selected_asc", visibility = "global"}
+A-enter = {action = "sort.sort_selected_desc", visibility = "global"}
+C = {action = "sort.clear_sort", visibility = "global"}
+esc = {action = "sort.close", visibility = "hidden"}
+F4 = {action = "sort.close", visibility = "global"}
+
+[keybinds.log]
+F5 = {action = "log.view_browser", visibility = "global"}
+S-left = "log.reduce_captured"
+S-right = "log.increase_captured"
+left = "log.reduce_shown"
+right = "log.increase_shown"
+up = "log.up"
+down = "log.down"
+pageup = "log.page_up"
+pagedown = "log.page_down"
+t = "log.toggle_hide_filtered"
+esc = "log.exit_page_mode"
+f = "log.toggle_target_focus"
+h = "log.toggle_target_selector"
+
+[keybinds.text_entry]
+enter = {action = "text_entry.submit", visibility = "hidden"}
+left = {action = "text_entry.left", visibility = "hidden"}
+right = {action = "text_entry.right", visibility = "hidden"}
+backspace = {action = "text_entry.backspace", visibility = "hidden"}
+
+[keybinds.list]
+up = {action = "list.up", visibility = "hidden"}
+down = {action = "list.down", visibility = "hidden"}
+pageup = "list.page_up"  
+pagedown = "list.page_down"  

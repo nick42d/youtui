@@ -134,11 +134,11 @@ impl<'a> EditPlaylistQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for EditPlaylistQuery<'a> {
+impl<A: AuthToken> Query<A> for EditPlaylistQuery<'_> {
     type Output = ApiOutcome;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for EditPlaylistQuery<'a> {
+impl PostQuery for EditPlaylistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let mut actions = Vec::new();
         if let Some(new_title) = &self.new_title {

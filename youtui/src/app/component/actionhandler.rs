@@ -1,13 +1,66 @@
-use crate::app::keycommand::{CommandVisibility, DisplayableCommand, KeyCommand, Keymap};
-use crossterm::event::{Event, KeyEvent, MouseEvent};
+use crate::{
+    config::keymap::{KeyActionTree, Keymap},
+    keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
+    keybind::Keybind,
+};
+use async_callback_manager::AsyncTask;
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
-// An action that can be sent to a component.
+/// Convenience type alias
+pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
+/// A frontend component - has an associated backend and task metadata type.
+pub trait Component {
+    type Bkend;
+    type Md;
+}
+/// Macro to generate the boilerplate implementation of Component used in this
+/// app.
+macro_rules! impl_youtui_component {
+    ($t:ty) => {
+        impl crate::app::component::actionhandler::Component for $t {
+            type Bkend = ArcServer;
+            type Md = TaskMetadata;
+        }
+    };
+}
+
+/// An action that can be applied to state.
 pub trait Action {
+    type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
+
+/// A component that can handle actions.
+pub trait ActionHandler<A: Action>: Component + Sized {
+    async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
+    /// Apply an action that can be mapped to Self.
+    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
+    where
+        B: Action,
+        C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
+        F: Fn(&mut Self) -> &mut C + Send + Clone + 'static,
+        Self::Bkend: 'static,
+        Self::Md: 'static,
+    {
+        f(self)
+            .apply_action(action)
+            .await
+            .map(move |this: &mut Self| f(this))
+    }
+}
+
+/// A struct that is able to be "scrolled".
+pub trait Scrollable {
+    /// Increment the list by the specified amount.
+    fn increment_list(&mut self, amount: isize);
+    /// Check if the Scrollable actually is scrollable right now, some other
+    /// part of it may be selected.
+    fn is_scrollable(&self) -> bool;
+}
+
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
 /// selected pane. A keyrouter does not necessarily need to be a keyhandler and
@@ -17,64 +70,46 @@ pub trait Action {
 /// NOTE: To implment this, the component can only have a single Action type.
 // XXX: Could possibly be a part of EventHandler instead.
 // XXX: Does this actually need to be a keyhandler?
-pub trait KeyRouter<A: Action> {
+pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_routed_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
+    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>;
-    // e.g - for use in help menu.
-    fn get_all_visible_keybinds<'a>(&'a self) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
-        Box::new(
-            self.get_all_keybinds()
-                .filter(|kb| kb.visibility != CommandVisibility::Hidden),
-        )
-    }
-    // e.g - for use in header.
-    fn get_routed_global_keybinds<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a> {
-        Box::new(
-            self.get_routed_keybinds()
-                .filter(|kb| kb.visibility == CommandVisibility::Global),
-        )
-    }
+    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
 }
+
 /// A component of the application that can block parent keybinds.
 /// For example, a component that can display a modal dialog that will prevent
 /// other inputs.
-pub trait DominantKeyRouter {
+pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
+    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
 }
 
-/// A component of the application that can display all it's keybinds.
-/// Not every KeyHandler/KeyRouter is a DisplayableKeyRouter - as
-/// DisplayAbleKeyRouter unables conversion of typed Actions to generic.
-// TODO: Type safety
-// Could possibly be a part of EventHandler instead.
-pub trait KeyDisplayer {
-    // XXX: Can these all just be derived from KeyRouter?
-    /// Get the list of all keybinds that the KeyHandler and any child items can
-    /// contain, regardless of context.
-    fn get_all_visible_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
-    /// Get the list of all non-hidden keybinds that the KeyHandler and any
-    /// child items can contain, regardless of context.
-    fn get_all_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
-    /// Get a context-specific list of all keybinds marked global.
-    // TODO: Put under DisplayableKeyHandler
-    fn get_context_global_keybinds_as_readable_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = DisplayableCommand<'a>> + 'a>;
+/// Get the list of all keybinds that the KeyHandler and any child items can
+/// contain, regardless of context.
+pub fn get_visible_keybinds_as_readable_iter<'a, A: Action + 'static>(
+    keybinds: impl Iterator<Item = &'a Keymap<A>> + 'a,
+) -> impl Iterator<Item = DisplayableKeyAction<'a>> + 'a {
+    keybinds
+        .flat_map(|keymap| keymap.iter())
+        .filter(|(_, kt)| (*kt).get_visibility() != KeyActionVisibility::Hidden)
+        .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
+}
+/// Get a context-specific list of all keybinds marked global.
+pub fn get_global_keybinds_as_readable_iter<'a, A: Action + 'static>(
+    keybinds: impl Iterator<Item = &'a Keymap<A>> + 'a,
+) -> impl Iterator<Item = DisplayableKeyAction<'a>> + 'a {
+    keybinds
+        .flat_map(|keymap| keymap.iter())
+        .filter(|(_, kt)| (*kt).get_visibility() == KeyActionVisibility::Global)
+        .map(|(kb, kt)| DisplayableKeyAction::from_keybind_and_action_tree(kb, kt))
 }
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
-pub trait TextHandler {
+pub trait TextHandler: Component {
     /// Get a reference to the text.
     fn get_text(&self) -> &str;
     /// Clear text, returning false if it was already clear.
@@ -84,15 +119,23 @@ pub trait TextHandler {
     /// Text handling could be a subset of the component. Return true if the
     /// text handling subset is active.
     fn is_text_handling(&self) -> bool;
-    /// Handle a crossterm event, returning true if an event was handled.
-    fn handle_event_repr(&mut self, event: &Event) -> bool;
+    /// Handle a crossterm event, returning a task if an event was handled.
+    fn handle_text_event_impl(
+        &mut self,
+        event: &Event,
+    ) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    where
+        Self: Sized;
     /// Default behaviour is to only handle an event if is_text_handling() ==
     /// true.
-    fn handle_event(&mut self, event: &Event) -> bool {
+    fn try_handle_text(&mut self, event: &Event) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    where
+        Self: Sized,
+    {
         if !self.is_text_handling() {
-            return false;
+            return None;
         }
-        self.handle_event_repr(event)
+        self.handle_text_event_impl(event)
     }
 }
 // A text handler that can receive suggestions
@@ -100,12 +143,6 @@ pub trait TextHandler {
 pub trait Suggestable: TextHandler {
     fn get_search_suggestions(&self) -> &[SearchSuggestion];
     fn has_search_suggestions(&self) -> bool;
-}
-/// A component of the application that handles actions.
-/// Where an action is a message specifically sent to the component.
-/// Consider if this should be inside ActionProcessor
-pub trait ActionHandler<A: Action + Clone> {
-    async fn handle_action(&mut self, action: &A);
 }
 
 pub trait MouseHandler {
@@ -116,245 +153,214 @@ pub trait MouseHandler {
 }
 
 /// The action to do after handling a key event
-pub enum KeyHandleAction<A: Action> {
+#[derive(Debug)]
+pub enum KeyHandleAction<'a, A: Action> {
     Action(A),
-    Mode,
+    Mode { name: String, keys: &'a Keymap<A> },
     NoMap,
 }
-/// The action from handling a key event (no Action type required)
-pub enum KeyHandleOutcome {
-    Action,
-    Mode,
-    NoMap,
-}
-/// Return a list of the current keymap for the provided stack of key_codes.
-/// Note, if multiple options are available returns the first one.
-pub fn get_key_subset<'a, A: Action>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
-    key_stack: &[KeyEvent],
-) -> Option<&'a Keymap<A>> {
-    let first = index_keybinds(binds, key_stack.first()?)?;
-    index_keymap(first, key_stack.get(1..)?)
-}
-/// Check if key stack will result in an action for binds.
-// Requires returning an action type so can be awkward.
-pub fn handle_key_stack<'a, A>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
-    key_stack: Vec<KeyEvent>,
-) -> KeyHandleAction<A>
+
+/// Check the current stack of keys, to see if an action is produced, a mode is
+/// produced, or nothing produced.
+pub fn handle_key_stack<'a, A, I>(keys: I, key_stack: &[KeyEvent]) -> KeyHandleAction<'a, A>
 where
-    A: Action + Clone,
+    A: Action + Copy + 'static,
+    I: IntoIterator<Item = &'a Keymap<A>>,
 {
-    if let Some(subset) = get_key_subset(binds, &key_stack) {
-        match &subset {
-            Keymap::Action(a) => {
-                // As Action is simply a message that is being passed around
-                // I am comfortable to clone it. Receiver should own the message.
-                // We may be able to improve on this using GATs or reference counting.
-                return KeyHandleAction::Action(a.clone());
-            }
-            Keymap::Mode(_) => return KeyHandleAction::Mode,
+    let convert = |k: KeyEvent| {
+        // NOTE: kind and state fields currently unused.
+        let KeyEvent {
+            code,
+            mut modifiers,
+            ..
+        } = k;
+        // If the keycode is a character, then the shift modifier should be removed. It
+        // will be encoded in the character already. This same stripping occurs when
+        // parsing the keycode in Keybind::from_str(..).
+        if let KeyCode::Char(_) = code {
+            modifiers = modifiers.difference(KeyModifiers::SHIFT);
         }
-    }
-    KeyHandleAction::NoMap
-}
-/// Try to handle the passed key_stack if it processes an action.
-/// Returns if it was handled or why it was not.
-// Doesn't require returning an Action type.
-pub async fn handle_key_stack_and_action<'a, A, B>(
-    handler: &mut B,
-    key_stack: Vec<KeyEvent>,
-) -> KeyHandleOutcome
-where
-    A: Action + Clone,
-    B: KeyRouter<A> + ActionHandler<A>,
-{
-    if let Some(subset) = get_key_subset(handler.get_routed_keybinds(), &key_stack) {
-        match &subset {
-            Keymap::Action(a) => {
-                // As Action is simply a message that is being passed around
-                // I am comfortable to clone it. Receiver should own the message.
-                // We may be able to improve on this using GATs or reference counting.
-                handler.handle_action(&a.clone()).await;
-                return KeyHandleOutcome::Action;
-            }
-            Keymap::Mode(_) => return KeyHandleOutcome::Mode,
+        Keybind { code, modifiers }
+    };
+    let mut key_stack_iter = key_stack.iter();
+    // First iteration - iterator of hashmaps.
+    let Some(first_key) = key_stack_iter.next() else {
+        return KeyHandleAction::NoMap;
+    };
+    let first_found = keys.into_iter().find_map(|km| km.get(&convert(*first_key)));
+    let mut next_mode = match first_found {
+        Some(KeyActionTree::Key(KeyAction { action, .. })) => {
+            return KeyHandleAction::Action(*action);
         }
+        Some(KeyActionTree::Mode { name, keys }) => (name, keys),
+        None => return KeyHandleAction::NoMap,
+    };
+    for key in key_stack_iter {
+        let next_found = next_mode.1.get(&convert(*key));
+        match next_found {
+            Some(KeyActionTree::Key(KeyAction { action, .. })) => {
+                return KeyHandleAction::Action(*action);
+            }
+            Some(KeyActionTree::Mode { name, keys }) => next_mode = (name, keys),
+            None => return KeyHandleAction::NoMap,
+        };
     }
-    KeyHandleOutcome::NoMap
+    KeyHandleAction::Mode {
+        name: next_mode.0.as_deref().unwrap_or("UNNAMED MODE").to_string(),
+        keys: next_mode.1,
+    }
 }
-/// If a list of Keybinds contains a binding for the index KeyEvent, return that
-/// KeyEvent.
-pub fn index_keybinds<'a, A: Action>(
-    binds: Box<dyn Iterator<Item = &'a KeyCommand<A>> + 'a>,
-    index: &KeyEvent,
-) -> Option<&'a Keymap<A>> {
-    let mut binds = binds;
-    binds
-        .find(|kb| kb.contains_keyevent(index))
-        .map(|kb| &kb.key_map)
-}
-/// Recursively indexes into a Keymap using a list of KeyEvents. Yields the
-/// presented Keymap,
-//  or none if one of the indexes fails to return a value.
-pub fn index_keymap<'a, A: Action>(
-    map: &'a Keymap<A>,
-    indexes: &[KeyEvent],
-) -> Option<&'a Keymap<A>> {
-    indexes
-        .iter()
-        .try_fold(map, move |target, i| match &target {
-            Keymap::Action(_) => None,
-            Keymap::Mode(m) => index_keybinds(Box::new(m.commands.iter()), i),
-        })
-}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::todo)]
-    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-
-    use crate::app::{
-        component::actionhandler::{index_keybinds, Keymap},
-        keycommand::Mode,
+    use super::{Action, Component};
+    use crate::{
+        app::component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap},
+        config::keymap::KeyActionTree,
+        keybind::Keybind,
     };
+    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+    use pretty_assertions::assert_eq;
 
-    use super::{index_keymap, Action, KeyCommand};
-
-    #[derive(PartialEq, Debug)]
+    #[derive(PartialEq, Debug, Copy, Clone)]
     enum TestAction {
         Test1,
         Test2,
         Test3,
         TestStack,
     }
+    impl Component for () {
+        type Bkend = ();
+        type Md = ();
+    }
     impl Action for TestAction {
         fn context(&self) -> std::borrow::Cow<str> {
             todo!()
         }
-
         fn describe(&self) -> std::borrow::Cow<str> {
             todo!()
         }
+        type State = ();
+    }
+    fn test_keymap() -> Keymap<TestAction> {
+        [
+            (
+                Keybind::new_unmodified(KeyCode::F(10)),
+                KeyActionTree::new_key(TestAction::Test1),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::F(12)),
+                KeyActionTree::new_key(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Left),
+                KeyActionTree::new_key(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Right),
+                KeyActionTree::new_key(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Enter),
+                KeyActionTree::new_mode(
+                    [
+                        (
+                            Keybind::new_unmodified(KeyCode::Enter),
+                            KeyActionTree::new_key(TestAction::Test2),
+                        ),
+                        (
+                            Keybind::new_unmodified(KeyCode::Char('a')),
+                            KeyActionTree::new_key(TestAction::Test3),
+                        ),
+                        (
+                            Keybind::new_unmodified(KeyCode::Char('p')),
+                            KeyActionTree::new_key(TestAction::Test2),
+                        ),
+                        (
+                            Keybind::new_unmodified(KeyCode::Char(' ')),
+                            KeyActionTree::new_key(TestAction::Test3),
+                        ),
+                        (
+                            Keybind::new_unmodified(KeyCode::Char('P')),
+                            KeyActionTree::new_key(TestAction::Test2),
+                        ),
+                        (
+                            Keybind::new_unmodified(KeyCode::Char('A')),
+                            KeyActionTree::new_key(TestAction::TestStack),
+                        ),
+                    ],
+                    "Play".into(),
+                ),
+            ),
+        ]
+        .into_iter()
+        .collect::<Keymap<_>>()
     }
     #[test]
     fn test_key_stack_shift_modifier() {
-        let kb = vec![
-            KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-            KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-            KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-            KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-            KeyCommand::new_action_only_mode(
-                vec![
-                    (KeyCode::Enter, TestAction::Test2),
-                    (KeyCode::Char('a'), TestAction::Test3),
-                    (KeyCode::Char('p'), TestAction::Test2),
-                    (KeyCode::Char(' '), TestAction::Test3),
-                    (KeyCode::Char('P'), TestAction::Test2),
-                    (KeyCode::Char('A'), TestAction::TestStack),
-                ],
-                KeyCode::Enter,
-                "Play",
-            ),
-        ];
+        let kb = test_keymap();
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::SHIFT);
         let key_stack = [ks1, ks2];
-        let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
-        let act = index_keymap(first, key_stack.get(1..).unwrap());
-        let Some(Keymap::Action(a)) = act else {
-            panic!();
+        let expected = TestAction::TestStack;
+        let output = handle_key_stack(std::iter::once(&kb), &key_stack);
+        let KeyHandleAction::Action(output) = output else {
+            panic!("Expected keyhandleoutcome::action");
         };
-        assert_eq!(*a, TestAction::TestStack);
+        assert_eq!(expected, output);
     }
     #[test]
     fn test_key_stack() {
-        let kb = vec![
-            KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-            KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-            KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-            KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-            KeyCommand::new_action_only_mode(
-                vec![
-                    (KeyCode::Enter, TestAction::Test2),
-                    (KeyCode::Char('a'), TestAction::Test3),
-                    (KeyCode::Char('p'), TestAction::Test2),
-                    (KeyCode::Char(' '), TestAction::Test3),
-                    (KeyCode::Char('P'), TestAction::Test2),
-                    (KeyCode::Char('A'), TestAction::TestStack),
-                ],
-                KeyCode::Enter,
-                "Play",
-            ),
-        ];
+        let kb = test_keymap();
         let ks1 = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
         let ks2 = KeyEvent::new(KeyCode::Char('A'), KeyModifiers::empty());
         let key_stack = [ks1, ks2];
-        let first = index_keybinds(Box::new(kb.iter()), key_stack.first().unwrap()).unwrap();
-        let act = index_keymap(first, key_stack.get(1..).unwrap());
-        let Some(Keymap::Action(a)) = act else {
-            panic!();
+        let expected = TestAction::TestStack;
+        let KeyHandleAction::Action(output) = handle_key_stack(std::iter::once(&kb), &key_stack)
+        else {
+            panic!("Expected keyhandleoutcome::action");
         };
-        assert_eq!(*a, TestAction::TestStack);
+        assert_eq!(expected, output);
     }
     #[test]
     fn test_index_keybinds() {
-        let kb = vec![
-            KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-            KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-            KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-            KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-            KeyCommand::new_action_only_mode(
-                vec![
-                    (KeyCode::Char('A'), TestAction::Test2),
-                    (KeyCode::Char('a'), TestAction::Test3),
-                ],
-                KeyCode::Enter,
-                "Play",
-            ),
-        ];
+        let kb = test_keymap();
         let ks = KeyEvent::new(KeyCode::Enter, KeyModifiers::empty());
-        let idx = index_keybinds(Box::new(kb.iter()), &ks);
-        let eq = KeyCommand::new_action_only_mode(
-            vec![
-                (KeyCode::Char('A'), TestAction::Test2),
-                (KeyCode::Char('a'), TestAction::Test3),
-            ],
-            KeyCode::Enter,
-            "Play",
-        )
-        .key_map;
-        assert_eq!(idx, Some(&eq));
-    }
-    #[test]
-    fn test_index_keymap() {
-        let kb = Keymap::Mode(Mode {
-            commands: vec![
-                KeyCommand::new_from_code(KeyCode::F(10), TestAction::Test1),
-                KeyCommand::new_from_code(KeyCode::F(12), TestAction::Test2),
-                KeyCommand::new_from_code(KeyCode::Left, TestAction::Test3),
-                KeyCommand::new_from_code(KeyCode::Right, TestAction::Test3),
-                KeyCommand::new_action_only_mode(
-                    vec![
-                        (KeyCode::Char('A'), TestAction::Test2),
-                        (KeyCode::Char('a'), TestAction::Test3),
-                    ],
-                    KeyCode::Enter,
-                    "Play",
-                ),
-            ],
-            name: "test",
-        });
-        let ks = [KeyEvent::new(KeyCode::Enter, KeyModifiers::empty())];
-        let idx = index_keymap(&kb, &ks);
-        let eq = KeyCommand::new_action_only_mode(
-            vec![
-                (KeyCode::Char('A'), TestAction::Test2),
-                (KeyCode::Char('a'), TestAction::Test3),
-            ],
-            KeyCode::Enter,
-            "Play",
-        )
-        .key_map;
-        assert_eq!(idx, Some(&eq));
+        let expected_keys = [
+            (
+                Keybind::new_unmodified(KeyCode::Enter),
+                KeyActionTree::new_key(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('a')),
+                KeyActionTree::new_key(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('p')),
+                KeyActionTree::new_key(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char(' ')),
+                KeyActionTree::new_key(TestAction::Test3),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('P')),
+                KeyActionTree::new_key(TestAction::Test2),
+            ),
+            (
+                Keybind::new_unmodified(KeyCode::Char('A')),
+                KeyActionTree::new_key(TestAction::TestStack),
+            ),
+        ]
+        .into_iter()
+        .collect::<Keymap<_>>();
+        let expected_name = "Play".to_string();
+        let KeyHandleAction::Mode { keys, name } = handle_key_stack(std::iter::once(&kb), &[ks])
+        else {
+            panic!("Expected keyhandleoutcome::mode");
+        };
+        assert_eq!(name, expected_name);
+        assert_eq!(keys, &expected_keys);
     }
 }

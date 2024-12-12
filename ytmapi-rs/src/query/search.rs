@@ -77,11 +77,11 @@ impl UnfilteredSearchType for BasicSearch {}
 impl UnfilteredSearchType for UploadSearch {}
 impl UnfilteredSearchType for LibrarySearch {}
 
-impl<'a, S: UnfilteredSearchType, A: AuthToken> Query<A> for SearchQuery<'a, S> {
+impl<S: UnfilteredSearchType, A: AuthToken> Query<A> for SearchQuery<'_, S> {
     type Output = SearchResults;
     type Method = PostMethod;
 }
-impl<'a, S: UnfilteredSearchType> PostQuery for SearchQuery<'a, S> {
+impl<S: UnfilteredSearchType> PostQuery for SearchQuery<'_, S> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         search_query_header(self)
     }
@@ -221,11 +221,11 @@ impl<'a, S: Into<Cow<'a, str>>> From<S> for GetSearchSuggestionsQuery<'a> {
     }
 }
 
-impl<'a, A: AuthToken> Query<A> for GetSearchSuggestionsQuery<'a> {
+impl<A: AuthToken> Query<A> for GetSearchSuggestionsQuery<'_> {
     type Output = Vec<SearchSuggestion>;
     type Method = PostMethod;
 }
-impl<'a> PostQuery for GetSearchSuggestionsQuery<'a> {
+impl PostQuery for GetSearchSuggestionsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let value = self.query.as_ref().into();
         serde_json::Map::from_iter([("input".into(), value)])
@@ -252,6 +252,6 @@ fn search_query_header<S: SearchType>(
         serde_json::Map::from_iter([("query".to_string(), value)])
     }
 }
-fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<str>> {
+fn search_query_params<'a, S: SearchType>(query: &'a SearchQuery<'a, S>) -> Option<Cow<'a, str>> {
     query.search_type.specialised_params(&query.spelling_mode)
 }

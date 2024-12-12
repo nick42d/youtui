@@ -1,12 +1,11 @@
 use super::{footer, header, WindowContext, YoutuiWindow};
-use crate::app::component::actionhandler::KeyDisplayer;
-use crate::app::keycommand::{DisplayableCommand, DisplayableMode};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::{
     highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
+use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};
@@ -69,7 +68,7 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     let (shortcut_len, description_len, commands_vec) = shortcuts_descriptions.iter().fold(
         (0, 0, Vec::new()),
         |(acc1, acc2, mut commands_vec),
-         DisplayableCommand {
+         DisplayableKeyAction {
              keybinds,
              context: _,
              description,
@@ -106,17 +105,18 @@ fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     f.render_widget(block, area);
 }
 
+/// Draw the help page. The help page should show all visible commands for the
+/// current page.
 fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
-    // NOTE: if there are more commands than we can fit on the screen, some will be
-    // cut off.
-    let commands = w.get_all_visible_keybinds_as_readable_iter();
-    // Get the maximum length of each element in the tuple vector created above, as
-    // well as the number of items. XXX: Probably don't need to map then fold,
-    // just fold. XXX: Fold closure could be written as a function, then becomes
+    // XXX: Probably don't need to map then fold,
+    // just fold.
+    //
+    // XXX: Fold closure could be written as a function, then becomes
     // testable.
-    let (mut s_len, mut c_len, mut d_len, items) = commands
+    let (mut s_len, mut c_len, mut d_len, items) = w
+        .get_help_list_items()
         .map(
-            |DisplayableCommand {
+            |DisplayableKeyAction {
                  keybinds,
                  context,
                  description,
@@ -132,10 +132,10 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Total block height required, including header and borders.
     let height = items + 3;
     // Naive implementation
-    // XXX: We're running get_all_visible_keybinds a second time here.
+    // XXX: We're running get_help_list_items a second time here.
     // Better to move to the fold above.
-    let commands_table = w.get_all_visible_keybinds_as_readable_iter().map(
-        |DisplayableCommand {
+    let commands_table = w.get_help_list_items().map(
+        |DisplayableKeyAction {
              keybinds,
              context,
              description,
