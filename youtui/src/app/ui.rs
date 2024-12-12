@@ -16,7 +16,6 @@ use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use ratatui::widgets::TableState;
-use std::convert::Infallible;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
