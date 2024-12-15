@@ -166,7 +166,7 @@ checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
 
 [[package]]
 name = "async-callback-manager"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "crossterm",
  "futures",
@@ -1874,7 +1874,7 @@ dependencies = [
 
 [[package]]
 name = "json-crawler"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "serde",
  "serde_json",
@@ -4689,7 +4689,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "anyhow",
  "async-callback-manager",
@@ -4752,7 +4752,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.0.16"
+version = "0.0.17"
 dependencies = [
  "chrono",
  "const_format",

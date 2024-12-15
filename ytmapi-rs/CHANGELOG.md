@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.17](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.16...ytmapi-rs/v0.0.17) - 2024-12-15
+
+### Added
+- Clippy linting fix (#185)
+- Update dependencies (#182)
+
 ## [0.0.16](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.15...ytmapi-rs/v0.0.16) - 2024-11-18
 
 ### Added
