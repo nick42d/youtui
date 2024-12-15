@@ -47,6 +47,7 @@ Chrome example (Select manually and paste):
 1. Setup the oauth token in the default configuration directory by running `youtui setup-oauth` and following the instructions.
 ### Other Setup
 1. If music downloads always return an error, you are able to supply a PO Token by saving it to the file `po_token.txt` into your local youtui config directory. For more information on PO Tokens and how to obtain them, see [here](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#po-token-guide).
+1. Configurable keybinds can be supplied as part of your `config.toml`. Example `config.toml`s have been provided in the `./youtui/config/` directory. Please note, the config file format is currently unstable and could break between releases.
 
 ## Dependencies note
 ### General
@@ -69,6 +70,7 @@ Chrome example (Select manually and paste):
 - [x] Remove reliance on rust nightly (target for 0.0.4)
 - [x] OAuth authentication including automatic refresh of tokens
 - [x] Seeking
+- [x] Configurable key bindings
 - [ ] Logging to a file (basic version implemented - use `-d` flag)
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Dbus support for media keys
@@ -77,7 +79,6 @@ Chrome example (Select manually and paste):
 - [ ] Streaming of buffered tracks
 - [ ] Display lyrics and album cover (pixel art)
 - [ ] Theming
-- [ ] Configurable key bindings
 ### API
 - [x] Document public API
 - [x] OAuth authentication
