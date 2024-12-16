@@ -3,8 +3,8 @@ use crate::{
 };
 use anyhow::Result;
 use async_cell::sync::AsyncCell;
-use futures::stream::FuturesOrdered;
 use futures::Stream;
+use futures::{stream::FuturesOrdered, StreamExt};
 use std::{borrow::Borrow, sync::Arc};
 use tokio::{
     io::AsyncWriteExt,
@@ -21,8 +21,12 @@ use ytmapi_rs::{
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
 
+#[derive(Clone)]
+/// # Note
+/// Since the underlying API is wrapped in an Arc, it's cheap to clone this
+/// type.
 pub struct Api {
-    api: Arc<AsyncCell<Result<ConcurrentApi>>>,
+    api: Arc<AsyncCell<Result<ConcurrentApi, Arc<anyhow::Error>>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -33,12 +37,13 @@ impl Api {
         tokio::spawn(async move {
             let api = DynamicYtMusic::new(api_key)
                 .await
-                .map(|api| Arc::new(RwLock::new(api)));
+                .map(|api| Arc::new(RwLock::new(api)))
+                .map_err(|e| Arc::new(e));
             api_clone.set(api)
         });
         Api { api }
     }
-    pub async fn get_api(&self) -> Result<ConcurrentApi> {
+    pub async fn get_api(&self) -> Result<ConcurrentApi, Arc<anyhow::Error>> {
         // Note that the error, if it exists, is cloned here.
         self.api.get().await
     }
@@ -168,7 +173,7 @@ pub enum GetArtistSongsProgressUpdate {
 }
 
 fn get_artist_songs(
-    api: Arc<AsyncCell<Result<ConcurrentApi>>>,
+    api: Api,
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
     /// Bailout function that will log an error and send NoSongsFound if we get
@@ -183,7 +188,7 @@ fn get_artist_songs(
     tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
-        let api = match api.get().await {
+        let api = match api.get_api().await {
             Err(e) => return bailout(e, tx).await,
             Ok(api) => api,
         };
