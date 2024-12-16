@@ -112,10 +112,9 @@ impl Display for Error {
             // TODO: Better display format for token_type.
             // XXX: Consider displaying the io error.
             Error::PoToken { token_location, io_error: _} => write!(f, "Error loading po_token from {}. Does the file exist?", token_location.display()),
-            Error::AuthToken { token_type, token_location, io_error: _} => write!(f, "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, token_location.display()),
-            Error::AuthTokenParse { token_type, token_location, } => write!(f, "Error parsing {:?} auth token from {}. See README.md for more information on auth tokens.", token_type, token_location.display()),
+            Error::AuthToken { token_type, token_location, io_error: _} => ,
+            Error::AuthTokenParse { token_type, token_location, } => ),
             Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
-            Error::WrongAuthType { current_authtype, expected_authtype, query_type } => write!(f, "Query <{query_type}> not supported on auth type {:?}. Expected auth type: {:?}",current_authtype, expected_authtype),
             Error::ApiErrorString(s) => write!(f, "{s}"),
             Error::ManagerDropped => write!(f, "Async callback manager dropped"),
         }

@@ -1,9 +1,6 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
-use crate::{
-    config::{ApiKey, AuthType},
-    error::Error,
-    Result,
-};
+use crate::config::{ApiKey, AuthType};
+use anyhow::{bail, Result};
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
@@ -17,6 +14,19 @@ use ytmapi_rs::{
 pub enum DynamicYtMusic {
     Browser(YtMusic<BrowserToken>),
     OAuth(YtMusic<OAuthToken>),
+}
+
+fn wrong_auth_token_error_message<Q>(current_authtype: AuthType) -> String {
+    let expected_authtype = match current_authtype {
+        AuthType::Browser => AuthType::OAuth,
+        AuthType::OAuth => AuthType::Browser,
+    };
+    format!(
+        "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
+        std::any::type_name::<Q>(),
+        current_authtype,
+        expected_authtype
+    )
 }
 
 impl DynamicYtMusic {
@@ -87,12 +97,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
-            DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(
-                    query,
-                    AuthType::OAuth,
-                ))
-            }
+            DynamicYtMusic::OAuth(_) => bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth)),
         })
     }
     pub async fn _oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
@@ -101,10 +106,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(
-                    query,
-                    AuthType::Browser,
-                ))
+                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
             }
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
@@ -128,7 +130,7 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: Continuable<Q>,
     {
-        Err(Error::Other("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string()))
+        bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string())
     }
     pub async fn _browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
@@ -138,12 +140,7 @@ impl DynamicYtMusic {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
-            DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(
-                    query,
-                    AuthType::OAuth,
-                ))
-            }
+            DynamicYtMusic::OAuth(_) => bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth)),
         })
     }
     pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
@@ -152,10 +149,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(
-                    query,
-                    AuthType::Browser,
-                ))
+                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })

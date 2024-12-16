@@ -1,5 +1,4 @@
 use crate::get_config_dir;
-use crate::Result;
 use clap::ValueEnum;
 use keymap::YoutuiKeymap;
 use keymap::YoutuiKeymapIR;
