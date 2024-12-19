@@ -1,6 +1,5 @@
 /// Traits related to viewable application components.
 use super::structures::Percentage;
-use crate::Result;
 use ratatui::{
     prelude::{Constraint, Rect},
     widgets::{ListState, TableState},
@@ -154,7 +153,7 @@ pub trait SortableTableView: TableView {
     fn get_sort_commands(&self) -> &[TableSortCommand];
     /// This can fail if the TableSortCommand is not within the range of
     /// sortable columns.
-    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()>;
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
     fn clear_sort_commands(&mut self);
     // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];

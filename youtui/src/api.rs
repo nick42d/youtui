@@ -1,9 +1,6 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
-use crate::{
-    config::{ApiKey, AuthType},
-    error::Error,
-    Result,
-};
+use crate::config::{ApiKey, AuthType};
+use error::DynamicApiError;
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
@@ -12,6 +9,9 @@ use ytmapi_rs::{
     query::{PostQuery, Query},
     YtMusic, YtMusicBuilder,
 };
+
+pub mod error;
+type Result<T> = std::result::Result<T, DynamicApiError>;
 
 #[derive(Debug, Clone)]
 pub enum DynamicYtMusic {
@@ -88,10 +88,7 @@ impl DynamicYtMusic {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
             DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(
-                    query,
-                    AuthType::OAuth,
-                ))
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(AuthType::OAuth))
             }
         })
     }
@@ -101,8 +98,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(
-                    query,
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(
                     AuthType::Browser,
                 ))
             }
@@ -128,7 +124,7 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: Continuable<Q>,
     {
-        Err(Error::Other("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string()))
+        return Err(DynamicApiError::StreamSourceNotSupported);
     }
     pub async fn _browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
@@ -139,10 +135,7 @@ impl DynamicYtMusic {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
             DynamicYtMusic::OAuth(_) => {
-                return Err(Error::new_wrong_auth_token_error_browser(
-                    query,
-                    AuthType::OAuth,
-                ))
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(AuthType::OAuth))
             }
         })
     }
@@ -152,8 +145,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                return Err(Error::new_wrong_auth_token_error_oauth(
-                    query,
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(
                     AuthType::Browser,
                 ))
             }

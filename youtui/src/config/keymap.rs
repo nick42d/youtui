@@ -11,6 +11,7 @@ use crate::app::ui::logger::LoggerAction;
 use crate::app::ui::playlist::PlaylistAction::{self, ViewBrowser};
 use crate::keyaction::{KeyAction, KeyActionVisibility};
 use crate::keybind::Keybind;
+use anyhow::{Error, Result};
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
 use std::collections::btree_map::Entry;
@@ -136,10 +137,7 @@ impl Default for YoutuiKeymap {
 }
 
 impl YoutuiKeymap {
-    pub fn try_from_stringy(
-        keys: YoutuiKeymapIR,
-        mode_names: YoutuiModeNamesIR,
-    ) -> std::result::Result<Self, String> {
+    pub fn try_from_stringy(keys: YoutuiKeymapIR, mode_names: YoutuiModeNamesIR) -> Result<Self> {
         let YoutuiKeymapIR {
             global,
             playlist,
@@ -175,21 +173,21 @@ impl YoutuiKeymap {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let playlist = playlist
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let browser = browser
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let browser_artists = browser_artists
             .into_iter()
             .map(|(k, v)| {
@@ -197,7 +195,7 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_artists_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let browser_search = browser_search
             .into_iter()
             .map(|(k, v)| {
@@ -205,7 +203,7 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_search_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let browser_songs = browser_songs
             .into_iter()
             .map(|(k, v)| {
@@ -213,49 +211,49 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_songs_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let text_entry = text_entry
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let help = help
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let sort = sort
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let filter = filter
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let list = list
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let log = log
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<std::result::Result<BTreeMap<_, _>, String>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()?;
         let mut keymap = YoutuiKeymap::default();
         merge_keymaps(&mut keymap.global, global);
         merge_keymaps(&mut keymap.playlist, playlist);
@@ -330,9 +328,9 @@ impl<A: Action> KeyActionTree<A> {
         key: &Keybind,
         stringy: KeyStringTree,
         mode_names: Option<&mut BTreeMap<Keybind, ModeNameEnum>>,
-    ) -> std::result::Result<Self, String>
+    ) -> Result<Self>
     where
-        A: TryFrom<String, Error = String>,
+        A: TryFrom<String, Error = anyhow::Error>,
     {
         let new: KeyActionTree<A> = match stringy {
             KeyStringTree::Key(k) => KeyActionTree::Key(k.try_map(TryInto::try_into)?),
@@ -348,7 +346,7 @@ impl<A: Action> KeyActionTree<A> {
                         .into_iter()
                         .map(|(k, a)| {
                             let v = KeyActionTree::try_from_stringy(&k, a, next_modes.as_mut())?;
-                            Ok::<_, String>((k, v))
+                            Ok::<_, Error>((k, v))
                         })
                         .collect::<std::result::Result<_, _>>()?,
                     name: cur_mode_name,

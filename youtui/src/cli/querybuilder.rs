@@ -45,7 +45,7 @@ pub async fn command_to_query(
     command: Command,
     cli_query: CliQuery,
     yt: DynamicYtMusic,
-) -> crate::Result<String> {
+) -> anyhow::Result<String> {
     match command {
         Command::GetSearchSuggestions { query } => {
             get_string_output_of_query(yt, GetSearchSuggestionsQuery::from(query), cli_query).await
@@ -483,7 +483,7 @@ async fn get_string_output_of_query<Q, O>(
     yt: DynamicYtMusic,
     q: impl Borrow<Q>,
     cli_query: CliQuery,
-) -> crate::Result<String>
+) -> anyhow::Result<String>
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
@@ -522,7 +522,7 @@ async fn get_string_output_of_streaming_query<Q, O>(
     q: impl Borrow<Q>,
     cli_query: CliQuery,
     max_pages: usize,
-) -> crate::Result<String>
+) -> anyhow::Result<String>
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
@@ -578,7 +578,7 @@ fn process_json_based_on_dyn_api<Q, O>(
     yt: &DynamicYtMusic,
     source: String,
     query: impl Borrow<Q>,
-) -> crate::Result<String>
+) -> anyhow::Result<String>
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,

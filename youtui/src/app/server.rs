@@ -3,7 +3,8 @@ use crate::async_rodio_sink::{
     rodio::decoder::DecoderError, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate,
     QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
 };
-use crate::{config::ApiKey, Result};
+use crate::config::ApiKey;
+use anyhow::Result;
 use api::GetArtistSongsProgressUpdate;
 use async_callback_manager::{BackendStreamingTask, BackendTask};
 use downloader::DownloadProgressUpdate;

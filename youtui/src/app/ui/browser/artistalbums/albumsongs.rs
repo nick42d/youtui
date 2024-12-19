@@ -16,8 +16,7 @@ use crate::app::{
 };
 use crate::config::keymap::Keymap;
 use crate::config::Config;
-use crate::error::Error;
-use crate::Result;
+use anyhow::{bail, Result};
 use async_callback_manager::AsyncTask;
 use itertools::Either;
 use rat_text::text_input::{handle_events, TextInputState};
@@ -256,7 +255,7 @@ impl AlbumSongsPanel {
     pub fn apply_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
             if !self.get_sortable_columns().contains(&c.column) {
-                return Err(Error::Other(format!("Unable to sort column {}", c.column,)));
+                bail!(format!("Unable to sort column {}", c.column,));
             }
             self.list.sort(
                 get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
@@ -555,10 +554,7 @@ impl SortableTableView for AlbumSongsPanel {
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         // TODO: Maintain a view only struct, for easier rendering of this.
         if !self.get_sortable_columns().contains(&sort_command.column) {
-            return Err(Error::Other(format!(
-                "Unable to sort column {}",
-                sort_command.column,
-            )));
+            bail!(format!("Unable to sort column {}", sort_command.column,));
         }
         // Map the column of ArtistAlbums to a column of List and sort
         self.list.sort(

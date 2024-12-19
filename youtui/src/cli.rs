@@ -1,9 +1,9 @@
 use crate::get_api;
 use crate::get_config_dir;
 use crate::Cli;
-use crate::Result;
 use crate::RuntimeInfo;
 use crate::OAUTH_FILENAME;
+use anyhow::Result;
 use futures::future::try_join_all;
 use querybuilder::command_to_query;
 use querybuilder::CliQuery;

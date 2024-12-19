@@ -1,5 +1,5 @@
 /// NOTE: WASM currently not supported.
-use crate::Result;
+use anyhow::Result;
 use crossterm::event::{Event, EventStream, KeyEvent, KeyEventKind, MouseEvent, MouseEventKind};
 use futures::StreamExt;
 use std::time::Duration;
