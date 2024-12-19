@@ -2,8 +2,6 @@ use crate::config::AuthType;
 use std::{fmt::Display, path::PathBuf};
 use tokio::{sync::mpsc, task::JoinError};
 
-pub type Result<T> = std::result::Result<T, Error>;
-
 #[derive(Debug)]
 pub enum Error {
     Communication,
@@ -112,8 +110,8 @@ impl Display for Error {
             // TODO: Better display format for token_type.
             // XXX: Consider displaying the io error.
             Error::PoToken { token_location, io_error: _} => write!(f, "Error loading po_token from {}. Does the file exist?", token_location.display()),
-            Error::AuthToken { token_type, token_location, io_error: _} => ,
-            Error::AuthTokenParse { token_type, token_location, } => ),
+            Error::AuthToken { token_type, token_location, io_error: _} => (),
+            Error::AuthTokenParse { token_type, token_location, } => (),
             Error::CreatingDirectory{  directory, io_error: _} => write!(f, "Error creating required directory {} for the application. Do you have the required permissions? See README.md for more information on application directories.",  directory.display()),
             Error::ApiErrorString(s) => write!(f, "{s}"),
             Error::ManagerDropped => write!(f, "Async callback manager dropped"),

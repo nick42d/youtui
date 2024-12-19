@@ -26,7 +26,7 @@ use ytmapi_rs::{
 /// Since the underlying API is wrapped in an Arc, it's cheap to clone this
 /// type.
 pub struct Api {
-    api: Arc<AsyncCell<Result<ConcurrentApi, Arc<anyhow::Error>>>>,
+    api: Arc<AsyncCell<Arc<Result<ConcurrentApi, anyhow::Error>>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -35,15 +35,16 @@ impl Api {
         let api = AsyncCell::new().into_shared();
         let api_clone = api.clone();
         tokio::spawn(async move {
-            let api = DynamicYtMusic::new(api_key)
-                .await
-                .map(|api| Arc::new(RwLock::new(api)))
-                .map_err(|e| Arc::new(e));
+            let api = Arc::new(
+                DynamicYtMusic::new(api_key)
+                    .await
+                    .map(|api| Arc::new(RwLock::new(api))),
+            );
             api_clone.set(api)
         });
         Api { api }
     }
-    pub async fn get_api(&self) -> Result<ConcurrentApi, Arc<anyhow::Error>> {
+    pub async fn get_api(&self) -> Arc<Result<ConcurrentApi, anyhow::Error>> {
         // Note that the error, if it exists, is cloned here.
         self.api.get().await
     }
@@ -51,9 +52,10 @@ impl Api {
         &self,
         text: String,
     ) -> Result<(Vec<SearchSuggestion>, String)> {
-        get_search_suggestions(self.get_api().await?, text).await
+        get_search_suggestions(self.get_api().await.map_err(|e| e.into())?, text).await
     }
     pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
+        let api = self.get_api().await.as_ref().as_deref()?;
         search_artists(self.get_api().await?, text).await
     }
     pub fn get_artist_songs(
