@@ -1,3 +1,4 @@
+use crate::api::error::DynamicApiError;
 use crate::{
     api::DynamicYtMusic, config::ApiKey, core::send_or_error, get_config_dir, OAUTH_FILENAME,
 };
@@ -26,7 +27,7 @@ use ytmapi_rs::{
 /// Since the underlying API is wrapped in an Arc, it's cheap to clone this
 /// type.
 pub struct Api {
-    api: Arc<AsyncCell<Arc<Result<ConcurrentApi, anyhow::Error>>>>,
+    api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
 }
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
@@ -35,16 +36,14 @@ impl Api {
         let api = AsyncCell::new().into_shared();
         let api_clone = api.clone();
         tokio::spawn(async move {
-            let api = Arc::new(
-                DynamicYtMusic::new(api_key)
-                    .await
-                    .map(|api| Arc::new(RwLock::new(api))),
-            );
+            let api = DynamicYtMusic::new(api_key)
+                .await
+                .map(|api| Arc::new(RwLock::new(api)));
             api_clone.set(api)
         });
         Api { api }
     }
-    pub async fn get_api(&self) -> Arc<Result<ConcurrentApi, anyhow::Error>> {
+    pub async fn get_api(&self) -> Result<ConcurrentApi, DynamicApiError> {
         // Note that the error, if it exists, is cloned here.
         self.api.get().await
     }
@@ -52,10 +51,9 @@ impl Api {
         &self,
         text: String,
     ) -> Result<(Vec<SearchSuggestion>, String)> {
-        get_search_suggestions(self.get_api().await.map_err(|e| e.into())?, text).await
+        get_search_suggestions(self.get_api().await?, text).await
     }
     pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
-        let api = self.get_api().await.as_ref().as_deref()?;
         search_artists(self.get_api().await?, text).await
     }
     pub fn get_artist_songs(
@@ -87,7 +85,10 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
 // NOTE: Determine how to handle if multiple queries in progress when we lock.
 // TODO: Refresh the oauth file also. (send message to server - filemanager -
 // component)
-pub async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> Result<O>
+pub async fn query_api_with_retry<Q, O>(
+    api: &ConcurrentApi,
+    query: impl Borrow<Q>,
+) -> Result<O, ytmapi_rs::Error>
 where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
     Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
@@ -95,28 +96,26 @@ where
     let res = api.read().await.query::<Q, O>(query.borrow()).await;
     match res {
         Ok(r) => Ok(r),
-        Err(dyn_e) => {
-            match dyn_e.downcast_ref::<ytmapi_rs::Error>() {
-                Some(e) => {
-                    info!("Got error {e} from api");
-                    match e.into_kind() {
-                        ErrorKind::OAuthTokenExpired { token_hash } => {
-                            // Take a clone to re-use later.
-                            let api_clone = api.to_owned();
-                            // First take an exclusive lock - prevent others from doing the same.
-                            let api_owned = api_clone.clone();
-                            let mut api_locked = api_owned.write_owned().await;
-                            // Then check to see if the token_hash hasn't changed since calling the
-                            // query. If it hasn't, we were the first one and are responsible for
-                            // refreshing. If it has, that means another query must have
-                            // already refreshed the token, and we don't need to do
-                            // anything.
-                            let api_token_hash = api_locked.get_token_hash()?;
-                            if api_token_hash == Some(token_hash) {
-                                // A task is spawned to refresh the token, to ensure that it still
-                                // refreshes even if this task is
-                                // cancelled.
-                                tokio::spawn(async {
+        Err(e) => {
+            info!("Got error {e} from api");
+            match e {
+                DynamicApiError::OAuthTokenExpired { token_hash } => {
+                    // Take a clone to re-use later.
+                    let api_clone = api.to_owned();
+                    // First take an exclusive lock - prevent others from doing the same.
+                    let api_owned = api_clone.clone();
+                    let mut api_locked = api_owned.write_owned().await;
+                    // Then check to see if the token_hash hasn't changed since calling the
+                    // query. If it hasn't, we were the first one and are responsible for
+                    // refreshing. If it has, that means another query must have
+                    // already refreshed the token, and we don't need to do
+                    // anything.
+                    let api_token_hash = api_locked.get_token_hash()?;
+                    if api_token_hash == Some(token_hash) {
+                        // A task is spawned to refresh the token, to ensure that it still
+                        // refreshes even if this task is
+                        // cancelled.
+                        tokio::spawn(async {
                             info!("Refreshing oauth token");
                             let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
                             info!("Oauth token refreshed");
@@ -125,17 +124,14 @@ where
                             }
                             Ok::<_,anyhow::Error>(api_locked)
                         }).await??;
-                            }
-                            Ok(api_clone.read_owned().await.query(query).await?)
-                        }
-                        // Regular retry without token refresh, if token isn't expired.
-                        _ => {
-                            info!("Retrying once");
-                            Ok(api.read().await.query(query).await?)
-                        }
                     }
+                    Ok(api_clone.read_owned().await.query(query).await?)
                 }
-                None => Err(dyn_e),
+                // Regular retry without token refresh, if token isn't expired.
+                _ => {
+                    info!("Retrying once");
+                    Ok(api.read().await.query(query).await?)
+                }
             }
         }
     }
@@ -175,7 +171,7 @@ pub enum GetArtistSongsProgressUpdate {
 }
 
 fn get_artist_songs(
-    api: Api,
+    api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
     /// Bailout function that will log an error and send NoSongsFound if we get
@@ -190,7 +186,7 @@ fn get_artist_songs(
     tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
-        let api = match api.get_api().await {
+        let api = match api.get().await {
             Err(e) => return bailout(e, tx).await,
             Ok(api) => api,
         };

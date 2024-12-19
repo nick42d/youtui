@@ -1,84 +1,17 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::config::{ApiKey, AuthType};
-use anyhow::bail;
+use error::DynamicApiError;
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     continuations::Continuable,
-    error::ErrorKind,
     query::{PostQuery, Query},
     YtMusic, YtMusicBuilder,
 };
 
-// OK, this is a rabbit hole.
-// 1. We want to be able store the Result of API creation in a shared cell
-//    (needs to be Clone)
-// 2. We can't return ytmapi_rs::Error as it is not Clone as it can contain
-//    std::io::Error.
-// 3. anyhow::Error is also not Clone
-// 4. We can't just wrap the error in Arc<anyhow::Error> - can't be converted
-//    back to anyhow::Error.
-// 5. Therefore, we use this error type which is Clone - converting non-Clone
-//    variants to Strign for type erasure.
-// 6. The only variant we need to know more than the String representation is
-//    the OAuthTokenExpired error, since it's used for retries.
-type Result<T> = std::result::Result<T, ApiCreationError>;
-#[derive(Clone, Debug)]
-pub enum ApiCreationError {
-    OAuthTokenExpired {
-        token_hash: u64,
-    },
-    WrongAuthToken {
-        current_authtype: AuthType,
-        query_name_string: &'static str,
-    },
-    Other(String),
-}
-
-impl ApiCreationError {
-    fn new_wrong_auth_token<Q>(current_authtype: AuthType) -> Self {
-        ApiCreationError::WrongAuthToken {
-            current_authtype,
-            query_name_string: std::any::type_name::<Q>(),
-        }
-    }
-}
-impl std::error::Error for ApiCreationError {}
-impl std::fmt::Display for ApiCreationError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ApiCreationError::OAuthTokenExpired { token_hash: _ } => {
-                write!(f, "OAuth token has expired")
-            }
-            ApiCreationError::Other(msg) => write!(f, "{msg}"),
-            ApiCreationError::WrongAuthToken {
-                current_authtype,
-                query_name_string,
-            } => {
-                let expected_authtype = match current_authtype {
-                    AuthType::Browser => AuthType::OAuth,
-                    AuthType::OAuth => AuthType::Browser,
-                };
-                write!(
-                    f,
-                    "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
-                    query_name_string, current_authtype, expected_authtype
-                )
-            }
-        }
-    }
-}
-impl From<ytmapi_rs::Error> for ApiCreationError {
-    fn from(value: ytmapi_rs::Error) -> Self {
-        match value.into_kind() {
-            ErrorKind::OAuthTokenExpired { token_hash } => {
-                ApiCreationError::OAuthTokenExpired { token_hash }
-            }
-            other => ApiCreationError::Other(other.to_string()),
-        }
-    }
-}
+pub mod error;
+type Result<T> = std::result::Result<T, DynamicApiError>;
 
 #[derive(Debug, Clone)]
 pub enum DynamicYtMusic {
@@ -154,7 +87,9 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
-            DynamicYtMusic::OAuth(_) => bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth)),
+            DynamicYtMusic::OAuth(_) => {
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(AuthType::OAuth))
+            }
         })
     }
     pub async fn _oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
@@ -163,7 +98,9 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(
+                    AuthType::Browser,
+                ))
             }
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
@@ -187,7 +124,7 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: Continuable<Q>,
     {
-        bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params".to_string())
+        return Err(DynamicApiError::StreamSourceNotSupported);
     }
     pub async fn _browser_query_source<Q>(&self, query: &Q) -> Result<String>
     where
@@ -197,7 +134,9 @@ impl DynamicYtMusic {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
-            DynamicYtMusic::OAuth(_) => bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth)),
+            DynamicYtMusic::OAuth(_) => {
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(AuthType::OAuth))
+            }
         })
     }
     pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
@@ -206,7 +145,9 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
+                return Err(DynamicApiError::new_wrong_auth_token::<Q>(
+                    AuthType::Browser,
+                ))
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })
