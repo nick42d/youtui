@@ -1,5 +1,4 @@
 use crate::config::AuthType;
-use ytmapi_rs::error::ErrorKind;
 
 // OK, this is a rabbit hole as to why this api needs a custom error type.
 // 1. We want to be able store the Result of API creation in a shared cell
