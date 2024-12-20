@@ -3,7 +3,10 @@ use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
-use std::{path::PathBuf, process::ExitCode};
+use std::{
+    path::{Path, PathBuf},
+    process::ExitCode,
+};
 use ytmapi_rs::auth::OAuthToken;
 
 mod api;
@@ -371,7 +374,7 @@ async fn load_po_token() -> anyhow::Result<String> {
 }
 
 // TODO: refactor
-fn auth_token_error_message(token_type: config::AuthType, path: &PathBuf) -> String {
+fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
     format!( "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, path.display())
 }
 

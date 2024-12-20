@@ -11,63 +11,31 @@ use ytmapi_rs::error::ErrorKind;
 //    back to anyhow::Error.
 // 5. Therefore, we use this error type which is Clone - converting non-Clone
 //    variants to Strign for type erasure.
-// 6. The only variant we need to know more than the String representation is
-//    the OAuthTokenExpired error, since it's used for retries.
+// 7. Providing this wrapper type allows it to be converted to an anyhow::Error.
 #[derive(Clone, Debug)]
-pub enum DynamicApiError {
-    OAuthTokenExpired {
-        token_hash: u64,
-    },
-    WrongAuthToken {
-        current_authtype: AuthType,
-        query_name_string: &'static str,
-    },
-    StreamSourceNotSupported,
-    Other(String),
+pub struct DynamicApiError(String);
+
+pub fn wrong_auth_token_error_message<Q>(current_authtype: AuthType) -> String {
+    let expected_authtype = match current_authtype {
+        AuthType::Browser => AuthType::OAuth,
+        AuthType::OAuth => AuthType::Browser,
+    };
+    format!(
+        "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
+        std::any::type_name::<Q>(),
+        current_authtype,
+        expected_authtype
+    )
 }
 
-impl DynamicApiError {
-    pub fn new_wrong_auth_token<Q>(current_authtype: AuthType) -> Self {
-        DynamicApiError::WrongAuthToken {
-            current_authtype,
-            query_name_string: std::any::type_name::<Q>(),
-        }
-    }
-}
 impl std::error::Error for DynamicApiError {}
 impl std::fmt::Display for DynamicApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DynamicApiError::OAuthTokenExpired { token_hash: _ } => {
-                write!(f, "OAuth token has expired")
-            }
-            DynamicApiError::Other(msg) => write!(f, "{msg}"),
-            DynamicApiError::WrongAuthToken {
-                current_authtype,
-                query_name_string,
-            } => {
-                let expected_authtype = match current_authtype {
-                    AuthType::Browser => AuthType::OAuth,
-                    AuthType::OAuth => AuthType::Browser,
-                };
-                write!(
-                    f,
-                    "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
-                    query_name_string, current_authtype, expected_authtype
-                )
-            }
-            DynamicApiError::StreamSourceNotSupported => 
-                write!(f, "It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params"),
-        }
+        write!(f, "Error recieved when creating API: <{}>", self.0)
     }
 }
 impl From<ytmapi_rs::Error> for DynamicApiError {
     fn from(value: ytmapi_rs::Error) -> Self {
-        match value.into_kind() {
-            ErrorKind::OAuthTokenExpired { token_hash } => {
-                DynamicApiError::OAuthTokenExpired { token_hash }
-            }
-            other => DynamicApiError::Other(other.to_string()),
-        }
+        DynamicApiError(value.to_string())
     }
 }

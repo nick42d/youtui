@@ -1,4 +1,4 @@
-use crate::api::error::DynamicApiError;
+use crate::api::DynamicApiError;
 use crate::{
     api::DynamicYtMusic, config::ApiKey, core::send_or_error, get_config_dir, OAUTH_FILENAME,
 };
@@ -12,7 +12,7 @@ use tokio::{
     sync::{mpsc::Sender, RwLock},
 };
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
@@ -43,6 +43,8 @@ impl Api {
         });
         Api { api }
     }
+    // NOTE: Situation where user has tried to create API from an expired OAuth
+    // token is not currently handled.
     pub async fn get_api(&self) -> Result<ConcurrentApi, DynamicApiError> {
         // Note that the error, if it exists, is cloned here.
         self.api.get().await
@@ -85,10 +87,7 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
 // NOTE: Determine how to handle if multiple queries in progress when we lock.
 // TODO: Refresh the oauth file also. (send message to server - filemanager -
 // component)
-pub async fn query_api_with_retry<Q, O>(
-    api: &ConcurrentApi,
-    query: impl Borrow<Q>,
-) -> Result<O, ytmapi_rs::Error>
+pub async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> Result<O>
 where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
     Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
@@ -98,8 +97,8 @@ where
         Ok(r) => Ok(r),
         Err(e) => {
             info!("Got error {e} from api");
-            match e {
-                DynamicApiError::OAuthTokenExpired { token_hash } => {
+            match e.downcast::<ytmapi_rs::Error>().map(|e| e.into_kind()) {
+                Ok(ytmapi_rs::error::ErrorKind::OAuthTokenExpired { token_hash }) => {
                     // Take a clone to re-use later.
                     let api_clone = api.to_owned();
                     // First take an exclusive lock - prevent others from doing the same.
@@ -128,10 +127,13 @@ where
                     Ok(api_clone.read_owned().await.query(query).await?)
                 }
                 // Regular retry without token refresh, if token isn't expired.
-                _ => {
+                Ok(_) => {
                     info!("Retrying once");
                     Ok(api.read().await.query(query).await?)
                 }
+                // If the DynamicApi didn't return a ytmapi_rs::Error, the error must be
+                // non-retryable.
+                Err(e) => Err(e),
             }
         }
     }
@@ -195,21 +197,19 @@ fn get_artist_songs(
         let artist = match artist {
             Ok(a) => a,
             Err(e) => {
-                let Error::Api(e) = e else {
-                    return bailout(e, tx).await;
+                let e = match e.downcast::<ytmapi_rs::Error>().map(|e| e.into_kind()) {
+                    Err(e) => {
+                        return bailout(e, tx).await;
+                    }
+                    Ok(e) => e,
                 };
-                let e = e.into_kind();
                 let ErrorKind::JsonParsing(e) = e else {
                     return bailout(e, tx).await;
                 };
-                let (json, key) = e.get_json_and_key();
+                let (_, key) = e.get_json_and_key();
                 // TODO: Bring loggable json errors into their own function.
                 error!("API error recieved at key {:?}", key);
-                // compile_error!("Remove shitty logging");
-                let path = std::path::Path::new("test.json");
-                std::fs::write(path, json)
-                    .unwrap_or_else(|e| error!("Error <{e}> writing json log"));
-                info!("Wrote json to {:?}", path);
+                warn!("Logging JSON that caused the error is not yet implemented");
                 tracing::info!("Telling caller no songs found (error)");
                 send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
                 return;
