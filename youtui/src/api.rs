@@ -1,7 +1,7 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::config::{ApiKey, AuthType};
 use anyhow::{bail, Result};
-use error::wrong_auth_token_error_message;
+use error::_wrong_auth_token_error_message;
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
@@ -89,7 +89,7 @@ impl DynamicYtMusic {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
             DynamicYtMusic::OAuth(_) => {
-                bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth))
+                bail!(_wrong_auth_token_error_message::<Q>(AuthType::OAuth))
             }
         })
     }
@@ -99,7 +99,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
+                bail!(_wrong_auth_token_error_message::<Q>(AuthType::Browser))
             }
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
         })
@@ -133,7 +133,9 @@ impl DynamicYtMusic {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
-            DynamicYtMusic::OAuth(_) => bail!(wrong_auth_token_error_message::<Q>(AuthType::OAuth)),
+            DynamicYtMusic::OAuth(_) => {
+                bail!(_wrong_auth_token_error_message::<Q>(AuthType::OAuth))
+            }
         })
     }
     pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
@@ -142,7 +144,7 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(_) => {
-                bail!(wrong_auth_token_error_message::<Q>(AuthType::Browser))
+                bail!(_wrong_auth_token_error_message::<Q>(AuthType::Browser))
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
         })

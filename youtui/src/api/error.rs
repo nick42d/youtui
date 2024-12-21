@@ -14,7 +14,7 @@ use crate::config::AuthType;
 #[derive(Clone, Debug)]
 pub struct DynamicApiError(String);
 
-pub fn wrong_auth_token_error_message<Q>(current_authtype: AuthType) -> String {
+pub fn _wrong_auth_token_error_message<Q>(current_authtype: AuthType) -> String {
     let expected_authtype = match current_authtype {
         AuthType::Browser => AuthType::OAuth,
         AuthType::OAuth => AuthType::Browser,

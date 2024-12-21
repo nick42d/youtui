@@ -25,6 +25,7 @@ mod tests;
 pub const POTOKEN_FILENAME: &str = "po_token.txt";
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
+const DIRECTORY_NAME_ERROR_MESSAGE: &str = "Error generating application directory for your host system. See README.md for more information about application directories.";
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]
@@ -331,9 +332,6 @@ pub async fn run_app(rt: RuntimeInfo) -> anyhow::Result<()> {
     Ok(())
 }
 
-// TODO: refactor.
-const DIRECTORY_NAME_ERROR_MESSAGE: &str = "Error generating application directory for your host system. See README.md for more information about application directories.";
-
 pub fn get_data_dir() -> anyhow::Result<PathBuf> {
     // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_DATA_DIR") {
@@ -358,12 +356,12 @@ pub fn get_config_dir() -> anyhow::Result<PathBuf> {
     Ok(directory)
 }
 
-async fn load_po_token() -> anyhow::Result<String> {
+async fn load_po_token<'a>() -> anyhow::Result<String> {
     let mut path = get_config_dir()?;
     path.push(POTOKEN_FILENAME);
     tokio::fs::read_to_string(&path)
         .await
-        // TODO: Remove allocation.
+        // Allocation is required here if we wish to trim within this function.
         .map(|s| s.trim().to_string())
         .with_context(|| {
             format!(
@@ -371,11 +369,6 @@ async fn load_po_token() -> anyhow::Result<String> {
                 path.display()
             )
         })
-}
-
-// TODO: refactor
-fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
-    format!( "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, path.display())
 }
 
 async fn load_cookie_file() -> anyhow::Result<String> {
@@ -391,10 +384,9 @@ async fn load_oauth_file() -> anyhow::Result<OAuthToken> {
     path.push(OAUTH_FILENAME);
     let file = tokio::fs::read_to_string(&path)
         .await
-        // TODO: Remove clone
         .with_context(|| auth_token_error_message(config::AuthType::OAuth, &path))?;
     serde_json::from_str(&file)
-        .with_context(|| format!( "Error parsing AuthType::OAuth auth token from {}. See README.md for more information on auth tokens.", path.display()))
+        .with_context(|| format!("Error parsing AuthType::OAuth auth token from {}. See README.md for more information on auth tokens.", path.display()))
 }
 
 /// Create the Config and Data directories for the app if they do not already
@@ -413,4 +405,8 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
     };
     Ok(api_key)
+}
+
+fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
+    format!("Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, path.display())
 }
