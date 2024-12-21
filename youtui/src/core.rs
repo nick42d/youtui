@@ -1,10 +1,14 @@
 //! Re-usable core functionality.
+use futures::TryStreamExt;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
-use std::{borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, str::FromStr};
+use std::{
+    borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, path::Path, str::FromStr,
+};
 use tokio::sync::mpsc;
+use tokio_stream::{wrappers::ReadDirStream, StreamExt};
 use tracing::error;
 
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
@@ -14,6 +18,31 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .send(msg)
         .await
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
+}
+
+/// Get a file handle to the next available logfile.
+pub async fn next_debug_file_handle(
+    dir: &Path,
+    filename: impl AsRef<str>,
+    max_debug_files: u16,
+) -> Result<tokio::fs::File, tokio::io::Error> {
+    let filename = filename.as_ref();
+    let mut stream = tokio::fs::read_dir(dir).await?;
+    let mut entries = vec![];
+    while let Some(entry) = stream.next_entry().await? {
+        if entry
+            .file_name()
+            .into_string()
+            .unwrap()
+            .starts_with(filename)
+        {
+            entries.push(entry);
+        }
+    }
+    entries.sort_by_key(|f| f.file_name());
+    entries.into_iter().take(max_debug_files as usize);
+    todo!()
+    // for entry in  {}
 }
 
 /// From serde documentation: [https://serde.rs/string-or-struct.html]

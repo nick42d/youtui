@@ -36,7 +36,7 @@ toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
-tokio-stream = "0.1.16"
+tokio-stream = { version = "0.1.16", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.8.0"
 # This can be removed when tui-logger re-exports LevelFilter.
