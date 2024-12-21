@@ -9,7 +9,6 @@ use std::{
     convert::Infallible,
     fmt,
     marker::PhantomData,
-    num::NonZero,
     path::Path,
     str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
@@ -27,20 +26,20 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Create monotonically increasing file handles with prefix filename and ext
-/// fileext, but if there are more than max_files with this pattern, delete the
-/// lowest one first.
+/// Create timestamped file handle in dir with prefix filename and ext
+/// fileext, and if there are more than max_files with this pattern, delete the
+/// one with the oldest timestamp.
 pub async fn get_limited_sequential_file(
     dir: &Path,
     filename: impl AsRef<str>,
     fileext: impl AsRef<str>,
     max_files: u16,
-    timestamp: SystemTime,
 ) -> Result<tokio::fs::File, anyhow::Error> {
     if max_files == 0 {
         bail!("Requested zero file handles")
     }
     let filename = filename.as_ref();
+    let fileext = fileext.as_ref();
     let stream = tokio::fs::read_dir(dir).await?;
     let mut entries = ReadDirStream::new(stream)
         .filter(|try_entry| {
@@ -48,17 +47,19 @@ pub async fn get_limited_sequential_file(
                 .as_ref()
                 .ok()
                 .and_then(|entry| entry.file_name().into_string().ok())
-                .map(|entry_file_name| entry_file_name.starts_with(filename))
+                .map(|entry_file_name| {
+                    entry_file_name.starts_with(filename) && entry_file_name.ends_with(fileext)
+                })
                 .is_some_and(|entry_file_name_matches| entry_file_name_matches)
         })
         .collect::<Result<Vec<_>, _>>()
         .await?;
     entries.sort_by_key(|f| f.file_name());
     // TODO: don't use timestamp debug representation.
-    let timestamp = timestamp.duration_since(UNIX_EPOCH)?.as_secs();
+    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
     // Use 20 characters left padding of zeros - this ensures all timestamps up to
     // usize::MAX still sort in ascending order once stringified.
-    let next_filename = format!("{filename}{:020}.{}", timestamp, fileext.as_ref());
+    let next_filename = format!("{filename}{:020}.{}", timestamp, fileext);
     if let Some(target_file) = entries
         .into_iter()
         .rev()
@@ -66,7 +67,7 @@ pub async fn get_limited_sequential_file(
     {
         tokio::fs::remove_file(target_file.path()).await?;
     }
-    Ok(tokio::fs::File::open(dir.with_file_name(next_filename)).await?)
+    Ok(tokio::fs::File::create_new(dir.join(next_filename)).await?)
 }
 
 /// From serde documentation: [https://serde.rs/string-or-struct.html]
@@ -115,25 +116,103 @@ where
 #[cfg(test)]
 mod tests {
     use crate::core::get_limited_sequential_file;
-    use std::time::SystemTime;
+    use pretty_assertions::assert_eq;
+    use std::time::Duration;
     use tempfile::TempDir;
+    use tokio_stream::{wrappers::ReadDirStream, StreamExt};
 
     #[tokio::test]
-    async fn test_get_limited_sequential_file_is_monotonic() {
-        let tmpdir = TempDir::new();
-        let f1 =
-            get_limited_sequential_file(tmpdir, "test_is_monotonic", "txt", 5, SystemTime::now())
-                .await
-                .unwrap();
-        let f2 =
-            get_limited_sequential_file(tmpdir, "test_is_monotonic", "txt", 5, SystemTime::now())
-                .await
-                .unwrap();
+    async fn test_get_limited_sequential_file_has_correct_filename() {
+        let tmpdir = TempDir::new().unwrap();
+        let _file = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 5)
+            .await
+            .unwrap();
+        let filename = tokio::fs::read_dir(tmpdir.path())
+            .await
+            .unwrap()
+            .next_entry()
+            .await
+            .unwrap()
+            .unwrap()
+            .file_name()
+            .into_string()
+            .unwrap();
+        assert!(filename.starts_with("test_filename"));
+        assert!(filename.ends_with(".txt"));
+        let timestamp = filename
+            .trim_start_matches("test_filename")
+            .trim_end_matches(".txt");
+        assert!(timestamp.len() == 20);
+        assert!(timestamp.parse::<usize>().is_ok())
     }
     #[tokio::test]
-    async fn test_get_limited_sequential_file_deletes_one() {}
+    async fn test_get_limited_sequential_file_deletes_oldest() {
+        let tmpdir = TempDir::new().unwrap();
+        let _f1 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
+            .await
+            .unwrap();
+        let f1_name = tokio::fs::read_dir(tmpdir.path())
+            .await
+            .unwrap()
+            .next_entry()
+            .await
+            .unwrap()
+            .unwrap()
+            .file_name()
+            .into_string()
+            .unwrap();
+        // Timestamp is in seconds, we need a delay to ensure timestamp increases.
+        tokio::time::sleep(Duration::from_secs(1)).await;
+        let _f2 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
+            .await
+            .unwrap();
+        let files_count = std::fs::read_dir(tmpdir.path()).unwrap().count();
+        assert_eq!(files_count, 2);
+        // Timestamp is in seconds, we need a delay to ensure timestamp increases.
+        tokio::time::sleep(Duration::from_secs(1)).await;
+        let _f3 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
+            .await
+            .unwrap();
+        let files_count = std::fs::read_dir(tmpdir.path()).unwrap().count();
+        assert_eq!(files_count, 2);
+        assert!(
+            tokio::fs::File::open(tmpdir.path().join(f1_name))
+                .await
+                .is_err(),
+            "_f1 should have been deleted"
+        )
+    }
     #[tokio::test]
-    async fn test_get_limited_sequential_file_creates_one() {}
-    #[tokio::test]
-    async fn test_get_limited_sequential_file_doesnt_delete_others() {}
+    async fn test_get_limited_sequential_file_doesnt_delete_others() {
+        let tmpdir = TempDir::new().unwrap();
+        let _f = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 1)
+            .await
+            .unwrap();
+        let (Ok(_f1), Ok(_f2), _) = tokio::join!(
+            tokio::fs::File::create_new(tmpdir.path().join("xxx.txt")),
+            tokio::fs::File::create_new(tmpdir.path().join("test_filename_xxx")),
+            tokio::time::sleep(Duration::from_secs(1)),
+        ) else {
+            panic!("Error creating test files")
+        };
+        let _f = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 1)
+            .await
+            .unwrap();
+        let files_in_dir = ReadDirStream::new(tokio::fs::read_dir(tmpdir.path()).await.unwrap())
+            .collect::<Vec<_>>()
+            .await;
+        assert_eq!(files_in_dir.len(), 3);
+        assert!(
+            tokio::fs::File::open(tmpdir.path().join("test_filename_xxx"))
+                .await
+                .is_ok(),
+            "test_filename_xxx should not have been deleted"
+        );
+        assert!(
+            tokio::fs::File::open(tmpdir.path().join("xxx.txt"))
+                .await
+                .is_ok(),
+            "xxx.txt should not have been deleted"
+        )
+    }
 }
