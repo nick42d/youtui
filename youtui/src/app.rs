@@ -1,6 +1,6 @@
 use super::appevent::{AppEvent, EventHandler};
-use crate::{get_data_dir, RuntimeInfo};
-use anyhow::Result;
+use crate::{core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
+use anyhow::{Context, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -34,7 +34,9 @@ thread_local! {
 
 const CALLBACK_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
-const LOG_FILE_NAME: &str = "debug.log";
+const LOG_FILE_NAME: &str = "debug";
+const LOG_FILE_EXT: &str = "debug";
+const MAX_LOG_FILES: u16 = 5;
 
 pub struct Youtui {
     status: AppStatus,
@@ -65,7 +67,7 @@ pub enum AppCallback {
 }
 
 impl Youtui {
-    pub fn new(rt: RuntimeInfo) -> Result<Youtui> {
+    pub async fn new(rt: RuntimeInfo) -> Result<Youtui> {
         let RuntimeInfo {
             api_key,
             debug,
@@ -73,7 +75,7 @@ impl Youtui {
             config,
         } = rt;
         // Setup tracing and link to tui_logger.
-        init_tracing(debug)?;
+        init_tracing(debug, todo!()).await?;
         info!("Starting");
         // Setup terminal
         enable_raw_mode()?;
@@ -215,14 +217,27 @@ fn destruct_terminal() -> Result<()> {
 /// Initialise tracing and subscribers such as tuilogger and file logging.
 /// # Panics
 /// If tracing fails to initialise, function will panic
-fn init_tracing(debug: bool) -> Result<()> {
+async fn init_tracing(debug: bool, logging: bool) -> Result<()> {
     let tui_logger_layer = tui_logger::tracing_subscriber_layer();
-    if debug {
+    let log_level = if debug {
+        tracing::Level::DEBUG
+    } else {
+        tracing::Level::INFO
+    };
+    if logging {
         let log_file_name = get_data_dir()?.join(LOG_FILE_NAME);
-        let log_file = std::fs::File::create(&log_file_name)?;
+        let log_file = get_limited_sequential_file(
+            &get_data_dir()?,
+            LOG_FILE_NAME,
+            LOG_FILE_EXT,
+            MAX_LOG_FILES,
+        )
+        .await?
+        .try_into_std()
+        .expect("No file operation should be in-flight yet");
         let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
         let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::DEBUG);
+            tracing_subscriber::filter::Targets::new().with_target("youtui", log_level);
         tracing_subscriber::registry()
             .with(tui_logger_layer.and_then(log_file_layer))
             .with(context_layer)
@@ -232,7 +247,7 @@ fn init_tracing(debug: bool) -> Result<()> {
         info!("Started in debug mode, logging to {:?}.", log_file_name);
     } else {
         let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing::Level::INFO);
+            tracing_subscriber::filter::Targets::new().with_target("youtui", log_level);
         tracing_subscriber::registry()
             .with(tui_logger_layer)
             .with(context_layer)
