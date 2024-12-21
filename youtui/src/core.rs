@@ -1,4 +1,5 @@
 //! Re-usable core functionality.
+use anyhow::Context;
 use futures::TryStreamExt;
 use serde::{
     de::{self, MapAccess, Visitor},
@@ -6,6 +7,7 @@ use serde::{
 };
 use std::{
     borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, path::Path, str::FromStr,
+    time::SystemTime,
 };
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReadDirStream, StreamExt};
@@ -24,25 +26,30 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
 pub async fn next_debug_file_handle(
     dir: &Path,
     filename: impl AsRef<str>,
+    fileext: impl AsRef<str>,
     max_debug_files: u16,
-) -> Result<tokio::fs::File, tokio::io::Error> {
+    timestamp: SystemTime,
+) -> Result<tokio::fs::File, anyhow::Error> {
     let filename = filename.as_ref();
-    let mut stream = tokio::fs::read_dir(dir).await?;
-    let mut entries = vec![];
-    while let Some(entry) = stream.next_entry().await? {
-        if entry
-            .file_name()
-            .into_string()
-            .unwrap()
-            .starts_with(filename)
-        {
-            entries.push(entry);
-        }
-    }
+    let stream = tokio::fs::read_dir(dir).await?;
+    let mut entries = ReadDirStream::new(stream)
+        .filter(|try_entry| {
+            try_entry
+                .as_ref()
+                .ok()
+                .and_then(|entry| entry.file_name().into_string().ok())
+                .map(|entry_file_name| entry_file_name.starts_with(filename))
+                .is_some_and(|entry_file_name_matches| entry_file_name_matches)
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .await?;
     entries.sort_by_key(|f| f.file_name());
-    entries.into_iter().take(max_debug_files as usize);
-    todo!()
-    // for entry in  {}
+    // TODO: don't use timestamp debug representation.
+    let next_filename = format!("{filename}{:?}.{}", timestamp, fileext.as_ref());
+    if let Some(target_file) = entries.into_iter().rev().nth(max_debug_files as usize) {
+        tokio::fs::remove_file(target_file.path()).await?;
+    }
+    Ok(tokio::fs::File::open(dir.with_file_name(next_filename)).await?)
 }
 
 /// From serde documentation: [https://serde.rs/string-or-struct.html]
