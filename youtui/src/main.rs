@@ -394,8 +394,10 @@ async fn load_oauth_file() -> anyhow::Result<OAuthToken> {
 async fn initialise_directories() -> anyhow::Result<()> {
     let config_dir = get_config_dir()?;
     let data_dir = get_data_dir()?;
-    tokio::fs::create_dir_all(config_dir).await?;
-    tokio::fs::create_dir_all(data_dir).await?;
+    tokio::try_join!(
+        tokio::fs::create_dir_all(config_dir),
+        tokio::fs::create_dir_all(data_dir),
+    )?;
     Ok(())
 }
 

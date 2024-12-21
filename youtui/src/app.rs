@@ -127,7 +127,7 @@ impl Youtui {
                         ui::draw::draw_app(f, &mut self.window_state);
                     })?;
                     // When running, the app is event based, and will block until one of the
-                    // following 4 message types is received.
+                    // following 3 message types is received.
                     tokio::select! {
                         // Get the next event from the event_handler and process it.
                         // TODO: Consider checking here if redraw is required.
@@ -137,7 +137,6 @@ impl Youtui {
                         Some(callback) = self.callback_rx.recv() =>
                             self.handle_callback(callback),
                         // Process the next manager event.
-                        // If all the manager has done is spawn tasks, there's no need to draw.
                         Some(outcome) = self.task_manager.get_next_response() =>
                             self.handle_effect(outcome),
                     }
