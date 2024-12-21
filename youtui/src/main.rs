@@ -1,10 +1,12 @@
+use anyhow::{bail, Context};
 use clap::{Args, Parser, Subcommand};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
-use error::Error;
-pub use error::Result;
-use std::{path::PathBuf, process::ExitCode};
+use std::{
+    path::{Path, PathBuf},
+    process::ExitCode,
+};
 use ytmapi_rs::auth::OAuthToken;
 
 mod api;
@@ -15,7 +17,6 @@ mod cli;
 mod config;
 mod core;
 mod drawutils;
-mod error;
 mod keyaction;
 mod keybind;
 #[cfg(test)]
@@ -24,6 +25,7 @@ mod tests;
 pub const POTOKEN_FILENAME: &str = "po_token.txt";
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
+const DIRECTORY_NAME_ERROR_MESSAGE: &str = "Error generating application directory for your host system. See README.md for more information about application directories.";
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]
@@ -249,7 +251,7 @@ async fn main() -> ExitCode {
 
 // Main function is refactored here so that we can pretty print errors.
 // Regular main function returns debug errors so not as friendly.
-async fn try_main() -> Result<()> {
+async fn try_main() -> anyhow::Result<()> {
     let args = Arguments::parse();
     let Arguments {
         debug,
@@ -296,7 +298,7 @@ async fn try_main() -> Result<()> {
 }
 
 // XXX: Seems to be some duplication of load_api_key.
-async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
+async fn get_api(config: &Config) -> anyhow::Result<api::DynamicYtMusic> {
     let confdir = get_config_dir()?;
     let api = match config.auth_type {
         config::AuthType::OAuth => {
@@ -324,68 +326,72 @@ async fn get_api(config: &Config) -> Result<api::DynamicYtMusic> {
     Ok(api)
 }
 
-pub async fn run_app(rt: RuntimeInfo) -> Result<()> {
+pub async fn run_app(rt: RuntimeInfo) -> anyhow::Result<()> {
     let mut app = app::Youtui::new(rt)?;
     app.run().await?;
     Ok(())
 }
 
-pub fn get_data_dir() -> Result<PathBuf> {
+pub fn get_data_dir() -> anyhow::Result<PathBuf> {
     // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_DATA_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.data_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryName);
+        bail!(DIRECTORY_NAME_ERROR_MESSAGE);
     };
     Ok(directory)
 }
 
-pub fn get_config_dir() -> Result<PathBuf> {
+pub fn get_config_dir() -> anyhow::Result<PathBuf> {
     // TODO: Document that directory can be set by environment variable.
     let directory = if let Ok(s) = std::env::var("YOUTUI_CONFIG_DIR") {
         PathBuf::from(s)
     } else if let Some(proj_dirs) = ProjectDirs::from("com", "nick42", "youtui") {
         proj_dirs.config_local_dir().to_path_buf()
     } else {
-        return Err(Error::DirectoryName);
+        bail!(DIRECTORY_NAME_ERROR_MESSAGE);
     };
     Ok(directory)
 }
 
-async fn load_po_token() -> Result<String> {
+async fn load_po_token<'a>() -> anyhow::Result<String> {
     let mut path = get_config_dir()?;
     path.push(POTOKEN_FILENAME);
     tokio::fs::read_to_string(&path)
         .await
-        // TODO: Remove allocation.
+        // Allocation is required here if we wish to trim within this function.
         .map(|s| s.trim().to_string())
-        .map_err(|e| Error::new_po_token_error(path, e))
+        .with_context(|| {
+            format!(
+                "Error loading po_token from {}. Does the file exist?",
+                path.display()
+            )
+        })
 }
 
-async fn load_cookie_file() -> Result<String> {
+async fn load_cookie_file() -> anyhow::Result<String> {
     let mut path = get_config_dir()?;
     path.push(COOKIE_FILENAME);
     tokio::fs::read_to_string(&path)
         .await
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::Browser, path, e))
+        .with_context(|| auth_token_error_message(config::AuthType::Browser, &path))
 }
 
-async fn load_oauth_file() -> Result<OAuthToken> {
+async fn load_oauth_file() -> anyhow::Result<OAuthToken> {
     let mut path = get_config_dir()?;
     path.push(OAUTH_FILENAME);
     let file = tokio::fs::read_to_string(&path)
         .await
-        // TODO: Remove clone
-        .map_err(|e| Error::new_auth_token_error(config::AuthType::OAuth, path.clone(), e))?;
+        .with_context(|| auth_token_error_message(config::AuthType::OAuth, &path))?;
     serde_json::from_str(&file)
-        .map_err(|_| Error::new_auth_token_parse_error(config::AuthType::OAuth, path))
+        .with_context(|| format!("Error parsing AuthType::OAuth auth token from {}. See README.md for more information on auth tokens.", path.display()))
 }
 
 /// Create the Config and Data directories for the app if they do not already
 /// exist. Returns an error if unsuccesful.
-async fn initialise_directories() -> Result<()> {
+async fn initialise_directories() -> anyhow::Result<()> {
     let config_dir = get_config_dir()?;
     let data_dir = get_data_dir()?;
     tokio::fs::create_dir_all(config_dir).await?;
@@ -393,10 +399,14 @@ async fn initialise_directories() -> Result<()> {
     Ok(())
 }
 
-async fn load_api_key(cfg: &Config) -> Result<ApiKey> {
+async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     let api_key = match cfg.auth_type {
         config::AuthType::OAuth => ApiKey::OAuthToken(load_oauth_file().await?),
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
     };
     Ok(api_key)
+}
+
+fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
+    format!("Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, path.display())
 }

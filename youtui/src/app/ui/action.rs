@@ -11,6 +11,7 @@ use super::{
     HelpMenu, YoutuiWindow,
 };
 use crate::app::component::actionhandler::{Action, ActionHandler};
+use anyhow::bail;
 use async_callback_manager::AsyncTask;
 use serde::{
     de::{self},
@@ -160,7 +161,7 @@ impl Action for AppAction {
 }
 
 impl TryFrom<String> for AppAction {
-    type Error = String;
+    type Error = anyhow::Error;
     fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
         let mut vec = value
             .split('.')
@@ -168,25 +169,24 @@ impl TryFrom<String> for AppAction {
             .map(ToString::to_string)
             .collect::<Vec<String>>();
         if vec.len() >= 3 {
-            return Err(format!(
+            bail!(format!(
                 "Action {value} had too many subscripts, expected 1 max"
             ));
         };
         if vec.is_empty() {
-            return Err("Action was empty!".to_string());
+            bail!("Action was empty!");
         };
         let back = vec.pop().expect("Length checked above");
         let front = vec.pop();
         if let Some(tag) = front {
             // Neat hack to turn tag.back into any of the nested enum variants.
             let json = serde_json::json!({tag : back});
-            serde_json::from_value(json).map_err(|e| e.to_string())
+            Ok(serde_json::from_value(json)?)
         } else {
             // Neat hack to turn back into any of the non-nested enum variants.
-            Deserialize::deserialize(de::value::StringDeserializer::<serde_json::Error>::new(
-                back,
-            ))
-            .map_err(|e| e.to_string())
+            Ok(Deserialize::deserialize(de::value::StringDeserializer::<
+                serde_json::Error,
+            >::new(back))?)
         }
     }
 }

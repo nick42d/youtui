@@ -1,5 +1,5 @@
 use crate::get_config_dir;
-use crate::Result;
+use anyhow::Result;
 use clap::ValueEnum;
 use keymap::YoutuiKeymap;
 use keymap::YoutuiKeymapIR;
@@ -52,7 +52,7 @@ pub struct ConfigIR {
 }
 
 impl TryFrom<ConfigIR> for Config {
-    type Error = String;
+    type Error = anyhow::Error;
     fn try_from(value: ConfigIR) -> std::result::Result<Self, Self::Error> {
         let ConfigIR {
             auth_type,
@@ -80,7 +80,7 @@ impl Config {
                 );
             }
             let ir: ConfigIR = toml::from_str(&config_file)?;
-            Ok(Config::try_from(ir).map_err(crate::Error::Other)?)
+            Ok(Config::try_from(ir)?)
         } else {
             if debug {
                 println!(

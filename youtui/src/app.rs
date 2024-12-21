@@ -1,6 +1,6 @@
 use super::appevent::{AppEvent, EventHandler};
-use super::Result;
 use crate::{get_data_dir, RuntimeInfo};
+use anyhow::Result;
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
