@@ -61,6 +61,7 @@ features = ["symphonia-all"]
 
 [dev-dependencies]
 pretty_assertions= "1.4.1"
+tempfile = "3.14.0"
 
 [lints]
 workspace = true

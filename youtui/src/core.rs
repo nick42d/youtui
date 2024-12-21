@@ -1,13 +1,18 @@
 //! Re-usable core functionality.
-use anyhow::Context;
-use futures::TryStreamExt;
+use anyhow::bail;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
 use std::{
-    borrow::Borrow, convert::Infallible, fmt, marker::PhantomData, path::Path, str::FromStr,
-    time::SystemTime,
+    borrow::Borrow,
+    convert::Infallible,
+    fmt,
+    marker::PhantomData,
+    num::NonZero,
+    path::Path,
+    str::FromStr,
+    time::{SystemTime, UNIX_EPOCH},
 };
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReadDirStream, StreamExt};
@@ -22,14 +27,19 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Get a file handle to the next available logfile.
-pub async fn next_debug_file_handle(
+/// Create monotonically increasing file handles with prefix filename and ext
+/// fileext, but if there are more than max_files with this pattern, delete the
+/// lowest one first.
+pub async fn get_limited_sequential_file(
     dir: &Path,
     filename: impl AsRef<str>,
     fileext: impl AsRef<str>,
-    max_debug_files: u16,
+    max_files: u16,
     timestamp: SystemTime,
 ) -> Result<tokio::fs::File, anyhow::Error> {
+    if max_files == 0 {
+        bail!("Requested zero file handles")
+    }
     let filename = filename.as_ref();
     let stream = tokio::fs::read_dir(dir).await?;
     let mut entries = ReadDirStream::new(stream)
@@ -45,8 +55,15 @@ pub async fn next_debug_file_handle(
         .await?;
     entries.sort_by_key(|f| f.file_name());
     // TODO: don't use timestamp debug representation.
-    let next_filename = format!("{filename}{:?}.{}", timestamp, fileext.as_ref());
-    if let Some(target_file) = entries.into_iter().rev().nth(max_debug_files as usize) {
+    let timestamp = timestamp.duration_since(UNIX_EPOCH)?.as_secs();
+    // Use 20 characters left padding of zeros - this ensures all timestamps up to
+    // usize::MAX still sort in ascending order once stringified.
+    let next_filename = format!("{filename}{:020}.{}", timestamp, fileext.as_ref());
+    if let Some(target_file) = entries
+        .into_iter()
+        .rev()
+        .nth(max_files.checked_sub(1).expect("Zero should be guarded") as usize)
+    {
         tokio::fs::remove_file(target_file.path()).await?;
     }
     Ok(tokio::fs::File::open(dir.with_file_name(next_filename)).await?)
@@ -90,4 +107,33 @@ where
         }
     }
     deserializer.deserialize_any(StringOrStruct(PhantomData))
+}
+
+/// Get monotonically increasing file handles with prefix filename and ext
+/// fileext, but if there are more than max_files with this pattern, delete the
+/// lowest one first.
+#[cfg(test)]
+mod tests {
+    use crate::core::get_limited_sequential_file;
+    use std::time::SystemTime;
+    use tempfile::TempDir;
+
+    #[tokio::test]
+    async fn test_get_limited_sequential_file_is_monotonic() {
+        let tmpdir = TempDir::new();
+        let f1 =
+            get_limited_sequential_file(tmpdir, "test_is_monotonic", "txt", 5, SystemTime::now())
+                .await
+                .unwrap();
+        let f2 =
+            get_limited_sequential_file(tmpdir, "test_is_monotonic", "txt", 5, SystemTime::now())
+                .await
+                .unwrap();
+    }
+    #[tokio::test]
+    async fn test_get_limited_sequential_file_deletes_one() {}
+    #[tokio::test]
+    async fn test_get_limited_sequential_file_creates_one() {}
+    #[tokio::test]
+    async fn test_get_limited_sequential_file_doesnt_delete_others() {}
 }
