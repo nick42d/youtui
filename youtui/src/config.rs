@@ -1,4 +1,5 @@
 use crate::get_config_dir;
+use anyhow::Context;
 use anyhow::Result;
 use clap::ValueEnum;
 use keymap::YoutuiKeymap;
@@ -79,8 +80,9 @@ impl Config {
                     config_file_location.to_string_lossy()
                 );
             }
-            let ir: ConfigIR = toml::from_str(&config_file)?;
-            Ok(Config::try_from(ir)?)
+            let ir: ConfigIR = toml::from_str(&config_file)
+                .context("Error deserializing config file from toml")?;
+            Ok(Config::try_from(ir).context("Error processing config file")?)
         } else {
             if debug {
                 println!(
