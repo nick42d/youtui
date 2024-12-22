@@ -9,7 +9,7 @@ use std::{
     convert::Infallible,
     fmt,
     marker::PhantomData,
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -34,7 +34,7 @@ pub async fn get_limited_sequential_file(
     filename: impl AsRef<str>,
     fileext: impl AsRef<str>,
     max_files: u16,
-) -> Result<tokio::fs::File, anyhow::Error> {
+) -> Result<(tokio::fs::File, PathBuf), anyhow::Error> {
     if max_files == 0 {
         bail!("Requested zero file handles")
     }
@@ -67,7 +67,11 @@ pub async fn get_limited_sequential_file(
     {
         tokio::fs::remove_file(target_file.path()).await?;
     }
-    Ok(tokio::fs::File::create_new(dir.join(next_filename)).await?)
+    let next_filepath = dir.join(next_filename);
+    Ok((
+        tokio::fs::File::create_new(&next_filepath).await?,
+        next_filepath,
+    ))
 }
 
 /// From serde documentation: [https://serde.rs/string-or-struct.html]

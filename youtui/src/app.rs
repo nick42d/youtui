@@ -1,13 +1,12 @@
 use super::appevent::{AppEvent, EventHandler};
 use crate::{core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
-use anyhow::{Context, Result};
+use anyhow::Result;
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use log::LevelFilter;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
@@ -35,7 +34,7 @@ thread_local! {
 const CALLBACK_CHANNEL_SIZE: usize = 64;
 const EVENT_CHANNEL_SIZE: usize = 256;
 const LOG_FILE_NAME: &str = "debug";
-const LOG_FILE_EXT: &str = "debug";
+const LOG_FILE_EXT: &str = "log";
 const MAX_LOG_FILES: u16 = 5;
 
 pub struct Youtui {
@@ -75,8 +74,13 @@ impl Youtui {
             config,
         } = rt;
         // Setup tracing and link to tui_logger.
-        init_tracing(debug, todo!()).await?;
-        info!("Starting");
+        // NOTE: File logging is always enabled for now - I can't think of a use case
+        // where we wouldn't want this.
+        init_tracing(debug, true).await?;
+        match debug {
+            true => info!("Starting in debug mode"),
+            false => info!("Starting"),
+        }
         // Setup terminal
         enable_raw_mode()?;
         let mut stdout = io::stdout();
@@ -219,41 +223,40 @@ fn destruct_terminal() -> Result<()> {
 /// If tracing fails to initialise, function will panic
 async fn init_tracing(debug: bool, logging: bool) -> Result<()> {
     let tui_logger_layer = tui_logger::tracing_subscriber_layer();
-    let log_level = if debug {
-        tracing::Level::DEBUG
+    let (tracing_log_level, tui_logger_log_level) = if debug {
+        (tracing::Level::DEBUG, tui_logger::LevelFilter::Debug)
     } else {
-        tracing::Level::INFO
+        (tracing::Level::INFO, tui_logger::LevelFilter::Info)
     };
+    let context_layer =
+        tracing_subscriber::filter::Targets::new().with_target("youtui", tracing_log_level);
     if logging {
-        let log_file_name = get_data_dir()?.join(LOG_FILE_NAME);
-        let log_file = get_limited_sequential_file(
+        let (log_file, log_file_name) = get_limited_sequential_file(
             &get_data_dir()?,
             LOG_FILE_NAME,
             LOG_FILE_EXT,
             MAX_LOG_FILES,
         )
-        .await?
-        .try_into_std()
-        .expect("No file operation should be in-flight yet");
-        let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(log_file));
-        let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", log_level);
+        .await?;
+        let log_file_layer = tracing_subscriber::fmt::layer().with_writer(Arc::new(
+            log_file
+                .try_into_std()
+                .expect("No file operation should be in-flight yet"),
+        ));
         tracing_subscriber::registry()
             .with(tui_logger_layer.and_then(log_file_layer))
             .with(context_layer)
             .init();
-        tui_logger::init_logger(LevelFilter::Debug)
-            .expect("Expected logger to initialise succesfully");
-        info!("Started in debug mode, logging to {:?}.", log_file_name);
+        info!("Logging to {:?}.", log_file_name);
     } else {
         let context_layer =
-            tracing_subscriber::filter::Targets::new().with_target("youtui", log_level);
+            tracing_subscriber::filter::Targets::new().with_target("youtui", tracing_log_level);
         tracing_subscriber::registry()
             .with(tui_logger_layer)
             .with(context_layer)
             .init();
-        tui_logger::init_logger(LevelFilter::Info)
-            .expect("Expected logger to initialise succesfully");
     }
+    tui_logger::init_logger(tui_logger_log_level)
+        .expect("Expected logger to initialise succesfully");
     Ok(())
 }
