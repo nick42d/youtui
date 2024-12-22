@@ -11,7 +11,7 @@ use crate::app::ui::logger::LoggerAction;
 use crate::app::ui::playlist::PlaylistAction::{self, ViewBrowser};
 use crate::keyaction::{KeyAction, KeyActionVisibility};
 use crate::keybind::Keybind;
-use anyhow::{Error, Result};
+use anyhow::{Context, Error, Result};
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
 use std::collections::btree_map::Entry;
@@ -173,21 +173,24 @@ impl YoutuiKeymap {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Global keybinds parse failed")?;
         let playlist = playlist
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Playlist keybinds parse failed")?;
         let browser = browser
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser keybinds parse failed")?;
         let browser_artists = browser_artists
             .into_iter()
             .map(|(k, v)| {
@@ -195,7 +198,8 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_artists_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser artists keybinds parse failed")?;
         let browser_search = browser_search
             .into_iter()
             .map(|(k, v)| {
@@ -203,7 +207,8 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_search_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser search keybinds parse failed")?;
         let browser_songs = browser_songs
             .into_iter()
             .map(|(k, v)| {
@@ -211,49 +216,56 @@ impl YoutuiKeymap {
                     KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_songs_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser songs keybinds parse failed")?;
         let text_entry = text_entry
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Text entry keybinds parse failed")?;
         let help = help
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Help keybinds parse failed")?;
         let sort = sort
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Sort keybinds parse failed")?;
         let filter = filter
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Filter keybinds parse failed")?;
         let list = list
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("List keybinds parse failed")?;
         let log = log
             .into_iter()
             .map(|(k, v)| {
                 let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
                 Ok((k, v))
             })
-            .collect::<Result<BTreeMap<_, _>>>()?;
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Log keybinds parse failed")?;
         let mut keymap = YoutuiKeymap::default();
         merge_keymaps(&mut keymap.global, global);
         merge_keymaps(&mut keymap.playlist, playlist);

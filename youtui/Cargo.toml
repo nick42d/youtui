@@ -19,7 +19,7 @@ crossterm = { version = "0.28.1", features = ["event-stream", "serde"] }
 futures = "0.3.31"
 rat-text = "0.29.0"
 ratatui = { version = "0.29.0", features = ["all-widgets"] }
-tui-logger = { version = "0.14.0", features = ["tracing-support"] }
+tui-logger = { version = "0.14.1", features = ["tracing-support"] }
 serde = "1.0.215"
 serde_json = "1.0.133"
 tokio = "1.41.1"
@@ -36,12 +36,9 @@ toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.13.0"
-tokio-stream = "0.1.16"
+tokio-stream = { version = "0.1.16", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.8.0"
-# This can be removed when tui-logger re-exports LevelFilter.
-# https://github.com/gin66/tui-logger/pull/74
-log = "0.4.22"
 anyhow = "1.0.93"
 
 [dependencies.rusty_ytdl]
@@ -61,6 +58,7 @@ features = ["symphonia-all"]
 
 [dev-dependencies]
 pretty_assertions= "1.4.1"
+tempfile = "3.14.0"
 
 [lints]
 workspace = true
