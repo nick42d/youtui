@@ -1055,6 +1055,43 @@
                                     }
                                   },
                                   {
+                                    "toggleMenuServiceItemRenderer": {
+                                      "defaultText": {
+                                        "runs": [
+                                          {
+                                            "text": "Pin to Listen again"
+                                          }
+                                        ]
+                                      },
+                                      "defaultIcon": {
+                                        "iconType": "KEEP"
+                                      },
+                                      "defaultServiceEndpoint": {
+                                        "clickTrackingParams": "CGMQ_t4KGAkiEwjj5YfIx5mLAxW-KbcAHYVQGPc=",
+                                        "feedbackEndpoint": {
+                                          "feedbackToken": "AB9zfpIRPd8OOTTpCHxl0q42puhemyML-kmiViFmcCj0UHfcV4oY3zk3Irtdi7MV6KbayyTB6p7pCntYOXyFF26FkBEzcQTPSlXLetxNMTtzQ_JXwQlWHOk"
+                                        }
+                                      },
+                                      "toggledText": {
+                                        "runs": [
+                                          {
+                                            "text": "Unpin from Listen again"
+                                          }
+                                        ]
+                                      },
+                                      "toggledIcon": {
+                                        "iconType": "KEEP_OFF"
+                                      },
+                                      "toggledServiceEndpoint": {
+                                        "clickTrackingParams": "CGMQ_t4KGAkiEwjj5YfIx5mLAxW-KbcAHYVQGPc=",
+                                        "feedbackEndpoint": {
+                                          "feedbackToken": "AB9zfpLT1zJlToSauuQ4Jfq-bJ3ZYE05FBjcSJfnqjRDQP4_ibvO2prbTprBgqIr-qiLqA28ZN2RK8R0WffdwAIhYWZH4234k8nxltOBS5B0gf7VGew9p5A"
+                                        }
+                                      },
+                                      "trackingParams": "CGMQ_t4KGAkiEwjj5YfIx5mLAxW-KbcAHYVQGPc="
+                                    }
+                                  },
+                                  {
                                     "menuNavigationItemRenderer": {
                                       "text": {
                                         "runs": [
