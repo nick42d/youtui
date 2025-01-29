@@ -101,9 +101,6 @@ pub mod query;
 #[cfg_attr(docsrs, doc(cfg(feature = "simplified-queries")))]
 pub mod simplified_queries;
 
-#[cfg(test)]
-mod tests;
-
 #[derive(Debug, Clone)]
 // XXX: Consider wrapping auth in reference counting for cheap cloning.
 // XXX: Note that we would then need to use a RwLock if we wanted to use mutability for
