@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.18](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.17...ytmapi-rs/v0.0.18) - 2025-01-29
+
+### Fixed
+- Resolve error unknown variant `KEEP` - closes #193 (#195)
+
+
+
+
 ## [0.0.17](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.16...ytmapi-rs/v0.0.17) - 2024-12-15
 
 ### Added

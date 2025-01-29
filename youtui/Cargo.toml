@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.18"
+version = "0.0.19"
 edition = "2021"
 authors = ["nick42d"]
 license = "MIT"
@@ -24,11 +24,11 @@ serde = "1.0.215"
 serde_json = "1.0.133"
 tokio = "1.41.1"
 gag = "1.0.0"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.17", default-features = false, features = [
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.18", default-features = false, features = [
     "rustls-tls",
     "simplified-queries",
 ] }
-async-callback-manager = { path = "../async-callback-manager", version = "0.0.3" }
+async-callback-manager = { path = "../async-callback-manager", version = "0.0.4" }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 directories = "5.0.1"
