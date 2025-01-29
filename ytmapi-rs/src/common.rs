@@ -97,19 +97,19 @@ pub struct LibraryManager {
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub enum LibraryStatus {
-    #[serde(alias = "LIBRARY_SAVED")]
+    #[serde(rename = "LIBRARY_SAVED")]
     InLibrary,
-    #[serde(alias = "LIBRARY_ADD")]
+    #[serde(rename = "LIBRARY_ADD")]
     NotInLibrary,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub enum LikeStatus {
-    #[serde(alias = "LIKE")]
+    #[serde(rename = "LIKE")]
     Liked,
-    #[serde(alias = "DISLIKE")]
+    #[serde(rename = "DISLIKE")]
     Disliked,
-    #[serde(alias = "INDIFFERENT")]
+    #[serde(rename = "INDIFFERENT")]
     /// Indifferent means that the song has not been liked or disliked.
     Indifferent,
 }

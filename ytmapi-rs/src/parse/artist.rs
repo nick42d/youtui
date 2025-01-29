@@ -437,27 +437,42 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
 pub(crate) fn parse_library_management_items_from_menu(
     menu: JsonCrawlerBorrowed,
 ) -> Result<Option<LibraryManager>> {
-    let Ok(mut library_menu) = menu
+    let Some((status, add_to_library_token, remove_from_library_token)) = menu
         .try_into_iter()?
-        .find_path("/toggleMenuServiceItemRenderer")
+        .filter_map(|menu_item| {
+            menu_item
+                .navigate_pointer("/toggleMenuServiceItemRenderer")
+                .ok()
+        })
+        .filter_map(|mut toggle_menu| {
+            let Ok(status) = toggle_menu.take_value_pointer("/defaultIcon/iconType") else {
+                // In this case the toggle_menu is not the right type, e.g might be Pin to
+                // Listen Again.
+                //
+                // e.g: https://github.com/nick42d/youtui/issues/193
+                return None;
+            };
+            let (add_to_library_token, remove_from_library_token) = match status {
+                LibraryStatus::InLibrary => (
+                    toggle_menu.take_value_pointer(TOGGLED_ENDPOINT),
+                    toggle_menu.take_value_pointer(DEFAULT_ENDPOINT),
+                ),
+                LibraryStatus::NotInLibrary => (
+                    toggle_menu.take_value_pointer(DEFAULT_ENDPOINT),
+                    toggle_menu.take_value_pointer(TOGGLED_ENDPOINT),
+                ),
+            };
+            Some((status, add_to_library_token, remove_from_library_token))
+        })
+        .next()
     else {
+        // In this case there is no toggle_menu, so returning None is not an error.
         return Ok(None);
-    };
-    let status = library_menu.take_value_pointer("/defaultIcon/iconType")?;
-    let (add_to_library_token, remove_from_library_token) = match status {
-        LibraryStatus::InLibrary => (
-            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
-            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
-        ),
-        LibraryStatus::NotInLibrary => (
-            library_menu.take_value_pointer(DEFAULT_ENDPOINT)?,
-            library_menu.take_value_pointer(TOGGLED_ENDPOINT)?,
-        ),
     };
     Ok(Some(LibraryManager {
         status,
-        add_to_library_token,
-        remove_from_library_token,
+        add_to_library_token: add_to_library_token?,
+        remove_from_library_token: remove_from_library_token?,
     }))
 }
 

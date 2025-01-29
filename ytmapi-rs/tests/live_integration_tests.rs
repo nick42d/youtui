@@ -450,6 +450,7 @@ async fn test_delete_create_playlist() {
     api.delete_playlist(id).await.unwrap();
 }
 #[tokio::test]
+// TODO: Test to see if status can be queried after adding / removing.
 async fn test_add_remove_songs_from_library() {
     // TODO: Add siginficantly more queries.
     let api = new_standard_api().await.unwrap();
