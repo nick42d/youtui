@@ -1,4 +1,6 @@
 use crate::api::DynamicApiError;
+use crate::core::get_limited_sequential_file;
+use crate::get_data_dir;
 use crate::{
     api::DynamicYtMusic, config::ApiKey, core::send_or_error, get_config_dir, OAUTH_FILENAME,
 };
@@ -80,6 +82,16 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
     tokio::fs::rename(tmpfile_path, &file_path).await?;
     info!("Updated oauth token at: {:?}", file_path);
     Ok(())
+}
+
+/// Store a json file locally.
+async fn log_json(json: String) -> Result<()> {
+    const MAX_JSON_FILES: u16 = 5;
+    const JSON_FILE_NAME: &str = "source";
+    let (json_file, json_file_name) =
+        get_limited_sequential_file(&get_data_dir()?, JSON_FILE_NAME, "json", MAX_JSON_FILES)
+            .await?;
+    todo!();
 }
 
 /// Run a query. If the oauth token is expired, take the lock and refresh
