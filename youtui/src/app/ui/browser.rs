@@ -406,7 +406,7 @@ impl Browser {
         let handler = |this: &mut Self, item| match item {
             GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
             GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
-            GetArtistSongsProgressUpdate::SearchArtistError => this.handle_search_artist_error(),
+            GetArtistSongsProgressUpdate::GetArtistAlbums => this.handle_search_artist_error(),
             GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
             GetArtistSongsProgressUpdate::Songs {
                 song_list,
