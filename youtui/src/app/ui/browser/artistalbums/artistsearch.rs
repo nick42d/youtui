@@ -4,7 +4,7 @@ use crate::{
             Action, ActionHandler, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable,
             TextHandler,
         },
-        server::{ArcServer, GetSearchSuggestions, TaskMetadata},
+        server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
         ui::{
             action::{AppAction, ListAction, PAGE_KEY_LINES},
             browser::Browser,
@@ -189,7 +189,7 @@ impl SearchBlock {
         }
     }
     // Ask the UI for search suggestions for the current query
-    fn fetch_search_suggestions(&mut self) -> AsyncTask<Self, ArcServer, TaskMetadata> {
+    fn fetch_search_suggestions(&mut self) -> ComponentEffect<Self> {
         // No need to fetch search suggestions if contents is empty.
         if self.search_contents.is_empty() {
             self.search_suggestions.clear();
@@ -198,12 +198,20 @@ impl SearchBlock {
         let handler = |this: &mut Self, results| match results {
             Ok((suggestions, text)) => {
                 this.replace_search_suggestions(suggestions, text);
+                AsyncTask::new_no_op()
             }
-            Err(e) => {
-                error!("Error <{e}> recieved getting search suggestions");
-            }
+            Err(error) => AsyncTask::new_future(
+                HandleApiError {
+                    error,
+                    // To avoid needing to clone search query to use in the error message, this
+                    // error message is minimal.
+                    message: "Error recieved getting search suggestions".to_string(),
+                },
+                |_, _| {},
+                None,
+            ),
         };
-        AsyncTask::new_future(
+        AsyncTask::new_future_chained(
             GetSearchSuggestions(self.get_text().to_string()),
             handler,
             Some(Constraint::new_kill_same_type()),
