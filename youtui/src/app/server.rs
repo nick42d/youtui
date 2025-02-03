@@ -29,12 +29,12 @@ impl Server {
         let api = api::Api::new(api_key);
         let player = player::Player::new();
         let downloader = downloader::Downloader::new(po_token);
-        let json_logger = api_error_handler::ApiErrorHandler::new();
+        let api_error_handler = api_error_handler::ApiErrorHandler::new();
         Server {
             api,
             player,
             downloader,
-            api_error_handler: json_logger,
+            api_error_handler,
         }
     }
 }
