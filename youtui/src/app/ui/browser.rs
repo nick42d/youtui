@@ -429,7 +429,6 @@ impl Browser {
         AsyncTask::new_stream_chained(
             GetArtistSongs(cur_artist_id),
             handler,
-            // TOOD: Confirm behaviour correct, despite being chained.
             Some(Constraint::new_kill_same_type()),
         )
     }
