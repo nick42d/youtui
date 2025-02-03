@@ -12,7 +12,7 @@ const JSON_FILE_EXT: &str = "json";
 /// A simple logger of json files that caused errors.
 pub struct ApiErrorHandler;
 
-enum ApiErrorKind {
+pub enum ApiErrorKind {
     YtmapiErrorNonJson,
     YtmapiErrorJson,
     OtherError,
@@ -26,25 +26,20 @@ impl ApiErrorHandler {
     /// e.g. Log to tracing and write the faulty json (if exists) to log
     /// directory.
     /// Returns the kind of error.
-    pub async fn handle_error(&self, e: anyhow::Error) -> ApiErrorKind {
-        /// Log error using tracing.
-        async fn log_error(e: impl std::fmt::Display) {
-            error!("API error received <{e}>");
-        }
-
+    pub async fn handle_error(&self, e: anyhow::Error, message: String) -> ApiErrorKind {
         let e = match e.downcast::<ytmapi_rs::Error>().map(|e| e.into_kind()) {
             Err(e) => {
-                log_error(e);
+                error!("{message} <{e}>");
                 return ApiErrorKind::OtherError;
             }
             Ok(e) => e,
         };
         let ErrorKind::JsonParsing(e) = e else {
-            log_error(e);
+            error!("{message} <{e}>");
             return ApiErrorKind::YtmapiErrorNonJson;
         };
         let (json, key) = e.get_json_and_key();
-        error!("API error recieved at key {:?}", key);
+        error!("{message} at key {:?}", key);
         match log_json(json).await {
             Ok(path) => {
                 error!(

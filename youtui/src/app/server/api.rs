@@ -79,16 +79,6 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
     Ok(())
 }
 
-/// Store a json file locally.
-async fn log_json(json: String) -> Result<()> {
-    const MAX_JSON_FILES: u16 = 5;
-    const JSON_FILE_NAME: &str = "source";
-    let (json_file, json_file_name) =
-        get_limited_sequential_file(&get_data_dir()?, JSON_FILE_NAME, "json", MAX_JSON_FILES)
-            .await?;
-    todo!();
-}
-
 /// Run a query. If the oauth token is expired, take the lock and refresh
 /// it (single retry only). If another error occurs, try a single retry too.
 // NOTE: Determine how to handle if multiple queries in progress when we lock.
@@ -215,11 +205,7 @@ fn get_artist_songs(
             Ok(a) => a,
             Err(e) => {
                 error!("Error with GetArtistQuery");
-                send_or_error(
-                    tx,
-                    GetArtistSongsProgressUpdate::GetArtistAlbumsError(e.into()),
-                )
-                .await;
+                send_or_error(tx, GetArtistSongsProgressUpdate::GetArtistAlbumsError(e)).await;
                 return;
             }
         };

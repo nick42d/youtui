@@ -27,7 +27,10 @@ pub enum TaskMetadata {
 }
 
 #[derive(Debug)]
-pub struct HandleApiError(pub Error);
+pub struct HandleApiError {
+    pub error: Error,
+    pub message: String,
+}
 
 #[derive(Debug)]
 pub struct GetSearchSuggestions(pub String);
@@ -92,9 +95,10 @@ impl BackendTask<ArcServer> for HandleApiError {
         self,
         backend: &ArcServer,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let Self { error, message } = self;
         let backend = backend.clone();
         async move {
-            backend.api_error_handler.handle_error(self.0).await;
+            backend.api_error_handler.handle_error(error, message).await;
         }
     }
 }
