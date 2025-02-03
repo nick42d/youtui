@@ -27,7 +27,7 @@ use itertools::Either;
 use serde::{Deserialize, Serialize};
 use std::{iter::Iterator, mem};
 use tokio::sync::mpsc;
-use tracing::{error, warn};
+use tracing::warn;
 use ytmapi_rs::{
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
     parse::{AlbumSong, SearchResultArtist},

@@ -1,7 +1,5 @@
 use crate::api::DynamicApiError;
 use crate::async_rodio_sink::send_or_error;
-use crate::core::get_limited_sequential_file;
-use crate::get_data_dir;
 use crate::{api::DynamicYtMusic, config::ApiKey, get_config_dir, OAUTH_FILENAME};
 use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;

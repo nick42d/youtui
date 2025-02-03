@@ -18,7 +18,6 @@ use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, iter::Iterator};
-use tracing::error;
 use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 #[derive(Clone, Debug, Default, PartialEq)]
