@@ -55,7 +55,6 @@ pub async fn get_limited_sequential_file(
         .collect::<Result<Vec<_>, _>>()
         .await?;
     entries.sort_by_key(|f| f.file_name());
-    // TODO: don't use timestamp debug representation.
     let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
     // Use 20 characters left padding of zeros - this ensures all timestamps up to
     // usize::MAX still sort in ascending order once stringified.

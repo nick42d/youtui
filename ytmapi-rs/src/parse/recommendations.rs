@@ -63,7 +63,6 @@ where
 impl ParseFrom<GetTasteProfileQuery> for Vec<TasteProfileArtist> {
     fn parse_from(p: super::ProcessedResult<GetTasteProfileQuery>) -> Result<Self> {
         let crawler = JsonCrawlerOwned::from(p);
-        // TODO: Neaten this
         crawler
             .navigate_pointer(TASTE_PROFILE_ITEMS)?
             .try_into_iter()?

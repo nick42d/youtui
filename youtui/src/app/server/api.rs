@@ -81,9 +81,6 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
 
 /// Run a query. If the oauth token is expired, take the lock and refresh
 /// it (single retry only). If another error occurs, try a single retry too.
-// NOTE: Determine how to handle if multiple queries in progress when we lock.
-// TODO: Refresh the oauth file also. (send message to server - filemanager -
-// component)
 pub async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> Result<O>
 where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
@@ -247,7 +244,6 @@ fn get_artist_songs(
                 Ok(r) => r,
                 Err(e) => {
                     error!("Received error on get_artist_albums query \"{}\"", e);
-                    // TODO: Better Error type
                     send_or_error(tx, GetArtistSongsProgressUpdate::GetArtistAlbumsError(e)).await;
                     return;
                 }

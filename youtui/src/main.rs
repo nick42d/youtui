@@ -279,8 +279,7 @@ async fn try_main() -> anyhow::Result<()> {
     }
     // Once config has loaded, load API key to memory
     // (Which key to load depends on configuration)
-    // XXX: check that this won't cause any delays.
-    // TODO: Remove delay, should be handled inside app instead.
+    // TODO: api_key and po_token could be more lazily loaded.
     let api_key = load_api_key(&config).await?;
     // Use PoToken, if the user has supplied one (otherwise don't).
     let po_token = load_po_token().await.ok();

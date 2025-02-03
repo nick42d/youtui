@@ -46,8 +46,6 @@ pub struct Youtui {
     callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
 }
-//TODO: Remove me!
-impl_youtui_component!(Youtui);
 
 #[derive(PartialEq)]
 pub enum AppStatus {
