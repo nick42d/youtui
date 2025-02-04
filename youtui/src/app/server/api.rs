@@ -1,23 +1,18 @@
 use crate::api::DynamicApiError;
-use crate::{
-    api::DynamicYtMusic, config::ApiKey, core::send_or_error, get_config_dir, OAUTH_FILENAME,
-};
-use anyhow::Result;
+use crate::async_rodio_sink::send_or_error;
+use crate::{api::DynamicYtMusic, config::ApiKey, get_config_dir, OAUTH_FILENAME};
+use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;
 use futures::Stream;
 use futures::{stream::FuturesOrdered, StreamExt};
 use std::{borrow::Borrow, sync::Arc};
-use tokio::{
-    io::AsyncWriteExt,
-    sync::{mpsc::Sender, RwLock},
-};
+use tokio::{io::AsyncWriteExt, sync::RwLock};
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::{error, info, warn};
+use tracing::{error, info};
 use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
-    error::ErrorKind,
     parse::{GetAlbum, GetArtistAlbums},
     query::{GetAlbumQuery, GetArtistAlbumsQuery},
 };
@@ -84,9 +79,6 @@ async fn update_oauth_token_file(token: OAuthToken) -> Result<()> {
 
 /// Run a query. If the oauth token is expired, take the lock and refresh
 /// it (single retry only). If another error occurs, try a single retry too.
-// NOTE: Determine how to handle if multiple queries in progress when we lock.
-// TODO: Refresh the oauth file also. (send message to server - filemanager -
-// component)
 pub async fn query_api_with_retry<Q, O>(api: &ConcurrentApi, query: impl Borrow<Q>) -> Result<O>
 where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
@@ -159,8 +151,15 @@ pub async fn get_search_suggestions(
 
 pub enum GetArtistSongsProgressUpdate {
     Loading,
-    NoSongsFound,
-    SearchArtistError,
+    // Caller should know the ArtistChannelID already, as they provided it.
+    // Stream closes here.
+    GetArtistAlbumsError(Error),
+    // Stream doesn't close here - maybe some of the other albums were succesfully able to send
+    // songs.
+    GetAlbumsSongsError {
+        album_id: AlbumID<'static>,
+        error: Error,
+    },
     SongsFound,
     Songs {
         song_list: Vec<AlbumSong>,
@@ -169,27 +168,30 @@ pub enum GetArtistSongsProgressUpdate {
         year: String,
         artist: String,
     },
+    // Stream closes here.
     AllSongsSent,
+    // Stream closes here.
+    NoSongsFound,
 }
 
 fn get_artist_songs(
     api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
-    /// Bailout function that will log an error and send NoSongsFound if we get
-    /// an unrecoverable error.
-    async fn bailout(e: impl std::fmt::Display, tx: Sender<GetArtistSongsProgressUpdate>) {
-        error!("API error received <{e}>");
-        info!("Telling caller no songs found (error)");
-        send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
-    }
-
     let (tx, rx) = tokio::sync::mpsc::channel(50);
     tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
         let api = match api.get().await {
-            Err(e) => return bailout(e, tx).await,
+            Err(e) => {
+                error!("Error getting API");
+                send_or_error(
+                    tx,
+                    GetArtistSongsProgressUpdate::GetArtistAlbumsError(e.into()),
+                )
+                .await;
+                return;
+            }
             Ok(api) => api,
         };
         let query = ytmapi_rs::query::GetArtistQuery::new(&browse_id);
@@ -197,21 +199,8 @@ fn get_artist_songs(
         let artist = match artist {
             Ok(a) => a,
             Err(e) => {
-                let e = match e.downcast::<ytmapi_rs::Error>().map(|e| e.into_kind()) {
-                    Err(e) => {
-                        return bailout(e, tx).await;
-                    }
-                    Ok(e) => e,
-                };
-                let ErrorKind::JsonParsing(e) = e else {
-                    return bailout(e, tx).await;
-                };
-                let (_, key) = e.get_json_and_key();
-                // TODO: Bring loggable json errors into their own function.
-                error!("API error recieved at key {:?}", key);
-                warn!("Logging JSON that caused the error is not yet implemented");
-                tracing::info!("Telling caller no songs found (error)");
-                send_or_error(tx, GetArtistSongsProgressUpdate::NoSongsFound).await;
+                error!("Error with GetArtistQuery");
+                send_or_error(tx, GetArtistSongsProgressUpdate::GetArtistAlbumsError(e)).await;
                 return;
             }
         };
@@ -253,8 +242,7 @@ fn get_artist_songs(
                 Ok(r) => r,
                 Err(e) => {
                     error!("Received error on get_artist_albums query \"{}\"", e);
-                    // TODO: Better Error type
-                    send_or_error(tx, GetArtistSongsProgressUpdate::SearchArtistError).await;
+                    send_or_error(tx, GetArtistSongsProgressUpdate::GetArtistAlbumsError(e)).await;
                     return;
                 }
             };
@@ -281,8 +269,13 @@ fn get_artist_songs(
             let album = match maybe_album {
                 Ok(album) => album,
                 Err(e) => {
-                    error!("Error <{e}> getting album {:?}", album_id);
-                    return;
+                    error!("Error with GetAlbumQuery, album {:?}", album_id);
+                    send_or_error(
+                        &tx,
+                        GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error: e },
+                    )
+                    .await;
+                    continue;
                 }
             };
             let GetAlbum {

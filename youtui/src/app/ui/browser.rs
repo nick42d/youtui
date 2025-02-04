@@ -13,8 +13,8 @@ use crate::{
             Scrollable, Suggestable, TextHandler,
         },
         server::{
-            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, SearchArtists,
-            TaskMetadata,
+            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, HandleApiError,
+            SearchArtists, TaskMetadata,
         },
         structures::{ListStatus, SongListComponent},
         view::{DrawableMut, ListView, TableView},
@@ -27,9 +27,9 @@ use itertools::Either;
 use serde::{Deserialize, Serialize};
 use std::{iter::Iterator, mem};
 use tokio::sync::mpsc;
-use tracing::error;
+use tracing::warn;
 use ytmapi_rs::{
-    common::{AlbumID, SearchSuggestion},
+    common::{AlbumID, ArtistChannelID, SearchSuggestion},
     parse::{AlbumSong, SearchResultArtist},
 };
 
@@ -402,23 +402,31 @@ impl Browser {
             tracing::warn!("Tried to get item from list with index out of range");
             return AsyncTask::new_no_op();
         };
-
-        let handler = |this: &mut Self, item| match item {
-            GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
-            GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
-            GetArtistSongsProgressUpdate::SearchArtistError => this.handle_search_artist_error(),
-            GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
-            GetArtistSongsProgressUpdate::Songs {
-                song_list,
-                album,
-                year,
-                artist,
-                album_id,
-            } => this.handle_append_song_list(song_list, album, album_id, year, artist),
-            GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+        let cur_artist_id_clone = cur_artist_id.clone();
+        let handler = |this: &mut Self, item| {
+            match item {
+                GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
+                GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
+                GetArtistSongsProgressUpdate::GetArtistAlbumsError(e) => {
+                    return this.handle_search_artist_error(cur_artist_id_clone, e)
+                }
+                GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error } => {
+                    return this.handle_get_album_songs_error(cur_artist_id_clone, album_id, error)
+                }
+                GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
+                GetArtistSongsProgressUpdate::Songs {
+                    song_list,
+                    album,
+                    year,
+                    artist,
+                    album_id,
+                } => this.handle_append_song_list(song_list, album, album_id, year, artist),
+                GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+            }
+            AsyncTask::new_no_op()
         };
 
-        AsyncTask::new_stream(
+        AsyncTask::new_stream_chained(
             GetArtistSongs(cur_artist_id),
             handler,
             Some(Constraint::new_kill_same_type()),
@@ -432,19 +440,59 @@ impl Browser {
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
                 this.replace_artist_list(artists);
+                AsyncTask::new_no_op()
             }
-            Err(e) => {
-                error!("Error <{e}> recieved getting artists.");
-            }
+            Err(error) => AsyncTask::new_future(
+                HandleApiError {
+                    error,
+                    // To avoid needing to clone search query to use in the error message, this
+                    // error message is minimal.
+                    message: "Error recieved getting artists".to_string(),
+                },
+                |_, _| {},
+                None,
+            ),
         };
-        AsyncTask::new_future(
+        AsyncTask::new_future_chained(
             SearchArtists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
         )
     }
-    pub fn handle_search_artist_error(&mut self) {
+    pub fn handle_search_artist_error(
+        &mut self,
+        artist_id: ArtistChannelID<'static>,
+        error: anyhow::Error,
+    ) -> ComponentEffect<Self> {
         self.album_songs_list.list.state = ListStatus::Error;
+        AsyncTask::new_future(
+            HandleApiError {
+                error,
+                message: format!("Error searching for artist {:?} albums", artist_id),
+            },
+            |_, _| {},
+            None,
+        )
+    }
+    // TODO: Handle this in the UI also.
+    pub fn handle_get_album_songs_error(
+        &mut self,
+        artist_id: ArtistChannelID<'static>,
+        album_id: AlbumID<'static>,
+        error: anyhow::Error,
+    ) -> ComponentEffect<Self> {
+        warn!("Received a get_album_songs_error. This will be logged but is not visible in the main ui!");
+        AsyncTask::new_future(
+            HandleApiError {
+                error,
+                message: format!(
+                    "Error getting songs for album {:?}, artist {:?}",
+                    album_id, artist_id
+                ),
+            },
+            |_, _| {},
+            None,
+        )
     }
     pub fn handle_song_list_loaded(&mut self) {
         self.album_songs_list.list.state = ListStatus::Loaded;

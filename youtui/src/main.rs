@@ -243,7 +243,7 @@ pub struct RuntimeInfo {
 async fn main() -> ExitCode {
     // Using try block to print error using Display instead of Debug.
     if let Err(e) = try_main().await {
-        println!("{e}");
+        println!("{:?}", e);
         return ExitCode::FAILURE;
     };
     ExitCode::SUCCESS
@@ -279,8 +279,7 @@ async fn try_main() -> anyhow::Result<()> {
     }
     // Once config has loaded, load API key to memory
     // (Which key to load depends on configuration)
-    // XXX: check that this won't cause any delays.
-    // TODO: Remove delay, should be handled inside app instead.
+    // TODO: api_key and po_token could be more lazily loaded.
     let api_key = load_api_key(&config).await?;
     // Use PoToken, if the user has supplied one (otherwise don't).
     let po_token = load_po_token().await.ok();
@@ -327,7 +326,7 @@ async fn get_api(config: &Config) -> anyhow::Result<api::DynamicYtMusic> {
 }
 
 pub async fn run_app(rt: RuntimeInfo) -> anyhow::Result<()> {
-    let mut app = app::Youtui::new(rt)?;
+    let mut app = app::Youtui::new(rt).await?;
     app.run().await?;
     Ok(())
 }
@@ -394,8 +393,10 @@ async fn load_oauth_file() -> anyhow::Result<OAuthToken> {
 async fn initialise_directories() -> anyhow::Result<()> {
     let config_dir = get_config_dir()?;
     let data_dir = get_data_dir()?;
-    tokio::fs::create_dir_all(config_dir).await?;
-    tokio::fs::create_dir_all(data_dir).await?;
+    tokio::try_join!(
+        tokio::fs::create_dir_all(config_dir),
+        tokio::fs::create_dir_all(data_dir),
+    )?;
     Ok(())
 }
 
