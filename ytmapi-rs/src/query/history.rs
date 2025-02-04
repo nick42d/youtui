@@ -79,9 +79,9 @@ impl GetQuery for AddHistoryItemQuery<'_> {
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
                 .chars()
                 .collect();
-        let random_cpn: String = rand::thread_rng()
+        let random_cpn: String = rand::rng()
             .sample_iter(
-                rand::distributions::Slice::new(&possible_chars)
+                rand::distr::slice::Choose::new(&possible_chars)
                     .expect("Provided a hard-coded non-empty slice"),
             )
             .take(16)
