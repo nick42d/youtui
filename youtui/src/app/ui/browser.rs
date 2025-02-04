@@ -94,13 +94,13 @@ impl Scrollable for Browser {
     fn increment_list(&mut self, amount: isize) {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.increment_list(amount),
-            InputRouting::Song => self.artist_list.increment_list(amount),
+            InputRouting::Song => self.album_songs_list.increment_list(amount),
         }
     }
     fn is_scrollable(&self) -> bool {
         match self.input_routing {
             InputRouting::Artist => self.artist_list.is_scrollable(),
-            InputRouting::Song => self.artist_list.is_scrollable(),
+            InputRouting::Song => self.album_songs_list.is_scrollable(),
         }
     }
 }

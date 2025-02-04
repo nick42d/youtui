@@ -603,7 +603,9 @@ impl SortableTableView for AlbumSongsPanel {
 }
 
 fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.sort.clone()
+    let mut kb = config.keybinds.sort.clone();
+    kb.extend(config.keybinds.list.clone());
+    kb
 }
 
 fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
