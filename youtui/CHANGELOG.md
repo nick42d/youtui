@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.19](https://github.com/nick42d/youtui/compare/youtui/v0.0.18...youtui/v0.0.19) - 2025-02-04
+
+### Added
+- Improve logging (#192) - resolves #129
+
+### Fixed
+- Bump rusty_ytdl version (#198) - closes video source empty #196
+- Use latest ytmapi-rs - for release (#199) - resolves error unknown variant KEEP #193
+
+### Other
+- Use anyhow for youtui - closes #187 (#190)
+
 ## [0.0.18](https://github.com/nick42d/youtui/compare/youtui/v0.0.17...youtui/v0.0.18) - 2024-12-15
 
 ### Added

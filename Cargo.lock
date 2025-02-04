@@ -168,7 +168,7 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
 name = "async-callback-manager"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "crossterm",
  "futures",
@@ -4713,7 +4713,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.18"
+version = "0.0.19"
 dependencies = [
  "anyhow",
  "async-callback-manager",
@@ -4776,7 +4776,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "chrono",
  "const_format",
