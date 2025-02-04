@@ -24,7 +24,7 @@ serde = "1.0.215"
 serde_json = "1.0.133"
 tokio = "1.41.1"
 gag = "1.0.0"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.17", default-features = false, features = [
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.18", default-features = false, features = [
     "rustls-tls",
     "simplified-queries",
 ] }
