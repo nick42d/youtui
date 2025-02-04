@@ -44,7 +44,7 @@ anyhow = "1.0.93"
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
 # package = "rusty_ytdl"
-version = "0.7.4-youtui-vendored.1"
+version = "0.7.4-youtui-vendored.2"
 package = "youtui-vendored-rusty_ytdl"
 default-features = false
 features = ["live", "rustls-tls"]
