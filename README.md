@@ -15,7 +15,7 @@ This project is not supported or endorsed by Google.
 - Sorting and filtering
 
 ## Demo
-[![asciicast](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ.svg)](https://asciinema.org/a/qP9t8RKLNnja9LmqEuNIGWMCJ)
+[![asciicast](https://asciinema.org/a/H7CB4oP2Gcibv1I47aXCrQpbt.svg)](https://asciinema.org/a/H7CB4oP2Gcibv1I47aXCrQpbt)
 
 ## Installing youtui
 [![Packaging status](https://repology.org/badge/vertical-allrepos/youtui.svg)](https://repology.org/project/youtui/versions)
