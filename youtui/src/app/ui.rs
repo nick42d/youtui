@@ -364,26 +364,15 @@ impl YoutuiWindow {
         AsyncTask::new_no_op()
     }
     pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        if self.help.shown {
+        if self.is_scrollable() {
             match action {
                 ListAction::Up => self.increment_list(-1),
                 ListAction::Down => self.increment_list(1),
                 ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
                 ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
             }
-            return AsyncTask::new_no_op();
         }
-        match self.context {
-            WindowContext::Browser => self
-                .browser
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.browser),
-            WindowContext::Playlist => self
-                .playlist
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.playlist),
-            WindowContext::Logs => AsyncTask::new_no_op(),
-        }
+        AsyncTask::new_no_op()
     }
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if !self.is_text_handling() {

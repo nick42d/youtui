@@ -5,10 +5,7 @@ use crate::{
             TextHandler,
         },
         server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
-        ui::{
-            action::{AppAction, ListAction, PAGE_KEY_LINES},
-            browser::Browser,
-        },
+        ui::{action::AppAction, browser::Browser},
         view::{ListView, Loadable, SortableList},
     },
     config::{keymap::Keymap, Config},
@@ -132,18 +129,6 @@ impl ArtistSearchPanel {
     pub fn close_search(&mut self) {
         self.search_popped = false;
         self.route = ArtistInputRouting::List;
-    }
-    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        if self.route != ArtistInputRouting::List {
-            return AsyncTask::new_no_op();
-        }
-        match action {
-            ListAction::Up => self.increment_list(-1),
-            ListAction::Down => self.increment_list(1),
-            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
-            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
-        }
-        AsyncTask::new_no_op()
     }
 }
 impl Component for ArtistSearchPanel {
@@ -299,7 +284,7 @@ impl Scrollable for ArtistSearchPanel {
             .min(self.len().checked_add_signed(-1).unwrap_or(0));
     }
     fn is_scrollable(&self) -> bool {
-        todo!()
+        self.route == ArtistInputRouting::List
     }
 }
 

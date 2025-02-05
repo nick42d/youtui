@@ -3,7 +3,7 @@ use self::{
     draw::draw_browser,
 };
 use super::{
-    action::{AppAction, ListAction, TextEntryAction},
+    action::{AppAction, TextEntryAction},
     AppCallback, WindowContext,
 };
 use crate::{
@@ -246,18 +246,6 @@ impl Browser {
     pub fn right(&mut self) {
         // Doesn't consider previous routing.
         self.input_routing = self.input_routing.right();
-    }
-    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        match self.input_routing {
-            InputRouting::Artist => self
-                .artist_list
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.artist_list),
-            InputRouting::Song => self
-                .album_songs_list
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.album_songs_list),
-        }
     }
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if self.is_text_handling()

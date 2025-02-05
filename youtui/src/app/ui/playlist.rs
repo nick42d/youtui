@@ -32,7 +32,7 @@ use std::{borrow::Cow, fmt::Debug};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 
-use super::action::{AppAction, ListAction, PAGE_KEY_LINES};
+use super::action::AppAction;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
@@ -601,15 +601,6 @@ impl Playlist {
     pub async fn handle_tick(&mut self) {
         // XXX: Consider downloading upcoming songs here.
         // self.download_upcoming_songs().await;
-    }
-    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        match action {
-            ListAction::Up => self.increment_list(-1),
-            ListAction::Down => self.increment_list(1),
-            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
-            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
-        }
-        AsyncTask::new_no_op()
     }
     /// Handle seek command (from global keypress).
     pub fn handle_seek(
