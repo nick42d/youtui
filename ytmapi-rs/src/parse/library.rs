@@ -428,7 +428,7 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     let album = super::parse_song_album(&mut data, 2)?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
-        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+        .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")

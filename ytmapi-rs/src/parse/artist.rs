@@ -502,7 +502,7 @@ pub(crate) fn parse_playlist_song(
     let album = super::parse_song_album(&mut data, album_col_idx)?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
-        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+        .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -634,7 +634,7 @@ pub(crate) fn parse_playlist_video(
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
-        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+        .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")

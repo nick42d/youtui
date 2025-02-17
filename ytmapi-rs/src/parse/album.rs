@@ -139,10 +139,15 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let mut buttons = header.borrow_pointer("/buttons")?;
+    // NOTE: Google is conducting an A/B rollout of renaming playlistId to
+    // watchPlaylistId, so we will try both. https://github.com/nick42d/youtui/issues/205
     let audio_playlist_id = buttons
         .try_iter_mut()?
         .find_path("/musicPlayButtonRenderer")?
-        .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
+        .take_value_pointers(&[
+            "/playNavigationEndpoint/watchEndpoint/playlistId",
+            "/playNavigationEndpoint/watchPlaylistEndpoint/playlistId",
+        ])?;
     let library_status = buttons
         .try_iter_mut()?
         .find_path("/toggleButtonRenderer")?

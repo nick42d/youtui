@@ -7652,7 +7652,7 @@
                           "musicPlayButtonRenderer": {
                             "playNavigationEndpoint": {
                               "clickTrackingParams": "CBQQyN4CGAEiEwjG9b_747-HAxVam1YBHQeXBvA=",
-                              "watchEndpoint": {
+                              "watchPlaylistEndpoint": {
                                 "videoId": "cUcMegPmYIo",
                                 "playlistId": "OLAK5uy_nfksLEr5NjaidtkdY2HypJ3i6heoxU_kE",
                                 "loggingContext": {

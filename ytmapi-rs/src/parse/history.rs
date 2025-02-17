@@ -212,7 +212,7 @@ fn parse_history_item_episode(
             let date = parse_flex_column_item(&mut data, 2, 0)?;
             let duration = data
                 .borrow_pointer(fixed_column_item_pointer(0))?
-                .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+                .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
             (
                 EpisodeDuration::Recorded { duration },
                 EpisodeDate::Recorded { date },
@@ -264,7 +264,7 @@ fn parse_history_item_video(
         .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
-        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+        .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
@@ -348,7 +348,7 @@ fn parse_history_item_song(
     let album = super::parse_song_album(&mut data, 2)?;
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
-        .take_value_pointers(vec!["/text/simpleText", "/text/runs/0/text"])?;
+        .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
     let is_available = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
