@@ -128,11 +128,8 @@ impl Scrollable for YoutuiWindow {
     fn is_scrollable(&self) -> bool {
         self.help.shown
             || match self.context {
-                WindowContext::Browser => {
-                    !self.browser.artist_list.search_popped
-                        || self.browser.input_routing == browser::InputRouting::Song
-                }
-                WindowContext::Playlist => true,
+                WindowContext::Browser => self.browser.is_scrollable(),
+                WindowContext::Playlist => self.playlist.is_scrollable(),
                 WindowContext::Logs => false,
             }
     }
@@ -140,15 +137,15 @@ impl Scrollable for YoutuiWindow {
 
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        if self.dominant_keybinds_active() {
-            return Either::Right(Either::Right(self.get_dominant_keybinds()));
-        }
-        let kb = std::iter::once(&self.keybinds);
         let kb = if self.is_scrollable() {
-            Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
+            Either::Left(std::iter::once(&self.list_keybinds))
         } else {
-            Either::Right(kb)
+            Either::Right(std::iter::empty())
         };
+        if self.dominant_keybinds_active() {
+            return Either::Right(Either::Right(self.get_dominant_keybinds().chain(kb)));
+        }
+        let kb = kb.chain(std::iter::once(&self.keybinds));
         let kb = if self.is_text_handling() {
             Either::Left(kb.chain(std::iter::once(&self.text_entry_keybinds)))
         } else {
@@ -367,26 +364,15 @@ impl YoutuiWindow {
         AsyncTask::new_no_op()
     }
     pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        if self.help.shown {
+        if self.is_scrollable() {
             match action {
-                ListAction::Up => self.help.increment_list(-1),
-                ListAction::Down => self.help.increment_list(1),
+                ListAction::Up => self.increment_list(-1),
+                ListAction::Down => self.increment_list(1),
                 ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
                 ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
             }
-            return AsyncTask::new_no_op();
         }
-        match self.context {
-            WindowContext::Browser => self
-                .browser
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.browser),
-            WindowContext::Playlist => self
-                .playlist
-                .handle_list_action(action)
-                .map(|this: &mut Self| &mut this.playlist),
-            WindowContext::Logs => AsyncTask::new_no_op(),
-        }
+        AsyncTask::new_no_op()
     }
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if !self.is_text_handling() {

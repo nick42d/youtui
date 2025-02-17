@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::action::{AppAction, ListAction, PAGE_KEY_LINES};
+use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -336,28 +336,6 @@ impl AlbumSongsPanel {
         self.sort.shown = false;
         self.route = AlbumSongsInputRouting::List;
     }
-    pub fn handle_list_action(&mut self, action: ListAction) -> ComponentEffect<Self> {
-        if self.sort.shown {
-            match action {
-                ListAction::Up => self.handle_sort_up(),
-                ListAction::Down => self.handle_sort_down(),
-                // TODO: Handle PgUp / PgDown specially.
-                ListAction::PageUp => self.handle_sort_up(),
-                ListAction::PageDown => self.handle_sort_up(),
-            }
-            return AsyncTask::new_no_op();
-        }
-        if self.filter.shown {
-            return AsyncTask::new_no_op();
-        }
-        match action {
-            ListAction::Up => self.increment_list(-1),
-            ListAction::Down => self.increment_list(1),
-            ListAction::PageUp => self.increment_list(-PAGE_KEY_LINES),
-            ListAction::PageDown => self.increment_list(PAGE_KEY_LINES),
-        }
-        AsyncTask::new_no_op()
-    }
     pub fn handle_pop_sort(&mut self) {
         // If no sortable columns, should we not handle this command?
         self.sort.cur = 0;
@@ -366,17 +344,6 @@ impl AlbumSongsPanel {
     pub fn handle_clear_sort(&mut self) {
         self.close_sort();
         self.clear_sort_commands();
-    }
-    // TODO: Could be under Scrollable trait.
-    pub fn handle_sort_up(&mut self) {
-        self.sort.cur = self.sort.cur.saturating_sub(1)
-    }
-    pub fn handle_sort_down(&mut self) {
-        self.sort.cur = self
-            .sort
-            .cur
-            .saturating_add(1)
-            .min(self.get_sortable_columns().len().saturating_sub(1));
     }
     pub fn handle_sort_cur_asc(&mut self) {
         // TODO: Better error handling
@@ -480,14 +447,22 @@ impl Loadable for AlbumSongsPanel {
 }
 impl Scrollable for AlbumSongsPanel {
     fn increment_list(&mut self, amount: isize) {
-        // Naive check using iterator - consider using exact size iterator
-        self.cur_selected = self
-            .cur_selected
-            .saturating_add_signed(amount)
-            .min(self.get_filtered_items().count().saturating_sub(1))
+        if self.sort.shown {
+            self.sort.cur = self
+                .sort
+                .cur
+                .saturating_add_signed(amount)
+                .min(self.get_sortable_columns().len().saturating_sub(1));
+        } else {
+            // Naive check using iterator - consider using exact size iterator
+            self.cur_selected = self
+                .cur_selected
+                .saturating_add_signed(amount)
+                .min(self.get_filtered_items().count().saturating_sub(1))
+        }
     }
     fn is_scrollable(&self) -> bool {
-        true
+        !self.filter.shown
     }
 }
 
@@ -603,7 +578,9 @@ impl SortableTableView for AlbumSongsPanel {
 }
 
 fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.sort.clone()
+    let mut kb = config.keybinds.sort.clone();
+    kb.extend(config.keybinds.list.clone());
+    kb
 }
 
 fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
