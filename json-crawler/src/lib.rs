@@ -35,18 +35,29 @@ where
     fn borrow_mut(&mut self) -> Self::BorrowTo<'_>;
     fn try_into_iter(self) -> CrawlerResult<Self::IntoIter>;
     fn try_iter_mut(&mut self) -> CrawlerResult<Self::IterMut<'_>>;
+    fn path_exists(&self, path: &str) -> bool;
     fn get_path(&self) -> String;
+    fn get_source(&self) -> Arc<String>;
     fn take_value<T: DeserializeOwned>(&mut self) -> CrawlerResult<T>;
     fn take_value_pointer<T: DeserializeOwned>(
         &mut self,
         path: impl AsRef<str>,
     ) -> CrawlerResult<T>;
+    /// For use when you want to try and take value that could be at multiple
+    /// valid locations. Returns an error message that notes that all valid
+    /// locations were attempted.
+    ///
+    /// # Usage
+    /// ```no_run
+    /// # use json_crawler::*;
+    /// # let mut crawler = JsonCrawlerOwned::new(String::new(), serde_json::Value::Null);
+    /// // Output will be an error that path should contain "header" and "headerName", if crawler contains neither.
+    /// let output: CrawlerResult<String> = crawler.take_value_pointers(&["header", "headerName"]);
+    /// ```
     fn take_value_pointers<T: DeserializeOwned, S: AsRef<str>>(
         &mut self,
         paths: &[S],
     ) -> CrawlerResult<T>;
-    fn path_exists(&self, path: &str) -> bool;
-    fn get_source(&self) -> Arc<String>;
     /// For use when you want to apply some operations that return Option, but
     /// still return an error with context if they fail. For convenience,
     /// closure return type is fallible, allowing you to see the cause of the
