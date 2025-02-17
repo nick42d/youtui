@@ -14,8 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update deps (#203)
 
 
-
-
 ## [0.0.4](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.3...async-callback-manager/v0.0.4) - 2025-02-04
 
 ### Other
