@@ -71,7 +71,7 @@ Chrome example (Select manually and paste):
 - [x] OAuth authentication including automatic refresh of tokens
 - [x] Seeking
 - [x] Configurable key bindings
-- [ ] Logging to a file (basic version implemented - use `-d` flag)
+- [x] Logging to a file
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Dbus support for media keys
 - [ ] Mouse support
