@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.20](https://github.com/nick42d/youtui/compare/youtui/v0.0.19...youtui/v0.0.20) - 2025-02-17
+
+### Fixed
+- Not able to move up/down on sort menu (Resolves #201) (#204)
+- Error running GetAlbumQuery (a/b test) - resolves #205 (#206)
+
+### Other
+- Update deps (#203)
+
 ## [0.0.19](https://github.com/nick42d/youtui/compare/youtui/v0.0.18...youtui/v0.0.19) - 2025-02-04
 
 ### Added
