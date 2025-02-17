@@ -141,19 +141,13 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
     let mut buttons = header.borrow_pointer("/buttons")?;
     // NOTE: Google is conducting an A/B rollout of renaming playlistId to
     // watchPlaylistId, so we will try both. https://github.com/nick42d/youtui/issues/205
-    let audio_playlist_id_extractor = vec![
-        |play_button: &mut JsonCrawlerBorrowed| {
-            play_button.take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")
-        },
-        |play_button: &mut JsonCrawlerBorrowed| {
-            play_button
-                .take_value_pointer("/playNavigationEndpoint/watchPlaylistEndpoint/playlistId")
-        },
-    ];
     let audio_playlist_id = buttons
         .try_iter_mut()?
         .find_path("/musicPlayButtonRenderer")?
-        .try_functions(audio_playlist_id_extractor)?;
+        .take_value_pointers(&[
+            "/playNavigationEndpoint/watchEndpoint/playlistId",
+            "/playNavigationEndpoint/watchPlaylistEndpoint/playlistId",
+        ])?;
     let library_status = buttons
         .try_iter_mut()?
         .find_path("/toggleButtonRenderer")?

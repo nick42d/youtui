@@ -41,9 +41,9 @@ where
         &mut self,
         path: impl AsRef<str>,
     ) -> CrawlerResult<T>;
-    fn take_value_pointers<T: DeserializeOwned>(
+    fn take_value_pointers<T: DeserializeOwned, S: AsRef<str>>(
         &mut self,
-        paths: Vec<&'static str>,
+        paths: &[S],
     ) -> CrawlerResult<T>;
     fn path_exists(&self, path: &str) -> bool;
     fn get_source(&self) -> Arc<String>;
@@ -301,23 +301,22 @@ impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
             )
         })
     }
-    // TODO: Reduce allocation, complete error, don't require Vec.
-    fn take_value_pointers<T: DeserializeOwned>(
+    fn take_value_pointers<T: DeserializeOwned, S: AsRef<str>>(
         &mut self,
-        paths: Vec<&'static str>,
+        paths: &[S],
     ) -> CrawlerResult<T> {
         let mut path_clone = self.path.clone();
         let Some((found, path)) = paths
             .iter()
-            .find_map(|p| self.crawler.pointer_mut(p).map(|v| (v.take(), p)))
+            .find_map(|p| self.crawler.pointer_mut(p.as_ref()).map(|v| (v.take(), p)))
         else {
             return Err(CrawlerError::paths_not_found(
                 path_clone,
                 self.source.clone(),
-                paths.iter().map(|s| s.to_string()).collect(),
+                paths.iter().map(|s| s.as_ref().to_string()).collect(),
             ));
         };
-        path_clone.push(JsonPath::Pointer(path.to_string()));
+        path_clone.push(JsonPath::Pointer(path.as_ref().to_string()));
         serde_json::from_value(found).map_err(|e| {
             CrawlerError::parsing(
                 &path_clone,
@@ -480,22 +479,22 @@ impl JsonCrawler for JsonCrawlerOwned {
             )
         })
     }
-    fn take_value_pointers<T: DeserializeOwned>(
+    fn take_value_pointers<T: DeserializeOwned, S: AsRef<str>>(
         &mut self,
-        paths: Vec<&'static str>,
+        paths: &[S],
     ) -> CrawlerResult<T> {
         let mut path_clone = self.path.clone();
         let Some((found, path)) = paths
             .iter()
-            .find_map(|p| self.crawler.pointer_mut(p).map(|v| (v.take(), p)))
+            .find_map(|p| self.crawler.pointer_mut(p.as_ref()).map(|v| (v.take(), p)))
         else {
             return Err(CrawlerError::paths_not_found(
                 path_clone,
                 self.source.clone(),
-                paths.iter().map(|s| s.to_string()).collect(),
+                paths.iter().map(|s| s.as_ref().to_string()).collect(),
             ));
         };
-        path_clone.push(JsonPath::Pointer(path.to_string()));
+        path_clone.push(JsonPath::Pointer(path.as_ref().to_string()));
         serde_json::from_value(found).map_err(|e| {
             CrawlerError::parsing(
                 &path_clone,
