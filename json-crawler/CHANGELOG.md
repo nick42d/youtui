@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.6](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.5...json-crawler/v0.0.6) - 2025-02-17
+
+### Fixed
+- error running GetAlbumQuery (a/b test) - resolves #205 (#206)
+
+### Other
+- Update deps (#203)
+
+
+
+
 ## [0.0.5](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.4...json-crawler/v0.0.5) - 2024-12-15
 
 ### Other
