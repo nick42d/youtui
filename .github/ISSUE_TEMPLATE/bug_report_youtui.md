@@ -24,8 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Logs**
-When you run `youtui` with the `-d` flag, youtui will generate a log file under your data directory,
-e.g `~/.local/share/youtui`. If possible, try to replicate the error with the `-d` flag on, and provide the logfile.
+youtui will generate a log files under your data directory, e.g `~/.local/share/youtui`.
 
 **Desktop (please complete the following information):**
  - OS/distro: [e.g. macOS / fedora]
