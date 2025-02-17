@@ -137,15 +137,15 @@ impl Scrollable for YoutuiWindow {
 
 impl KeyRouter<AppAction> for YoutuiWindow {
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        let kb = std::iter::once(&self.keybinds);
         let kb = if self.is_scrollable() {
-            Either::Left(kb.chain(std::iter::once(&self.list_keybinds)))
+            Either::Left(std::iter::once(&self.list_keybinds))
         } else {
-            Either::Right(kb)
+            Either::Right(std::iter::empty())
         };
         if self.dominant_keybinds_active() {
             return Either::Right(Either::Right(self.get_dominant_keybinds().chain(kb)));
         }
+        let kb = kb.chain(std::iter::once(&self.keybinds));
         let kb = if self.is_text_handling() {
             Either::Left(kb.chain(std::iter::once(&self.text_entry_keybinds)))
         } else {
