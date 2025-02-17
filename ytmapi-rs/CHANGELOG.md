@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.19](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.18...ytmapi-rs/v0.0.19) - 2025-02-17
+
+### Other
+- Update deps (#203)
+- release (#191)
+
+
+
+
 ## [0.0.18](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.17...ytmapi-rs/v0.0.18) - 2025-02-04
 
 ### Fixed 

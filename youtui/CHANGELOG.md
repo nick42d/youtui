@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.20](https://github.com/nick42d/youtui/compare/youtui/v0.0.19...youtui/v0.0.20) - 2025-02-17
+
+### Other
+- Update deps (#203)
+
+
+
+
 ## [0.0.19](https://github.com/nick42d/youtui/compare/youtui/v0.0.18...youtui/v0.0.19) - 2025-02-04
 
 ### Added
