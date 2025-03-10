@@ -1,12 +1,12 @@
 ArtistParams {
-    description: "John Winston Ono Lennon was an English singer, songwriter and musician. He gained worldwide fame as the founder, co-lead vocalist and rhythm guitarist of the Beatles. His work included music, writing, drawings and film. His songwriting partnership with Paul McCartney remains the most successful in history as the primary songwriters in the Beatles.\nBorn in Liverpool, Lennon became involved in the skiffle craze as a teenager. In 1956, he formed the Quarrymen, which evolved into the Beatles in 1960. Sometimes called \"the smart Beatle\", Lennon initially was the group's de facto leader, a role he gradually seemed to cede to McCartney. Through his songwriting in the Beatles, he embraced myriad musical influences, initially writing and co-writing rock and pop-oriented hit songs in the band's early years, then later incorporating experimental elements into his compositions in the latter half of the Beatles' career as his songs became known for their increasing innovation.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/John_Lennon) under Creative Commons Attribution CC-BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)",
-    views: "1,385,779,041 views",
-    name: "John Lennon",
-    channel_id: "UCYU4eunPInnHTNWfGvOgkbg",
+    description: "\"We didn't dream it... though it came out of John's dream of the \"man on a flaming pie\" who said \"You are Beatles with an 'A'\". It did all happen. The whole wonderful thing did happen, a long time ago, on the Mersey, on the Elbe, by the Thames and the Hudson River.  Amazing and marvellous and, nearly [sixty] years on, forever young.\"  Derek Taylor\n\nFind out about he band, and to register for the latest updates, visit http://www.thebeatles.com\nOur links: https://linktr.ee/thebeatlesofficial",
+    views: "7,774,495,111 views",
+    name: "The Beatles",
+    channel_id: "UCc4K7bAqpdBP8jh1j9XZAww",
     shuffle_id: None,
     radio_id: None,
     subscribers: Some(
-        "2.18M",
+        "8.8M",
     ),
     subscribed: None,
     thumbnails: None,
@@ -16,47 +16,21 @@ ArtistParams {
                 results: [
                     ArtistSong {
                         video_id: VideoID(
-                            "rAn-AWXtHv0",
+                            "QDYfEBY9NM4",
                         ),
-                        plays: "881M plays",
+                        plays: "340M plays",
                         album: ParsedSongAlbum {
-                            name: "Imagine",
+                            name: "Let It Be",
                             id: AlbumID(
-                                "MPREb_gDaohH1B2Wz",
+                                "MPREb_Z7UaZFpBuZe",
                             ),
                         },
                         artists: [
                             ParsedSongArtist {
-                                name: "John Lennon",
+                                name: "The Beatles",
                                 id: Some(
                                     ArtistChannelID(
-                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
-                                    ),
-                                ),
-                            },
-                        ],
-                        library_management: None,
-                        title: "Imagine",
-                        like_status: Indifferent,
-                        explicit: NotExplicit,
-                    },
-                    ArtistSong {
-                        video_id: VideoID(
-                            "zF6e-NmwmnA",
-                        ),
-                        plays: "190M plays",
-                        album: ParsedSongAlbum {
-                            name: "Double Fantasy",
-                            id: AlbumID(
-                                "MPREb_g6LN0lxbFmR",
-                            ),
-                        },
-                        artists: [
-                            ParsedSongArtist {
-                                name: "John Lennon",
-                                id: Some(
-                                    ArtistChannelID(
-                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                        "UC2XdaAVUannpujzv32jcouQ",
                                     ),
                                 ),
                             },
@@ -65,34 +39,142 @@ ArtistParams {
                             LibraryManager {
                                 status: NotInLibrary,
                                 add_to_library_token: FeedbackTokenAddToLibrary(
-                                    "AB9zfpIdq1iQEapLKr2F7t8kTPr6zbWS8ZP9me2-LxS3qz4MZI7vJItD6Q2owS870rshvJFYuKIoROqOM5TgAbCqQFEPogRG9g",
+                                    "AB9zfpLaE1z6I8B56cxqcXh-uVDYkrbWKSXnfzWBw7JVm4nQLgiNbvHQs-RVTJJJX0c0Jhm0Rr8BKghn2RgXcSc9g_lV1g3IsA",
                                 ),
                                 remove_from_library_token: FeedbackTokenRemoveFromLibrary(
-                                    "AB9zfpJwsVYmu2cGEDbi1eiReE4QQFLP3u2EHg1PyizW5PcgJYyeEy3qN_lknv5HBONprt_fn1blhUJRIdqWQZbCitSOvcxsaA",
+                                    "AB9zfpJ8P8-G01xuiQwTa7rpkm8TVPUIr0eUTuUjWU6KbOisFCvIkbBsDd5jJY-ZnUV_FAcaroH-M_OoCfY718bItXVAqHXClw",
                                 ),
                             },
                         ),
-                        title: "Woman",
+                        title: "Let It Be (Remastered 2009)",
                         like_status: Indifferent,
                         explicit: NotExplicit,
                     },
                     ArtistSong {
                         video_id: VideoID(
-                            "kAAtvu3gW90",
+                            "xUNqsfFUwhY",
+                        ),
+                        plays: "408M plays",
+                        album: ParsedSongAlbum {
+                            name: "Abbey Road",
+                            id: AlbumID(
+                                "MPREb_pyQa1mky9hE",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "The Beatles",
+                                id: Some(
+                                    ArtistChannelID(
+                                        "UC2XdaAVUannpujzv32jcouQ",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpLKYXgzD_7I2ZOWVQS3Ok2NKXtO7t6vvdRAeH_shRGIfe3_fCs_4_1rmeown_Rw-G8viGcMun83ywvrlii7wDh1MMiLRg",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpKFd_SYCB05RUeyxe4stEab0Q-1K16GHfEK_rQ6mfHhN4JhLSL2C-LpkrVw8kkgQuO68FUPFICymP0SKwwtP36RVb2EhA",
+                                ),
+                            },
+                        ),
+                        title: "Here Comes The Sun (Remastered 2009)",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "CXlCLDP2Vr0",
+                        ),
+                        plays: "564M plays",
+                        album: ParsedSongAlbum {
+                            name: "Let It Be (Super Deluxe)",
+                            id: AlbumID(
+                                "MPREb_zBKX8qwlKte",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "The Beatles",
+                                id: Some(
+                                    ArtistChannelID(
+                                        "UC2XdaAVUannpujzv32jcouQ",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpJcKNlAzOYzCXdGQhIZyIPeQnfdKH2wiBOubl3NrMLNckP8bZZ--1hkBBfUcSlhSMcNPmlvJ6dPtbmU-CwfYw6gReo1EA",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpK3Q4sjQ4rZG_Qc3mEdw8E2fCQ7XtDza05OIX6C3DPl9KHCITBJrRTrtFwed89Cpsfv_9E-ewfjGoEmOUGVDdMfvZD9bg",
+                                ),
+                            },
+                        ),
+                        title: "Don’t Let Me Down (First Rooftop Performance)",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "oolpPmuK2I8",
+                        ),
+                        plays: "288M plays",
+                        album: ParsedSongAlbum {
+                            name: "Abbey Road",
+                            id: AlbumID(
+                                "MPREb_pyQa1mky9hE",
+                            ),
+                        },
+                        artists: [
+                            ParsedSongArtist {
+                                name: "The Beatles",
+                                id: Some(
+                                    ArtistChannelID(
+                                        "UC2XdaAVUannpujzv32jcouQ",
+                                    ),
+                                ),
+                            },
+                        ],
+                        library_management: Some(
+                            LibraryManager {
+                                status: NotInLibrary,
+                                add_to_library_token: FeedbackTokenAddToLibrary(
+                                    "AB9zfpL2wrqm3_Cvpf4J0VfZ2Pi3QJlEi7mqP9jMTJ-CohflEEvcl1-ZuJIKeGNRFet1z3xdXyWURaWQKUOTb62HGtON_usowA",
+                                ),
+                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
+                                    "AB9zfpLmQ8Ccaxl0484dXbq5_M5M1OW2rgjnj_YWerzeXMP-BAlZaTPTSiJKXUShMIAJGRPWw5yyCKcmVG7Ok6VIBzP9dGdvag",
+                                ),
+                            },
+                        ),
+                        title: "Come Together (Remastered 2009)",
+                        like_status: Indifferent,
+                        explicit: NotExplicit,
+                    },
+                    ArtistSong {
+                        video_id: VideoID(
+                            "5tc0gLSSU1M",
                         ),
                         plays: "181M plays",
                         album: ParsedSongAlbum {
-                            name: "GIMME SOME TRUTH. (Deluxe)",
+                            name: "A Hard Day's Night",
                             id: AlbumID(
-                                "MPREb_65XlJUiJd0A",
+                                "MPREb_lMwnCCnXwKZ",
                             ),
                         },
                         artists: [
                             ParsedSongArtist {
-                                name: "John Lennon",
+                                name: "The Beatles",
                                 id: Some(
                                     ArtistChannelID(
-                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
+                                        "UC2XdaAVUannpujzv32jcouQ",
                                     ),
                                 ),
                             },
@@ -101,92 +183,20 @@ ArtistParams {
                             LibraryManager {
                                 status: NotInLibrary,
                                 add_to_library_token: FeedbackTokenAddToLibrary(
-                                    "AB9zfpIyAPF_zOHIju2NvcpLP6cdN0w0by5gCbPYLeYuszPPmzSCxiPaIEc-0YDK4wboCKMP8vle7ECF6OTaJWs2cBS4iGRNLQ",
+                                    "AB9zfpJCGV_AdWBy0RxcM6nyADhmaqI17hxwdwwQxOMpcbiF9qCqLlnkfsBcLgoTXP_WElqI3sTuGeKTqGBbOET8cetRimsx8w",
                                 ),
                                 remove_from_library_token: FeedbackTokenRemoveFromLibrary(
-                                    "AB9zfpIsQj8e25yWMSxYLnwpZCKE3JclsnFPOBQtWdn7LUkh_GlyyqYfDy0EI2wcaQtnKIsIcztqLaX2M5bdvQUQzJGxVkz7gQ",
+                                    "AB9zfpKal9x3pj5O9JmkmLWAAWQFUpQc5c64HGojfbG-JNBfGN4cHeAis1St5wCkVltyhA9bgHN1C8mFkKmZZaeXHKsBcxangg",
                                 ),
                             },
                         ),
-                        title: "Stand By Me (Ultimate Mix)",
-                        like_status: Indifferent,
-                        explicit: NotExplicit,
-                    },
-                    ArtistSong {
-                        video_id: VideoID(
-                            "HB5KwxPwQj8",
-                        ),
-                        plays: "43M plays",
-                        album: ParsedSongAlbum {
-                            name: "Double Fantasy",
-                            id: AlbumID(
-                                "MPREb_g6LN0lxbFmR",
-                            ),
-                        },
-                        artists: [
-                            ParsedSongArtist {
-                                name: "John Lennon",
-                                id: Some(
-                                    ArtistChannelID(
-                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
-                                    ),
-                                ),
-                            },
-                        ],
-                        library_management: Some(
-                            LibraryManager {
-                                status: NotInLibrary,
-                                add_to_library_token: FeedbackTokenAddToLibrary(
-                                    "AB9zfpKJqZeLIY-Gqwz7s5XDhEf5W2vaBlDx7RafSIpx5ryfla9cb6-QCAAO8XAuwUoayKXqHGUBxKkd4vcRWIGB80DjLnjPjQ",
-                                ),
-                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
-                                    "AB9zfpLTz7RIN9YKRsg8DMKGLCIPuwNJFxZO4g26uXE9tCoTlvXWGhf-PxxzeCEfApz74PHBak9XDT31-bmpRzXFjI4fqRLnwg",
-                                ),
-                            },
-                        ),
-                        title: "Beautiful Boy (Darling Boy)",
-                        like_status: Indifferent,
-                        explicit: NotExplicit,
-                    },
-                    ArtistSong {
-                        video_id: VideoID(
-                            "jWG9KAgD6UA",
-                        ),
-                        plays: "47M plays",
-                        album: ParsedSongAlbum {
-                            name: "Double Fantasy",
-                            id: AlbumID(
-                                "MPREb_g6LN0lxbFmR",
-                            ),
-                        },
-                        artists: [
-                            ParsedSongArtist {
-                                name: "John Lennon",
-                                id: Some(
-                                    ArtistChannelID(
-                                        "UCcSL2nYSJp_IgdzH0xBBdcg",
-                                    ),
-                                ),
-                            },
-                        ],
-                        library_management: Some(
-                            LibraryManager {
-                                status: NotInLibrary,
-                                add_to_library_token: FeedbackTokenAddToLibrary(
-                                    "AB9zfpIf1A84ImsANlDFQhvIF0hgx2np8E_ttOV8_nxEZp0bXS_5Ezl5CTEtfZxdAWaElDyEQSJxyjubbfL201oIvsDLu9Xwdg",
-                                ),
-                                remove_from_library_token: FeedbackTokenRemoveFromLibrary(
-                                    "AB9zfpLDiYcL-WQEW4_B1As3qZJIOCsaPD4iMklGmeRJDf4eT0cubSgPGKDzzIxXd1QwA_vaNvi2CiSU_xp4LzLZzDxNKRwSnA",
-                                ),
-                            },
-                        ),
-                        title: "(Just Like) Starting Over",
+                        title: "And I Love Her (Remastered 2009)",
                         like_status: Indifferent,
                         explicit: NotExplicit,
                     },
                 ],
                 browse_id: PlaylistID(
-                    "VLOLAK5uy_lrV3gJKXhN-Ww8eznXsGwiWXh1KHGGPaw",
+                    "VLOLAK5uy_mSSvmI1EpoPDI0BbUg1bPCOc6_pF8150Q",
                 ),
             },
         ),
@@ -194,241 +204,221 @@ ArtistParams {
             GetArtistAlbums {
                 results: [
                     AlbumResult {
-                        title: "Imagine (The Raw Studio Mixes)",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "2023",
+                        title: "Beatles '64 (Music from the Disney+ Documentary)",
+                        album_type: None,
+                        year: "2024",
                         album_id: AlbumID(
-                            "MPREb_fARbcbseRtg",
+                            "MPREb_OLtz6K1cjET",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/cfw242Jl0Jg6vtUK8pobPlOzKV6rUWaAu1DIdFupw35re86P5LQeu49US1WlGXjT2GjfwEuejeFrmY0=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/8RU7XkSIHqO22k9xNdSdXX5esmCM1p57frWz9wrlie9ACcgDeraka8nnxIcjzS7fo1G38678vYFjwGMM=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/cfw242Jl0Jg6vtUK8pobPlOzKV6rUWaAu1DIdFupw35re86P5LQeu49US1WlGXjT2GjfwEuejeFrmY0=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/8RU7XkSIHqO22k9xNdSdXX5esmCM1p57frWz9wrlie9ACcgDeraka8nnxIcjzS7fo1G38678vYFjwGMM=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Imagine (The Elements Mixes)",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "2023",
+                        title: "Let's Dance",
+                        album_type: None,
+                        year: "2014",
                         album_id: AlbumID(
-                            "MPREb_iBvan7d5j0E",
+                            "MPREb_YxNHZGrIQKb",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/kpM2h-jmhtvy4oxeygH-tlcBggILWWHVfVIqbL7-BT377mKr4hNGAFIbuFYgEDZ0pK4qN61w_GXklpHHWA=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/c5GRNdgr01TU-C8cvc-3k3OJ1FEAeh5_CWj1Ry5M5iJppp7l321D28JA-jVMupTVyR9MR1l3JGwYqblf=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/kpM2h-jmhtvy4oxeygH-tlcBggILWWHVfVIqbL7-BT377mKr4hNGAFIbuFYgEDZ0pK4qN61w_GXklpHHWA=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/c5GRNdgr01TU-C8cvc-3k3OJ1FEAeh5_CWj1Ry5M5iJppp7l321D28JA-jVMupTVyR9MR1l3JGwYqblf=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "GIMME SOME TRUTH. (Deluxe)",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "2020",
+                        title: "Let It Be (Super Deluxe)",
+                        album_type: None,
+                        year: "1970",
                         album_id: AlbumID(
-                            "MPREb_65XlJUiJd0A",
+                            "MPREb_zBKX8qwlKte",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/PM0GAJWGVc70TZcqX0vMZ-Ufhq3mKSGRbU_5gfXCjcBHFOd1X1GLSgj-HXgYtKvCQzu22IdrGunRufQ=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/PM0GAJWGVc70TZcqX0vMZ-Ufhq3mKSGRbU_5gfXCjcBHFOd1X1GLSgj-HXgYtKvCQzu22IdrGunRufQ=w544-h544-l90-rj",
-                            },
-                        ],
-                        explicit: IsExplicit,
-                    },
-                    AlbumResult {
-                        title: "Milk And Honey",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1984",
-                        album_id: AlbumID(
-                            "MPREb_wLbmLuS0Yir",
-                        ),
-                        library_status: NotInLibrary,
-                        thumbnails: [
-                            Thumbnail {
-                                height: 226,
-                                width: 226,
-                                url: "https://lh3.googleusercontent.com/eZ4QJxMdB7BKfkMQiQR7fp5XTLsX9zLjd5Ds_nmVG27cpzLTXmwK0QHdHRUGg14_T4hjkFe3nWJpOBw=w226-h226-l90-rj",
-                            },
-                            Thumbnail {
-                                height: 544,
-                                width: 544,
-                                url: "https://lh3.googleusercontent.com/eZ4QJxMdB7BKfkMQiQR7fp5XTLsX9zLjd5Ds_nmVG27cpzLTXmwK0QHdHRUGg14_T4hjkFe3nWJpOBw=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/0uSK3j19kosq8SmrnZZ_mlw3kL6ZWFcLRgt0cqhACJcA6cEfLgCscIllVfF-LjkuV3zhuYG6MSFih6PdMw=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Double Fantasy",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1980",
+                        title: "Abbey Road (Super Deluxe Edition)",
+                        album_type: None,
+                        year: "1969",
                         album_id: AlbumID(
-                            "MPREb_g6LN0lxbFmR",
+                            "MPREb_tQfaWH32ovE",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/NOlE2MFK6QlPbJhMdg8CxdPWST149wYCqkgV1-QZQn2FDLsDuvlszoepiWUOYhYivkssKRfmsLEWFw=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/NOlE2MFK6QlPbJhMdg8CxdPWST149wYCqkgV1-QZQn2FDLsDuvlszoepiWUOYhYivkssKRfmsLEWFw=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/g8bzAg2zxvdnm7ismLMYLA9-9azb4y6VP2uOF56A2G2rpsqLHT6mrJWXRKq_VttXQZ-o-jmVgTFIVgdj=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Rock 'N' Roll",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1975",
+                        title: "Yellow Submarine",
+                        album_type: None,
+                        year: "1969",
                         album_id: AlbumID(
-                            "MPREb_A34bMrtRWST",
+                            "MPREb_nn3MWHNM0jS",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/zNmRpRSyE-guT-MDXRsmhPT8PBHBYG9G01GilGda93S_umcUx9rADKXM27IhPqXD5hgAPYUPsXDIBZ5l=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/zNmRpRSyE-guT-MDXRsmhPT8PBHBYG9G01GilGda93S_umcUx9rADKXM27IhPqXD5hgAPYUPsXDIBZ5l=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/DSzJ4yB0HvDMzAUp5_XCo0Jo79GywHqZFJayAVfpoy6Yv-p7DVN-lJxuuYzAYAoDqmxGBDn5kJXaagKR=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Walls And Bridges",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1974",
+                        title: "The Beatles (White Album / Super Deluxe)",
+                        album_type: None,
+                        year: "1968",
                         album_id: AlbumID(
-                            "MPREb_nXdsD7cWc5P",
+                            "MPREb_Vq5MhmCk3JS",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/hl9pPbXjYF3hreh82FBswRoLtRVRi4vOXP5ZWE90hy8pH2F-vKZ3duEoa5kbh3YxbGNBgYgMself6AH30w=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/FcHyTNz7OH4tuNMjHf9L_jQVuIu2IYV9uVvyPEzSEbdOKYkLsiXyaHpnSDIrZmmxwUbQYwdG8qWMkX3p=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/hl9pPbXjYF3hreh82FBswRoLtRVRi4vOXP5ZWE90hy8pH2F-vKZ3duEoa5kbh3YxbGNBgYgMself6AH30w=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/FcHyTNz7OH4tuNMjHf9L_jQVuIu2IYV9uVvyPEzSEbdOKYkLsiXyaHpnSDIrZmmxwUbQYwdG8qWMkX3p=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Mind Games",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1973",
+                        title: "Magical Mystery Tour",
+                        album_type: None,
+                        year: "1967",
                         album_id: AlbumID(
-                            "MPREb_R6RvYhkTs70",
+                            "MPREb_2wJ4mzPvKwD",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/nB2KlaW2fDKMOJVWRRAHisOAbwI45CCL-9mVc0OCkZv3txP_uCzt4chMGT4vjWPElfUW9wcUmQnseU1p=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/nB2KlaW2fDKMOJVWRRAHisOAbwI45CCL-9mVc0OCkZv3txP_uCzt4chMGT4vjWPElfUW9wcUmQnseU1p=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/GaK6Cr-K_u3zTfIP15u9oRzopw3LQ2vm0y7AckxxuwfwZH9e4nI66aisTD1T7DHL8Ow1zMiUrg1Wqjw6=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Sometime In New York City",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1972",
+                        title: "Sgt. Pepper's Lonely Hearts Club Band (Deluxe Edition)",
+                        album_type: None,
+                        year: "1967",
                         album_id: AlbumID(
-                            "MPREb_9NgGUhkV6rh",
+                            "MPREb_doCRM5YXYgb",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/CBK8C1yyMNGHBxlSfIFgobgiTH28EQn3p6e_oXFJpKPxCTwZ70YUDlw0M0_kdEzf4hiVsFfnWBkZ3yzG=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/CBK8C1yyMNGHBxlSfIFgobgiTH28EQn3p6e_oXFJpKPxCTwZ70YUDlw0M0_kdEzf4hiVsFfnWBkZ3yzG=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/dW7K-yzIJBcCw5qltu-8Yq_vtZfz4CWj-J1_PLDYsj5zPpL23Uw9GxE3PBKhkRlHF42ddIB-sDeBG9Vd=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
                     },
                     AlbumResult {
-                        title: "Imagine (The Evolution Documentary)",
-                        album_type: Some(
-                            Album,
-                        ),
-                        year: "1971",
+                        title: "Revolver",
+                        album_type: None,
+                        year: "1966",
                         album_id: AlbumID(
-                            "MPREb_TFv1w2QzWWh",
+                            "MPREb_eHEOTy3DS94",
                         ),
                         library_status: NotInLibrary,
                         thumbnails: [
                             Thumbnail {
                                 height: 226,
                                 width: 226,
-                                url: "https://lh3.googleusercontent.com/lmXmfUR5iMg4r0sLzf-Bo8gPrvQ0rLGIX3e0_S8zaE2RfwUSnTETF3bkbOLbOp1OjjLoTQAOc3Y__3zs=w226-h226-l90-rj",
+                                url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w226-h226-l90-rj",
                             },
                             Thumbnail {
                                 height: 544,
                                 width: 544,
-                                url: "https://lh3.googleusercontent.com/lmXmfUR5iMg4r0sLzf-Bo8gPrvQ0rLGIX3e0_S8zaE2RfwUSnTETF3bkbOLbOp1OjjLoTQAOc3Y__3zs=w544-h544-l90-rj",
+                                url: "https://lh3.googleusercontent.com/r8_4I_rvh2kHa9Y-mSTH72Z84ncYx0SzPVLXXqaLEPYQrWqB03dizqePdZXBtAUa_La2woSY6czcx1U=w544-h544-l90-rj",
+                            },
+                        ],
+                        explicit: NotExplicit,
+                    },
+                    AlbumResult {
+                        title: "Rubber Soul (Remastered 2009)",
+                        album_type: None,
+                        year: "1965",
+                        album_id: AlbumID(
+                            "MPREb_NPpc9jtWHdJ",
+                        ),
+                        library_status: NotInLibrary,
+                        thumbnails: [
+                            Thumbnail {
+                                height: 226,
+                                width: 226,
+                                url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w226-h226-l90-rj",
+                            },
+                            Thumbnail {
+                                height: 544,
+                                width: 544,
+                                url: "https://lh3.googleusercontent.com/IjEb5kMRk7qimcH3BCJaK85pf79X383z5KNrAxJSNOHVWC41_e66Id233ZGj1AQhH1H5AiKxQMEbHPn0=w544-h544-l90-rj",
                             },
                         ],
                         explicit: NotExplicit,
@@ -436,7 +426,7 @@ ArtistParams {
                 ],
                 browse_id: Some(
                     ArtistChannelID(
-                        "MPADUCcSL2nYSJp_IgdzH0xBBdcg",
+                        "MPADUC2XdaAVUannpujzv32jcouQ",
                     ),
                 ),
                 params: Some(

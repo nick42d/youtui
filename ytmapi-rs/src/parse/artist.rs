@@ -769,11 +769,22 @@ mod tests {
         );
     }
 
+    // Old as of https://github.com/nick42d/youtui/issues/211
     #[tokio::test]
-    async fn test_get_artist() {
+    async fn test_get_artist_old_1() {
         parse_test!(
             "./test_json/get_artist_20240705.json",
             "./test_json/get_artist_20240705_output.txt",
+            crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
+            BrowserToken
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_artist() {
+        parse_test!(
+            "./test_json/get_artist_20250310.json",
+            "./test_json/get_artist_20250310_output.txt",
             crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
             BrowserToken
         );
