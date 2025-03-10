@@ -279,7 +279,7 @@ pub struct RelatedResult {
 #[non_exhaustive]
 pub struct AlbumResult {
     pub title: String,
-    pub album_type: AlbumType,
+    pub album_type: Option<AlbumType>,
     pub year: String,
     pub album_id: AlbumID<'static>,
     pub library_status: LibraryStatus,
@@ -407,10 +407,19 @@ enum ArtistTopReleaseCategory {
     None,
 }
 
+/// Google A/B change pending
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
-    let album_type = navigator.take_value_pointer(SUBTITLE)?;
-    let year = navigator.take_value_pointer(SUBTITLE2)?;
+
+    todo!("Latest YTM change - subtitle2 has been removed, album_type no longer visible. year now accessible at subtitle");
+
+    let (year, album_type) = match navigator.navigate_pointer(SUBTITLE2) {
+        Ok(subtitle2) => (),
+        Err(_) => (navigator.take_value_pointer(SUBTITLE)?, None),
+    };
+    // let year = navigator.take_value_pointer(SUBTITLE2)?;
+    // let album_type = navigator.take_value_pointer(SUBTITLE)?;
+
     let album_id = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
     let explicit = if navigator.path_exists(concatcp!(SUBTITLE_BADGE_LABEL)) {
