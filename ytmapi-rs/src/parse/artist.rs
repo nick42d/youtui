@@ -411,14 +411,18 @@ enum ArtistTopReleaseCategory {
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
 
-    todo!("Latest YTM change - subtitle2 has been removed, album_type no longer visible. year now accessible at subtitle");
-
-    let (year, album_type) = match navigator.navigate_pointer(SUBTITLE2) {
-        Ok(subtitle2) => (),
+    let (year, album_type) = match navigator.borrow_pointer(SUBTITLE2) {
+        Ok(mut subtitle2) => {
+            // Latest YTM change - subtitle2 has been removed, album_type no longer
+            // visible. year now accessible at subtitle
+            ab_warn!();
+            (
+                subtitle2.take_value()?,
+                navigator.take_value_pointer(SUBTITLE)?,
+            )
+        }
         Err(_) => (navigator.take_value_pointer(SUBTITLE)?, None),
     };
-    // let year = navigator.take_value_pointer(SUBTITLE2)?;
-    // let album_type = navigator.take_value_pointer(SUBTITLE)?;
 
     let album_id = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;

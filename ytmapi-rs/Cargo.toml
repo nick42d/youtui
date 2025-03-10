@@ -49,6 +49,9 @@ simplified-queries = []
 # Enable functions that allow interoperability with the `serde_json` crate.
 # NOTE: serde_json dependency is still required whether or not this feature is enabled, as it is used internally.
 serde_json = []
+# If this features is enabled, a warning will be printed to stderr if an old branch of an ab-test is taken.
+# I.e, Google is still using a format we are expected to be deprecated.
+ab-warning = []
 
 [lints]
 workspace = true

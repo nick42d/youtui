@@ -64,6 +64,16 @@ macro_rules! impl_youtube_id {
     };
 }
 
+/// Macro to generate a warning, if
+/// YoutubeID for a simple struct. In addition implements a convenient From
+/// implementation.
+macro_rules! ab_warn {
+    () => {
+        #[cfg(feature = "ab-warning")]
+        eprintln!("WARNING: ab-test deprecated branch taken");
+    };
+}
+
 /// Macro to generate a parsing test based on the following values:
 /// May not really need a macro for this, could use a function.
 /// Input file, output file, query, token
