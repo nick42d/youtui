@@ -64,6 +64,15 @@ macro_rules! impl_youtube_id {
     };
 }
 
+/// Macro that will print a warning to stderr if this branch is taken and
+/// ab-warning feature is enabled.
+macro_rules! ab_warn {
+    () => {
+        #[cfg(feature = "ab-warning")]
+        eprintln!("WARNING: a/b test deprecated branch taken");
+    };
+}
+
 /// Macro to generate a parsing test based on the following values:
 /// May not really need a macro for this, could use a function.
 /// Input file, output file, query, token

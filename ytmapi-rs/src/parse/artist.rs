@@ -279,7 +279,8 @@ pub struct RelatedResult {
 #[non_exhaustive]
 pub struct AlbumResult {
     pub title: String,
-    pub album_type: AlbumType,
+    #[deprecated = "Future deprecation see https://github.com/nick42d/youtui/issues/211"]
+    pub album_type: Option<AlbumType>,
     pub year: String,
     pub album_id: AlbumID<'static>,
     pub library_status: LibraryStatus,
@@ -407,10 +408,22 @@ enum ArtistTopReleaseCategory {
     None,
 }
 
+/// Google A/B change pending
 pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
-    let album_type = navigator.take_value_pointer(SUBTITLE)?;
-    let year = navigator.take_value_pointer(SUBTITLE2)?;
+
+    let (year, album_type) = match navigator.borrow_pointer(SUBTITLE2) {
+        Ok(mut subtitle2) => {
+            // See https://github.com/nick42d/youtui/issues/211
+            ab_warn!();
+            (
+                subtitle2.take_value()?,
+                navigator.take_value_pointer(SUBTITLE)?,
+            )
+        }
+        Err(_) => (navigator.take_value_pointer(SUBTITLE)?, None),
+    };
+
     let album_id = navigator.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
     let thumbnails = navigator.take_value_pointer(THUMBNAIL_RENDERER)?;
     let explicit = if navigator.path_exists(concatcp!(SUBTITLE_BADGE_LABEL)) {
@@ -756,11 +769,22 @@ mod tests {
         );
     }
 
+    // Old as of https://github.com/nick42d/youtui/issues/211
     #[tokio::test]
-    async fn test_get_artist() {
+    async fn test_get_artist_old_1() {
         parse_test!(
             "./test_json/get_artist_20240705.json",
             "./test_json/get_artist_20240705_output.txt",
+            crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
+            BrowserToken
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_artist() {
+        parse_test!(
+            "./test_json/get_artist_20250310.json",
+            "./test_json/get_artist_20250310_output.txt",
             crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
             BrowserToken
         );
