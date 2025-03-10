@@ -64,13 +64,12 @@ macro_rules! impl_youtube_id {
     };
 }
 
-/// Macro to generate a warning, if
-/// YoutubeID for a simple struct. In addition implements a convenient From
-/// implementation.
+/// Macro that will print a warning to stderr if this branch is taken and
+/// ab-warning feature is enabled.
 macro_rules! ab_warn {
     () => {
         #[cfg(feature = "ab-warning")]
-        eprintln!("WARNING: ab-test deprecated branch taken");
+        eprintln!("WARNING: a/b test deprecated branch taken");
     };
 }
 

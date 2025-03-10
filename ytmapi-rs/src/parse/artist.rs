@@ -279,6 +279,7 @@ pub struct RelatedResult {
 #[non_exhaustive]
 pub struct AlbumResult {
     pub title: String,
+    #[deprecated = "Future deprecation see https://github.com/nick42d/youtui/issues/211"]
     pub album_type: Option<AlbumType>,
     pub year: String,
     pub album_id: AlbumID<'static>,
@@ -413,8 +414,7 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
 
     let (year, album_type) = match navigator.borrow_pointer(SUBTITLE2) {
         Ok(mut subtitle2) => {
-            // Latest YTM change - subtitle2 has been removed, album_type no longer
-            // visible. year now accessible at subtitle
+            // See https://github.com/nick42d/youtui/issues/211
             ab_warn!();
             (
                 subtitle2.take_value()?,
