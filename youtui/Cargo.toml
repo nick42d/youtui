@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.20"
+version = "0.0.21"
 edition = "2021"
 authors = ["nick42d"]
 license = "MIT"
@@ -24,7 +24,7 @@ serde = "1.0.217"
 serde_json = "1.0.138"
 tokio = "1.43.0"
 gag = "1.0.0"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.19", default-features = false, features = [
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.20", default-features = false, features = [
     "rustls-tls",
     "simplified-queries",
 ] }
