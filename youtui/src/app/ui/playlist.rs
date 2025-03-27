@@ -39,6 +39,7 @@ const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
 
+#[derive(Debug, PartialEq)]
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_dur: Option<Duration>,
@@ -941,4 +942,43 @@ impl Playlist {
 
 fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.playlist.clone()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Playlist;
+    use crate::{
+        app::{
+            ui::{ListSongID, PlayState},
+            AppCallback,
+        },
+        config::Config,
+    };
+
+    #[must_use]
+    struct DummyRecvr<T>(tokio::sync::mpsc::Receiver<T>);
+    impl<T> DummyRecvr<T> {
+        fn assert_empty(self) {
+            assert!(
+                self.0.is_empty(),
+                "Dummy playlist message handling not implemented"
+            );
+        }
+    }
+
+    fn get_dummy_playlist() -> (Playlist, DummyRecvr<AppCallback>) {
+        let (tx, rx) = tokio::sync::mpsc::channel(5);
+        let cfg = Config::default();
+        let playlist = Playlist::new(tx, &cfg).0;
+        (playlist, DummyRecvr(rx))
+    }
+    #[tokio::test]
+    async fn test_handle_resumed() {
+        let (mut p, r) = get_dummy_playlist();
+        p.play_status = PlayState::Paused(ListSongID::default());
+        p.handle_resumed(ListSongID::default());
+        let (mut expected_p, _) = get_dummy_playlist();
+        expected_p.play_status = PlayState::Playing(ListSongID::default());
+        assert_eq!(p, expected_p);
+    }
 }

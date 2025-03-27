@@ -11,7 +11,7 @@ pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct AlbumSongsList {
     pub state: ListStatus,
     list: Vec<ListSong>,
@@ -26,7 +26,7 @@ pub struct ListSongID(usize);
 #[derive(Clone, PartialEq, Copy, Debug, Default, PartialOrd)]
 pub struct Percentage(pub u8);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ListSong {
     pub raw: AlbumSong,
     pub download_status: DownloadStatus,
@@ -37,7 +37,7 @@ pub struct ListSong {
     pub album: Rc<String>,
     pub album_id: Rc<AlbumID<'static>>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ListStatus {
     New,
     Loading,
@@ -46,7 +46,7 @@ pub enum ListStatus {
     Error,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum DownloadStatus {
     None,
     Queued,
@@ -56,7 +56,7 @@ pub enum DownloadStatus {
     Retrying { times_retried: usize },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum PlayState {
     NotPlaying,
     Playing(ListSongID),
