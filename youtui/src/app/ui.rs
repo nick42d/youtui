@@ -298,7 +298,7 @@ impl YoutuiWindow {
         callback_tx: mpsc::Sender<AppCallback>,
         config: &Config,
     ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
-        let (playlist, task) = Playlist::new(callback_tx.clone(), config);
+        let (playlist, task) = Playlist::new(config);
         let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
