@@ -39,13 +39,13 @@ const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
 
+#[derive(Debug, PartialEq)]
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
     pub queue_status: QueueState,
     pub volume: Percentage,
-    ui_tx: mpsc::Sender<AppCallback>,
     keybinds: Keymap<AppAction>,
     cur_selected: usize,
     pub widget_state: TableState,
@@ -87,14 +87,18 @@ impl ActionHandler<PlaylistAction> for Playlist {
     async fn apply_action(
         &mut self,
         action: PlaylistAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    ) -> (
+        crate::app::component::actionhandler::ComponentEffect<Self>,
+        Option<AppCallback>,
+    ) {
         match action {
-            PlaylistAction::ViewBrowser => self.view_browser().await,
-            PlaylistAction::PlaySelected => return self.play_selected(),
-            PlaylistAction::DeleteSelected => return self.delete_selected(),
-            PlaylistAction::DeleteAll => return self.delete_all(),
+            PlaylistAction::ViewBrowser => {
+                (AsyncTask::new_no_op(), Some(self.view_browser().await))
+            }
+            PlaylistAction::PlaySelected => (self.play_selected(), None),
+            PlaylistAction::DeleteSelected => (self.delete_selected(), None),
+            PlaylistAction::DeleteAll => (self.delete_all(), None),
         }
-        AsyncTask::new_no_op()
     }
 }
 
@@ -214,7 +218,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>, config: &Config) -> (Self, ComponentEffect<Self>) {
+    pub fn new(config: &Config) -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -224,7 +228,6 @@ impl Playlist {
             Some(Constraint::new_block_same_type()),
         );
         let playlist = Playlist {
-            ui_tx,
             volume: Percentage(50),
             play_status: PlayState::NotPlaying,
             list: Default::default(),
@@ -673,12 +676,8 @@ impl Playlist {
         self.reset()
     }
     /// Change to Browser window.
-    pub async fn view_browser(&mut self) {
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::ChangeContext(WindowContext::Browser),
-        )
-        .await;
+    pub async fn view_browser(&mut self) -> AppCallback {
+        AppCallback::ChangeContext(WindowContext::Browser)
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
     /// (server).
@@ -941,4 +940,28 @@ impl Playlist {
 
 fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.playlist.clone()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Playlist;
+    use crate::{
+        app::ui::{ListSongID, PlayState},
+        config::Config,
+    };
+
+    fn get_dummy_playlist() -> Playlist {
+        let cfg = Config::default();
+        let playlist = Playlist::new(&cfg).0;
+        playlist
+    }
+    #[tokio::test]
+    async fn test_handle_resumed() {
+        let mut p = get_dummy_playlist();
+        p.play_status = PlayState::Paused(ListSongID::default());
+        p.handle_resumed(ListSongID::default());
+        let mut expected_p = get_dummy_playlist();
+        expected_p.play_status = PlayState::Playing(ListSongID::default());
+        assert_eq!(p, expected_p);
+    }
 }

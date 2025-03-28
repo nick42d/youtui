@@ -35,7 +35,8 @@ pub trait Action {
 
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
-    async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
+    // TODO: Move to possibility of generating top-level callbacks as well...
+    async fn apply_action(&mut self, action: A) -> (ComponentEffect<Self>, AppCallback);
     /// Apply an action that can be mapped to Self.
     async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
     where

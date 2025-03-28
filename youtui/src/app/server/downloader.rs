@@ -35,6 +35,7 @@ pub enum DownloadProgressUpdateType {
 
 /// Representation of a song in memory - an array of bytes.
 /// Newtype pattern is used to provide a cleaner Debug display.
+#[derive(PartialEq)]
 pub struct InMemSong(pub Vec<u8>);
 // Custom derive - otherwise will be displaying 3MB array of bytes...
 impl std::fmt::Debug for InMemSong {
