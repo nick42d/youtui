@@ -11,7 +11,7 @@ readme = "README.md"
 exclude = ["test_json/*"]
 
 [dependencies]
-tokio = { version = "1.43.0", features = ["full"] }
+tokio = { version = "1.43.1", features = ["full"] }
 # To allow alternative TLS options, we need to opt out of a single reqwest feature.
 # This isn't possible in Cargo, so we need to opt back into the other default features.
 # https://github.com/rust-lang/cargo/issues/3126
