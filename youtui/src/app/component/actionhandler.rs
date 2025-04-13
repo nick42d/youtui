@@ -1,4 +1,5 @@
 use crate::{
+    app::AppCallback,
     config::keymap::{KeyActionTree, Keymap},
     keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
     keybind::Keybind,
@@ -10,6 +11,46 @@ use ytmapi_rs::common::SearchSuggestion;
 
 /// Convenience type alias
 pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
+pub struct ComponentEffectWithCallback<C: Component> {
+    pub effect: ComponentEffect<C>,
+    pub callback: Option<AppCallback>,
+}
+impl<C: Component> ComponentEffectWithCallback<C> {
+    pub fn map<C2>(
+        self,
+        f: impl Fn(&mut C2) -> &mut C + Clone + Send + 'static,
+    ) -> ComponentEffectWithCallback<C2>
+    where
+        C2: Component<Bkend = C::Bkend, Md = C::Md>,
+        C: 'static,
+        C::Bkend: 'static,
+        C::Md: 'static,
+    {
+        let ComponentEffectWithCallback { effect, callback } = self;
+        let effect = effect.map(f);
+        ComponentEffectWithCallback { effect, callback }
+    }
+}
+/// Convenience conversion
+impl<C: Component> From<ComponentEffect<C>> for ComponentEffectWithCallback<C> {
+    fn from(value: ComponentEffect<C>) -> Self {
+        ComponentEffectWithCallback {
+            effect: value,
+            callback: None,
+        }
+    }
+}
+/// Convenience conversion
+impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)>
+    for ComponentEffectWithCallback<C>
+{
+    fn from(value: (ComponentEffect<C>, Option<AppCallback>)) -> Self {
+        ComponentEffectWithCallback {
+            effect: value.0,
+            callback: value.1,
+        }
+    }
+}
 /// A frontend component - has an associated backend and task metadata type.
 pub trait Component {
     type Bkend;
@@ -36,9 +77,13 @@ pub trait Action {
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
     // TODO: Move to possibility of generating top-level callbacks as well...
-    async fn apply_action(&mut self, action: A) -> (ComponentEffect<Self>, AppCallback);
+    async fn apply_action(&mut self, action: A) -> impl Into<ComponentEffectWithCallback<Self>>;
     /// Apply an action that can be mapped to Self.
-    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
+    async fn apply_action_mapped<B, C, F>(
+        &mut self,
+        action: B,
+        f: F,
+    ) -> ComponentEffectWithCallback<Self>
     where
         B: Action,
         C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
@@ -49,6 +94,7 @@ pub trait ActionHandler<A: Action>: Component + Sized {
         f(self)
             .apply_action(action)
             .await
+            .into()
             .map(move |this: &mut Self| f(this))
     }
 }

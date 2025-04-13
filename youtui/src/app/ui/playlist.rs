@@ -1,4 +1,6 @@
-use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Scrollable};
+use crate::app::component::actionhandler::{
+    ActionHandler, ComponentEffect, ComponentEffectWithCallback, Scrollable,
+};
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
@@ -87,10 +89,7 @@ impl ActionHandler<PlaylistAction> for Playlist {
     async fn apply_action(
         &mut self,
         action: PlaylistAction,
-    ) -> (
-        crate::app::component::actionhandler::ComponentEffect<Self>,
-        Option<AppCallback>,
-    ) {
+    ) -> impl Into<ComponentEffectWithCallback<Playlist>> {
         match action {
             PlaylistAction::ViewBrowser => {
                 (AsyncTask::new_no_op(), Some(self.view_browser().await))
