@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.22](https://github.com/nick42d/youtui/compare/youtui/v0.0.21...youtui/v0.0.22) - 2025-04-13
+
+### Other
+- Unit tests for playlist ([#214](https://github.com/nick42d/youtui/pull/214))
+
+
+
+
 ## [0.0.20](https://github.com/nick42d/youtui/compare/youtui/v0.0.19...youtui/v0.0.20) - 2025-02-17
 
 ### Fixed
