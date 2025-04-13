@@ -10,7 +10,7 @@ use crate::{
     app::{
         component::actionhandler::{
             Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
-            Scrollable, Suggestable, TextHandler,
+            Scrollable, Suggestable, TextHandler, YoutuiEffect,
         },
         server::{
             api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, HandleApiError,
@@ -105,13 +105,7 @@ impl Scrollable for Browser {
     }
 }
 impl ActionHandler<BrowserAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: BrowserAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self>
-    where
-        Self: Sized,
-    {
+    async fn apply_action(&mut self, action: BrowserAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserAction::Left => self.left(),
             BrowserAction::Right => self.right(),

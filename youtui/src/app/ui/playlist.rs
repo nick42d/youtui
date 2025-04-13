@@ -1,9 +1,13 @@
-use crate::app::component::actionhandler::{ActionHandler, ComponentEffect, Scrollable};
+use super::action::AppAction;
+use crate::app::component::actionhandler::{
+    ActionHandler, ComponentEffect, Scrollable, YoutuiEffect,
+};
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
     QueueSong, Seek, Stop, TaskMetadata,
 };
+use crate::app::structures::DownloadStatus;
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -19,7 +23,6 @@ use crate::async_rodio_sink::{
 };
 use crate::config::keymap::Keymap;
 use crate::config::Config;
-use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -29,23 +32,23 @@ use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
-use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 
-use super::action::AppAction;
+#[cfg(test)]
+mod tests;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
 
+#[derive(Debug, PartialEq)]
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
     pub queue_status: QueueState,
     pub volume: Percentage,
-    ui_tx: mpsc::Sender<AppCallback>,
     keybinds: Keymap<AppAction>,
     cur_selected: usize,
     pub widget_state: TableState,
@@ -84,17 +87,15 @@ pub enum QueueState {
 }
 
 impl ActionHandler<PlaylistAction> for Playlist {
-    async fn apply_action(
-        &mut self,
-        action: PlaylistAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
         match action {
-            PlaylistAction::ViewBrowser => self.view_browser().await,
-            PlaylistAction::PlaySelected => return self.play_selected(),
-            PlaylistAction::DeleteSelected => return self.delete_selected(),
-            PlaylistAction::DeleteAll => return self.delete_all(),
+            PlaylistAction::ViewBrowser => {
+                (AsyncTask::new_no_op(), Some(self.view_browser().await))
+            }
+            PlaylistAction::PlaySelected => (self.play_selected(), None),
+            PlaylistAction::DeleteSelected => (self.delete_selected(), None),
+            PlaylistAction::DeleteAll => (self.delete_all(), None),
         }
-        AsyncTask::new_no_op()
     }
 }
 
@@ -214,7 +215,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(ui_tx: mpsc::Sender<AppCallback>, config: &Config) -> (Self, ComponentEffect<Self>) {
+    pub fn new(config: &Config) -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -224,7 +225,6 @@ impl Playlist {
             Some(Constraint::new_block_same_type()),
         );
         let playlist = Playlist {
-            ui_tx,
             volume: Percentage(50),
             play_status: PlayState::NotPlaying,
             list: Default::default(),
@@ -673,12 +673,8 @@ impl Playlist {
         self.reset()
     }
     /// Change to Browser window.
-    pub async fn view_browser(&mut self) {
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::ChangeContext(WindowContext::Browser),
-        )
-        .await;
+    pub async fn view_browser(&mut self) -> AppCallback {
+        AppCallback::ChangeContext(WindowContext::Browser)
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
     /// (server).

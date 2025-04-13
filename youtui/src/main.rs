@@ -355,7 +355,7 @@ pub fn get_config_dir() -> anyhow::Result<PathBuf> {
     Ok(directory)
 }
 
-async fn load_po_token<'a>() -> anyhow::Result<String> {
+async fn load_po_token() -> anyhow::Result<String> {
     let mut path = get_config_dir()?;
     path.push(POTOKEN_FILENAME);
     tokio::fs::read_to_string(&path)

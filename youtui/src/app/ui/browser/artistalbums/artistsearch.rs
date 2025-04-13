@@ -2,7 +2,7 @@ use crate::{
     app::{
         component::actionhandler::{
             Action, ActionHandler, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable,
-            TextHandler,
+            TextHandler, YoutuiEffect,
         },
         server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
         ui::{action::AppAction, browser::Browser},
@@ -89,17 +89,14 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
     async fn apply_action(
         &mut self,
         action: BrowserArtistsAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    ) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
         }
     }
 }
 impl ActionHandler<BrowserSearchAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: BrowserSearchAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSearchAction::SearchArtist => return self.search(),
             BrowserSearchAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),

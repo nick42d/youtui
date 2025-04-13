@@ -2,6 +2,7 @@ use super::appevent::{AppEvent, EventHandler};
 use crate::{core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
 use anyhow::Result;
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
+use component::actionhandler::YoutuiEffect;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -56,6 +57,7 @@ pub enum AppStatus {
 
 // A callback from one of the application components to the top level.
 #[derive(Debug)]
+#[must_use]
 pub enum AppCallback {
     Quit,
     ChangeContext(WindowContext),
@@ -186,13 +188,16 @@ impl Youtui {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
             AppEvent::Crossterm(e) => {
-                let task = self.window_state.handle_event(e).await;
-                self.task_manager.spawn_task(&self.server, task);
+                let YoutuiEffect { effect, callback } = self.window_state.handle_event(e).await;
+                self.task_manager.spawn_task(&self.server, effect);
+                if let Some(callback) = callback {
+                    self.handle_callback(callback);
+                }
             }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
         }
     }
-    fn handle_callback(&mut self, callback: AppCallback) {
+    pub fn handle_callback(&mut self, callback: AppCallback) {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),

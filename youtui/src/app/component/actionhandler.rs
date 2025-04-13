@@ -1,4 +1,5 @@
 use crate::{
+    app::AppCallback,
     config::keymap::{KeyActionTree, Keymap},
     keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
     keybind::Keybind,
@@ -8,7 +9,7 @@ use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
-/// Convenience type alias
+/// Convenience type alias for an effect for a type implementing Component
 pub type ComponentEffect<C> = AsyncTask<C, <C as Component>::Bkend, <C as Component>::Md>;
 /// A frontend component - has an associated backend and task metadata type.
 pub trait Component {
@@ -26,6 +27,44 @@ macro_rules! impl_youtui_component {
     };
 }
 
+/// Intended to encapsulate all possible effect types Youtui components can
+/// generate.
+pub struct YoutuiEffect<C: Component> {
+    pub effect: ComponentEffect<C>,
+    pub callback: Option<AppCallback>,
+}
+impl<C: Component> YoutuiEffect<C> {
+    pub fn map<C2>(self, f: impl Fn(&mut C2) -> &mut C + Clone + Send + 'static) -> YoutuiEffect<C2>
+    where
+        C2: Component<Bkend = C::Bkend, Md = C::Md>,
+        C: 'static,
+        C::Bkend: 'static,
+        C::Md: 'static,
+    {
+        let YoutuiEffect { effect, callback } = self;
+        let effect = effect.map(f);
+        YoutuiEffect { effect, callback }
+    }
+}
+// Convenience conversion
+impl<C: Component> From<ComponentEffect<C>> for YoutuiEffect<C> {
+    fn from(value: ComponentEffect<C>) -> Self {
+        YoutuiEffect {
+            effect: value,
+            callback: None,
+        }
+    }
+}
+// Convenience conversion
+impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)> for YoutuiEffect<C> {
+    fn from(value: (ComponentEffect<C>, Option<AppCallback>)) -> Self {
+        YoutuiEffect {
+            effect: value.0,
+            callback: value.1,
+        }
+    }
+}
+
 /// An action that can be applied to state.
 pub trait Action {
     type State: Component;
@@ -35,9 +74,10 @@ pub trait Action {
 
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
-    async fn apply_action(&mut self, action: A) -> ComponentEffect<Self>;
+    // TODO: Move to possibility of generating top-level callbacks as well...
+    async fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
     /// Apply an action that can be mapped to Self.
-    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> ComponentEffect<Self>
+    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> YoutuiEffect<Self>
     where
         B: Action,
         C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
@@ -48,6 +88,7 @@ pub trait ActionHandler<A: Action>: Component + Sized {
         f(self)
             .apply_action(action)
             .await
+            .into()
             .map(move |this: &mut Self| f(this))
     }
 }
