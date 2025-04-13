@@ -1,4 +1,4 @@
-use crate::app::component::actionhandler::ActionHandler;
+use crate::app::component::actionhandler::{ActionHandler, YoutuiEffect};
 use crate::config::keymap::Keymap;
 use crate::core::send_or_error;
 use crate::{
@@ -68,7 +68,7 @@ pub struct Logger {
 impl_youtui_component!(Logger);
 
 impl ActionHandler<LoggerAction> for Logger {
-    async fn apply_action(&mut self, action: LoggerAction) -> ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: LoggerAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             LoggerAction::ToggleTargetSelector => self.handle_toggle_target_selector(),
             LoggerAction::ToggleTargetFocus => self.handle_toggle_target_focus(),

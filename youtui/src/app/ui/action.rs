@@ -10,7 +10,7 @@ use super::{
     playlist::PlaylistAction,
     HelpMenu, YoutuiWindow,
 };
-use crate::app::component::actionhandler::{Action, ActionHandler};
+use crate::app::component::actionhandler::{Action, ActionHandler, YoutuiEffect};
 use anyhow::bail;
 use async_callback_manager::AsyncTask;
 use serde::{
@@ -205,10 +205,7 @@ impl Action for HelpAction {
     }
 }
 impl ActionHandler<HelpAction> for HelpMenu {
-    async fn apply_action(
-        &mut self,
-        action: HelpAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: HelpAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             HelpAction::Close => self.shown = false,
         }

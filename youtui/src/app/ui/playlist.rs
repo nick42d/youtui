@@ -1,11 +1,13 @@
+use super::action::AppAction;
 use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, ComponentEffectWithCallback, Scrollable,
+    ActionHandler, ComponentEffect, Scrollable, YoutuiEffect,
 };
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
     QueueSong, Seek, Stop, TaskMetadata,
 };
+use crate::app::structures::DownloadStatus;
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
@@ -21,7 +23,6 @@ use crate::async_rodio_sink::{
 };
 use crate::config::keymap::Keymap;
 use crate::config::Config;
-use crate::{app::structures::DownloadStatus, core::send_or_error};
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::widgets::TableState;
 use ratatui::{layout::Rect, Frame};
@@ -31,10 +32,10 @@ use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{borrow::Cow, fmt::Debug};
-use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 
-use super::action::AppAction;
+#[cfg(test)]
+mod tests;
 
 const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
@@ -86,10 +87,7 @@ pub enum QueueState {
 }
 
 impl ActionHandler<PlaylistAction> for Playlist {
-    async fn apply_action(
-        &mut self,
-        action: PlaylistAction,
-    ) -> impl Into<ComponentEffectWithCallback<Playlist>> {
+    async fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
         match action {
             PlaylistAction::ViewBrowser => {
                 (AsyncTask::new_no_op(), Some(self.view_browser().await))
@@ -939,28 +937,4 @@ impl Playlist {
 
 fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.playlist.clone()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Playlist;
-    use crate::{
-        app::ui::{ListSongID, PlayState},
-        config::Config,
-    };
-
-    fn get_dummy_playlist() -> Playlist {
-        let cfg = Config::default();
-        let playlist = Playlist::new(&cfg).0;
-        playlist
-    }
-    #[tokio::test]
-    async fn test_handle_resumed() {
-        let mut p = get_dummy_playlist();
-        p.play_status = PlayState::Paused(ListSongID::default());
-        p.handle_resumed(ListSongID::default());
-        let mut expected_p = get_dummy_playlist();
-        expected_p.play_status = PlayState::Playing(ListSongID::default());
-        assert_eq!(p, expected_p);
-    }
 }

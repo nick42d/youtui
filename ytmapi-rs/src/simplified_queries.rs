@@ -408,17 +408,17 @@ impl<A: AuthToken> YtMusic<A> {
     /// }.into();
     /// yt.remove_history_items(vec![first_history_token]).await
     /// # };
-    pub async fn remove_history_items<'a>(
+    pub async fn remove_history_items(
         &self,
-        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>,
+        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'_>>,
     ) -> Result<Vec<ApiOutcome>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
         self.query(query).await
     }
     // TODO: Docs / alternative constructors.
-    pub async fn edit_song_library_status<'a>(
+    pub async fn edit_song_library_status(
         &self,
-        query: EditSongLibraryStatusQuery<'a>,
+        query: EditSongLibraryStatusQuery<'_>,
     ) -> Result<Vec<ApiOutcome>> {
         self.query(query).await
     }
@@ -486,9 +486,9 @@ impl<A: AuthToken> YtMusic<A> {
     ///     .with_source(&playlists[0].playlist_id);
     /// yt.create_playlist(query).await
     /// # };
-    pub async fn create_playlist<'a, T: CreatePlaylistType>(
+    pub async fn create_playlist<T: CreatePlaylistType>(
         &self,
-        query: CreatePlaylistQuery<'a, T>,
+        query: CreatePlaylistQuery<'_, T>,
     ) -> Result<PlaylistID<'static>> {
         self.query(query).await
     }

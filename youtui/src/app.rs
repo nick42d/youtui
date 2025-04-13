@@ -2,7 +2,7 @@ use super::appevent::{AppEvent, EventHandler};
 use crate::{core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
 use anyhow::Result;
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
-use component::actionhandler::ComponentEffectWithCallback;
+use component::actionhandler::YoutuiEffect;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -188,8 +188,7 @@ impl Youtui {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
             AppEvent::Crossterm(e) => {
-                let ComponentEffectWithCallback { effect, callback } =
-                    self.window_state.handle_event(e).await;
+                let YoutuiEffect { effect, callback } = self.window_state.handle_event(e).await;
                 self.task_manager.spawn_task(&self.server, effect);
                 if let Some(callback) = callback {
                     self.handle_callback(callback);

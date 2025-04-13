@@ -1,6 +1,6 @@
 use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler,
+    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
@@ -147,10 +147,7 @@ impl Action for BrowserSongsAction {
     }
 }
 impl ActionHandler<FilterAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: FilterAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             FilterAction::Close => self.album_songs_list.toggle_filter(),
             FilterAction::Apply => self.album_songs_list.apply_filter(),
@@ -160,10 +157,7 @@ impl ActionHandler<FilterAction> for Browser {
     }
 }
 impl ActionHandler<SortAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: SortAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
             SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
@@ -174,10 +168,7 @@ impl ActionHandler<SortAction> for Browser {
     }
 }
 impl ActionHandler<BrowserSongsAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: BrowserSongsAction,
-    ) -> crate::app::component::actionhandler::ComponentEffect<Self> {
+    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSongsAction::PlayAlbum => self.play_album().await,
             BrowserSongsAction::PlaySong => self.play_song().await,

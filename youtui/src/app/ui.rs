@@ -1,8 +1,7 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
     get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler, ComponentEffect,
-    ComponentEffectWithCallback, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable,
-    TextHandler,
+    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
 use super::structures::*;
@@ -10,7 +9,6 @@ use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::keymap::Keymap;
 use crate::config::Config;
-use crate::core::send_or_error;
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
 use async_callback_manager::{AsyncTask, Constraint};
@@ -45,7 +43,6 @@ pub struct YoutuiWindow {
     pub playlist: Playlist,
     pub browser: Browser,
     pub logger: Logger,
-    pub callback_tx: mpsc::Sender<AppCallback>,
     keybinds: Keymap<AppAction>,
     list_keybinds: Keymap<AppAction>,
     text_entry_keybinds: Keymap<AppAction>,
@@ -223,18 +220,13 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl ActionHandler<AppAction> for YoutuiWindow {
-    async fn apply_action(
-        &mut self,
-        action: AppAction,
-    ) -> impl Into<ComponentEffectWithCallback<Self>> {
+    async fn apply_action(&mut self, action: AppAction) -> impl Into<YoutuiEffect<Self>> {
         // NOTE: This is the place to check if we _should_ be handling an action.
         // For example if a user has set custom 'playlist' keybinds that trigger
         // 'browser' actions, this could be filtered out here.
         match action {
             AppAction::VolUp => {
-                return Into::<ComponentEffectWithCallback<Self>>::into(
-                    self.handle_increase_volume(5).await,
-                )
+                return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5).await)
             }
             AppAction::VolDown => return self.handle_increase_volume(-5).await.into(),
             AppAction::NextSong => return self.handle_next().into(),
@@ -316,7 +308,6 @@ impl YoutuiWindow {
             logger: Logger::new(callback_tx.clone(), config),
             key_stack: Vec::new(),
             help: HelpMenu::new(config),
-            callback_tx,
             keybinds: global_keybinds(config),
             list_keybinds: list_keybinds(config),
             text_entry_keybinds: text_entry_keybinds(config),
@@ -342,10 +333,7 @@ impl YoutuiWindow {
         ))
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_event(
-        &mut self,
-        event: crossterm::event::Event,
-    ) -> ComponentEffectWithCallback<Self> {
+    pub async fn handle_event(&mut self, event: crossterm::event::Event) -> YoutuiEffect<Self> {
         // TODO: This should be intercepted and keycodes mapped by us instead of going
         // direct to rat-text.
         if let Some(effect) = self.try_handle_text(&event) {
@@ -364,7 +352,7 @@ impl YoutuiWindow {
     async fn handle_key_event(
         &mut self,
         key_event: crossterm::event::KeyEvent,
-    ) -> ComponentEffectWithCallback<Self> {
+    ) -> YoutuiEffect<Self> {
         self.key_stack.push(key_event);
         self.global_handle_key_stack().await
     }
@@ -448,7 +436,7 @@ impl YoutuiWindow {
             .push(self.playlist.play_song_id(id))
             .map(|this: &mut Self| &mut this.playlist)
     }
-    async fn global_handle_key_stack(&mut self) -> ComponentEffectWithCallback<Self> {
+    async fn global_handle_key_stack(&mut self) -> YoutuiEffect<Self> {
         match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
             KeyHandleAction::Action(a) => {
                 let effect = self.apply_action(a).await.into();
