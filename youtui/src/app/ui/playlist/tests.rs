@@ -4,10 +4,51 @@ use crate::{
     async_rodio_sink::Stopped,
     config::Config,
 };
+use pretty_assertions::assert_eq;
 
 fn get_dummy_playlist() -> Playlist {
     let cfg = Config::default();
     Playlist::new(&cfg).0
+}
+
+#[tokio::test]
+#[ignore = "Incomplete"]
+async fn test_handle_playing_modifies_duration() {
+    todo!();
+}
+#[tokio::test]
+async fn test_handle_playing_no_duration_when_paused() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Paused(ListSongID(0));
+    p.handle_playing(None, ListSongID(0));
+    let mut expected_p = get_dummy_playlist();
+    expected_p.play_status = PlayState::Playing(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_playing_no_duration_when_other_song_paused() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Paused(ListSongID(1));
+    let expected_p = p.clone();
+    p.handle_playing(None, ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_playing_no_duration_when_other_sstate() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Error(ListSongID(0));
+    let expected_p = p.clone();
+    p.handle_playing(None, ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_set_to_error() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Paused(ListSongID(0));
+    p.handle_set_to_error(ListSongID(0));
+    let mut expected_p = get_dummy_playlist();
+    expected_p.play_status = PlayState::Error(ListSongID(0));
+    assert_eq!(p, expected_p);
 }
 #[tokio::test]
 async fn test_handle_resumed_when_paused() {
@@ -22,18 +63,41 @@ async fn test_handle_resumed_when_paused() {
 async fn test_handle_resumed_when_other_song_paused() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Paused(ListSongID(1));
+    let expected_p = p.clone();
     p.handle_resumed(ListSongID(0));
-    let mut expected_p = get_dummy_playlist();
-    expected_p.play_status = PlayState::Paused(ListSongID(1));
     assert_eq!(p, expected_p);
 }
 #[tokio::test]
 async fn test_handle_resumed_when_other_state() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Error(ListSongID(0));
+    let expected_p = p.clone();
     p.handle_resumed(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_paused_when_playing() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Playing(ListSongID(0));
+    p.handle_paused(ListSongID(0));
     let mut expected_p = get_dummy_playlist();
-    expected_p.play_status = PlayState::Error(ListSongID(0));
+    expected_p.play_status = PlayState::Paused(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_paused_when_other_song_playing() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Playing(ListSongID(1));
+    let expected_p = p.clone();
+    p.handle_paused(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_paused_when_other_state() {
+    let mut p = get_dummy_playlist();
+    p.play_status = PlayState::Error(ListSongID(0));
+    let expected_p = p.clone();
+    p.handle_paused(ListSongID(0));
     assert_eq!(p, expected_p);
 }
 #[tokio::test]
@@ -55,8 +119,7 @@ async fn test_handle_stopped_when_playing_id() {
 async fn test_handle_stopped_when_not_playing_id() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Playing(ListSongID(1));
+    let expected_p = p.clone();
     p.handle_stopped(Some(Stopped(ListSongID(0))));
-    let mut expected_p = get_dummy_playlist();
-    expected_p.play_status = PlayState::Playing(ListSongID(1));
     assert_eq!(p, expected_p);
 }
