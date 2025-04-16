@@ -234,7 +234,8 @@ impl AlbumSongsList {
         Some(self.list.remove(idx))
     }
     pub fn create_next_id(&mut self) -> ListSongID {
+        let id = self.next_id;
         self.next_id.0 += 1;
-        self.next_id
+        id
     }
 }
