@@ -51,14 +51,44 @@ async fn get_dummy_playlist() -> Playlist {
     );
     playlist
 }
+async fn assert_function_is_autoplay_queued(f: impl Fn(&mut Playlist, ListSongID)) {
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::NotQueued;
+    let input = p.clone();
+    f(&mut p, ListSongID(0));
+    test_is_autoplay_queued(input, ListSongID(0), p);
 
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::Queued(ListSongID(0));
+    let input = p.clone();
+    f(&mut p, ListSongID(0));
+    test_is_autoplay_queued(input, ListSongID(0), p);
+
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::Queued(ListSongID(1));
+    let input = p.clone();
+    f(&mut p, ListSongID(0));
+    test_is_autoplay_queued(input, ListSongID(0), p);
+}
+fn test_is_autoplay_queued(mut input: Playlist, s: ListSongID, output: Playlist) {
+    match input.queue_status {
+        QueueState::NotQueued => assert_eq!(input, output),
+        QueueState::Queued(list_song_id) => {
+            if list_song_id == s {
+                input.queue_status = QueueState::NotQueued;
+                assert_eq!(input, output)
+            } else {
+                assert_eq!(input, output)
+            }
+        }
+    }
+}
 #[tokio::test]
 async fn test_handle_autoplay_queued_when_other_queued() {
     let mut p = get_dummy_playlist().await;
     p.queue_status = QueueState::Queued(ListSongID(1));
-    let expected_p = p.clone();
-    p.handle_autoplay_queued(ListSongID(0));
-    assert_eq!(p, expected_p);
+    let output = p.clone();
+    test_is_autoplay_queued(p, ListSongID(0), output);
 }
 #[tokio::test]
 async fn test_handle_autoplay_queued_when_queued() {
