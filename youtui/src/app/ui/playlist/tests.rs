@@ -8,7 +8,7 @@ use crate::{
     config::Config,
 };
 use pretty_assertions::assert_eq;
-use std::{fmt::Debug, rc::Rc, time::Duration};
+use std::{rc::Rc, sync::OnceLock, time::Duration};
 use ytmapi_rs::{
     auth::BrowserToken,
     common::{AlbumID, YoutubeID},
@@ -16,21 +16,32 @@ use ytmapi_rs::{
     query::GetAlbumQuery,
 };
 
+static DUMMY_ALBUM: OnceLock<GetAlbum> = OnceLock::new();
+
+fn get_dummy_album() -> GetAlbum {
+    DUMMY_ALBUM
+        .get_or_init(|| {
+            let json =
+                std::fs::read_to_string("../ytmapi-rs/test_json/get_album_20240724.json").unwrap();
+            ytmapi_rs::process_json::<_, BrowserToken>(
+                json,
+                GetAlbumQuery::new(AlbumID::from_raw("")),
+            )
+            .unwrap()
+        })
+        .clone()
+}
+
 async fn get_dummy_playlist() -> Playlist {
     let cfg = Config::default();
     let mut playlist = Playlist::new(&cfg).0;
     playlist.list.state = ListStatus::Loaded;
-    // TODO: Avoid doing this on every test.
-    let json = tokio::fs::read_to_string("../ytmapi-rs/test_json/get_album_20240724.json")
-        .await
-        .unwrap();
     let GetAlbum {
         title,
         year,
         mut tracks,
         ..
-    } = ytmapi_rs::process_json::<_, BrowserToken>(json, GetAlbumQuery::new(AlbumID::from_raw("")))
-        .unwrap();
+    } = get_dummy_album();
     playlist.list.add_raw_song(
         tracks.pop().unwrap(),
         Rc::new(title),
