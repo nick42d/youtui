@@ -2,7 +2,7 @@ use super::Playlist;
 use crate::{
     app::{
         structures::{ListSong, ListStatus},
-        ui::{ListSongID, PlayState},
+        ui::{playlist::QueueState, ListSongID, PlayState},
     },
     async_rodio_sink::Stopped,
     config::Config,
@@ -53,6 +53,31 @@ async fn get_dummy_playlist() -> Playlist {
 }
 
 #[tokio::test]
+async fn test_handle_autoplay_queued_when_other_queued() {
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::Queued(ListSongID(1));
+    let expected_p = p.clone();
+    p.handle_autoplay_queued(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_autoplay_queued_when_queued() {
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::Queued(ListSongID(0));
+    p.handle_autoplay_queued(ListSongID(0));
+    let mut expected_p = get_dummy_playlist().await;
+    expected_p.queue_status = QueueState::NotQueued;
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_autoplay_queued_not_queued() {
+    let mut p = get_dummy_playlist().await;
+    p.queue_status = QueueState::NotQueued;
+    let expected_p = p.clone();
+    p.handle_autoplay_queued(ListSongID(0));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
 async fn test_handle_playing_modifies_duration() {
     let mut p = get_dummy_playlist().await;
     p.play_status = PlayState::Paused(ListSongID(1));
@@ -60,6 +85,20 @@ async fn test_handle_playing_modifies_duration() {
     p.handle_playing(Some(new_duration), ListSongID(0));
     let mut expected_p = get_dummy_playlist().await;
     expected_p.play_status = PlayState::Paused(ListSongID(1));
+    expected_p
+        .list
+        .get_list_iter_mut()
+        .next()
+        .unwrap()
+        .actual_duration = Some(new_duration);
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_queued_modifies_duration() {
+    let mut p = get_dummy_playlist().await;
+    let new_duration = Duration::from_secs(180);
+    p.handle_queued(Some(new_duration), ListSongID(0));
+    let mut expected_p = get_dummy_playlist().await;
     expected_p
         .list
         .get_list_iter_mut()
@@ -86,7 +125,7 @@ async fn test_handle_playing_no_duration_when_other_song_paused() {
     assert_eq!(p, expected_p);
 }
 #[tokio::test]
-async fn test_handle_playing_no_duration_when_other_sstate() {
+async fn test_handle_playing_no_duration_when_other_state() {
     let mut p = get_dummy_playlist().await;
     p.play_status = PlayState::Error(ListSongID(0));
     let expected_p = p.clone();
