@@ -19,8 +19,8 @@ pub struct AlbumSongsList {
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
-#[derive(Clone, PartialEq, Copy, Debug, Default, PartialOrd)]
-pub struct ListSongID(usize);
+#[derive(Clone, PartialEq, Copy, Debug, PartialOrd)]
+pub struct ListSongID(#[cfg(test)] pub usize, #[cfg(not(test))] usize);
 
 // As this is a simple wrapper type we implement Copy for ease of handling
 #[derive(Clone, PartialEq, Copy, Debug, Default, PartialOrd)]
@@ -133,7 +133,7 @@ impl Default for AlbumSongsList {
         AlbumSongsList {
             state: ListStatus::New,
             list: Vec::new(),
-            next_id: ListSongID::default(),
+            next_id: ListSongID(0),
         }
     }
 }
@@ -234,7 +234,8 @@ impl AlbumSongsList {
         Some(self.list.remove(idx))
     }
     pub fn create_next_id(&mut self) -> ListSongID {
+        let id = self.next_id;
         self.next_id.0 += 1;
-        self.next_id
+        id
     }
 }
