@@ -43,11 +43,11 @@ pub enum InputRouting {
 }
 
 pub struct Browser {
-    pub callback_tx: mpsc::Sender<AppCallback>,
-    pub input_routing: InputRouting,
-    pub prev_input_routing: InputRouting,
-    pub artist_list: ArtistSearchPanel,
-    pub album_songs_list: AlbumSongsPanel,
+    callback_tx: mpsc::Sender<AppCallback>,
+    input_routing: InputRouting,
+    prev_input_routing: InputRouting,
+    artist_list: ArtistSearchPanel,
+    album_songs_list: AlbumSongsPanel,
     keybinds: Keymap<AppAction>,
 }
 
