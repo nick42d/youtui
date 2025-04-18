@@ -42,7 +42,7 @@ const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Playlist {
     pub list: AlbumSongsList,
     pub cur_played_dur: Option<Duration>,

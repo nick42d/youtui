@@ -79,6 +79,9 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
             AsyncTaskKind::NoOp => next,
         }
     }
+    pub fn is_no_op(&self) -> bool {
+        matches!(self.task, AsyncTaskKind::NoOp)
+    }
     pub fn new_no_op() -> AsyncTask<Frntend, Bkend, Md> {
         Self {
             task: AsyncTaskKind::NoOp,
