@@ -2,9 +2,9 @@ use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::action::AppAction;
+use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
 use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
@@ -46,26 +46,6 @@ pub struct AlbumSongsPanel {
 }
 impl_youtui_component!(AlbumSongsPanel);
 
-// TODO: refactor
-#[derive(Clone)]
-pub struct FilterManager {
-    filter_commands: Vec<TableFilterCommand>,
-    pub filter_text: TextInputState,
-    pub shown: bool,
-    keybinds: Keymap<AppAction>,
-}
-impl_youtui_component!(FilterManager);
-
-// TODO: refactor
-#[derive(Clone)]
-pub struct SortManager {
-    sort_commands: Vec<TableSortCommand>,
-    pub shown: bool,
-    pub cur: usize,
-    keybinds: Keymap<AppAction>,
-}
-impl_youtui_component!(SortManager);
-
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserSongsAction {
@@ -77,54 +57,6 @@ pub enum BrowserSongsAction {
     AddSongToPlaylist,
     AddSongsToPlaylist,
     AddAlbumToPlaylist,
-}
-
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum FilterAction {
-    Close,
-    ClearFilter,
-    Apply,
-}
-
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum SortAction {
-    Close,
-    ClearSort,
-    SortSelectedAsc,
-    SortSelectedDesc,
-}
-
-impl Action for FilterAction {
-    type State = Browser;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Filter".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            FilterAction::Close => "Close Filter",
-            FilterAction::Apply => "Apply filter",
-            FilterAction::ClearFilter => "Clear filter",
-        }
-        .into()
-    }
-}
-
-impl Action for SortAction {
-    type State = Browser;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Filter".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            SortAction::Close => "Close sort",
-            SortAction::ClearSort => "Clear sort",
-            SortAction::SortSelectedAsc => "Sort ascending",
-            SortAction::SortSelectedDesc => "Sort descending",
-        }
-        .into()
-    }
 }
 
 impl Action for BrowserSongsAction {
@@ -182,52 +114,6 @@ impl ActionHandler<BrowserSongsAction> for Browser {
         AsyncTask::new_no_op()
     }
 }
-impl SortManager {
-    fn new(config: &Config) -> Self {
-        Self {
-            sort_commands: Default::default(),
-            shown: Default::default(),
-            cur: Default::default(),
-            keybinds: sort_keybinds(config),
-        }
-    }
-}
-impl FilterManager {
-    fn new(config: &Config) -> Self {
-        Self {
-            filter_text: Default::default(),
-            filter_commands: Default::default(),
-            shown: Default::default(),
-            keybinds: filter_keybinds(config),
-        }
-    }
-}
-impl TextHandler for FilterManager {
-    fn is_text_handling(&self) -> bool {
-        true
-    }
-    fn get_text(&self) -> &str {
-        self.filter_text.text()
-    }
-    fn replace_text(&mut self, text: impl Into<String>) {
-        self.filter_text.set_text(text)
-    }
-    fn clear_text(&mut self) -> bool {
-        self.filter_text.clear()
-    }
-    fn handle_text_event_impl(
-        &mut self,
-        event: &crossterm::event::Event,
-    ) -> Option<ComponentEffect<Self>> {
-        match handle_events(&mut self.filter_text, true, event) {
-            rat_text::event::TextOutcome::Continue => None,
-            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
-            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
-            rat_text::event::TextOutcome::TextChanged => Some(AsyncTask::new_no_op()),
-        }
-    }
-}
-
 impl AlbumSongsPanel {
     pub fn new(config: &Config) -> AlbumSongsPanel {
         AlbumSongsPanel {

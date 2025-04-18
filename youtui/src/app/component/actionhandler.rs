@@ -21,8 +21,8 @@ pub trait Component {
 macro_rules! impl_youtui_component {
     ($t:ty) => {
         impl crate::app::component::actionhandler::Component for $t {
-            type Bkend = ArcServer;
-            type Md = TaskMetadata;
+            type Bkend = crate::app::server::ArcServer;
+            type Md = crate::app::server::TaskMetadata;
         }
     };
 }

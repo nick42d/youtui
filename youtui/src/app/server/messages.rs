@@ -19,6 +19,7 @@ use std::time::Duration;
 use ytmapi_rs::common::VideoID;
 use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
 use ytmapi_rs::parse::SearchResultArtist;
+use ytmapi_rs::parse::SearchResultSong;
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -36,6 +37,8 @@ pub struct HandleApiError {
 pub struct GetSearchSuggestions(pub String);
 #[derive(Debug)]
 pub struct SearchArtists(pub String);
+#[derive(Debug)]
+pub struct SearchSongs(pub String);
 #[derive(Debug)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
 
@@ -124,6 +127,17 @@ impl BackendTask<ArcServer> for SearchArtists {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.api.search_artists(self.0).await }
+    }
+}
+impl BackendTask<ArcServer> for SearchSongs {
+    type Output = Result<Vec<SearchResultSong>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.api.search_songs(self.0).await }
     }
 }
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
