@@ -40,14 +40,14 @@ pub enum WindowContext {
 pub struct YoutuiWindow {
     context: WindowContext,
     prev_context: WindowContext,
-    pub playlist: Playlist,
-    pub browser: Browser,
-    pub logger: Logger,
+    playlist: Playlist,
+    browser: Browser,
+    logger: Logger,
     keybinds: Keymap<AppAction>,
     list_keybinds: Keymap<AppAction>,
     text_entry_keybinds: Keymap<AppAction>,
     key_stack: Vec<KeyEvent>,
-    pub help: HelpMenu,
+    help: HelpMenu,
 }
 impl_youtui_component!(YoutuiWindow);
 
