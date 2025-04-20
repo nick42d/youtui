@@ -1,10 +1,7 @@
 use super::{
     browser::{
-        artistsearch::{
-            search_panel::{BrowserArtistsAction, BrowserSearchAction},
-            songs_panel::BrowserArtistSongsAction,
-        },
-        shared_components::{FilterAction, SortAction},
+        artistsearch::{search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction},
+        shared_components::{BrowserSearchAction, FilterAction, SortAction},
         songsearch::BrowserSongsAction,
         BrowserAction,
     },
@@ -79,7 +76,6 @@ pub enum TextEntryAction {
 }
 
 impl Action for TextEntryAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         "Global".into()
     }
@@ -93,7 +89,6 @@ impl Action for TextEntryAction {
     }
 }
 impl Action for ListAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         "Global".into()
     }
@@ -108,7 +103,6 @@ impl Action for ListAction {
 }
 
 impl Action for AppAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             AppAction::VolUp
@@ -197,7 +191,6 @@ impl TryFrom<String> for AppAction {
 }
 
 impl Action for HelpAction {
-    type State = HelpMenu;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             HelpAction::Close => "Help".into(),

@@ -3,8 +3,10 @@ use std::mem;
 use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
-use search_panel::{ArtistSearchPanel, BrowserArtistsAction, BrowserSearchAction};
+use search_panel::{ArtistSearchPanel, BrowserArtistsAction};
 use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
+use tracing::warn;
+use ytmapi_rs::common::{AlbumID, ArtistChannelID};
 
 use crate::{
     app::{
@@ -12,14 +14,19 @@ use crate::{
             ActionHandler, ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable, TextHandler,
             YoutuiEffect,
         },
-        server::{GetArtistSongs, HandleApiError, SearchArtists},
-        ui::action::{AppAction, TextEntryAction},
+        server::{
+            api::GetArtistSongsProgressUpdate, GetArtistSongs, HandleApiError, SearchArtists,
+        },
+        ui::{
+            action::{AppAction, TextEntryAction},
+            ListStatus,
+        },
         AppCallback,
     },
     config::{keymap::Keymap, Config},
 };
 
-use super::shared_components::{FilterAction, SortAction};
+use super::shared_components::{BrowserSearchAction, FilterAction, SortAction};
 
 pub mod search_panel;
 pub mod songs_panel;
@@ -131,17 +138,24 @@ impl ActionHandler<SortAction> for ArtistSearchBrowser {
         AsyncTask::new_no_op()
     }
 }
-impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
-    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
-        todo!()
-    }
-}
 impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
     async fn apply_action(
         &mut self,
         action: BrowserArtistsAction,
     ) -> impl Into<YoutuiEffect<Self>> {
-        todo!()
+        match action {
+            BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
+        }
+    }
+}
+impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
+    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            BrowserSearchAction::SearchArtist => return self.search(),
+            BrowserSearchAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
+            BrowserSearchAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
+        }
+        AsyncTask::new_no_op()
     }
 }
 impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
@@ -150,16 +164,22 @@ impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
         action: BrowserArtistSongsAction,
     ) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserArtistSongsAction::PlayAlbum => self.play_album().await,
-            BrowserArtistSongsAction::PlaySong => self.play_song().await,
-            BrowserArtistSongsAction::PlaySongs => self.play_songs().await,
-            BrowserArtistSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
-            BrowserArtistSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
-            BrowserArtistSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
+            BrowserArtistSongsAction::PlayAlbum => return self.play_album().into(),
+            BrowserArtistSongsAction::PlaySong => return self.play_song().into(),
+            BrowserArtistSongsAction::PlaySongs => return self.play_songs().into(),
+            BrowserArtistSongsAction::AddAlbumToPlaylist => {
+                return self.add_album_to_playlist().into()
+            }
+            BrowserArtistSongsAction::AddSongToPlaylist => {
+                return self.add_song_to_playlist().into()
+            }
+            BrowserArtistSongsAction::AddSongsToPlaylist => {
+                return self.add_songs_to_playlist().into()
+            }
             BrowserArtistSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
             BrowserArtistSongsAction::Filter => self.album_songs_list.toggle_filter(),
         }
-        AsyncTask::new_no_op()
+        YoutuiEffect::new_no_op()
     }
 }
 impl KeyRouter<AppAction> for ArtistSearchBrowser {

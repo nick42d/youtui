@@ -60,7 +60,6 @@ pub enum BrowserArtistSongsAction {
 }
 
 impl Action for BrowserArtistSongsAction {
-    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Artist Songs Panel".into()
     }

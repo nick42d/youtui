@@ -65,7 +65,6 @@ pub enum PlaylistAction {
 }
 
 impl Action for PlaylistAction {
-    type State = Playlist;
     fn context(&self) -> std::borrow::Cow<str> {
         "Playlist".into()
     }

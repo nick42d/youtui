@@ -35,7 +35,6 @@ pub enum LoggerAction {
     ViewBrowser,
 }
 impl Action for LoggerAction {
-    type State = Logger;
     fn context(&self) -> Cow<str> {
         "Logger".into()
     }

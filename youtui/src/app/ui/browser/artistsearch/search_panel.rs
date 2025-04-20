@@ -7,7 +7,10 @@ use crate::{
         server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
         ui::{
             action::AppAction,
-            browser::{shared_components::SearchBlock, Browser},
+            browser::{
+                shared_components::{BrowserSearchAction, SearchBlock},
+                Browser,
+            },
         },
         view::{ListView, Loadable, SortableList},
     },
@@ -48,7 +51,6 @@ pub enum BrowserArtistsAction {
 }
 
 impl Action for BrowserArtistsAction {
-    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Artist Search Panel".into()
     }
@@ -60,47 +62,6 @@ impl Action for BrowserArtistsAction {
     }
 }
 
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum BrowserSearchAction {
-    SearchArtist,
-    PrevSearchSuggestion,
-    NextSearchSuggestion,
-}
-impl Action for BrowserSearchAction {
-    type State = Browser;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Artist Search Panel".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            BrowserSearchAction::SearchArtist => "Search",
-            BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
-            BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
-        }
-        .into()
-    }
-}
-impl ActionHandler<BrowserArtistsAction> for ArtistSearchPanel {
-    async fn apply_action(
-        &mut self,
-        action: BrowserArtistsAction,
-    ) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
-        }
-    }
-}
-impl ActionHandler<BrowserSearchAction> for ArtistSearchPanel {
-    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            BrowserSearchAction::SearchArtist => return self.search(),
-            BrowserSearchAction::PrevSearchSuggestion => self.artist_list.search.increment_list(-1),
-            BrowserSearchAction::NextSearchSuggestion => self.artist_list.search.increment_list(1),
-        }
-        AsyncTask::new_no_op()
-    }
-}
 impl ArtistSearchPanel {
     pub fn new(config: &Config) -> Self {
         Self {
@@ -111,7 +72,7 @@ impl ArtistSearchPanel {
             selected: Default::default(),
             sort_commands_list: Default::default(),
             search_popped: Default::default(),
-            search: SearchBlock::new(),
+            search: SearchBlock::default(),
             widget_state: Default::default(),
         }
     }

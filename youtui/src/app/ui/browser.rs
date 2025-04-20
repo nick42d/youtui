@@ -16,14 +16,12 @@ use crate::{
     config::keymap::Keymap,
 };
 use artistsearch::{
-    search_panel::{BrowserArtistsAction, BrowserSearchAction},
-    songs_panel::BrowserArtistSongsAction,
-    ArtistSearchBrowser,
+    search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction, ArtistSearchBrowser,
 };
 use async_callback_manager::AsyncTask;
 use itertools::Either;
 use serde::{Deserialize, Serialize};
-use shared_components::{FilterAction, SortAction};
+use shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use songsearch::{BrowserSongsAction, SongSearchBrowser};
 use std::iter::Iterator;
 use tracing::warn;
@@ -61,7 +59,6 @@ pub enum BrowserAction {
 }
 
 impl Action for BrowserAction {
-    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Browser".into()
     }
@@ -97,10 +94,12 @@ impl ActionHandler<BrowserSearchAction> for Browser {
         // action has a component it works on.
         match self.variant {
             BrowserVariant::ArtistSearch => {
-                todo!()
+                self.apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
+                    .await
             }
             BrowserVariant::SongSearch => {
-                todo!()
+                self.apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
+                    .await
             }
         }
     }
@@ -130,23 +129,34 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
         action: BrowserArtistsAction,
     ) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
-            BrowserVariant::ArtistSearch => self.artist_search_browser.apply_action(action),
+            BrowserVariant::ArtistSearch => {
+                return self
+                    .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
+                    .await
+                    .into()
+            }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
                 action
             ),
         }
+        YoutuiEffect::new_no_op()
     }
 }
 impl ActionHandler<BrowserSongsAction> for Browser {
     async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
-            BrowserVariant::SongSearch => self.artist_search_browser.apply_action(action),
+            BrowserVariant::SongSearch => {
+                return self
+                    .apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
+                    .await
+            }
             BrowserVariant::ArtistSearch => warn!(
                 "Received action {:?} but song search browser not active",
                 action
             ),
         }
+        YoutuiEffect::new_no_op()
     }
 }
 impl ActionHandler<BrowserAction> for Browser {
@@ -305,21 +315,27 @@ impl DominantKeyRouter<AppAction> for Browser {
         }
     }
     fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        match self.variant {
-            BrowserVariant::ArtistSearch => {
-                Either::Left(
-                    // XXX: Should be only is album_songs_list selected..
-                    match self.artist_search_browser.album_songs_list.route {
-                        artistsearch::songs_panel::AlbumSongsInputRouting::List => todo!(),
-                        artistsearch::songs_panel::AlbumSongsInputRouting::Sort => todo!(),
-                        artistsearch::songs_panel::AlbumSongsInputRouting::Filter => todo!(),
-                    },
-                )
-            }
-            BrowserVariant::SongSearch => {
-                Either::Right(match self.song_search_browser.input_routing {})
-            }
-        }
+        // match self.variant {
+        //     BrowserVariant::ArtistSearch => {
+        //         Either::Left(
+        //             // XXX: Should be only is album_songs_list selected..
+        //             match self.artist_search_browser.album_songs_list.route {
+        //                 artistsearch::songs_panel::AlbumSongsInputRouting::List =>
+        // todo!(),
+        // artistsearch::songs_panel::AlbumSongsInputRouting::Sort => todo!(),
+        //                 artistsearch::songs_panel::AlbumSongsInputRouting::Filter =>
+        // todo!(),             },
+        //         )
+        //     }
+        //     BrowserVariant::SongSearch => {
+        //         Either::Right(
+        //             // match self.song_search_browser.input_routing {}
+        //             todo!(),
+        //         )
+        //     }
+        // }
+        // Remove this!
+        std::iter::empty()
     }
 }
 

@@ -1,10 +1,8 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::ui::action::{AppAction, HelpAction, ListAction, TextEntryAction};
-use crate::app::ui::browser::artistsearch::search_panel::{
-    BrowserArtistsAction, BrowserSearchAction,
-};
+use crate::app::ui::browser::artistsearch::search_panel::BrowserArtistsAction;
 use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
-use crate::app::ui::browser::shared_components::{FilterAction, SortAction};
+use crate::app::ui::browser::shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use crate::app::ui::browser::songsearch::BrowserSongsAction;
 use crate::app::ui::browser::BrowserAction;
 use crate::app::ui::logger::LoggerAction;
@@ -548,6 +546,11 @@ fn default_browser_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Left),
             KeyActionTree::new_key(AppAction::Browser(BrowserAction::Left)),
+        ),
+        // TODO: Improve
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('S')),
+            KeyActionTree::new_key(AppAction::Browser(BrowserAction::ChangeSearchType)),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Right),

@@ -46,7 +46,6 @@ pub enum BrowserSongsAction {
 }
 
 impl Action for BrowserSongsAction {
-    type State = ();
     fn context(&self) -> std::borrow::Cow<str> {
         todo!()
     }

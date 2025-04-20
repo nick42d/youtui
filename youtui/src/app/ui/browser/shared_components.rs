@@ -51,8 +51,15 @@ pub enum SortAction {
     SortSelectedDesc,
 }
 
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSearchAction {
+    SearchArtist,
+    PrevSearchSuggestion,
+    NextSearchSuggestion,
+}
+
 impl Action for FilterAction {
-    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Filter".into()
     }
@@ -67,7 +74,6 @@ impl Action for FilterAction {
 }
 
 impl Action for SortAction {
-    type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Filter".into()
     }
@@ -77,6 +83,20 @@ impl Action for SortAction {
             SortAction::ClearSort => "Clear sort",
             SortAction::SortSelectedAsc => "Sort ascending",
             SortAction::SortSelectedDesc => "Sort descending",
+        }
+        .into()
+    }
+}
+
+impl Action for BrowserSearchAction {
+    fn context(&self) -> std::borrow::Cow<str> {
+        "Artist Search Panel".into()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        match self {
+            BrowserSearchAction::SearchArtist => "Search",
+            BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
+            BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
         }
         .into()
     }

@@ -6,7 +6,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use std::{borrow::Cow, ops::Deref};
+use std::borrow::Cow;
 use ytmapi_rs::common::SearchSuggestion;
 
 /// Convenience type alias for an effect for a type implementing Component
@@ -73,7 +73,6 @@ impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)> for YoutuiEff
 
 /// An action that can be applied to state.
 pub trait Action {
-    type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
@@ -302,7 +301,6 @@ mod tests {
         fn describe(&self) -> std::borrow::Cow<str> {
             todo!()
         }
-        type State = ();
     }
     fn test_keymap() -> Keymap<TestAction> {
         [
