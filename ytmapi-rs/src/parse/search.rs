@@ -178,6 +178,7 @@ pub struct SearchResultSong {
     pub artist: String,
     // Album field can be optional - see https://github.com/nick42d/youtui/issues/174
     pub album: Option<String>,
+    pub album_id: Option<AlbumID<'static>>,
     pub duration: String,
     pub plays: String,
     pub explicit: Explicit,
@@ -581,6 +582,17 @@ fn parse_song_search_result_from_music_shelf_contents(
             "Song result should contain 2 or 3 string fields delimited by ' • '",
             parse_song_fields,
         )?;
+    let album_id = if album.is_some() {
+        // Per above implementation, if there is an album, it is the second field in the
+        // run excluding the delimiter.
+        Some(mrlir.take_value_pointer(format!(
+            "{}/text/runs/2/{}",
+            flex_column_item_pointer(1),
+            NAVIGATION_BROWSE_ID
+        ))?)
+    } else {
+        None
+    };
 
     let plays = parse_flex_column_item(&mut mrlir, 2, 0)?;
 
@@ -600,6 +612,7 @@ fn parse_song_search_result_from_music_shelf_contents(
         album,
         video_id,
         duration,
+        album_id,
     })
 }
 // TODO: Type safety

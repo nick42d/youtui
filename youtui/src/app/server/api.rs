@@ -9,7 +9,8 @@ use std::{borrow::Borrow, sync::Arc};
 use tokio::{io::AsyncWriteExt, sync::RwLock};
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
-use ytmapi_rs::parse::{AlbumSong, SearchResultArtist, SearchResultSong};
+use ytmapi_rs::common::Thumbnail;
+use ytmapi_rs::parse::{AlbumSong, ParsedSongArtist, SearchResultArtist, SearchResultSong};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
@@ -177,7 +178,8 @@ pub enum GetArtistSongsProgressUpdate {
         album: String,
         album_id: AlbumID<'static>,
         year: String,
-        artist: String,
+        artists: Vec<ParsedSongArtist>,
+        thumbnails: Vec<Thumbnail>,
     },
     // Stream closes here.
     AllSongsSent,
@@ -294,6 +296,7 @@ fn get_artist_songs(
                 artists,
                 year,
                 tracks,
+                thumbnails,
                 ..
             } = album;
             tracing::info!("Sending caller tracks for artist {:?}", browse_id);
@@ -304,11 +307,8 @@ fn get_artist_songs(
                     album: title,
                     album_id,
                     year,
-                    artist: artists
-                        .into_iter()
-                        .next()
-                        .map(|a| a.name)
-                        .unwrap_or_default(),
+                    artists,
+                    thumbnails,
                 },
             )
             .await;

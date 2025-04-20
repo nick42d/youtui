@@ -93,14 +93,14 @@ impl ActionHandler<BrowserSearchAction> for Browser {
         // This is not as simple as mapping the action to either type of state, since an
         // action has a component it works on.
         match self.variant {
-            BrowserVariant::ArtistSearch => {
-                self.apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
-                    .await
-            }
-            BrowserVariant::SongSearch => {
-                self.apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
-                    .await
-            }
+            BrowserVariant::ArtistSearch => self
+                .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
+                .await
+                .into(),
+            BrowserVariant::SongSearch => self
+                .apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
+                .await
+                .into(),
         }
     }
 }

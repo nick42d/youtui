@@ -4,8 +4,8 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
-    QueueSong, Seek, Stop, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
+    Stop, TaskMetadata,
 };
 use crate::app::structures::DownloadStatus;
 use crate::app::structures::{Percentage, SongListComponent};
@@ -425,7 +425,7 @@ impl Playlist {
         };
         // TODO: Consider how to handle race conditions.
         let effect = AsyncTask::new_stream_chained(
-            DownloadSong(song.raw.video_id.clone(), id),
+            DownloadSong(song.video_id.clone(), id),
             |this: &mut Playlist, item| {
                 let DownloadProgressUpdate { kind, id } = item;
                 this.handle_song_download_progress_update(kind, id)

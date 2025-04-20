@@ -511,8 +511,7 @@ impl SongSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn replace_song_list(&mut self, song_list: Vec<SearchResultSong>) {
-        self.song_list
-            .append_raw_songs(raw_list, album, album_id, year, artist);
-        todo!()
+        self.song_list.append_raw_search_result_songs(song_list);
+        self.increment_list(0);
     }
 }

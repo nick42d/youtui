@@ -25,8 +25,8 @@ use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
 use std::mem;
 use tracing::warn;
 use ytmapi_rs::{
-    common::{AlbumID, ArtistChannelID},
-    parse::{AlbumSong, SearchResultArtist},
+    common::{AlbumID, ArtistChannelID, Thumbnail},
+    parse::{AlbumSong, ParsedSongArtist, SearchResultArtist},
 };
 
 pub mod search_panel;
@@ -303,9 +303,11 @@ impl ArtistSearchBrowser {
                     song_list,
                     album,
                     year,
-                    artist,
+                    artists,
                     album_id,
-                } => this.handle_append_song_list(song_list, album, album_id, year, artist),
+                    thumbnails,
+                } => this
+                    .handle_append_song_list(song_list, album, album_id, year, artists, thumbnails),
                 GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
             }
             AsyncTask::new_no_op()
@@ -468,11 +470,12 @@ impl ArtistSearchBrowser {
         album: String,
         album_id: AlbumID<'static>,
         year: String,
-        artist: String,
+        artists: Vec<ParsedSongArtist>,
+        thumbnails: Vec<Thumbnail>,
     ) {
         self.album_songs_panel
             .list
-            .append_raw_songs(song_list, album, album_id, year, artist);
+            .append_raw_album_songs(song_list, album, album_id, year, artists, thumbnails);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
         self.album_songs_panel.apply_sort_commands();
