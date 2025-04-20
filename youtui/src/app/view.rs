@@ -181,10 +181,6 @@ pub trait SortableList {
     fn push_sort_command(&mut self, list_sort_command: String);
     fn clear_sort_commands(&mut self);
 }
-pub trait FilterableList {
-    fn push_filter_command(&mut self, list_filter_command: String);
-    fn clear_filter_commands(&mut self);
-}
 // A drawable part of the application.
 pub trait Drawable {
     // Helper function to draw.

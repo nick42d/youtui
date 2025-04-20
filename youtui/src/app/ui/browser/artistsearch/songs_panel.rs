@@ -1,8 +1,9 @@
-use super::get_adjusted_list_column;
 use crate::app::component::actionhandler::{ComponentEffect, Scrollable, TextHandler};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::action::AppAction;
-use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
+use crate::app::ui::browser::shared_components::{
+    get_adjusted_list_column, FilterManager, SortManager,
+};
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };

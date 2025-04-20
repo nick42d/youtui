@@ -1,6 +1,6 @@
-use super::{
-    artistsearch::search_panel::BrowserSearchAction,
-    shared_components::{FilterAction, FilterManager, SearchBlock, SortAction, SortManager},
+use super::shared_components::{
+    get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
+    SortAction, SortManager,
 };
 use crate::{
     app::{
@@ -9,22 +9,30 @@ use crate::{
             TextHandler, YoutuiEffect,
         },
         server::{HandleApiError, SearchSongs},
+        structures::AlbumSongsList,
         ui::action::{AppAction, TextEntryAction},
+        view::{
+            FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+            TableSortCommand, TableView,
+        },
         AppCallback,
     },
     config::{keymap::Keymap, Config},
 };
+use anyhow::bail;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
+use tracing::warn;
 use ytmapi_rs::parse::SearchResultSong;
 
 const MAX_SONG_SEARCH_RESULTS: usize = 100;
 
 pub struct SongSearchBrowser {
     pub input_routing: InputRouting,
-    song_list: Vec<SearchResultSong>,
+    song_list: AlbumSongsList,
+    cur_selected: usize,
     search_popped: bool,
     search: SearchBlock,
     widget_state: TableState,
@@ -74,34 +82,34 @@ impl Scrollable for SongSearchBrowser {
 impl TextHandler for SongSearchBrowser {
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
-            InputRouting::Search => todo!(),
-            InputRouting::List => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => (),
+            InputRouting::Filter => true,
+            InputRouting::Search => true,
+            InputRouting::List => false,
+            InputRouting::Sort => false,
         }
     }
     fn get_text(&self) -> &str {
         match self.input_routing {
-            InputRouting::Search => todo!(),
-            InputRouting::List => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => todo!(),
+            InputRouting::Filter => self.filter.get_text(),
+            InputRouting::Search => self.search.get_text(),
+            InputRouting::List => "",
+            InputRouting::Sort => "",
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         match self.input_routing {
-            InputRouting::Search => todo!(),
-            InputRouting::List => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => todo!(),
+            InputRouting::Search => self.search.replace_text(text),
+            InputRouting::Filter => self.filter.replace_text(text),
+            InputRouting::List => (),
+            InputRouting::Sort => (),
         }
     }
     fn clear_text(&mut self) -> bool {
         match self.input_routing {
-            InputRouting::Search => todo!(),
-            InputRouting::List => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => todo!(),
+            InputRouting::Search => self.search.clear_text(),
+            InputRouting::Filter => self.filter.clear_text(),
+            InputRouting::List => false,
+            InputRouting::Sort => false,
         }
     }
     fn handle_text_event_impl(
@@ -109,10 +117,16 @@ impl TextHandler for SongSearchBrowser {
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
         match self.input_routing {
-            InputRouting::Search => todo!(),
-            InputRouting::List => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => todo!(),
+            InputRouting::Search => self
+                .search
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut Self| &mut this.search)),
+            InputRouting::Filter => self
+                .filter
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut Self| &mut this.filter)),
+            InputRouting::List => None,
+            InputRouting::Sort => None,
         }
     }
 }
@@ -139,33 +153,113 @@ impl ActionHandler<SortAction> for SongSearchBrowser {
 }
 impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
-        todo!()
+        match action {
+            BrowserSearchAction::SearchArtist => todo!(),
+            BrowserSearchAction::PrevSearchSuggestion => todo!(),
+            BrowserSearchAction::NextSearchSuggestion => todo!(),
+        }
     }
 }
 impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
-        todo!()
+        match action {
+            BrowserSongsAction::Filter => todo!(),
+            BrowserSongsAction::Sort => todo!(),
+            BrowserSongsAction::PlaySong => todo!(),
+            BrowserSongsAction::PlaySongs => todo!(),
+            BrowserSongsAction::AddSongToPlaylist => todo!(),
+            BrowserSongsAction::AddSongsToPlaylist => todo!(),
+        }
+        YoutuiEffect::new_no_op()
     }
 }
 impl KeyRouter<AppAction> for SongSearchBrowser {
     fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        todo!()
+        std::iter::once(&self.keybinds)
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        if self.dominant_keybinds_active() {
-            return Either::Left(self.get_dominant_keybinds());
+        match self.input_routing {
+            InputRouting::List => std::iter::once(&self.keybinds),
+            InputRouting::Search => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => todo!(),
         }
+    }
+}
+impl Loadable for SongSearchBrowser {
+    fn is_loading(&self) -> bool {
         todo!()
     }
 }
-impl DominantKeyRouter<AppAction> for SongSearchBrowser {
-    fn dominant_keybinds_active(&self) -> bool {
+impl TableView for SongSearchBrowser {
+    fn get_selected_item(&self) -> usize {
         todo!()
     }
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_state(&self) -> TableState {
+        todo!()
+    }
+    fn get_title(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+    fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
+        todo!()
+    }
+    fn get_highlighted_row(&self) -> Option<usize> {
+        todo!()
+    }
+    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
+        todo!()
+    }
+    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
         todo!()
     }
 }
+impl SortableTableView for SongSearchBrowser {
+    fn get_sortable_columns(&self) -> &[usize] {
+        &[]
+    }
+    fn get_sort_commands(&self) -> &[TableSortCommand] {
+        &self.sort.sort_commands
+    }
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()> {
+        // TODO: Maintain a view only struct, for easier rendering of this.
+        if !self.get_sortable_columns().contains(&sort_command.column) {
+            bail!(format!("Unable to sort column {}", sort_command.column,));
+        }
+        // Map the column of ArtistAlbums to a column of List and sort
+        self.song_list.sort(
+            get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
+            sort_command.direction,
+        );
+        // Remove commands that already exist for the same column, as this new command
+        // will trump the old ones. Slightly naive - loops the whole vec, could
+        // short circuit.
+        self.sort
+            .sort_commands
+            .retain(|cmd| cmd.column != sort_command.column);
+        self.sort.sort_commands.push(sort_command);
+        Ok(())
+    }
+    fn clear_sort_commands(&mut self) {
+        todo!()
+    }
+    fn get_filterable_columns(&self) -> &[usize] {
+        todo!()
+    }
+    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
+        todo!()
+    }
+    fn get_filter_commands(&self) -> &[TableFilterCommand] {
+        todo!()
+    }
+    fn push_filter_command(&mut self, filter_command: TableFilterCommand) {
+        todo!()
+    }
+    fn clear_filter_commands(&mut self) {
+        todo!()
+    }
+}
+
 impl SongSearchBrowser {
     pub fn new(config: &Config) -> Self {
         Self {
@@ -177,7 +271,148 @@ impl SongSearchBrowser {
             sort: Default::default(),
             filter: Default::default(),
             keybinds: Default::default(),
+            cur_selected: Default::default(),
         }
+    }
+    pub fn subcolumns_of_vec() -> &'static [usize] {
+        todo!();
+    }
+    pub fn sort(&mut self, column: usize, direction: SortDirection) {
+        self.song_list.sort_by(|a, b| match direction {
+            SortDirection::Asc => a
+                .get_fields_iter()
+                .nth(column)
+                .partial_cmp(&b.get_fields_iter().nth(column))
+                .unwrap_or(std::cmp::Ordering::Equal),
+            SortDirection::Desc => b
+                .get_fields_iter()
+                .nth(column)
+                .partial_cmp(&a.get_fields_iter().nth(column))
+                .unwrap_or(std::cmp::Ordering::Equal),
+        });
+    }
+    pub fn apply_sort_commands(&mut self) -> Result<()> {
+        // for c in self.sort.sort_commands.iter() {
+        //     if !self.get_sortable_columns().contains(&c.column) {
+        //         bail!(format!("Unable to sort column {}", c.column,));
+        //     }
+        //     self.list.sort(
+        //         get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
+        //         c.direction,
+        //     );
+        // }
+        // Ok(())
+        todo!()
+    }
+    pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
+        // let mapped_filterable_cols: Vec<_> = self
+        //     .get_filterable_columns()
+        //     .iter()
+        //     .map(|c| Self::subcolumns_of_vec().get(*c))
+        //     .collect();
+        // Box::new(self.list.get_list_iter().filter(move |ls| {
+        //     // Naive implementation.
+        //     // TODO: Do this in a single pass and optimise.
+        //     self.get_filter_commands().iter().fold(true, |acc, e| {
+        //         let match_found = match e {
+        //             TableFilterCommand::All(f) => {
+        //                 let mut filterable_cols_iter =
+        //                     ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+        //                         if mapped_filterable_cols.contains(&Some(&i)) {
+        //                             Some(f)
+        //                         } else {
+        //                             None
+        //                         }
+        //                     });
+        //                 match f {
+        //                     Filter::Contains(s) => filterable_cols_iter.any(|item|
+        // s.is_in(item)),                     Filter::NotContains(_) =>
+        // todo!(),                     Filter::Equal(_) => todo!(),
+        //                 }
+        //             }
+        //             TableFilterCommand::Column { .. } => todo!(),
+        //         };
+        //         // If we find a match for each filter, can display the row.
+        //         acc && match_found
+        //     })
+        // }))
+        todo!()
+    }
+    pub fn apply_filter(&mut self) {
+        let filter = self.filter.get_text().to_string();
+        self.filter.shown = false;
+        self.input_routing = InputRouting::List;
+        let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
+            FilterString::CaseInsensitive(filter),
+        ));
+        self.filter.filter_commands.push(cmd);
+        // Need to match current selected row to length of list.
+        // Naive method to count the iterator. Consider making iterator exact sized...
+        self.cur_selected = self
+            .cur_selected
+            .min(self.get_filtered_items().count().saturating_sub(1))
+    }
+    pub fn clear_filter(&mut self) {
+        self.filter.shown = false;
+        self.input_routing = InputRouting::List;
+        self.filter.filter_commands.clear();
+    }
+    fn open_sort(&mut self) {
+        self.sort.shown = true;
+        self.route = AlbumSongsInputRouting::Sort;
+    }
+    pub fn toggle_filter(&mut self) {
+        let shown = self.filter.shown;
+        if !shown {
+            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
+            // it at the time of showing, so it cannot be missed.
+            self.filter.filter_text.clear();
+            self.route = AlbumSongsInputRouting::Filter;
+        } else {
+            self.route = AlbumSongsInputRouting::List;
+        }
+        self.filter.shown = !shown;
+    }
+    pub fn close_sort(&mut self) {
+        self.sort.shown = false;
+        self.route = AlbumSongsInputRouting::List;
+    }
+    pub fn handle_pop_sort(&mut self) {
+        // If no sortable columns, should we not handle this command?
+        self.sort.cur = 0;
+        self.open_sort();
+    }
+    pub fn handle_clear_sort(&mut self) {
+        self.close_sort();
+        self.clear_sort_commands();
+    }
+    pub fn handle_sort_cur_asc(&mut self) {
+        // TODO: Better error handling
+        let Some(column) = self.get_sortable_columns().get(self.sort.cur) else {
+            warn!("Tried to index sortable columns but was out of range");
+            return;
+        };
+        if let Err(e) = self.push_sort_command(TableSortCommand {
+            column: *column,
+            direction: SortDirection::Asc,
+        }) {
+            warn!("Tried to sort a column that is not sortable - error {e}")
+        };
+        self.close_sort();
+    }
+    pub fn handle_sort_cur_desc(&mut self) {
+        // TODO: Better error handling
+        let Some(column) = self.get_sortable_columns().get(self.sort.cur) else {
+            warn!("Tried to index sortable columns but was out of range");
+            return;
+        };
+        if let Err(e) = self.push_sort_command(TableSortCommand {
+            column: *column,
+            direction: SortDirection::Desc,
+        }) {
+            warn!("Tried to sort a column that is not sortable - error {e}")
+        };
+        self.close_sort();
     }
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if self.is_text_handling()

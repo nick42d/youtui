@@ -2,6 +2,7 @@ use crate::app::component::actionhandler::{Action, Suggestable};
 use crate::app::component::actionhandler::{ComponentEffect, TextHandler};
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
 use crate::app::view::{TableFilterCommand, TableSortCommand};
+use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
 use serde::{Deserialize, Serialize};
@@ -239,5 +240,37 @@ impl SearchBlock {
                     .get_text(),
             );
         }
+    }
+}
+
+/// A table may display columns in a different order, adjust the index to a new
+/// index based on a list of correct indexes.
+pub fn get_adjusted_list_column(
+    target_col: usize,
+    adjusted_cols: &[usize],
+) -> anyhow::Result<usize> {
+    adjusted_cols
+        .get(target_col)
+        .with_context(|| {
+            format!(
+                "Unable to sort column, doesn't match up with underlying list. {}",
+                target_col,
+            )
+        })
+        .copied()
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::app::ui::browser::shared_components::get_adjusted_list_column;
+    #[test]
+    fn test_get_adjusted_list_column() {
+        assert_eq!(get_adjusted_list_column(2, &[3, 1, 2]).unwrap(), 2);
+        assert_eq!(get_adjusted_list_column(0, &[3, 1, 2]).unwrap(), 3);
+        assert_eq!(get_adjusted_list_column(1, &[3, 1, 2]).unwrap(), 1);
+    }
+    #[test]
+    fn test_get_adjusted_list_column_out_of_bounds() {
+        assert!(matches!(get_adjusted_list_column(3, &[3, 1, 2]), Err(_)))
     }
 }
