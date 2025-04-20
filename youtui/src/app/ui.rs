@@ -281,6 +281,11 @@ impl ActionHandler<AppAction> for YoutuiWindow {
                     .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
                     .await
             }
+            AppAction::BrowserArtistSongs(a) => {
+                return self
+                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                    .await
+            }
             AppAction::BrowserSongs(a) => {
                 return self
                     .apply_action_mapped(a, |this: &mut Self| &mut this.browser)

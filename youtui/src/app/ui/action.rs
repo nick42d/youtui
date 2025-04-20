@@ -1,9 +1,11 @@
 use super::{
     browser::{
         artistalbums::{
-            albumsongs::{BrowserSongsAction, FilterAction, SortAction},
+            albumsongs::BrowserArtistSongsAction,
             artistsearch::{BrowserArtistsAction, BrowserSearchAction},
         },
+        shared_components::{FilterAction, SortAction},
+        songsearch::BrowserSongsAction,
         BrowserAction,
     },
     logger::LoggerAction,
@@ -44,6 +46,7 @@ pub enum AppAction {
     Help(HelpAction),
     BrowserArtists(BrowserArtistsAction),
     BrowserSearch(BrowserSearchAction),
+    BrowserArtistSongs(BrowserArtistSongsAction),
     BrowserSongs(BrowserSongsAction),
     Log(LoggerAction),
     Playlist(PlaylistAction),
@@ -127,9 +130,10 @@ impl Action for AppAction {
             AppAction::Help(a) => a.context(),
             AppAction::BrowserArtists(a) => a.context(),
             AppAction::BrowserSearch(a) => a.context(),
-            AppAction::BrowserSongs(a) => a.context(),
+            AppAction::BrowserArtistSongs(a) => a.context(),
             AppAction::TextEntry(a) => a.context(),
             AppAction::List(a) => a.context(),
+            AppAction::BrowserSongs(a) => a.context(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -153,9 +157,10 @@ impl Action for AppAction {
             AppAction::Help(a) => a.describe(),
             AppAction::BrowserArtists(a) => a.describe(),
             AppAction::BrowserSearch(a) => a.describe(),
-            AppAction::BrowserSongs(a) => a.describe(),
+            AppAction::BrowserArtistSongs(a) => a.describe(),
             AppAction::TextEntry(a) => a.describe(),
             AppAction::List(a) => a.describe(),
+            AppAction::BrowserSongs(a) => a.describe(),
         }
     }
 }

@@ -9,8 +9,8 @@ use super::{
 use crate::{
     app::{
         component::actionhandler::{
-            Action, ActionHandler, Component, ComponentEffect, DominantKeyRouter, KeyRouter,
-            Scrollable, Suggestable, TextHandler, YoutuiEffect,
+            Action, ActionHandler, Component, ComponentEffect, DelegateScrollable,
+            DominantKeyRouter, KeyRouter, Scrollable, Suggestable, TextHandler, YoutuiEffect,
         },
         server::{
             api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, HandleApiError,
@@ -26,14 +26,15 @@ use artistalbums::ArtistSearchBrowser;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use serde::{Deserialize, Serialize};
-use songsearch::SongSearchBrowser;
+use shared_components::{FilterAction, SortAction};
+use songsearch::{BrowserSongsAction, SongSearchBrowser};
 use std::{default, iter::Iterator, mem};
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion};
 
 pub mod artistalbums;
 mod draw;
 pub mod shared_components;
-mod songsearch;
+pub mod songsearch;
 
 #[derive(Default)]
 enum BrowserVariant {
@@ -78,18 +79,23 @@ impl Action for BrowserAction {
     }
 }
 
-impl Scrollable for Browser {
-    fn increment_list(&mut self, amount: isize) {
+impl DelegateScrollable for Browser {
+    fn delegate_mut(&mut self) -> &mut dyn Scrollable {
         match self.variant {
-            BrowserVariant::ArtistSearch => self.artist_search_browser.increment_list(amount),
-            BrowserVariant::SongSearch => self.song_search_browser.increment_list(amount),
+            BrowserVariant::ArtistSearch => &mut self.artist_search_browser as &mut dyn Scrollable,
+            BrowserVariant::SongSearch => &mut self.song_search_browser as &mut dyn Scrollable,
         }
     }
-    fn is_scrollable(&self) -> bool {
+    fn delegate_ref(&self) -> &dyn Scrollable {
         match self.variant {
-            BrowserVariant::ArtistSearch => self.artist_search_browser.is_scrollable(),
-            BrowserVariant::SongSearch => self.song_search_browser.is_scrollable(),
+            BrowserVariant::ArtistSearch => &self.artist_search_browser as &dyn Scrollable,
+            BrowserVariant::SongSearch => &self.song_search_browser as &dyn Scrollable,
         }
+    }
+}
+impl ActionHandler<BrowserSongsAction> for Browser {
+    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
+        todo!()()
     }
 }
 impl ActionHandler<BrowserAction> for Browser {
@@ -107,6 +113,42 @@ impl ActionHandler<BrowserAction> for Browser {
             BrowserAction::ChangeSearchType => todo!(),
         }
         (AsyncTask::new_no_op(), None)
+    }
+}
+impl ActionHandler<FilterAction> for Browser {
+    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::ArtistSearch => self
+                .artist_search_browser
+                .apply_action(action)
+                .await
+                .into()
+                .map(|this: &mut Self| &mut this.artist_search_browser),
+            BrowserVariant::SongSearch => self
+                .song_search_browser
+                .apply_action(action)
+                .await
+                .into()
+                .map(|this: &mut Self| &mut this.song_search_browser),
+        }
+    }
+}
+impl ActionHandler<SortAction> for Browser {
+    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::ArtistSearch => self
+                .artist_search_browser
+                .apply_action(action)
+                .await
+                .into()
+                .map(|this: &mut Self| &mut this.artist_search_browser),
+            BrowserVariant::SongSearch => self
+                .song_search_browser
+                .apply_action(action)
+                .await
+                .into()
+                .map(|this: &mut Self| &mut this.song_search_browser),
+        }
     }
 }
 // Should this really be implemented on the Browser...

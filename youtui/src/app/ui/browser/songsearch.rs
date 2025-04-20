@@ -1,12 +1,9 @@
-use async_callback_manager::{AsyncTask, Constraint};
-use itertools::Either;
-use ratatui::widgets::TableState;
-use ytmapi_rs::parse::SearchResultSong;
-
+use super::shared_components::{FilterAction, FilterManager, SearchBlock, SortAction, SortManager};
 use crate::{
     app::{
         component::actionhandler::{
-            ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
+            Action, ActionHandler, ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable,
+            TextHandler, YoutuiEffect,
         },
         server::{HandleApiError, SearchSongs},
         ui::action::{AppAction, TextEntryAction},
@@ -14,8 +11,11 @@ use crate::{
     },
     config::{keymap::Keymap, Config},
 };
-
-use super::shared_components::{FilterManager, SearchBlock, SortManager};
+use async_callback_manager::{AsyncTask, Constraint};
+use itertools::Either;
+use ratatui::widgets::TableState;
+use serde::{Deserialize, Serialize};
+use ytmapi_rs::parse::SearchResultSong;
 
 const MAX_SONG_SEARCH_RESULTS: usize = 100;
 
@@ -30,6 +30,27 @@ pub struct SongSearchBrowser {
     keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(SongSearchBrowser);
+
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserSongsAction {
+    Filter,
+    Sort,
+    PlaySong,
+    PlaySongs,
+    AddSongToPlaylist,
+    AddSongsToPlaylist,
+}
+
+impl Action for BrowserSongsAction {
+    type State = ();
+    fn context(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+    fn describe(&self) -> std::borrow::Cow<str> {
+        todo!()
+    }
+}
 
 #[derive(Default)]
 enum InputRouting {
@@ -79,6 +100,27 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
         }
+    }
+}
+impl ActionHandler<FilterAction> for SongSearchBrowser {
+    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            FilterAction::Close => self.album_songs_list.toggle_filter(),
+            FilterAction::Apply => self.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<SortAction> for SongSearchBrowser {
+    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
+            SortAction::Close => self.album_songs_list.close_sort(),
+            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
+        }
+        AsyncTask::new_no_op()
     }
 }
 impl KeyRouter<AppAction> for SongSearchBrowser {

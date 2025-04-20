@@ -1,6 +1,6 @@
 use std::mem;
 
-use albumsongs::AlbumSongsPanel;
+use albumsongs::{AlbumSongsPanel, BrowserArtistSongsAction};
 use anyhow::Context;
 use artistsearch::ArtistSearchPanel;
 use async_callback_manager::{AsyncTask, Constraint};
@@ -9,7 +9,8 @@ use itertools::Either;
 use crate::{
     app::{
         component::actionhandler::{
-            ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
+            ActionHandler, ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable, TextHandler,
+            YoutuiEffect,
         },
         server::{GetArtistSongs, HandleApiError, SearchArtists},
         ui::action::{AppAction, TextEntryAction},
@@ -17,6 +18,8 @@ use crate::{
     },
     config::{keymap::Keymap, Config},
 };
+
+use super::shared_components::{FilterAction, SortAction};
 
 pub mod albumsongs;
 pub mod artistsearch;
@@ -107,7 +110,45 @@ impl TextHandler for ArtistSearchBrowser {
         }
     }
 }
-
+impl ActionHandler<FilterAction> for ArtistSearchBrowser {
+    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            FilterAction::Close => self.album_songs_list.toggle_filter(),
+            FilterAction::Apply => self.album_songs_list.apply_filter(),
+            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
+        };
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<SortAction> for ArtistSearchBrowser {
+    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
+            SortAction::Close => self.album_songs_list.close_sort(),
+            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistSongsAction,
+    ) -> impl Into<YoutuiEffect<Self>> {
+        match action {
+            BrowserArtistSongsAction::PlayAlbum => self.play_album().await,
+            BrowserArtistSongsAction::PlaySong => self.play_song().await,
+            BrowserArtistSongsAction::PlaySongs => self.play_songs().await,
+            BrowserArtistSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
+            BrowserArtistSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
+            BrowserArtistSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
+            BrowserArtistSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
+            BrowserArtistSongsAction::Filter => self.album_songs_list.toggle_filter(),
+        }
+        AsyncTask::new_no_op()
+    }
+}
 impl KeyRouter<AppAction> for ArtistSearchBrowser {
     fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         todo!()

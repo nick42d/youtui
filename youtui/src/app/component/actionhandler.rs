@@ -6,7 +6,7 @@ use crate::{
 };
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
-use std::borrow::Cow;
+use std::{borrow::Cow, ops::Deref};
 use ytmapi_rs::common::SearchSuggestion;
 
 /// Convenience type alias for an effect for a type implementing Component
@@ -101,6 +101,19 @@ pub trait Scrollable {
     /// part of it may be selected.
     fn is_scrollable(&self) -> bool;
 }
+/// Helper trait
+pub trait DelegateScrollable {
+    fn delegate_ref(&self) -> &dyn Scrollable;
+    fn delegate_mut(&mut self) -> &mut dyn Scrollable;
+}
+impl<T: DelegateScrollable> Scrollable for T {
+    fn increment_list(&mut self, amount: isize) {
+        self.delegate_mut().increment_list(amount);
+    }
+    fn is_scrollable(&self) -> bool {
+        self.delegate_ref().is_scrollable()
+    }
+}
 
 /// A component of the application that has different keybinds depending on what
 /// is focussed. For example, keybinds for browser may differ depending on
@@ -179,6 +192,7 @@ pub trait TextHandler: Component {
         self.handle_text_event_impl(event)
     }
 }
+
 // A text handler that can receive suggestions
 // TODO: Seperate library and binary APIs
 pub trait Suggestable: TextHandler {

@@ -48,7 +48,7 @@ impl_youtui_component!(AlbumSongsPanel);
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum BrowserSongsAction {
+pub enum BrowserArtistSongsAction {
     Filter,
     Sort,
     PlaySong,
@@ -59,59 +59,23 @@ pub enum BrowserSongsAction {
     AddAlbumToPlaylist,
 }
 
-impl Action for BrowserSongsAction {
+impl Action for BrowserArtistSongsAction {
     type State = Browser;
     fn context(&self) -> std::borrow::Cow<str> {
         "Artist Songs Panel".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match &self {
-            BrowserSongsAction::PlaySong => "Play song",
-            BrowserSongsAction::PlaySongs => "Play songs",
-            BrowserSongsAction::PlayAlbum => "Play album",
-            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
-            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
-            BrowserSongsAction::Sort => "Sort",
-            BrowserSongsAction::Filter => "Filter",
+            BrowserArtistSongsAction::PlaySong => "Play song",
+            BrowserArtistSongsAction::PlaySongs => "Play songs",
+            BrowserArtistSongsAction::PlayAlbum => "Play album",
+            BrowserArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            BrowserArtistSongsAction::Sort => "Sort",
+            BrowserArtistSongsAction::Filter => "Filter",
         }
         .into()
-    }
-}
-impl ActionHandler<FilterAction> for Browser {
-    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            FilterAction::Close => self.album_songs_list.toggle_filter(),
-            FilterAction::Apply => self.album_songs_list.apply_filter(),
-            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
-        };
-        AsyncTask::new_no_op()
-    }
-}
-impl ActionHandler<SortAction> for Browser {
-    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
-            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
-            SortAction::Close => self.album_songs_list.close_sort(),
-            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
-        }
-        AsyncTask::new_no_op()
-    }
-}
-impl ActionHandler<BrowserSongsAction> for Browser {
-    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            BrowserSongsAction::PlayAlbum => self.play_album().await,
-            BrowserSongsAction::PlaySong => self.play_song().await,
-            BrowserSongsAction::PlaySongs => self.play_songs().await,
-            BrowserSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
-            BrowserSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
-            BrowserSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
-            BrowserSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
-            BrowserSongsAction::Filter => self.album_songs_list.toggle_filter(),
-        }
-        AsyncTask::new_no_op()
     }
 }
 impl AlbumSongsPanel {
@@ -121,8 +85,8 @@ impl AlbumSongsPanel {
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
-            sort: SortManager::new(config),
-            filter: FilterManager::new(config),
+            sort: SortManager::new(),
+            filter: FilterManager::new(),
             widget_state: Default::default(),
         }
     }

@@ -1,28 +1,11 @@
-use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler, YoutuiEffect,
-};
-use crate::app::structures::{ListSong, SongListComponent};
-use crate::app::ui::action::AppAction;
+use crate::app::component::actionhandler::Action;
+use crate::app::component::actionhandler::{ComponentEffect, TextHandler};
+use crate::app::server::{GetSearchSuggestions, HandleApiError};
 use crate::app::ui::browser::Browser;
-use crate::app::view::{
-    Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
-};
-use crate::app::{
-    component::actionhandler::{Action, KeyRouter},
-    structures::{AlbumSongsList, ListStatus, Percentage},
-    view::{BasicConstraint, Loadable, TableView},
-};
-use crate::config::keymap::Keymap;
-use crate::config::Config;
-use anyhow::{bail, Result};
-use async_callback_manager::AsyncTask;
-use itertools::Either;
+use crate::app::view::{TableFilterCommand, TableSortCommand};
+use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
-use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
-use std::iter::Iterator;
-use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]
@@ -34,22 +17,20 @@ pub struct SearchBlock {
 impl_youtui_component!(SearchBlock);
 
 // TODO: refactor
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FilterManager {
-    filter_commands: Vec<TableFilterCommand>,
+    pub filter_commands: Vec<TableFilterCommand>,
     pub filter_text: TextInputState,
     pub shown: bool,
-    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(FilterManager);
 
 // TODO: refactor
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct SortManager {
-    sort_commands: Vec<TableSortCommand>,
+    pub sort_commands: Vec<TableSortCommand>,
     pub shown: bool,
     pub cur: usize,
-    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(SortManager);
 
@@ -102,22 +83,20 @@ impl Action for SortAction {
 }
 
 impl SortManager {
-    fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
             sort_commands: Default::default(),
             shown: Default::default(),
             cur: Default::default(),
-            keybinds: sort_keybinds(config),
         }
     }
 }
 impl FilterManager {
-    fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
             filter_text: Default::default(),
             filter_commands: Default::default(),
             shown: Default::default(),
-            keybinds: filter_keybinds(config),
         }
     }
 }

@@ -150,13 +150,13 @@ impl JsonCrawlerIterator for JsonCrawlerArrayIntoIter {
     fn try_last(self) -> CrawlerResult<Self::Item> {
         let Self {
             source,
-            array,
+            mut array,
             mut path,
             ..
         } = self;
         let len = array.len();
         path.push(JsonPath::IndexNum(len));
-        let Some(last_item) = array.last() else {
+        let Some(last_item) = array.next_back() else {
             return Err(CrawlerError::array_size(path, source, 0));
         };
         Ok(Self::Item {
