@@ -550,7 +550,10 @@ fn default_browser_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
         // TODO: Improve
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('S')),
-            KeyActionTree::new_key(AppAction::Browser(BrowserAction::ChangeSearchType)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::Browser(BrowserAction::ChangeSearchType),
+                KeyActionVisibility::Global,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Right),
