@@ -244,17 +244,29 @@ impl KeyRouter<AppAction> for Browser {
 impl DominantKeyRouter<AppAction> for Browser {
     fn dominant_keybinds_active(&self) -> bool {
         match self.variant {
-            BrowserVariant::SongSearch => self.song_search_browser.dominant_keybinds_active(),
-            BrowserVariant::ArtistSearch => self.artist_search_browser.dominant_keybinds_active(),
+            BrowserVariant::SongSearch => {
+                self.song_search_browser.sort.shown || self.song_search_browser.filter.shown
+            }
+            BrowserVariant::ArtistSearch => {
+                self.artist_search_browser.album_songs_list.sort.shown
+                    || self.artist_search_browser.album_songs_list.filter.shown
+            }
         }
     }
     fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.variant {
             BrowserVariant::ArtistSearch => {
-                Either::Left(self.artist_search_browser.get_active_keybinds())
+                Either::Left(
+                    // XXX: Should be only is album_songs_list selected..
+                    match self.artist_search_browser.album_songs_list.route {
+                        artistalbums::albumsongs::AlbumSongsInputRouting::List => todo!(),
+                        artistalbums::albumsongs::AlbumSongsInputRouting::Sort => todo!(),
+                        artistalbums::albumsongs::AlbumSongsInputRouting::Filter => todo!(),
+                    },
+                )
             }
             BrowserVariant::SongSearch => {
-                Either::Right(self.song_search_browser.get_dominant_keybinds())
+                Either::Right(match self.song_search_browser.input_routing {})
             }
         }
     }
@@ -267,8 +279,8 @@ impl Browser {
             variant: Default::default(),
             artist_search_browser: ArtistSearchBrowser::new(config),
             song_search_browser: SongSearchBrowser::new(config),
-            sort_keybings: todo!(),
-            filter_keybings: todo!(),
+            sort_keybings: config.keybinds.sort.clone(),
+            filter_keybings: config.keybinds.filter.clone(),
         }
     }
     pub fn left(&mut self) {

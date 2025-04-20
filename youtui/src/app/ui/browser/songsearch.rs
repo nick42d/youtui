@@ -20,13 +20,13 @@ use ytmapi_rs::parse::SearchResultSong;
 const MAX_SONG_SEARCH_RESULTS: usize = 100;
 
 pub struct SongSearchBrowser {
-    input_routing: InputRouting,
+    pub input_routing: InputRouting,
     song_list: Vec<SearchResultSong>,
     search_popped: bool,
     search: SearchBlock,
     widget_state: TableState,
-    sort: SortManager,
-    filter: FilterManager,
+    pub sort: SortManager,
+    pub filter: FilterManager,
     keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(SongSearchBrowser);

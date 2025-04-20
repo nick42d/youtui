@@ -28,7 +28,7 @@ pub struct ArtistSearchBrowser {
     input_routing: InputRouting,
     prev_input_routing: InputRouting,
     artist_list: ArtistSearchPanel,
-    album_songs_list: AlbumSongsPanel,
+    pub album_songs_list: AlbumSongsPanel,
 }
 impl_youtui_component!(ArtistSearchBrowser);
 
@@ -157,14 +157,6 @@ impl KeyRouter<AppAction> for ArtistSearchBrowser {
         if self.dominant_keybinds_active() {
             return Either::Left(self.get_dominant_keybinds());
         }
-        todo!()
-    }
-}
-impl DominantKeyRouter<AppAction> for ArtistSearchBrowser {
-    fn dominant_keybinds_active(&self) -> bool {
-        todo!()
-    }
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         todo!()
     }
 }

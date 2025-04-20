@@ -253,19 +253,9 @@ impl TextHandler for AlbumSongsPanel {
     }
 }
 
-impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
-    fn dominant_keybinds_active(&self) -> bool {
-        self.sort.shown || self.filter.shown
-    }
-
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
-    }
-}
-
 impl KeyRouter<AppAction> for AlbumSongsPanel {
     fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        [&self.keybinds, &self.sort.keybinds].into_iter()
+        std::iter::once(&self.keybinds)
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.route {
