@@ -29,8 +29,8 @@ impl<T> Deref for MaybeRc<T> {
 impl<T> AsRef<T> for MaybeRc<T> {
     fn as_ref(&self) -> &T {
         match self {
-            MaybeRc::Rc(rc) => &rc,
-            MaybeRc::Owned(t) => &t,
+            MaybeRc::Rc(rc) => rc,
+            MaybeRc::Owned(t) => t,
         }
     }
 }
@@ -299,8 +299,8 @@ impl AlbumSongsList {
                 name: artist,
                 id: None,
             }]),
-            album: album.map(|album| MaybeRc::Owned(album)),
-            album_id: album_id.map(|album_id| MaybeRc::Owned(album_id)),
+            album: album.map(MaybeRc::Owned),
+            album_id: album_id.map(MaybeRc::Owned),
             actual_duration: None,
             video_id,
             track_no: None,

@@ -8,7 +8,7 @@ use crate::{
     app::{
         component::actionhandler::{
             Action, ActionHandler, Component, ComponentEffect, DelegateScrollable,
-            DominantKeyRouter, KeyRouter, Scrollable, Suggestable, TextHandler, YoutuiEffect,
+            DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
         },
         server::{ArcServer, TaskMetadata},
         view::DrawableMut,
@@ -25,7 +25,6 @@ use shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use songsearch::{BrowserSongsAction, SongSearchBrowser};
 use std::iter::Iterator;
 use tracing::warn;
-use ytmapi_rs::common::SearchSuggestion;
 
 pub mod artistsearch;
 mod draw;
@@ -93,14 +92,22 @@ impl ActionHandler<BrowserSearchAction> for Browser {
         // This is not as simple as mapping the action to either type of state, since an
         // action has a component it works on.
         match self.variant {
-            BrowserVariant::ArtistSearch => self
-                .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
+            BrowserVariant::ArtistSearch => {
+                ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
+                    self,
+                    action,
+                    |this: &mut Self| &mut this.artist_search_browser,
+                )
                 .await
-                .into(),
-            BrowserVariant::SongSearch => self
-                .apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
+            }
+            BrowserVariant::SongSearch => {
+                ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
+                    self,
+                    action,
+                    |this: &mut Self| &mut this.song_search_browser,
+                )
                 .await
-                .into(),
+            }
         }
     }
 }
@@ -111,9 +118,12 @@ impl ActionHandler<BrowserArtistSongsAction> for Browser {
     ) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => {
-                return self
-                    .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
-                    .await
+                return ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
+                    self,
+                    action,
+                    |this: &mut Self| &mut this.artist_search_browser,
+                )
+                .await
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -130,10 +140,12 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
     ) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => {
-                return self
-                    .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
-                    .await
-                    .into()
+                return ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
+                    self,
+                    action,
+                    |this: &mut Self| &mut this.artist_search_browser,
+                )
+                .await
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -147,9 +159,12 @@ impl ActionHandler<BrowserSongsAction> for Browser {
     async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::SongSearch => {
-                return self
-                    .apply_action_mapped(action, |this: &mut Self| &mut this.song_search_browser)
-                    .await
+                return ActionHandler::<BrowserSongsAction>::apply_action_mapped(
+                    self,
+                    action,
+                    |this: &mut Self| &mut this.song_search_browser,
+                )
+                .await
             }
             BrowserVariant::ArtistSearch => warn!(
                 "Received action {:?} but song search browser not active",
@@ -209,21 +224,6 @@ impl ActionHandler<SortAction> for Browser {
                 .await
                 .into()
                 .map(|this: &mut Self| &mut this.song_search_browser),
-        }
-    }
-}
-// Should this really be implemented on the Browser...
-impl Suggestable for Browser {
-    fn get_search_suggestions(&self) -> &[SearchSuggestion] {
-        match self.variant {
-            BrowserVariant::ArtistSearch => todo!(),
-            BrowserVariant::SongSearch => todo!(),
-        }
-    }
-    fn has_search_suggestions(&self) -> bool {
-        match self.variant {
-            BrowserVariant::ArtistSearch => todo!(),
-            BrowserVariant::SongSearch => todo!(),
         }
     }
 }
