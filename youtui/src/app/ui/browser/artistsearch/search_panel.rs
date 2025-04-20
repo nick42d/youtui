@@ -5,7 +5,10 @@ use crate::{
             TextHandler, YoutuiEffect,
         },
         server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
-        ui::{action::AppAction, browser::Browser},
+        ui::{
+            action::AppAction,
+            browser::{shared_components::SearchBlock, Browser},
+        },
         view::{ListView, Loadable, SortableList},
     },
     config::{keymap::Keymap, Config},
@@ -78,7 +81,7 @@ impl Action for BrowserSearchAction {
         .into()
     }
 }
-impl ActionHandler<BrowserArtistsAction> for Browser {
+impl ActionHandler<BrowserArtistsAction> for ArtistSearchPanel {
     async fn apply_action(
         &mut self,
         action: BrowserArtistsAction,
@@ -88,7 +91,7 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
         }
     }
 }
-impl ActionHandler<BrowserSearchAction> for Browser {
+impl ActionHandler<BrowserSearchAction> for ArtistSearchPanel {
     async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSearchAction::SearchArtist => return self.search(),

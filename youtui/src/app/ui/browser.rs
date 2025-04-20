@@ -1,35 +1,33 @@
-use self::{
-    artistsearch::{search_panel::ArtistSearchPanel, songs_panel::AlbumSongsPanel},
-    draw::draw_browser,
-};
+use self::draw::draw_browser;
 use super::{
     action::{AppAction, TextEntryAction},
     AppCallback, WindowContext,
 };
+use crate::config::Config;
 use crate::{
     app::{
         component::actionhandler::{
             Action, ActionHandler, Component, ComponentEffect, DelegateScrollable,
             DominantKeyRouter, KeyRouter, Scrollable, Suggestable, TextHandler, YoutuiEffect,
         },
-        server::{
-            api::GetArtistSongsProgressUpdate, ArcServer, GetArtistSongs, HandleApiError,
-            SearchArtists, TaskMetadata,
-        },
-        structures::{ListStatus, SongListComponent},
-        view::{DrawableMut, ListView, TableView},
+        server::{ArcServer, TaskMetadata},
+        view::DrawableMut,
     },
     config::keymap::Keymap,
 };
-use crate::{config::Config, core::send_or_error};
-use artistsearch::ArtistSearchBrowser;
-use async_callback_manager::{AsyncTask, Constraint};
+use artistsearch::{
+    search_panel::{BrowserArtistsAction, BrowserSearchAction},
+    songs_panel::BrowserArtistSongsAction,
+    ArtistSearchBrowser,
+};
+use async_callback_manager::AsyncTask;
 use itertools::Either;
 use serde::{Deserialize, Serialize};
 use shared_components::{FilterAction, SortAction};
 use songsearch::{BrowserSongsAction, SongSearchBrowser};
-use std::{default, iter::Iterator, mem};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion};
+use std::iter::Iterator;
+use tracing::warn;
+use ytmapi_rs::common::SearchSuggestion;
 
 pub mod artistsearch;
 mod draw;
@@ -93,9 +91,62 @@ impl DelegateScrollable for Browser {
         }
     }
 }
+impl ActionHandler<BrowserSearchAction> for Browser {
+    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+        // This is not as simple as mapping the action to either type of state, since an
+        // action has a component it works on.
+        match self.variant {
+            BrowserVariant::ArtistSearch => {
+                todo!()
+            }
+            BrowserVariant::SongSearch => {
+                todo!()
+            }
+        }
+    }
+}
+impl ActionHandler<BrowserArtistSongsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistSongsAction,
+    ) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::ArtistSearch => {
+                return self
+                    .apply_action_mapped(action, |this: &mut Self| &mut this.artist_search_browser)
+                    .await
+            }
+            BrowserVariant::SongSearch => warn!(
+                "Received action {:?} but song artist search browser not active",
+                action
+            ),
+        };
+        YoutuiEffect::new_no_op()
+    }
+}
+impl ActionHandler<BrowserArtistsAction> for Browser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistsAction,
+    ) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::ArtistSearch => self.artist_search_browser.apply_action(action),
+            BrowserVariant::SongSearch => warn!(
+                "Received action {:?} but song artist search browser not active",
+                action
+            ),
+        }
+    }
+}
 impl ActionHandler<BrowserSongsAction> for Browser {
     async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
-        todo!()()
+        match self.variant {
+            BrowserVariant::SongSearch => self.artist_search_browser.apply_action(action),
+            BrowserVariant::ArtistSearch => warn!(
+                "Received action {:?} but song search browser not active",
+                action
+            ),
+        }
     }
 }
 impl ActionHandler<BrowserAction> for Browser {

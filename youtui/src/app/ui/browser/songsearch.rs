@@ -1,4 +1,7 @@
-use super::shared_components::{FilterAction, FilterManager, SearchBlock, SortAction, SortManager};
+use super::{
+    artistsearch::search_panel::BrowserSearchAction,
+    shared_components::{FilterAction, FilterManager, SearchBlock, SortAction, SortManager},
+};
 use crate::{
     app::{
         component::actionhandler::{
@@ -121,6 +124,16 @@ impl ActionHandler<SortAction> for SongSearchBrowser {
             SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
+    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+        todo!()
+    }
+}
+impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
+    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
+        todo!()
     }
 }
 impl KeyRouter<AppAction> for SongSearchBrowser {

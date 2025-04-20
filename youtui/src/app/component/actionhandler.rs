@@ -34,6 +34,12 @@ pub struct YoutuiEffect<C: Component> {
     pub callback: Option<AppCallback>,
 }
 impl<C: Component> YoutuiEffect<C> {
+    pub fn new_no_op() -> Self {
+        YoutuiEffect {
+            effect: AsyncTask::new_no_op(),
+            callback: None,
+        }
+    }
     pub fn map<C2>(self, f: impl Fn(&mut C2) -> &mut C + Clone + Send + 'static) -> YoutuiEffect<C2>
     where
         C2: Component<Bkend = C::Bkend, Md = C::Md>,

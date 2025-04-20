@@ -3,7 +3,7 @@ use std::mem;
 use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
-use search_panel::ArtistSearchPanel;
+use search_panel::{ArtistSearchPanel, BrowserArtistsAction, BrowserSearchAction};
 use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
 
 use crate::{
@@ -129,6 +129,19 @@ impl ActionHandler<SortAction> for ArtistSearchBrowser {
             SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
+    }
+}
+impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
+    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+        todo!()
+    }
+}
+impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
+    async fn apply_action(
+        &mut self,
+        action: BrowserArtistsAction,
+    ) -> impl Into<YoutuiEffect<Self>> {
+        todo!()
     }
 }
 impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {

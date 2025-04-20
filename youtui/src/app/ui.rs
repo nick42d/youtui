@@ -3,7 +3,7 @@ use super::component::actionhandler::{
     get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler, ComponentEffect,
     DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use super::server::{ArcServer, IncreaseVolume, TaskMetadata};
+use super::server::IncreaseVolume;
 use super::structures::*;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
@@ -16,7 +16,6 @@ use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use ratatui::widgets::TableState;
 use std::time::Duration;
-use tokio::sync::mpsc;
 
 pub mod action;
 pub mod browser;
@@ -223,7 +222,8 @@ impl ActionHandler<AppAction> for YoutuiWindow {
     async fn apply_action(&mut self, action: AppAction) -> impl Into<YoutuiEffect<Self>> {
         // NOTE: This is the place to check if we _should_ be handling an action.
         // For example if a user has set custom 'playlist' keybinds that trigger
-        // 'browser' actions, this could be filtered out here.
+        // 'browser' actions, but browser is not shown currently, this could be filtered
+        // out here.
         match action {
             AppAction::VolUp => {
                 return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5).await)
@@ -300,17 +300,14 @@ impl ActionHandler<AppAction> for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(
-        callback_tx: mpsc::Sender<AppCallback>,
-        config: &Config,
-    ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
+    pub fn new(config: &Config) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
         let (playlist, task) = Playlist::new(config);
         let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
             playlist,
-            browser: Browser::new(callback_tx.clone(), config),
-            logger: Logger::new(callback_tx.clone(), config),
+            browser: Browser::new(config),
+            logger: Logger::new(config),
             key_stack: Vec::new(),
             help: HelpMenu::new(config),
             keybinds: global_keybinds(config),
