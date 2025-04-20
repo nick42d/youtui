@@ -1,12 +1,27 @@
 use super::server::downloader::InMemSong;
 use super::view::{SortDirection, TableItem};
 use std::borrow::Cow;
+use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::AlbumID;
-use ytmapi_rs::parse::AlbumSong;
+use ytmapi_rs::parse::{AlbumSong, SearchResultSong};
 
+#[derive(Clone)]
+pub enum MaybeRc<T> {
+    Rc(Rc<T>),
+    Owned(T),
+}
+impl<T> Deref for MaybeRc<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        match self {
+            MaybeRc::Rc(rc) => rc.deref(),
+            MaybeRc::Owned(t) => t,
+        }
+    }
+}
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
 }
@@ -188,6 +203,12 @@ impl AlbumSongsList {
                 year.clone(),
                 artist.clone(),
             );
+        }
+    }
+    // Naive implementation
+    pub fn append_raw_search_result_songs(&mut self, raw_list: Vec<SearchResultSong>) {
+        for song in raw_list {
+            todo!()
         }
     }
     pub fn add_raw_song(

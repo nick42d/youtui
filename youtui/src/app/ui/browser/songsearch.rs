@@ -2,6 +2,7 @@ use super::shared_components::{
     get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
     SortAction, SortManager,
 };
+use crate::app::structures::SongListComponent;
 use crate::{
     app::{
         component::actionhandler::{
@@ -9,17 +10,17 @@ use crate::{
             TextHandler, YoutuiEffect,
         },
         server::{HandleApiError, SearchSongs},
-        structures::AlbumSongsList,
+        structures::{AlbumSongsList, ListSong},
         ui::action::{AppAction, TextEntryAction},
         view::{
-            FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+            Filter, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
             TableSortCommand, TableView,
         },
         AppCallback,
     },
     config::{keymap::Keymap, Config},
 };
-use anyhow::bail;
+use anyhow::{bail, Result};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use ratatui::widgets::TableState;
@@ -158,6 +159,7 @@ impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
             BrowserSearchAction::PrevSearchSuggestion => todo!(),
             BrowserSearchAction::NextSearchSuggestion => todo!(),
         }
+        YoutuiEffect::new_no_op()
     }
 }
 impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
@@ -184,6 +186,11 @@ impl KeyRouter<AppAction> for SongSearchBrowser {
             InputRouting::Filter => todo!(),
             InputRouting::Sort => todo!(),
         }
+    }
+}
+impl SongListComponent for SongSearchBrowser {
+    fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
+        todo!()
     }
 }
 impl Loadable for SongSearchBrowser {
@@ -221,7 +228,7 @@ impl SortableTableView for SongSearchBrowser {
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
     }
-    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()> {
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         // TODO: Maintain a view only struct, for easier rendering of this.
         if !self.get_sortable_columns().contains(&sort_command.column) {
             bail!(format!("Unable to sort column {}", sort_command.column,));
@@ -277,66 +284,50 @@ impl SongSearchBrowser {
     pub fn subcolumns_of_vec() -> &'static [usize] {
         todo!();
     }
-    pub fn sort(&mut self, column: usize, direction: SortDirection) {
-        self.song_list.sort_by(|a, b| match direction {
-            SortDirection::Asc => a
-                .get_fields_iter()
-                .nth(column)
-                .partial_cmp(&b.get_fields_iter().nth(column))
-                .unwrap_or(std::cmp::Ordering::Equal),
-            SortDirection::Desc => b
-                .get_fields_iter()
-                .nth(column)
-                .partial_cmp(&a.get_fields_iter().nth(column))
-                .unwrap_or(std::cmp::Ordering::Equal),
-        });
-    }
     pub fn apply_sort_commands(&mut self) -> Result<()> {
-        // for c in self.sort.sort_commands.iter() {
-        //     if !self.get_sortable_columns().contains(&c.column) {
-        //         bail!(format!("Unable to sort column {}", c.column,));
-        //     }
-        //     self.list.sort(
-        //         get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
-        //         c.direction,
-        //     );
-        // }
-        // Ok(())
-        todo!()
+        for c in self.sort.sort_commands.iter() {
+            if !self.get_sortable_columns().contains(&c.column) {
+                bail!(format!("Unable to sort column {}", c.column,));
+            }
+            self.song_list.sort(
+                get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
+                c.direction,
+            );
+        }
+        Ok(())
     }
     pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        // let mapped_filterable_cols: Vec<_> = self
-        //     .get_filterable_columns()
-        //     .iter()
-        //     .map(|c| Self::subcolumns_of_vec().get(*c))
-        //     .collect();
-        // Box::new(self.list.get_list_iter().filter(move |ls| {
-        //     // Naive implementation.
-        //     // TODO: Do this in a single pass and optimise.
-        //     self.get_filter_commands().iter().fold(true, |acc, e| {
-        //         let match_found = match e {
-        //             TableFilterCommand::All(f) => {
-        //                 let mut filterable_cols_iter =
-        //                     ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-        //                         if mapped_filterable_cols.contains(&Some(&i)) {
-        //                             Some(f)
-        //                         } else {
-        //                             None
-        //                         }
-        //                     });
-        //                 match f {
-        //                     Filter::Contains(s) => filterable_cols_iter.any(|item|
-        // s.is_in(item)),                     Filter::NotContains(_) =>
-        // todo!(),                     Filter::Equal(_) => todo!(),
-        //                 }
-        //             }
-        //             TableFilterCommand::Column { .. } => todo!(),
-        //         };
-        //         // If we find a match for each filter, can display the row.
-        //         acc && match_found
-        //     })
-        // }))
-        todo!()
+        let mapped_filterable_cols: Vec<_> = self
+            .get_filterable_columns()
+            .iter()
+            .map(|c| Self::subcolumns_of_vec().get(*c))
+            .collect();
+        Box::new(self.song_list.get_list_iter().filter(move |ls| {
+            // Naive implementation.
+            // TODO: Do this in a single pass and optimise.
+            self.get_filter_commands().iter().fold(true, |acc, e| {
+                let match_found = match e {
+                    TableFilterCommand::All(f) => {
+                        let mut filterable_cols_iter =
+                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                                if mapped_filterable_cols.contains(&Some(&i)) {
+                                    Some(f)
+                                } else {
+                                    None
+                                }
+                            });
+                        match f {
+                            Filter::Contains(s) => filterable_cols_iter.any(|item| s.is_in(item)),
+                            Filter::NotContains(_) => todo!(),
+                            Filter::Equal(_) => todo!(),
+                        }
+                    }
+                    TableFilterCommand::Column { .. } => todo!(),
+                };
+                // If we find a match for each filter, can display the row.
+                acc && match_found
+            })
+        }))
     }
     pub fn apply_filter(&mut self) {
         let filter = self.filter.get_text().to_string();
@@ -359,7 +350,7 @@ impl SongSearchBrowser {
     }
     fn open_sort(&mut self) {
         self.sort.shown = true;
-        self.route = AlbumSongsInputRouting::Sort;
+        self.input_routing = InputRouting::Sort;
     }
     pub fn toggle_filter(&mut self) {
         let shown = self.filter.shown;
@@ -367,15 +358,15 @@ impl SongSearchBrowser {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
             self.filter.filter_text.clear();
-            self.route = AlbumSongsInputRouting::Filter;
+            self.input_routing = InputRouting::Filter;
         } else {
-            self.route = AlbumSongsInputRouting::List;
+            self.input_routing = InputRouting::List;
         }
         self.filter.shown = !shown;
     }
     pub fn close_sort(&mut self) {
         self.sort.shown = false;
-        self.route = AlbumSongsInputRouting::List;
+        self.input_routing = InputRouting::List;
     }
     pub fn handle_pop_sort(&mut self) {
         // If no sortable columns, should we not handle this command?
@@ -450,8 +441,8 @@ impl SongSearchBrowser {
         self.search.clear_text();
 
         let handler = |this: &mut Self, results| match results {
-            Ok(artists) => {
-                this.replace_song_list(artists);
+            Ok(songs) => {
+                this.replace_song_list(songs);
                 AsyncTask::new_no_op()
             }
             Err(error) => AsyncTask::new_future(
@@ -472,9 +463,8 @@ impl SongSearchBrowser {
         )
     }
     pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> {
-        // Consider how resource intensive this is as it runs in the main thread.
-        let cur_song_idx = self.song_list.get_selected_item();
-        if let Some(cur_song) = self.song_list.get_song_from_idx(cur_song_idx) {
+        let cur_song_idx = self.get_selected_item();
+        if let Some(cur_song) = self.get_song_from_idx(cur_song_idx) {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylistAndPlay(vec![
@@ -486,9 +476,8 @@ impl SongSearchBrowser {
     }
     pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_list.get_selected_item();
+        let cur_idx = self.get_selected_item();
         let song_list = self
-            .album_songs_list
             .get_filtered_list_iter()
             .skip(cur_idx)
             .cloned()
@@ -500,9 +489,8 @@ impl SongSearchBrowser {
     }
     pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_list.get_selected_item();
+        let cur_idx = self.get_selected_item();
         let song_list = self
-            .album_songs_list
             .get_filtered_list_iter()
             .skip(cur_idx)
             .cloned()
@@ -513,9 +501,8 @@ impl SongSearchBrowser {
         )
     }
     pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
-        // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_list.get_selected_item();
-        if let Some(cur_song) = self.album_songs_list.get_song_from_idx(cur_idx) {
+        let cur_idx = self.get_selected_item();
+        if let Some(cur_song) = self.get_song_from_idx(cur_idx) {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylist(vec![cur_song.clone()])),
@@ -524,7 +511,8 @@ impl SongSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn replace_song_list(&mut self, song_list: Vec<SearchResultSong>) {
-        self.song_list = song_list;
-        self.increment_list(0);
+        self.song_list
+            .append_raw_songs(raw_list, album, album_id, year, artist);
+        todo!()
     }
 }
