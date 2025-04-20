@@ -1,11 +1,8 @@
 use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler, YoutuiEffect,
-};
+use crate::app::component::actionhandler::{ComponentEffect, Scrollable, TextHandler};
 use crate::app::structures::{ListSong, SongListComponent};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
-use crate::app::ui::browser::Browser;
 use crate::app::view::{
     Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
@@ -17,9 +14,7 @@ use crate::app::{
 use crate::config::keymap::Keymap;
 use crate::config::Config;
 use anyhow::{bail, Result};
-use async_callback_manager::AsyncTask;
 use itertools::Either;
-use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -258,13 +253,11 @@ impl KeyRouter<AppAction> for AlbumSongsPanel {
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.route {
-            AlbumSongsInputRouting::List => {
-                Either::Left(Either::Left(std::iter::once(&self.keybinds)))
-            }
-            AlbumSongsInputRouting::Sort => {
-                Either::Left(Either::Right(std::iter::once(&self.sort.keybinds)))
-            }
-            AlbumSongsInputRouting::Filter => Either::Right(std::iter::once(&self.filter.keybinds)),
+            AlbumSongsInputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
+            // Handled by parent
+            AlbumSongsInputRouting::Sort => Either::Right(std::iter::empty()),
+            // Handled by parent
+            AlbumSongsInputRouting::Filter => Either::Right(std::iter::empty()),
         }
     }
 }

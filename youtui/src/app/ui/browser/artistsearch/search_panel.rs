@@ -1,23 +1,11 @@
-use crate::{
-    app::{
-        component::actionhandler::{
-            Action, ActionHandler, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable,
-            TextHandler, YoutuiEffect,
-        },
-        server::{ArcServer, GetSearchSuggestions, HandleApiError, TaskMetadata},
-        ui::{
-            action::AppAction,
-            browser::{
-                shared_components::{BrowserSearchAction, SearchBlock},
-                Browser,
-            },
-        },
-        view::{ListView, Loadable, SortableList},
-    },
-    config::{keymap::Keymap, Config},
+use crate::app::component::actionhandler::{
+    Action, Component, ComponentEffect, KeyRouter, Scrollable, Suggestable, TextHandler,
 };
-use async_callback_manager::{AsyncTask, Constraint};
-use rat_text::text_input::{handle_events, TextInputState};
+use crate::app::server::{ArcServer, TaskMetadata};
+use crate::app::ui::action::AppAction;
+use crate::app::ui::browser::shared_components::SearchBlock;
+use crate::app::view::{ListView, Loadable, SortableList};
+use crate::config::{keymap::Keymap, Config};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, iter::Iterator};
@@ -115,10 +103,10 @@ impl TextHandler for ArtistSearchPanel {
 
 impl Suggestable for ArtistSearchPanel {
     fn get_search_suggestions(&self) -> &[SearchSuggestion] {
-        self.search.search_suggestions.as_slice()
+        self.search.get_search_suggestions()
     }
     fn has_search_suggestions(&self) -> bool {
-        !self.search.search_suggestions.is_empty()
+        self.search.has_search_suggestions()
     }
 }
 

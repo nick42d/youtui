@@ -1,7 +1,6 @@
-use crate::app::component::actionhandler::Action;
+use crate::app::component::actionhandler::{Action, Suggestable};
 use crate::app::component::actionhandler::{ComponentEffect, TextHandler};
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
-use crate::app::ui::browser::Browser;
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
@@ -171,6 +170,15 @@ impl TextHandler for SearchBlock {
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::TextChanged => Some(self.fetch_search_suggestions()),
         }
+    }
+}
+
+impl Suggestable for SearchBlock {
+    fn get_search_suggestions(&self) -> &[SearchSuggestion] {
+        self.search_suggestions.as_slice()
+    }
+    fn has_search_suggestions(&self) -> bool {
+        !self.search_suggestions.is_empty()
     }
 }
 

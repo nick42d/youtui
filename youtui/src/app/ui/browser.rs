@@ -171,7 +171,7 @@ impl ActionHandler<BrowserAction> for Browser {
                 )
             }
             BrowserAction::Search => self.handle_toggle_search(),
-            BrowserAction::ChangeSearchType => todo!(),
+            BrowserAction::ChangeSearchType => self.handle_change_search_type(),
         }
         (AsyncTask::new_no_op(), None)
     }
@@ -309,33 +309,37 @@ impl DominantKeyRouter<AppAction> for Browser {
                 self.song_search_browser.sort.shown || self.song_search_browser.filter.shown
             }
             BrowserVariant::ArtistSearch => {
-                self.artist_search_browser.album_songs_list.sort.shown
-                    || self.artist_search_browser.album_songs_list.filter.shown
+                self.artist_search_browser.album_songs_panel.sort.shown
+                    || self.artist_search_browser.album_songs_panel.filter.shown
             }
         }
     }
     fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        // match self.variant {
-        //     BrowserVariant::ArtistSearch => {
-        //         Either::Left(
-        //             // XXX: Should be only is album_songs_list selected..
-        //             match self.artist_search_browser.album_songs_list.route {
-        //                 artistsearch::songs_panel::AlbumSongsInputRouting::List =>
-        // todo!(),
-        // artistsearch::songs_panel::AlbumSongsInputRouting::Sort => todo!(),
-        //                 artistsearch::songs_panel::AlbumSongsInputRouting::Filter =>
-        // todo!(),             },
-        //         )
-        //     }
-        //     BrowserVariant::SongSearch => {
-        //         Either::Right(
-        //             // match self.song_search_browser.input_routing {}
-        //             todo!(),
-        //         )
-        //     }
-        // }
-        // Remove this!
-        std::iter::empty()
+        match self.variant {
+            BrowserVariant::ArtistSearch => {
+                match self.artist_search_browser.album_songs_panel.route {
+                    artistsearch::songs_panel::AlbumSongsInputRouting::List => {
+                        Either::Left(std::iter::empty())
+                    }
+                    artistsearch::songs_panel::AlbumSongsInputRouting::Sort => {
+                        Either::Right(std::iter::once(&self.sort_keybings))
+                    }
+                    artistsearch::songs_panel::AlbumSongsInputRouting::Filter => {
+                        Either::Right(std::iter::once(&self.filter_keybings))
+                    }
+                }
+            }
+            BrowserVariant::SongSearch => match self.song_search_browser.input_routing {
+                songsearch::InputRouting::List => Either::Left(std::iter::empty()),
+                songsearch::InputRouting::Search => Either::Left(std::iter::empty()),
+                songsearch::InputRouting::Filter => {
+                    Either::Right(std::iter::once(&self.filter_keybings))
+                }
+                songsearch::InputRouting::Sort => {
+                    Either::Right(std::iter::once(&self.sort_keybings))
+                }
+            },
+        }
     }
 }
 
@@ -378,6 +382,12 @@ impl Browser {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.handle_toggle_search(),
             BrowserVariant::SongSearch => self.song_search_browser.handle_toggle_search(),
+        }
+    }
+    pub fn handle_change_search_type(&mut self) {
+        match self.variant {
+            BrowserVariant::ArtistSearch => self.variant = BrowserVariant::SongSearch,
+            BrowserVariant::SongSearch => self.variant = BrowserVariant::ArtistSearch,
         }
     }
 }

@@ -55,10 +55,12 @@ impl Action for BrowserSongsAction {
 }
 
 #[derive(Default)]
-enum InputRouting {
-    Search,
-    #[default]
+pub enum InputRouting {
     List,
+    #[default]
+    Search,
+    Filter,
+    Sort,
 }
 
 impl Scrollable for SongSearchBrowser {
@@ -74,24 +76,32 @@ impl TextHandler for SongSearchBrowser {
         match self.input_routing {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => (),
         }
     }
     fn get_text(&self) -> &str {
         match self.input_routing {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => todo!(),
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         match self.input_routing {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => todo!(),
         }
     }
     fn clear_text(&mut self) -> bool {
         match self.input_routing {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => todo!(),
         }
     }
     fn handle_text_event_impl(
@@ -101,15 +111,17 @@ impl TextHandler for SongSearchBrowser {
         match self.input_routing {
             InputRouting::Search => todo!(),
             InputRouting::List => todo!(),
+            InputRouting::Filter => todo!(),
+            InputRouting::Sort => todo!(),
         }
     }
 }
 impl ActionHandler<FilterAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            FilterAction::Close => self.album_songs_list.toggle_filter(),
-            FilterAction::Apply => self.album_songs_list.apply_filter(),
-            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
+            FilterAction::Close => self.toggle_filter(),
+            FilterAction::Apply => self.apply_filter(),
+            FilterAction::ClearFilter => self.clear_filter(),
         };
         AsyncTask::new_no_op()
     }
@@ -117,10 +129,10 @@ impl ActionHandler<FilterAction> for SongSearchBrowser {
 impl ActionHandler<SortAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
-            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
-            SortAction::Close => self.album_songs_list.close_sort(),
-            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
+            SortAction::SortSelectedAsc => self.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.handle_sort_cur_desc(),
+            SortAction::Close => self.close_sort(),
+            SortAction::ClearSort => self.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
     }
