@@ -1,8 +1,8 @@
 use super::{
     browser::{
-        artistalbums::{
-            albumsongs::BrowserArtistSongsAction,
-            artistsearch::{BrowserArtistsAction, BrowserSearchAction},
+        artistsearch::{
+            search_panel::{BrowserArtistsAction, BrowserSearchAction},
+            songs_panel::BrowserArtistSongsAction,
         },
         shared_components::{FilterAction, SortAction},
         songsearch::BrowserSongsAction,

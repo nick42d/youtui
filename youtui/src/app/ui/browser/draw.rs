@@ -1,5 +1,5 @@
-use super::artistalbums::albumsongs::{AlbumSongsInputRouting, AlbumSongsPanel};
-use super::artistalbums::artistsearch::ArtistInputRouting;
+use super::artistsearch::search_panel::ArtistInputRouting;
+use super::artistsearch::songs_panel::{AlbumSongsInputRouting, AlbumSongsPanel};
 use super::{Browser, InputRouting};
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};

@@ -1,10 +1,10 @@
 use std::mem;
 
-use albumsongs::{AlbumSongsPanel, BrowserArtistSongsAction};
 use anyhow::Context;
-use artistsearch::ArtistSearchPanel;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
+use search_panel::ArtistSearchPanel;
+use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
 
 use crate::{
     app::{
@@ -21,8 +21,8 @@ use crate::{
 
 use super::shared_components::{FilterAction, SortAction};
 
-pub mod albumsongs;
-pub mod artistsearch;
+pub mod search_panel;
+pub mod songs_panel;
 
 pub struct ArtistSearchBrowser {
     input_routing: InputRouting,

@@ -1,9 +1,9 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::ui::action::{AppAction, HelpAction, ListAction, TextEntryAction};
-use crate::app::ui::browser::artistalbums::albumsongs::BrowserArtistSongsAction;
-use crate::app::ui::browser::artistalbums::artistsearch::{
+use crate::app::ui::browser::artistsearch::search_panel::{
     BrowserArtistsAction, BrowserSearchAction,
 };
+use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
 use crate::app::ui::browser::shared_components::{FilterAction, SortAction};
 use crate::app::ui::browser::songsearch::BrowserSongsAction;
 use crate::app::ui::browser::BrowserAction;
@@ -904,8 +904,8 @@ mod tests {
     use crate::{
         app::ui::{
             action::AppAction,
-            browser::artistalbums::{
-                albumsongs::BrowserArtistSongsAction, artistsearch::BrowserArtistsAction,
+            browser::artistsearch::{
+                search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction,
             },
         },
         config::keymap::{remove_action_from_keymap, Keymap},

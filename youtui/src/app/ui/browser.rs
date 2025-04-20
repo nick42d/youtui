@@ -1,5 +1,5 @@
 use self::{
-    artistalbums::{albumsongs::AlbumSongsPanel, artistsearch::ArtistSearchPanel},
+    artistsearch::{search_panel::ArtistSearchPanel, songs_panel::AlbumSongsPanel},
     draw::draw_browser,
 };
 use super::{
@@ -22,7 +22,7 @@ use crate::{
     config::keymap::Keymap,
 };
 use crate::{config::Config, core::send_or_error};
-use artistalbums::ArtistSearchBrowser;
+use artistsearch::ArtistSearchBrowser;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use serde::{Deserialize, Serialize};
@@ -31,7 +31,7 @@ use songsearch::{BrowserSongsAction, SongSearchBrowser};
 use std::{default, iter::Iterator, mem};
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion};
 
-pub mod artistalbums;
+pub mod artistsearch;
 mod draw;
 pub mod shared_components;
 pub mod songsearch;
@@ -259,9 +259,9 @@ impl DominantKeyRouter<AppAction> for Browser {
                 Either::Left(
                     // XXX: Should be only is album_songs_list selected..
                     match self.artist_search_browser.album_songs_list.route {
-                        artistalbums::albumsongs::AlbumSongsInputRouting::List => todo!(),
-                        artistalbums::albumsongs::AlbumSongsInputRouting::Sort => todo!(),
-                        artistalbums::albumsongs::AlbumSongsInputRouting::Filter => todo!(),
+                        artistsearch::songs_panel::AlbumSongsInputRouting::List => todo!(),
+                        artistsearch::songs_panel::AlbumSongsInputRouting::Sort => todo!(),
+                        artistsearch::songs_panel::AlbumSongsInputRouting::Filter => todo!(),
                     },
                 )
             }
