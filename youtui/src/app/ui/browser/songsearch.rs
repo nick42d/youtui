@@ -17,7 +17,7 @@ use crate::{
         structures::{AlbumSongsList, ListSong},
         ui::action::{AppAction, TextEntryAction},
         view::{
-            Filter, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+            FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
             TableSortCommand, TableView,
         },
         AppCallback,
@@ -44,7 +44,6 @@ pub struct SongSearchBrowser {
     pub widget_state: TableState,
     pub sort: SortManager,
     pub filter: FilterManager,
-    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(SongSearchBrowser);
 
@@ -210,12 +209,22 @@ impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
     }
 }
 impl KeyRouter<AppAction> for SongSearchBrowser {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        [
+            &config.keybinds.browser_songs,
+            &config.keybinds.browser_search,
+        ]
+        .into_iter()
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.input_routing {
-            InputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
+            InputRouting::List => Either::Left(std::iter::once(&config.keybinds.browser_songs)),
             // Handled by parent as keybinds shared with some other components.
             InputRouting::Search | InputRouting::Filter | InputRouting::Sort => {
                 Either::Right(std::iter::empty())
@@ -342,7 +351,7 @@ impl SortableTableView for SongSearchBrowser {
 }
 
 impl SongSearchBrowser {
-    pub fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
             input_routing: Default::default(),
             song_list: Default::default(),
@@ -351,7 +360,6 @@ impl SongSearchBrowser {
             widget_state: Default::default(),
             sort: Default::default(),
             filter: Default::default(),
-            keybinds: config.keybinds.browser_songs.clone(),
             cur_selected: Default::default(),
         }
     }

@@ -6,7 +6,6 @@ use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
 use crate::app::view::{ListView, Loadable, SortableList};
 use crate::config::{keymap::Keymap, Config};
-use itertools::Either;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, iter::Iterator};
@@ -26,7 +25,6 @@ pub struct ArtistSearchPanel {
     pub route: ArtistInputRouting,
     selected: usize,
     sort_commands_list: Vec<String>,
-    keybinds: Keymap<AppAction>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -51,9 +49,8 @@ impl Action for BrowserArtistsAction {
 }
 
 impl ArtistSearchPanel {
-    pub fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
-            keybinds: browser_artist_search_keybinds(config),
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
@@ -110,14 +107,23 @@ impl Suggestable for ArtistSearchPanel {
 }
 
 impl KeyRouter<AppAction> for ArtistSearchPanel {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        [
+            &config.keybinds.browser_artists,
+            &config.keybinds.browser_search,
+        ]
+        .into_iter()
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
-            ArtistInputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
-            // Handled by parent
-            ArtistInputRouting::Search => Either::Right(std::iter::empty()),
+            ArtistInputRouting::List => std::iter::once(&config.keybinds.browser_artists),
+            ArtistInputRouting::Search => std::iter::once(&config.keybinds.browser_search),
         }
     }
 }
@@ -167,10 +173,4 @@ impl ListView for ArtistSearchPanel {
     fn get_title(&self) -> Cow<str> {
         "Artists".into()
     }
-}
-fn search_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.browser_search.clone()
-}
-fn browser_artist_search_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.browser_artists.clone()
 }

@@ -33,8 +33,7 @@ fn get_dummy_album() -> GetAlbum {
 }
 
 async fn get_dummy_playlist() -> Playlist {
-    let cfg = Config::default();
-    let mut playlist = Playlist::new(&cfg).0;
+    let mut playlist = Playlist::new().0;
     playlist.list.state = ListStatus::Loaded;
     let GetAlbum {
         title,

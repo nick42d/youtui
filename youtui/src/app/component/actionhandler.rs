@@ -1,6 +1,9 @@
 use crate::{
     app::AppCallback,
-    config::keymap::{KeyActionTree, Keymap},
+    config::{
+        keymap::{KeyActionTree, Keymap},
+        Config,
+    },
     keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
     keybind::Keybind,
 };
@@ -133,10 +136,13 @@ impl<T: DelegateScrollable> Scrollable for T {
 pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_all_keybinds<'a>(&self, config: &'a Config) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
 }
 
 /// A component of the application that can block parent keybinds.
@@ -145,7 +151,10 @@ pub trait KeyRouter<A: Action + 'static> {
 pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_dominant_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
 }
 
 /// Get the list of all keybinds that the KeyHandler and any child items can

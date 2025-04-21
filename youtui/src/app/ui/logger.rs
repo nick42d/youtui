@@ -58,7 +58,6 @@ impl Action for LoggerAction {
 }
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
-    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(Logger);
 
@@ -89,11 +88,17 @@ impl Drawable for Logger {
 }
 
 impl KeyRouter<AppAction> for Logger {
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.log)
     }
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        self.get_active_keybinds(config)
     }
 }
 
@@ -117,10 +122,9 @@ impl TextHandler for Logger {
 }
 
 impl Logger {
-    pub fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
             logger_state: tui_logger::TuiWidgetState::default(),
-            keybinds: logger_keybinds(config),
         }
     }
     async fn handle_view_browser(&mut self) -> YoutuiEffect<Self> {
@@ -166,10 +170,6 @@ impl Logger {
     fn handle_toggle_target_selector(&mut self) {
         self.logger_state.transition(TuiWidgetEvent::HideKey);
     }
-}
-
-fn logger_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.log.clone()
 }
 
 pub mod draw {

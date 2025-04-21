@@ -144,7 +144,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
                     subtitle_runs
                         .try_iter_mut()?
                         .take(3)
-                        .last()
+                        .next_back()
                         .map(|mut run| run.take_value_pointer("/text"))
                         .transpose()
                 },

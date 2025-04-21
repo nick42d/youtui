@@ -1,11 +1,12 @@
 use crate::app::component::actionhandler::{ComponentEffect, Scrollable, TextHandler};
 use crate::app::structures::{ListSong, ListSongDisplayableField, SongListComponent};
 use crate::app::ui::action::AppAction;
+use crate::app::ui::browser::get_sort_keybinds;
 use crate::app::ui::browser::shared_components::{
     get_adjusted_list_column, FilterManager, SortManager,
 };
 use crate::app::view::{
-    Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
+    FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
@@ -33,7 +34,6 @@ pub enum AlbumSongsInputRouting {
 #[derive(Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Keymap<AppAction>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
@@ -74,9 +74,8 @@ impl Action for BrowserArtistSongsAction {
     }
 }
 impl AlbumSongsPanel {
-    pub fn new(config: &Config) -> AlbumSongsPanel {
+    pub fn new() -> AlbumSongsPanel {
         AlbumSongsPanel {
-            keybinds: config.keybinds.browser_artist_songs.clone(),
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
@@ -238,16 +237,24 @@ impl TextHandler for AlbumSongsPanel {
 }
 
 impl KeyRouter<AppAction> for AlbumSongsPanel {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.browser_artist_songs)
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
-            AlbumSongsInputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
-            // Handled by parent
-            AlbumSongsInputRouting::Sort => Either::Right(std::iter::empty()),
-            // Handled by parent
-            AlbumSongsInputRouting::Filter => Either::Right(std::iter::empty()),
+            AlbumSongsInputRouting::List => {
+                Either::Left(std::iter::once(&config.keybinds.browser_artist_songs))
+            }
+            AlbumSongsInputRouting::Filter => {
+                Either::Left(std::iter::once(&config.keybinds.filter))
+            }
+            AlbumSongsInputRouting::Sort => Either::Right(get_sort_keybinds(config)),
         }
     }
 }

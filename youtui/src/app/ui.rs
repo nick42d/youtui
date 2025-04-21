@@ -42,9 +42,7 @@ pub struct YoutuiWindow {
     playlist: Playlist,
     browser: Browser,
     logger: Logger,
-    keybinds: Keymap<AppAction>,
-    list_keybinds: Keymap<AppAction>,
-    text_entry_keybinds: Keymap<AppAction>,
+    config: Config,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
 }
@@ -54,17 +52,15 @@ pub struct HelpMenu {
     pub shown: bool,
     cur: usize,
     len: usize,
-    keybinds: Keymap<AppAction>,
     pub widget_state: TableState,
 }
 
 impl HelpMenu {
-    fn new(config: &Config) -> Self {
+    fn new() -> Self {
         HelpMenu {
             shown: Default::default(),
             cur: Default::default(),
             len: Default::default(),
-            keybinds: help_keybinds(config),
             widget_state: Default::default(),
         }
     }
@@ -93,20 +89,25 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
             }
     }
 
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_dominant_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         if self.help.shown {
             return Either::Right(Either::Right(
-                [&self.help.keybinds, &self.list_keybinds].into_iter(),
+                [&config.keybinds.help, &config.keybinds.list].into_iter(),
             ));
         }
         match self.context {
             WindowContext::Browser => {
-                Either::Left(Either::Left(self.browser.get_dominant_keybinds()))
+                Either::Left(Either::Left(self.browser.get_dominant_keybinds(config)))
             }
             WindowContext::Playlist => {
-                Either::Left(Either::Right(self.playlist.get_active_keybinds()))
+                Either::Left(Either::Right(self.playlist.get_active_keybinds(config)))
             }
-            WindowContext::Logs => Either::Right(Either::Left(self.logger.get_active_keybinds())),
+            WindowContext::Logs => {
+                Either::Right(Either::Left(self.logger.get_active_keybinds(config)))
+            }
         }
     }
 }
@@ -133,38 +134,44 @@ impl Scrollable for YoutuiWindow {
 }
 
 impl KeyRouter<AppAction> for YoutuiWindow {
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         let kb = if self.is_scrollable() {
-            Either::Left(std::iter::once(&self.list_keybinds))
+            Either::Left(std::iter::once(&config.keybinds.list))
         } else {
             Either::Right(std::iter::empty())
         };
         if self.dominant_keybinds_active() {
-            return Either::Right(Either::Right(self.get_dominant_keybinds().chain(kb)));
+            return Either::Right(Either::Right(self.get_dominant_keybinds(config).chain(kb)));
         }
-        let kb = kb.chain(std::iter::once(&self.keybinds));
+        let kb = kb.chain(std::iter::once(&config.keybinds.global));
         let kb = if self.is_text_handling() {
-            Either::Left(kb.chain(std::iter::once(&self.text_entry_keybinds)))
+            Either::Left(kb.chain(std::iter::once(&config.keybinds.text_entry)))
         } else {
             Either::Right(kb)
         };
         match self.context {
-            WindowContext::Browser => {
-                Either::Left(Either::Left(kb.chain(self.browser.get_active_keybinds())))
-            }
-            WindowContext::Playlist => {
-                Either::Left(Either::Right(kb.chain(self.playlist.get_active_keybinds())))
-            }
-            WindowContext::Logs => {
-                Either::Right(Either::Left(kb.chain(self.logger.get_active_keybinds())))
-            }
+            WindowContext::Browser => Either::Left(Either::Left(
+                kb.chain(self.browser.get_active_keybinds(config)),
+            )),
+            WindowContext::Playlist => Either::Left(Either::Right(
+                kb.chain(self.playlist.get_active_keybinds(config)),
+            )),
+            WindowContext::Logs => Either::Right(Either::Left(
+                kb.chain(self.logger.get_active_keybinds(config)),
+            )),
         }
     }
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
-            .chain(self.browser.get_all_keybinds())
-            .chain(self.playlist.get_all_keybinds())
-            .chain(self.logger.get_all_keybinds())
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.global)
+            .chain(self.browser.get_all_keybinds(config))
+            .chain(self.playlist.get_all_keybinds(config))
+            .chain(self.logger.get_all_keybinds(config))
     }
 }
 
@@ -300,38 +307,36 @@ impl ActionHandler<AppAction> for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(config: &Config) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
-        let (playlist, task) = Playlist::new(config);
+    pub fn new(config: Config) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
+        let (playlist, task) = Playlist::new();
         let this = YoutuiWindow {
             context: WindowContext::Browser,
             prev_context: WindowContext::Browser,
             playlist,
-            browser: Browser::new(config),
-            logger: Logger::new(config),
+            config,
+            browser: Browser::new(),
+            logger: Logger::new(),
             key_stack: Vec::new(),
-            help: HelpMenu::new(config),
-            keybinds: global_keybinds(config),
-            list_keybinds: list_keybinds(config),
-            text_entry_keybinds: text_entry_keybinds(config),
+            help: HelpMenu::new(),
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
     pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
         match self.context {
             WindowContext::Browser => Either::Left(Either::Right(
-                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds()),
+                get_visible_keybinds_as_readable_iter(self.browser.get_all_keybinds(&self.config)),
             )),
             WindowContext::Playlist => Either::Right(get_visible_keybinds_as_readable_iter(
-                self.playlist.get_all_keybinds(),
+                self.playlist.get_all_keybinds(&self.config),
             )),
             WindowContext::Logs => Either::Left(Either::Left(
-                get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds()),
+                get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds(&self.config)),
             )),
         }
         .chain(get_visible_keybinds_as_readable_iter(
-            std::iter::once(&self.keybinds)
-                .chain(std::iter::once(&self.list_keybinds))
-                .chain(std::iter::once(&self.text_entry_keybinds)),
+            std::iter::once(&self.config.keybinds.global)
+                .chain(std::iter::once(&self.config.keybinds.list))
+                .chain(std::iter::once(&self.config.keybinds.text_entry)),
         ))
     }
     // Splitting out event types removes one layer of indentation.
@@ -439,7 +444,7 @@ impl YoutuiWindow {
             .map(|this: &mut Self| &mut this.playlist)
     }
     async fn global_handle_key_stack(&mut self) -> YoutuiEffect<Self> {
-        match handle_key_stack(self.get_active_keybinds(), &self.key_stack) {
+        match handle_key_stack(self.get_active_keybinds(&self.config), &self.key_stack) {
             KeyHandleAction::Action(a) => {
                 let effect = self.apply_action(a).await.into();
                 self.key_stack.clear();
@@ -486,7 +491,7 @@ impl YoutuiWindow {
         &self,
     ) -> Option<DisplayableMode<'_, impl Iterator<Item = DisplayableKeyAction<'_>>>> {
         let KeyHandleAction::Mode { name, keys } =
-            handle_key_stack(self.get_active_keybinds(), &self.key_stack)
+            handle_key_stack(self.get_active_keybinds(&self.config), &self.key_stack)
         else {
             return None;
         };
@@ -498,17 +503,4 @@ impl YoutuiWindow {
             description: name.into(),
         })
     }
-}
-
-fn global_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.global.clone()
-}
-fn help_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.help.clone()
-}
-fn list_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.list.clone()
-}
-fn text_entry_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.text_entry.clone()
 }

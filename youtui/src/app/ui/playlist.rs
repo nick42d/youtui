@@ -49,7 +49,6 @@ pub struct Playlist {
     pub play_status: PlayState,
     pub queue_status: QueueState,
     pub volume: Percentage,
-    keybinds: Keymap<AppAction>,
     cur_selected: usize,
     pub widget_state: TableState,
 }
@@ -99,11 +98,17 @@ impl ActionHandler<PlaylistAction> for Playlist {
 }
 
 impl KeyRouter<AppAction> for Playlist {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        self.get_active_keybinds(config)
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.playlist)
     }
 }
 
@@ -225,7 +230,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(config: &Config) -> (Self, ComponentEffect<Self>) {
+    pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -239,7 +244,6 @@ impl Playlist {
             play_status: PlayState::NotPlaying,
             list: Default::default(),
             cur_played_dur: None,
-            keybinds: playlist_keybinds(config),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             widget_state: Default::default(),
@@ -943,8 +947,4 @@ impl Playlist {
             self.play_status = PlayState::Stopped
         }
     }
-}
-
-fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.playlist.clone()
 }

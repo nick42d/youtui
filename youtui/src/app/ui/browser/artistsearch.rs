@@ -188,26 +188,34 @@ impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
     }
 }
 impl KeyRouter<AppAction> for ArtistSearchBrowser {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         self.artist_search_panel
-            .get_all_keybinds()
-            .chain(self.album_songs_panel.get_all_keybinds())
+            .get_all_keybinds(config)
+            .chain(self.album_songs_panel.get_all_keybinds(config))
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.input_routing {
-            InputRouting::Artist => Either::Left(self.artist_search_panel.get_active_keybinds()),
-            InputRouting::Song => Either::Right(self.album_songs_panel.get_active_keybinds()),
+            InputRouting::Artist => {
+                Either::Left(self.artist_search_panel.get_active_keybinds(config))
+            }
+            InputRouting::Song => Either::Right(self.album_songs_panel.get_active_keybinds(config)),
         }
     }
 }
 
 impl ArtistSearchBrowser {
-    pub fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
             input_routing: Default::default(),
             prev_input_routing: Default::default(),
-            artist_search_panel: ArtistSearchPanel::new(config),
-            album_songs_panel: AlbumSongsPanel::new(config),
+            artist_search_panel: ArtistSearchPanel::new(),
+            album_songs_panel: AlbumSongsPanel::new(),
         }
     }
     pub fn left(&mut self) {

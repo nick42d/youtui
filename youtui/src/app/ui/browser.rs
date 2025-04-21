@@ -42,10 +42,6 @@ pub struct Browser {
     variant: BrowserVariant,
     artist_search_browser: ArtistSearchBrowser,
     song_search_browser: SongSearchBrowser,
-    browser_keybinds: Keymap<AppAction>,
-    sort_keybings: Keymap<AppAction>,
-    filter_keybings: Keymap<AppAction>,
-    search_keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(Browser);
 
@@ -282,31 +278,40 @@ impl DrawableMut for Browser {
     }
 }
 impl KeyRouter<AppAction> for Browser {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.browser_keybinds)
-            .chain(self.artist_search_browser.get_all_keybinds())
-            .chain(self.song_search_browser.get_all_keybinds())
-            // TODO: Verify if I want to show sort/filter keybinds even when not selected.
-            .chain(std::iter::once(&self.search_keybinds))
-            .chain(std::iter::once(&self.filter_keybings))
-            .chain(std::iter::once(&self.sort_keybings))
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        // TODO: Verify if I want to show sort/filter keybinds even when not selected.
+        [
+            &config.keybinds.browser,
+            &config.keybinds.browser_search,
+            &config.keybinds.filter,
+            &config.keybinds.sort,
+        ]
+        .into_iter()
+        .chain(self.artist_search_browser.get_all_keybinds(config))
+        .chain(self.song_search_browser.get_all_keybinds(config))
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         if self.dominant_keybinds_active() {
-            return Either::Left(self.get_dominant_keybinds());
+            return Either::Left(self.get_dominant_keybinds(config));
         }
         // Need to handle search keybinds? Filter/search are handled as they are
         // dominant.
         Either::Right(
             match self.variant {
                 BrowserVariant::SongSearch => {
-                    Either::Left(self.song_search_browser.get_active_keybinds())
+                    Either::Left(self.song_search_browser.get_active_keybinds(config))
                 }
                 BrowserVariant::ArtistSearch => {
-                    Either::Right(self.artist_search_browser.get_active_keybinds())
+                    Either::Right(self.artist_search_browser.get_active_keybinds(config))
                 }
             }
-            .chain(std::iter::once(&self.browser_keybinds)),
+            .chain(std::iter::once(&config.keybinds.browser)),
         )
     }
 }
@@ -322,7 +327,10 @@ impl DominantKeyRouter<AppAction> for Browser {
             }
         }
     }
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_dominant_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.variant {
             BrowserVariant::ArtistSearch => {
                 match self.artist_search_browser.album_songs_panel.route {
@@ -330,10 +338,10 @@ impl DominantKeyRouter<AppAction> for Browser {
                         Either::Left(std::iter::empty())
                     }
                     artistsearch::songs_panel::AlbumSongsInputRouting::Sort => {
-                        Either::Right(std::iter::once(&self.sort_keybings))
+                        Either::Right(std::iter::once(&config.keybinds.sort))
                     }
                     artistsearch::songs_panel::AlbumSongsInputRouting::Filter => {
-                        Either::Right(std::iter::once(&self.filter_keybings))
+                        Either::Right(std::iter::once(&config.keybinds.filter))
                     }
                 }
             }
@@ -341,10 +349,10 @@ impl DominantKeyRouter<AppAction> for Browser {
                 songsearch::InputRouting::List => Either::Left(std::iter::empty()),
                 songsearch::InputRouting::Search => Either::Left(std::iter::empty()),
                 songsearch::InputRouting::Filter => {
-                    Either::Right(std::iter::once(&self.filter_keybings))
+                    Either::Right(std::iter::once(&config.keybinds.filter))
                 }
                 songsearch::InputRouting::Sort => {
-                    Either::Right(std::iter::once(&self.sort_keybings))
+                    Either::Right(std::iter::once(&config.keybinds.sort))
                 }
             },
         }
@@ -352,15 +360,11 @@ impl DominantKeyRouter<AppAction> for Browser {
 }
 
 impl Browser {
-    pub fn new(config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
-            browser_keybinds: config.keybinds.browser.clone(),
             variant: Default::default(),
-            artist_search_browser: ArtistSearchBrowser::new(config),
-            song_search_browser: SongSearchBrowser::new(config),
-            sort_keybings: config.keybinds.sort.clone(),
-            filter_keybings: config.keybinds.filter.clone(),
-            search_keybinds: config.keybinds.browser_search.clone(),
+            artist_search_browser: ArtistSearchBrowser::new(),
+            song_search_browser: SongSearchBrowser::new(),
         }
     }
     pub fn left(&mut self) {
@@ -401,6 +405,10 @@ impl Browser {
     }
 }
 
+pub fn get_sort_keybinds(config: &Config) -> impl Iterator<Item = &Keymap<AppAction>> + '_ {
+    [&config.keybinds.sort, &config.keybinds.list].into_iter()
+}
+
 #[cfg(test)]
 mod tests {
     use itertools::Itertools;
@@ -409,24 +417,44 @@ mod tests {
     use crate::{
         app::{
             component::actionhandler::{ActionHandler, KeyRouter},
-            ui::{action::AppAction, browser::BrowserAction},
+            ui::{
+                action::AppAction,
+                browser::{shared_components::BrowserSearchAction, BrowserAction},
+            },
         },
         config::{keymap::KeyActionTree, Config},
         keyaction::KeyActionVisibility,
         keybind::Keybind,
     };
-
     #[tokio::test]
     async fn toggle_search_opens_popup() {
-        let mut b = Browser::new(&Config::default());
+        let mut b = Browser::new();
         b.apply_action(BrowserArtistSongsAction::Filter).await;
         assert!(b.artist_search_browser.album_songs_panel.filter.shown);
     }
     #[tokio::test]
+    async fn artist_search_panel_search_suggestions_has_correct_keybinds() {
+        let cfg = Config::default();
+        let mut b = Browser::new();
+        b.apply_action(BrowserAction::Search).await;
+        let actual_kb = b.get_active_keybinds(&cfg);
+        let expected_kb = (
+            &Keybind::new_unmodified(crossterm::event::KeyCode::Down),
+            &KeyActionTree::new_key(AppAction::BrowserSearch(
+                BrowserSearchAction::NextSearchSuggestion,
+            )),
+        );
+        let kb_found = actual_kb
+            .inspect(|kb| println!("{:#?}", kb))
+            .any(|km| km.iter().contains(&expected_kb));
+        assert!(kb_found);
+    }
+    #[tokio::test]
     async fn artist_songs_panel_has_correct_keybinds() {
-        let mut b = Browser::new(&Config::default());
+        let cfg = Config::default();
+        let mut b = Browser::new();
         b.apply_action(BrowserAction::Right).await;
-        let actual_kb = b.get_active_keybinds();
+        let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
             &KeyActionTree::new_key_with_visibility(
