@@ -1,7 +1,7 @@
 use super::Playlist;
 use crate::{
     app::{
-        structures::{ListSong, ListStatus},
+        structures::ListStatus,
         ui::{playlist::QueueState, ListSongID, PlayState},
     },
     async_rodio_sink::Stopped,
@@ -12,7 +12,7 @@ use std::{rc::Rc, sync::OnceLock, time::Duration};
 use ytmapi_rs::{
     auth::BrowserToken,
     common::{AlbumID, YoutubeID},
-    parse::{AlbumSong, GetAlbum},
+    parse::GetAlbum,
     query::GetAlbumQuery,
 };
 
@@ -42,12 +42,13 @@ async fn get_dummy_playlist() -> Playlist {
         mut tracks,
         ..
     } = get_dummy_album();
-    playlist.list.add_raw_song(
+    playlist.list.add_raw_album_song(
         tracks.pop().unwrap(),
         Rc::new(title),
         Rc::new(AlbumID::from_raw("")),
         Rc::new(year),
-        Rc::new(String::from("The Beatles")),
+        Rc::new(vec![]),
+        Rc::new(vec![]),
     );
     playlist
 }
