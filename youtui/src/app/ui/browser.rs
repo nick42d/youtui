@@ -450,6 +450,24 @@ mod tests {
         assert!(kb_found);
     }
     #[tokio::test]
+    async fn songs_search_panel_search_suggestions_has_correct_keybinds() {
+        let cfg = Config::default();
+        let mut b = Browser::new();
+        b.apply_action(BrowserAction::ChangeSearchType).await;
+        b.apply_action(BrowserAction::Search).await;
+        let actual_kb = b.get_active_keybinds(&cfg);
+        let expected_kb = (
+            &Keybind::new_unmodified(crossterm::event::KeyCode::Down),
+            &KeyActionTree::new_key(AppAction::BrowserSearch(
+                BrowserSearchAction::NextSearchSuggestion,
+            )),
+        );
+        let kb_found = actual_kb
+            .inspect(|kb| println!("{:#?}", kb))
+            .any(|km| km.iter().contains(&expected_kb));
+        assert!(kb_found);
+    }
+    #[tokio::test]
     async fn artist_songs_panel_has_correct_keybinds() {
         let cfg = Config::default();
         let mut b = Browser::new();

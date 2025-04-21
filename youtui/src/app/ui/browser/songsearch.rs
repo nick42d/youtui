@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use super::get_sort_keybinds;
 use super::shared_components::{
     get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
     SortAction, SortManager,
@@ -32,8 +33,6 @@ use serde::{Deserialize, Serialize};
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::SearchResultSong;
-
-const MAX_SONG_SEARCH_RESULTS: usize = 100;
 
 pub struct SongSearchBrowser {
     pub input_routing: InputRouting,
@@ -225,10 +224,9 @@ impl KeyRouter<AppAction> for SongSearchBrowser {
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.input_routing {
             InputRouting::List => Either::Left(std::iter::once(&config.keybinds.browser_songs)),
-            // Handled by parent as keybinds shared with some other components.
-            InputRouting::Search | InputRouting::Filter | InputRouting::Sort => {
-                Either::Right(std::iter::empty())
-            }
+            InputRouting::Search => Either::Left(std::iter::once(&config.keybinds.browser_search)),
+            InputRouting::Filter => Either::Left(std::iter::once(&config.keybinds.filter)),
+            InputRouting::Sort => Either::Right(get_sort_keybinds(config)),
         }
     }
 }
@@ -289,7 +287,7 @@ impl TableView for SongSearchBrowser {
         Box::new(b)
     }
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
-        Box::new(["Song", "Artist", "Duration", "Album", "Plays"].into_iter())
+        Box::new(["Song", "Artist", "Album", "Duration", "Plays"].into_iter())
     }
 }
 impl SortableTableView for SongSearchBrowser {
@@ -582,7 +580,7 @@ impl SongSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn replace_song_list(&mut self, song_list: Vec<SearchResultSong>) {
+        self.song_list.clear();
         self.song_list.append_raw_search_result_songs(song_list);
-        self.increment_list(0);
     }
 }
