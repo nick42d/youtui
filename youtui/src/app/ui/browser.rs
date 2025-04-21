@@ -86,8 +86,6 @@ impl DelegateScrollable for Browser {
 }
 impl ActionHandler<BrowserSearchAction> for Browser {
     fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
-        // This is not as simple as mapping the action to either type of state, since an
-        // action has a component it works on.
         match self.variant {
             BrowserVariant::ArtistSearch => apply_action_mapped(self, action, |this: &mut Self| {
                 &mut this.artist_search_browser
@@ -388,8 +386,10 @@ mod tests {
         app::{
             component::actionhandler::{ActionHandler, KeyRouter},
             ui::{
-                action::AppAction,
-                browser::{shared_components::BrowserSearchAction, BrowserAction},
+                action::{AppAction, ListAction},
+                browser::{
+                    shared_components::BrowserSearchAction, songsearch::InputRouting, BrowserAction,
+                },
             },
         },
         config::{keymap::KeyActionTree, Config},
@@ -424,7 +424,6 @@ mod tests {
         let cfg = Config::default();
         let mut b = Browser::new();
         b.apply_action(BrowserAction::ChangeSearchType);
-        b.apply_action(BrowserAction::Search);
         let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::Down),

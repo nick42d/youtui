@@ -114,8 +114,8 @@ pub trait Scrollable {
 }
 /// Helper trait
 pub trait DelegateScrollable {
-    fn delegate_ref(&self) -> &dyn Scrollable;
     fn delegate_mut(&mut self) -> &mut dyn Scrollable;
+    fn delegate_ref(&self) -> &dyn Scrollable;
 }
 impl<T: DelegateScrollable> Scrollable for T {
     fn increment_list(&mut self, amount: isize) {

@@ -94,18 +94,25 @@ impl Suggestable for SongSearchBrowser {
 
 impl Scrollable for SongSearchBrowser {
     fn increment_list(&mut self, amount: isize) {
-        if self.sort.shown {
-            self.sort.cur = self
-                .sort
-                .cur
-                .saturating_add_signed(amount)
-                .min(self.get_sortable_columns().len().saturating_sub(1));
-        } else {
-            // Naive check using iterator - consider using exact size iterator
-            self.cur_selected = self
-                .cur_selected
-                .saturating_add_signed(amount)
-                .min(self.get_filtered_items().count().saturating_sub(1))
+        match self.input_routing {
+            InputRouting::List => {
+                // Naive check using iterator - consider using exact size iterator
+                self.cur_selected = self
+                    .cur_selected
+                    .saturating_add_signed(amount)
+                    .min(self.get_filtered_items().count().saturating_sub(1))
+            }
+            InputRouting::Search => {
+                self.search.increment_list(amount);
+            }
+            InputRouting::Sort => {
+                self.sort.cur = self
+                    .sort
+                    .cur
+                    .saturating_add_signed(amount)
+                    .min(self.get_sortable_columns().len().saturating_sub(1));
+            }
+            InputRouting::Filter => warn!("Tried to increment list when filter popup shown"),
         }
     }
     fn is_scrollable(&self) -> bool {

@@ -140,6 +140,7 @@ impl KeyRouter<AppAction> for YoutuiWindow {
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         let kb = if self.is_scrollable() {
+            todo!("Due to sheer luck these keybinds don't override browser artist search keybinds, but they do override browser songs search keybinds. TODO: error messages for duplicate keybinds, and make the scrollable handling for browser artist search more robust.");
             Either::Left(std::iter::once(&config.keybinds.list))
         } else {
             Either::Right(std::iter::empty())

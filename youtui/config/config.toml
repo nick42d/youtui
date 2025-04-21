@@ -41,14 +41,14 @@ down = "browser_search.next_search_suggestion"
 up = "browser_search.prev_search_suggestion"
 
 [keybinds.browser_artist_songs]
-F3 = {action = "browser_songs.filter", visibility = "global"}
-F4 = {action = "browser_songs.sort", visibility = "global"}
-enter.enter = "browser_songs.play_song"
-enter.p = "browser_songs.play_songs"
-enter.a = "browser_songs.play_album"
-enter.space = "browser_songs.add_song_to_playlist"
-enter.P = "browser_songs.add_songs_to_playlist"
-enter.A = "browser_songs.add_album_to_playlist"
+F3 = {action = "browser_artist_songs.filter", visibility = "global"}
+F4 = {action = "browser_artist_songs.sort", visibility = "global"}
+enter.enter = "browser_artist_songs.play_song"
+enter.p = "browser_artist_songs.play_songs"
+enter.a = "browser_artist_songs.play_album"
+enter.space = "browser_artist_songs.add_song_to_playlist"
+enter.P = "browser_artist_songs.add_songs_to_playlist"
+enter.A = "browser_artist_songs.add_album_to_playlist"
 
 [mode_names.browser_artist_songs]
 enter = "Play"
