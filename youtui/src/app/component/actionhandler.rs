@@ -29,6 +29,7 @@ macro_rules! impl_youtui_component {
 
 /// Intended to encapsulate all possible effect types Youtui components can
 /// generate.
+#[must_use]
 pub struct YoutuiEffect<C: Component> {
     pub effect: ComponentEffect<C>,
     pub callback: Option<AppCallback>,

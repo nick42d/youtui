@@ -76,7 +76,7 @@ impl Action for BrowserArtistSongsAction {
 impl AlbumSongsPanel {
     pub fn new(config: &Config) -> AlbumSongsPanel {
         AlbumSongsPanel {
-            keybinds: songs_keybinds(config),
+            keybinds: config.keybinds.browser_artist_songs.clone(),
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
@@ -392,8 +392,4 @@ fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
 
 fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
     config.keybinds.filter.clone()
-}
-
-pub fn songs_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.browser_songs.clone()
 }

@@ -47,6 +47,7 @@ pub struct Browser {
     filter_keybings: Keymap<AppAction>,
     search_keybinds: Keymap<AppAction>,
 }
+impl_youtui_component!(Browser);
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -399,7 +400,43 @@ impl Browser {
         }
     }
 }
-impl Component for Browser {
-    type Bkend = ArcServer;
-    type Md = TaskMetadata;
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+
+    use super::{artistsearch::songs_panel::BrowserArtistSongsAction, Browser};
+    use crate::{
+        app::{
+            component::actionhandler::{ActionHandler, KeyRouter},
+            ui::{action::AppAction, browser::BrowserAction},
+        },
+        config::{keymap::KeyActionTree, Config},
+        keyaction::KeyActionVisibility,
+        keybind::Keybind,
+    };
+
+    #[tokio::test]
+    async fn toggle_search_opens_popup() {
+        let mut b = Browser::new(&Config::default());
+        b.apply_action(BrowserArtistSongsAction::Filter).await;
+        assert!(b.artist_search_browser.album_songs_panel.filter.shown);
+    }
+    #[tokio::test]
+    async fn artist_songs_panel_has_correct_keybinds() {
+        let mut b = Browser::new(&Config::default());
+        b.apply_action(BrowserAction::Right).await;
+        let actual_kb = b.get_active_keybinds();
+        let expected_kb = (
+            &Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
+            &KeyActionTree::new_key_with_visibility(
+                AppAction::BrowserArtistSongs(BrowserArtistSongsAction::Filter),
+                KeyActionVisibility::Global,
+            ),
+        );
+        let kb_found = actual_kb
+            .inspect(|kb| println!("{:#?}", kb))
+            .any(|km| km.iter().contains(&expected_kb));
+        assert!(kb_found);
+    }
 }
