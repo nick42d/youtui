@@ -164,7 +164,7 @@ impl TextHandler for SongSearchBrowser {
     }
 }
 impl ActionHandler<FilterAction> for SongSearchBrowser {
-    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             FilterAction::Close => self.toggle_filter(),
             FilterAction::Apply => self.apply_filter(),
@@ -174,7 +174,7 @@ impl ActionHandler<FilterAction> for SongSearchBrowser {
     }
 }
 impl ActionHandler<SortAction> for SongSearchBrowser {
-    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             SortAction::SortSelectedAsc => self.handle_sort_cur_asc(),
             SortAction::SortSelectedDesc => self.handle_sort_cur_desc(),
@@ -185,7 +185,7 @@ impl ActionHandler<SortAction> for SongSearchBrowser {
     }
 }
 impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
-    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSearchAction::SearchArtist => return self.search(),
             BrowserSearchAction::PrevSearchSuggestion => self.search.increment_list(-1),
@@ -195,7 +195,7 @@ impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
     }
 }
 impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
-    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSongsAction::Filter => self.toggle_filter(),
             BrowserSongsAction::Sort => self.handle_pop_sort(),

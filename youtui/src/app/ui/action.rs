@@ -203,7 +203,7 @@ impl Action for HelpAction {
     }
 }
 impl ActionHandler<HelpAction> for HelpMenu {
-    async fn apply_action(&mut self, action: HelpAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: HelpAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             HelpAction::Close => self.shown = false,
         }

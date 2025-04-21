@@ -62,7 +62,7 @@ pub struct Logger {
 impl_youtui_component!(Logger);
 
 impl ActionHandler<LoggerAction> for Logger {
-    async fn apply_action(&mut self, action: LoggerAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: LoggerAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             LoggerAction::ToggleTargetSelector => self.handle_toggle_target_selector(),
             LoggerAction::ToggleTargetFocus => self.handle_toggle_target_focus(),
@@ -76,7 +76,7 @@ impl ActionHandler<LoggerAction> for Logger {
             LoggerAction::ReduceCaptured => self.handle_reduce_captured(),
             LoggerAction::IncreaseCaptured => self.handle_increase_captured(),
             LoggerAction::ExitPageMode => self.handle_exit_page_mode(),
-            LoggerAction::ViewBrowser => return self.handle_view_browser().await,
+            LoggerAction::ViewBrowser => return self.handle_view_browser(),
         }
         AsyncTask::new_no_op().into()
     }
@@ -127,7 +127,7 @@ impl Logger {
             logger_state: tui_logger::TuiWidgetState::default(),
         }
     }
-    async fn handle_view_browser(&mut self) -> YoutuiEffect<Self> {
+    fn handle_view_browser(&mut self) -> YoutuiEffect<Self> {
         (
             AsyncTask::new_no_op(),
             Some(AppCallback::ChangeContext(super::WindowContext::Browser)),

@@ -84,9 +84,9 @@ pub trait Action {
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
     // TODO: Move to possibility of generating top-level callbacks as well...
-    async fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
+    fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
     /// Apply an action that can be mapped to Self.
-    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> YoutuiEffect<Self>
+    fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> YoutuiEffect<Self>
     where
         B: Action,
         C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
@@ -96,7 +96,6 @@ pub trait ActionHandler<A: Action>: Component + Sized {
     {
         f(self)
             .apply_action(action)
-            .await
             .into()
             .map(move |this: &mut Self| f(this))
     }

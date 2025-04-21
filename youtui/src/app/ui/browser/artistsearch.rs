@@ -119,7 +119,7 @@ impl TextHandler for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<FilterAction> for ArtistSearchBrowser {
-    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             FilterAction::Close => self.album_songs_panel.toggle_filter(),
             FilterAction::Apply => self.album_songs_panel.apply_filter(),
@@ -129,7 +129,7 @@ impl ActionHandler<FilterAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<SortAction> for ArtistSearchBrowser {
-    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             SortAction::SortSelectedAsc => self.album_songs_panel.handle_sort_cur_asc(),
             SortAction::SortSelectedDesc => self.album_songs_panel.handle_sort_cur_desc(),
@@ -140,7 +140,7 @@ impl ActionHandler<SortAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
-    async fn apply_action(
+    fn apply_action(
         &mut self,
         action: BrowserArtistsAction,
     ) -> impl Into<YoutuiEffect<Self>> {
@@ -150,7 +150,7 @@ impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
-    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSearchAction::SearchArtist => return self.search(),
             BrowserSearchAction::PrevSearchSuggestion => {
@@ -164,7 +164,7 @@ impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
-    async fn apply_action(
+    fn apply_action(
         &mut self,
         action: BrowserArtistSongsAction,
     ) -> impl Into<YoutuiEffect<Self>> {

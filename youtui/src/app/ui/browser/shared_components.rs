@@ -274,6 +274,6 @@ mod tests {
     }
     #[test]
     fn test_get_adjusted_list_column_out_of_bounds() {
-        assert!(matches!(get_adjusted_list_column(3, &[3, 1, 2]), Err(_)))
+        assert!(get_adjusted_list_column(3, &[3, 1, 2]).is_err())
     }
 }

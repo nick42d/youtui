@@ -226,16 +226,16 @@ impl TextHandler for YoutuiWindow {
 }
 
 impl ActionHandler<AppAction> for YoutuiWindow {
-    async fn apply_action(&mut self, action: AppAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: AppAction) -> impl Into<YoutuiEffect<Self>> {
         // NOTE: This is the place to check if we _should_ be handling an action.
         // For example if a user has set custom 'playlist' keybinds that trigger
         // 'browser' actions, but browser is not shown currently, this could be filtered
         // out here.
         match action {
             AppAction::VolUp => {
-                return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5).await)
+                return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5))
             }
-            AppAction::VolDown => return self.handle_increase_volume(-5).await.into(),
+            AppAction::VolDown => return self.handle_increase_volume(-5).into(),
             AppAction::NextSong => return self.handle_next().into(),
             AppAction::PrevSong => return self.handle_prev().into(),
             AppAction::SeekForward => {
@@ -249,54 +249,34 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
             AppAction::Pause => return self.pauseplay().into(),
             AppAction::Log(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.logger)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.logger)
             }
             AppAction::Playlist(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.playlist)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.playlist)
             }
             AppAction::Browser(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Filter(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Sort(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Help(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.help)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.help)
             }
             AppAction::BrowserArtists(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserSearch(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserArtistSongs(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserSongs(a) => {
-                return self
-                    .apply_action_mapped(a, |this: &mut Self| &mut this.browser)
-                    .await
+                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
             }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),
@@ -347,7 +327,7 @@ impl YoutuiWindow {
             return effect.into();
         };
         match event {
-            Event::Key(k) => return self.handle_key_event(k).await,
+            Event::Key(k) => return self.handle_key_event(k),
             Event::Mouse(m) => return self.handle_mouse_event(m).into(),
             other => tracing::warn!("Received unimplemented {:?} event", other),
         }
@@ -356,12 +336,9 @@ impl YoutuiWindow {
     pub async fn handle_tick(&mut self) {
         self.playlist.handle_tick().await;
     }
-    async fn handle_key_event(
-        &mut self,
-        key_event: crossterm::event::KeyEvent,
-    ) -> YoutuiEffect<Self> {
+    fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) -> YoutuiEffect<Self> {
         self.key_stack.push(key_event);
-        self.global_handle_key_stack().await
+        self.global_handle_key_stack()
     }
     fn handle_mouse_event(
         &mut self,
@@ -409,7 +386,7 @@ impl YoutuiWindow {
             .handle_previous()
             .map(|this: &mut Self| &mut this.playlist)
     }
-    pub async fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
+    pub fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
         AsyncTask::new_future(
@@ -443,10 +420,10 @@ impl YoutuiWindow {
             .push(self.playlist.play_song_id(id))
             .map(|this: &mut Self| &mut this.playlist)
     }
-    async fn global_handle_key_stack(&mut self) -> YoutuiEffect<Self> {
+    fn global_handle_key_stack(&mut self) -> YoutuiEffect<Self> {
         match handle_key_stack(self.get_active_keybinds(&self.config), &self.key_stack) {
             KeyHandleAction::Action(a) => {
-                let effect = self.apply_action(a).await.into();
+                let effect = self.apply_action(a).into();
                 self.key_stack.clear();
                 effect
             }

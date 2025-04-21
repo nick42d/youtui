@@ -86,7 +86,7 @@ impl DelegateScrollable for Browser {
     }
 }
 impl ActionHandler<BrowserSearchAction> for Browser {
-    async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         // This is not as simple as mapping the action to either type of state, since an
         // action has a component it works on.
         match self.variant {
@@ -96,7 +96,6 @@ impl ActionHandler<BrowserSearchAction> for Browser {
                     action,
                     |this: &mut Self| &mut this.artist_search_browser,
                 )
-                .await
             }
             BrowserVariant::SongSearch => {
                 ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
@@ -104,16 +103,12 @@ impl ActionHandler<BrowserSearchAction> for Browser {
                     action,
                     |this: &mut Self| &mut this.song_search_browser,
                 )
-                .await
             }
         }
     }
 }
 impl ActionHandler<BrowserArtistSongsAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: BrowserArtistSongsAction,
-    ) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserArtistSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => {
                 return ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
@@ -121,7 +116,6 @@ impl ActionHandler<BrowserArtistSongsAction> for Browser {
                     action,
                     |this: &mut Self| &mut this.artist_search_browser,
                 )
-                .await
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -132,10 +126,7 @@ impl ActionHandler<BrowserArtistSongsAction> for Browser {
     }
 }
 impl ActionHandler<BrowserArtistsAction> for Browser {
-    async fn apply_action(
-        &mut self,
-        action: BrowserArtistsAction,
-    ) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserArtistsAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => {
                 return ActionHandler::<BrowserArtistsAction>::apply_action_mapped(
@@ -143,7 +134,6 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
                     action,
                     |this: &mut Self| &mut this.artist_search_browser,
                 )
-                .await
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -154,7 +144,7 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
     }
 }
 impl ActionHandler<BrowserSongsAction> for Browser {
-    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::SongSearch => {
                 return ActionHandler::<BrowserSongsAction>::apply_action_mapped(
@@ -162,7 +152,6 @@ impl ActionHandler<BrowserSongsAction> for Browser {
                     action,
                     |this: &mut Self| &mut this.song_search_browser,
                 )
-                .await
             }
             BrowserVariant::ArtistSearch => warn!(
                 "Received action {:?} but song search browser not active",
@@ -173,7 +162,7 @@ impl ActionHandler<BrowserSongsAction> for Browser {
     }
 }
 impl ActionHandler<BrowserAction> for Browser {
-    async fn apply_action(&mut self, action: BrowserAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserAction::Left => self.left(),
             BrowserAction::Right => self.right(),
@@ -190,36 +179,32 @@ impl ActionHandler<BrowserAction> for Browser {
     }
 }
 impl ActionHandler<FilterAction> for Browser {
-    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => self
                 .artist_search_browser
                 .apply_action(action)
-                .await
                 .into()
                 .map(|this: &mut Self| &mut this.artist_search_browser),
             BrowserVariant::SongSearch => self
                 .song_search_browser
                 .apply_action(action)
-                .await
                 .into()
                 .map(|this: &mut Self| &mut this.song_search_browser),
         }
     }
 }
 impl ActionHandler<SortAction> for Browser {
-    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match self.variant {
             BrowserVariant::ArtistSearch => self
                 .artist_search_browser
                 .apply_action(action)
-                .await
                 .into()
                 .map(|this: &mut Self| &mut this.artist_search_browser),
             BrowserVariant::SongSearch => self
                 .song_search_browser
                 .apply_action(action)
-                .await
                 .into()
                 .map(|this: &mut Self| &mut this.song_search_browser),
         }
@@ -429,14 +414,14 @@ mod tests {
     #[tokio::test]
     async fn toggle_search_opens_popup() {
         let mut b = Browser::new();
-        b.apply_action(BrowserArtistSongsAction::Filter).await;
+        b.apply_action(BrowserArtistSongsAction::Filter);
         assert!(b.artist_search_browser.album_songs_panel.filter.shown);
     }
     #[tokio::test]
     async fn artist_search_panel_search_suggestions_has_correct_keybinds() {
         let cfg = Config::default();
         let mut b = Browser::new();
-        b.apply_action(BrowserAction::Search).await;
+        b.apply_action(BrowserAction::Search);
         let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::Down),
@@ -453,8 +438,8 @@ mod tests {
     async fn songs_search_panel_search_suggestions_has_correct_keybinds() {
         let cfg = Config::default();
         let mut b = Browser::new();
-        b.apply_action(BrowserAction::ChangeSearchType).await;
-        b.apply_action(BrowserAction::Search).await;
+        b.apply_action(BrowserAction::ChangeSearchType);
+        b.apply_action(BrowserAction::Search);
         let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::Down),
@@ -471,7 +456,7 @@ mod tests {
     async fn artist_songs_panel_has_correct_keybinds() {
         let cfg = Config::default();
         let mut b = Browser::new();
-        b.apply_action(BrowserAction::Right).await;
+        b.apply_action(BrowserAction::Right);
         let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),

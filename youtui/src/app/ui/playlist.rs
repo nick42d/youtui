@@ -85,11 +85,9 @@ pub enum QueueState {
 }
 
 impl ActionHandler<PlaylistAction> for Playlist {
-    async fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
+    fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
         match action {
-            PlaylistAction::ViewBrowser => {
-                (AsyncTask::new_no_op(), Some(self.view_browser().await))
-            }
+            PlaylistAction::ViewBrowser => (AsyncTask::new_no_op(), Some(self.view_browser())),
             PlaylistAction::PlaySelected => (self.play_selected(), None),
             PlaylistAction::DeleteSelected => (self.delete_selected(), None),
             PlaylistAction::DeleteAll => (self.delete_all(), None),
@@ -687,7 +685,7 @@ impl Playlist {
         self.reset()
     }
     /// Change to Browser window.
-    pub async fn view_browser(&mut self) -> AppCallback {
+    pub fn view_browser(&mut self) -> AppCallback {
         AppCallback::ChangeContext(WindowContext::Browser)
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
