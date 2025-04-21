@@ -7,7 +7,7 @@ use super::{
     },
     logger::LoggerAction,
     playlist::PlaylistAction,
-    HelpMenu, YoutuiWindow,
+    HelpMenu,
 };
 use crate::app::component::actionhandler::{Action, ActionHandler, YoutuiEffect};
 use anyhow::bail;

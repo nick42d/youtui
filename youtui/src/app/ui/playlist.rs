@@ -7,7 +7,7 @@ use crate::app::server::{
     AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
     Stop, TaskMetadata,
 };
-use crate::app::structures::DownloadStatus;
+use crate::app::structures::{DownloadStatus, ListSongDisplayableField};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut};
@@ -190,8 +190,17 @@ impl TableView for Playlist {
             } else {
                 (i + 1).to_string()
             };
-            Box::new(iter::once(first_field.to_string().into()).chain(ls.get_fields_iter()))
-                as Box<dyn Iterator<Item = Cow<str>>>
+            Box::new(
+                iter::once(first_field.to_string().into()).chain(ls.get_fields([
+                    ListSongDisplayableField::DownloadStatus,
+                    ListSongDisplayableField::TrackNo,
+                    ListSongDisplayableField::Artists,
+                    ListSongDisplayableField::Album,
+                    ListSongDisplayableField::Song,
+                    ListSongDisplayableField::Duration,
+                    ListSongDisplayableField::Year,
+                ])),
+            ) as Box<dyn Iterator<Item = Cow<str>>>
         }))
     }
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {

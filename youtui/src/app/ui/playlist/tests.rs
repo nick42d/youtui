@@ -8,11 +8,11 @@ use crate::{
     config::Config,
 };
 use pretty_assertions::assert_eq;
-use std::{rc::Rc, sync::OnceLock, time::Duration};
+use std::{sync::OnceLock, time::Duration};
 use ytmapi_rs::{
     auth::BrowserToken,
     common::{AlbumID, YoutubeID},
-    parse::GetAlbum,
+    parse::{GetAlbum, ParsedSongAlbum},
     query::GetAlbumQuery,
 };
 
@@ -39,16 +39,18 @@ async fn get_dummy_playlist() -> Playlist {
     let GetAlbum {
         title,
         year,
-        mut tracks,
+        tracks,
         ..
     } = get_dummy_album();
-    playlist.list.add_raw_album_song(
-        tracks.pop().unwrap(),
-        Rc::new(title),
-        Rc::new(AlbumID::from_raw("")),
-        Rc::new(year),
-        Rc::new(vec![]),
-        Rc::new(vec![]),
+    playlist.list.append_raw_album_songs(
+        tracks,
+        ParsedSongAlbum {
+            name: title,
+            id: AlbumID::from_raw(""),
+        },
+        year,
+        vec![],
+        vec![],
     );
     playlist
 }

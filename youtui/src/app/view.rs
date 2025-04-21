@@ -1,5 +1,5 @@
 /// Traits related to viewable application components.
-use super::structures::Percentage;
+use super::structures::{AlbumSongsList, ListSong, ListSongDisplayableField, Percentage};
 use ratatui::{
     prelude::{Constraint, Rect},
     widgets::{ListState, TableState},
@@ -61,6 +61,30 @@ impl TableFilterCommand {
             },
             TableFilterCommand::Column { .. } => todo!(),
         }
+    }
+    pub fn matches_row<const N: usize>(
+        &self,
+        row: &ListSong,
+        fields_in_table: [ListSongDisplayableField; N],
+        filterable_colums: &[usize],
+    ) -> bool {
+        let fields = row.get_fields(fields_in_table);
+        let mut matches = false;
+        match self {
+            TableFilterCommand::All(filter) => match filter {
+                Filter::Contains(filter_string) => {
+                    for col in filterable_colums {
+                        if filter_string.is_in(fields[*col].as_ref()) {
+                            matches = true;
+                        }
+                    }
+                }
+                Filter::NotContains(filter_string) => todo!(),
+                Filter::Equal(filter_string) => todo!(),
+            },
+            TableFilterCommand::Column { filter, column } => todo!(),
+        }
+        matches
     }
 }
 impl Filter {

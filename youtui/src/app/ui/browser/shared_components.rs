@@ -106,7 +106,12 @@ impl Action for BrowserSearchAction {
 
 impl SortManager {
     pub fn new() -> Self {
-        Default::default()
+        SortManager {
+            sort_commands: Default::default(),
+            shown: Default::default(),
+            cur: Default::default(),
+            state: Default::default(),
+        }
     }
 }
 impl FilterManager {
@@ -243,10 +248,10 @@ impl SearchBlock {
 
 /// A table may display columns in a different order, adjust the index to a new
 /// index based on a list of correct indexes.
-pub fn get_adjusted_list_column(
+pub fn get_adjusted_list_column<T: Copy>(
     target_col: usize,
-    adjusted_cols: &[usize],
-) -> anyhow::Result<usize> {
+    adjusted_cols: &[T],
+) -> anyhow::Result<T> {
     adjusted_cols
         .get(target_col)
         .with_context(|| {

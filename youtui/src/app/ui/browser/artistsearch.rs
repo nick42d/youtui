@@ -23,10 +23,10 @@ use itertools::Either;
 use search_panel::{ArtistSearchPanel, BrowserArtistsAction};
 use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
 use std::mem;
-use tracing::warn;
+use tracing::{error, warn};
 use ytmapi_rs::{
     common::{AlbumID, ArtistChannelID, Thumbnail},
-    parse::{AlbumSong, ParsedSongArtist, SearchResultArtist},
+    parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist},
 };
 
 pub mod search_panel;
@@ -304,10 +304,8 @@ impl ArtistSearchBrowser {
                     album,
                     year,
                     artists,
-                    album_id,
                     thumbnails,
-                } => this
-                    .handle_append_song_list(song_list, album, album_id, year, artists, thumbnails),
+                } => this.handle_append_song_list(song_list, album, year, artists, thumbnails),
                 GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
             }
             AsyncTask::new_no_op()
@@ -379,12 +377,22 @@ impl ArtistSearchBrowser {
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
+        // Assert: If you're calling this function, all the songs in list must have an
+        // album field!
+        let Some(ref cur_album) = cur_song.album else {
+            error!("Expected album details to be in list but they are missing!");
+            return (AsyncTask::new_no_op(), None);
+        };
         let song_list = self
             .album_songs_panel
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
-            .filter(|song| song.album_id == cur_song.album_id)
+            .filter(|song| {
+                song.album
+                    .as_ref()
+                    .is_some_and(|album| album.as_ref().id == cur_album.id)
+            })
             .cloned()
             .collect();
         (
@@ -398,12 +406,22 @@ impl ArtistSearchBrowser {
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
+        // Assert: If you're calling this function, all the songs in list must have an
+        // album field!
+        let Some(ref cur_album) = cur_song.album else {
+            error!("Expected album details to be in list but they are missing!");
+            return (AsyncTask::new_no_op(), None);
+        };
         let song_list = self
             .album_songs_panel
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
-            .filter(|song| song.album_id == cur_song.album_id)
+            .filter(|song| {
+                song.album
+                    .as_ref()
+                    .is_some_and(|album| album.as_ref().id == cur_album.id)
+            })
             // XXX: Could instead be inside an Rc.
             .cloned()
             .collect();
@@ -467,15 +485,14 @@ impl ArtistSearchBrowser {
     pub fn handle_append_song_list(
         &mut self,
         song_list: Vec<AlbumSong>,
-        album: String,
-        album_id: AlbumID<'static>,
+        album: ParsedSongAlbum,
         year: String,
         artists: Vec<ParsedSongArtist>,
         thumbnails: Vec<Thumbnail>,
     ) {
         self.album_songs_panel
             .list
-            .append_raw_album_songs(song_list, album, album_id, year, artists, thumbnails);
+            .append_raw_album_songs(song_list, album, year, artists, thumbnails);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
         self.album_songs_panel.apply_sort_commands();

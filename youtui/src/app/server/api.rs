@@ -10,7 +10,9 @@ use tokio::{io::AsyncWriteExt, sync::RwLock};
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
 use ytmapi_rs::common::Thumbnail;
-use ytmapi_rs::parse::{AlbumSong, ParsedSongArtist, SearchResultArtist, SearchResultSong};
+use ytmapi_rs::parse::{
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist, SearchResultSong,
+};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
@@ -175,8 +177,7 @@ pub enum GetArtistSongsProgressUpdate {
     SongsFound,
     Songs {
         song_list: Vec<AlbumSong>,
-        album: String,
-        album_id: AlbumID<'static>,
+        album: ParsedSongAlbum,
         year: String,
         artists: Vec<ParsedSongArtist>,
         thumbnails: Vec<Thumbnail>,
@@ -304,8 +305,10 @@ fn get_artist_songs(
                 &tx,
                 GetArtistSongsProgressUpdate::Songs {
                     song_list: tracks,
-                    album: title,
-                    album_id,
+                    album: ParsedSongAlbum {
+                        name: title,
+                        id: album_id,
+                    },
                     year,
                     artists,
                     thumbnails,

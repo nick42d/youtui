@@ -75,7 +75,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             .playlist
             .get_song_from_id(id)
             .and_then(|s| s.album.as_ref())
-            .map(|s| s.as_str())
+            .map(|s| s.name.as_str())
             .unwrap_or_default(),
         PlayState::NotPlaying => "",
         PlayState::Stopped => "",

@@ -5,7 +5,7 @@ use super::shared_components::{
     SortAction, SortManager,
 };
 use crate::app::component::actionhandler::Suggestable;
-use crate::app::structures::{ListStatus, Percentage, SongListComponent};
+use crate::app::structures::{ListSongDisplayableField, ListStatus, Percentage, SongListComponent};
 use crate::app::view::BasicConstraint;
 use crate::{
     app::{
@@ -260,9 +260,10 @@ impl TableView for SongSearchBrowser {
     }
     fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
         &[
+            BasicConstraint::Percentage(Percentage(40)),
             BasicConstraint::Percentage(Percentage(30)),
             BasicConstraint::Percentage(Percentage(30)),
-            BasicConstraint::Percentage(Percentage(30)),
+            BasicConstraint::Length(10),
             BasicConstraint::Length(10),
         ]
     }
@@ -272,22 +273,14 @@ impl TableView for SongSearchBrowser {
     fn get_items(
         &self,
     ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
-        let b = self.song_list.get_list_iter().map(|ls| {
-            ls.get_fields_iter()
-                .into_iter()
-                .enumerate()
-                .filter_map(|(idx, field)| {
-                    if Self::subcolumns_of_vec().contains(&idx) {
-                        Some(field)
-                    } else {
-                        None
-                    }
-                })
-        });
+        let b = self
+            .song_list
+            .get_list_iter()
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
         Box::new(b)
     }
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
-        Box::new(["Artist", "Album", "Song", "Duration"].into_iter())
+        Box::new(["Song", "Artist", "Duration", "Album", "Plays"].into_iter())
     }
 }
 impl SortableTableView for SongSearchBrowser {
@@ -304,7 +297,7 @@ impl SortableTableView for SongSearchBrowser {
         }
         // Map the column of ArtistAlbums to a column of List and sort
         self.song_list.sort(
-            get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
+            get_adjusted_list_column(sort_command.column, &Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
         // Remove commands that already exist for the same column, as this new command
@@ -341,18 +334,10 @@ impl SortableTableView for SongSearchBrowser {
         &self,
     ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         // We are doing a lot here every draw cycle!
-        Box::new(self.get_filtered_list_iter().map(|ls| {
-            ls.get_fields_iter()
-                .into_iter()
-                .enumerate()
-                .filter_map(|(i, f)| {
-                    if Self::subcolumns_of_vec().contains(&i) {
-                        Some(f)
-                    } else {
-                        None
-                    }
-                })
-        }))
+        Box::new(
+            self.get_filtered_list_iter()
+                .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
+        )
     }
 }
 
@@ -370,8 +355,14 @@ impl SongSearchBrowser {
             cur_selected: Default::default(),
         }
     }
-    pub fn subcolumns_of_vec() -> &'static [usize] {
-        &[4, 2, 3, 5]
+    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 5] {
+        [
+            ListSongDisplayableField::Song,
+            ListSongDisplayableField::Artists,
+            ListSongDisplayableField::Album,
+            ListSongDisplayableField::Duration,
+            ListSongDisplayableField::Plays,
+        ]
     }
     pub fn apply_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
@@ -379,46 +370,26 @@ impl SongSearchBrowser {
                 bail!(format!("Unable to sort column {}", c.column,));
             }
             self.song_list.sort(
-                get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
+                get_adjusted_list_column(c.column, &Self::subcolumns_of_vec())?,
                 c.direction,
             );
         }
         Ok(())
     }
     pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        let mapped_filterable_cols: Vec<_> = self
-            .get_filterable_columns()
-            .iter()
-            .map(|c| Self::subcolumns_of_vec().get(*c))
-            .collect();
         Box::new(self.song_list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
-            self.get_filter_commands().iter().fold(true, |acc, e| {
-                let match_found = match e {
-                    TableFilterCommand::All(f) => {
-                        let mut filterable_cols_iter = ls
-                            .get_fields_iter()
-                            .into_iter()
-                            .enumerate()
-                            .filter_map(|(i, f)| {
-                                if mapped_filterable_cols.contains(&Some(&i)) {
-                                    Some(f)
-                                } else {
-                                    None
-                                }
-                            });
-                        match f {
-                            Filter::Contains(s) => filterable_cols_iter.any(|item| s.is_in(item)),
-                            Filter::NotContains(_) => todo!(),
-                            Filter::Equal(_) => todo!(),
-                        }
-                    }
-                    TableFilterCommand::Column { .. } => todo!(),
-                };
-                // If we find a match for each filter, can display the row.
-                acc && match_found
-            })
+            self.get_filter_commands()
+                .iter()
+                .fold(true, |acc, command| {
+                    let match_found = command.matches_row(
+                        ls,
+                        Self::subcolumns_of_vec(),
+                        self.get_filterable_columns(),
+                    ); // If we find a match for each filter, can display the row.
+                    acc && match_found
+                })
         }))
     }
     pub fn apply_filter(&mut self) {
