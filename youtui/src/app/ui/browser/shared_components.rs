@@ -56,7 +56,6 @@ pub enum SortAction {
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserSearchAction {
-    SearchArtist,
     PrevSearchSuggestion,
     NextSearchSuggestion,
 }
@@ -96,7 +95,6 @@ impl Action for BrowserSearchAction {
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
-            BrowserSearchAction::SearchArtist => "Search",
             BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
             BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
         }

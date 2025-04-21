@@ -1,7 +1,8 @@
 use self::{browser::Browser, logger::Logger, playlist::Playlist};
 use super::component::actionhandler::{
-    get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler, ComponentEffect,
-    DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
+    apply_action_mapped, get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler,
+    ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
+    YoutuiEffect,
 };
 use super::server::IncreaseVolume;
 use super::structures::*;
@@ -249,34 +250,34 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
             AppAction::Pause => return self.pauseplay().into(),
             AppAction::Log(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.logger)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.logger)
             }
             AppAction::Playlist(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.playlist)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.playlist)
             }
             AppAction::Browser(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Filter(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Sort(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::Help(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.help)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help)
             }
             AppAction::BrowserArtists(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserSearch(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserArtistSongs(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::BrowserSongs(a) => {
-                return self.apply_action_mapped(a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
             }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),

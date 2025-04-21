@@ -85,20 +85,23 @@ pub trait Action {
 pub trait ActionHandler<A: Action>: Component + Sized {
     // TODO: Move to possibility of generating top-level callbacks as well...
     fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
-    /// Apply an action that can be mapped to Self.
-    fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> YoutuiEffect<Self>
-    where
-        B: Action,
-        C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
-        F: Fn(&mut Self) -> &mut C + Send + Clone + 'static,
-        Self::Bkend: 'static,
-        Self::Md: 'static,
-    {
-        f(self)
-            .apply_action(action)
-            .into()
-            .map(move |this: &mut Self| f(this))
-    }
+}
+/// Apply an action that returns an effect that can be mapped to root.
+/// Avoids the need to specify both the location and type of the sub-component.
+pub fn apply_action_mapped<R, B, C, F>(root: &mut R, action: B, f: F) -> YoutuiEffect<R>
+where
+    B: Action,
+    R: Component,
+    R::Bkend: 'static,
+    R::Md: 'static,
+    C: Component<Bkend = R::Bkend, Md = R::Md>,
+    C: ActionHandler<B> + 'static,
+    F: Fn(&mut R) -> &mut C + Send + Clone + 'static,
+{
+    f(root)
+        .apply_action(action)
+        .into()
+        .map(move |this: &mut R| f(this))
 }
 
 /// A struct that is able to be "scrolled".

@@ -187,7 +187,6 @@ impl ActionHandler<SortAction> for SongSearchBrowser {
 impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
     fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserSearchAction::SearchArtist => return self.search(),
             BrowserSearchAction::PrevSearchSuggestion => self.search.increment_list(-1),
             BrowserSearchAction::NextSearchSuggestion => self.search.increment_list(1),
         }
@@ -353,7 +352,7 @@ impl SongSearchBrowser {
         Self {
             input_routing: Default::default(),
             song_list: Default::default(),
-            search_popped: Default::default(),
+            search_popped: true,
             search: Default::default(),
             widget_state: Default::default(),
             sort: Default::default(),

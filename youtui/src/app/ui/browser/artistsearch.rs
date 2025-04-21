@@ -140,10 +140,7 @@ impl ActionHandler<SortAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
-    fn apply_action(
-        &mut self,
-        action: BrowserArtistsAction,
-    ) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserArtistsAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserArtistsAction::DisplaySelectedArtistAlbums => self.get_songs(),
         }
@@ -152,7 +149,6 @@ impl ActionHandler<BrowserArtistsAction> for ArtistSearchBrowser {
 impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
     fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserSearchAction::SearchArtist => return self.search(),
             BrowserSearchAction::PrevSearchSuggestion => {
                 self.artist_search_panel.search.increment_list(-1)
             }
@@ -164,10 +160,7 @@ impl ActionHandler<BrowserSearchAction> for ArtistSearchBrowser {
     }
 }
 impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
-    fn apply_action(
-        &mut self,
-        action: BrowserArtistSongsAction,
-    ) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: BrowserArtistSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserArtistSongsAction::PlayAlbum => return self.play_album().into(),
             BrowserArtistSongsAction::PlaySong => return self.play_song().into(),
