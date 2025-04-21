@@ -6,6 +6,7 @@ use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
 use crate::app::view::{ListView, Loadable, SortableList};
 use crate::config::{keymap::Keymap, Config};
+use itertools::Either;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, iter::Iterator};
@@ -26,7 +27,6 @@ pub struct ArtistSearchPanel {
     selected: usize,
     sort_commands_list: Vec<String>,
     keybinds: Keymap<AppAction>,
-    search_keybinds: Keymap<AppAction>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -54,7 +54,6 @@ impl ArtistSearchPanel {
     pub fn new(config: &Config) -> Self {
         Self {
             keybinds: browser_artist_search_keybinds(config),
-            search_keybinds: search_keybinds(config),
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
@@ -112,12 +111,13 @@ impl Suggestable for ArtistSearchPanel {
 
 impl KeyRouter<AppAction> for ArtistSearchPanel {
     fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        [&self.keybinds, &self.search_keybinds].into_iter()
+        std::iter::once(&self.keybinds)
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.route {
-            ArtistInputRouting::List => std::iter::once(&self.keybinds),
-            ArtistInputRouting::Search => std::iter::once(&self.search_keybinds),
+            ArtistInputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
+            // Handled by parent
+            ArtistInputRouting::Search => Either::Right(std::iter::empty()),
         }
     }
 }

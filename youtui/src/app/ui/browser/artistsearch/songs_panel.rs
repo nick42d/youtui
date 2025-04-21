@@ -112,8 +112,11 @@ impl AlbumSongsPanel {
             self.get_filter_commands().iter().fold(true, |acc, e| {
                 let match_found = match e {
                     TableFilterCommand::All(f) => {
-                        let mut filterable_cols_iter =
-                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                        let mut filterable_cols_iter = ls
+                            .get_fields_iter()
+                            .into_iter()
+                            .enumerate()
+                            .filter_map(|(i, f)| {
                                 if mapped_filterable_cols.contains(&Some(&i)) {
                                     Some(f)
                                 } else {
@@ -321,27 +324,26 @@ impl TableView for AlbumSongsPanel {
             BasicConstraint::Length(5),
         ]
     }
-
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         let b = self.list.get_list_iter().map(|ls| {
-            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if Self::subcolumns_of_vec().contains(&i) {
-                    Some(f)
-                } else {
-                    None
-                }
-            });
-            // XXX: Seems to be a double allocation here - may be able to use dereferences
-            // to address.
-            Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
+            ls.get_fields_iter()
+                .into_iter()
+                .enumerate()
+                .filter_map(|(i, f)| {
+                    if Self::subcolumns_of_vec().contains(&i) {
+                        Some(f)
+                    } else {
+                        None
+                    }
+                })
         });
         Box::new(b)
     }
-
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
-
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
@@ -375,16 +377,21 @@ impl SortableTableView for AlbumSongsPanel {
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
     }
-    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
+    fn get_filtered_items(
+        &self,
+    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         // We are doing a lot here every draw cycle!
         Box::new(self.get_filtered_list_iter().map(|ls| {
-            Box::new(ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if Self::subcolumns_of_vec().contains(&i) {
-                    Some(f)
-                } else {
-                    None
-                }
-            })) as Box<dyn Iterator<Item = Cow<str>>>
+            ls.get_fields_iter()
+                .into_iter()
+                .enumerate()
+                .filter_map(|(i, f)| {
+                    if Self::subcolumns_of_vec().contains(&i) {
+                        Some(f)
+                    } else {
+                        None
+                    }
+                })
         }))
     }
     fn get_filterable_columns(&self) -> &[usize] {
@@ -398,6 +405,12 @@ impl SortableTableView for AlbumSongsPanel {
     }
     fn clear_filter_commands(&mut self) {
         self.filter.filter_commands.clear()
+    }
+    fn get_sort_popup_cur(&self) -> usize {
+        self.sort.cur
+    }
+    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
+        self.sort.state.clone()
     }
 }
 

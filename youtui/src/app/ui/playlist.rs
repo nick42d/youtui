@@ -10,7 +10,7 @@ use crate::app::server::{
 use crate::app::structures::DownloadStatus;
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut};
 use crate::app::view::{Loadable, TableView};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, TextHandler},
@@ -174,7 +174,9 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
             let first_field = if Some(i) == self.get_cur_playing_index() {
                 match self.play_status {

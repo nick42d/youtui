@@ -1,13 +1,17 @@
+use std::borrow::Cow;
+
 use super::shared_components::{
     get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
     SortAction, SortManager,
 };
-use crate::app::structures::SongListComponent;
+use crate::app::component::actionhandler::Suggestable;
+use crate::app::structures::{ListStatus, Percentage, SongListComponent};
+use crate::app::view::BasicConstraint;
 use crate::{
     app::{
         component::actionhandler::{
-            Action, ActionHandler, ComponentEffect, DominantKeyRouter, KeyRouter, Scrollable,
-            TextHandler, YoutuiEffect,
+            Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler,
+            YoutuiEffect,
         },
         server::{HandleApiError, SearchSongs},
         structures::{AlbumSongsList, ListSong},
@@ -26,6 +30,7 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use tracing::warn;
+use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::SearchResultSong;
 
 const MAX_SONG_SEARCH_RESULTS: usize = 100;
@@ -34,9 +39,9 @@ pub struct SongSearchBrowser {
     pub input_routing: InputRouting,
     song_list: AlbumSongsList,
     cur_selected: usize,
-    search_popped: bool,
-    search: SearchBlock,
-    widget_state: TableState,
+    pub search_popped: bool,
+    pub search: SearchBlock,
+    pub widget_state: TableState,
     pub sort: SortManager,
     pub filter: FilterManager,
     keybinds: Keymap<AppAction>,
@@ -56,10 +61,18 @@ pub enum BrowserSongsAction {
 
 impl Action for BrowserSongsAction {
     fn context(&self) -> std::borrow::Cow<str> {
-        todo!()
+        "Song Search Browser".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self {
+            BrowserSongsAction::Filter => "Filter",
+            BrowserSongsAction::Sort => "Sort",
+            BrowserSongsAction::PlaySong => "Play song",
+            BrowserSongsAction::PlaySongs => "Play songs",
+            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+        }
+        .into()
     }
 }
 
@@ -72,12 +85,33 @@ pub enum InputRouting {
     Sort,
 }
 
+impl Suggestable for SongSearchBrowser {
+    fn get_search_suggestions(&self) -> &[SearchSuggestion] {
+        self.search.get_search_suggestions()
+    }
+    fn has_search_suggestions(&self) -> bool {
+        self.search.has_search_suggestions()
+    }
+}
+
 impl Scrollable for SongSearchBrowser {
     fn increment_list(&mut self, amount: isize) {
-        todo!()
+        if self.sort.shown {
+            self.sort.cur = self
+                .sort
+                .cur
+                .saturating_add_signed(amount)
+                .min(self.get_sortable_columns().len().saturating_sub(1));
+        } else {
+            // Naive check using iterator - consider using exact size iterator
+            self.cur_selected = self
+                .cur_selected
+                .saturating_add_signed(amount)
+                .min(self.get_filtered_items().count().saturating_sub(1))
+        }
     }
     fn is_scrollable(&self) -> bool {
-        todo!()
+        !self.filter.shown
     }
 }
 impl TextHandler for SongSearchBrowser {
@@ -155,22 +189,22 @@ impl ActionHandler<SortAction> for SongSearchBrowser {
 impl ActionHandler<BrowserSearchAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserSearchAction::SearchArtist => todo!(),
-            BrowserSearchAction::PrevSearchSuggestion => todo!(),
-            BrowserSearchAction::NextSearchSuggestion => todo!(),
+            BrowserSearchAction::SearchArtist => return self.search(),
+            BrowserSearchAction::PrevSearchSuggestion => self.search.increment_list(-1),
+            BrowserSearchAction::NextSearchSuggestion => self.search.increment_list(1),
         }
-        YoutuiEffect::new_no_op()
+        AsyncTask::new_no_op()
     }
 }
 impl ActionHandler<BrowserSongsAction> for SongSearchBrowser {
     async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserSongsAction::Filter => todo!(),
-            BrowserSongsAction::Sort => todo!(),
-            BrowserSongsAction::PlaySong => todo!(),
-            BrowserSongsAction::PlaySongs => todo!(),
-            BrowserSongsAction::AddSongToPlaylist => todo!(),
-            BrowserSongsAction::AddSongsToPlaylist => todo!(),
+            BrowserSongsAction::Filter => self.toggle_filter(),
+            BrowserSongsAction::Sort => self.handle_pop_sort(),
+            BrowserSongsAction::PlaySong => return self.play_song().into(),
+            BrowserSongsAction::PlaySongs => return self.play_songs().into(),
+            BrowserSongsAction::AddSongToPlaylist => return self.add_song_to_playlist().into(),
+            BrowserSongsAction::AddSongsToPlaylist => return self.add_songs_to_playlist().into(),
         }
         YoutuiEffect::new_no_op()
     }
@@ -181,10 +215,11 @@ impl KeyRouter<AppAction> for SongSearchBrowser {
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         match self.input_routing {
-            InputRouting::List => std::iter::once(&self.keybinds),
-            InputRouting::Search => todo!(),
-            InputRouting::Filter => todo!(),
-            InputRouting::Sort => todo!(),
+            InputRouting::List => Either::Left(std::iter::once(&self.keybinds)),
+            // Handled by parent as keybinds shared with some other components.
+            InputRouting::Search | InputRouting::Filter | InputRouting::Sort => {
+                Either::Right(std::iter::empty())
+            }
         }
     }
 }
@@ -195,35 +230,69 @@ impl SongListComponent for SongSearchBrowser {
 }
 impl Loadable for SongSearchBrowser {
     fn is_loading(&self) -> bool {
-        todo!()
+        matches!(
+            self.song_list.state,
+            crate::app::structures::ListStatus::Loading
+        )
     }
 }
 impl TableView for SongSearchBrowser {
     fn get_selected_item(&self) -> usize {
-        todo!()
+        self.cur_selected
     }
     fn get_state(&self) -> TableState {
-        todo!()
+        self.widget_state.clone()
     }
     fn get_title(&self) -> std::borrow::Cow<str> {
-        todo!()
+        match self.song_list.state {
+            ListStatus::New => "Songs".into(),
+            ListStatus::Loading => "Songs - loading".into(),
+            ListStatus::InProgress => format!(
+                "Songs - {} results - loading",
+                self.song_list.get_list_iter().len()
+            )
+            .into(),
+            ListStatus::Loaded => {
+                format!("Songs - {} results", self.song_list.get_list_iter().len()).into()
+            }
+            ListStatus::Error => "Songs - Error receieved".into(),
+        }
     }
     fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
-        todo!()
+        &[
+            BasicConstraint::Percentage(Percentage(30)),
+            BasicConstraint::Percentage(Percentage(30)),
+            BasicConstraint::Percentage(Percentage(30)),
+            BasicConstraint::Length(10),
+        ]
     }
     fn get_highlighted_row(&self) -> Option<usize> {
-        todo!()
+        None
     }
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        todo!()
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+        let b = self.song_list.get_list_iter().map(|ls| {
+            ls.get_fields_iter()
+                .into_iter()
+                .enumerate()
+                .filter_map(|(idx, field)| {
+                    if Self::subcolumns_of_vec().contains(&idx) {
+                        Some(field)
+                    } else {
+                        None
+                    }
+                })
+        });
+        Box::new(b)
     }
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
-        todo!()
+        Box::new(["Artist", "Album", "Song", "Duration"].into_iter())
     }
 }
 impl SortableTableView for SongSearchBrowser {
     fn get_sortable_columns(&self) -> &[usize] {
-        &[]
+        &[0, 1, 2]
     }
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
@@ -248,22 +317,42 @@ impl SortableTableView for SongSearchBrowser {
         Ok(())
     }
     fn clear_sort_commands(&mut self) {
-        todo!()
-    }
-    fn get_filterable_columns(&self) -> &[usize] {
-        todo!()
-    }
-    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
-        todo!()
+        self.sort.sort_commands.clear();
     }
     fn get_filter_commands(&self) -> &[TableFilterCommand] {
-        todo!()
+        &self.filter.filter_commands
     }
     fn push_filter_command(&mut self, filter_command: TableFilterCommand) {
-        todo!()
+        self.filter.filter_commands.push(filter_command)
     }
     fn clear_filter_commands(&mut self) {
-        todo!()
+        self.filter.filter_commands.clear()
+    }
+    fn get_filterable_columns(&self) -> &[usize] {
+        &[0, 1, 2]
+    }
+    fn get_sort_popup_cur(&self) -> usize {
+        self.sort.cur
+    }
+    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
+        self.sort.state.clone()
+    }
+    fn get_filtered_items(
+        &self,
+    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+        // We are doing a lot here every draw cycle!
+        Box::new(self.get_filtered_list_iter().map(|ls| {
+            ls.get_fields_iter()
+                .into_iter()
+                .enumerate()
+                .filter_map(|(i, f)| {
+                    if Self::subcolumns_of_vec().contains(&i) {
+                        Some(f)
+                    } else {
+                        None
+                    }
+                })
+        }))
     }
 }
 
@@ -277,12 +366,12 @@ impl SongSearchBrowser {
             widget_state: Default::default(),
             sort: Default::default(),
             filter: Default::default(),
-            keybinds: Default::default(),
+            keybinds: config.keybinds.browser_songs.clone(),
             cur_selected: Default::default(),
         }
     }
     pub fn subcolumns_of_vec() -> &'static [usize] {
-        todo!();
+        &[4, 2, 3, 5]
     }
     pub fn apply_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
@@ -308,8 +397,11 @@ impl SongSearchBrowser {
             self.get_filter_commands().iter().fold(true, |acc, e| {
                 let match_found = match e {
                     TableFilterCommand::All(f) => {
-                        let mut filterable_cols_iter =
-                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
+                        let mut filterable_cols_iter = ls
+                            .get_fields_iter()
+                            .into_iter()
+                            .enumerate()
+                            .filter_map(|(i, f)| {
                                 if mapped_filterable_cols.contains(&Some(&i)) {
                                     Some(f)
                                 } else {

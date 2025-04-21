@@ -45,6 +45,7 @@ pub struct Browser {
     browser_keybinds: Keymap<AppAction>,
     sort_keybings: Keymap<AppAction>,
     filter_keybings: Keymap<AppAction>,
+    search_keybinds: Keymap<AppAction>,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -284,11 +285,17 @@ impl KeyRouter<AppAction> for Browser {
         std::iter::once(&self.browser_keybinds)
             .chain(self.artist_search_browser.get_all_keybinds())
             .chain(self.song_search_browser.get_all_keybinds())
+            // TODO: Verify if I want to show sort/filter keybinds even when not selected.
+            .chain(std::iter::once(&self.search_keybinds))
+            .chain(std::iter::once(&self.filter_keybings))
+            .chain(std::iter::once(&self.sort_keybings))
     }
     fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
         if self.dominant_keybinds_active() {
             return Either::Left(self.get_dominant_keybinds());
         }
+        // Need to handle search keybinds? Filter/search are handled as they are
+        // dominant.
         Either::Right(
             match self.variant {
                 BrowserVariant::SongSearch => {
@@ -352,6 +359,7 @@ impl Browser {
             song_search_browser: SongSearchBrowser::new(config),
             sort_keybings: config.keybinds.sort.clone(),
             filter_keybings: config.keybinds.filter.clone(),
+            search_keybinds: config.keybinds.browser_search.clone(),
         }
     }
     pub fn left(&mut self) {

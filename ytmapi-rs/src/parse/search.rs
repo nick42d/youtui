@@ -586,7 +586,7 @@ fn parse_song_search_result_from_music_shelf_contents(
         // Per above implementation, if there is an album, it is the second field in the
         // run excluding the delimiter.
         Some(mrlir.take_value_pointer(format!(
-            "{}/text/runs/2/{}",
+            "{}/text/runs/2{}",
             flex_column_item_pointer(1),
             NAVIGATION_BROWSE_ID
         ))?)

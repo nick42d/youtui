@@ -1,5 +1,6 @@
 use super::server::downloader::InMemSong;
-use super::view::{SortDirection, TableItem};
+use super::view::SortDirection;
+use itertools::Itertools;
 use std::borrow::Cow;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -128,44 +129,45 @@ impl ListSong {
     pub fn get_track_no(&self) -> Option<usize> {
         self.track_no
     }
-    pub fn get_fields_iter(&self) -> TableItem {
-        Box::new(
-            [
-                // Type annotation to help rust compiler
-                Cow::from(match self.download_status {
-                    DownloadStatus::Downloading(p) => {
-                        format!("{}[{}]%", self.download_status.list_icon(), p.0)
-                    }
-                    DownloadStatus::Retrying { times_retried } => {
-                        format!("{}[x{}]", self.download_status.list_icon(), times_retried)
-                    }
-                    _ => self.download_status.list_icon().to_string(),
-                }),
-                self.get_track_no()
-                    .map(|track_no| track_no.to_string())
-                    .unwrap_or_default()
-                    .into(),
+    pub fn get_fields_iter(&self) -> [Cow<'_, str>; 7] {
+        [
+            // Type annotation to help rust compiler
+            Cow::from(match self.download_status {
+                DownloadStatus::Downloading(p) => {
+                    format!("{}[{}]%", self.download_status.list_icon(), p.0)
+                }
+                DownloadStatus::Retrying { times_retried } => {
+                    format!("{}[x{}]", self.download_status.list_icon(), times_retried)
+                }
+                _ => self.download_status.list_icon().to_string(),
+            }),
+            self.get_track_no()
+                .map(|track_no| track_no.to_string())
+                .unwrap_or_default()
+                .into(),
+            Itertools::intersperse(
                 self.artists
-                    .first()
-                    .map(|a| a.name.as_str())
-                    .unwrap_or_default()
-                    .into(),
-                self.album
                     .as_ref()
-                    .map(|album| album.as_str())
-                    .unwrap_or_default()
-                    .into(),
-                AsRef::<str>::as_ref(&self.title).into(),
-                // TODO: Remove allocation
-                AsRef::<str>::as_ref(&self.duration_string).into(),
-                self.year
-                    .as_ref()
-                    .map(|album| album.as_str())
-                    .unwrap_or_default()
-                    .into(),
-            ]
-            .into_iter(),
-        )
+                    .iter()
+                    .map(|artist| artist.name.as_str()),
+                ", ",
+            )
+            .collect::<String>()
+            .into(),
+            self.album
+                .as_ref()
+                .map(|album| album.as_str())
+                .unwrap_or_default()
+                .into(),
+            AsRef::<str>::as_ref(&self.title).into(),
+            // TODO: Remove allocation
+            AsRef::<str>::as_ref(&self.duration_string).into(),
+            self.year
+                .as_ref()
+                .map(|album| album.as_str())
+                .unwrap_or_default()
+                .into(),
+        ]
     }
 }
 
@@ -190,13 +192,15 @@ impl AlbumSongsList {
         self.list.sort_by(|a, b| match direction {
             SortDirection::Asc => a
                 .get_fields_iter()
+                .into_iter()
                 .nth(column)
-                .partial_cmp(&b.get_fields_iter().nth(column))
+                .partial_cmp(&b.get_fields_iter().into_iter().nth(column))
                 .unwrap_or(std::cmp::Ordering::Equal),
             SortDirection::Desc => b
                 .get_fields_iter()
+                .into_iter()
                 .nth(column)
-                .partial_cmp(&a.get_fields_iter().nth(column))
+                .partial_cmp(&a.get_fields_iter().into_iter().nth(column))
                 .unwrap_or(std::cmp::Ordering::Equal),
         });
     }

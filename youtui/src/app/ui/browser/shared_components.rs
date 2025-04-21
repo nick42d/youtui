@@ -5,6 +5,7 @@ use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{handle_events, TextInputState};
+use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::common::SearchSuggestion;
 
@@ -31,6 +32,7 @@ pub struct SortManager {
     pub sort_commands: Vec<TableSortCommand>,
     pub shown: bool,
     pub cur: usize,
+    pub state: ListState,
 }
 impl_youtui_component!(SortManager);
 
@@ -90,7 +92,7 @@ impl Action for SortAction {
 
 impl Action for BrowserSearchAction {
     fn context(&self) -> std::borrow::Cow<str> {
-        "Artist Search Panel".into()
+        "Browser Search Panel".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match self {
@@ -104,11 +106,7 @@ impl Action for BrowserSearchAction {
 
 impl SortManager {
     pub fn new() -> Self {
-        Self {
-            sort_commands: Default::default(),
-            shown: Default::default(),
-            cur: Default::default(),
-        }
+        Default::default()
     }
 }
 impl FilterManager {
