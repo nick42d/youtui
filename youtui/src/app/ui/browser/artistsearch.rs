@@ -17,7 +17,6 @@ use crate::{
     },
     config::{keymap::Keymap, Config},
 };
-use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use search_panel::{ArtistSearchPanel, BrowserArtistsAction};

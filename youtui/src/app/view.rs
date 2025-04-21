@@ -1,5 +1,5 @@
 /// Traits related to viewable application components.
-use super::structures::{AlbumSongsList, ListSong, ListSongDisplayableField, Percentage};
+use super::structures::{ListSong, ListSongDisplayableField, Percentage};
 use ratatui::{
     prelude::{Constraint, Rect},
     widgets::{ListState, TableState},

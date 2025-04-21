@@ -386,9 +386,9 @@ mod tests {
         app::{
             component::actionhandler::{ActionHandler, KeyRouter},
             ui::{
-                action::{AppAction, ListAction},
+                action::AppAction,
                 browser::{
-                    shared_components::BrowserSearchAction, songsearch::InputRouting, BrowserAction,
+                    shared_components::BrowserSearchAction, BrowserAction,
                 },
             },
         },

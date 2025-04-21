@@ -1,6 +1,5 @@
 use crate::{
     app::component::actionhandler::{get_global_keybinds_as_readable_iter, KeyRouter},
-    config::Config,
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
     keyaction::DisplayableKeyAction,
 };
