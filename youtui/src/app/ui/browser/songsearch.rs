@@ -238,7 +238,7 @@ impl KeyRouter<AppAction> for SongSearchBrowser {
 }
 impl SongListComponent for SongSearchBrowser {
     fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
-        todo!()
+        self.get_filtered_list_iter().nth(idx)
     }
 }
 impl Loadable for SongSearchBrowser {
@@ -310,7 +310,7 @@ impl SortableTableView for SongSearchBrowser {
         }
         // Map the column of ArtistAlbums to a column of List and sort
         self.song_list.sort(
-            get_adjusted_list_column(sort_command.column, &Self::subcolumns_of_vec())?,
+            get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
         // Remove commands that already exist for the same column, as this new command
@@ -382,7 +382,7 @@ impl SongSearchBrowser {
                 bail!(format!("Unable to sort column {}", c.column,));
             }
             self.song_list.sort(
-                get_adjusted_list_column(c.column, &Self::subcolumns_of_vec())?,
+                get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
                 c.direction,
             );
         }

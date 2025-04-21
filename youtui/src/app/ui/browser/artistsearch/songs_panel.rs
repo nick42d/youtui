@@ -99,7 +99,7 @@ impl AlbumSongsPanel {
                 bail!(format!("Unable to sort column {}", c.column,));
             }
             self.list.sort(
-                get_adjusted_list_column(c.column, &Self::subcolumns_of_vec())?,
+                get_adjusted_list_column(c.column, Self::subcolumns_of_vec())?,
                 c.direction,
             );
         }
@@ -206,13 +206,11 @@ impl AlbumSongsPanel {
         self.list.state = ListStatus::InProgress;
     }
 }
-
 impl SongListComponent for AlbumSongsPanel {
     fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
         self.get_filtered_list_iter().nth(idx)
     }
 }
-
 impl TextHandler for AlbumSongsPanel {
     fn get_text(&self) -> &str {
         self.filter.get_text()
@@ -344,7 +342,7 @@ impl SortableTableView for AlbumSongsPanel {
         }
         // Map the column of ArtistAlbums to a column of List and sort
         self.list.sort(
-            get_adjusted_list_column(sort_command.column, &Self::subcolumns_of_vec())?,
+            get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
         // Remove commands that already exist for the same column, as this new command
@@ -389,14 +387,4 @@ impl SortableTableView for AlbumSongsPanel {
     fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
         self.sort.state.clone()
     }
-}
-
-fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
-    let mut kb = config.keybinds.sort.clone();
-    kb.extend(config.keybinds.list.clone());
-    kb
-}
-
-fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.filter.clone()
 }

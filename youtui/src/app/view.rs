@@ -69,22 +69,26 @@ impl TableFilterCommand {
         filterable_colums: &[usize],
     ) -> bool {
         let fields = row.get_fields(fields_in_table);
-        let mut matches = false;
         match self {
             TableFilterCommand::All(filter) => match filter {
-                Filter::Contains(filter_string) => {
-                    for col in filterable_colums {
-                        if filter_string.is_in(fields[*col].as_ref()) {
-                            matches = true;
-                        }
-                    }
-                }
-                Filter::NotContains(filter_string) => todo!(),
-                Filter::Equal(filter_string) => todo!(),
+                Filter::Contains(filter_string) => filterable_colums
+                    .iter()
+                    .any(|col| filter_string.is_in(fields[*col].as_ref())),
+                Filter::NotContains(filter_string) => filterable_colums
+                    .iter()
+                    .all(|col| !filter_string.is_in(fields[*col].as_ref())),
+                Filter::Equal(filter_string) => filterable_colums
+                    .iter()
+                    .any(|col| filter_string.is_equal(fields[*col].as_ref())),
             },
-            TableFilterCommand::Column { filter, column } => todo!(),
+            TableFilterCommand::Column { filter, column } => match filter {
+                Filter::Contains(filter_string) => filter_string.is_in(fields[*column].as_ref()),
+                Filter::NotContains(filter_string) => {
+                    !filter_string.is_in(fields[*column].as_ref())
+                }
+                Filter::Equal(filter_string) => filter_string.is_equal(fields[*column].as_ref()),
+            },
         }
-        matches
     }
 }
 impl Filter {
@@ -111,6 +115,12 @@ impl FilterString {
                 .as_ref()
                 .to_ascii_lowercase()
                 .contains(s.to_ascii_lowercase().as_str()),
+        }
+    }
+    pub fn is_equal<S: AsRef<str>>(&self, test_str: S) -> bool {
+        match self {
+            FilterString::CaseSensitive(s) => todo!(),
+            FilterString::CaseInsensitive(s) => todo!(),
         }
     }
 }
@@ -193,7 +203,7 @@ pub trait SortableTableView: TableView {
     fn get_sort_popup_state(&self) -> ListState;
 }
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: SortableList + Loadable {
+pub trait ListView: Loadable {
     type DisplayItem: Display;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
@@ -205,10 +215,6 @@ pub trait ListView: SortableList + Loadable {
     fn len(&self) -> usize {
         self.get_items_display().len()
     }
-}
-pub trait SortableList {
-    fn push_sort_command(&mut self, list_sort_command: String);
-    fn clear_sort_commands(&mut self);
 }
 // A drawable part of the application.
 pub trait Drawable {

@@ -246,9 +246,9 @@ impl SearchBlock {
 
 /// A table may display columns in a different order, adjust the index to a new
 /// index based on a list of correct indexes.
-pub fn get_adjusted_list_column<T: Copy>(
+pub fn get_adjusted_list_column<T: Copy, const N: usize>(
     target_col: usize,
-    adjusted_cols: &[T],
+    adjusted_cols: [T; N],
 ) -> anyhow::Result<T> {
     adjusted_cols
         .get(target_col)
@@ -266,12 +266,12 @@ mod tests {
     use crate::app::ui::browser::shared_components::get_adjusted_list_column;
     #[test]
     fn test_get_adjusted_list_column() {
-        assert_eq!(get_adjusted_list_column(2, &[3, 1, 2]).unwrap(), 2);
-        assert_eq!(get_adjusted_list_column(0, &[3, 1, 2]).unwrap(), 3);
-        assert_eq!(get_adjusted_list_column(1, &[3, 1, 2]).unwrap(), 1);
+        assert_eq!(get_adjusted_list_column(2, [3, 1, 2]).unwrap(), 2);
+        assert_eq!(get_adjusted_list_column(0, [3, 1, 2]).unwrap(), 3);
+        assert_eq!(get_adjusted_list_column(1, [3, 1, 2]).unwrap(), 1);
     }
     #[test]
     fn test_get_adjusted_list_column_out_of_bounds() {
-        assert!(get_adjusted_list_column(3, &[3, 1, 2]).is_err())
+        assert!(get_adjusted_list_column(3, [3, 1, 2]).is_err())
     }
 }

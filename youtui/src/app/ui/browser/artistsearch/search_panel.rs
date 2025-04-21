@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
-use crate::app::view::{ListView, Loadable, SortableList};
+use crate::app::view::{ListView, Loadable};
 use crate::config::{keymap::Keymap, Config};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
@@ -138,16 +138,6 @@ impl Scrollable for ArtistSearchPanel {
     }
     fn is_scrollable(&self) -> bool {
         self.route == ArtistInputRouting::List
-    }
-}
-
-impl SortableList for ArtistSearchPanel {
-    // Could instead be lazy
-    fn push_sort_command(&mut self, _list_sort_command: String) {
-        self.list.sort_by(|a, b| a.artist.cmp(&b.artist));
-    }
-    fn clear_sort_commands(&mut self) {
-        self.sort_commands_list.clear();
     }
 }
 impl Loadable for ArtistSearchPanel {
