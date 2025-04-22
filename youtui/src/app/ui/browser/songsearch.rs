@@ -102,9 +102,6 @@ impl Scrollable for SongSearchBrowser {
                     .saturating_add_signed(amount)
                     .min(self.get_filtered_items().count().saturating_sub(1))
             }
-            InputRouting::Search => {
-                self.search.increment_list(amount);
-            }
             InputRouting::Sort => {
                 self.sort.cur = self
                     .sort
@@ -112,21 +109,20 @@ impl Scrollable for SongSearchBrowser {
                     .saturating_add_signed(amount)
                     .min(self.get_sortable_columns().len().saturating_sub(1));
             }
+            InputRouting::Search => warn!("Tried to increment list when in search box"),
             InputRouting::Filter => warn!("Tried to increment list when filter popup shown"),
         }
     }
     fn is_scrollable(&self) -> bool {
-        !self.filter.shown
+        matches!(self.input_routing, InputRouting::Sort | InputRouting::List)
     }
 }
 impl TextHandler for SongSearchBrowser {
     fn is_text_handling(&self) -> bool {
-        match self.input_routing {
-            InputRouting::Filter => true,
-            InputRouting::Search => true,
-            InputRouting::List => false,
-            InputRouting::Sort => false,
-        }
+        matches!(
+            self.input_routing,
+            InputRouting::Filter | InputRouting::Search
+        )
     }
     fn get_text(&self) -> &str {
         match self.input_routing {
