@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.22](https://github.com/nick42d/youtui/compare/youtui/v0.0.21...youtui/v0.0.22) - 2025-04-22
+
+### Added
+- [**breaking**] Ability to search for songs instead of just artists - closes 153 ([#220](https://github.com/nick42d/youtui/pull/220))
+- _Some keybind actions have been renamed - see config.toml for more details. In addition, default keybinds for filter and sort have changed slightly to accommodate new F6 default keybind for changing search type. In addition, search entry form starts open when you open youtui._ 
+### Other
+- Add some more unit tests - playlist ([#218](https://github.com/nick42d/youtui/pull/218))
+- *(deps)* bump tokio in the cargo group across 1 directory ([#216](https://github.com/nick42d/youtui/pull/216))
+- Unit tests for playlist ([#214](https://github.com/nick42d/youtui/pull/214))
 
 ## [0.0.20](https://github.com/nick42d/youtui/compare/youtui/v0.0.19...youtui/v0.0.20) - 2025-02-17
 

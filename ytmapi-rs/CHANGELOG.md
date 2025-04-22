@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.21](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.20...ytmapi-rs/v0.0.21) - 2025-04-22
+
+### Added
+- [**breaking**] SearchResultSong.album is now a ParsedSongAlbum instead of just album title. Also a lint fix. ([#220](https://github.com/nick42d/youtui/pull/220))
+
+### Other
+- *(deps)* bump tokio in the cargo group across 1 directory ([#216](https://github.com/nick42d/youtui/pull/216))
+
 ## [0.0.19](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.18...ytmapi-rs/v0.0.19) - 2025-02-17
 
 ### Fixed
