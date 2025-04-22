@@ -438,7 +438,12 @@ SearchResults {
             title: "Come Together",
             artist: "The Beatles",
             album: Some(
-                "1",
+                ParsedSongAlbum {
+                    name: "1",
+                    id: AlbumID(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
             ),
             duration: "4:19",
             plays: "244M plays",
@@ -463,7 +468,12 @@ SearchResults {
             title: "Here Comes The Sun (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Abbey Road",
+                ParsedSongAlbum {
+                    name: "Abbey Road",
+                    id: AlbumID(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
             ),
             duration: "3:06",
             plays: "332M plays",
@@ -488,7 +498,12 @@ SearchResults {
             title: "Come Together (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Abbey Road",
+                ParsedSongAlbum {
+                    name: "Abbey Road",
+                    id: AlbumID(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
             ),
             duration: "4:20",
             plays: "244M plays",

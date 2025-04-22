@@ -547,9 +547,8 @@ fn default_browser_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             Keybind::new_unmodified(crossterm::event::KeyCode::Left),
             KeyActionTree::new_key(AppAction::Browser(BrowserAction::Left)),
         ),
-        // TODO: Improve
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char('S')),
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(6)),
             KeyActionTree::new_key_with_visibility(
                 AppAction::Browser(BrowserAction::ChangeSearchType),
                 KeyActionVisibility::Global,
@@ -732,7 +731,7 @@ fn default_sort_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Char('C')),
+            Keybind::new(crossterm::event::KeyCode::F(4), KeyModifiers::ALT),
             KeyActionTree::new_key_with_visibility(
                 AppAction::Sort(SortAction::ClearSort),
                 KeyActionVisibility::Global,
@@ -778,7 +777,7 @@ fn default_filter_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::F(6)),
+            Keybind::new(crossterm::event::KeyCode::F(3), KeyModifiers::ALT),
             KeyActionTree::new_key_with_visibility(
                 AppAction::Filter(FilterAction::ClearFilter),
                 KeyActionVisibility::Global,

@@ -468,7 +468,12 @@ SearchResults {
             title: "Yesterday",
             artist: "The Beatles",
             album: Some(
-                "1",
+                ParsedSongAlbum {
+                    name: "1",
+                    id: AlbumID(
+                        "MPREb_mnYrD806fc4",
+                    ),
+                },
             ),
             duration: "2:06",
             plays: "158M plays",
@@ -493,7 +498,12 @@ SearchResults {
             title: "Norwegian Wood (This Bird Has Flown) (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Rubber Soul",
+                ParsedSongAlbum {
+                    name: "Rubber Soul",
+                    id: AlbumID(
+                        "MPREb_NPpc9jtWHdJ",
+                    ),
+                },
             ),
             duration: "2:05",
             plays: "52M plays",
@@ -518,7 +528,12 @@ SearchResults {
             title: "Here Comes The Sun (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Abbey Road",
+                ParsedSongAlbum {
+                    name: "Abbey Road",
+                    id: AlbumID(
+                        "MPREb_pyQa1mky9hE",
+                    ),
+                },
             ),
             duration: "3:06",
             plays: "360M plays",

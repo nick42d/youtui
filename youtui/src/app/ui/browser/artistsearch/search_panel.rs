@@ -13,8 +13,8 @@ use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {
-    Search,
     #[default]
+    Search,
     List,
 }
 
@@ -53,7 +53,7 @@ impl ArtistSearchPanel {
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
-            search_popped: Default::default(),
+            search_popped: true,
             search: SearchBlock::default(),
             widget_state: Default::default(),
         }

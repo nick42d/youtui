@@ -446,7 +446,12 @@ SearchResults {
             title: "For the Beaten",
             artist: "Filter",
             album: Some(
-                "For the Beaten",
+                ParsedSongAlbum {
+                    name: "For the Beaten",
+                    id: AlbumID(
+                        "MPREb_rRvqIQZV597",
+                    ),
+                },
             ),
             duration: "3:32",
             plays: "180K plays",
@@ -471,7 +476,12 @@ SearchResults {
             title: "Beaten",
             artist: "Biohazard",
             album: Some(
-                "Alternative Metal Giants",
+                ParsedSongAlbum {
+                    name: "Alternative Metal Giants",
+                    id: AlbumID(
+                        "MPREb_ugooZxQnHXo",
+                    ),
+                },
             ),
             duration: "3:11",
             plays: "19K plays",
@@ -496,7 +506,12 @@ SearchResults {
             title: "Beat It",
             artist: "Michael Jackson",
             album: Some(
-                "Thriller",
+                ParsedSongAlbum {
+                    name: "Thriller",
+                    id: AlbumID(
+                        "MPREb_dqWTncCjkSp",
+                    ),
+                },
             ),
             duration: "4:19",
             plays: "1.5B plays",

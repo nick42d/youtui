@@ -32,6 +32,7 @@ F5 = {action = "browser.view_playlist", visibility = "global"}
 F2 = {action = "browser.search", visibility = "global"}
 left = "browser.left"
 right = "browser.right"
+F6 = {action = "browser.change_search_type", visibility = "global"}
 
 [keybinds.browser_artists]
 enter = "browser_artists.display_selected_artist_albums"
@@ -72,12 +73,12 @@ esc = {action = "help.close", visibility = "hidden"}
 esc = {action = "filter.close", visibility = "hidden"}
 F3 = {action = "filter.close", visibility = "global"}
 Enter = {action = "filter.apply", visibility = "global"}
-F6 = {action = "filter.clear_filter", visibility = "global"}
+A-F3 = {action = "filter.clear_filter", visibility = "global"}
 
 [keybinds.sort]
 enter = {action = "sort.sort_selected_asc", visibility = "global"}
 A-enter = {action = "sort.sort_selected_desc", visibility = "global"}
-C = {action = "sort.clear_sort", visibility = "global"}
+A-F4 = {action = "sort.clear_sort", visibility = "global"}
 esc = {action = "sort.close", visibility = "hidden"}
 F4 = {action = "sort.close", visibility = "global"}
 
