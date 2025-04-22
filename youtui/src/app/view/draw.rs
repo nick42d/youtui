@@ -202,10 +202,7 @@ where
                 }
             });
     let filter_str: String = itertools::intersperse(
-        table
-            .get_filter_commands()
-            .iter()
-            .map(|f| f.as_basic_readable()),
+        table.get_filter_commands().iter().map(|f| f.as_readable()),
         ", ".to_string(),
     )
     .collect();

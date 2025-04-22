@@ -12,7 +12,7 @@ use ratatui::{
 };
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
-    let keybinds = get_global_keybinds_as_readable_iter(w.get_active_keybinds());
+    let keybinds = get_global_keybinds_as_readable_iter(w.get_active_keybinds(&w.config));
 
     let help_string = Line::from(
         keybinds

@@ -4,13 +4,13 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    ArcServer, AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong,
-    QueueSong, Seek, Stop, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
+    Stop, TaskMetadata,
 };
-use crate::app::structures::DownloadStatus;
+use crate::app::structures::{DownloadStatus, ListSongDisplayableField};
 use crate::app::structures::{Percentage, SongListComponent};
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut, TableItem};
+use crate::app::view::{BasicConstraint, DrawableMut};
 use crate::app::view::{Loadable, TableView};
 use crate::app::{
     component::actionhandler::{Action, KeyRouter, TextHandler},
@@ -49,7 +49,6 @@ pub struct Playlist {
     pub play_status: PlayState,
     pub queue_status: QueueState,
     pub volume: Percentage,
-    keybinds: Keymap<AppAction>,
     cur_selected: usize,
     pub widget_state: TableState,
 }
@@ -65,7 +64,6 @@ pub enum PlaylistAction {
 }
 
 impl Action for PlaylistAction {
-    type State = Playlist;
     fn context(&self) -> std::borrow::Cow<str> {
         "Playlist".into()
     }
@@ -87,11 +85,9 @@ pub enum QueueState {
 }
 
 impl ActionHandler<PlaylistAction> for Playlist {
-    async fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
+    fn apply_action(&mut self, action: PlaylistAction) -> impl Into<YoutuiEffect<Playlist>> {
         match action {
-            PlaylistAction::ViewBrowser => {
-                (AsyncTask::new_no_op(), Some(self.view_browser().await))
-            }
+            PlaylistAction::ViewBrowser => (AsyncTask::new_no_op(), Some(self.view_browser())),
             PlaylistAction::PlaySelected => (self.play_selected(), None),
             PlaylistAction::DeleteSelected => (self.delete_selected(), None),
             PlaylistAction::DeleteAll => (self.delete_all(), None),
@@ -100,11 +96,17 @@ impl ActionHandler<PlaylistAction> for Playlist {
 }
 
 impl KeyRouter<AppAction> for Playlist {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        self.get_active_keybinds(config)
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.playlist)
     }
 }
 
@@ -175,7 +177,9 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_> {
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
             let first_field = if Some(i) == self.get_cur_playing_index() {
                 match self.play_status {
@@ -189,8 +193,17 @@ impl TableView for Playlist {
             } else {
                 (i + 1).to_string()
             };
-            Box::new(iter::once(first_field.to_string().into()).chain(ls.get_fields_iter()))
-                as Box<dyn Iterator<Item = Cow<str>>>
+            Box::new(
+                iter::once(first_field.to_string().into()).chain(ls.get_fields([
+                    ListSongDisplayableField::DownloadStatus,
+                    ListSongDisplayableField::TrackNo,
+                    ListSongDisplayableField::Artists,
+                    ListSongDisplayableField::Album,
+                    ListSongDisplayableField::Song,
+                    ListSongDisplayableField::Duration,
+                    ListSongDisplayableField::Year,
+                ])),
+            ) as Box<dyn Iterator<Item = Cow<str>>>
         }))
     }
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
@@ -215,7 +228,7 @@ impl SongListComponent for Playlist {
 // Primatives
 impl Playlist {
     /// When creating a Playlist, an effect is also created.
-    pub fn new(config: &Config) -> (Self, ComponentEffect<Self>) {
+    pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future(
             // Since IncreaseVolume responds back with player volume after change, this is a
@@ -229,7 +242,6 @@ impl Playlist {
             play_status: PlayState::NotPlaying,
             list: Default::default(),
             cur_played_dur: None,
-            keybinds: playlist_keybinds(config),
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             widget_state: Default::default(),
@@ -426,7 +438,7 @@ impl Playlist {
         };
         // TODO: Consider how to handle race conditions.
         let effect = AsyncTask::new_stream_chained(
-            DownloadSong(song.raw.video_id.clone(), id),
+            DownloadSong(song.video_id.clone(), id),
             |this: &mut Playlist, item| {
                 let DownloadProgressUpdate { kind, id } = item;
                 this.handle_song_download_progress_update(kind, id)
@@ -673,7 +685,7 @@ impl Playlist {
         self.reset()
     }
     /// Change to Browser window.
-    pub async fn view_browser(&mut self) -> AppCallback {
+    pub fn view_browser(&mut self) -> AppCallback {
         AppCallback::ChangeContext(WindowContext::Browser)
     }
     /// Handle global pause/play action. Toggle state (visual), toggle playback
@@ -933,8 +945,4 @@ impl Playlist {
             self.play_status = PlayState::Stopped
         }
     }
-}
-
-fn playlist_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.playlist.clone()
 }

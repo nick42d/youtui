@@ -1,6 +1,9 @@
 use crate::{
     app::AppCallback,
-    config::keymap::{KeyActionTree, Keymap},
+    config::{
+        keymap::{KeyActionTree, Keymap},
+        Config,
+    },
     keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
     keybind::Keybind,
 };
@@ -21,19 +24,26 @@ pub trait Component {
 macro_rules! impl_youtui_component {
     ($t:ty) => {
         impl crate::app::component::actionhandler::Component for $t {
-            type Bkend = ArcServer;
-            type Md = TaskMetadata;
+            type Bkend = crate::app::server::ArcServer;
+            type Md = crate::app::server::TaskMetadata;
         }
     };
 }
 
 /// Intended to encapsulate all possible effect types Youtui components can
 /// generate.
+#[must_use]
 pub struct YoutuiEffect<C: Component> {
     pub effect: ComponentEffect<C>,
     pub callback: Option<AppCallback>,
 }
 impl<C: Component> YoutuiEffect<C> {
+    pub fn new_no_op() -> Self {
+        YoutuiEffect {
+            effect: AsyncTask::new_no_op(),
+            callback: None,
+        }
+    }
     pub fn map<C2>(self, f: impl Fn(&mut C2) -> &mut C + Clone + Send + 'static) -> YoutuiEffect<C2>
     where
         C2: Component<Bkend = C::Bkend, Md = C::Md>,
@@ -67,7 +77,6 @@ impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)> for YoutuiEff
 
 /// An action that can be applied to state.
 pub trait Action {
-    type State: Component;
     fn context(&self) -> Cow<str>;
     fn describe(&self) -> Cow<str>;
 }
@@ -75,22 +84,24 @@ pub trait Action {
 /// A component that can handle actions.
 pub trait ActionHandler<A: Action>: Component + Sized {
     // TODO: Move to possibility of generating top-level callbacks as well...
-    async fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
-    /// Apply an action that can be mapped to Self.
-    async fn apply_action_mapped<B, C, F>(&mut self, action: B, f: F) -> YoutuiEffect<Self>
-    where
-        B: Action,
-        C: Component<Bkend = Self::Bkend, Md = Self::Md> + ActionHandler<B> + 'static,
-        F: Fn(&mut Self) -> &mut C + Send + Clone + 'static,
-        Self::Bkend: 'static,
-        Self::Md: 'static,
-    {
-        f(self)
-            .apply_action(action)
-            .await
-            .into()
-            .map(move |this: &mut Self| f(this))
-    }
+    fn apply_action(&mut self, action: A) -> impl Into<YoutuiEffect<Self>>;
+}
+/// Apply an action that returns an effect that can be mapped to root.
+/// Avoids the need to specify both the location and type of the sub-component.
+pub fn apply_action_mapped<R, B, C, F>(root: &mut R, action: B, f: F) -> YoutuiEffect<R>
+where
+    B: Action,
+    R: Component,
+    R::Bkend: 'static,
+    R::Md: 'static,
+    C: Component<Bkend = R::Bkend, Md = R::Md>,
+    C: ActionHandler<B> + 'static,
+    F: Fn(&mut R) -> &mut C + Send + Clone + 'static,
+{
+    f(root)
+        .apply_action(action)
+        .into()
+        .map(move |this: &mut R| f(this))
 }
 
 /// A struct that is able to be "scrolled".
@@ -99,7 +110,23 @@ pub trait Scrollable {
     fn increment_list(&mut self, amount: isize);
     /// Check if the Scrollable actually is scrollable right now, some other
     /// part of it may be selected.
+    /// Implementer should be careful implementing this correctly - upstream
+    /// caller may assume your component is a scrollable list and override your
+    /// keybinds (don't ask me how I know this)...
     fn is_scrollable(&self) -> bool;
+}
+/// Helper trait
+pub trait DelegateScrollable {
+    fn delegate_mut(&mut self) -> &mut dyn Scrollable;
+    fn delegate_ref(&self) -> &dyn Scrollable;
+}
+impl<T: DelegateScrollable> Scrollable for T {
+    fn increment_list(&mut self, amount: isize) {
+        self.delegate_mut().increment_list(amount);
+    }
+    fn is_scrollable(&self) -> bool {
+        self.delegate_ref().is_scrollable()
+    }
 }
 
 /// A component of the application that has different keybinds depending on what
@@ -114,10 +141,13 @@ pub trait Scrollable {
 pub trait KeyRouter<A: Action + 'static> {
     /// Get the list of active keybinds that the component and its route
     /// contain.
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
     /// Get the list of keybinds that the component and any child items can
     /// contain, regardless of current route.
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_all_keybinds<'a>(&self, config: &'a Config) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
 }
 
 /// A component of the application that can block parent keybinds.
@@ -126,7 +156,10 @@ pub trait KeyRouter<A: Action + 'static> {
 pub trait DominantKeyRouter<A: Action + 'static> {
     /// Return true if dominant keybinds are active.
     fn dominant_keybinds_active(&self) -> bool;
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<A>>;
+    fn get_dominant_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<A>> + 'a;
 }
 
 /// Get the list of all keybinds that the KeyHandler and any child items can
@@ -179,6 +212,7 @@ pub trait TextHandler: Component {
         self.handle_text_event_impl(event)
     }
 }
+
 // A text handler that can receive suggestions
 // TODO: Seperate library and binary APIs
 pub trait Suggestable: TextHandler {
@@ -186,6 +220,7 @@ pub trait Suggestable: TextHandler {
     fn has_search_suggestions(&self) -> bool;
 }
 
+#[allow(dead_code)]
 pub trait MouseHandler {
     /// Not implemented yet!
     fn handle_mouse_event(&mut self, _mouse_event: MouseEvent) {
@@ -282,7 +317,6 @@ mod tests {
         fn describe(&self) -> std::borrow::Cow<str> {
             todo!()
         }
-        type State = ();
     }
     fn test_keymap() -> Keymap<TestAction> {
         [

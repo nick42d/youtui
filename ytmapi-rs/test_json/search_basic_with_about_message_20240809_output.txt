@@ -468,7 +468,12 @@ SearchResults {
             title: "While My Guitar Gently Weeps",
             artist: "The Beatles",
             album: Some(
-                "Love",
+                ParsedSongAlbum {
+                    name: "Love",
+                    id: AlbumID(
+                        "MPREb_QXijY09EdMj",
+                    ),
+                },
             ),
             duration: "3:47",
             plays: "79M plays",
@@ -493,7 +498,12 @@ SearchResults {
             title: "Help! (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Help!",
+                ParsedSongAlbum {
+                    name: "Help!",
+                    id: AlbumID(
+                        "MPREb_Cn67yAcHym7",
+                    ),
+                },
             ),
             duration: "2:20",
             plays: "196M plays",
@@ -518,7 +528,12 @@ SearchResults {
             title: "The Long And Winding Road (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Let It Be",
+                ParsedSongAlbum {
+                    name: "Let It Be",
+                    id: AlbumID(
+                        "MPREb_Z7UaZFpBuZe",
+                    ),
+                },
             ),
             duration: "3:39",
             plays: "31M plays",

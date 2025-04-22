@@ -13,7 +13,6 @@ use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::ListSong;
-use tokio::sync::mpsc;
 use tracing::{error, info};
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
@@ -44,7 +43,6 @@ pub struct Youtui {
     window_state: YoutuiWindow,
     task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
-    callback_rx: mpsc::Receiver<AppCallback>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
 }
 
@@ -95,7 +93,6 @@ impl Youtui {
             }
         }));
         // Setup components
-        let (callback_tx, callback_rx) = mpsc::channel(CALLBACK_CHANNEL_SIZE);
         let mut task_manager = async_callback_manager::AsyncCallbackManager::new()
             .with_on_task_spawn_callback(|task| {
                 info!(
@@ -107,7 +104,7 @@ impl Youtui {
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
-        let (window_state, effect) = YoutuiWindow::new(callback_tx, &config);
+        let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
         task_manager.spawn_task(&server, effect);
@@ -117,7 +114,6 @@ impl Youtui {
             window_state,
             task_manager,
             server,
-            callback_rx,
             terminal,
         })
     }
@@ -133,15 +129,12 @@ impl Youtui {
                         ui::draw::draw_app(f, &mut self.window_state);
                     })?;
                     // When running, the app is event based, and will block until one of the
-                    // following 3 message types is received.
+                    // following 2 message types is received.
                     tokio::select! {
                         // Get the next event from the event_handler and process it.
                         // TODO: Consider checking here if redraw is required.
                         Some(event) = self.event_handler.next() =>
                             self.handle_event(event).await,
-                        // Process any top-level callbacks in the queue.
-                        Some(callback) = self.callback_rx.recv() =>
-                            self.handle_callback(callback),
                         // Process the next manager event.
                         Some(outcome) = self.task_manager.get_next_response() =>
                             self.handle_effect(outcome),

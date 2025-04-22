@@ -1,13 +1,12 @@
-use super::get_adjusted_list_column;
-use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, DominantKeyRouter, Scrollable, TextHandler, YoutuiEffect,
-};
-use crate::app::server::{ArcServer, TaskMetadata};
-use crate::app::structures::{ListSong, SongListComponent};
+use crate::app::component::actionhandler::{ComponentEffect, Scrollable, TextHandler};
+use crate::app::structures::{ListSong, ListSongDisplayableField, SongListComponent};
 use crate::app::ui::action::AppAction;
-use crate::app::ui::browser::Browser;
+use crate::app::ui::browser::get_sort_keybinds;
+use crate::app::ui::browser::shared_components::{
+    get_adjusted_list_column, FilterManager, SortManager,
+};
 use crate::app::view::{
-    Filter, FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
+    FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
 };
 use crate::app::{
     component::actionhandler::{Action, KeyRouter},
@@ -17,9 +16,7 @@ use crate::app::{
 use crate::config::keymap::Keymap;
 use crate::config::Config;
 use anyhow::{bail, Result};
-use async_callback_manager::AsyncTask;
 use itertools::Either;
-use rat_text::text_input::{handle_events, TextInputState};
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -37,7 +34,6 @@ pub enum AlbumSongsInputRouting {
 #[derive(Clone)]
 pub struct AlbumSongsPanel {
     pub list: AlbumSongsList,
-    keybinds: Keymap<AppAction>,
     pub route: AlbumSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
@@ -46,29 +42,9 @@ pub struct AlbumSongsPanel {
 }
 impl_youtui_component!(AlbumSongsPanel);
 
-// TODO: refactor
-#[derive(Clone)]
-pub struct FilterManager {
-    filter_commands: Vec<TableFilterCommand>,
-    pub filter_text: TextInputState,
-    pub shown: bool,
-    keybinds: Keymap<AppAction>,
-}
-impl_youtui_component!(FilterManager);
-
-// TODO: refactor
-#[derive(Clone)]
-pub struct SortManager {
-    sort_commands: Vec<TableSortCommand>,
-    pub shown: bool,
-    pub cur: usize,
-    keybinds: Keymap<AppAction>,
-}
-impl_youtui_component!(SortManager);
-
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum BrowserSongsAction {
+pub enum BrowserArtistSongsAction {
     Filter,
     Sort,
     PlaySong,
@@ -79,171 +55,46 @@ pub enum BrowserSongsAction {
     AddAlbumToPlaylist,
 }
 
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum FilterAction {
-    Close,
-    ClearFilter,
-    Apply,
-}
-
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum SortAction {
-    Close,
-    ClearSort,
-    SortSelectedAsc,
-    SortSelectedDesc,
-}
-
-impl Action for FilterAction {
-    type State = Browser;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Filter".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            FilterAction::Close => "Close Filter",
-            FilterAction::Apply => "Apply filter",
-            FilterAction::ClearFilter => "Clear filter",
-        }
-        .into()
-    }
-}
-
-impl Action for SortAction {
-    type State = Browser;
-    fn context(&self) -> std::borrow::Cow<str> {
-        "Filter".into()
-    }
-    fn describe(&self) -> std::borrow::Cow<str> {
-        match self {
-            SortAction::Close => "Close sort",
-            SortAction::ClearSort => "Clear sort",
-            SortAction::SortSelectedAsc => "Sort ascending",
-            SortAction::SortSelectedDesc => "Sort descending",
-        }
-        .into()
-    }
-}
-
-impl Action for BrowserSongsAction {
-    type State = Browser;
+impl Action for BrowserArtistSongsAction {
     fn context(&self) -> std::borrow::Cow<str> {
         "Artist Songs Panel".into()
     }
     fn describe(&self) -> std::borrow::Cow<str> {
         match &self {
-            BrowserSongsAction::PlaySong => "Play song",
-            BrowserSongsAction::PlaySongs => "Play songs",
-            BrowserSongsAction::PlayAlbum => "Play album",
-            BrowserSongsAction::AddSongToPlaylist => "Add song to playlist",
-            BrowserSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            BrowserSongsAction::AddAlbumToPlaylist => "Add album to playlist",
-            BrowserSongsAction::Sort => "Sort",
-            BrowserSongsAction::Filter => "Filter",
+            BrowserArtistSongsAction::PlaySong => "Play song",
+            BrowserArtistSongsAction::PlaySongs => "Play songs",
+            BrowserArtistSongsAction::PlayAlbum => "Play album",
+            BrowserArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
+            BrowserArtistSongsAction::Sort => "Sort",
+            BrowserArtistSongsAction::Filter => "Filter",
         }
         .into()
     }
 }
-impl ActionHandler<FilterAction> for Browser {
-    async fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            FilterAction::Close => self.album_songs_list.toggle_filter(),
-            FilterAction::Apply => self.album_songs_list.apply_filter(),
-            FilterAction::ClearFilter => self.album_songs_list.clear_filter(),
-        };
-        AsyncTask::new_no_op()
-    }
-}
-impl ActionHandler<SortAction> for Browser {
-    async fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            SortAction::SortSelectedAsc => self.album_songs_list.handle_sort_cur_asc(),
-            SortAction::SortSelectedDesc => self.album_songs_list.handle_sort_cur_desc(),
-            SortAction::Close => self.album_songs_list.close_sort(),
-            SortAction::ClearSort => self.album_songs_list.handle_clear_sort(),
-        }
-        AsyncTask::new_no_op()
-    }
-}
-impl ActionHandler<BrowserSongsAction> for Browser {
-    async fn apply_action(&mut self, action: BrowserSongsAction) -> impl Into<YoutuiEffect<Self>> {
-        match action {
-            BrowserSongsAction::PlayAlbum => self.play_album().await,
-            BrowserSongsAction::PlaySong => self.play_song().await,
-            BrowserSongsAction::PlaySongs => self.play_songs().await,
-            BrowserSongsAction::AddAlbumToPlaylist => self.add_album_to_playlist().await,
-            BrowserSongsAction::AddSongToPlaylist => self.add_song_to_playlist().await,
-            BrowserSongsAction::AddSongsToPlaylist => self.add_songs_to_playlist().await,
-            BrowserSongsAction::Sort => self.album_songs_list.handle_pop_sort(),
-            BrowserSongsAction::Filter => self.album_songs_list.toggle_filter(),
-        }
-        AsyncTask::new_no_op()
-    }
-}
-impl SortManager {
-    fn new(config: &Config) -> Self {
-        Self {
-            sort_commands: Default::default(),
-            shown: Default::default(),
-            cur: Default::default(),
-            keybinds: sort_keybinds(config),
-        }
-    }
-}
-impl FilterManager {
-    fn new(config: &Config) -> Self {
-        Self {
-            filter_text: Default::default(),
-            filter_commands: Default::default(),
-            shown: Default::default(),
-            keybinds: filter_keybinds(config),
-        }
-    }
-}
-impl TextHandler for FilterManager {
-    fn is_text_handling(&self) -> bool {
-        true
-    }
-    fn get_text(&self) -> &str {
-        self.filter_text.text()
-    }
-    fn replace_text(&mut self, text: impl Into<String>) {
-        self.filter_text.set_text(text)
-    }
-    fn clear_text(&mut self) -> bool {
-        self.filter_text.clear()
-    }
-    fn handle_text_event_impl(
-        &mut self,
-        event: &crossterm::event::Event,
-    ) -> Option<ComponentEffect<Self>> {
-        match handle_events(&mut self.filter_text, true, event) {
-            rat_text::event::TextOutcome::Continue => None,
-            rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
-            rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
-            rat_text::event::TextOutcome::TextChanged => Some(AsyncTask::new_no_op()),
-        }
-    }
-}
-
 impl AlbumSongsPanel {
-    pub fn new(config: &Config) -> AlbumSongsPanel {
+    pub fn new() -> AlbumSongsPanel {
         AlbumSongsPanel {
-            keybinds: songs_keybinds(config),
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
-            sort: SortManager::new(config),
-            filter: FilterManager::new(config),
+            sort: SortManager::new(),
+            filter: FilterManager::new(),
             widget_state: Default::default(),
         }
     }
-    pub fn subcolumns_of_vec() -> &'static [usize] {
-        &[1, 3, 4, 5, 6]
+    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 5] {
+        [
+            ListSongDisplayableField::TrackNo,
+            ListSongDisplayableField::Album,
+            ListSongDisplayableField::Song,
+            ListSongDisplayableField::Duration,
+            ListSongDisplayableField::Year,
+        ]
     }
-    pub fn apply_sort_commands(&mut self) -> Result<()> {
+    /// Re-apply all sort commands in the stack in the order they were stored.
+    pub fn apply_all_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
             if !self.get_sortable_columns().contains(&c.column) {
                 bail!(format!("Unable to sort column {}", c.column,));
@@ -256,36 +107,19 @@ impl AlbumSongsPanel {
         Ok(())
     }
     pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        let mapped_filterable_cols: Vec<_> = self
-            .get_filterable_columns()
-            .iter()
-            .map(|c| Self::subcolumns_of_vec().get(*c))
-            .collect();
         Box::new(self.list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
-            self.get_filter_commands().iter().fold(true, |acc, e| {
-                let match_found = match e {
-                    TableFilterCommand::All(f) => {
-                        let mut filterable_cols_iter =
-                            ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                                if mapped_filterable_cols.contains(&Some(&i)) {
-                                    Some(f)
-                                } else {
-                                    None
-                                }
-                            });
-                        match f {
-                            Filter::Contains(s) => filterable_cols_iter.any(|item| s.is_in(item)),
-                            Filter::NotContains(_) => todo!(),
-                            Filter::Equal(_) => todo!(),
-                        }
-                    }
-                    TableFilterCommand::Column { .. } => todo!(),
-                };
-                // If we find a match for each filter, can display the row.
-                acc && match_found
-            })
+            self.get_filter_commands()
+                .iter()
+                .fold(true, |acc, command| {
+                    let match_found = command.matches_row(
+                        ls,
+                        Self::subcolumns_of_vec(),
+                        self.get_filterable_columns(),
+                    ); // If we find a match for each filter, can display the row.
+                    acc && match_found
+                })
         }))
     }
     pub fn apply_filter(&mut self) {
@@ -373,13 +207,11 @@ impl AlbumSongsPanel {
         self.list.state = ListStatus::InProgress;
     }
 }
-
 impl SongListComponent for AlbumSongsPanel {
     fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
         self.get_filtered_list_iter().nth(idx)
     }
 }
-
 impl TextHandler for AlbumSongsPanel {
     fn get_text(&self) -> &str {
         self.filter.get_text()
@@ -403,29 +235,25 @@ impl TextHandler for AlbumSongsPanel {
     }
 }
 
-impl DominantKeyRouter<AppAction> for AlbumSongsPanel {
-    fn dominant_keybinds_active(&self) -> bool {
-        self.sort.shown || self.filter.shown
-    }
-
-    fn get_dominant_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
-    }
-}
-
 impl KeyRouter<AppAction> for AlbumSongsPanel {
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        [&self.keybinds, &self.sort.keybinds].into_iter()
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.browser_artist_songs)
     }
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
             AlbumSongsInputRouting::List => {
-                Either::Left(Either::Left(std::iter::once(&self.keybinds)))
+                Either::Left(std::iter::once(&config.keybinds.browser_artist_songs))
             }
-            AlbumSongsInputRouting::Sort => {
-                Either::Left(Either::Right(std::iter::once(&self.sort.keybinds)))
+            AlbumSongsInputRouting::Filter => {
+                Either::Left(std::iter::once(&config.keybinds.filter))
             }
-            AlbumSongsInputRouting::Filter => Either::Right(std::iter::once(&self.filter.keybinds)),
+            AlbumSongsInputRouting::Sort => Either::Right(get_sort_keybinds(config)),
         }
     }
 }
@@ -488,27 +316,18 @@ impl TableView for AlbumSongsPanel {
             BasicConstraint::Length(5),
         ]
     }
-
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = crate::app::view::TableItem> + '_> {
-        let b = self.list.get_list_iter().map(|ls| {
-            let song_iter = ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if Self::subcolumns_of_vec().contains(&i) {
-                    Some(f)
-                } else {
-                    None
-                }
-            });
-            // XXX: Seems to be a double allocation here - may be able to use dereferences
-            // to address.
-            Box::new(song_iter) as Box<dyn Iterator<Item = Cow<'_, str>>>
-        });
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+        let b = self
+            .list
+            .get_list_iter()
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
         Box::new(b)
     }
-
     fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
-
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
@@ -542,17 +361,14 @@ impl SortableTableView for AlbumSongsPanel {
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
     }
-    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = crate::app::view::TableItem> + '_> {
+    fn get_filtered_items(
+        &self,
+    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
         // We are doing a lot here every draw cycle!
-        Box::new(self.get_filtered_list_iter().map(|ls| {
-            Box::new(ls.get_fields_iter().enumerate().filter_map(|(i, f)| {
-                if Self::subcolumns_of_vec().contains(&i) {
-                    Some(f)
-                } else {
-                    None
-                }
-            })) as Box<dyn Iterator<Item = Cow<str>>>
-        }))
+        Box::new(
+            self.get_filtered_list_iter()
+                .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
+        )
     }
     fn get_filterable_columns(&self) -> &[usize] {
         &[1, 2, 4]
@@ -566,18 +382,10 @@ impl SortableTableView for AlbumSongsPanel {
     fn clear_filter_commands(&mut self) {
         self.filter.filter_commands.clear()
     }
-}
-
-fn sort_keybinds(config: &Config) -> Keymap<AppAction> {
-    let mut kb = config.keybinds.sort.clone();
-    kb.extend(config.keybinds.list.clone());
-    kb
-}
-
-fn filter_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.filter.clone()
-}
-
-pub fn songs_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.browser_songs.clone()
+    fn get_sort_popup_cur(&self) -> usize {
+        self.sort.cur
+    }
+    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
+        self.sort.state.clone()
+    }
 }

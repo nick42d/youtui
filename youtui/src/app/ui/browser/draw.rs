@@ -1,9 +1,12 @@
-use super::artistalbums::albumsongs::{AlbumSongsInputRouting, AlbumSongsPanel};
-use super::artistalbums::artistsearch::ArtistInputRouting;
-use super::{Browser, InputRouting};
+use super::artistsearch::search_panel::ArtistInputRouting;
+use super::artistsearch::songs_panel::AlbumSongsInputRouting;
+use super::artistsearch::{self, ArtistSearchBrowser};
+use super::shared_components::SearchBlock;
+use super::songsearch::SongSearchBrowser;
+use super::Browser;
 use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
-use crate::app::view::{SortableTableView, TableView};
+use crate::app::view::SortableTableView;
 use crate::drawutils::{
     below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
@@ -22,6 +25,21 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 const MIN_POPUP_WIDTH: usize = 20;
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
+    match browser.variant {
+        super::BrowserVariant::ArtistSearch => {
+            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected)
+        }
+        super::BrowserVariant::SongSearch => {
+            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
+        }
+    }
+}
+pub fn draw_artist_search_browser(
+    f: &mut Frame,
+    browser: &mut ArtistSearchBrowser,
+    chunk: Rect,
+    selected: bool,
+) {
     let layout = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],
@@ -29,44 +47,83 @@ pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected:
     .split(chunk);
     // Potentially could handle this better.
     let albumsongsselected = selected
-        && browser.input_routing == InputRouting::Song
-        && browser.album_songs_list.route == AlbumSongsInputRouting::List;
+        && browser.input_routing == artistsearch::InputRouting::Song
+        && browser.album_songs_panel.route == AlbumSongsInputRouting::List;
     let artistselected = !albumsongsselected
         && selected
-        && browser.input_routing == InputRouting::Artist
-        && browser.artist_list.route == ArtistInputRouting::List;
+        && browser.input_routing == artistsearch::InputRouting::Artist
+        && browser.artist_search_panel.route == ArtistInputRouting::List;
 
-    if !browser.artist_list.search_popped {
-        browser.artist_list.widget_state =
-            draw_list(f, &browser.artist_list, layout[0], artistselected);
+    if !browser.artist_search_panel.search_popped {
+        browser.artist_search_panel.widget_state =
+            draw_list(f, &browser.artist_search_panel, layout[0], artistselected);
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(layout[0]);
-        browser.artist_list.widget_state = draw_list(f, &browser.artist_list, s[1], artistselected);
-        draw_search_box(f, browser, s[0]);
+        browser.artist_search_panel.widget_state =
+            draw_list(f, &browser.artist_search_panel, s[1], artistselected);
+        draw_search_box(
+            f,
+            "Search Artists",
+            &mut browser.artist_search_panel.search,
+            s[0],
+        );
         // Should this be part of draw_search_box
-        if browser.has_search_suggestions() {
-            draw_search_suggestions(f, browser, s[0], layout[0])
+        if browser.artist_search_panel.has_search_suggestions() {
+            draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
         }
     }
-    browser.album_songs_list.widget_state =
-        draw_sortable_table(f, &browser.album_songs_list, layout[1], albumsongsselected);
-    if browser.album_songs_list.sort.shown {
-        draw_sort_popup(f, &browser.album_songs_list, layout[1]);
+    browser.album_songs_panel.widget_state =
+        draw_sortable_table(f, &browser.album_songs_panel, layout[1], albumsongsselected);
+    if browser.album_songs_panel.sort.shown {
+        browser.album_songs_panel.sort.state =
+            draw_sort_popup(f, &browser.album_songs_panel, layout[1]);
     }
-    if browser.album_songs_list.filter.shown {
-        draw_filter_popup(f, &mut browser.album_songs_list, layout[1]);
+    if browser.album_songs_panel.filter.shown {
+        draw_filter_popup(
+            f,
+            &mut browser.album_songs_panel.filter.filter_text,
+            layout[1],
+        );
+    }
+}
+pub fn draw_song_search_browser(
+    f: &mut Frame,
+    browser: &mut SongSearchBrowser,
+    chunk: Rect,
+    selected: bool,
+) {
+    if !browser.search_popped {
+        browser.widget_state = draw_sortable_table(f, browser, chunk, selected);
+    } else {
+        let s = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints([Constraint::Length(3), Constraint::Min(0)])
+            .split(chunk);
+        browser.widget_state = draw_sortable_table(f, browser, s[1], false);
+        draw_search_box(f, "Search Songs", &mut browser.search, s[0]);
+        // Should this be part of draw_search_box
+        if browser.has_search_suggestions() {
+            draw_search_suggestions(f, &browser.search, s[0], chunk)
+        }
+    }
+    if browser.sort.shown {
+        browser.sort.state = draw_sort_popup(f, browser, chunk);
+    }
+    if browser.filter.shown {
+        draw_filter_popup(f, &mut browser.filter.filter_text, chunk);
     }
 }
 
-// TODO: Generalize
-fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Rect) {
+/// Returns a new ListState for the sort popup.
+fn draw_sort_popup(f: &mut Frame, table: &impl SortableTableView, chunk: Rect) -> ListState {
     let title = "Sort";
-    let sortable_columns = album_songs_panel.get_sortable_columns();
-    let headers: Vec<_> = album_songs_panel
+    let sortable_columns = table.get_sortable_columns();
+    let headers: Vec<_> = table
         .get_headings()
         .enumerate()
         .filter_map(|(i, h)| {
@@ -86,7 +143,9 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
     // TODO: Save the state.
-    let mut state = ListState::default().with_selected(Some(album_songs_panel.sort.cur));
+    let mut state = table
+        .get_sort_popup_state()
+        .with_selected(Some(table.get_sort_popup_cur()));
     let list = List::new(headers)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .block(
@@ -97,19 +156,15 @@ fn draw_sort_popup(f: &mut Frame, album_songs_panel: &AlbumSongsPanel, chunk: Re
         );
     f.render_widget(Clear, popup_chunk);
     f.render_stateful_widget(list, popup_chunk, &mut state);
+    state
 }
 
-fn draw_filter_popup(f: &mut Frame, album_songs_panel: &mut AlbumSongsPanel, chunk: Rect) {
+fn draw_filter_popup(f: &mut Frame, state: &mut TextInputState, chunk: Rect) {
     let title = "Filter";
     // Hardocde dimensions of filter input.
     let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
     f.render_widget(Clear, popup_chunk);
-    draw_text_box(
-        f,
-        title,
-        &mut album_songs_panel.filter.filter_text,
-        popup_chunk,
-    );
+    draw_text_box(f, title, state, popup_chunk);
 }
 
 /// Draw a text input box
@@ -139,17 +194,12 @@ fn draw_text_box(
         f.set_cursor_position(cursor_pos)
     };
 }
-fn draw_search_box(f: &mut Frame, browser: &mut Browser, chunk: Rect) {
-    draw_text_box(
-        f,
-        "Search",
-        &mut browser.artist_list.search.search_contents,
-        chunk,
-    );
+fn draw_search_box(f: &mut Frame, title: impl AsRef<str>, search: &mut SearchBlock, chunk: Rect) {
+    draw_text_box(f, title, &mut search.search_contents, chunk);
 }
 
-fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bounds: Rect) {
-    let suggestions = browser.get_search_suggestions();
+fn draw_search_suggestions(f: &mut Frame, search: &SearchBlock, chunk: Rect, max_bounds: Rect) {
+    let suggestions = search.get_search_suggestions();
     let height = suggestions.len() + 1;
     let divider_chunk = bottom_of_rect(chunk);
     let suggestion_chunk = below_left_rect(
@@ -162,8 +212,7 @@ fn draw_search_suggestions(f: &mut Frame, browser: &Browser, chunk: Rect, max_bo
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(1), Constraint::Min(0)])
         .split(suggestion_chunk);
-    let mut list_state =
-        ListState::default().with_selected(browser.artist_list.search.suggestions_cur);
+    let mut list_state = ListState::default().with_selected(search.suggestions_cur);
     let list: Vec<_> = suggestions
         .iter()
         .map(|s| {

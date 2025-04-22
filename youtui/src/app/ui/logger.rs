@@ -1,10 +1,8 @@
 use crate::app::component::actionhandler::{ActionHandler, YoutuiEffect};
 use crate::config::keymap::Keymap;
-use crate::core::send_or_error;
 use crate::{
     app::{
         component::actionhandler::{Action, ComponentEffect, KeyRouter, TextHandler},
-        server::{ArcServer, TaskMetadata},
         ui::AppCallback,
         view::Drawable,
     },
@@ -15,7 +13,6 @@ use draw::draw_logger;
 use ratatui::{prelude::Rect, Frame};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use tokio::sync::mpsc::Sender;
 use tui_logger::TuiWidgetEvent;
 
 use super::action::AppAction;
@@ -38,7 +35,6 @@ pub enum LoggerAction {
     ViewBrowser,
 }
 impl Action for LoggerAction {
-    type State = Logger;
     fn context(&self) -> Cow<str> {
         "Logger".into()
     }
@@ -62,13 +58,11 @@ impl Action for LoggerAction {
 }
 pub struct Logger {
     logger_state: tui_logger::TuiWidgetState,
-    ui_tx: Sender<AppCallback>,
-    keybinds: Keymap<AppAction>,
 }
 impl_youtui_component!(Logger);
 
 impl ActionHandler<LoggerAction> for Logger {
-    async fn apply_action(&mut self, action: LoggerAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: LoggerAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             LoggerAction::ToggleTargetSelector => self.handle_toggle_target_selector(),
             LoggerAction::ToggleTargetFocus => self.handle_toggle_target_focus(),
@@ -82,9 +76,9 @@ impl ActionHandler<LoggerAction> for Logger {
             LoggerAction::ReduceCaptured => self.handle_reduce_captured(),
             LoggerAction::IncreaseCaptured => self.handle_increase_captured(),
             LoggerAction::ExitPageMode => self.handle_exit_page_mode(),
-            LoggerAction::ViewBrowser => self.handle_view_browser().await,
+            LoggerAction::ViewBrowser => return self.handle_view_browser(),
         }
-        AsyncTask::new_no_op()
+        AsyncTask::new_no_op().into()
     }
 }
 impl Drawable for Logger {
@@ -94,11 +88,17 @@ impl Drawable for Logger {
 }
 
 impl KeyRouter<AppAction> for Logger {
-    fn get_active_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        std::iter::once(&self.keybinds)
+    fn get_active_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        std::iter::once(&config.keybinds.log)
     }
-    fn get_all_keybinds(&self) -> impl Iterator<Item = &Keymap<AppAction>> {
-        self.get_active_keybinds()
+    fn get_all_keybinds<'a>(
+        &self,
+        config: &'a Config,
+    ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
+        self.get_active_keybinds(config)
     }
 }
 
@@ -122,19 +122,17 @@ impl TextHandler for Logger {
 }
 
 impl Logger {
-    pub fn new(ui_tx: Sender<AppCallback>, config: &Config) -> Self {
+    pub fn new() -> Self {
         Self {
-            ui_tx,
             logger_state: tui_logger::TuiWidgetState::default(),
-            keybinds: logger_keybinds(config),
         }
     }
-    async fn handle_view_browser(&mut self) {
-        send_or_error(
-            &self.ui_tx,
-            AppCallback::ChangeContext(super::WindowContext::Browser),
+    fn handle_view_browser(&mut self) -> YoutuiEffect<Self> {
+        (
+            AsyncTask::new_no_op(),
+            Some(AppCallback::ChangeContext(super::WindowContext::Browser)),
         )
-        .await;
+            .into()
     }
     fn handle_toggle_hide_filtered(&mut self) {
         self.logger_state.transition(TuiWidgetEvent::SpaceKey);
@@ -172,10 +170,6 @@ impl Logger {
     fn handle_toggle_target_selector(&mut self) {
         self.logger_state.transition(TuiWidgetEvent::HideKey);
     }
-}
-
-fn logger_keybinds(config: &Config) -> Keymap<AppAction> {
-    config.keybinds.log.clone()
 }
 
 pub mod draw {

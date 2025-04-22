@@ -1,14 +1,13 @@
 use super::{
     browser::{
-        artistalbums::{
-            albumsongs::{BrowserSongsAction, FilterAction, SortAction},
-            artistsearch::{BrowserArtistsAction, BrowserSearchAction},
-        },
+        artistsearch::{search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction},
+        shared_components::{BrowserSearchAction, FilterAction, SortAction},
+        songsearch::BrowserSongsAction,
         BrowserAction,
     },
     logger::LoggerAction,
     playlist::PlaylistAction,
-    HelpMenu, YoutuiWindow,
+    HelpMenu,
 };
 use crate::app::component::actionhandler::{Action, ActionHandler, YoutuiEffect};
 use anyhow::bail;
@@ -44,6 +43,7 @@ pub enum AppAction {
     Help(HelpAction),
     BrowserArtists(BrowserArtistsAction),
     BrowserSearch(BrowserSearchAction),
+    BrowserArtistSongs(BrowserArtistSongsAction),
     BrowserSongs(BrowserSongsAction),
     Log(LoggerAction),
     Playlist(PlaylistAction),
@@ -76,7 +76,6 @@ pub enum TextEntryAction {
 }
 
 impl Action for TextEntryAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         "Global".into()
     }
@@ -90,7 +89,6 @@ impl Action for TextEntryAction {
     }
 }
 impl Action for ListAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         "Global".into()
     }
@@ -105,7 +103,6 @@ impl Action for ListAction {
 }
 
 impl Action for AppAction {
-    type State = YoutuiWindow;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             AppAction::VolUp
@@ -127,9 +124,10 @@ impl Action for AppAction {
             AppAction::Help(a) => a.context(),
             AppAction::BrowserArtists(a) => a.context(),
             AppAction::BrowserSearch(a) => a.context(),
-            AppAction::BrowserSongs(a) => a.context(),
+            AppAction::BrowserArtistSongs(a) => a.context(),
             AppAction::TextEntry(a) => a.context(),
             AppAction::List(a) => a.context(),
+            AppAction::BrowserSongs(a) => a.context(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<str> {
@@ -153,9 +151,10 @@ impl Action for AppAction {
             AppAction::Help(a) => a.describe(),
             AppAction::BrowserArtists(a) => a.describe(),
             AppAction::BrowserSearch(a) => a.describe(),
-            AppAction::BrowserSongs(a) => a.describe(),
+            AppAction::BrowserArtistSongs(a) => a.describe(),
             AppAction::TextEntry(a) => a.describe(),
             AppAction::List(a) => a.describe(),
+            AppAction::BrowserSongs(a) => a.describe(),
         }
     }
 }
@@ -192,7 +191,6 @@ impl TryFrom<String> for AppAction {
 }
 
 impl Action for HelpAction {
-    type State = HelpMenu;
     fn context(&self) -> std::borrow::Cow<str> {
         match self {
             HelpAction::Close => "Help".into(),
@@ -205,7 +203,7 @@ impl Action for HelpAction {
     }
 }
 impl ActionHandler<HelpAction> for HelpMenu {
-    async fn apply_action(&mut self, action: HelpAction) -> impl Into<YoutuiEffect<Self>> {
+    fn apply_action(&mut self, action: HelpAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             HelpAction::Close => self.shown = false,
         }

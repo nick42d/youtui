@@ -1,14 +1,39 @@
 use super::server::downloader::InMemSong;
-use super::view::{SortDirection, TableItem};
+use super::view::SortDirection;
+use itertools::Itertools;
 use std::borrow::Cow;
+use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::AlbumID;
-use ytmapi_rs::parse::AlbumSong;
+use ytmapi_rs::common::{Explicit, Thumbnail, VideoID};
+use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultSong};
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum MaybeRc<T> {
+    Rc(Rc<T>),
+    Owned(T),
+}
+impl<T> Deref for MaybeRc<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        match self {
+            MaybeRc::Rc(rc) => rc.deref(),
+            MaybeRc::Owned(t) => t,
+        }
+    }
+}
+impl<T> AsRef<T> for MaybeRc<T> {
+    fn as_ref(&self) -> &T {
+        match self {
+            MaybeRc::Rc(rc) => rc,
+            MaybeRc::Owned(t) => t,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -28,15 +53,33 @@ pub struct Percentage(pub u8);
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ListSong {
-    pub raw: AlbumSong,
+    pub video_id: VideoID<'static>,
+    pub track_no: Option<usize>,
+    pub plays: String,
+    pub title: String,
+    pub explicit: Explicit,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
+    pub duration_string: String,
     pub actual_duration: Option<Duration>,
-    pub year: Rc<String>,
-    pub artists: Vec<Rc<String>>,
-    pub album: Rc<String>,
-    pub album_id: Rc<AlbumID<'static>>,
+    pub year: Option<Rc<String>>,
+    pub artists: MaybeRc<Vec<ParsedSongArtist>>,
+    pub thumbnails: MaybeRc<Vec<Thumbnail>>,
+    pub album: Option<MaybeRc<ParsedSongAlbum>>,
 }
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum ListSongDisplayableField {
+    DownloadStatus,
+    TrackNo,
+    Artists,
+    Album,
+    Song,
+    Duration,
+    Year,
+    Plays,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum ListStatus {
     New,
@@ -94,13 +137,20 @@ impl DownloadStatus {
 }
 
 impl ListSong {
-    pub fn get_track_no(&self) -> usize {
-        self.raw.track_no
+    pub fn get_track_no(&self) -> Option<usize> {
+        self.track_no
     }
-    pub fn get_fields_iter(&self) -> TableItem {
-        Box::new(
-            [
-                // Type annotation to help rust compiler
+    pub fn get_fields<const N: usize>(
+        &self,
+        fields: [ListSongDisplayableField; N],
+    ) -> [Cow<'_, str>; N] {
+        fields.map(|field| self.get_field(field))
+    }
+    pub fn get_field(&self, field: ListSongDisplayableField) -> Cow<'_, str> {
+        match field {
+            ListSongDisplayableField::DownloadStatus =>
+            // Type annotation to help rust compiler
+            {
                 Cow::from(match self.download_status {
                     DownloadStatus::Downloading(p) => {
                         format!("{}[{}]%", self.download_status.list_icon(), p.0)
@@ -109,22 +159,38 @@ impl ListSong {
                         format!("{}[x{}]", self.download_status.list_icon(), times_retried)
                     }
                     _ => self.download_status.list_icon().to_string(),
-                }),
-                self.get_track_no().to_string().into(),
-                // TODO: Remove allocation
+                })
+            }
+            ListSongDisplayableField::TrackNo => self
+                .get_track_no()
+                .map(|track_no| track_no.to_string())
+                .unwrap_or_default()
+                .into(),
+            ListSongDisplayableField::Artists => Itertools::intersperse(
                 self.artists
-                    .first()
-                    .map(|a| a.to_string())
-                    .unwrap_or_default()
-                    .into(),
-                self.album.as_ref().into(),
-                (&self.raw.title).into(),
-                // TODO: Remove allocation
-                (&self.raw.duration).into(),
-                self.year.as_ref().into(),
-            ]
-            .into_iter(),
-        )
+                    .as_ref()
+                    .iter()
+                    .map(|artist| artist.name.as_str()),
+                ", ",
+            )
+            .collect::<String>()
+            .into(),
+            ListSongDisplayableField::Album => self
+                .album
+                .as_ref()
+                .map(|album| album.as_ref().name.as_str())
+                .unwrap_or_default()
+                .into(),
+            ListSongDisplayableField::Year => self
+                .year
+                .as_ref()
+                .map(|year| year.as_str())
+                .unwrap_or_default()
+                .into(),
+            ListSongDisplayableField::Song => self.title.as_str().into(),
+            ListSongDisplayableField::Duration => self.duration_string.as_str().into(),
+            ListSongDisplayableField::Plays => self.plays.as_str().into(),
+        }
     }
 }
 
@@ -145,17 +211,15 @@ impl AlbumSongsList {
     pub fn get_list_iter_mut(&mut self) -> std::slice::IterMut<ListSong> {
         self.list.iter_mut()
     }
-    pub fn sort(&mut self, column: usize, direction: SortDirection) {
+    pub fn sort(&mut self, field: ListSongDisplayableField, direction: SortDirection) {
         self.list.sort_by(|a, b| match direction {
             SortDirection::Asc => a
-                .get_fields_iter()
-                .nth(column)
-                .partial_cmp(&b.get_fields_iter().nth(column))
+                .get_field(field)
+                .partial_cmp(&b.get_field(field))
                 .unwrap_or(std::cmp::Ordering::Equal),
             SortDirection::Desc => b
-                .get_fields_iter()
-                .nth(column)
-                .partial_cmp(&a.get_fields_iter().nth(column))
+                .get_field(field)
+                .partial_cmp(&a.get_field(field))
                 .unwrap_or(std::cmp::Ordering::Equal),
         });
     }
@@ -165,49 +229,102 @@ impl AlbumSongsList {
         self.list.clear();
     }
     // Naive implementation
-    pub fn append_raw_songs(
+    pub fn append_raw_album_songs(
         &mut self,
         raw_list: Vec<AlbumSong>,
-        album: String,
-        album_id: AlbumID<'static>,
+        album: ParsedSongAlbum,
         year: String,
-        artist: String,
+        artists: Vec<ParsedSongArtist>,
+        thumbnails: Vec<Thumbnail>,
     ) {
         // The album is shared by all the songs.
         // So no need to clone/allocate for eache one.
         // Instead we'll share ownership via Rc.
         let album = Rc::new(album);
-        let album_id = Rc::new(album_id);
         let year = Rc::new(year);
-        let artist = Rc::new(artist);
+        let artists = Rc::new(artists);
+        let thumbnails = Rc::new(thumbnails);
         for song in raw_list {
-            self.add_raw_song(
+            self.add_raw_album_song(
                 song,
                 album.clone(),
-                album_id.clone(),
                 year.clone(),
-                artist.clone(),
+                artists.clone(),
+                thumbnails.clone(),
             );
         }
     }
-    pub fn add_raw_song(
+    // Naive implementation
+    pub fn append_raw_search_result_songs(&mut self, raw_list: Vec<SearchResultSong>) {
+        for song in raw_list {
+            self.add_raw_search_result_song(song);
+        }
+    }
+    pub fn add_raw_album_song(
         &mut self,
         song: AlbumSong,
-        album: Rc<String>,
-        album_id: Rc<AlbumID<'static>>,
+        album: Rc<ParsedSongAlbum>,
         year: Rc<String>,
-        artist: Rc<String>,
+        artists: Rc<Vec<ParsedSongArtist>>,
+        thumbnails: Rc<Vec<Thumbnail>>,
     ) -> ListSongID {
         let id = self.create_next_id();
+        let AlbumSong {
+            video_id,
+            track_no,
+            duration,
+            plays,
+            title,
+            explicit,
+            ..
+        } = song;
         self.list.push(ListSong {
-            raw: song,
             download_status: DownloadStatus::None,
             id,
-            year,
-            artists: vec![artist],
-            album,
-            album_id,
+            year: Some(year),
+            artists: MaybeRc::Rc(artists),
+            album: Some(MaybeRc::Rc(album)),
             actual_duration: None,
+            video_id,
+            track_no: Some(track_no),
+            plays,
+            title,
+            explicit,
+            duration_string: duration,
+            thumbnails: MaybeRc::Rc(thumbnails),
+        });
+        id
+    }
+    pub fn add_raw_search_result_song(&mut self, song: SearchResultSong) -> ListSongID {
+        let id = self.create_next_id();
+        let SearchResultSong {
+            title,
+            artist,
+            album,
+            duration,
+            plays,
+            explicit,
+            video_id,
+            thumbnails,
+            ..
+        } = song;
+        self.list.push(ListSong {
+            download_status: DownloadStatus::None,
+            id,
+            year: None,
+            artists: MaybeRc::Owned(vec![ParsedSongArtist {
+                name: artist,
+                id: None,
+            }]),
+            album: album.map(MaybeRc::Owned),
+            actual_duration: None,
+            video_id,
+            track_no: None,
+            plays,
+            title,
+            explicit,
+            duration_string: duration,
+            thumbnails: MaybeRc::Owned(thumbnails),
         });
         id
     }

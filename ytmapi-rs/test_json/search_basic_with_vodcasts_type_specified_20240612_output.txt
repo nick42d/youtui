@@ -472,7 +472,12 @@ SearchResults {
             title: "Blackbird (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "The Beatles",
+                ParsedSongAlbum {
+                    name: "The Beatles",
+                    id: AlbumID(
+                        "MPREb_S5TiUIYvI78",
+                    ),
+                },
             ),
             duration: "2:19",
             plays: "62M\u{a0}plays",
@@ -497,7 +502,12 @@ SearchResults {
             title: "The Long And Winding Road (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Let It Be",
+                ParsedSongAlbum {
+                    name: "Let It Be",
+                    id: AlbumID(
+                        "MPREb_Z7UaZFpBuZe",
+                    ),
+                },
             ),
             duration: "3:39",
             plays: "30M\u{a0}plays",
@@ -522,7 +532,12 @@ SearchResults {
             title: "Let It Be (Remastered 2009)",
             artist: "The Beatles",
             album: Some(
-                "Let It Be",
+                ParsedSongAlbum {
+                    name: "Let It Be",
+                    id: AlbumID(
+                        "MPREb_Z7UaZFpBuZe",
+                    ),
+                },
             ),
             duration: "4:04",
             plays: "273M\u{a0}plays",

@@ -4,6 +4,7 @@ use crate::{
     app::structures::PlayState,
     drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR},
 };
+use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     prelude::Alignment,
@@ -43,7 +44,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             duration = w
                 .playlist
                 .get_song_from_id(*id)
-                .map(|s| &s.raw.duration)
+                .map(|s| &s.duration_string)
                 .map(parse_simple_time_to_secs)
                 .unwrap_or(0);
             progress = w.playlist.cur_played_dur.unwrap_or_default();
@@ -61,7 +62,7 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            .map(|s| s.raw.title.to_owned())
+            .map(|s| s.title.to_owned())
             .unwrap_or("No title".to_string()),
         PlayState::NotPlaying => "Not playing".to_string(),
         PlayState::Stopped => "Not playing".to_string(),
@@ -73,10 +74,11 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            .map(|s| s.album.as_ref().to_owned())
-            .unwrap_or("".to_string()),
-        PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped => "".to_string(),
+            .and_then(|s| s.album.as_ref())
+            .map(|s| s.name.as_str())
+            .unwrap_or_default(),
+        PlayState::NotPlaying => "",
+        PlayState::Stopped => "",
     };
     let artist_title = match w.playlist.play_status {
         PlayState::Error(id)
@@ -85,14 +87,9 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         | PlayState::Buffering(id) => w
             .playlist
             .get_song_from_id(id)
-            // TODO: tidy this up as ListSong only contains one artist currently.
-            // TODO: Remove allocation
+            .map(|s| s.artists.as_ref())
             .map(|s| {
-                s.artists
-                    .clone()
-                    .first()
-                    .map(|a| a.to_string())
-                    .unwrap_or_default()
+                Itertools::intersperse(s.iter().map(|s| s.name.as_str()), ", ").collect::<String>()
             })
             .unwrap_or("".to_string()),
         PlayState::NotPlaying => "".to_string(),

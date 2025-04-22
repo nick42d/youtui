@@ -1,18 +1,17 @@
 use super::Playlist;
 use crate::{
     app::{
-        structures::{ListSong, ListStatus},
+        structures::ListStatus,
         ui::{playlist::QueueState, ListSongID, PlayState},
     },
     async_rodio_sink::Stopped,
-    config::Config,
 };
 use pretty_assertions::assert_eq;
-use std::{rc::Rc, sync::OnceLock, time::Duration};
+use std::{sync::OnceLock, time::Duration};
 use ytmapi_rs::{
     auth::BrowserToken,
     common::{AlbumID, YoutubeID},
-    parse::{AlbumSong, GetAlbum},
+    parse::{GetAlbum, ParsedSongAlbum},
     query::GetAlbumQuery,
 };
 
@@ -33,21 +32,23 @@ fn get_dummy_album() -> GetAlbum {
 }
 
 async fn get_dummy_playlist() -> Playlist {
-    let cfg = Config::default();
-    let mut playlist = Playlist::new(&cfg).0;
+    let mut playlist = Playlist::new().0;
     playlist.list.state = ListStatus::Loaded;
     let GetAlbum {
         title,
         year,
-        mut tracks,
+        tracks,
         ..
     } = get_dummy_album();
-    playlist.list.add_raw_song(
-        tracks.pop().unwrap(),
-        Rc::new(title),
-        Rc::new(AlbumID::from_raw("")),
-        Rc::new(year),
-        Rc::new(String::from("The Beatles")),
+    playlist.list.append_raw_album_songs(
+        tracks,
+        ParsedSongAlbum {
+            name: title,
+            id: AlbumID::from_raw(""),
+        },
+        year,
+        vec![],
+        vec![],
     );
     playlist
 }

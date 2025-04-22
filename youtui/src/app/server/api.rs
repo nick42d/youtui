@@ -9,7 +9,10 @@ use std::{borrow::Borrow, sync::Arc};
 use tokio::{io::AsyncWriteExt, sync::RwLock};
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
-use ytmapi_rs::parse::{AlbumSong, SearchResultArtist};
+use ytmapi_rs::common::Thumbnail;
+use ytmapi_rs::parse::{
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist, SearchResultSong,
+};
 use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{AlbumID, ArtistChannelID, SearchSuggestion},
@@ -52,6 +55,9 @@ impl Api {
     }
     pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
         search_artists(self.get_api().await?, text).await
+    }
+    pub async fn search_songs(&self, text: String) -> Result<Vec<SearchResultSong>> {
+        search_songs(self.get_api().await?, text).await
     }
     pub fn get_artist_songs(
         &self,
@@ -132,9 +138,17 @@ where
 }
 
 async fn search_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
-    tracing::info!("Getting artists for {text}");
+    tracing::info!("Searching artists for {text}");
     let query = ytmapi_rs::query::SearchQuery::new(text)
         .with_filter(ytmapi_rs::query::ArtistsFilter)
+        .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch);
+    query_api_with_retry(&api, query).await
+}
+
+async fn search_songs(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultSong>> {
+    tracing::info!("Searching songs for {text}");
+    let query = ytmapi_rs::query::SearchQuery::new(text)
+        .with_filter(ytmapi_rs::query::SongsFilter)
         .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch);
     query_api_with_retry(&api, query).await
 }
@@ -163,10 +177,10 @@ pub enum GetArtistSongsProgressUpdate {
     SongsFound,
     Songs {
         song_list: Vec<AlbumSong>,
-        album: String,
-        album_id: AlbumID<'static>,
+        album: ParsedSongAlbum,
         year: String,
-        artist: String,
+        artists: Vec<ParsedSongArtist>,
+        thumbnails: Vec<Thumbnail>,
     },
     // Stream closes here.
     AllSongsSent,
@@ -283,6 +297,7 @@ fn get_artist_songs(
                 artists,
                 year,
                 tracks,
+                thumbnails,
                 ..
             } = album;
             tracing::info!("Sending caller tracks for artist {:?}", browse_id);
@@ -290,14 +305,13 @@ fn get_artist_songs(
                 &tx,
                 GetArtistSongsProgressUpdate::Songs {
                     song_list: tracks,
-                    album: title,
-                    album_id,
+                    album: ParsedSongAlbum {
+                        name: title,
+                        id: album_id,
+                    },
                     year,
-                    artist: artists
-                        .into_iter()
-                        .next()
-                        .map(|a| a.name)
-                        .unwrap_or_default(),
+                    artists,
+                    thumbnails,
                 },
             )
             .await;

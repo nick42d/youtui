@@ -1,5 +1,5 @@
 /// Traits related to viewable application components.
-use super::structures::Percentage;
+use super::structures::{ListSong, ListSongDisplayableField, Percentage};
 use ratatui::{
     prelude::{Constraint, Rect},
     widgets::{ListState, TableState},
@@ -48,18 +48,32 @@ impl TableFilterCommand {
             }
         }
     }
-    #[deprecated = "Temporary function to be replaced with as_readable"]
-    fn as_basic_readable(&self) -> String {
+    pub fn matches_row<const N: usize>(
+        &self,
+        row: &ListSong,
+        fields_in_table: [ListSongDisplayableField; N],
+        filterable_colums: &[usize],
+    ) -> bool {
+        let fields = row.get_fields(fields_in_table);
         match self {
-            TableFilterCommand::All(f) => match f {
-                Filter::Contains(f) => match f {
-                    FilterString::CaseSensitive(_) => todo!(),
-                    FilterString::CaseInsensitive(s) => format!("[a-Z]*{}*", s),
-                },
-                Filter::NotContains(_) => todo!(),
-                Filter::Equal(_) => todo!(),
+            TableFilterCommand::All(filter) => match filter {
+                Filter::Contains(filter_string) => filterable_colums
+                    .iter()
+                    .any(|col| filter_string.is_in(fields[*col].as_ref())),
+                Filter::NotContains(filter_string) => filterable_colums
+                    .iter()
+                    .all(|col| !filter_string.is_in(fields[*col].as_ref())),
+                Filter::Equal(filter_string) => filterable_colums
+                    .iter()
+                    .any(|col| filter_string.is_equal(fields[*col].as_ref())),
             },
-            TableFilterCommand::Column { .. } => todo!(),
+            TableFilterCommand::Column { filter, column } => match filter {
+                Filter::Contains(filter_string) => filter_string.is_in(fields[*column].as_ref()),
+                Filter::NotContains(filter_string) => {
+                    !filter_string.is_in(fields[*column].as_ref())
+                }
+                Filter::Equal(filter_string) => filter_string.is_equal(fields[*column].as_ref()),
+            },
         }
     }
 }
@@ -75,18 +89,27 @@ impl Filter {
 impl FilterString {
     fn as_readable(&self) -> String {
         match self {
-            FilterString::CaseSensitive(s) => format!("A:{s}"),
-            FilterString::CaseInsensitive(s) => format!("a:{s}"),
+            FilterString::CaseSensitive(s) => format!("a=a:{s}"),
+            FilterString::CaseInsensitive(s) => format!("a=A:{s}"),
         }
     }
     pub fn is_in<S: AsRef<str>>(&self, test_str: S) -> bool {
         match self {
             FilterString::CaseSensitive(s) => test_str.as_ref().contains(s),
-            // XXX: Ascii lowercase may not be correct.
+            // Ascii lowercase may not be correct but it avoids frequent allocations.
             FilterString::CaseInsensitive(s) => test_str
                 .as_ref()
                 .to_ascii_lowercase()
                 .contains(s.to_ascii_lowercase().as_str()),
+        }
+    }
+    pub fn is_equal<S: AsRef<str>>(&self, test_str: S) -> bool {
+        match self {
+            FilterString::CaseSensitive(s) => test_str.as_ref() == s,
+            // Ascii lowercase may not be correct but it avoids frequent allocations.
+            FilterString::CaseInsensitive(s) => {
+                test_str.as_ref().to_ascii_lowercase() == s.to_ascii_uppercase()
+            }
         }
     }
 }
@@ -121,9 +144,6 @@ pub fn basic_constraints_to_table_constraints(
         .collect()
 }
 
-/// A simple row in a table.
-pub type TableItem<'a> = Box<dyn Iterator<Item = Cow<'a, str>> + 'a>;
-
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Loadable {
     /// An item will always be selected.
@@ -140,7 +160,9 @@ pub trait TableView: Loadable {
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
     // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
-    fn get_items(&self) -> Box<dyn ExactSizeIterator<Item = TableItem> + '_>;
+    fn get_items(
+        &self,
+    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
     // Not a particularly useful function for a sortabletableview
@@ -151,6 +173,7 @@ pub trait TableView: Loadable {
 pub trait SortableTableView: TableView {
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
+    /// Add a new TableSortCommand and sort the table.
     /// This can fail if the TableSortCommand is not within the range of
     /// sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
@@ -158,13 +181,19 @@ pub trait SortableTableView: TableView {
     // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];
     // This can't be ExactSized as return type may be Filter<T>
-    fn get_filtered_items(&self) -> Box<dyn Iterator<Item = TableItem> + '_>;
+    fn get_filtered_items(
+        &self,
+    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
     fn get_filter_commands(&self) -> &[TableFilterCommand];
     fn push_filter_command(&mut self, filter_command: TableFilterCommand);
     fn clear_filter_commands(&mut self);
+    // SortableTableView should maintain it's own popup state.
+    fn get_sort_popup_cur(&self) -> usize;
+    // SortableTableView should maintain it's own popup state.
+    fn get_sort_popup_state(&self) -> ListState;
 }
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: SortableList + Loadable {
+pub trait ListView: Loadable {
     type DisplayItem: Display;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
@@ -176,14 +205,6 @@ pub trait ListView: SortableList + Loadable {
     fn len(&self) -> usize {
         self.get_items_display().len()
     }
-}
-pub trait SortableList {
-    fn push_sort_command(&mut self, list_sort_command: String);
-    fn clear_sort_commands(&mut self);
-}
-pub trait FilterableList {
-    fn push_filter_command(&mut self, list_filter_command: String);
-    fn clear_filter_commands(&mut self);
 }
 // A drawable part of the application.
 pub trait Drawable {

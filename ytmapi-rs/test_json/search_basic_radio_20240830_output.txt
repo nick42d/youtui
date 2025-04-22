@@ -364,7 +364,12 @@ SearchResults {
             title: "J.S. Bach: Orchestral Suite No. 3 in D Major, BWV 1068: II. Air",
             artist: "Academy of St Martin in the Fields, Sir Neville Marriner & Johann Sebastian Bach",
             album: Some(
-                "Bach, J.S.: Orchestral Suites 1-4",
+                ParsedSongAlbum {
+                    name: "Bach, J.S.: Orchestral Suites 1-4",
+                    id: AlbumID(
+                        "MPREb_9U6W48OgoUl",
+                    ),
+                },
             ),
             duration: "5:13",
             plays: "1.6M plays",
@@ -389,7 +394,12 @@ SearchResults {
             title: "Violin Concerto in A Minor, BWV 1041: I. Allegro",
             artist: "Joshua Bell, Academy of St Martin in the Fields & Johann Sebastian Bach",
             album: Some(
-                "Bach: Works for Violin",
+                ParsedSongAlbum {
+                    name: "Bach: Works for Violin",
+                    id: AlbumID(
+                        "MPREb_dMM5NLK2qy7",
+                    ),
+                },
             ),
             duration: "3:18",
             plays: "2.1M plays",
@@ -414,7 +424,12 @@ SearchResults {
             title: "Deep Sleep Music: Deeper Relaxation",
             artist: "Jason Stephenson",
             album: Some(
-                "Deep Sleep Music: Deeper Relaxation",
+                ParsedSongAlbum {
+                    name: "Deep Sleep Music: Deeper Relaxation",
+                    id: AlbumID(
+                        "MPREb_DDBnUvO1eyq",
+                    ),
+                },
             ),
             duration: "3:00:16",
             plays: "17M plays",

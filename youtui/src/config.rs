@@ -132,6 +132,7 @@ mod tests {
             browser_artists,
             browser_search,
             browser_songs,
+            browser_artist_songs,
             help,
             sort,
             filter,
@@ -149,6 +150,7 @@ mod tests {
             browser: def_browser,
             browser_artists: def_browser_artists,
             browser_search: def_browser_search,
+            browser_artist_songs: def_browser_artist_songs,
             browser_songs: def_browser_songs,
             help: def_help,
             sort: def_sort,
@@ -165,6 +167,10 @@ mod tests {
         assert_eq!(
             browser_artists, def_browser_artists,
             "browser_artists keybinds don't match"
+        );
+        assert_eq!(
+            browser_artist_songs, def_browser_artist_songs,
+            "browser_artist_songs keybinds don't match"
         );
         assert_eq!(
             browser_search, def_browser_search,
@@ -196,6 +202,7 @@ mod tests {
             playlist,
             browser,
             browser_artists,
+            browser_artist_songs,
             browser_search,
             browser_songs,
             help,
@@ -216,6 +223,7 @@ mod tests {
             browser_artists: def_browser_artists,
             browser_search: def_browser_search,
             browser_songs: def_browser_songs,
+            browser_artist_songs: def_browser_artist_songs,
             help: def_help,
             sort: def_sort,
             filter: def_filter,
@@ -231,6 +239,7 @@ mod tests {
         assert_eq!(browser_artists, def_browser_artists);
         assert_eq!(browser_search, def_browser_search);
         assert_eq!(browser_songs, def_browser_songs);
+        assert_eq!(browser_artist_songs, def_browser_artist_songs);
         assert_eq!(help, def_help);
         assert_eq!(sort, def_sort);
         assert_eq!(filter, def_filter);

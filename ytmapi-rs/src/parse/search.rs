@@ -8,7 +8,7 @@ use crate::nav_consts::{
     PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
     THUMBNAILS, TITLE_TEXT,
 };
-use crate::parse::EpisodeDate;
+use crate::parse::{EpisodeDate, ParsedSongAlbum};
 use crate::process::flex_column_item_pointer;
 use crate::query::*;
 use crate::youtube_enums::PlaylistEndpointParams;
@@ -177,7 +177,7 @@ pub struct SearchResultSong {
     pub title: String,
     pub artist: String,
     // Album field can be optional - see https://github.com/nick42d/youtui/issues/174
-    pub album: Option<String>,
+    pub album: Option<ParsedSongAlbum>,
     pub duration: String,
     pub plays: String,
     pub explicit: Explicit,
@@ -541,8 +541,6 @@ fn parse_album_search_result_from_music_shelf_contents(
         explicit,
     })
 }
-// TODO: Type safety
-// TODO: Tests
 fn parse_song_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultSong> {
@@ -552,7 +550,9 @@ fn parse_song_search_result_from_music_shelf_contents(
     /// Tuple makeup: (artist, album, duration)
     fn parse_song_fields(
         mrlir: &mut impl JsonCrawler,
-    ) -> json_crawler::CrawlerResult<Option<(String, Option<String>, String)>> {
+    ) -> json_crawler::CrawlerResult<Option<(String, Option<ParsedSongAlbum>, String)>> {
+        // NOTE: We are looping twice here, may be able to be improved.
+        let num_runs = mrlir.try_iter_mut()?.count();
         let mut fields_vec = mrlir
             .try_iter_mut()?
             .map(|mut field| field.take_value_pointer::<String>("/text"))
@@ -567,7 +567,12 @@ fn parse_song_search_result_from_music_shelf_contents(
             return Ok(None);
         };
         if let Some(duration) = fields_vec.pop() {
-            return Ok(Some((artist, Some(album_or_duration), duration)));
+            let album_idx = num_runs - 3;
+            let album = ParsedSongAlbum {
+                name: album_or_duration,
+                id: mrlir.take_value_pointer(format!("/{}{}", album_idx, NAVIGATION_BROWSE_ID))?,
+            };
+            return Ok(Some((artist, Some(album), duration)));
         }
         Ok(Some((artist, None, album_or_duration)))
     }
