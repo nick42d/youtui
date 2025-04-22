@@ -387,9 +387,7 @@ mod tests {
             component::actionhandler::{ActionHandler, KeyRouter},
             ui::{
                 action::AppAction,
-                browser::{
-                    shared_components::BrowserSearchAction, BrowserAction,
-                },
+                browser::{shared_components::BrowserSearchAction, BrowserAction},
             },
         },
         config::{keymap::KeyActionTree, Config},
@@ -405,8 +403,7 @@ mod tests {
     #[tokio::test]
     async fn artist_search_panel_search_suggestions_has_correct_keybinds() {
         let cfg = Config::default();
-        let mut b = Browser::new();
-        b.apply_action(BrowserAction::Search);
+        let b = Browser::new();
         let actual_kb = b.get_active_keybinds(&cfg);
         let expected_kb = (
             &Keybind::new_unmodified(crossterm::event::KeyCode::Down),
