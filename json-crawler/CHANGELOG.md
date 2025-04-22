@@ -9,12 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.7](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.6...json-crawler/v0.0.7) - 2025-04-22
 
-### Added
-- [**breaking**] Ability to search for songs instead of just artists - closes 153 ([#220](https://github.com/nick42d/youtui/pull/220))
-- _Some keybind actions have been renamed - see config.toml for more details. In addition, default keybinds for filter and sort have changed slightly to accommodate new F6 default keybind for changing search type. In addition, search entry form starts open when you open youtui._ 
-
-
-
+### Other
+- Small lint fix ([#220](https://github.com/nick42d/youtui/pull/220))
 
 ## [0.0.6](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.5...json-crawler/v0.0.6) - 2025-02-17
 
