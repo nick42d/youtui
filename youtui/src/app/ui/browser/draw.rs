@@ -65,7 +65,12 @@ pub fn draw_artist_search_browser(
             .split(layout[0]);
         browser.artist_search_panel.widget_state =
             draw_list(f, &browser.artist_search_panel, s[1], artistselected);
-        draw_search_box(f, &mut browser.artist_search_panel.search, s[0]);
+        draw_search_box(
+            f,
+            "Search Artists",
+            &mut browser.artist_search_panel.search,
+            s[0],
+        );
         // Should this be part of draw_search_box
         if browser.artist_search_panel.has_search_suggestions() {
             draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
@@ -100,7 +105,7 @@ pub fn draw_song_search_browser(
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(chunk);
         browser.widget_state = draw_sortable_table(f, browser, s[1], false);
-        draw_search_box(f, &mut browser.search, s[0]);
+        draw_search_box(f, "Search Songs", &mut browser.search, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
             draw_search_suggestions(f, &browser.search, s[0], chunk)
@@ -189,8 +194,8 @@ fn draw_text_box(
         f.set_cursor_position(cursor_pos)
     };
 }
-fn draw_search_box(f: &mut Frame, search: &mut SearchBlock, chunk: Rect) {
-    draw_text_box(f, "Search", &mut search.search_contents, chunk);
+fn draw_search_box(f: &mut Frame, title: impl AsRef<str>, search: &mut SearchBlock, chunk: Rect) {
+    draw_text_box(f, title, &mut search.search_contents, chunk);
 }
 
 fn draw_search_suggestions(f: &mut Frame, search: &SearchBlock, chunk: Rect, max_bounds: Rect) {

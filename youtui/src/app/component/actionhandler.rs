@@ -110,6 +110,9 @@ pub trait Scrollable {
     fn increment_list(&mut self, amount: isize);
     /// Check if the Scrollable actually is scrollable right now, some other
     /// part of it may be selected.
+    /// Implementer should be careful implementing this correctly - upstream
+    /// caller may assume your component is a scrollable list and override your
+    /// keybinds (don't ask me how I know this)...
     fn is_scrollable(&self) -> bool;
 }
 /// Helper trait
@@ -217,6 +220,7 @@ pub trait Suggestable: TextHandler {
     fn has_search_suggestions(&self) -> bool;
 }
 
+#[allow(dead_code)]
 pub trait MouseHandler {
     /// Not implemented yet!
     fn handle_mouse_event(&mut self, _mouse_event: MouseEvent) {

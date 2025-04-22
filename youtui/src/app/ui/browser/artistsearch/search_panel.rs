@@ -24,7 +24,6 @@ pub struct ArtistSearchPanel {
     // Could be a function instead.
     pub route: ArtistInputRouting,
     selected: usize,
-    sort_commands_list: Vec<String>,
     pub search_popped: bool,
     pub search: SearchBlock,
     pub widget_state: ListState,
@@ -54,7 +53,6 @@ impl ArtistSearchPanel {
             list: Default::default(),
             route: Default::default(),
             selected: Default::default(),
-            sort_commands_list: Default::default(),
             search_popped: Default::default(),
             search: SearchBlock::default(),
             widget_state: Default::default(),

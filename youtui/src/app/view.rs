@@ -48,20 +48,6 @@ impl TableFilterCommand {
             }
         }
     }
-    #[deprecated = "Temporary function to be replaced with as_readable"]
-    fn as_basic_readable(&self) -> String {
-        match self {
-            TableFilterCommand::All(f) => match f {
-                Filter::Contains(f) => match f {
-                    FilterString::CaseSensitive(_) => todo!(),
-                    FilterString::CaseInsensitive(s) => format!("[a-Z]*{}*", s),
-                },
-                Filter::NotContains(_) => todo!(),
-                Filter::Equal(_) => todo!(),
-            },
-            TableFilterCommand::Column { .. } => todo!(),
-        }
-    }
     pub fn matches_row<const N: usize>(
         &self,
         row: &ListSong,
@@ -103,14 +89,14 @@ impl Filter {
 impl FilterString {
     fn as_readable(&self) -> String {
         match self {
-            FilterString::CaseSensitive(s) => format!("A:{s}"),
-            FilterString::CaseInsensitive(s) => format!("a:{s}"),
+            FilterString::CaseSensitive(s) => format!("a=a:{s}"),
+            FilterString::CaseInsensitive(s) => format!("a=A:{s}"),
         }
     }
     pub fn is_in<S: AsRef<str>>(&self, test_str: S) -> bool {
         match self {
             FilterString::CaseSensitive(s) => test_str.as_ref().contains(s),
-            // XXX: Ascii lowercase may not be correct.
+            // Ascii lowercase may not be correct but it avoids frequent allocations.
             FilterString::CaseInsensitive(s) => test_str
                 .as_ref()
                 .to_ascii_lowercase()
@@ -119,8 +105,11 @@ impl FilterString {
     }
     pub fn is_equal<S: AsRef<str>>(&self, test_str: S) -> bool {
         match self {
-            FilterString::CaseSensitive(s) => todo!(),
-            FilterString::CaseInsensitive(s) => todo!(),
+            FilterString::CaseSensitive(s) => test_str.as_ref() == s,
+            // Ascii lowercase may not be correct but it avoids frequent allocations.
+            FilterString::CaseInsensitive(s) => {
+                test_str.as_ref().to_ascii_lowercase() == s.to_ascii_uppercase()
+            }
         }
     }
 }
@@ -184,6 +173,7 @@ pub trait TableView: Loadable {
 pub trait SortableTableView: TableView {
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
+    /// Add a new TableSortCommand and sort the table.
     /// This can fail if the TableSortCommand is not within the range of
     /// sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;

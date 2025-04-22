@@ -248,15 +248,10 @@ impl PostQuery for EditSongLibraryStatusQuery<'_> {
 }
 
 pub(crate) fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static str> {
-    // determine order_params via
-    // `.contents.singleColumnBrowseResultsRenderer.tabs[0] .tabRenderer.
-    // content.sectionListRenderer.contents[1] .itemSectionRenderer.header.
-    // itemSectionTabbedHeaderRenderer.endItems[1] .dropdownRenderer.
-    // entries[].dropdownItemRenderer.onSelectCommand.browseEndpoint.params`
-    // of `/youtubei/v1/browse` response
     match o {
         GetLibrarySortOrder::NameAsc => Some("ggMGKgQIARAA"),
-        GetLibrarySortOrder::NameDesc => Some("ggMGKgQIABAB"),
+        GetLibrarySortOrder::NameDesc => Some("ggMGKgQIARAB"),
+        // This option is available in the UI - but unsure where to get the params from.
         GetLibrarySortOrder::MostSongs => todo!(),
         GetLibrarySortOrder::RecentlySaved => Some("ggMGKgQIABAB"),
         GetLibrarySortOrder::Default => None,

@@ -372,7 +372,8 @@ impl SongSearchBrowser {
             ListSongDisplayableField::Plays,
         ]
     }
-    pub fn apply_sort_commands(&mut self) -> Result<()> {
+    /// Re-apply all sort commands in the stack in the order they were stored.
+    pub fn apply_all_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
             if !self.get_sortable_columns().contains(&c.column) {
                 bail!(format!("Unable to sort column {}", c.column,));
@@ -407,7 +408,7 @@ impl SongSearchBrowser {
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
-        self.filter.filter_commands.push(cmd);
+        self.push_filter_command(cmd);
         // Need to match current selected row to length of list.
         // Naive method to count the iterator. Consider making iterator exact sized...
         self.cur_selected = self
@@ -417,7 +418,7 @@ impl SongSearchBrowser {
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
         self.input_routing = InputRouting::List;
-        self.filter.filter_commands.clear();
+        self.clear_filter_commands();
     }
     fn open_sort(&mut self) {
         self.sort.shown = true;
@@ -584,5 +585,8 @@ impl SongSearchBrowser {
     pub fn replace_song_list(&mut self, song_list: Vec<SearchResultSong>) {
         self.song_list.clear();
         self.song_list.append_raw_search_result_songs(song_list);
+        if let Err(e) = self.apply_all_sort_commands() {
+            warn!("Tried to sort a column that is not sortable - error {e}")
+        };
     }
 }

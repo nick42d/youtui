@@ -5,14 +5,13 @@ use crate::{
         ui::{playlist::QueueState, ListSongID, PlayState},
     },
     async_rodio_sink::Stopped,
-    config::Config,
 };
 use pretty_assertions::assert_eq;
-use std::{rc::Rc, sync::OnceLock, time::Duration};
+use std::{sync::OnceLock, time::Duration};
 use ytmapi_rs::{
     auth::BrowserToken,
     common::{AlbumID, YoutubeID},
-    parse::{AlbumSong, GetAlbum, ParsedSongAlbum},
+    parse::{GetAlbum, ParsedSongAlbum},
     query::GetAlbumQuery,
 };
 

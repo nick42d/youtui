@@ -93,7 +93,8 @@ impl AlbumSongsPanel {
             ListSongDisplayableField::Year,
         ]
     }
-    pub fn apply_sort_commands(&mut self) -> Result<()> {
+    /// Re-apply all sort commands in the stack in the order they were stored.
+    pub fn apply_all_sort_commands(&mut self) -> Result<()> {
         for c in self.sort.sort_commands.iter() {
             if !self.get_sortable_columns().contains(&c.column) {
                 bail!(format!("Unable to sort column {}", c.column,));

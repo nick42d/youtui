@@ -495,7 +495,9 @@ impl ArtistSearchBrowser {
             .append_raw_album_songs(song_list, album, year, artists, thumbnails);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
-        self.album_songs_panel.apply_sort_commands();
+        if let Err(e) = self.album_songs_panel.apply_all_sort_commands() {
+            error!("Error <{e}> sorting album songs panel");
+        }
         self.album_songs_panel.list.state = ListStatus::InProgress;
     }
     pub fn handle_songs_found(&mut self) {
