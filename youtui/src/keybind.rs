@@ -63,6 +63,9 @@ impl FromStr for Keybind {
                 "end" => return Ok(KeyCode::End),
                 "insert" => return Ok(KeyCode::Insert),
                 "space" => return Ok(KeyCode::Char(' ')),
+                "lowervolume" => {
+                    return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::LowerVolume))
+                }
                 _ => (),
             };
             if let Some((before, Ok(num))) = s

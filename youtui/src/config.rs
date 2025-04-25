@@ -160,7 +160,12 @@ mod tests {
             log: def_log,
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
-        assert_eq!(auth_type, def_auth_type, "auth_type keybinds don't match");
+        assert_eq!(auth_type, def_auth_type, "auth_type doesn't match");
+        panic!(
+            "This test is currently not working correctly, for two reasons:
+            1. a typo on attributes like visiblty instead of visibility is not detected
+            2. when keybinds exist in the default but not the toml, this isn't picked up"
+        );
         assert_eq!(global, def_global, "global keybinds don't match");
         assert_eq!(playlist, def_playlist, "playlist keybinds don't match");
         assert_eq!(browser, def_browser, "browser keybinds don't match");
