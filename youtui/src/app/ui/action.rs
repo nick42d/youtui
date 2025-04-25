@@ -35,7 +35,7 @@ pub enum AppAction {
     SeekBack,
     ToggleHelp,
     ViewLogs,
-    Pause,
+    PlayPause,
     NoOp,
     Browser(BrowserAction),
     Filter(FilterAction),
@@ -115,7 +115,7 @@ impl Action for AppAction {
             | AppAction::Quit
             | AppAction::ViewLogs
             | AppAction::NoOp
-            | AppAction::Pause => "Global".into(),
+            | AppAction::PlayPause => "Global".into(),
             AppAction::Log(a) => a.context(),
             AppAction::Playlist(a) => a.context(),
             AppAction::Browser(a) => a.context(),
@@ -135,7 +135,7 @@ impl Action for AppAction {
             AppAction::Quit => "Quit".into(),
             AppAction::PrevSong => "Prev Song".into(),
             AppAction::NextSong => "Next Song".into(),
-            AppAction::Pause => "Pause".into(),
+            AppAction::PlayPause => "Pause".into(),
             AppAction::VolUp => format!("Vol Up {VOL_TICK}").into(),
             AppAction::VolDown => format!("Vol Down {VOL_TICK}").into(),
             AppAction::ToggleHelp => "Toggle Help".into(),

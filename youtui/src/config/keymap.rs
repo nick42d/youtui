@@ -449,24 +449,72 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             KeyActionTree::new_key(AppAction::VolUp),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::RaiseVolume,
+            )),
+            KeyActionTree::new_key_with_visibility(AppAction::VolUp, KeyActionVisibility::Hidden),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('-')),
             KeyActionTree::new_key(AppAction::VolDown),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::LowerVolume,
+            )),
+            KeyActionTree::new_key_with_visibility(AppAction::VolDown, KeyActionVisibility::Hidden),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('>')),
             KeyActionTree::new_key(AppAction::NextSong),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::TrackNext,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::NextSong,
+                KeyActionVisibility::Hidden,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('<')),
             KeyActionTree::new_key(AppAction::PrevSong),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::TrackPrevious,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PrevSong,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(']')),
             KeyActionTree::new_key(AppAction::SeekForward),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::FastForward,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::SeekForward,
+                KeyActionVisibility::Hidden,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('[')),
             KeyActionTree::new_key(AppAction::SeekBack),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::Rewind,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::SeekBack,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
@@ -488,7 +536,19 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
-            KeyActionTree::new_key_with_visibility(AppAction::Pause, KeyActionVisibility::Global),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PlayPause,
+                KeyActionVisibility::Global,
+            ),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::PlayPause,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PlayPause,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new(crossterm::event::KeyCode::Char('c'), KeyModifiers::CONTROL),
