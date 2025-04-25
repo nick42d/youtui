@@ -118,6 +118,14 @@ mod tests {
         Config::try_from(ir).unwrap();
     }
     #[tokio::test]
+    async fn test_example_config_exact_match_for_default_config() {
+        panic!(
+            "This test is currently not working correctly, for two reasons:
+            1. a typo on attributes like visiblty instead of visibility is not detected
+            2. when keybinds exist in the default but not the toml, this isn't picked up"
+        );
+    }
+    #[tokio::test]
     async fn test_default_config_equals_deserialized_config() {
         let config_file = example_config_file().await;
         let ir: ConfigIR = toml::from_str(&config_file).unwrap();
@@ -161,11 +169,6 @@ mod tests {
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
         assert_eq!(auth_type, def_auth_type, "auth_type doesn't match");
-        panic!(
-            "This test is currently not working correctly, for two reasons:
-            1. a typo on attributes like visiblty instead of visibility is not detected
-            2. when keybinds exist in the default but not the toml, this isn't picked up"
-        );
         assert_eq!(global, def_global, "global keybinds don't match");
         assert_eq!(playlist, def_playlist, "playlist keybinds don't match");
         assert_eq!(browser, def_browser, "browser keybinds don't match");
