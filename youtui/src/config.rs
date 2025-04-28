@@ -118,21 +118,15 @@ mod tests {
         Config::try_from(ir).unwrap();
     }
     #[tokio::test]
-    async fn test_example_config_exact_match_for_default_config() {
-        panic!(
-            "This test is currently not working correctly, for two reasons:
-            1. a typo on attributes like visiblty instead of visibility is not detected
-            2. when keybinds exist in the default but not the toml, this isn't picked up"
-        );
-    }
-    #[tokio::test]
     async fn test_default_config_equals_deserialized_config() {
+        panic!("when keybinds exist in the default but not the toml, this isn't picked up");
         let config_file = example_config_file().await;
-        let ir: ConfigIR = toml::from_str(&config_file).unwrap();
-        let Config {
+        let ConfigIR {
             auth_type,
             keybinds,
-        } = Config::try_from(ir).unwrap();
+            mode_names,
+        } = toml::from_str(&config_file).unwrap();
+        let keybinds = YoutuiKeymap::try_from_stringy_exact(keybinds, mode_names).unwrap();
         let YoutuiKeymap {
             global,
             playlist,

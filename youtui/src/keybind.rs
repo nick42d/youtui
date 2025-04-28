@@ -66,6 +66,24 @@ impl FromStr for Keybind {
                 "lowervolume" => {
                     return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::LowerVolume))
                 }
+                "raisevolume" => {
+                    return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::RaiseVolume))
+                }
+                "tracknext" => {
+                    return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::TrackNext))
+                }
+                "trackprev" => {
+                    return Ok(KeyCode::Media(
+                        crossterm::event::MediaKeyCode::TrackPrevious,
+                    ))
+                }
+                "fastforward" => {
+                    return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::FastForward))
+                }
+                "rewind" => return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::Rewind)),
+                "playpause" => {
+                    return Ok(KeyCode::Media(crossterm::event::MediaKeyCode::PlayPause))
+                }
                 _ => (),
             };
             if let Some((before, Ok(num))) = s
