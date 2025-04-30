@@ -25,8 +25,8 @@ serde_json = "1.0.138"
 tokio = "1.43.1"
 gag = "1.0.0"
 ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.21", default-features = false, features = [
-    "rustls-tls",
-    "simplified-queries",
+  "rustls-tls",
+  "simplified-queries",
 ] }
 async-callback-manager = { path = "../async-callback-manager", version = "0.0.6" }
 tracing = "0.1.41"
@@ -40,6 +40,9 @@ tokio-stream = { version = "0.1.17", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.10.0"
 anyhow = "1.0.95"
+souvlaki = { version = "0.8.2", default_features = false, features = [
+  "use_zbus",
+] }
 
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
@@ -57,7 +60,7 @@ version = "0.20.1"
 features = ["symphonia-all"]
 
 [dev-dependencies]
-pretty_assertions= "1.4.1"
+pretty_assertions = "1.4.1"
 tempfile = "3.16.0"
 
 [lints]
