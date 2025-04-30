@@ -82,7 +82,7 @@ pub struct YoutuiKeymap {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct YoutuiKeymapIR {
     pub global: BTreeMap<Keybind, KeyStringTree>,
     pub playlist: BTreeMap<Keybind, KeyStringTree>,
@@ -311,6 +311,172 @@ impl YoutuiKeymap {
         remove_action_from_keymap(&mut keymap.log, &AppAction::NoOp);
         Ok(keymap)
     }
+    #[cfg(test)]
+    /// The regular try_from_stringy function merges the IR with the default
+    /// config - ie it's additive to the default keybinds. This version
+    /// replaces the default config
+    pub fn try_from_stringy_exact(
+        keys: YoutuiKeymapIR,
+        mode_names: YoutuiModeNamesIR,
+    ) -> Result<Self> {
+        let YoutuiKeymapIR {
+            global,
+            playlist,
+            browser,
+            browser_artists,
+            browser_search,
+            browser_songs,
+            help,
+            sort,
+            filter,
+            text_entry,
+            list,
+            log,
+            browser_artist_songs,
+        } = keys;
+        let YoutuiModeNamesIR {
+            global: mut global_mode_names,
+            playlist: mut playlist_mode_names,
+            browser: mut browser_mode_names,
+            browser_artists: mut browser_artists_mode_names,
+            browser_search: mut browser_search_mode_names,
+            browser_songs: mut browser_songs_mode_names,
+            help: mut help_mode_names,
+            sort: mut sort_mode_names,
+            filter: mut filter_mode_names,
+            text_entry: mut text_entry_mode_names,
+            list: mut list_mode_names,
+            log: mut log_mode_names,
+            browser_artist_songs: mut browser_artist_songs_mode_names,
+        } = mode_names;
+
+        let global = global
+            .into_iter()
+            .map(move |(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut global_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Global keybinds parse failed")?;
+        let playlist = playlist
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut playlist_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Playlist keybinds parse failed")?;
+        let browser = browser
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser keybinds parse failed")?;
+        let browser_artists = browser_artists
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_artists_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser artists keybinds parse failed")?;
+        let browser_search = browser_search
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_search_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser search keybinds parse failed")?;
+        let browser_songs = browser_songs
+            .into_iter()
+            .map(|(k, v)| {
+                let v =
+                    KeyActionTree::try_from_stringy(&k, v, Some(&mut browser_songs_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser songs keybinds parse failed")?;
+        let browser_artist_songs = browser_artist_songs
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(
+                    &k,
+                    v,
+                    Some(&mut browser_artist_songs_mode_names),
+                )?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser artist songs keybinds parse failed")?;
+        let text_entry = text_entry
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut text_entry_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Text entry keybinds parse failed")?;
+        let help = help
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut help_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Help keybinds parse failed")?;
+        let sort = sort
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut sort_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Sort keybinds parse failed")?;
+        let filter = filter
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut filter_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Filter keybinds parse failed")?;
+        let list = list
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut list_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("List keybinds parse failed")?;
+        let log = log
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(&k, v, Some(&mut log_mode_names))?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Log keybinds parse failed")?;
+        Ok(YoutuiKeymap {
+            global,
+            playlist,
+            browser,
+            browser_artists,
+            browser_search,
+            browser_songs,
+            browser_artist_songs,
+            help,
+            sort,
+            filter,
+            text_entry,
+            list,
+            log,
+        })
+    }
 }
 
 impl<A: Action> KeyActionTree<A> {
@@ -449,24 +615,72 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             KeyActionTree::new_key(AppAction::VolUp),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::RaiseVolume,
+            )),
+            KeyActionTree::new_key_with_visibility(AppAction::VolUp, KeyActionVisibility::Hidden),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('-')),
             KeyActionTree::new_key(AppAction::VolDown),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::LowerVolume,
+            )),
+            KeyActionTree::new_key_with_visibility(AppAction::VolDown, KeyActionVisibility::Hidden),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('>')),
             KeyActionTree::new_key(AppAction::NextSong),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::TrackNext,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::NextSong,
+                KeyActionVisibility::Hidden,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('<')),
             KeyActionTree::new_key(AppAction::PrevSong),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::TrackPrevious,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PrevSong,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(']')),
             KeyActionTree::new_key(AppAction::SeekForward),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::FastForward,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::SeekForward,
+                KeyActionVisibility::Hidden,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('[')),
             KeyActionTree::new_key(AppAction::SeekBack),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::Rewind,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::SeekBack,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
@@ -488,7 +702,19 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
-            KeyActionTree::new_key_with_visibility(AppAction::Pause, KeyActionVisibility::Global),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PlayPause,
+                KeyActionVisibility::Global,
+            ),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
+                crossterm::event::MediaKeyCode::PlayPause,
+            )),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::PlayPause,
+                KeyActionVisibility::Hidden,
+            ),
         ),
         (
             Keybind::new(crossterm::event::KeyCode::Char('c'), KeyModifiers::CONTROL),

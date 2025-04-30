@@ -4,15 +4,22 @@ auth_type = "Browser"
 # Global keybinds
 [keybinds.global]
 "+" = "vol_up"
+raisevolume = {action = "vol_up", visibility = "hidden"}
 "-" = "vol_down"
+lowervolume = {action = "vol_down", visibility = "hidden"}
 ">" = "next_song"
+tracknext = {action = "next_song", visibility = "hidden"}
 "<" = "prev_song"
+trackprev = {action = "prev_song", visibility = "hidden"}
 "]" = "seek_forward"
+fastforward = {action = "seek_forward", visibility = "hidden"}
 "[" = "seek_back"
+rewind = {action = "seek_back", visibility = "hidden"}
 F1 = {action = "toggle_help", visibility = "global"}
 F10 = {action = "quit", visibility = "global"}
 F12 = {action = "view_logs", visibility = "global"}
-space = {action = "pause", visibility = "global"}
+space = {action = "play_pause", visibility = "global"}
+playpause = {action = "play_pause", visibility = "hidden"}
 C-c = "quit"
 
 # Global keybind mode names

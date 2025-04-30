@@ -248,7 +248,7 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::ToggleHelp => self.toggle_help(),
             AppAction::Quit => return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into(),
             AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
-            AppAction::Pause => return self.pauseplay().into(),
+            AppAction::PlayPause => return self.pauseplay().into(),
             AppAction::Log(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.logger)
             }
