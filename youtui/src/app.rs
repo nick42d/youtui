@@ -13,6 +13,7 @@ use crossterm::{
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{ArcServer, Server, TaskMetadata};
+use souvlaki::{MediaControls, MediaMetadata, MediaPosition, PlatformConfig};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
 use structures::ListSong;
@@ -47,6 +48,8 @@ pub struct Youtui {
     task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
+    #[cfg(target_os = "linux")]
+    media_controls: MediaControls,
 }
 
 #[derive(PartialEq)]
@@ -111,7 +114,19 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
+        let mut media_controls = get_media_controls()?;
+        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, &mut media_controls)?;
+        media_controls.set_metadata(MediaMetadata {
+            title: Some("Hello"),
+            album: Some("Hello"),
+            artist: Some("Hello"),
+            cover_url: Some("Hello"),
+            duration: Some(std::time::Duration::from_secs(1)),
+        });
+        media_controls.set_playback(souvlaki::MediaPlayback::Playing {
+            progress: Some(MediaPosition(std::time::Duration::from_millis(500))),
+        });
+        media_controls.set_volume(0.45);
         let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
@@ -123,6 +138,7 @@ impl Youtui {
             task_manager,
             server,
             terminal,
+            media_controls,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -196,6 +212,7 @@ impl Youtui {
                 }
             }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
+            AppEvent::MediaControls(e) => info!("Unhandled media control event received {:?}", e),
         }
     }
     pub fn handle_callback(&mut self, callback: AppCallback) {
@@ -212,6 +229,16 @@ impl Youtui {
             ),
         }
     }
+}
+
+/// Get a handle to OS media controls
+fn get_media_controls() -> std::result::Result<MediaControls, souvlaki::Error> {
+    let config = PlatformConfig {
+        display_name: "Youtui",
+        dbus_name: "youtui",
+        hwnd: None,
+    };
+    MediaControls::new(config)
 }
 
 /// Cleanly exit the tui
