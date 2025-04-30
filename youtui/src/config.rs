@@ -118,8 +118,20 @@ mod tests {
         Config::try_from(ir).unwrap();
     }
     #[tokio::test]
+    async fn test_unknown_keys_in_config() {
+        let config_file = r#"auth_typo = "Browser"#;
+        let ir: Result<ConfigIR, _> = toml::from_str(config_file);
+        assert!(ir.is_err());
+    }
+    #[tokio::test]
+    async fn test_unknown_keybind_parameters() {
+        let config_file = r#"[keybinds.global]
+raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
+        let ir: Result<ConfigIR, _> = toml::from_str(config_file);
+        assert!(ir.is_err());
+    }
+    #[tokio::test]
     async fn test_default_config_equals_deserialized_config() {
-        panic!("when keybinds exist in the default but not the toml, this isn't picked up");
         let config_file = example_config_file().await;
         let ConfigIR {
             auth_type,

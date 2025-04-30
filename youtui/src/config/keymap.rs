@@ -82,7 +82,7 @@ pub struct YoutuiKeymap {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct YoutuiKeymapIR {
     pub global: BTreeMap<Keybind, KeyStringTree>,
     pub playlist: BTreeMap<Keybind, KeyStringTree>,

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 /// This is an Action that will be triggered when pressing a particular Keybind.
 pub struct KeyAction<A> {
     // Consider - can there be multiple actions?
