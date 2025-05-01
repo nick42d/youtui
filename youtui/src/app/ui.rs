@@ -14,9 +14,12 @@ use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
-use itertools::Either;
+use footer::parse_simple_time_to_secs;
+use itertools::{Either, Itertools};
 use ratatui::widgets::TableState;
+use souvlaki::{MediaMetadata, MediaPlayback, MediaPosition};
 use std::time::Duration;
+use tracing::warn;
 
 pub mod action;
 pub mod browser;
@@ -481,4 +484,85 @@ impl YoutuiWindow {
             description: name.into(),
         })
     }
+}
+
+pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_>) {
+    let cur = &w.playlist.play_status;
+    let mut duration = 0;
+    let mut progress = Duration::default();
+    match cur {
+        PlayState::Playing(id) | PlayState::Paused(id) => {
+            duration = w
+                .playlist
+                .get_song_from_id(*id)
+                .map(|s| &s.duration_string)
+                .map(parse_simple_time_to_secs)
+                .unwrap_or(0);
+            progress = w.playlist.cur_played_dur.unwrap_or_default();
+            (progress.as_secs_f64() / duration as f64).clamp(0.0, 1.0)
+        }
+        _ => 0.0,
+    };
+    let cur = &w.playlist.play_status;
+    let song_title = match w.playlist.play_status {
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .map(|s| s.title.as_ref())
+            .unwrap_or("No title"),
+        PlayState::NotPlaying => "Not playing",
+        PlayState::Stopped => "Not playing",
+    };
+    let album_title = match w.playlist.play_status {
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .and_then(|s| s.album.as_ref())
+            .map(|s| s.name.as_str())
+            .unwrap_or_default(),
+        PlayState::NotPlaying => "",
+        PlayState::Stopped => "",
+    };
+    let artist_title = match w.playlist.play_status {
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .map(|s| s.artists.as_ref())
+            .map(|s| {
+                Itertools::intersperse(s.iter().map(|s| s.name.as_str()), ", ").collect::<String>()
+            })
+            .unwrap_or("".to_string())
+            // TODO: REMOVE THIS LEAK
+            .leak(),
+        PlayState::NotPlaying => "",
+        PlayState::Stopped => "",
+    };
+    let playback = match cur {
+        PlayState::Playing(_) => MediaPlayback::Playing {
+            progress: Some(MediaPosition(progress)),
+        },
+        PlayState::Paused(_) => MediaPlayback::Paused {
+            progress: Some(MediaPosition(progress)),
+        },
+        _ => MediaPlayback::Stopped,
+    };
+    (
+        playback,
+        MediaMetadata {
+            title: Some(song_title),
+            album: Some(album_title),
+            artist: Some(artist_title),
+            cover_url: Some("file:///home/nickd/Pictures/scn.jpg"),
+            duration: Some(std::time::Duration::from_secs(duration.try_into().unwrap())),
+        },
+    )
 }

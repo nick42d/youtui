@@ -1,13 +1,13 @@
 /// NOTE: WASM currently not supported.
 use anyhow::Result;
 use crossterm::event::{Event, EventStream, KeyEvent, KeyEventKind, MouseEvent, MouseEventKind};
-use futures::StreamExt;
+use futures::{Stream, StreamExt};
 use souvlaki::{MediaControlEvent, MediaControls};
 use std::time::Duration;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::JoinHandle;
 use tokio::time::interval;
-use tracing::warn;
+use tracing::{info, warn};
 
 #[cfg(target_family = "unix")]
 use tokio::signal::unix::SignalKind;
@@ -45,20 +45,21 @@ struct EventSpawner<T> {
 impl EventSpawner<MediaControlsWatcher> {
     fn new_media_controls_watcher(
         tx: &Sender<AppEvent>,
-        media_controls: &mut souvlaki::MediaControls,
+        mut media_events: impl Stream<Item = MediaControlEvent> + Unpin + Send + 'static,
     ) -> EventSpawner<MediaControlsWatcher> {
         let handler_tx = tx.clone();
         let _tx = tx.clone();
         let _spawner_type = MediaControlsWatcher;
         // Required due to definition of EventSpawner.
-        let _handler = tokio::spawn(async move {});
-        media_controls
-            .attach(move |event| {
+        let _handler = tokio::spawn(async move {
+            loop {
+                let e = media_events.next().await.unwrap();
                 handler_tx
-                    .blocking_send(AppEvent::MediaControls(event))
-                    .unwrap_or_else(|e| warn!("Error {:?} receieved when sending tick event", e))
-            })
-            .unwrap();
+                    .send(AppEvent::MediaControls(e))
+                    .await
+                    .unwrap_or_else(|e| warn!("Error {:?} receieved when sending tick event", e));
+            }
+        });
         Self {
             _tx,
             _handler,
@@ -195,12 +196,15 @@ impl EventSpawner<CrosstermWatcher> {
     }
 }
 impl EventHandler {
-    pub fn new(channel_size: usize, media_controls: &mut MediaControls) -> Result<Self> {
+    pub fn new(
+        channel_size: usize,
+        media_events: impl Stream<Item = MediaControlEvent> + Send + Unpin + 'static,
+    ) -> Result<Self> {
         let (tx, rx) = channel(channel_size);
         let _ticker = EventSpawner::new_ticker(&tx);
         let _signal_watcher = EventSpawner::new_signal_watcher(&tx)?;
         let _crossterm_watcher = EventSpawner::new_crossterm_watcher(&tx);
-        let _media_controls_watcher = EventSpawner::new_media_controls_watcher(&tx, media_controls);
+        let _media_controls_watcher = EventSpawner::new_media_controls_watcher(&tx, media_events);
         Ok(Self {
             rx,
             _tx: tx,
