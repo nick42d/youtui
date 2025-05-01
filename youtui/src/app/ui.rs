@@ -546,6 +546,7 @@ pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_
         PlayState::NotPlaying => "",
         PlayState::Stopped => "",
     };
+    warn!("There is a memory leak here!");
     let playback = match cur {
         PlayState::Playing(_) => MediaPlayback::Playing {
             progress: Some(MediaPosition(progress)),
