@@ -24,6 +24,7 @@ use ui::YoutuiWindow;
 
 #[macro_use]
 pub mod component;
+mod media_controls;
 mod server;
 mod structures;
 pub mod ui;
