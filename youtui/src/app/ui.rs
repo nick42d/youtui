@@ -562,7 +562,7 @@ pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_
             title: Some(song_title),
             album: Some(album_title),
             artist: Some(artist_title),
-            cover_url: Some("file:///home/nickd/Pictures/scn.jpg"),
+            cover_url: None,
             duration: Some(std::time::Duration::from_secs(duration.try_into().unwrap())),
         },
     )
