@@ -11,11 +11,13 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use media_controls::MediaController;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{ArcServer, Server, TaskMetadata};
+use souvlaki::{MediaControls, MediaMetadata, MediaPosition, PlatformConfig};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
-use structures::ListSong;
+use structures::{ListSong, PlayState};
 use tracing::{error, info};
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;
@@ -23,6 +25,7 @@ use ui::YoutuiWindow;
 
 #[macro_use]
 pub mod component;
+mod media_controls;
 mod server;
 mod structures;
 pub mod ui;
@@ -47,6 +50,8 @@ pub struct Youtui {
     task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
+    #[cfg(target_os = "linux")]
+    media_controls: MediaController,
 }
 
 #[derive(PartialEq)]
@@ -111,7 +116,8 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
+        let (media_controls, media_control_event_stream) = MediaController::new();
+        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
@@ -123,6 +129,7 @@ impl Youtui {
             task_manager,
             server,
             terminal,
+            media_controls,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -136,6 +143,8 @@ impl Youtui {
                     self.terminal.draw(|f| {
                         ui::draw::draw_app(f, &mut self.window_state);
                     })?;
+                    self.media_controls
+                        .update_controls(ui::draw_media_controls(&self.window_state));
                     // When running, the app is event based, and will block until one of the
                     // following 2 message types is received.
                     tokio::select! {
@@ -196,6 +205,7 @@ impl Youtui {
                 }
             }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
+            AppEvent::MediaControls(e) => info!("Unhandled media control event received {:?}", e),
         }
     }
     pub fn handle_callback(&mut self, callback: AppCallback) {
