@@ -4,7 +4,7 @@ use futures::Stream;
 use souvlaki::{
     MediaControlEvent, MediaControls, MediaMetadata, MediaPlayback, MediaPosition, PlatformConfig,
 };
-use std::{fs::Metadata, time::Duration};
+use std::{borrow::Cow, fs::Metadata, time::Duration};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::info;
@@ -21,6 +21,34 @@ pub struct MediaController {
     duration: Option<Duration>,
     progress: Option<Duration>,
     // TODO: Volume
+}
+
+/// CoW version of souvlaki::MediaMetadata
+pub struct CowMediaMetadata<'a> {
+    pub title: Option<Cow<'a, str>>,
+    pub album: Option<Cow<'a, str>>,
+    pub artist: Option<Cow<'a, str>>,
+    pub cover_url: Option<Cow<'a, str>>,
+    pub duration: Option<Duration>,
+}
+
+impl<'a> From<&'a CowMediaMetadata<'a>> for MediaMetadata<'a> {
+    fn from(value: &'a CowMediaMetadata<'a>) -> Self {
+        let CowMediaMetadata {
+            title,
+            album,
+            artist,
+            cover_url,
+            duration,
+        } = value;
+        MediaMetadata {
+            title: title.as_deref(),
+            album: album.as_deref(),
+            artist: artist.as_deref(),
+            cover_url: cover_url.as_deref(),
+            duration: duration.to_owned(),
+        }
+    }
 }
 
 #[derive(PartialEq, Eq)]
@@ -63,8 +91,10 @@ impl MediaController {
     }
     pub fn update_controls(
         &mut self,
-        (playback_status, playback_metadata): (MediaPlayback, MediaMetadata<'_>),
+        (playback_status, playback_metadata): (MediaPlayback, CowMediaMetadata<'_>),
     ) {
+        // TODO: Change to just in time conversion.
+        let playback_metadata: MediaMetadata = (&playback_metadata).into();
         let mut redraw_playback = false;
         let mut redraw_metadata = false;
         match playback_status {

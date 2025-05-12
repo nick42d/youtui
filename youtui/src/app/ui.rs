@@ -4,6 +4,7 @@ use super::component::actionhandler::{
     ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
     YoutuiEffect,
 };
+use super::media_controls::CowMediaMetadata;
 use super::server::IncreaseVolume;
 use super::structures::*;
 use super::AppCallback;
@@ -486,7 +487,7 @@ impl YoutuiWindow {
     }
 }
 
-pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_>) {
+pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, CowMediaMetadata<'_>) {
     let cur = &w.playlist.play_status;
     let mut duration = 0;
     let mut progress = Duration::default();
@@ -541,12 +542,10 @@ pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_
                 Itertools::intersperse(s.iter().map(|s| s.name.as_str()), ", ").collect::<String>()
             })
             .unwrap_or("".to_string())
-            // TODO: REMOVE THIS LEAK
-            .leak(),
-        PlayState::NotPlaying => "",
-        PlayState::Stopped => "",
+            .into(),
+        PlayState::NotPlaying => "".into(),
+        PlayState::Stopped => "".into(),
     };
-    warn!("There is a memory leak here!");
     let playback = match cur {
         PlayState::Playing(_) => MediaPlayback::Playing {
             progress: Some(MediaPosition(progress)),
@@ -558,11 +557,11 @@ pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, MediaMetadata<'_
     };
     (
         playback,
-        MediaMetadata {
-            title: Some(song_title),
-            album: Some(album_title),
+        CowMediaMetadata {
+            title: Some(song_title.into()),
+            album: Some(album_title.into()),
             artist: Some(artist_title),
-            cover_url: Some("file:///home/nickd/Pictures/scn.jpg"),
+            cover_url: None,
             duration: Some(std::time::Duration::from_secs(duration.try_into().unwrap())),
         },
     )
