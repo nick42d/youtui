@@ -14,9 +14,22 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fmt::Debug;
 use std::path::Path;
+use std::time::SystemTime;
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct NoAuthToken;
+pub struct NoAuthToken {
+    create_time: SystemTime,
+    visitor_id: (),
+}
+
+impl NoAuthToken {
+    pub fn new() -> Self {
+        Self {
+            create_time: std::time::SystemTime::now(),
+            visitor_id: (),
+        }
+    }
+}
 
 impl Sealed for NoAuthToken {}
 impl AuthToken for NoAuthToken {
@@ -31,7 +44,7 @@ impl AuthToken for NoAuthToken {
             "context" : {
                 "client" : {
                     "clientName" : "WEB_REMIX",
-                    "clientVersion" : self.client_version,
+                    "clientVersion" : fallback_client_version(&self.create_time),
                 },
             },
         });
@@ -42,7 +55,10 @@ impl AuthToken for NoAuthToken {
         };
         let hash = utils::hash_sapisid(&self.sapisid);
         let headers = [
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
             ("X-Origin", YTM_URL.into()),
+            ("X-Goog-Visitor-Id", self.visitor_id),
             ("Content-Type", "application/json".into()),
             ("Authorization", format!("SAPISIDHASH {hash}").into()),
             ("Cookie", self.cookies.as_str().into()),
@@ -98,4 +114,11 @@ impl AuthToken for NoAuthToken {
         }
         Ok(processed)
     }
+}
+
+/// Generate a dummy client version at the provided time.
+/// Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L35C18-L35C31
+fn fallback_client_version(time: &std::time::SystemTime) -> String {
+    let time_formatted = "TODO";
+    format!("1.{time_formatted}..01.00")
 }

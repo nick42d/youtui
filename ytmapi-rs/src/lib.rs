@@ -58,7 +58,8 @@
 )))]
 compile_error!("One of the TLS features must be enabled for this crate");
 use auth::{
-    browser::BrowserToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken, OAuthTokenGenerator,
+    browser::BrowserToken, noauth::NoAuthToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken,
+    OAuthTokenGenerator,
 };
 use continuations::Continuable;
 use futures::Stream;
@@ -120,7 +121,20 @@ pub struct YtMusic<A: AuthToken> {
     client: Client,
     token: A,
 }
-
+impl YtMusic<NoAuthToken> {
+    /// Create a new unauthenticated API handle.
+    /// In unauthenticated mode, less queries are supported.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    pub fn new_unauthenticated() -> YtMusic<NoAuthToken> {
+        let client = Client::new().expect("Expected Client build to succeed");
+        YtMusic {
+            client,
+            token: NoAuthToken,
+        }
+    }
+}
 impl YtMusic<BrowserToken> {
     /// Create a new API handle using a BrowserToken.
     /// Utilises the default TLS option for the enabled features.
