@@ -19,15 +19,42 @@ use std::time::SystemTime;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct NoAuthToken {
     create_time: SystemTime,
-    visitor_id: (),
+    visitor_id: String,
 }
 
 impl NoAuthToken {
-    pub fn new() -> Self {
-        Self {
+    pub async fn new(client: &Client) -> Result<Self> {
+        // COPY AND PASTE OF RAW_QUERY_GET.
+        let headers = [
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+        ];
+        let result = client.get_query(YTM_URL, headers, &[]).await?;
+        // Extract the parameter from inside the ytcfg.set() function.
+        // Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L44
+        let ytcfg_raw = result
+            .split_once("ytcfg.set({")
+            .unwrap()
+            .1
+            .split_once("})")
+            .unwrap()
+            .0;
+        let ytcfg: serde_json::Value = serde_json::from_str(ytcfg_raw).unwrap();
+        let visitor_id = ytcfg
+            .as_object()
+            .unwrap()
+            .remove("VISITOR_DATA")
+            .unwrap()
+            // TODO: Remove allocation
+            .as_str()
+            .unwrap()
+            .to_string();
+        Ok(Self {
             create_time: std::time::SystemTime::now(),
-            visitor_id: (),
-        }
+            visitor_id,
+        })
     }
 }
 
@@ -45,6 +72,7 @@ impl AuthToken for NoAuthToken {
                 "client" : {
                     "clientName" : "WEB_REMIX",
                     "clientVersion" : fallback_client_version(&self.create_time),
+                    "user" : {}
                 },
             },
         });
@@ -60,8 +88,6 @@ impl AuthToken for NoAuthToken {
             ("X-Origin", YTM_URL.into()),
             ("X-Goog-Visitor-Id", self.visitor_id),
             ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
         ];
         let result = client
             .post_query(url, headers, &body, &query.params())
