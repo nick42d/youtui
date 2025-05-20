@@ -204,8 +204,15 @@ impl Youtui {
                     self.handle_callback(callback);
                 }
             }
+            AppEvent::MediaControls(e) => {
+                let YoutuiEffect { effect, callback } =
+                    self.window_state.handle_media_event(e).await;
+                self.task_manager.spawn_task(&self.server, effect);
+                if let Some(callback) = callback {
+                    self.handle_callback(callback);
+                }
+            }
             AppEvent::QuitSignal => self.status = AppStatus::Exiting("Quit signal received".into()),
-            AppEvent::MediaControls(e) => info!("Unhandled media control event received {:?}", e),
         }
     }
     pub fn handle_callback(&mut self, callback: AppCallback) {

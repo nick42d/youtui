@@ -155,7 +155,6 @@ impl MediaController {
             self.duration = duration;
         }
         if redraw {
-            tracing::warn!("drawing metadata");
             let new_metadata = MediaMetadata {
                 title: self.title.as_deref(),
                 album: self.album.as_deref(),
@@ -178,6 +177,12 @@ impl MediaController {
             MediaControlsStatus::Paused {
                 progress: new_progress,
             } => {
+                if !matches!(self.status, souvlaki::MediaPlayback::Paused { .. }) {
+                    redraw = true;
+                    self.status = souvlaki::MediaPlayback::Paused {
+                        progress: Some(MediaPosition(new_progress)),
+                    };
+                }
                 if let souvlaki::MediaPlayback::Paused { progress } = self.status {
                     if progress == Some(MediaPosition(new_progress)) {
                         redraw = true;
@@ -190,6 +195,12 @@ impl MediaController {
             MediaControlsStatus::Playing {
                 progress: new_progress,
             } => {
+                if !matches!(self.status, souvlaki::MediaPlayback::Playing { .. }) {
+                    redraw = true;
+                    self.status = souvlaki::MediaPlayback::Playing {
+                        progress: Some(MediaPosition(new_progress)),
+                    };
+                }
                 if let souvlaki::MediaPlayback::Playing { progress } = self.status {
                     if progress == Some(MediaPosition(new_progress)) {
                         redraw = true;
