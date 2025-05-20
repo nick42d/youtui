@@ -64,10 +64,15 @@ impl MediaController {
         // On windows, a hwnd window handle is required, so we create a non-visible
         // window using winit. See souvlaki docs for more information.
         #[cfg(target_os = "windows")]
+        use raw_window_handle::HasWindowHandle;
+        #[cfg(target_os = "windows")]
+        use winit::platform::windows::EventLoopBuilderExtWindows;
+        #[cfg(target_os = "windows")]
         let raw_window_handle::RawWindowHandle::Win32(raw_win32_handle) =
-            winit::window::WindowBuilder::new()
-                .with_visible(false)
-                .build(&EventLoop::<()>::new_any_thread())?
+            winit::event_loop::EventLoop::builder()
+                .with_any_thread(true)
+                .build()?
+                .create_window(winit::window::Window::default_attributes().with_visible(false))?
                 .window_handle()?
                 .as_raw()
         else {
@@ -80,7 +85,7 @@ impl MediaController {
             #[cfg(not(target_os = "windows"))]
             hwnd: None,
             #[cfg(target_os = "windows")]
-            hwnd: raw_win32_handle.hwnd,
+            hwnd: Some(raw_win32_handle.hwnd.get() as *mut std::ffi::c_void),
         };
 
         let mut controls = souvlaki::MediaControls::new(config).unwrap();
