@@ -4,7 +4,6 @@ use super::component::actionhandler::{
     ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
     YoutuiEffect,
 };
-use super::media_controls::CowMediaMetadata;
 use super::server::IncreaseVolume;
 use super::structures::*;
 use super::AppCallback;
@@ -25,6 +24,7 @@ use tracing::warn;
 pub mod action;
 pub mod browser;
 pub mod draw;
+pub mod draw_media_controls;
 mod footer;
 mod header;
 pub mod logger;
@@ -325,7 +325,10 @@ impl YoutuiWindow {
         ))
     }
     // Splitting out event types removes one layer of indentation.
-    pub async fn handle_event(&mut self, event: crossterm::event::Event) -> YoutuiEffect<Self> {
+    pub async fn handle_crossterm_event(
+        &mut self,
+        event: crossterm::event::Event,
+    ) -> YoutuiEffect<Self> {
         // TODO: This should be intercepted and keycodes mapped by us instead of going
         // direct to rat-text.
         if let Some(effect) = self.try_handle_text(&event) {
@@ -335,6 +338,33 @@ impl YoutuiWindow {
             Event::Key(k) => return self.handle_key_event(k),
             Event::Mouse(m) => return self.handle_mouse_event(m).into(),
             other => tracing::warn!("Received unimplemented {:?} event", other),
+        }
+        AsyncTask::new_no_op().into()
+    }
+    pub async fn handle_media_event(
+        &mut self,
+        event: souvlaki::MediaControlEvent,
+    ) -> YoutuiEffect<Self> {
+        match event {
+            souvlaki::MediaControlEvent::Play => todo!(),
+            souvlaki::MediaControlEvent::Pause => todo!(),
+            souvlaki::MediaControlEvent::Toggle => return self.pauseplay().into(),
+            souvlaki::MediaControlEvent::Next => return self.handle_next().into(),
+            souvlaki::MediaControlEvent::Previous => return self.handle_prev().into(),
+            souvlaki::MediaControlEvent::Stop => todo!(),
+            souvlaki::MediaControlEvent::Seek(seek_direction) => todo!(),
+            souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => todo!(),
+            souvlaki::MediaControlEvent::SetPosition(media_position) => todo!(),
+            souvlaki::MediaControlEvent::SetVolume(_) => todo!(),
+            souvlaki::MediaControlEvent::Quit => {
+                return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
+            }
+            souvlaki::MediaControlEvent::OpenUri(_) => {
+                tracing::warn!("Received unhandled event {:?}", event)
+            }
+            souvlaki::MediaControlEvent::Raise => {
+                tracing::warn!("Received unhandled event {:?}", event)
+            }
         }
         AsyncTask::new_no_op().into()
     }
@@ -485,84 +515,4 @@ impl YoutuiWindow {
             description: name.into(),
         })
     }
-}
-
-pub fn draw_media_controls(w: &YoutuiWindow) -> (MediaPlayback, CowMediaMetadata<'_>) {
-    let cur = &w.playlist.play_status;
-    let mut duration = 0;
-    let mut progress = Duration::default();
-    match cur {
-        PlayState::Playing(id) | PlayState::Paused(id) => {
-            duration = w
-                .playlist
-                .get_song_from_id(*id)
-                .map(|s| &s.duration_string)
-                .map(parse_simple_time_to_secs)
-                .unwrap_or(0);
-            progress = w.playlist.cur_played_dur.unwrap_or_default();
-            (progress.as_secs_f64() / duration as f64).clamp(0.0, 1.0)
-        }
-        _ => 0.0,
-    };
-    let cur = &w.playlist.play_status;
-    let song_title = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .map(|s| s.title.as_ref())
-            .unwrap_or("No title"),
-        PlayState::NotPlaying => "Not playing",
-        PlayState::Stopped => "Not playing",
-    };
-    let album_title = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .and_then(|s| s.album.as_ref())
-            .map(|s| s.name.as_str())
-            .unwrap_or_default(),
-        PlayState::NotPlaying => "",
-        PlayState::Stopped => "",
-    };
-    let artist_title = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .map(|s| s.artists.as_ref())
-            .map(|s| {
-                Itertools::intersperse(s.iter().map(|s| s.name.as_str()), ", ").collect::<String>()
-            })
-            .unwrap_or("".to_string())
-            .into(),
-        PlayState::NotPlaying => "".into(),
-        PlayState::Stopped => "".into(),
-    };
-    let playback = match cur {
-        PlayState::Playing(_) => MediaPlayback::Playing {
-            progress: Some(MediaPosition(progress)),
-        },
-        PlayState::Paused(_) => MediaPlayback::Paused {
-            progress: Some(MediaPosition(progress)),
-        },
-        _ => MediaPlayback::Stopped,
-    };
-    (
-        playback,
-        CowMediaMetadata {
-            title: Some(song_title.into()),
-            album: Some(album_title.into()),
-            artist: Some(artist_title),
-            cover_url: None,
-            duration: Some(std::time::Duration::from_secs(duration.try_into().unwrap())),
-        },
-    )
 }

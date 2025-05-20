@@ -1,73 +1,89 @@
 //! Wrapper for souvlaki::MediaControls that performs diffing to ensure OS calls
 //! are made at a minimum (in line with immediate mode architecture principle)
+use super::structures::Percentage;
 use futures::Stream;
-use souvlaki::{
-    MediaControlEvent, MediaControls, MediaMetadata, MediaPlayback, MediaPosition, PlatformConfig,
-};
-use std::{borrow::Cow, fs::Metadata, time::Duration};
+use souvlaki::{MediaControlEvent, MediaMetadata, MediaPosition, PlatformConfig};
+use std::{borrow::Cow, time::Duration};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::info;
-
-use super::{structures::PlayState, ui::YoutuiWindow};
 
 pub struct MediaController {
-    inner: MediaControls,
-    status: MediaControlsStatus,
+    inner: souvlaki::MediaControls,
+    status: souvlaki::MediaPlayback,
+    volume: MediaControlsVolume,
     title: Option<String>,
     album: Option<String>,
     artist: Option<String>,
     cover_url: Option<String>,
     duration: Option<Duration>,
-    progress: Option<Duration>,
-    // TODO: Volume
 }
 
-/// CoW version of souvlaki::MediaMetadata
-pub struct CowMediaMetadata<'a> {
+pub struct MediaControlsUpdate<'a> {
     pub title: Option<Cow<'a, str>>,
     pub album: Option<Cow<'a, str>>,
     pub artist: Option<Cow<'a, str>>,
     pub cover_url: Option<Cow<'a, str>>,
     pub duration: Option<Duration>,
+    pub playback_status: MediaControlsStatus,
+    pub volume: MediaControlsVolume,
 }
 
-impl<'a> From<&'a CowMediaMetadata<'a>> for MediaMetadata<'a> {
-    fn from(value: &'a CowMediaMetadata<'a>) -> Self {
-        let CowMediaMetadata {
-            title,
-            album,
-            artist,
-            cover_url,
-            duration,
-        } = value;
-        MediaMetadata {
-            title: title.as_deref(),
-            album: album.as_deref(),
-            artist: artist.as_deref(),
-            cover_url: cover_url.as_deref(),
-            duration: duration.to_owned(),
-        }
+#[derive(Default)]
+pub enum MediaControlsStatus {
+    #[default]
+    Stopped,
+    Paused {
+        progress: Duration,
+    },
+    Playing {
+        progress: Duration,
+    },
+}
+
+#[derive(Copy, Clone, PartialEq)]
+pub struct MediaControlsVolume(f64);
+
+impl Default for MediaControlsVolume {
+    // Default copied from app::ui::playlist
+    fn default() -> Self {
+        Self(0.5)
     }
 }
 
-#[derive(PartialEq, Eq)]
-enum MediaControlsStatus {
-    Stopped,
-    Paused,
-    Playing,
+impl MediaControlsVolume {
+    pub fn from_percentage_clamped(Percentage(p): Percentage) -> Self {
+        let raw = (p as f64) / 100.0;
+        Self(raw.clamp(0.0, 1.0))
+    }
 }
 
 impl MediaController {
-    pub fn new() -> (Self, impl Stream<Item = MediaControlEvent>) {
+    pub fn new() -> anyhow::Result<(Self, impl Stream<Item = MediaControlEvent>)> {
         let (tx, rx) = mpsc::channel(super::EVENT_CHANNEL_SIZE);
+
+        // On windows, a hwnd window handle is required, so we create a non-visible
+        // window using winit. See souvlaki docs for more information.
+        #[cfg(target_os = "windows")]
+        let raw_window_handle::RawWindowHandle::Win32(raw_win32_handle) =
+            winit::window::WindowBuilder::new()
+                .with_visible(false)
+                .build(&EventLoop::<()>::new_any_thread())?
+                .window_handle()?
+                .as_raw()
+        else {
+            anyhow::bail!("Expected to get a Win32WindowHandle but we did not!")
+        };
+
         let config = PlatformConfig {
             display_name: "Youtui",
             dbus_name: "youtui",
-            // TODO: hwnd for windows
+            #[cfg(not(target_os = "windows"))]
             hwnd: None,
+            #[cfg(target_os = "windows")]
+            hwnd: raw_win32_handle.hwnd,
         };
-        let mut controls = MediaControls::new(config).unwrap();
+
+        let mut controls = souvlaki::MediaControls::new(config).unwrap();
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
         controls
@@ -75,95 +91,71 @@ impl MediaController {
                 tx.blocking_send(event).unwrap();
             })
             .unwrap();
-        (
+        Ok((
             MediaController {
                 inner: controls,
-                status: MediaControlsStatus::Stopped,
+                status: souvlaki::MediaPlayback::Stopped,
                 title: None,
                 album: None,
                 artist: None,
                 cover_url: None,
                 duration: None,
-                progress: None,
+                volume: Default::default(),
             },
             ReceiverStream::new(rx),
-        )
+        ))
     }
-    pub fn update_controls(
+    pub fn update_controls(&mut self, update: MediaControlsUpdate<'_>) {
+        let MediaControlsUpdate {
+            title,
+            album,
+            artist,
+            cover_url,
+            duration,
+            playback_status,
+            volume,
+        } = update;
+        self.update_metadata(title, album, artist, cover_url, duration);
+        self.update_playback(playback_status);
+        self.update_volume(volume);
+    }
+    fn update_volume(&mut self, volume: MediaControlsVolume) {
+        if self.volume != volume {
+            self.volume = volume;
+            self.inner.set_volume(volume.0);
+        }
+    }
+    fn update_metadata(
         &mut self,
-        (playback_status, playback_metadata): (MediaPlayback, CowMediaMetadata<'_>),
+        title: Option<Cow<'_, str>>,
+        album: Option<Cow<'_, str>>,
+        artist: Option<Cow<'_, str>>,
+        cover_url: Option<Cow<'_, str>>,
+        duration: Option<Duration>,
     ) {
-        // TODO: Change to just in time conversion.
-        let playback_metadata: MediaMetadata = (&playback_metadata).into();
-        let mut redraw_playback = false;
-        let mut redraw_metadata = false;
-        match playback_status {
-            MediaPlayback::Stopped => {
-                if self.status != MediaControlsStatus::Stopped {
-                    self.status = MediaControlsStatus::Stopped;
-                    redraw_playback = true;
-                }
-            }
-            MediaPlayback::Paused { progress } if self.status != MediaControlsStatus::Paused => {
-                info!("Changed to paused");
-                redraw_playback = true;
-                self.progress = progress.map(|d| d.0);
-                self.status = MediaControlsStatus::Paused;
-            }
-            // Fallback - already paused
-            MediaPlayback::Paused { progress } => {
-                if self.progress != progress.map(|d| d.0) {
-                    self.progress = progress.map(|d| d.0);
-                    redraw_playback = true;
-                }
-            }
-            MediaPlayback::Playing { progress } if self.status != MediaControlsStatus::Playing => {
-                info!("Changed to playing");
-                redraw_playback = true;
-                self.progress = progress.map(|d| d.0);
-                self.status = MediaControlsStatus::Playing;
-            }
-            // Fallback - already playing
-            MediaPlayback::Playing { progress } => {
-                if self.progress != progress.map(|d| d.0) {
-                    self.progress = progress.map(|d| d.0);
-                    redraw_playback = true;
-                }
-            }
+        let mut redraw = false;
+        if self.title.as_deref() != title.as_deref() {
+            redraw = true;
+            self.title = title.map(|title| title.to_string());
         }
-        if self.title.as_deref() != playback_metadata.title {
-            redraw_metadata = true;
-            self.title = playback_metadata.title.map(ToOwned::to_owned);
+        if self.album.as_deref() != album.as_deref() {
+            redraw = true;
+            self.album = album.map(|album| album.to_string());
         }
-        if self.album.as_deref() != playback_metadata.album {
-            redraw_metadata = true;
-            self.album = playback_metadata.album.map(ToOwned::to_owned);
+        if self.artist.as_deref() != artist.as_deref() {
+            redraw = true;
+            self.artist = artist.map(|artist| artist.to_string());
         }
-        if self.artist.as_deref() != playback_metadata.artist {
-            redraw_metadata = true;
-            self.artist = playback_metadata.artist.map(ToOwned::to_owned);
+        if self.cover_url.as_deref() != cover_url.as_deref() {
+            redraw = true;
+            self.cover_url = cover_url.map(|cover_url| cover_url.to_string());
         }
-        if self.cover_url.as_deref() != playback_metadata.cover_url {
-            redraw_metadata = true;
-            self.cover_url = playback_metadata.cover_url.map(ToOwned::to_owned);
+        if self.duration != duration {
+            redraw = true;
+            self.duration = duration;
         }
-        if self.duration != playback_metadata.duration {
-            redraw_metadata = true;
-            self.duration = playback_metadata.duration;
-        }
-        if redraw_playback {
-            let new_playback = match self.status {
-                MediaControlsStatus::Stopped => MediaPlayback::Stopped,
-                MediaControlsStatus::Paused => MediaPlayback::Paused {
-                    progress: self.progress.map(souvlaki::MediaPosition),
-                },
-                MediaControlsStatus::Playing => MediaPlayback::Playing {
-                    progress: self.progress.map(souvlaki::MediaPosition),
-                },
-            };
-            self.inner.set_playback(new_playback).unwrap();
-        }
-        if redraw_metadata {
+        if redraw {
+            tracing::warn!("drawing metadata");
             let new_metadata = MediaMetadata {
                 title: self.title.as_deref(),
                 album: self.album.as_deref(),
@@ -171,8 +163,45 @@ impl MediaController {
                 cover_url: self.cover_url.as_deref(),
                 duration: self.duration,
             };
-            info!("new_metadata: {:?}", new_metadata);
             self.inner.set_metadata(new_metadata).unwrap();
+        }
+    }
+    fn update_playback(&mut self, playback_status: MediaControlsStatus) {
+        let mut redraw = false;
+        match playback_status {
+            MediaControlsStatus::Stopped => {
+                if self.status != souvlaki::MediaPlayback::Stopped {
+                    self.status = souvlaki::MediaPlayback::Stopped;
+                    redraw = true;
+                }
+            }
+            MediaControlsStatus::Paused {
+                progress: new_progress,
+            } => {
+                if let souvlaki::MediaPlayback::Paused { progress } = self.status {
+                    if progress == Some(MediaPosition(new_progress)) {
+                        redraw = true;
+                        self.status = souvlaki::MediaPlayback::Paused {
+                            progress: Some(MediaPosition(new_progress)),
+                        };
+                    }
+                }
+            }
+            MediaControlsStatus::Playing {
+                progress: new_progress,
+            } => {
+                if let souvlaki::MediaPlayback::Playing { progress } = self.status {
+                    if progress == Some(MediaPosition(new_progress)) {
+                        redraw = true;
+                        self.status = souvlaki::MediaPlayback::Playing {
+                            progress: Some(MediaPosition(new_progress)),
+                        };
+                    }
+                }
+            }
+        }
+        if redraw {
+            self.inner.set_playback(self.status.clone()).unwrap();
         }
     }
 }
