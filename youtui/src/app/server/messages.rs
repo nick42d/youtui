@@ -5,6 +5,8 @@ use super::player::DecodedInMemSong;
 use super::player::Player;
 use super::ArcServer;
 use crate::app::structures::ListSongID;
+use crate::async_rodio_sink::Paused;
+use crate::async_rodio_sink::Resumed;
 use crate::async_rodio_sink::{
     rodio::decoder::DecoderError, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate,
     QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
@@ -67,6 +69,10 @@ pub struct Seek {
 pub struct Stop(pub ListSongID);
 #[derive(Debug)]
 pub struct PausePlay(pub ListSongID);
+#[derive(Debug)]
+pub struct Resume(pub ListSongID);
+#[derive(Debug)]
+pub struct Pause(pub ListSongID);
 /// Decode a song into a format that can be played.
 #[derive(Debug)]
 pub struct DecodeSong(pub Arc<InMemSong>);
@@ -215,6 +221,34 @@ impl BackendTask<ArcServer> for PausePlay {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.player.pause_play(self.0).await }
+    }
+    fn metadata() -> Vec<Self::MetadataType> {
+        vec![TaskMetadata::PlayPause]
+    }
+}
+impl BackendTask<ArcServer> for Resume {
+    type Output = Option<Resumed<ListSongID>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.resume(self.0).await }
+    }
+    fn metadata() -> Vec<Self::MetadataType> {
+        vec![TaskMetadata::PlayPause]
+    }
+}
+impl BackendTask<ArcServer> for Pause {
+    type Output = Option<Paused<ListSongID>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.pause(self.0).await }
     }
     fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayPause]

@@ -324,7 +324,6 @@ impl YoutuiWindow {
                 .chain(std::iter::once(&self.config.keybinds.text_entry)),
         ))
     }
-    // Splitting out event types removes one layer of indentation.
     pub async fn handle_crossterm_event(
         &mut self,
         event: crossterm::event::Event,
@@ -334,6 +333,7 @@ impl YoutuiWindow {
         if let Some(effect) = self.try_handle_text(&event) {
             return effect.into();
         };
+        // Splitting out event types removes one layer of indentation.
         match event {
             Event::Key(k) => return self.handle_key_event(k),
             Event::Mouse(m) => return self.handle_mouse_event(m).into(),
@@ -346,8 +346,8 @@ impl YoutuiWindow {
         event: souvlaki::MediaControlEvent,
     ) -> YoutuiEffect<Self> {
         match event {
-            souvlaki::MediaControlEvent::Play => todo!(),
-            souvlaki::MediaControlEvent::Pause => todo!(),
+            souvlaki::MediaControlEvent::Play => return self.resume().into(),
+            souvlaki::MediaControlEvent::Pause => return self.pause().into(),
             souvlaki::MediaControlEvent::Toggle => return self.pauseplay().into(),
             souvlaki::MediaControlEvent::Next => return self.handle_next().into(),
             souvlaki::MediaControlEvent::Previous => return self.handle_prev().into(),
@@ -360,10 +360,10 @@ impl YoutuiWindow {
                 return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
             }
             souvlaki::MediaControlEvent::OpenUri(_) => {
-                tracing::warn!("Received unhandled event {:?}", event)
+                tracing::info!("Received intentionally unhandled event {:?}", event)
             }
             souvlaki::MediaControlEvent::Raise => {
-                tracing::warn!("Received unhandled event {:?}", event)
+                tracing::info!("Received intentionally unhandled event {:?}", event)
             }
         }
         AsyncTask::new_no_op().into()
@@ -409,6 +409,16 @@ impl YoutuiWindow {
     pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .pauseplay()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn resume(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .resume()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn pause(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .pause()
             .map(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {

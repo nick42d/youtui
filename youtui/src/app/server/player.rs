@@ -70,6 +70,15 @@ impl Player {
     ) -> Option<async_rodio_sink::PausePlayResponse<ListSongID>> {
         self.rodio_handle.pause_play(song_id).await
     }
+    pub async fn resume(
+        &self,
+        song_id: ListSongID,
+    ) -> Option<async_rodio_sink::Resumed<ListSongID>> {
+        self.rodio_handle.resume(song_id).await
+    }
+    pub async fn pause(&self, song_id: ListSongID) -> Option<async_rodio_sink::Paused<ListSongID>> {
+        self.rodio_handle.pause(song_id).await
+    }
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<async_rodio_sink::VolumeUpdate> {
         self.rodio_handle.increase_volume(vol_inc).await
     }

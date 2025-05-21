@@ -4,8 +4,8 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
-    Stop, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
+    Resume, Seek, Stop, TaskMetadata,
 };
 use crate::app::structures::{DownloadStatus, ListSongDisplayableField};
 use crate::app::structures::{Percentage, SongListComponent};
@@ -710,6 +710,48 @@ impl Playlist {
                     PausePlayResponse::Paused(id) => this.handle_paused(id),
                     PausePlayResponse::Resumed(id) => this.handle_resumed(id),
                 };
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
+    }
+    /// Handle global play action. Change state (visual), change playback
+    /// (server).
+    pub fn resume(&mut self) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
+        AsyncTask::new_future(
+            Resume(id),
+            |this: &mut Playlist, response| {
+                let Some(response) = response else { return };
+                this.handle_resumed(response.0);
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
+    }
+    /// Handle global pause action. Change state (visual), change playback
+    /// (server).
+    pub fn pause(&mut self) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
+        AsyncTask::new_future(
+            Pause(id),
+            |this: &mut Playlist, response| {
+                let Some(response) = response else { return };
+                this.handle_paused(response.0);
             },
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
