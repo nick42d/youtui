@@ -1,4 +1,6 @@
-use self::{browser::Browser, logger::Logger, playlist::Playlist};
+use self::browser::Browser;
+use self::logger::Logger;
+use self::playlist::Playlist;
 use super::component::actionhandler::{
     apply_action_mapped, get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler,
     ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
@@ -14,12 +16,9 @@ use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
-use footer::parse_simple_time_to_secs;
-use itertools::{Either, Itertools};
+use itertools::Either;
 use ratatui::widgets::TableState;
-use souvlaki::{MediaMetadata, MediaPlayback, MediaPosition};
 use std::time::Duration;
-use tracing::warn;
 
 pub mod action;
 pub mod browser;
@@ -345,17 +344,29 @@ impl YoutuiWindow {
         &mut self,
         event: souvlaki::MediaControlEvent,
     ) -> YoutuiEffect<Self> {
+        // This conversion function is written here as this is expected to be the only
+        // location it is used.
+        let convert_dir = |dir| match dir {
+            souvlaki::SeekDirection::Forward => SeekDirection::Forward,
+            souvlaki::SeekDirection::Backward => SeekDirection::Back,
+        };
         match event {
             souvlaki::MediaControlEvent::Play => return self.resume().into(),
             souvlaki::MediaControlEvent::Pause => return self.pause().into(),
             souvlaki::MediaControlEvent::Toggle => return self.pauseplay().into(),
             souvlaki::MediaControlEvent::Next => return self.handle_next().into(),
             souvlaki::MediaControlEvent::Previous => return self.handle_prev().into(),
-            souvlaki::MediaControlEvent::Stop => todo!(),
-            souvlaki::MediaControlEvent::Seek(seek_direction) => todo!(),
-            souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => todo!(),
-            souvlaki::MediaControlEvent::SetPosition(media_position) => todo!(),
-            souvlaki::MediaControlEvent::SetVolume(_) => todo!(),
+            souvlaki::MediaControlEvent::Stop => return self.stop().into(),
+            souvlaki::MediaControlEvent::Seek(seek_direction) => {
+                return self.handle_seek(SEEK_AMOUNT, convert_dir(seek_direction))
+            }
+            souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => {
+                return self.handle_seek(duration, convert_dir(seek_direction))
+            }
+            souvlaki::MediaControlEvent::SetPosition(media_position) => {
+                return self.handle_seek_to(media_position.0).into()
+            }
+            souvlaki::MediaControlEvent::SetVolume(v) => return self.handle_set_volume(v).into(),
             souvlaki::MediaControlEvent::Quit => {
                 return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
             }
