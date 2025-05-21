@@ -16,7 +16,7 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::{io, sync::Arc};
-use structures::{ListSong, PlayState};
+use structures::ListSong;
 use tracing::{error, info};
 use tracing_subscriber::prelude::*;
 use ui::WindowContext;

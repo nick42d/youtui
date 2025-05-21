@@ -3,9 +3,14 @@
 use super::structures::Percentage;
 use futures::Stream;
 use souvlaki::{MediaControlEvent, MediaMetadata, MediaPosition, PlatformConfig};
-use std::{borrow::Cow, time::Duration};
+use std::borrow::Cow;
+use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
+
+/// Minimum change in playing position before triggering a redraw. This is to
+/// reduce number of calls to the platform.
+const POSITION_DIFFERENCE_REDRAW_THRESHOLD: Duration = Duration::from_secs(5);
 
 pub struct MediaController {
     inner: souvlaki::MediaControls,
@@ -189,7 +194,15 @@ impl MediaController {
                     };
                 }
                 if let souvlaki::MediaPlayback::Paused { progress } = self.status {
-                    if progress == Some(MediaPosition(new_progress)) {
+                    if let Some(progress) = progress {
+                        if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD
+                        {
+                            redraw = true;
+                            self.status = souvlaki::MediaPlayback::Paused {
+                                progress: Some(MediaPosition(new_progress)),
+                            };
+                        }
+                    } else {
                         redraw = true;
                         self.status = souvlaki::MediaPlayback::Paused {
                             progress: Some(MediaPosition(new_progress)),
@@ -207,7 +220,15 @@ impl MediaController {
                     };
                 }
                 if let souvlaki::MediaPlayback::Playing { progress } = self.status {
-                    if progress == Some(MediaPosition(new_progress)) {
+                    if let Some(progress) = progress {
+                        if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD
+                        {
+                            redraw = true;
+                            self.status = souvlaki::MediaPlayback::Playing {
+                                progress: Some(MediaPosition(new_progress)),
+                            };
+                        }
+                    } else {
                         redraw = true;
                         self.status = souvlaki::MediaPlayback::Playing {
                             progress: Some(MediaPosition(new_progress)),

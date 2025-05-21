@@ -10,8 +10,8 @@ repository = "https://github.com/nick42d/youtui"
 readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
-# Required for async trait support
-rust-version = "1.79"
+# Required for Duration::abs_dif
+rust-version = "1.82"
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
@@ -40,7 +40,7 @@ tokio-stream = { version = "0.1.17", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.10.0"
 anyhow = "1.0.95"
-souvlaki = { version = "0.8.2", default_features = false, features = [
+souvlaki = { version = "0.8.2", default-features = false, features = [
   "use_zbus",
 ] }
 

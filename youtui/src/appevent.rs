@@ -28,7 +28,6 @@ pub struct EventHandler {
     _ticker: EventSpawner<Ticker>,
     _signal_watcher: EventSpawner<SignalWatcher>,
     _crossterm_watcher: EventSpawner<CrosstermWatcher>,
-    #[cfg(not(target_os = "macos"))]
     _media_controls_watcher: EventSpawner<MediaControlsWatcher>,
 }
 
@@ -43,7 +42,6 @@ struct EventSpawner<T> {
     _spawner_type: T,
 }
 
-#[cfg(not(target_os = "macos"))]
 impl EventSpawner<MediaControlsWatcher> {
     fn new_media_controls_watcher(
         tx: &Sender<AppEvent>,
