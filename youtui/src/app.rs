@@ -1,26 +1,28 @@
 use super::appevent::{AppEvent, EventHandler};
-use crate::{core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
+use crate::core::get_limited_sequential_file;
+use crate::{get_data_dir, RuntimeInfo};
 use anyhow::Result;
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
-use crossterm::{
-    event::{
-        DisableMouseCapture, EnableMouseCapture, KeyboardEnhancementFlags,
-        PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
-    },
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+use crossterm::event::{
+    DisableMouseCapture, EnableMouseCapture, KeyboardEnhancementFlags, PopKeyboardEnhancementFlags,
+    PushKeyboardEnhancementFlags,
+};
+use crossterm::execute;
+use crossterm::terminal::{
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
 use media_controls::MediaController;
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
-use std::{io, sync::Arc};
+use std::io;
+use std::sync::Arc;
 use structures::ListSong;
 use tracing::{error, info};
 use tracing_subscriber::prelude::*;
-use ui::WindowContext;
-use ui::YoutuiWindow;
+use ui::{WindowContext, YoutuiWindow};
 
 #[macro_use]
 pub mod component;
@@ -88,12 +90,7 @@ impl Youtui {
         // Setup terminal
         enable_raw_mode()?;
         let mut stdout = io::stdout();
-        execute!(
-            stdout,
-            EnterAlternateScreen,
-            EnableMouseCapture,
-            PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES)
-        )?;
+        execute!(stdout, EnterAlternateScreen, EnableMouseCapture,)?;
         // Ensure clean return to shell if panic.
         IS_MAIN_THREAD.with(|flag| flag.set(true));
         std::panic::set_hook(Box::new(|panic_info| {
@@ -238,7 +235,6 @@ fn destruct_terminal() -> Result<()> {
         io::stdout(),
         LeaveAlternateScreen,
         DisableMouseCapture,
-        PopKeyboardEnhancementFlags,
         crossterm::cursor::Show
     )?;
     Ok(())
