@@ -127,8 +127,10 @@ impl MediaController {
         } = update;
         self.update_metadata(title, album, artist, cover_url, duration);
         self.update_playback(playback_status);
+        #[cfg(target_os = "linux")]
         self.update_volume(volume);
     }
+    #[cfg(target_os = "linux")]
     fn update_volume(&mut self, volume: MediaControlsVolume) {
         if self.volume != volume {
             self.volume = volume;
