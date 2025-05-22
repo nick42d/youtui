@@ -1,6 +1,7 @@
 //! Wrapper for souvlaki::MediaControls that performs diffing to ensure OS calls
 //! are made at a minimum (in line with immediate mode architecture principle)
 use super::structures::Percentage;
+use super::ui::playlist::DEFAULT_UI_VOLUME;
 use futures::Stream;
 use souvlaki::{MediaControlEvent, MediaMetadata, MediaPosition, PlatformConfig};
 use std::borrow::Cow;
@@ -49,9 +50,8 @@ pub enum MediaControlsStatus {
 pub struct MediaControlsVolume(f64);
 
 impl Default for MediaControlsVolume {
-    // Default copied from app::ui::playlist
     fn default() -> Self {
-        Self(0.5)
+        Self(DEFAULT_UI_VOLUME.0 as f64 / 100.0)
     }
 }
 

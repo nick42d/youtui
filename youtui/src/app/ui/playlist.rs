@@ -40,6 +40,7 @@ const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
+pub const DEFAULT_UI_VOLUME: Percentage = Percentage(50);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Playlist {
@@ -237,7 +238,7 @@ impl Playlist {
             Some(Constraint::new_block_same_type()),
         );
         let playlist = Playlist {
-            volume: Percentage(50),
+            volume: DEFAULT_UI_VOLUME,
             play_status: PlayState::NotPlaying,
             list: Default::default(),
             cur_played_dur: None,
