@@ -1,27 +1,20 @@
 use super::api::GetArtistSongsProgressUpdate;
-use super::downloader::DownloadProgressUpdate;
-use super::downloader::InMemSong;
-use super::player::DecodedInMemSong;
-use super::player::Player;
+use super::downloader::{DownloadProgressUpdate, InMemSong};
+use super::player::{DecodedInMemSong, Player};
 use super::ArcServer;
 use crate::app::structures::ListSongID;
-use crate::async_rodio_sink::Paused;
-use crate::async_rodio_sink::Resumed;
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
-    rodio::decoder::DecoderError, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate,
-    QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
+    AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate, Resumed,
+    SeekDirection, Stopped, VolumeUpdate,
 };
-use anyhow::Error;
-use anyhow::Result;
+use anyhow::{Error, Result};
 use async_callback_manager::{BackendStreamingTask, BackendTask};
-use futures::Future;
-use futures::Stream;
+use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::VideoID;
-use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
-use ytmapi_rs::parse::SearchResultArtist;
-use ytmapi_rs::parse::SearchResultSong;
+use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
+use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -58,8 +51,12 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Send IncreaseVolume(5)
 // Send IncreaseVolume(5), killing previous task
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
+// New note - 2025:
+// SetVolume should be able to kill IncreaseVolume however...
 #[derive(Debug)]
 pub struct IncreaseVolume(pub i8);
+#[derive(Debug)]
+pub struct SetVolume(pub u8);
 #[derive(Debug)]
 pub struct Seek {
     pub duration: Duration,
@@ -199,6 +196,17 @@ impl BackendTask<ArcServer> for IncreaseVolume {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.player.increase_volume(self.0).await }
+    }
+}
+impl BackendTask<ArcServer> for SetVolume {
+    type Output = Option<VolumeUpdate>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.set_volume(self.0).await }
     }
 }
 impl BackendTask<ArcServer> for Stop {

@@ -1,6 +1,7 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
-use crate::async_rodio_sink::rodio::{decoder::DecoderError, Decoder};
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
+use crate::async_rodio_sink::rodio::Decoder;
 use crate::async_rodio_sink::{self, AsyncRodio};
 use futures::Stream;
 use std::io::Cursor;
@@ -81,6 +82,9 @@ impl Player {
     }
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<async_rodio_sink::VolumeUpdate> {
         self.rodio_handle.increase_volume(vol_inc).await
+    }
+    pub async fn set_volume(&self, new_vol: u8) -> Option<async_rodio_sink::VolumeUpdate> {
+        self.rodio_handle.set_volume(new_vol).await
     }
     pub async fn try_decode(
         song: Arc<InMemSong>,

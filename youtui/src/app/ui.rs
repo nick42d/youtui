@@ -6,7 +6,7 @@ use super::component::actionhandler::{
     ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
     YoutuiEffect,
 };
-use super::server::IncreaseVolume;
+use super::server::{IncreaseVolume, SetVolume};
 use super::structures::*;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
@@ -358,15 +358,21 @@ impl YoutuiWindow {
             souvlaki::MediaControlEvent::Previous => return self.handle_prev().into(),
             souvlaki::MediaControlEvent::Stop => return self.stop().into(),
             souvlaki::MediaControlEvent::Seek(seek_direction) => {
-                return self.handle_seek(SEEK_AMOUNT, convert_dir(seek_direction))
+                return self
+                    .handle_seek(SEEK_AMOUNT, convert_dir(seek_direction))
+                    .into()
             }
             souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => {
-                return self.handle_seek(duration, convert_dir(seek_direction))
+                return self
+                    .handle_seek(duration, convert_dir(seek_direction))
+                    .into()
             }
             souvlaki::MediaControlEvent::SetPosition(media_position) => {
                 return self.handle_seek_to(media_position.0).into()
             }
-            souvlaki::MediaControlEvent::SetVolume(v) => return self.handle_set_volume(v).into(),
+            souvlaki::MediaControlEvent::SetVolume(v) => {
+                return self.handle_set_volume((v * 100.0) as u8).into()
+            }
             souvlaki::MediaControlEvent::Quit => {
                 return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
             }
@@ -432,6 +438,11 @@ impl YoutuiWindow {
             .pause()
             .map(|this: &mut Self| &mut this.playlist)
     }
+    pub fn stop(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .stop()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .handle_next()
@@ -451,6 +462,15 @@ impl YoutuiWindow {
             Some(Constraint::new_block_same_type()),
         )
     }
+    pub fn handle_set_volume(&mut self, new_vol: u8) -> ComponentEffect<Self> {
+        // Visually update the state first for instant feedback.
+        self.set_volume(new_vol);
+        AsyncTask::new_future(
+            SetVolume(new_vol),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        )
+    }
     pub fn handle_seek(
         &mut self,
         duration: Duration,
@@ -458,6 +478,11 @@ impl YoutuiWindow {
     ) -> ComponentEffect<Self> {
         self.playlist
             .handle_seek(duration, direction)
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_seek_to(&mut self, position: Duration) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_seek_to(position)
             .map(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
@@ -509,6 +534,10 @@ impl YoutuiWindow {
     /// volume.
     fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
+    }
+    /// Visually set the volume, note, does not actually change the volume.
+    fn set_volume(&mut self, new_vol: u8) {
+        self.playlist.set_volume(new_vol);
     }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);

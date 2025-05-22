@@ -3,21 +3,14 @@
 //! This module has been designed to be implemented as a library in future.
 use futures::Stream;
 use rodio::cpal::FromSample;
-use rodio::source::EmptyCallback;
-use rodio::source::PeriodicAccess;
-use rodio::source::TrackPosition;
-use rodio::Sample;
-use rodio::Source;
+use rodio::source::{EmptyCallback, PeriodicAccess, TrackPosition};
+use rodio::{Sample, Source};
 use std::borrow::Borrow;
 use std::fmt::Debug;
 use std::time::Duration;
-use tokio::sync::mpsc;
-use tokio::sync::oneshot;
+use tokio::sync::{mpsc, oneshot};
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::debug;
-use tracing::error;
-use tracing::info;
-use tracing::warn;
+use tracing::{debug, error, info, warn};
 
 pub mod rodio {
     pub use rodio::*;
@@ -50,6 +43,7 @@ enum AsyncRodioRequest<S, I> {
     Resume(I, RodioOneshot<()>),
     Pause(I, RodioOneshot<()>),
     IncreaseVolume(i8, RodioOneshot<Percentage>),
+    SetVolume(u8, RodioOneshot<Percentage>),
     Seek(Duration, SeekDirection, RodioOneshot<(Duration, I)>),
 }
 #[derive(Debug)]
@@ -381,6 +375,14 @@ where
                         );
                         info!("Rodio sent volume update");
                     }
+                    AsyncRodioRequest::SetVolume(percentage, tx) => {
+                        sink.set_volume((percentage as f32 / 100.0).clamp(0.0, 1.0));
+                        oneshot_send_or_error(
+                            tx.0,
+                            Percentage((sink.volume() * 100.0).round() as u8),
+                        );
+                        info!("Rodio sent volume update");
+                    }
                     AsyncRodioRequest::Seek(inc, direction, tx) => {
                         // Rodio always you to seek past song end when paused, and will report back
                         // an incorrect position for sink.get_pos().
@@ -639,6 +641,16 @@ where
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<VolumeUpdate> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::IncreaseVolume(vol_inc, tx)).await;
+        let Ok(current_volume) = rx.await else {
+            // Should never happen!
+            error!("The player has been dropped while I was waiting for a volume update for",);
+            return None;
+        };
+        Some(VolumeUpdate(current_volume))
+    }
+    pub async fn set_volume(&self, new_vol: u8) -> Option<VolumeUpdate> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::SetVolume(new_vol, tx)).await;
         let Ok(current_volume) = rx.await else {
             // Should never happen!
             error!("The player has been dropped while I was waiting for a volume update for",);
