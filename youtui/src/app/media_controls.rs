@@ -2,6 +2,7 @@
 //! are made at a minimum (in line with immediate mode architecture principle)
 use super::structures::Percentage;
 use super::ui::playlist::DEFAULT_UI_VOLUME;
+use crate::core::blocking_send_or_error;
 use futures::Stream;
 use souvlaki::{MediaControlEvent, MediaMetadata, MediaPosition, PlatformConfig};
 use std::borrow::Cow;
@@ -96,11 +97,9 @@ impl MediaController {
         let mut controls = souvlaki::MediaControls::new(config).unwrap();
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
-        controls
-            .attach(move |event| {
-                tx.blocking_send(event).unwrap();
-            })
-            .unwrap();
+        controls.attach(move |event| {
+            blocking_send_or_error(&tx, event);
+        })?;
         Ok((
             MediaController {
                 inner: controls,

@@ -2,15 +2,14 @@
 use anyhow::Result;
 use crossterm::event::{Event, EventStream, KeyEvent, KeyEventKind, MouseEvent, MouseEventKind};
 use futures::{Stream, StreamExt};
-use souvlaki::{MediaControlEvent, MediaControls};
+use souvlaki::MediaControlEvent;
 use std::time::Duration;
+#[cfg(target_family = "unix")]
+use tokio::signal::unix::SignalKind;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::JoinHandle;
 use tokio::time::interval;
-use tracing::{info, warn};
-
-#[cfg(target_family = "unix")]
-use tokio::signal::unix::SignalKind;
+use tracing::warn;
 
 const TICK_RATE: Duration = Duration::from_millis(200);
 
