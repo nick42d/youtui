@@ -94,7 +94,7 @@ impl MediaController {
             hwnd: Some(raw_win32_handle.hwnd.get() as *mut std::ffi::c_void),
         };
 
-        let mut controls = souvlaki::MediaControls::new(config).unwrap();
+        let mut controls = souvlaki::MediaControls::new(config)?;
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
         controls.attach(move |event| {
@@ -114,7 +114,7 @@ impl MediaController {
             ReceiverStream::new(rx),
         ))
     }
-    pub fn update_controls(&mut self, update: MediaControlsUpdate<'_>) {
+    pub fn update_controls(&mut self, update: MediaControlsUpdate<'_>) -> anyhow::Result<()> {
         let MediaControlsUpdate {
             title,
             album,
@@ -124,17 +124,19 @@ impl MediaController {
             playback_status,
             volume,
         } = update;
-        self.update_metadata(title, album, artist, cover_url, duration);
-        self.update_playback(playback_status);
+        self.update_metadata(title, album, artist, cover_url, duration)?;
+        self.update_playback(playback_status)?;
         #[cfg(target_os = "linux")]
-        self.update_volume(volume);
+        self.update_volume(volume)?;
+        Ok(())
     }
     #[cfg(target_os = "linux")]
-    fn update_volume(&mut self, volume: MediaControlsVolume) {
+    fn update_volume(&mut self, volume: MediaControlsVolume) -> anyhow::Result<()> {
         if self.volume != volume {
             self.volume = volume;
-            self.inner.set_volume(volume.0);
+            self.inner.set_volume(volume.0)?;
         }
+        Ok(())
     }
     fn update_metadata(
         &mut self,
@@ -143,7 +145,7 @@ impl MediaController {
         artist: Option<Cow<'_, str>>,
         cover_url: Option<Cow<'_, str>>,
         duration: Option<Duration>,
-    ) {
+    ) -> anyhow::Result<()> {
         let mut redraw = false;
         if self.title.as_deref() != title.as_deref() {
             redraw = true;
@@ -173,10 +175,11 @@ impl MediaController {
                 cover_url: self.cover_url.as_deref(),
                 duration: self.duration,
             };
-            self.inner.set_metadata(new_metadata).unwrap();
+            self.inner.set_metadata(new_metadata)?;
         }
+        Ok(())
     }
-    fn update_playback(&mut self, playback_status: MediaControlsStatus) {
+    fn update_playback(&mut self, playback_status: MediaControlsStatus) -> anyhow::Result<()> {
         let mut redraw = false;
         match playback_status {
             MediaControlsStatus::Stopped => {
@@ -239,7 +242,8 @@ impl MediaController {
             }
         }
         if redraw {
-            self.inner.set_playback(self.status.clone()).unwrap();
+            self.inner.set_playback(self.status.clone())?;
         }
+        Ok(())
     }
 }

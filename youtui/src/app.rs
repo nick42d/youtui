@@ -137,7 +137,7 @@ impl Youtui {
                     })?;
                     self.media_controls.update_controls(
                         ui::draw_media_controls::draw_app_media_controls(&self.window_state),
-                    );
+                    )?;
                     // When running, the app is event based, and will block until one of the
                     // following 2 message types is received.
                     tokio::select! {
