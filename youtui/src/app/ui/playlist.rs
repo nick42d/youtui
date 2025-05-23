@@ -5,7 +5,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
-    Resume, Seek, Stop, TaskMetadata,
+    Resume, Seek, SeekTo, Stop, TaskMetadata,
 };
 use crate::app::structures::{
     AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
@@ -643,13 +643,20 @@ impl Playlist {
         )
     }
     pub fn handle_seek_to(&mut self, position: Duration) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
         // Consider if we also want to update current duration.
-        todo!();
         AsyncTask::new_future_chained(
-            Seek {
-                duration,
-                direction,
-            },
+            SeekTo { position, id },
             |this: &mut Playlist, response| {
                 let Some(response) = response else {
                     return AsyncTask::new_no_op();

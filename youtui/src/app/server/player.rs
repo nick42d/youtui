@@ -62,6 +62,13 @@ impl Player {
     ) -> Option<async_rodio_sink::ProgressUpdate<ListSongID>> {
         self.rodio_handle.seek(duration, direction).await
     }
+    pub async fn seek_to(
+        &self,
+        seek_to_pos: Duration,
+        id: ListSongID,
+    ) -> Option<async_rodio_sink::ProgressUpdate<ListSongID>> {
+        self.rodio_handle.seek_to(seek_to_pos, id).await
+    }
     pub async fn stop(&self, song_id: ListSongID) -> Option<async_rodio_sink::Stopped<ListSongID>> {
         self.rodio_handle.stop(song_id).await
     }

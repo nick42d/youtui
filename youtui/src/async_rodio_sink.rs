@@ -45,6 +45,7 @@ enum AsyncRodioRequest<S, I> {
     IncreaseVolume(i8, RodioOneshot<Percentage>),
     SetVolume(u8, RodioOneshot<Percentage>),
     Seek(Duration, SeekDirection, RodioOneshot<(Duration, I)>),
+    SeekTo(Duration, I, RodioOneshot<(Duration, I)>),
 }
 #[derive(Debug)]
 enum AsyncRodioResponse {
@@ -399,17 +400,42 @@ where
                                     .min(cur_song_duration.unwrap_or_default()),
                             ),
                         };
-                        if res.is_err() {
-                            error!("Failed to seek!!");
+                        if let Err(e) = res {
+                            error!("Failed to seek {:?}", e);
                         }
                         let Some(cur_song_id) = cur_song_id else {
                             warn!("Tried to seek, but no song loaded");
                             continue;
                         };
                         // It seems that there is a race condition with seeking a paused track in
-                        // rodio itself. This delay is sufficient.
+                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
+                        // right position.
+                        // TODO: Report upstream
                         std::thread::sleep(Duration::from_millis(5));
                         oneshot_send_or_error(tx.0, (sink.get_pos(), cur_song_id));
+                    }
+                    AsyncRodioRequest::SeekTo(seek_to_pos, song_id, tx) => {
+                        info!(
+                            "Got message to seek to {:?} in song {:?}",
+                            seek_to_pos, song_id
+                        );
+                        if cur_song_id != Some(song_id) {
+                            continue;
+                        }
+                        // Rodio always you to seek past song end when paused, and will report back
+                        // an incorrect position for sink.get_pos().
+                        // TODO: Report upstream
+                        let res =
+                            sink.try_seek(seek_to_pos.min(cur_song_duration.unwrap_or_default()));
+                        if let Err(e) = res {
+                            error!("Failed to seek {:?}", e);
+                        }
+                        // It seems that there is a race condition with seeking a paused track in
+                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
+                        // right position.
+                        // TODO: Report upstream
+                        std::thread::sleep(Duration::from_millis(5));
+                        oneshot_send_or_error(tx.0, (sink.get_pos(), song_id));
                     }
                 }
             }
@@ -582,6 +608,21 @@ where
         let Ok((current_duration, song_id)) = rx.await else {
             // This happens intentionally - when a seek is requested for a song
             // but all songs have finished, instead of sending a reply, rodio will drop
+            // sender.
+            info!("The song I tried to seek is no longer playing");
+            return None;
+        };
+        Some(ProgressUpdate {
+            duration: current_duration,
+            identifier: song_id,
+        })
+    }
+    pub async fn seek_to(&self, seek_to_pos: Duration, id: I) -> Option<ProgressUpdate<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::SeekTo(seek_to_pos, id, tx)).await;
+        let Ok((current_duration, song_id)) = rx.await else {
+            // This happens intentionally - when a seek is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop
             // sender.
             info!("The song I tried to seek is no longer playing");
             return None;
