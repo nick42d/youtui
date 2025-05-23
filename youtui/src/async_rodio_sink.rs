@@ -39,6 +39,7 @@ enum AsyncRodioRequest<S, I> {
     AutoplaySong(S, I, RodioMpscSender<AsyncRodioResponse>),
     QueueSong(S, I, RodioMpscSender<AsyncRodioResponse>),
     Stop(I, RodioOneshot<()>),
+    StopAll(RodioOneshot<()>),
     PausePlay(I, RodioOneshot<AsyncRodioPlayActionTaken>),
     Resume(I, RodioOneshot<()>),
     Pause(I, RodioOneshot<()>),
@@ -104,11 +105,14 @@ pub struct ProgressUpdate<I> {
     pub duration: Duration,
     pub identifier: I,
 }
-// NOTE: At this stage this difference between StoppedPlaying and Stopped is
+// NOTE: At this stage this difference between DonePlaying and Stopped is
 // very thin. DonePlaying means that the song has been dropped by the player,
 // whereas Stopped simply means that a Stop message to the player was succesful.
 #[derive(Debug)]
 pub struct Stopped<I>(pub I);
+/// Message to say that playback has stopped - all songs.
+#[derive(Debug)]
+pub struct AllStopped;
 #[derive(Debug)]
 pub struct Resumed<I>(pub I);
 #[derive(Debug)]
@@ -319,6 +323,16 @@ where
                         if cur_song_id != Some(song_id) {
                             continue;
                         }
+                        if !sink.empty() {
+                            sink.stop()
+                        }
+                        cur_song_id = None;
+                        next_song_id = None;
+                        cur_song_duration = None;
+                        oneshot_send_or_error(tx.0, ());
+                    }
+                    AsyncRodioRequest::StopAll(tx) => {
+                        info!("Got message to stop playing all");
                         if !sink.empty() {
                             sink.stop()
                         }
@@ -643,6 +657,16 @@ where
         };
         Some(Stopped(identifier))
     }
+    pub async fn stop_all(&self) -> Option<AllStopped> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::StopAll(tx)).await;
+        let Ok(_) = rx.await else {
+            // Should never happen!
+            error!("stop_all sender dropped - unknown reason");
+            return None;
+        };
+        Some(AllStopped)
+    }
     pub async fn pause_play(&self, identifier: I) -> Option<PausePlayResponse<I>> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::PausePlay(identifier, tx)).await;
@@ -660,7 +684,7 @@ where
     pub async fn pause(&self, identifier: I) -> Option<Paused<I>> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::Pause(identifier, tx)).await;
-        let Ok(play_action_taken) = rx.await else {
+        let Ok(_) = rx.await else {
             // This happens intentionally - when a pauseplay is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
             info!("The song I tried to pause/play was no longer selected",);
@@ -671,7 +695,7 @@ where
     pub async fn resume(&self, identifier: I) -> Option<Resumed<I>> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::Resume(identifier, tx)).await;
-        let Ok(play_action_taken) = rx.await else {
+        let Ok(_) = rx.await else {
             // This happens intentionally - when a pauseplay is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
             info!("The song I tried to pause/play was no longer selected",);

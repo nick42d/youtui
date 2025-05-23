@@ -51,12 +51,13 @@ impl EventSpawner<MediaControlsWatcher> {
         let _spawner_type = MediaControlsWatcher;
         // Required due to definition of EventSpawner.
         let _handler = tokio::spawn(async move {
-            loop {
-                let e = media_events.next().await.unwrap();
+            while let Some(event) = media_events.next().await {
                 handler_tx
-                    .send(AppEvent::MediaControls(e))
+                    .send(AppEvent::MediaControls(event))
                     .await
-                    .unwrap_or_else(|e| warn!("Error {:?} receieved when sending tick event", e));
+                    .unwrap_or_else(|e| {
+                        warn!("Error {:?} receieved when sending media controls event", e)
+                    });
             }
         });
         Self {

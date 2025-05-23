@@ -5,8 +5,8 @@ use super::ArcServer;
 use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
-    AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate, Resumed,
-    SeekDirection, Stopped, VolumeUpdate,
+    AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
+    Resumed, SeekDirection, Stopped, VolumeUpdate,
 };
 use anyhow::{Error, Result};
 use async_callback_manager::{BackendStreamingTask, BackendTask};
@@ -71,8 +71,12 @@ pub struct SeekTo {
     // song a but due to a race condition seek applied to song b.
     pub id: ListSongID,
 }
+/// Stop a song if it is still currently playing.
 #[derive(Debug)]
 pub struct Stop(pub ListSongID);
+/// Stop the player, regardless of what song is playing.
+#[derive(Debug)]
+pub struct StopAll;
 #[derive(Debug)]
 pub struct PausePlay(pub ListSongID);
 #[derive(Debug)]
@@ -238,6 +242,17 @@ impl BackendTask<ArcServer> for Stop {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.player.stop(self.0).await }
+    }
+}
+impl BackendTask<ArcServer> for StopAll {
+    type Output = Option<AllStopped>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.stop_all().await }
     }
 }
 impl BackendTask<ArcServer> for PausePlay {

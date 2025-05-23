@@ -5,7 +5,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
-    Resume, Seek, SeekTo, Stop, TaskMetadata,
+    Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
     AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
@@ -15,7 +15,7 @@ use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::draw_table;
 use crate::app::view::{BasicConstraint, DrawableMut, Loadable, TableView};
 use crate::async_rodio_sink::{
-    AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
+    AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
 use crate::config::keymap::Keymap;
@@ -792,19 +792,11 @@ impl Playlist {
     /// Handle global stop action. Change state (visual), change playback
     /// (server).
     pub fn stop(&mut self) -> ComponentEffect<Self> {
-        let id = match self.play_status {
-            PlayState::Playing(id) => {
-                self.play_status = PlayState::Paused(id);
-                id
-            }
-            _ => return AsyncTask::new_no_op(),
-        };
-        todo!();
+        self.play_status = PlayState::Stopped;
         AsyncTask::new_future(
-            Pause(id),
+            StopAll,
             |this: &mut Playlist, response| {
-                let Some(response) = response else { return };
-                this.handle_paused(response.0);
+                this.handle_all_stopped(response);
             },
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
@@ -1039,5 +1031,12 @@ impl Playlist {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
         }
+    }
+    /// Handle all stopped message from server
+    pub fn handle_all_stopped(&mut self, msg: Option<AllStopped>) {
+        if msg.is_none() {
+            return;
+        }
+        self.play_status = PlayState::Stopped
     }
 }

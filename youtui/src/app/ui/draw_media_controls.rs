@@ -1,8 +1,7 @@
-use super::{footer::parse_simple_time_to_secs, YoutuiWindow};
-use crate::app::{
-    media_controls::{MediaControlsStatus, MediaControlsUpdate, MediaControlsVolume},
-    structures::PlayState,
-};
+use super::footer::parse_simple_time_to_secs;
+use super::YoutuiWindow;
+use crate::app::media_controls::{MediaControlsStatus, MediaControlsUpdate, MediaControlsVolume};
+use crate::app::structures::PlayState;
 use itertools::Itertools;
 use std::time::Duration;
 
@@ -76,7 +75,7 @@ pub fn draw_app_media_controls(w: &YoutuiWindow) -> MediaControlsUpdate<'_> {
         album: Some(album_title.into()),
         artist: Some(artist_title),
         cover_url: None,
-        duration: Some(std::time::Duration::from_secs(duration.try_into().unwrap())),
+        duration: Some(std::time::Duration::from_secs(duration as u64)),
         playback_status,
         volume,
     }

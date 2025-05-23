@@ -72,6 +72,9 @@ impl Player {
     pub async fn stop(&self, song_id: ListSongID) -> Option<async_rodio_sink::Stopped<ListSongID>> {
         self.rodio_handle.stop(song_id).await
     }
+    pub async fn stop_all(&self) -> Option<async_rodio_sink::AllStopped> {
+        self.rodio_handle.stop_all().await
+    }
     pub async fn pause_play(
         &self,
         song_id: ListSongID,
