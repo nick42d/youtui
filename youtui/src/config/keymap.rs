@@ -12,8 +12,11 @@ use crate::keybind::Keybind;
 use anyhow::{Context, Error, Result};
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use std::collections::btree_map::Entry;
-use std::{borrow::Cow, collections::BTreeMap, convert::Infallible, str::FromStr};
+use std::collections::BTreeMap;
+use std::convert::Infallible;
+use std::str::FromStr;
 
 /// Convenience type alias
 pub type Keymap<A> = BTreeMap<Keybind, KeyActionTree<A>>;
@@ -615,72 +618,24 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             KeyActionTree::new_key(AppAction::VolUp),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::RaiseVolume,
-            )),
-            KeyActionTree::new_key_with_visibility(AppAction::VolUp, KeyActionVisibility::Hidden),
-        ),
-        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('-')),
             KeyActionTree::new_key(AppAction::VolDown),
-        ),
-        (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::LowerVolume,
-            )),
-            KeyActionTree::new_key_with_visibility(AppAction::VolDown, KeyActionVisibility::Hidden),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('>')),
             KeyActionTree::new_key(AppAction::NextSong),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::TrackNext,
-            )),
-            KeyActionTree::new_key_with_visibility(
-                AppAction::NextSong,
-                KeyActionVisibility::Hidden,
-            ),
-        ),
-        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('<')),
             KeyActionTree::new_key(AppAction::PrevSong),
-        ),
-        (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::TrackPrevious,
-            )),
-            KeyActionTree::new_key_with_visibility(
-                AppAction::PrevSong,
-                KeyActionVisibility::Hidden,
-            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char(']')),
             KeyActionTree::new_key(AppAction::SeekForward),
         ),
         (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::FastForward,
-            )),
-            KeyActionTree::new_key_with_visibility(
-                AppAction::SeekForward,
-                KeyActionVisibility::Hidden,
-            ),
-        ),
-        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Char('[')),
             KeyActionTree::new_key(AppAction::SeekBack),
-        ),
-        (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::Rewind,
-            )),
-            KeyActionTree::new_key_with_visibility(
-                AppAction::SeekBack,
-                KeyActionVisibility::Hidden,
-            ),
         ),
         (
             Keybind::new_unmodified(crossterm::event::KeyCode::F(1)),
@@ -705,15 +660,6 @@ fn default_global_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             KeyActionTree::new_key_with_visibility(
                 AppAction::PlayPause,
                 KeyActionVisibility::Global,
-            ),
-        ),
-        (
-            Keybind::new_unmodified(crossterm::event::KeyCode::Media(
-                crossterm::event::MediaKeyCode::PlayPause,
-            )),
-            KeyActionTree::new_key_with_visibility(
-                AppAction::PlayPause,
-                KeyActionVisibility::Hidden,
             ),
         ),
         (
@@ -1132,16 +1078,11 @@ fn default_list_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
 #[cfg(test)]
 mod tests {
     use super::{merge_keymaps, KeyActionTree};
-    use crate::{
-        app::ui::{
-            action::AppAction,
-            browser::artistsearch::{
-                search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction,
-            },
-        },
-        config::keymap::{remove_action_from_keymap, Keymap},
-        keybind::Keybind,
-    };
+    use crate::app::ui::action::AppAction;
+    use crate::app::ui::browser::artistsearch::search_panel::BrowserArtistsAction;
+    use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
+    use crate::config::keymap::{remove_action_from_keymap, Keymap};
+    use crate::keybind::Keybind;
 
     #[test]
     fn test_add_key() {

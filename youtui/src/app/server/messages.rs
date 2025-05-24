@@ -1,25 +1,20 @@
 use super::api::GetArtistSongsProgressUpdate;
-use super::downloader::DownloadProgressUpdate;
-use super::downloader::InMemSong;
-use super::player::DecodedInMemSong;
-use super::player::Player;
+use super::downloader::{DownloadProgressUpdate, InMemSong};
+use super::player::{DecodedInMemSong, Player};
 use super::ArcServer;
 use crate::app::structures::ListSongID;
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
-    rodio::decoder::DecoderError, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate,
-    QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
+    AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
+    Resumed, SeekDirection, Stopped, VolumeUpdate,
 };
-use anyhow::Error;
-use anyhow::Result;
+use anyhow::{Error, Result};
 use async_callback_manager::{BackendStreamingTask, BackendTask};
-use futures::Future;
-use futures::Stream;
+use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::VideoID;
-use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion};
-use ytmapi_rs::parse::SearchResultArtist;
-use ytmapi_rs::parse::SearchResultSong;
+use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
+use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -56,17 +51,38 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Send IncreaseVolume(5)
 // Send IncreaseVolume(5), killing previous task
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
+// New note - 2025:
+// SetVolume should be able to kill IncreaseVolume however...
 #[derive(Debug)]
 pub struct IncreaseVolume(pub i8);
+#[derive(Debug)]
+pub struct SetVolume(pub u8);
+/// Seek forwards or backwards a duration in a song.
 #[derive(Debug)]
 pub struct Seek {
     pub duration: Duration,
     pub direction: SeekDirection,
 }
+/// Seek to a target position in a song.
+#[derive(Debug)]
+pub struct SeekTo {
+    pub position: Duration,
+    // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
+    // song a but due to a race condition seek applied to song b.
+    pub id: ListSongID,
+}
+/// Stop a song if it is still currently playing.
 #[derive(Debug)]
 pub struct Stop(pub ListSongID);
+/// Stop the player, regardless of what song is playing.
+#[derive(Debug)]
+pub struct StopAll;
 #[derive(Debug)]
 pub struct PausePlay(pub ListSongID);
+#[derive(Debug)]
+pub struct Resume(pub ListSongID);
+#[derive(Debug)]
+pub struct Pause(pub ListSongID);
 /// Decode a song into a format that can be played.
 #[derive(Debug)]
 pub struct DecodeSong(pub Arc<InMemSong>);
@@ -174,6 +190,17 @@ impl BackendTask<ArcServer> for Seek {
         async move { backend.player.seek(self.duration, self.direction).await }
     }
 }
+impl BackendTask<ArcServer> for SeekTo {
+    type Output = Option<ProgressUpdate<ListSongID>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.seek_to(self.position, self.id).await }
+    }
+}
 impl BackendTask<ArcServer> for DecodeSong {
     type Output = std::result::Result<DecodedInMemSong, DecoderError>;
     type MetadataType = TaskMetadata;
@@ -195,6 +222,17 @@ impl BackendTask<ArcServer> for IncreaseVolume {
         async move { backend.player.increase_volume(self.0).await }
     }
 }
+impl BackendTask<ArcServer> for SetVolume {
+    type Output = Option<VolumeUpdate>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.set_volume(self.0).await }
+    }
+}
 impl BackendTask<ArcServer> for Stop {
     type Output = Option<Stopped<ListSongID>>;
     type MetadataType = TaskMetadata;
@@ -206,6 +244,17 @@ impl BackendTask<ArcServer> for Stop {
         async move { backend.player.stop(self.0).await }
     }
 }
+impl BackendTask<ArcServer> for StopAll {
+    type Output = Option<AllStopped>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.stop_all().await }
+    }
+}
 impl BackendTask<ArcServer> for PausePlay {
     type Output = Option<PausePlayResponse<ListSongID>>;
     type MetadataType = TaskMetadata;
@@ -215,6 +264,34 @@ impl BackendTask<ArcServer> for PausePlay {
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         let backend = backend.clone();
         async move { backend.player.pause_play(self.0).await }
+    }
+    fn metadata() -> Vec<Self::MetadataType> {
+        vec![TaskMetadata::PlayPause]
+    }
+}
+impl BackendTask<ArcServer> for Resume {
+    type Output = Option<Resumed<ListSongID>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.resume(self.0).await }
+    }
+    fn metadata() -> Vec<Self::MetadataType> {
+        vec![TaskMetadata::PlayPause]
+    }
+}
+impl BackendTask<ArcServer> for Pause {
+    type Output = Option<Paused<ListSongID>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.player.pause(self.0).await }
     }
     fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayPause]

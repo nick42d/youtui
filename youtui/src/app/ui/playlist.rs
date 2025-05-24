@@ -1,37 +1,36 @@
 use super::action::AppAction;
 use crate::app::component::actionhandler::{
-    ActionHandler, ComponentEffect, Scrollable, YoutuiEffect,
+    Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, PausePlay, PlaySong, QueueSong, Seek,
-    Stop, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
+    Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
-use crate::app::structures::{DownloadStatus, ListSongDisplayableField};
-use crate::app::structures::{Percentage, SongListComponent};
+use crate::app::structures::{
+    AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
+    PlayState, SongListComponent,
+};
+use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut};
-use crate::app::view::{Loadable, TableView};
-use crate::app::{
-    component::actionhandler::{Action, KeyRouter, TextHandler},
-    structures::{AlbumSongsList, ListSong, ListSongID, PlayState},
-    ui::{AppCallback, WindowContext},
-};
+use crate::app::view::{BasicConstraint, DrawableMut, Loadable, TableView};
 use crate::async_rodio_sink::{
-    AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
+    AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
 use crate::config::keymap::Keymap;
 use crate::config::Config;
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
+use ratatui::layout::Rect;
 use ratatui::widgets::TableState;
-use ratatui::{layout::Rect, Frame};
+use ratatui::Frame;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+use std::fmt::Debug;
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
-use std::{borrow::Cow, fmt::Debug};
 use tracing::{error, info, warn};
 
 #[cfg(test)]
@@ -41,6 +40,7 @@ const SONGS_AHEAD_TO_BUFFER: usize = 3;
 const SONGS_BEHIND_TO_SAVE: usize = 1;
 // How soon to trigger gapless playback
 const GAPLESS_PLAYBACK_THRESHOLD: Duration = Duration::from_secs(1);
+pub const DEFAULT_UI_VOLUME: Percentage = Percentage(50);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Playlist {
@@ -238,7 +238,7 @@ impl Playlist {
             Some(Constraint::new_block_same_type()),
         );
         let playlist = Playlist {
-            volume: Percentage(50),
+            volume: DEFAULT_UI_VOLUME,
             play_status: PlayState::NotPlaying,
             list: Default::default(),
             cur_played_dur: None,
@@ -455,6 +455,13 @@ impl Playlist {
     pub fn increase_volume(&mut self, inc: i8) {
         self.volume.0 = self.volume.0.saturating_add_signed(inc).clamp(0, 100);
     }
+    /// Update the volume in the UI for immediate visual feedback - response
+    /// will be delayed one tick. Note that this does not actually change the
+    /// volume!
+    // NOTE: could cause some visual race conditions.
+    pub fn set_volume(&mut self, new_vol: u8) {
+        self.volume.0 = new_vol.clamp(0, 100);
+    }
     /// Add a song list to the playlist. Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
         self.list.push_song_list(song_list)
@@ -635,6 +642,30 @@ impl Playlist {
             None,
         )
     }
+    pub fn handle_seek_to(&mut self, position: Duration) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
+        // Consider if we also want to update current duration.
+        AsyncTask::new_future_chained(
+            SeekTo { position, id },
+            |this: &mut Playlist, response| {
+                let Some(response) = response else {
+                    return AsyncTask::new_no_op();
+                };
+                this.handle_set_song_play_progress(response.duration, response.identifier)
+            },
+            None,
+        )
+    }
     /// Handle next command (from global keypress), if currently playing.
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
         match self.play_status {
@@ -710,6 +741,62 @@ impl Playlist {
                     PausePlayResponse::Paused(id) => this.handle_paused(id),
                     PausePlayResponse::Resumed(id) => this.handle_resumed(id),
                 };
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
+    }
+    /// Handle global play action. Change state (visual), change playback
+    /// (server).
+    pub fn resume(&mut self) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Paused(id) => {
+                self.play_status = PlayState::Playing(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
+        AsyncTask::new_future(
+            Resume(id),
+            |this: &mut Playlist, response| {
+                let Some(response) = response else { return };
+                this.handle_resumed(response.0);
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
+    }
+    /// Handle global pause action. Change state (visual), change playback
+    /// (server).
+    pub fn pause(&mut self) -> ComponentEffect<Self> {
+        let id = match self.play_status {
+            PlayState::Playing(id) => {
+                self.play_status = PlayState::Paused(id);
+                id
+            }
+            _ => return AsyncTask::new_no_op(),
+        };
+        AsyncTask::new_future(
+            Pause(id),
+            |this: &mut Playlist, response| {
+                let Some(response) = response else { return };
+                this.handle_paused(response.0);
+            },
+            Some(Constraint::new_block_matching_metadata(
+                TaskMetadata::PlayPause,
+            )),
+        )
+    }
+    /// Handle global stop action. Change state (visual), change playback
+    /// (server).
+    pub fn stop(&mut self) -> ComponentEffect<Self> {
+        self.play_status = PlayState::Stopped;
+        AsyncTask::new_future(
+            StopAll,
+            |this: &mut Playlist, response| {
+                this.handle_all_stopped(response);
             },
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
@@ -944,5 +1031,12 @@ impl Playlist {
             info!("Stopping {:?}", id);
             self.play_status = PlayState::Stopped
         }
+    }
+    /// Handle all stopped message from server
+    pub fn handle_all_stopped(&mut self, msg: Option<AllStopped>) {
+        if msg.is_none() {
+            return;
+        }
+        self.play_status = PlayState::Stopped
     }
 }
