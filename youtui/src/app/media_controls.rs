@@ -94,7 +94,6 @@ impl MediaController {
         #[cfg(target_os = "macos")]
         let raw_window_handle::RawWindowHandle::AppKit(macos_window_handle) =
             winit::event_loop::EventLoop::builder()
-                .with_any_thread(true)
                 .build()?
                 .create_window(winit::window::Window::default_attributes().with_visible(false))?
                 .window_handle()?
