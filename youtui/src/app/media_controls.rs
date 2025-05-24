@@ -115,6 +115,7 @@ impl MediaController {
         #[cfg(not(target_os = "macos"))]
         let mut controls = souvlaki::MediaControls::new(config)?;
         // Souvlaki functions on macos don't return an Error type that implements Error.
+        // TODO: Fix upstream
         #[cfg(target_os = "macos")]
         let mut controls = souvlaki::MediaControls::new(config);
         // Assumption - event handler runs in another thread, and blocking send is
@@ -124,6 +125,7 @@ impl MediaController {
             blocking_send_or_error(&tx, event);
         })?;
         // Souvlaki functions on macos don't return an Error type that implements Error.
+        // TODO: Fix upstream
         #[cfg(target_os = "macos")]
         controls.attach(move |event| {
             blocking_send_or_error(&tx, event);
@@ -208,6 +210,7 @@ impl MediaController {
             #[cfg(not(target_os = "macos"))]
             self.inner.set_metadata(new_metadata)?;
             // Souvlaki functions on macos don't return an Error type that implements Error.
+            // TODO: Fix upstream
             #[cfg(target_os = "macos")]
             self.inner.set_metadata(new_metadata);
         }
@@ -279,6 +282,7 @@ impl MediaController {
             #[cfg(not(target_os = "macos"))]
             self.inner.set_playback(self.status.clone())?;
             // Souvlaki functions on macos don't return an Error type that implements Error.
+            // TODO: Fix upstream
             #[cfg(target_os = "macos")]
             self.inner.set_playback(self.status.clone());
         }
