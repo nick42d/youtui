@@ -90,7 +90,7 @@ impl MediaController {
         #[cfg(target_os = "macos")]
         use raw_window_handle::HasWindowHandle;
         #[cfg(target_os = "macos")]
-        use winit::platform::macos::EventLoopBuilderExtMacOs;
+        use winit::platform::macos::EventLoopBuilderExtMacOS;
         #[cfg(target_os = "macos")]
         let raw_window_handle::RawWindowHandle::AppKit(macos_window_handle) =
             winit::event_loop::EventLoop::builder()
