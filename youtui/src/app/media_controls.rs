@@ -14,6 +14,29 @@ use tokio_stream::wrappers::ReceiverStream;
 /// reduce number of calls to the platform.
 const POSITION_DIFFERENCE_REDRAW_THRESHOLD: Duration = Duration::from_secs(5);
 
+// On some platforms, souvlaki::Error doesn't implement Error, so this is the
+// workaround.
+// TODO: Report upstream.
+#[derive(Debug)]
+struct MediaControlsError(souvlaki::Error);
+impl std::error::Error for MediaControlsError {}
+impl std::fmt::Display for MediaControlsError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if cfg!(all(
+            unix,
+            not(any(
+                target_os = "macos",
+                target_os = "ios",
+                target_os = "android"
+            ))
+        )) {
+            write!(f, "{}", self.0)
+        } else {
+            write!(f, "{:?}", self.0)
+        }
+    }
+}
+
 pub struct MediaController {
     inner: souvlaki::MediaControls,
     status: souvlaki::MediaPlayback,
@@ -111,27 +134,14 @@ impl MediaController {
             hwnd: Some(raw_win32_handle.hwnd.get() as *mut std::ffi::c_void),
         };
 
-        #[cfg(not(target_os = "macos"))]
-        let mut controls = souvlaki::MediaControls::new(config)?;
-        // Souvlaki functions on macos don't return an Error type that implements Error.
-        // TODO: Fix upstream
-        #[cfg(target_os = "macos")]
-        let mut controls = souvlaki::MediaControls::new(config)
-            .expect("Souvlaki media controls on macos are infallible");
+        let mut controls = souvlaki::MediaControls::new(config).map_err(MediaControlsError)?;
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
-        #[cfg(not(target_os = "macos"))]
-        controls.attach(move |event| {
-            blocking_send_or_error(&tx, event);
-        })?;
-        // Souvlaki functions on macos don't return an Error type that implements Error.
-        // TODO: Fix upstream
-        #[cfg(target_os = "macos")]
         controls
             .attach(move |event| {
                 blocking_send_or_error(&tx, event);
             })
-            .expect("Souvlaki media controls on macos are infallible");
+            .map_err(MediaControlsError)?;
         Ok((
             MediaController {
                 inner: controls,
@@ -209,14 +219,9 @@ impl MediaController {
                 cover_url: self.cover_url.as_deref(),
                 duration: self.duration,
             };
-            #[cfg(not(target_os = "macos"))]
-            self.inner.set_metadata(new_metadata)?;
-            // Souvlaki functions on macos don't return an Error type that implements Error.
-            // TODO: Fix upstream
-            #[cfg(target_os = "macos")]
             self.inner
                 .set_metadata(new_metadata)
-                .expect("Souvlaki media controls on macos are infallible");
+                .map_err(MediaControlsError)?;
         }
         Ok(())
     }
@@ -283,14 +288,9 @@ impl MediaController {
             }
         }
         if redraw {
-            #[cfg(not(target_os = "macos"))]
-            self.inner.set_playback(self.status.clone())?;
-            // Souvlaki functions on macos don't return an Error type that implements Error.
-            // TODO: Fix upstream
-            #[cfg(target_os = "macos")]
             self.inner
                 .set_playback(self.status.clone())
-                .expect("Souvlaki media controls on macos are infallible");
+                .map_err(MediaControlsError)?;
         }
         Ok(())
     }
