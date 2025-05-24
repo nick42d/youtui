@@ -117,7 +117,8 @@ impl MediaController {
         // Souvlaki functions on macos don't return an Error type that implements Error.
         // TODO: Fix upstream
         #[cfg(target_os = "macos")]
-        let mut controls = souvlaki::MediaControls::new(config);
+        let mut controls = souvlaki::MediaControls::new(config)
+            .expect("Souvlaki media controls on macos are infallible");
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
         #[cfg(not(target_os = "macos"))]
@@ -127,9 +128,11 @@ impl MediaController {
         // Souvlaki functions on macos don't return an Error type that implements Error.
         // TODO: Fix upstream
         #[cfg(target_os = "macos")]
-        controls.attach(move |event| {
-            blocking_send_or_error(&tx, event);
-        });
+        controls
+            .attach(move |event| {
+                blocking_send_or_error(&tx, event);
+            })
+            .expect("Souvlaki media controls on macos are infallible");
         Ok((
             MediaController {
                 inner: controls,
@@ -212,7 +215,9 @@ impl MediaController {
             // Souvlaki functions on macos don't return an Error type that implements Error.
             // TODO: Fix upstream
             #[cfg(target_os = "macos")]
-            self.inner.set_metadata(new_metadata);
+            self.inner
+                .set_metadata(new_metadata)
+                .expect("Souvlaki media controls on macos are infallible");
         }
         Ok(())
     }
@@ -284,7 +289,9 @@ impl MediaController {
             // Souvlaki functions on macos don't return an Error type that implements Error.
             // TODO: Fix upstream
             #[cfg(target_os = "macos")]
-            self.inner.set_playback(self.status.clone());
+            self.inner
+                .set_playback(self.status.clone())
+                .expect("Souvlaki media controls on macos are infallible");
         }
         Ok(())
     }
