@@ -23,6 +23,9 @@ pub struct MediaController {
     artist: Option<String>,
     cover_url: Option<String>,
     duration: Option<Duration>,
+    /// macos requires an active window handle
+    #[cfg(target_os = "macos")]
+    macos_window_handle: raw_window_handle::AppKitWindowHandle,
 }
 
 pub struct MediaControlsUpdate<'a> {
@@ -84,6 +87,21 @@ impl MediaController {
         else {
             anyhow::bail!("Expected to get a Win32WindowHandle but we did not!")
         };
+        #[cfg(target_os = "macos")]
+        use raw_window_handle::HasWindowHandle;
+        #[cfg(target_os = "macos")]
+        use winit::platform::macos::EventLoopBuilderExtMacOs;
+        #[cfg(target_os = "macos")]
+        let raw_window_handle::RawWindowHandle::AppKit(macos_window_handle) =
+            winit::event_loop::EventLoop::builder()
+                .with_any_thread(true)
+                .build()?
+                .create_window(winit::window::Window::default_attributes().with_visible(false))?
+                .window_handle()?
+                .as_raw()
+        else {
+            anyhow::bail!("Expected to get a AppKitWindowHandle but we did not!")
+        };
 
         let config = PlatformConfig {
             display_name: "Youtui",
@@ -94,12 +112,22 @@ impl MediaController {
             hwnd: Some(raw_win32_handle.hwnd.get() as *mut std::ffi::c_void),
         };
 
+        #[cfg(not(target_os = "macos"))]
         let mut controls = souvlaki::MediaControls::new(config)?;
+        // Souvlaki functions on macos don't return an Error type that implements Error.
+        #[cfg(target_os = "macos")]
+        let mut controls = souvlaki::MediaControls::new(config);
         // Assumption - event handler runs in another thread, and blocking send is
         // acceptable.
+        #[cfg(not(target_os = "macos"))]
         controls.attach(move |event| {
             blocking_send_or_error(&tx, event);
         })?;
+        // Souvlaki functions on macos don't return an Error type that implements Error.
+        #[cfg(target_os = "macos")]
+        controls.attach(move |event| {
+            blocking_send_or_error(&tx, event);
+        });
         Ok((
             MediaController {
                 inner: controls,
@@ -110,6 +138,8 @@ impl MediaController {
                 cover_url: None,
                 duration: None,
                 volume: Default::default(),
+                #[cfg(target_os = "macos")]
+                macos_window_handle,
             },
             ReceiverStream::new(rx),
         ))
@@ -175,7 +205,11 @@ impl MediaController {
                 cover_url: self.cover_url.as_deref(),
                 duration: self.duration,
             };
+            #[cfg(not(target_os = "macos"))]
             self.inner.set_metadata(new_metadata)?;
+            // Souvlaki functions on macos don't return an Error type that implements Error.
+            #[cfg(target_os = "macos")]
+            self.inner.set_metadata(new_metadata);
         }
         Ok(())
     }
@@ -242,7 +276,11 @@ impl MediaController {
             }
         }
         if redraw {
+            #[cfg(not(target_os = "macos"))]
             self.inner.set_playback(self.status.clone())?;
+            // Souvlaki functions on macos don't return an Error type that implements Error.
+            #[cfg(target_os = "macos")]
+            self.inner.set_playback(self.status.clone());
         }
         Ok(())
     }
