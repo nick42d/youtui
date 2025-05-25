@@ -1,6 +1,7 @@
 use super::downloader::InMemSong;
 use crate::app::structures::ListSongID;
-use crate::async_rodio_sink::rodio::{decoder::DecoderError, Decoder};
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
+use crate::async_rodio_sink::rodio::Decoder;
 use crate::async_rodio_sink::{self, AsyncRodio};
 use futures::Stream;
 use std::io::Cursor;
@@ -61,8 +62,18 @@ impl Player {
     ) -> Option<async_rodio_sink::ProgressUpdate<ListSongID>> {
         self.rodio_handle.seek(duration, direction).await
     }
+    pub async fn seek_to(
+        &self,
+        seek_to_pos: Duration,
+        id: ListSongID,
+    ) -> Option<async_rodio_sink::ProgressUpdate<ListSongID>> {
+        self.rodio_handle.seek_to(seek_to_pos, id).await
+    }
     pub async fn stop(&self, song_id: ListSongID) -> Option<async_rodio_sink::Stopped<ListSongID>> {
         self.rodio_handle.stop(song_id).await
+    }
+    pub async fn stop_all(&self) -> Option<async_rodio_sink::AllStopped> {
+        self.rodio_handle.stop_all().await
     }
     pub async fn pause_play(
         &self,
@@ -70,8 +81,20 @@ impl Player {
     ) -> Option<async_rodio_sink::PausePlayResponse<ListSongID>> {
         self.rodio_handle.pause_play(song_id).await
     }
+    pub async fn resume(
+        &self,
+        song_id: ListSongID,
+    ) -> Option<async_rodio_sink::Resumed<ListSongID>> {
+        self.rodio_handle.resume(song_id).await
+    }
+    pub async fn pause(&self, song_id: ListSongID) -> Option<async_rodio_sink::Paused<ListSongID>> {
+        self.rodio_handle.pause(song_id).await
+    }
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<async_rodio_sink::VolumeUpdate> {
         self.rodio_handle.increase_volume(vol_inc).await
+    }
+    pub async fn set_volume(&self, new_vol: u8) -> Option<async_rodio_sink::VolumeUpdate> {
+        self.rodio_handle.set_volume(new_vol).await
     }
     pub async fn try_decode(
         song: Arc<InMemSong>,

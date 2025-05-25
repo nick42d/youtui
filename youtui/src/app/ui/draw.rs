@@ -6,16 +6,14 @@ use crate::drawutils::{
     TEXT_COLOUR,
 };
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};
 use ratatui::widgets::{
     Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
 };
-use ratatui::{
-    layout::{Constraint, Direction, Layout},
-    Frame,
-};
+use ratatui::Frame;
 use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.

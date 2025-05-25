@@ -1,10 +1,12 @@
-use self::{browser::Browser, logger::Logger, playlist::Playlist};
+use self::browser::Browser;
+use self::logger::Logger;
+use self::playlist::Playlist;
 use super::component::actionhandler::{
     apply_action_mapped, get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler,
     ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
     YoutuiEffect,
 };
-use super::server::IncreaseVolume;
+use super::server::{IncreaseVolume, SetVolume};
 use super::structures::*;
 use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
@@ -21,6 +23,7 @@ use std::time::Duration;
 pub mod action;
 pub mod browser;
 pub mod draw;
+pub mod draw_media_controls;
 mod footer;
 mod header;
 pub mod logger;
@@ -320,17 +323,65 @@ impl YoutuiWindow {
                 .chain(std::iter::once(&self.config.keybinds.text_entry)),
         ))
     }
-    // Splitting out event types removes one layer of indentation.
-    pub async fn handle_event(&mut self, event: crossterm::event::Event) -> YoutuiEffect<Self> {
+    pub async fn handle_crossterm_event(
+        &mut self,
+        event: crossterm::event::Event,
+    ) -> YoutuiEffect<Self> {
         // TODO: This should be intercepted and keycodes mapped by us instead of going
         // direct to rat-text.
         if let Some(effect) = self.try_handle_text(&event) {
             return effect.into();
         };
+        // Splitting out event types removes one layer of indentation.
         match event {
             Event::Key(k) => return self.handle_key_event(k),
             Event::Mouse(m) => return self.handle_mouse_event(m).into(),
             other => tracing::warn!("Received unimplemented {:?} event", other),
+        }
+        AsyncTask::new_no_op().into()
+    }
+    pub async fn handle_media_controls_event(
+        &mut self,
+        event: souvlaki::MediaControlEvent,
+    ) -> YoutuiEffect<Self> {
+        // This conversion function is written here as this is expected to be the only
+        // location it is used.
+        let convert_dir = |dir| match dir {
+            souvlaki::SeekDirection::Forward => SeekDirection::Forward,
+            souvlaki::SeekDirection::Backward => SeekDirection::Back,
+        };
+        match event {
+            souvlaki::MediaControlEvent::Play => return self.resume().into(),
+            souvlaki::MediaControlEvent::Pause => return self.pause().into(),
+            souvlaki::MediaControlEvent::Toggle => return self.pauseplay().into(),
+            souvlaki::MediaControlEvent::Next => return self.handle_next().into(),
+            souvlaki::MediaControlEvent::Previous => return self.handle_prev().into(),
+            souvlaki::MediaControlEvent::Stop => return self.stop().into(),
+            souvlaki::MediaControlEvent::Seek(seek_direction) => {
+                return self
+                    .handle_seek(SEEK_AMOUNT, convert_dir(seek_direction))
+                    .into()
+            }
+            souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => {
+                return self
+                    .handle_seek(duration, convert_dir(seek_direction))
+                    .into()
+            }
+            souvlaki::MediaControlEvent::SetPosition(media_position) => {
+                return self.handle_seek_to(media_position.0).into()
+            }
+            souvlaki::MediaControlEvent::SetVolume(v) => {
+                return self.handle_set_volume((v * 100.0) as u8).into()
+            }
+            souvlaki::MediaControlEvent::Quit => {
+                return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
+            }
+            souvlaki::MediaControlEvent::OpenUri(_) => {
+                tracing::info!("Received intentionally unhandled event {:?}", event)
+            }
+            souvlaki::MediaControlEvent::Raise => {
+                tracing::info!("Received intentionally unhandled event {:?}", event)
+            }
         }
         AsyncTask::new_no_op().into()
     }
@@ -377,6 +428,21 @@ impl YoutuiWindow {
             .pauseplay()
             .map(|this: &mut Self| &mut this.playlist)
     }
+    pub fn resume(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .resume()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn pause(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .pause()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn stop(&mut self) -> ComponentEffect<Self> {
+        self.playlist
+            .stop()
+            .map(|this: &mut Self| &mut this.playlist)
+    }
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .handle_next()
@@ -396,6 +462,15 @@ impl YoutuiWindow {
             Some(Constraint::new_block_same_type()),
         )
     }
+    pub fn handle_set_volume(&mut self, new_vol: u8) -> ComponentEffect<Self> {
+        // Visually update the state first for instant feedback.
+        self.set_volume(new_vol);
+        AsyncTask::new_future(
+            SetVolume(new_vol),
+            Self::handle_volume_update,
+            Some(Constraint::new_block_same_type()),
+        )
+    }
     pub fn handle_seek(
         &mut self,
         duration: Duration,
@@ -403,6 +478,11 @@ impl YoutuiWindow {
     ) -> ComponentEffect<Self> {
         self.playlist
             .handle_seek(duration, direction)
+            .map(|this: &mut Self| &mut this.playlist)
+    }
+    pub fn handle_seek_to(&mut self, position: Duration) -> ComponentEffect<Self> {
+        self.playlist
+            .handle_seek_to(position)
             .map(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
@@ -454,6 +534,10 @@ impl YoutuiWindow {
     /// volume.
     fn increase_volume(&mut self, inc: i8) {
         self.playlist.increase_volume(inc);
+    }
+    /// Visually set the volume, note, does not actually change the volume.
+    fn set_volume(&mut self, new_vol: u8) {
+        self.playlist.set_volume(new_vol);
     }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);

@@ -1,19 +1,15 @@
 use super::Playlist;
-use crate::{
-    app::{
-        structures::ListStatus,
-        ui::{playlist::QueueState, ListSongID, PlayState},
-    },
-    async_rodio_sink::Stopped,
-};
+use crate::app::structures::ListStatus;
+use crate::app::ui::playlist::QueueState;
+use crate::app::ui::{ListSongID, PlayState};
+use crate::async_rodio_sink::{AllStopped, Stopped};
 use pretty_assertions::assert_eq;
-use std::{sync::OnceLock, time::Duration};
-use ytmapi_rs::{
-    auth::BrowserToken,
-    common::{AlbumID, YoutubeID},
-    parse::{GetAlbum, ParsedSongAlbum},
-    query::GetAlbumQuery,
-};
+use std::sync::OnceLock;
+use std::time::Duration;
+use ytmapi_rs::auth::BrowserToken;
+use ytmapi_rs::common::{AlbumID, YoutubeID};
+use ytmapi_rs::parse::{GetAlbum, ParsedSongAlbum};
+use ytmapi_rs::query::GetAlbumQuery;
 
 static DUMMY_ALBUM: OnceLock<GetAlbum> = OnceLock::new();
 
@@ -212,5 +208,20 @@ async fn test_handle_stopped_when_not_playing_id() {
     p.play_status = PlayState::Playing(ListSongID(1));
     let expected_p = p.clone();
     p.handle_stopped(Some(Stopped(ListSongID(0))));
+    assert_eq!(p, expected_p);
+}
+#[tokio::test]
+async fn test_handle_all_stopped_none() {
+    let mut p = get_dummy_playlist().await;
+    p.handle_all_stopped(None);
+    assert_eq!(p, get_dummy_playlist().await);
+}
+#[tokio::test]
+async fn test_handle_all_stopped_when_playing() {
+    let mut p = get_dummy_playlist().await;
+    p.play_status = PlayState::Playing(ListSongID(0));
+    p.handle_all_stopped(Some(AllStopped));
+    let mut expected_p = get_dummy_playlist().await;
+    expected_p.play_status = PlayState::Stopped;
     assert_eq!(p, expected_p);
 }

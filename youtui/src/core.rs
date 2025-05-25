@@ -1,20 +1,17 @@
 //! Re-usable core functionality.
 use anyhow::bail;
-use serde::{
-    de::{self, MapAccess, Visitor},
-    Deserialize, Deserializer,
-};
-use std::{
-    borrow::Borrow,
-    convert::Infallible,
-    fmt,
-    marker::PhantomData,
-    path::{Path, PathBuf},
-    str::FromStr,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use serde::de::{self, MapAccess, Visitor};
+use serde::{Deserialize, Deserializer};
+use std::borrow::Borrow;
+use std::convert::Infallible;
+use std::fmt;
+use std::marker::PhantomData;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::mpsc;
-use tokio_stream::{wrappers::ReadDirStream, StreamExt};
+use tokio_stream::wrappers::ReadDirStream;
+use tokio_stream::StreamExt;
 use tracing::error;
 
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
@@ -23,6 +20,14 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
     tx.borrow()
         .send(msg)
         .await
+        .unwrap_or_else(|e| error!("Error {e} received when sending message"));
+}
+
+/// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
+/// log an error with Tracing.
+pub fn blocking_send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
+    tx.borrow()
+        .blocking_send(msg)
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
@@ -122,7 +127,8 @@ mod tests {
     use pretty_assertions::assert_eq;
     use std::time::Duration;
     use tempfile::TempDir;
-    use tokio_stream::{wrappers::ReadDirStream, StreamExt};
+    use tokio_stream::wrappers::ReadDirStream;
+    use tokio_stream::StreamExt;
 
     #[tokio::test]
     async fn test_get_limited_sequential_file_has_correct_filename() {
