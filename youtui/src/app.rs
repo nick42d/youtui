@@ -200,7 +200,7 @@ impl Youtui {
             }
             AppEvent::MediaControls(e) => {
                 let YoutuiEffect { effect, callback } =
-                    self.window_state.handle_media_event(e).await;
+                    self.window_state.handle_media_controls_event(e).await;
                 self.task_manager.spawn_task(&self.server, effect);
                 if let Some(callback) = callback {
                     self.handle_callback(callback);

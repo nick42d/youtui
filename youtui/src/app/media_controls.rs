@@ -14,9 +14,9 @@ use tokio_stream::wrappers::ReceiverStream;
 /// reduce number of calls to the platform.
 const POSITION_DIFFERENCE_REDRAW_THRESHOLD: Duration = Duration::from_secs(5);
 
-// On some platforms, souvlaki::Error doesn't implement Error, so this is the
-// workaround.
-// TODO: Report upstream.
+// On some platforms, souvlaki::Error doesn't implement Error, so this newtype
+// is the workaround.
+// https://github.com/Sinono3/souvlaki/issues/61
 #[derive(Debug)]
 struct MediaControlsError(souvlaki::Error);
 impl std::error::Error for MediaControlsError {}
@@ -52,7 +52,7 @@ pub struct MediaController {
     cover_url: Option<String>,
     duration: Option<Duration>,
     /// macos requires an active window handle
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(target_os = "macos")]
     macos_window_handle: raw_window_handle::AppKitWindowHandle,
 }
 
@@ -115,11 +115,11 @@ impl MediaController {
         else {
             anyhow::bail!("Expected to get a Win32WindowHandle but we did not!")
         };
-        #[cfg(any(target_os = "macos", target_os = "ios"))]
+        #[cfg(target_os = "macos")]
         use raw_window_handle::HasWindowHandle;
-        #[cfg(any(target_os = "macos", target_os = "ios"))]
+        #[cfg(target_os = "macos")]
         use winit::platform::macos::EventLoopBuilderExtMacOS;
-        #[cfg(any(target_os = "macos", target_os = "ios"))]
+        #[cfg(target_os = "macos")]
         let raw_window_handle::RawWindowHandle::AppKit(macos_window_handle) =
             winit::event_loop::EventLoop::builder()
                 .build()?
@@ -157,7 +157,7 @@ impl MediaController {
                 cover_url: None,
                 duration: None,
                 volume: Default::default(),
-                #[cfg(any(target_os = "macos", target_os = "ios"))]
+                #[cfg(target_os = "macos")]
                 macos_window_handle,
             },
             ReceiverStream::new(rx),
@@ -254,53 +254,41 @@ impl MediaController {
             MediaControlsStatus::Paused {
                 progress: new_progress,
             } => {
-                if !matches!(self.status, souvlaki::MediaPlayback::Paused { .. }) {
-                    redraw = true;
-                    self.status = souvlaki::MediaPlayback::Paused {
-                        progress: Some(MediaPosition(new_progress)),
-                    };
-                }
-                if let souvlaki::MediaPlayback::Paused { progress } = self.status {
-                    if let Some(progress) = progress {
-                        if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD
-                        {
-                            redraw = true;
-                            self.status = souvlaki::MediaPlayback::Paused {
-                                progress: Some(MediaPosition(new_progress)),
-                            };
-                        }
-                    } else {
+                if let souvlaki::MediaPlayback::Paused {
+                    progress: Some(progress),
+                } = self.status
+                {
+                    if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD {
                         redraw = true;
                         self.status = souvlaki::MediaPlayback::Paused {
                             progress: Some(MediaPosition(new_progress)),
                         };
                     }
+                } else {
+                    redraw = true;
+                    self.status = souvlaki::MediaPlayback::Paused {
+                        progress: Some(MediaPosition(new_progress)),
+                    };
                 }
             }
             MediaControlsStatus::Playing {
                 progress: new_progress,
             } => {
-                if !matches!(self.status, souvlaki::MediaPlayback::Playing { .. }) {
-                    redraw = true;
-                    self.status = souvlaki::MediaPlayback::Playing {
-                        progress: Some(MediaPosition(new_progress)),
-                    };
-                }
-                if let souvlaki::MediaPlayback::Playing { progress } = self.status {
-                    if let Some(progress) = progress {
-                        if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD
-                        {
-                            redraw = true;
-                            self.status = souvlaki::MediaPlayback::Playing {
-                                progress: Some(MediaPosition(new_progress)),
-                            };
-                        }
-                    } else {
+                if let souvlaki::MediaPlayback::Playing {
+                    progress: Some(progress),
+                } = self.status
+                {
+                    if progress.0.abs_diff(new_progress) >= POSITION_DIFFERENCE_REDRAW_THRESHOLD {
                         redraw = true;
                         self.status = souvlaki::MediaPlayback::Playing {
                             progress: Some(MediaPosition(new_progress)),
                         };
                     }
+                } else {
+                    redraw = true;
+                    self.status = souvlaki::MediaPlayback::Playing {
+                        progress: Some(MediaPosition(new_progress)),
+                    };
                 }
             }
         }

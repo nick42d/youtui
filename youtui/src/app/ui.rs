@@ -340,7 +340,7 @@ impl YoutuiWindow {
         }
         AsyncTask::new_no_op().into()
     }
-    pub async fn handle_media_event(
+    pub async fn handle_media_controls_event(
         &mut self,
         event: souvlaki::MediaControlEvent,
     ) -> YoutuiEffect<Self> {
