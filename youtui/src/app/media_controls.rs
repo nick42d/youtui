@@ -22,18 +22,23 @@ struct MediaControlsError(souvlaki::Error);
 impl std::error::Error for MediaControlsError {}
 impl std::fmt::Display for MediaControlsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if cfg!(all(
-            unix,
-            not(any(
-                target_os = "macos",
-                target_os = "ios",
-                target_os = "android"
-            ))
-        )) {
-            write!(f, "{}", self.0)
-        } else {
-            write!(f, "{:?}", self.0)
-        }
+        #[cfg(any(
+            target_os = "linux",
+            target_os = "openbsd",
+            target_os = "dragonfly",
+            target_os = "netbsd",
+            target_os = "freebsd",
+        ))]
+        return write!(f, "{}", self.0);
+
+        #[cfg(not(any(
+            target_os = "linux",
+            target_os = "openbsd",
+            target_os = "dragonfly",
+            target_os = "netbsd",
+            target_os = "freebsd"
+        )))]
+        return write!(f, "{:?}", self.0);
     }
 }
 
@@ -47,7 +52,7 @@ pub struct MediaController {
     cover_url: Option<String>,
     duration: Option<Duration>,
     /// macos requires an active window handle
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     macos_window_handle: raw_window_handle::AppKitWindowHandle,
 }
 
@@ -110,11 +115,11 @@ impl MediaController {
         else {
             anyhow::bail!("Expected to get a Win32WindowHandle but we did not!")
         };
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", target_os = "ios"))]
         use raw_window_handle::HasWindowHandle;
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", target_os = "ios"))]
         use winit::platform::macos::EventLoopBuilderExtMacOS;
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", target_os = "ios"))]
         let raw_window_handle::RawWindowHandle::AppKit(macos_window_handle) =
             winit::event_loop::EventLoop::builder()
                 .build()?
@@ -152,7 +157,7 @@ impl MediaController {
                 cover_url: None,
                 duration: None,
                 volume: Default::default(),
-                #[cfg(target_os = "macos")]
+                #[cfg(any(target_os = "macos", target_os = "ios"))]
                 macos_window_handle,
             },
             ReceiverStream::new(rx),
@@ -170,11 +175,23 @@ impl MediaController {
         } = update;
         self.update_metadata(title, album, artist, cover_url, duration)?;
         self.update_playback(playback_status)?;
-        #[cfg(target_os = "linux")]
+        #[cfg(any(
+            target_os = "linux",
+            target_os = "openbsd",
+            target_os = "dragonfly",
+            target_os = "netbsd",
+            target_os = "freebsd",
+        ))]
         self.update_volume(volume)?;
         Ok(())
     }
-    #[cfg(target_os = "linux")]
+    #[cfg(any(
+        target_os = "linux",
+        target_os = "openbsd",
+        target_os = "dragonfly",
+        target_os = "netbsd",
+        target_os = "freebsd",
+    ))]
     fn update_volume(&mut self, volume: MediaControlsVolume) -> anyhow::Result<()> {
         if self.volume != volume {
             self.volume = volume;
