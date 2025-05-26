@@ -37,6 +37,8 @@ toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.14.0"
+# Required for ratatui-image
+image = "0.25.6"
 tokio-stream = { version = "0.1.17", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.10.0"

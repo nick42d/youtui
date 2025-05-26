@@ -2,7 +2,7 @@ use super::action::AppAction;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
     AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
     Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,

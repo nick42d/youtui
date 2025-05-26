@@ -1,12 +1,8 @@
 use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
-use crate::{
-    app::{
-        server::MAX_RETRIES,
-        structures::{ListSongID, Percentage},
-        CALLBACK_CHANNEL_SIZE,
-    },
-    core::send_or_error,
-};
+use crate::app::server::MAX_RETRIES;
+use crate::app::structures::{ListSongID, Percentage};
+use crate::app::CALLBACK_CHANNEL_SIZE;
+use crate::core::send_or_error;
 use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
 use std::sync::Arc;
@@ -44,11 +40,11 @@ impl std::fmt::Debug for InMemSong {
     }
 }
 
-pub struct Downloader {
+pub struct SongDownloader {
     /// Shared by tasks.
     options: Arc<VideoOptions>,
 }
-impl Downloader {
+impl SongDownloader {
     pub fn new(po_token: Option<String>) -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,

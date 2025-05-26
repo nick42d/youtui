@@ -1,4 +1,4 @@
-use super::server::downloader::InMemSong;
+use super::server::song_downloader::InMemSong;
 use super::view::SortDirection;
 use itertools::Itertools;
 use std::borrow::Cow;

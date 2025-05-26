@@ -1,6 +1,6 @@
 use super::api::GetArtistSongsProgressUpdate;
-use super::downloader::{DownloadProgressUpdate, InMemSong};
 use super::player::{DecodedInMemSong, Player};
+use super::song_downloader::{DownloadProgressUpdate, InMemSong};
 use super::ArcServer;
 use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
@@ -176,7 +176,7 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.downloader.download_song(self.0, self.1)
+        backend.song_downloader.download_song(self.0, self.1)
     }
 }
 impl BackendTask<ArcServer> for Seek {
