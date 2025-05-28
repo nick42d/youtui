@@ -1,5 +1,5 @@
 use crate::get_data_dir;
-use anyhow::Context;
+use anyhow::{bail, Context};
 use futures::future::{join, try_join};
 use futures::FutureExt;
 use rusty_ytdl::reqwest;
@@ -12,7 +12,7 @@ fn get_album_art_dir() -> anyhow::Result<PathBuf> {
     get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
 }
 
-struct AlbumArt {
+pub struct AlbumArt {
     in_mem_image: image::DynamicImage,
     on_disk_path: std::path::PathBuf,
 }
@@ -40,9 +40,9 @@ impl AlbumArtDownloader {
         &self,
         album_id: AlbumID<'_>,
         mut thumbs: Vec<Thumbnail>,
-    ) -> anyhow::Result<Option<AlbumArt>> {
+    ) -> anyhow::Result<AlbumArt> {
         let Some(Thumbnail { height, width, url }) = thumbs.pop() else {
-            return Ok(None);
+            bail!("No thumbnails provided!");
         };
         let url = reqwest::Url::parse(&url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
@@ -62,9 +62,9 @@ impl AlbumArtDownloader {
                 .map(|res| res.map_err(|e| anyhow::Error::from(e))),
         )
         .await?;
-        Ok(Some(AlbumArt {
+        Ok(AlbumArt {
             in_mem_image: in_mem_image?,
             on_disk_path,
-        }))
+        })
     }
 }
