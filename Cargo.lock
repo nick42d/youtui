@@ -6459,6 +6459,7 @@ dependencies = [
  "directories",
  "futures",
  "gag",
+ "image",
  "itertools 0.14.0",
  "pretty_assertions",
  "rat-text",

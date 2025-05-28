@@ -105,7 +105,7 @@ impl Youtui {
                     task.type_debug, task.type_id, task.constraint
                 )
             });
-        let server = Arc::new(server::Server::new(api_key, po_token));
+        let server = Arc::new(server::Server::new(api_key, po_token).await);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         let (media_controls, media_control_event_stream) = MediaController::new()?;

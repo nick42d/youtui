@@ -1,14 +1,29 @@
+use crate::get_data_dir;
+use anyhow::Context;
+use futures::future::{join, try_join};
+use futures::FutureExt;
 use rusty_ytdl::reqwest;
-use ytmapi_rs::common::Thumbnail;
+use std::path::PathBuf;
+use ytmapi_rs::common::{AlbumID, Thumbnail, YoutubeID};
 
-/// Representation of a song in memory - an array of bytes.
-/// Newtype pattern is used to provide a cleaner Debug display.
-#[derive(PartialEq)]
-pub struct InMemAlbumArt(pub Vec<u8>);
-// Custom derive - otherwise will be displaying 3MB array of bytes...
-impl std::fmt::Debug for InMemAlbumArt {
+const ALBUM_ART_DIR_PATH: &str = "album_art";
+
+fn get_album_art_dir() -> anyhow::Result<PathBuf> {
+    get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
+}
+
+struct AlbumArt {
+    in_mem_image: image::DynamicImage,
+    on_disk_path: std::path::PathBuf,
+}
+
+// Custom derive - otherwise in_mem_image will be displaying array of bytes...
+impl std::fmt::Debug for AlbumArt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("InMemSong").field(&"Vec<..>").finish()
+        f.debug_struct("AlbumArt")
+            .field("in_mem_image", &"image::DynamicImage")
+            .field("on_disk_path", &self.on_disk_path)
+            .finish()
     }
 }
 
@@ -17,12 +32,39 @@ pub struct AlbumArtDownloader {
 }
 
 impl AlbumArtDownloader {
-    pub fn new(client: reqwest::Client) -> Self {
-        Self { client }
+    pub async fn new(client: reqwest::Client) -> anyhow::Result<Self> {
+        tokio::fs::create_dir_all(get_album_art_dir()?).await?;
+        Ok(Self { client })
     }
-    pub fn download_album_art(&self, thumbs: Thumbnail) -> () {
-        ()
+    pub async fn download_album_art(
+        &self,
+        album_id: AlbumID<'_>,
+        mut thumbs: Vec<Thumbnail>,
+    ) -> anyhow::Result<Option<AlbumArt>> {
+        let Some(Thumbnail { height, width, url }) = thumbs.pop() else {
+            return Ok(None);
+        };
+        let url = reqwest::Url::parse(&url)?;
+        let image_bytes = self.client.get(url).send().await?.bytes().await?;
+        // `Bytes` is cheap to clone.
+        let image_reader = image::ImageReader::new(std::io::Cursor::new(image_bytes.clone()))
+            .with_guessed_format()?;
+        let image_format = image_reader
+            .format()
+            .context("Unable to determine album art image format")?;
+        let on_disk_path = get_album_art_dir()?
+            .join(album_id.get_raw())
+            .with_extension(image_format.extensions_str()[0]);
+        let image_decoding_task = tokio::task::spawn_blocking(|| image_reader.decode());
+        let (in_mem_image, _) = try_join(
+            image_decoding_task.map(|res| res.map_err(|e| anyhow::Error::from(e))),
+            tokio::fs::write(&on_disk_path, image_bytes)
+                .map(|res| res.map_err(|e| anyhow::Error::from(e))),
+        )
+        .await?;
+        Ok(Some(AlbumArt {
+            in_mem_image: in_mem_image?,
+            on_disk_path,
+        }))
     }
 }
-
-fn download_album_art(thumbs: Thumbnail) -> () {}
