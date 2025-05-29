@@ -41,12 +41,9 @@ impl AlbumArtDownloader {
     pub async fn download_album_art(
         &self,
         album_id: AlbumID<'static>,
-        mut thumbs: Vec<Thumbnail>,
+        thumbnail_url: String,
     ) -> anyhow::Result<AlbumArt> {
-        let Some(Thumbnail { height, width, url }) = thumbs.pop() else {
-            bail!("No thumbnails provided!");
-        };
-        let url = reqwest::Url::parse(&url)?;
+        let url = reqwest::Url::parse(&thumbnail_url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
         // `Bytes` is cheap to clone.
         let image_reader = image::ImageReader::new(std::io::Cursor::new(image_bytes.clone()))

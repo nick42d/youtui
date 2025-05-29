@@ -107,7 +107,7 @@ pub struct QueueSong {
 }
 #[derive(Debug)]
 pub struct GetAlbumArt {
-    pub thumbnails: Vec<Thumbnail>,
+    pub thumbnail_url: String,
     pub album_id: AlbumID<'static>,
 }
 
@@ -357,7 +357,7 @@ impl BackendTask<ArcServer> for GetAlbumArt {
         async move {
             backend
                 .album_art_downloader
-                .download_album_art(self.album_id, self.thumbnails)
+                .download_album_art(self.album_id, self.thumbnail_url)
                 .await
         }
     }

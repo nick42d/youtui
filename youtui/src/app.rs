@@ -213,9 +213,10 @@ impl Youtui {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
-            AppCallback::AddSongsToPlaylist(song_list) => {
-                self.window_state.handle_add_songs_to_playlist(song_list)
-            }
+            AppCallback::AddSongsToPlaylist(song_list) => self.task_manager.spawn_task(
+                &self.server,
+                self.window_state.handle_add_songs_to_playlist(song_list),
+            ),
             AppCallback::AddSongsToPlaylistAndPlay(song_list) => self.task_manager.spawn_task(
                 &self.server,
                 self.window_state

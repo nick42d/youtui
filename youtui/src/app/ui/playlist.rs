@@ -26,7 +26,7 @@ use ratatui::widgets::TableState;
 use ratatui::Frame;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::collections::HashSet;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter;
 use std::option::Option;
@@ -469,22 +469,23 @@ impl Playlist {
         &mut self,
         song_list: Vec<ListSong>,
     ) -> (ListSongID, ComponentEffect<Self>) {
+        let get_thumbnail_url_owned = |thumbs: &Vec<Thumbnail>| thumbs.last().unwrap().url.clone();
         let albums = song_list
             .iter()
-            .filter_map(|song| song.album.as_deref().map(|album| &album.id))
-            .collect::<HashSet<&AlbumID>>();
+            .filter_map(|song| {
+                Some((
+                    song.album.as_deref().map(|album| &album.id)?,
+                    song.thumbnails.as_ref(),
+                ))
+            })
+            .collect::<HashMap<&AlbumID, &Vec<Thumbnail>>>();
         let effect = albums
             .into_iter()
-            .cloned()
-            .map(|album_id| {
+            .map(|(album_id, thumbnails)| {
                 AsyncTask::new_future(
                     GetAlbumArt {
-                        thumbnails: vec![Thumbnail {
-                            height: 0,
-                            width: 0,
-                            url: "https://lh3.googleusercontent.com/oQuAzlbqK_ev9L_hY8DeYmmqJOe45AVEAFeFnNzTszyYbVLizQbT9kJfGkQmayLqfERN-fblkQ27tmEF=w60-h60-l90-rj".to_string(),
-                        }],
-                        album_id,
+                        thumbnail_url: get_thumbnail_url_owned(thumbnails),
+                        album_id: album_id.clone(),
                     },
                     |this: &mut Self, result| match result {
                         Ok(album_art) => this.list.update_album_art(album_art),
