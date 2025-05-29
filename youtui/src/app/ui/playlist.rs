@@ -4,8 +4,8 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
-    Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, GetAlbumArt, IncreaseVolume, Pause, PausePlay,
+    PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
     AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
@@ -33,7 +33,7 @@ use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
-use ytmapi_rs::common::AlbumID;
+use ytmapi_rs::common::{AlbumID, Thumbnail};
 
 #[cfg(test)]
 mod tests;
@@ -465,13 +465,36 @@ impl Playlist {
         self.volume.0 = new_vol.clamp(0, 100);
     }
     /// Add a song list to the playlist. Returns the ID of the first song added.
-    pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
+    pub fn push_song_list(
+        &mut self,
+        song_list: Vec<ListSong>,
+    ) -> (ListSongID, ComponentEffect<Self>) {
         let albums = song_list
             .iter()
             .filter_map(|song| song.album.as_deref().map(|album| &album.id))
             .collect::<HashSet<&AlbumID>>();
-        let effect = albums.into_iter().cloned();
-        self.list.push_song_list(song_list)
+        let effect = albums
+            .into_iter()
+            .cloned()
+            .map(|album_id| {
+                AsyncTask::new_future(
+                    GetAlbumArt {
+                        thumbnails: vec![Thumbnail {
+                            height: 0,
+                            width: 0,
+                            url: "https://lh3.googleusercontent.com/oQuAzlbqK_ev9L_hY8DeYmmqJOe45AVEAFeFnNzTszyYbVLizQbT9kJfGkQmayLqfERN-fblkQ27tmEF=w60-h60-l90-rj".to_string(),
+                        }],
+                        album_id,
+                    },
+                    |this: &mut Self, result| match result {
+                        Ok(album_art) => this.list.update_album_art(album_art),
+                        Err(e) => error!("Error getting album art"),
+                    },
+                    None,
+                )
+            })
+            .collect::<ComponentEffect<Self>>();
+        (self.list.push_song_list(song_list), effect)
         // Download function isn't triggered inside this function, since we
         // don't know if the caller is going to immediately change what song is
         // playing after adding songs, although we could check and accept it may

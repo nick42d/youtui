@@ -1,3 +1,4 @@
+use super::server::album_art_downloader::AlbumArt;
 use super::server::song_downloader::InMemSong;
 use super::view::SortDirection;
 use itertools::Itertools;
@@ -63,6 +64,7 @@ pub struct ListSong {
     pub duration_string: String,
     pub actual_duration: Option<Duration>,
     pub year: Option<Rc<String>>,
+    pub album_art: Option<Rc<AlbumArt>>,
     pub artists: MaybeRc<Vec<ParsedSongArtist>>,
     pub thumbnails: MaybeRc<Vec<Thumbnail>>,
     pub album: Option<MaybeRc<ParsedSongAlbum>>,
@@ -292,6 +294,7 @@ impl AlbumSongsList {
             explicit,
             duration_string: duration,
             thumbnails: MaybeRc::Rc(thumbnails),
+            album_art: None,
         });
         id
     }
@@ -325,6 +328,7 @@ impl AlbumSongsList {
             explicit,
             duration_string: duration,
             thumbnails: MaybeRc::Owned(thumbnails),
+            album_art: None,
         });
         id
     }
@@ -354,5 +358,19 @@ impl AlbumSongsList {
         let id = self.next_id;
         self.next_id.0 += 1;
         id
+    }
+    pub fn update_album_art(&mut self, album_art: AlbumArt) {
+        let shared = Rc::new(album_art);
+        for song in &mut self.list {
+            if song.album_art.is_none()
+                && song
+                    .album
+                    .as_ref()
+                    .is_some_and(|album| album.id == shared.album_id)
+            {
+                song.album_art = Some(shared.clone());
+            }
+            tracing::info!("Album art updated");
+        }
     }
 }

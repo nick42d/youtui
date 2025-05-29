@@ -496,8 +496,9 @@ impl YoutuiWindow {
         song_list: Vec<ListSong>,
     ) -> ComponentEffect<Self> {
         let effect = self.playlist.reset();
-        let id = self.playlist.push_song_list(song_list);
+        let (id, next_effect) = self.playlist.push_song_list(song_list);
         effect
+            .push(next_effect)
             .push(self.playlist.play_song_id(id))
             .map(|this: &mut Self| &mut this.playlist)
     }

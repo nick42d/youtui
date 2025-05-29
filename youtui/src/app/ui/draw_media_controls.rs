@@ -48,6 +48,18 @@ pub fn draw_app_media_controls(w: &YoutuiWindow) -> MediaControlsUpdate<'_> {
         PlayState::NotPlaying => "",
         PlayState::Stopped => "",
     };
+    let album_art_path = match w.playlist.play_status {
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .and_then(|s| s.album_art.as_ref())
+            .map(|s| format!("file://{}", &s.on_disk_path.display())),
+        PlayState::NotPlaying => None,
+        PlayState::Stopped => None,
+    };
     let artist_title = match w.playlist.play_status {
         PlayState::Error(id)
         | PlayState::Playing(id)
@@ -74,7 +86,7 @@ pub fn draw_app_media_controls(w: &YoutuiWindow) -> MediaControlsUpdate<'_> {
         title: Some(song_title.into()),
         album: Some(album_title.into()),
         artist: Some(artist_title),
-        cover_url: None,
+        cover_url: album_art_path.map(Into::into),
         duration: Some(std::time::Duration::from_secs(duration as u64)),
         playback_status,
         volume,

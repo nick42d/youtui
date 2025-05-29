@@ -12,9 +12,11 @@ fn get_album_art_dir() -> anyhow::Result<PathBuf> {
     get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
 }
 
+#[derive(PartialEq)]
 pub struct AlbumArt {
-    in_mem_image: image::DynamicImage,
-    on_disk_path: std::path::PathBuf,
+    pub in_mem_image: image::DynamicImage,
+    pub on_disk_path: std::path::PathBuf,
+    pub album_id: AlbumID<'static>,
 }
 
 // Custom derive - otherwise in_mem_image will be displaying array of bytes...
@@ -38,7 +40,7 @@ impl AlbumArtDownloader {
     }
     pub async fn download_album_art(
         &self,
-        album_id: AlbumID<'_>,
+        album_id: AlbumID<'static>,
         mut thumbs: Vec<Thumbnail>,
     ) -> anyhow::Result<AlbumArt> {
         let Some(Thumbnail { height, width, url }) = thumbs.pop() else {
@@ -65,6 +67,7 @@ impl AlbumArtDownloader {
         Ok(AlbumArt {
             in_mem_image: in_mem_image?,
             on_disk_path,
+            album_id,
         })
     }
 }
