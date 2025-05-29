@@ -26,12 +26,14 @@ use ratatui::widgets::TableState;
 use ratatui::Frame;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::collections::HashSet;
 use std::fmt::Debug;
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
+use ytmapi_rs::common::AlbumID;
 
 #[cfg(test)]
 mod tests;
@@ -464,8 +466,16 @@ impl Playlist {
     }
     /// Add a song list to the playlist. Returns the ID of the first song added.
     pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
+        let albums = song_list
+            .iter()
+            .filter_map(|song| song.album.as_deref().map(|album| &album.id))
+            .collect::<HashSet<&AlbumID>>();
+        let effect = albums.into_iter().cloned();
         self.list.push_song_list(song_list)
-        // Consider then triggering the download function.
+        // Download function isn't triggered inside this function, since we
+        // don't know if the caller is going to immediately change what song is
+        // playing after adding songs, although we could check and accept it may
+        // be overridden.
     }
     /// Play the next song in the list if it exists, otherwise, stop playing.
     pub fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
