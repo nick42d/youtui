@@ -1,18 +1,16 @@
-use std::time::Duration;
-
-use crate::{
-    app::structures::PlayState,
-    drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR},
+use crate::app::structures::PlayState;
+use crate::drawutils::{
+    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
 };
 use itertools::Itertools;
-use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
-    prelude::Alignment,
-    style::{Modifier, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, Gauge, Paragraph},
-    Frame,
-};
+use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::prelude::Alignment;
+use ratatui::style::{Modifier, Style};
+use ratatui::text::{Line, Span};
+use ratatui::widgets::{Block, Borders, Gauge, Paragraph, Widget};
+use ratatui::Frame;
+use ratatui_image::Image;
+use std::time::Duration;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
@@ -80,6 +78,17 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         PlayState::NotPlaying => "",
         PlayState::Stopped => "",
     };
+    let album_art = match w.playlist.play_status {
+        PlayState::Error(id)
+        | PlayState::Playing(id)
+        | PlayState::Paused(id)
+        | PlayState::Buffering(id) => w
+            .playlist
+            .get_song_from_id(id)
+            .and_then(|s| s.album_art.as_deref())
+            .map(|s| &s.in_mem_image),
+        PlayState::NotPlaying | PlayState::Stopped => None,
+    };
     let artist_title = match w.playlist.play_status {
         PlayState::Error(id)
         | PlayState::Playing(id)
@@ -112,14 +121,18 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         .title(Line::from("Youtui").right_aligned())
         .borders(Borders::ALL);
     let block_inner = block.inner(chunk);
-    let song_vol = Layout::default()
+    let art_bar_vol = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Min(1), Constraint::Length(4)])
+        .constraints([
+            Constraint::Length(7),
+            Constraint::Min(1),
+            Constraint::Length(4),
+        ])
         .split(block_inner);
     let vertical_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(2), Constraint::Max(1)])
-        .split(song_vol[0]);
+        .split(art_bar_vol[1]);
     let progress_bar_row = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Max(4), Constraint::Min(1), Constraint::Max(4)])
@@ -171,10 +184,25 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         )),
     ];
     let vol_bar = Paragraph::new(vol_bar_spans).alignment(Alignment::Right);
+    let album_art_image = match album_art {
+        Some(image) => {
+            let picker = ratatui_image::picker::Picker::from_fontsize((8, 12));
+            let protocol = picker
+                .new_protocol(
+                    image.clone(),
+                    art_bar_vol[0],
+                    ratatui_image::Resize::Fit(None),
+                )
+                .unwrap();
+            let out = Image::new(&protocol);
+            f.render_widget(out, art_bar_vol[0]);
+        }
+        None => (),
+    };
     f.render_widget(block, chunk);
     f.render_widget(footer, vertical_layout[0]);
     f.render_widget(bar, progress_bar_row[1]);
     f.render_widget(left_arrow, progress_bar_row[0]);
     f.render_widget(right_arrow, progress_bar_row[2]);
-    f.render_widget(vol_bar, song_vol[1]);
+    f.render_widget(vol_bar, art_bar_vol[2]);
 }
