@@ -15,6 +15,7 @@ rust-version = "1.82"
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
+clap_complete = "4.5.51"
 crossterm = { version = "0.28.1", features = ["event-stream", "serde"] }
 futures = "0.3.31"
 rat-text = "1.0.3"
