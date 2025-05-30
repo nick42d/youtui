@@ -14,7 +14,7 @@ use async_callback_manager::{BackendStreamingTask, BackendTask};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, Thumbnail, VideoID};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, VideoID};
 use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]

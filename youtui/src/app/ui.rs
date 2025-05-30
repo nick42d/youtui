@@ -20,7 +20,6 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use ratatui_image::picker::Picker;
 use ratatui_image::protocol::StatefulProtocol;
-use ratatui_image::{Resize, StatefulImage};
 use std::time::Duration;
 
 pub mod action;

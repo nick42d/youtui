@@ -1,10 +1,10 @@
 use crate::get_data_dir;
-use anyhow::{bail, Context};
-use futures::future::{join, try_join};
+use anyhow::Context;
+use futures::future::try_join;
 use futures::FutureExt;
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
-use ytmapi_rs::common::{AlbumID, Thumbnail, YoutubeID};
+use ytmapi_rs::common::{AlbumID, YoutubeID};
 
 const ALBUM_ART_DIR_PATH: &str = "album_art";
 

@@ -7,12 +7,10 @@ use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::prelude::Alignment;
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, Gauge, Paragraph, Widget};
+use ratatui::widgets::{Block, Borders, Gauge, Paragraph};
 use ratatui::Frame;
-use ratatui_image::{Image, StatefulImage};
-use std::rc::Rc;
+use ratatui_image::StatefulImage;
 use std::time::Duration;
-use ytmapi_rs::query::album;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
