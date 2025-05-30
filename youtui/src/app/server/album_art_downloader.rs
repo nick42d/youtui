@@ -56,9 +56,9 @@ impl AlbumArtDownloader {
             .with_extension(image_format.extensions_str()[0]);
         let image_decoding_task = tokio::task::spawn_blocking(|| image_reader.decode());
         let (in_mem_image, _) = try_join(
-            image_decoding_task.map(|res| res.map_err(|e| anyhow::Error::from(e))),
+            image_decoding_task.map(|res| res.map_err(anyhow::Error::from)),
             tokio::fs::write(&on_disk_path, image_bytes)
-                .map(|res| res.map_err(|e| anyhow::Error::from(e))),
+                .map(|res| res.map_err(anyhow::Error::from)),
         )
         .await?;
         Ok(AlbumArt {

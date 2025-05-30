@@ -4,7 +4,7 @@ use crate::app::structures::{ListSongID, Percentage};
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::core::send_or_error;
 use futures::{Stream, StreamExt, TryStreamExt};
-use rusty_ytdl::{DownloadOptions, RequestOptions, Video, VideoOptions};
+use rusty_ytdl::{reqwest, DownloadOptions, RequestOptions, Video, VideoOptions};
 use std::sync::Arc;
 use tokio_stream::wrappers::ReceiverStream;
 // use tokio_stream::StreamExt;
@@ -45,7 +45,7 @@ pub struct SongDownloader {
     options: Arc<VideoOptions>,
 }
 impl SongDownloader {
-    pub fn new(po_token: Option<String>) -> Self {
+    pub fn new(po_token: Option<String>, client: reqwest::Client) -> Self {
         let options = Arc::new(VideoOptions {
             quality: AUDIO_QUALITY,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
@@ -53,12 +53,7 @@ impl SongDownloader {
                 dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
             },
             request_options: RequestOptions {
-                client: Some(
-                    rusty_ytdl::reqwest::Client::builder()
-                        .use_rustls_tls()
-                        .build()
-                        .expect("Expect client build to succeed"),
-                ),
+                client: Some(client),
                 po_token,
                 ..Default::default()
             },

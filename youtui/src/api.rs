@@ -2,16 +2,14 @@
 use crate::config::{ApiKey, AuthType};
 use anyhow::{bail, Result};
 use error::_wrong_auth_token_error_message;
-use futures::{StreamExt, TryStreamExt};
-use std::borrow::Borrow;
-use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    continuations::Continuable,
-    query::{PostQuery, Query},
-    YtMusic, YtMusicBuilder,
-};
-
 pub use error::*;
+use futures::{StreamExt, TryStreamExt};
+use rusty_ytdl::reqwest;
+use std::borrow::Borrow;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::continuations::Continuable;
+use ytmapi_rs::query::{PostQuery, Query};
+use ytmapi_rs::{YtMusic, YtMusicBuilder};
 mod error;
 
 #[derive(Debug, Clone)]
@@ -21,10 +19,10 @@ pub enum DynamicYtMusic {
 }
 
 impl DynamicYtMusic {
-    pub async fn new(key: ApiKey) -> Result<Self, error::DynamicApiError> {
+    pub async fn new(key: ApiKey, client: reqwest::Client) -> Result<Self, error::DynamicApiError> {
         match key {
             ApiKey::BrowserToken(cookie) => Ok(DynamicYtMusic::Browser(
-                YtMusicBuilder::new_rustls_tls()
+                YtMusicBuilder::new_with_client(ytmapi_rs::Client::new_from_reqwest_client(client))
                     .with_browser_token_cookie(cookie)
                     .build()
                     .await?,

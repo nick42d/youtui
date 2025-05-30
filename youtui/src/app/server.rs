@@ -28,11 +28,15 @@ pub struct Server {
 
 impl Server {
     pub async fn new(api_key: ApiKey, po_token: Option<String>) -> Server {
-        let client = reqwest::Client::builder().use_rustls_tls().build().unwrap();
-        let api = api::Api::new(api_key);
+        // Cheaply cloneable reqwest client to share amongst services.
+        let client = reqwest::Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("Expected reqwest client build to succeed");
+        let api = api::Api::new(api_key, client.clone());
         let player = player::Player::new();
-        let song_downloader = song_downloader::SongDownloader::new(po_token);
-        let album_art_downloader = album_art_downloader::AlbumArtDownloader::new(client.clone())
+        let song_downloader = song_downloader::SongDownloader::new(po_token, client.clone());
+        let album_art_downloader = album_art_downloader::AlbumArtDownloader::new(client)
             .await
             .unwrap();
         let api_error_handler = api_error_handler::ApiErrorHandler::new();

@@ -6,6 +6,7 @@ use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;
 use futures::stream::FuturesOrdered;
 use futures::{Stream, StreamExt};
+use rusty_ytdl::reqwest;
 use std::borrow::Borrow;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
@@ -30,11 +31,11 @@ pub struct Api {
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
 impl Api {
-    pub fn new(api_key: ApiKey) -> Api {
+    pub fn new(api_key: ApiKey, client: reqwest::Client) -> Api {
         let api = AsyncCell::new().into_shared();
         let api_clone = api.clone();
         tokio::spawn(async move {
-            let api = DynamicYtMusic::new(api_key)
+            let api = DynamicYtMusic::new(api_key, client)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)));
             api_clone.set(api)
