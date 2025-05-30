@@ -9,7 +9,7 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph, Widget};
 use ratatui::Frame;
-use ratatui_image::Image;
+use ratatui_image::{Image, StatefulImage};
 use std::time::Duration;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
@@ -33,7 +33,7 @@ pub fn secs_to_time_string(secs: usize) -> String {
     }
 }
 
-pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
+pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
     let cur = &w.playlist.play_status;
     let mut duration = 0;
     let mut progress = Duration::default();
@@ -184,20 +184,14 @@ pub fn draw_footer(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         )),
     ];
     let vol_bar = Paragraph::new(vol_bar_spans).alignment(Alignment::Right);
-    let album_art_image = match album_art {
-        Some(image) => {
-            let picker = ratatui_image::picker::Picker::from_fontsize((8, 12));
-            let protocol = picker
-                .new_protocol(
-                    image.clone(),
-                    art_bar_vol[0],
-                    ratatui_image::Resize::Fit(None),
-                )
-                .unwrap();
-            let out = Image::new(&protocol);
-            f.render_widget(out, art_bar_vol[0]);
+    if let Some(image) = album_art {
+        w.footer_album_art_state = Some(
+            w.terminal_image_capabilities
+                .new_resize_protocol(image.clone()),
+        );
+        if let Some(state) = w.footer_album_art_state.as_mut() {
+            f.render_stateful_widget(StatefulImage::default(), art_bar_vol[0], state);
         }
-        None => (),
     };
     f.render_widget(block, chunk);
     f.render_widget(footer, vertical_layout[0]);

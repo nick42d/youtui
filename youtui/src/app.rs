@@ -12,6 +12,7 @@ use crossterm::terminal::{
 use media_controls::MediaController;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui_image::picker::Picker;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::io;
@@ -110,7 +111,11 @@ impl Youtui {
         let terminal = Terminal::new(backend)?;
         let (media_controls, media_control_event_stream) = MediaController::new()?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
-        let (window_state, effect) = YoutuiWindow::new(config);
+        // The docs for this function state that it must be run after entering alternate
+        // screen but before events are read, therefore this is hoisted for
+        // visibility.
+        let terminal_image_capabilities = Picker::from_query_stdio()?;
+        let (window_state, effect) = YoutuiWindow::new(config, terminal_image_capabilities);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
         task_manager.spawn_task(&server, effect);

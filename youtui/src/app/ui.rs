@@ -18,6 +18,9 @@ use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use ratatui::widgets::TableState;
+use ratatui_image::picker::Picker;
+use ratatui_image::protocol::StatefulProtocol;
+use ratatui_image::{Resize, StatefulImage};
 use std::time::Duration;
 
 pub mod action;
@@ -49,6 +52,10 @@ pub struct YoutuiWindow {
     config: Config,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
+    /// Capabilities of the user's terminal in regards to image rendering - ie,
+    /// font size / kitty protocal etc. This
+    terminal_image_capabilities: Picker,
+    footer_album_art_state: Option<StatefulProtocol>,
 }
 impl_youtui_component!(YoutuiWindow);
 
@@ -291,7 +298,10 @@ impl ActionHandler<AppAction> for YoutuiWindow {
 }
 
 impl YoutuiWindow {
-    pub fn new(config: Config) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
+    pub fn new(
+        config: Config,
+        terminal_image_capabilities: Picker,
+    ) -> (YoutuiWindow, ComponentEffect<YoutuiWindow>) {
         let (playlist, task) = Playlist::new();
         let this = YoutuiWindow {
             context: WindowContext::Browser,
@@ -302,6 +312,8 @@ impl YoutuiWindow {
             logger: Logger::new(),
             key_stack: Vec::new(),
             help: HelpMenu::new(),
+            terminal_image_capabilities,
+            footer_album_art_state: None,
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
