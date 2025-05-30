@@ -73,11 +73,12 @@ Chrome example (Select manually and paste):
 - [x] Configurable key bindings
 - [x] Logging to a file
 - [x] Dbus support for media keys
+- [x] Display album cover
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks
-- [ ] Display lyrics and album cover (pixel art)
+- [ ] Display lyrics
 - [ ] Theming
 ### API
 - [x] Document public API
