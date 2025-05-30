@@ -1,6 +1,6 @@
 use crate::app::structures::PlayState;
 use crate::drawutils::{
-    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
+    middle_of_rect, BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
 };
 use itertools::Itertools;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
@@ -10,7 +10,9 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph, Widget};
 use ratatui::Frame;
 use ratatui_image::{Image, StatefulImage};
+use std::rc::Rc;
 use std::time::Duration;
+use ytmapi_rs::query::album;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
@@ -34,10 +36,9 @@ pub fn secs_to_time_string(secs: usize) -> String {
 }
 
 pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
-    let cur = &w.playlist.play_status;
     let mut duration = 0;
     let mut progress = Duration::default();
-    let play_ratio = match cur {
+    let play_ratio = match &w.playlist.play_status {
         PlayState::Playing(id) | PlayState::Paused(id) => {
             duration = w
                 .playlist
@@ -53,90 +54,38 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
     let progress_str = secs_to_time_string(progress.as_secs() as usize);
     let duration_str = secs_to_time_string(duration);
     let bar_str = format!("{}/{}", progress_str, duration_str);
-    let song_title = match w.playlist.play_status {
+
+    let cur_active_song = match w.playlist.play_status {
         PlayState::Error(id)
         | PlayState::Playing(id)
         | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .map(|s| s.title.to_owned())
-            .unwrap_or("No title".to_string()),
-        PlayState::NotPlaying => "Not playing".to_string(),
-        PlayState::Stopped => "Not playing".to_string(),
-    };
-    let album_title = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .and_then(|s| s.album.as_ref())
-            .map(|s| s.name.as_str())
-            .unwrap_or_default(),
-        PlayState::NotPlaying => "",
-        PlayState::Stopped => "",
-    };
-    let album_art = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .and_then(|s| s.album_art.as_deref())
-            .map(|s| &s.in_mem_image),
+        | PlayState::Buffering(id) => w.playlist.get_song_from_id(id),
         PlayState::NotPlaying | PlayState::Stopped => None,
     };
-    let artist_title = match w.playlist.play_status {
-        PlayState::Error(id)
-        | PlayState::Playing(id)
-        | PlayState::Paused(id)
-        | PlayState::Buffering(id) => w
-            .playlist
-            .get_song_from_id(id)
-            .map(|s| s.artists.as_ref())
-            .map(|s| {
-                Itertools::intersperse(s.iter().map(|s| s.name.as_str()), ", ").collect::<String>()
-            })
-            .unwrap_or("".to_string()),
-        PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped => "".to_string(),
-    };
-    let song_title_string = match w.playlist.play_status {
-        PlayState::Error(_)
-        | PlayState::Playing(_)
-        | PlayState::Paused(_)
-        | PlayState::Buffering(_) => format!(
-            "{} {song_title} - {artist_title}",
-            w.playlist.play_status.list_icon()
-        ),
-        PlayState::NotPlaying => "".to_string(),
-        PlayState::Stopped => "".to_string(),
-    };
-    let footer = Paragraph::new(vec![Line::from(song_title_string), Line::from(album_title)]);
-    let block = Block::default()
-        .title("Status")
-        .title(Line::from("Youtui").right_aligned())
-        .borders(Borders::ALL);
-    let block_inner = block.inner(chunk);
-    let art_bar_vol = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Length(7),
-            Constraint::Min(1),
-            Constraint::Length(4),
-        ])
-        .split(block_inner);
-    let vertical_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Min(2), Constraint::Max(1)])
-        .split(art_bar_vol[1]);
-    let progress_bar_row = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Max(4), Constraint::Min(1), Constraint::Max(4)])
-        .split(vertical_layout[1]);
+    let song_and_artists_string = cur_active_song
+        .map(|song| {
+            let artists =
+                Itertools::intersperse(song.artists.iter().map(|s| s.name.as_str()), ", ")
+                    .collect::<String>();
+            format!(
+                "{} {} - {}",
+                w.playlist.play_status.list_icon(),
+                song.title,
+                artists
+            )
+        })
+        .unwrap_or_default();
+    let album_title = cur_active_song
+        .and_then(|s| s.album.as_ref())
+        .map(|s| s.name.as_str())
+        .unwrap_or_default();
+    let album_art = cur_active_song
+        .and_then(|s| s.album_art.as_deref())
+        .map(|s| &s.in_mem_image);
+    let footer = Paragraph::new(vec![
+        Line::from(song_and_artists_string),
+        Line::from(album_title),
+    ]);
     let bar = Gauge::default()
         .label(bar_str)
         .gauge_style(
@@ -183,20 +132,63 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
                 .add_modifier(Modifier::BOLD),
         )),
     ];
+    let block = Block::default()
+        .title("Status")
+        .title(Line::from("Youtui").right_aligned())
+        .borders(Borders::ALL);
     let vol_bar = Paragraph::new(vol_bar_spans).alignment(Alignment::Right);
-    if let Some(image) = album_art {
-        w.footer_album_art_state = Some(
-            w.terminal_image_capabilities
-                .new_resize_protocol(image.clone()),
-        );
-        if let Some(state) = w.footer_album_art_state.as_mut() {
-            f.render_stateful_widget(StatefulImage::default(), art_bar_vol[0], state);
-        }
+
+    let block_inner = block.inner(chunk);
+    let bar_and_vol = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Min(1), Constraint::Length(4)])
+        .split(block_inner);
+    let get_progress_bar_and_text_layout = |r: Rect| {
+        let text_bar_vertical_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Min(2), Constraint::Max(1)])
+            .split(r);
+        (
+            text_bar_vertical_layout[0],
+            Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Max(4), Constraint::Min(1), Constraint::Max(4)])
+                .split(text_bar_vertical_layout[1]),
+        )
     };
+    let (song_text_rect, progress_bar_layout) = match cur_active_song {
+        Some(_) => {
+            let album_art_and_bar = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Length(7), Constraint::Min(0)])
+                .split(bar_and_vol[0]);
+            match album_art {
+                Some(image) => {
+                    w.footer_album_art_state = Some(
+                        w.terminal_image_capabilities
+                            .new_resize_protocol(image.clone()),
+                    );
+                    if let Some(state) = w.footer_album_art_state.as_mut() {
+                        f.render_stateful_widget(
+                            StatefulImage::default(),
+                            album_art_and_bar[0],
+                            state,
+                        );
+                    }
+                }
+                None => {
+                    let fallback_album_widget = Paragraph::new("").centered();
+                    f.render_widget(fallback_album_widget, middle_of_rect(album_art_and_bar[0]));
+                }
+            };
+            get_progress_bar_and_text_layout(album_art_and_bar[1])
+        }
+        None => get_progress_bar_and_text_layout(bar_and_vol[0]),
+    };
+    f.render_widget(bar, progress_bar_layout[1]);
+    f.render_widget(left_arrow, progress_bar_layout[0]);
+    f.render_widget(right_arrow, progress_bar_layout[2]);
     f.render_widget(block, chunk);
-    f.render_widget(footer, vertical_layout[0]);
-    f.render_widget(bar, progress_bar_row[1]);
-    f.render_widget(left_arrow, progress_bar_row[0]);
-    f.render_widget(right_arrow, progress_bar_row[2]);
-    f.render_widget(vol_bar, art_bar_vol[2]);
+    f.render_widget(footer, song_text_rect);
+    f.render_widget(vol_bar, bar_and_vol[1]);
 }
