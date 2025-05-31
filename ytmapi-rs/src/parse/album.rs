@@ -2,8 +2,9 @@ use super::{
     parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist, ParseFrom,
     ParsedSongArtist, ProcessedResult,
 };
-use crate::common::{AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, VideoID};
-use crate::common::{PlaylistID, Thumbnail};
+use crate::common::{
+    AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, PlaylistID, Thumbnail, VideoID,
+};
 use crate::nav_consts::*;
 use crate::process::fixed_column_item_pointer;
 use crate::query::*;
@@ -45,6 +46,7 @@ pub struct GetAlbum {
     pub title: String,
     pub category: AlbumType,
     pub thumbnails: Vec<Thumbnail>,
+    pub artist_thumbnails: Vec<Thumbnail>,
     pub description: Option<String>,
     pub artists: Vec<ParsedSongArtist>,
     pub year: String,
@@ -132,10 +134,11 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
                 .collect::<CrawlerResult<String>>()
         })
         .transpose()?;
-    // Thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
-    let thumbnails: Vec<Thumbnail> = header
+    // artist thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
+    let artist_thumbnails = header
         .take_value_pointer(STRAPLINE_THUMBNAIL)
         .unwrap_or_default();
+    let thumbnails = header.take_value_pointer(THUMBNAILS)?;
     let duration = header.take_value_pointer("/secondSubtitle/runs/2/text")?;
     let track_count_text = header.take_value_pointer("/secondSubtitle/runs/0/text")?;
     let mut buttons = header.borrow_pointer("/buttons")?;
@@ -163,7 +166,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
         library_status,
         title,
         description,
-        thumbnails,
+        artist_thumbnails,
         duration,
         category,
         track_count_text,
@@ -171,16 +174,15 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
         year,
         tracks,
         artists,
+        thumbnails,
     })
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{AlbumID, YoutubeID},
-        parse::album::GetAlbumQuery,
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{AlbumID, YoutubeID};
+    use crate::parse::album::GetAlbumQuery;
 
     #[tokio::test]
     async fn test_get_album_query() {

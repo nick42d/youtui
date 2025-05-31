@@ -31,6 +31,12 @@ impl Client {
         let inner = reqwest::Client::builder().use_native_tls().build()?;
         Ok(Self { inner })
     }
+    #[cfg(feature = "reqwest")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
+    /// Utilises reqwest's default tls choice for the enabled set of options.
+    pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
+        Self { inner: client }
+    }
     /// Run a POST query, with url and headers.
     /// Result is returned as a String.
     pub async fn post_query<'a, I>(

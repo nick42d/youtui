@@ -15,7 +15,7 @@ This project is not supported or endorsed by Google.
 - Sorting and filtering
 
 ## Demo
-[![asciicast](https://asciinema.org/a/H7CB4oP2Gcibv1I47aXCrQpbt.svg)](https://asciinema.org/a/H7CB4oP2Gcibv1I47aXCrQpbt)
+[![asciicast](https://asciinema.org/a/k6oz2Tx2NXVdaYWSsnHFi0Dwg.svg)](https://asciinema.org/a/k6oz2Tx2NXVdaYWSsnHFi0Dwg)
 
 ## Installing youtui
 [![Packaging status](https://repology.org/badge/vertical-allrepos/youtui.svg)](https://repology.org/project/youtui/versions)
@@ -73,11 +73,12 @@ Chrome example (Select manually and paste):
 - [x] Configurable key bindings
 - [x] Logging to a file
 - [x] Dbus support for media keys
+- [x] Display album cover
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks
-- [ ] Display lyrics and album cover (pixel art)
+- [ ] Display lyrics
 - [ ] Theming
 ### API
 - [x] Document public API

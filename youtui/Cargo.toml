@@ -18,6 +18,7 @@ clap = { version = "4.5.28", features = ["derive"] }
 clap_complete = "4.5.51"
 crossterm = { version = "0.28.1", features = ["event-stream", "serde"] }
 futures = "0.3.31"
+ratatui-image = "8.0.0"
 rat-text = "1.0.3"
 ratatui = { version = "0.29.0", features = ["all-widgets"] }
 tui-logger = { version = "0.14.4", features = ["tracing-support"] }
@@ -28,6 +29,7 @@ gag = "1.0.0"
 ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.21", default-features = false, features = [
   "rustls-tls",
   "simplified-queries",
+  "reqwest"
 ] }
 async-callback-manager = { path = "../async-callback-manager", version = "0.0.6" }
 tracing = "0.1.41"
@@ -37,6 +39,8 @@ toml = "0.8.19"
 # For intersperse feature. RFC in progress to bring to std
 # https://github.com/rust-lang/rust/issues/79524
 itertools = "0.14.0"
+# Required for ratatui-image
+image = "0.25.6"
 tokio-stream = { version = "0.1.17", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.10.0"

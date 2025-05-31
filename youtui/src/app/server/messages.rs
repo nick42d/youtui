@@ -1,6 +1,7 @@
+use super::album_art_downloader::AlbumArt;
 use super::api::GetArtistSongsProgressUpdate;
-use super::downloader::{DownloadProgressUpdate, InMemSong};
 use super::player::{DecodedInMemSong, Player};
+use super::song_downloader::{DownloadProgressUpdate, InMemSong};
 use super::ArcServer;
 use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
@@ -13,7 +14,7 @@ use async_callback_manager::{BackendStreamingTask, BackendTask};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{ArtistChannelID, SearchSuggestion, VideoID};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, VideoID};
 use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
@@ -104,6 +105,11 @@ pub struct QueueSong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
+#[derive(Debug)]
+pub struct GetAlbumArt {
+    pub thumbnail_url: String,
+    pub album_id: AlbumID<'static>,
+}
 
 impl BackendTask<ArcServer> for HandleApiError {
     // Infallible - assumption is that even if this task fails, caller won't care.
@@ -176,7 +182,7 @@ impl BackendStreamingTask<ArcServer> for DownloadSong {
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.downloader.download_song(self.0, self.1)
+        backend.song_downloader.download_song(self.0, self.1)
     }
 }
 impl BackendTask<ArcServer> for Seek {
@@ -338,5 +344,21 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
     }
     fn metadata() -> Vec<Self::MetadataType> {
         vec![TaskMetadata::PlayingSong]
+    }
+}
+impl BackendTask<ArcServer> for GetAlbumArt {
+    type Output = anyhow::Result<AlbumArt>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move {
+            backend
+                .album_art_downloader
+                .download_album_art(self.album_id, self.thumbnail_url)
+                .await
+        }
     }
 }

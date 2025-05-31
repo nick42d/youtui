@@ -1,7 +1,7 @@
 use super::appevent::{AppEvent, EventHandler};
 use crate::core::get_limited_sequential_file;
 use crate::{get_data_dir, RuntimeInfo};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -12,6 +12,7 @@ use crossterm::terminal::{
 use media_controls::MediaController;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui_image::picker::Picker;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::io;
@@ -105,12 +106,17 @@ impl Youtui {
                     task.type_debug, task.type_id, task.constraint
                 )
             });
-        let server = Arc::new(server::Server::new(api_key, po_token));
+        let server = Arc::new(server::Server::new(api_key, po_token).await?);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let (media_controls, media_control_event_stream) = MediaController::new()?;
+        let (media_controls, media_control_event_stream) = MediaController::new()
+            .context("Unable to initialise media controls - is the application already running?")?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
-        let (window_state, effect) = YoutuiWindow::new(config);
+        // The docs for this function state that it must be run after entering alternate
+        // screen but before events are read, therefore this is hoisted for
+        // visibility.
+        let terminal_image_capabilities = Picker::from_query_stdio()?;
+        let (window_state, effect) = YoutuiWindow::new(config, terminal_image_capabilities);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
         task_manager.spawn_task(&server, effect);
@@ -213,9 +219,10 @@ impl Youtui {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
-            AppCallback::AddSongsToPlaylist(song_list) => {
-                self.window_state.handle_add_songs_to_playlist(song_list)
-            }
+            AppCallback::AddSongsToPlaylist(song_list) => self.task_manager.spawn_task(
+                &self.server,
+                self.window_state.handle_add_songs_to_playlist(song_list),
+            ),
             AppCallback::AddSongsToPlaylistAndPlay(song_list) => self.task_manager.spawn_task(
                 &self.server,
                 self.window_state
