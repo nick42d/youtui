@@ -1,7 +1,7 @@
 use super::appevent::{AppEvent, EventHandler};
 use crate::core::get_limited_sequential_file;
 use crate::{get_data_dir, RuntimeInfo};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -106,10 +106,11 @@ impl Youtui {
                     task.type_debug, task.type_id, task.constraint
                 )
             });
-        let server = Arc::new(server::Server::new(api_key, po_token).await);
+        let server = Arc::new(server::Server::new(api_key, po_token).await?);
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let (media_controls, media_control_event_stream) = MediaController::new()?;
+        let (media_controls, media_control_event_stream) = MediaController::new()
+            .context("Unable to initialise media controls - is the application already running?")?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         // The docs for this function state that it must be run after entering alternate
         // screen but before events are read, therefore this is hoisted for

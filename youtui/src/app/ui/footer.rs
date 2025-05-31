@@ -1,4 +1,4 @@
-use crate::app::structures::PlayState;
+use crate::app::structures::{AlbumArtState, PlayState};
 use crate::drawutils::{
     middle_of_rect, BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
 };
@@ -77,9 +77,7 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
         .and_then(|s| s.album.as_ref())
         .map(|s| s.name.as_str())
         .unwrap_or_default();
-    let album_art = cur_active_song
-        .and_then(|s| s.album_art.as_deref())
-        .map(|s| &s.in_mem_image);
+    let album_art = cur_active_song.map(|s| &s.album_art);
     let footer = Paragraph::new(vec![
         Line::from(song_and_artists_string),
         Line::from(album_title),
@@ -154,17 +152,18 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
                 .split(text_bar_vertical_layout[1]),
         )
     };
-    let (song_text_rect, progress_bar_layout) = match cur_active_song {
-        Some(_) => {
+    let (song_text_rect, progress_bar_layout) = match album_art {
+        Some(AlbumArtState::None) | None => get_progress_bar_and_text_layout(bar_and_vol[0]),
+        Some(album_art) => {
             let album_art_and_bar = Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([Constraint::Length(7), Constraint::Min(0)])
                 .split(bar_and_vol[0]);
             match album_art {
-                Some(image) => {
+                AlbumArtState::Downloaded(album_art) => {
                     w.footer_album_art_state = Some(
                         w.terminal_image_capabilities
-                            .new_resize_protocol(image.clone()),
+                            .new_resize_protocol(album_art.in_mem_image.clone()),
                     );
                     if let Some(state) = w.footer_album_art_state.as_mut() {
                         f.render_stateful_widget(
@@ -174,14 +173,20 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
                         );
                     }
                 }
-                None => {
+                AlbumArtState::Error => {
+                    let fallback_album_widget = Paragraph::new("").centered();
+                    f.render_widget(fallback_album_widget, middle_of_rect(album_art_and_bar[0]));
+                }
+                AlbumArtState::Init => {
                     let fallback_album_widget = Paragraph::new("").centered();
                     f.render_widget(fallback_album_widget, middle_of_rect(album_art_and_bar[0]));
+                }
+                AlbumArtState::None => {
+                    unreachable!("This arm is covered by the earlier match statement")
                 }
             };
             get_progress_bar_and_text_layout(album_art_and_bar[1])
         }
-        None => get_progress_bar_and_text_layout(bar_and_vol[0]),
     };
     f.render_widget(bar, progress_bar_layout[1]);
     f.render_widget(left_arrow, progress_bar_layout[0]);

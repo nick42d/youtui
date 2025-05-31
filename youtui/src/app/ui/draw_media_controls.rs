@@ -1,7 +1,7 @@
 use super::footer::parse_simple_time_to_secs;
 use super::YoutuiWindow;
 use crate::app::media_controls::{MediaControlsStatus, MediaControlsUpdate, MediaControlsVolume};
-use crate::app::structures::PlayState;
+use crate::app::structures::{AlbumArtState, PlayState};
 use itertools::Itertools;
 use std::time::Duration;
 
@@ -36,7 +36,13 @@ pub fn draw_app_media_controls(w: &YoutuiWindow) -> MediaControlsUpdate<'_> {
         .map(|s| s.name.as_str())
         .unwrap_or_default();
     let album_art_path = cur_active_song
-        .and_then(|s| s.album_art.as_ref())
+        .and_then(|s| {
+            if let AlbumArtState::Downloaded(album_art) = &s.album_art {
+                Some(album_art)
+            } else {
+                None
+            }
+        })
         .map(|s| format!("file://{}", &s.on_disk_path.display()));
     let artist_title = cur_active_song
         .map(|s| s.artists.as_ref())

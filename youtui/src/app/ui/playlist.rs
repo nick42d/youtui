@@ -8,8 +8,8 @@ use crate::app::server::{
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
-    PlayState, SongListComponent,
+    AlbumArtState, AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID,
+    Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::draw_table;
@@ -467,29 +467,39 @@ impl Playlist {
     /// Add a song list to the playlist. Returns the ID of the first song added.
     pub fn push_song_list(
         &mut self,
-        song_list: Vec<ListSong>,
+        mut song_list: Vec<ListSong>,
     ) -> (ListSongID, ComponentEffect<Self>) {
-        let get_thumbnail_url_owned = |thumbs: &Vec<Thumbnail>| thumbs.last().unwrap().url.clone();
+        let get_largest_thumbnails_url = |thumbs: &Vec<Thumbnail>| {
+            thumbs
+                .iter()
+                .max_by_key(|thumbs| thumbs.height * thumbs.width)
+                .map(|thumb| thumb.url.clone())
+        };
         let albums = song_list
-            .iter()
+            .iter_mut()
             .filter_map(|song| {
-                Some((
-                    song.album.as_deref().map(|album| &album.id)?,
-                    song.thumbnails.as_ref(),
-                ))
+                let Some(thumb_url) = get_largest_thumbnails_url(song.thumbnails.as_ref()) else {
+                    song.album_art = AlbumArtState::None;
+                    return None;
+                };
+                Some((song.album.as_deref().map(|album| &album.id)?, thumb_url))
             })
-            .collect::<HashMap<&AlbumID, &Vec<Thumbnail>>>();
+            .collect::<HashMap<&AlbumID, String>>();
         let effect = albums
             .into_iter()
-            .map(|(album_id, thumbnails)| {
+            .map(|(album_id, thumbnail_url)| {
+                let album_id = album_id.clone();
                 AsyncTask::new_future(
                     GetAlbumArt {
-                        thumbnail_url: get_thumbnail_url_owned(thumbnails),
+                        thumbnail_url,
                         album_id: album_id.clone(),
                     },
                     |this: &mut Self, result| match result {
                         Ok(album_art) => this.list.update_album_art(album_art),
-                        Err(e) => error!("Error getting album art"),
+                        Err(e) => {
+                            error!("Error {e} getting album art");
+                            this.list.set_album_art_error(album_id);
+                        }
                     },
                     None,
                 )
