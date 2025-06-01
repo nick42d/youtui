@@ -10,7 +10,7 @@ use crate::config::AuthType;
 //    back to anyhow::Error.
 // 5. Therefore, we use this error type which is Clone - converting non-Clone
 //    variants to Strign for type erasure.
-// 7. Providing this wrapper type allows it to be converted to an anyhow::Error.
+// 6. Providing this wrapper type allows it to be converted to an anyhow::Error.
 #[derive(Clone, Debug)]
 pub struct DynamicApiError(String);
 

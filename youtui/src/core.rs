@@ -82,13 +82,13 @@ pub async fn get_limited_sequential_file(
 
 /// Either creates a new directory at dir, or deletes all files in the directory
 /// starting managed_file_prefix that are older (last modified) than max_age.
-// TODO: Unit tests
+/// Returns the number of files cleaned up, if any.
 pub async fn create_or_clean_directory(
     dir: &Path,
     managed_file_prefix: impl AsRef<str>,
     time_now: SystemTime,
     max_age: std::time::Duration,
-) -> std::io::Result<()> {
+) -> std::io::Result<usize> {
     tokio::fs::create_dir_all(dir).await?;
     // The below block is a candidate for replacement with Stream code, although for
     // pragmatic reasons it's done here with a for loop.
@@ -109,7 +109,10 @@ pub async fn create_or_clean_directory(
             };
         }
     }
-    delete_old_files_futures.try_collect::<()>().await
+    Ok(delete_old_files_futures
+        .try_collect::<Vec<_>>()
+        .await?
+        .len())
 }
 
 /// From serde documentation: [https://serde.rs/string-or-struct.html]
