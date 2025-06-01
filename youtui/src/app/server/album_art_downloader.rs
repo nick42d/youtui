@@ -1,12 +1,20 @@
 use crate::get_data_dir;
 use anyhow::Context;
+use async_cell::sync::AsyncCell;
 use futures::future::try_join;
-use futures::FutureExt;
+use futures::stream::FuturesUnordered;
+use futures::{FutureExt, StreamExt};
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
+use std::sync::Arc;
+use tokio_stream::wrappers::ReadDirStream;
 use ytmapi_rs::common::{AlbumID, YoutubeID};
 
+// The directory and prefix are to protect the user - files in this directory
+// with this prefix will be monitored by youtui and cleaned up when over a
+// certain age.
 const ALBUM_ART_DIR_PATH: &str = "album_art";
+const ALBUM_ART_FILENAME_PREFIX: &str = "YAA_";
 
 fn get_album_art_dir() -> anyhow::Result<PathBuf> {
     get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
@@ -31,11 +39,31 @@ impl std::fmt::Debug for AlbumArt {
 
 pub struct AlbumArtDownloader {
     client: reqwest::Client,
+    status: Arc<AsyncCell<anyhow::Result<()>>>,
 }
 
 impl AlbumArtDownloader {
     pub async fn new(client: reqwest::Client) -> anyhow::Result<Self> {
-        tokio::fs::create_dir_all(get_album_art_dir()?).await?;
+        let status = AsyncCell::new().into_shared();
+        tokio::spawn(async move {
+            let album_art_dir = get_album_art_dir()?;
+            tokio::fs::create_dir_all(album_art_dir).await?;
+            // The below block is a candidate for replacement with Stream code, although for
+            // pragmatic reasons it's done here with a for loop. TODO: Unit
+            // tests
+            let mut delete_old_files_futures = FuturesUnordered::new();
+            let mut album_art_dir_reader = tokio::fs::read_dir(album_art_dir).await?;
+            while let Some(entry) = album_art_dir_reader.next_entry().await? {
+                if entry
+                    .file_name()
+                    .to_str()
+                    .is_some_and(|s| s.starts_with(ALBUM_ART_FILENAME_PREFIX))
+                {
+                    delete_old_files_futures.push(async {});
+                }
+            }
+            Ok(())
+        });
         Ok(Self { client })
     }
     pub async fn download_album_art(
