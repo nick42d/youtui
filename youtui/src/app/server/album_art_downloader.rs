@@ -37,6 +37,7 @@ impl std::fmt::Debug for AlbumArt {
         f.debug_struct("AlbumArt")
             .field("in_mem_image", &"image::DynamicImage")
             .field("on_disk_path", &self.on_disk_path)
+            .field("album_id", &self.album_id)
             .finish()
     }
 }
@@ -48,7 +49,7 @@ pub struct AlbumArtDownloader {
 }
 
 impl AlbumArtDownloader {
-    pub fn new(client: reqwest::Client) -> anyhow::Result<Self> {
+    pub fn new(client: reqwest::Client) -> Self {
         let status = AsyncCell::new().into_shared();
         let status_clone = status.clone();
         tokio::spawn(async move {
@@ -75,7 +76,7 @@ impl AlbumArtDownloader {
                 }
             }
         });
-        Ok(Self { client, status })
+        Self { client, status }
     }
     pub async fn download_album_art(
         &self,
