@@ -1,15 +1,14 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{PlaylistID, SetVideoID, YoutubeID},
-    parse::GetPlaylist,
-};
+use crate::auth::AuthToken;
+use crate::common::{PlaylistID, SetVideoID, YoutubeID};
+use crate::parse::GetPlaylist;
 pub use additems::*;
 pub use create::*;
 pub use edit::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{borrow::Cow, fmt::Display};
+use std::borrow::Cow;
+use std::fmt::Display;
 
 pub mod additems;
 pub mod create;

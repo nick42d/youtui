@@ -3,18 +3,15 @@ use super::{
     HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
     TITLE_TEXT, TWO_COLUMN,
 };
-use crate::{
-    common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID},
-    nav_consts::{
-        RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
-    },
-    query::{
-        AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
-        EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
-        SpecialisedQuery,
-    },
-    Error, Result,
+use crate::common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID};
+use crate::nav_consts::{
+    RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
 };
+use crate::query::{
+    AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
+    EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery, SpecialisedQuery,
+};
+use crate::{Error, Result};
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -261,13 +258,10 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{ApiOutcome, PlaylistID, YoutubeID},
-        process_json,
-        query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery},
-        Error,
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{ApiOutcome, PlaylistID, YoutubeID};
+    use crate::query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery};
+    use crate::{process_json, Error};
     use pretty_assertions::assert_eq;
     use std::path::Path;
 

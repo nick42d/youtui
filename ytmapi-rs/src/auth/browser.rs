@@ -3,13 +3,10 @@ use super::AuthToken;
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::query::PostQuery;
+use crate::process::RawResult;
+use crate::query::{PostQuery, Query};
+use crate::utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL};
 use crate::{client, utils};
-use crate::{
-    process::RawResult,
-    query::Query,
-    utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL},
-};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fmt::Debug;

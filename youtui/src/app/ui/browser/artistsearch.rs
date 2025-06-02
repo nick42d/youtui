@@ -1,32 +1,24 @@
 use super::shared_components::{BrowserSearchAction, FilterAction, SortAction};
-use crate::{
-    app::{
-        component::actionhandler::{
-            ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
-        },
-        server::{
-            api::GetArtistSongsProgressUpdate, GetArtistSongs, HandleApiError, SearchArtists,
-        },
-        structures::SongListComponent,
-        ui::{
-            action::{AppAction, TextEntryAction},
-            ListStatus,
-        },
-        view::{ListView, TableView},
-        AppCallback,
-    },
-    config::{keymap::Keymap, Config},
+use crate::app::component::actionhandler::{
+    ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
+use crate::app::server::api::GetArtistSongsProgressUpdate;
+use crate::app::server::{GetArtistSongs, HandleApiError, SearchArtists};
+use crate::app::structures::SongListComponent;
+use crate::app::ui::action::{AppAction, TextEntryAction};
+use crate::app::ui::ListStatus;
+use crate::app::view::{ListView, TableView};
+use crate::app::AppCallback;
+use crate::config::keymap::Keymap;
+use crate::config::Config;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use search_panel::{ArtistSearchPanel, BrowserArtistsAction};
 use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
 use std::mem;
 use tracing::{error, warn};
-use ytmapi_rs::{
-    common::{AlbumID, ArtistChannelID, Thumbnail},
-    parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist},
-};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, Thumbnail};
+use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist};
 
 pub mod search_panel;
 pub mod songs_panel;

@@ -1,6 +1,7 @@
 use crate::{BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
-use std::{fmt::Debug, future::Future};
+use std::fmt::Debug;
+use std::future::Future;
 use tokio_stream::wrappers::ReceiverStream;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}

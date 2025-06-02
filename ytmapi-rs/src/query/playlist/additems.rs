@@ -1,14 +1,10 @@
-use serde_json::json;
-
-use crate::{
-    auth::AuthToken,
-    common::{PlaylistID, VideoID},
-    parse::AddPlaylistItem,
-    query::{PostMethod, PostQuery, Query},
-};
-use std::borrow::Cow;
-
 use super::SpecialisedQuery;
+use crate::auth::AuthToken;
+use crate::common::{PlaylistID, VideoID};
+use crate::parse::AddPlaylistItem;
+use crate::query::{PostMethod, PostQuery, Query};
+use serde_json::json;
+use std::borrow::Cow;
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub enum DuplicateHandlingMode {

@@ -3,8 +3,8 @@ use self::private::Sealed;
 use crate::client::Client;
 use crate::error::Result;
 use crate::parse::ProcessedResult;
-use crate::query::{GetQuery, PostQuery};
-use crate::{process::RawResult, query::Query};
+use crate::process::RawResult;
+use crate::query::{GetQuery, PostQuery, Query};
 pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
 

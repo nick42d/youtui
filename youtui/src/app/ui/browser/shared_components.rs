@@ -1,5 +1,4 @@
-use crate::app::component::actionhandler::{Action, Suggestable};
-use crate::app::component::actionhandler::{ComponentEffect, TextHandler};
+use crate::app::component::actionhandler::{Action, ComponentEffect, Suggestable, TextHandler};
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;

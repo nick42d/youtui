@@ -1,12 +1,10 @@
 //! This module contains the `Continuable` trait, allowing streaming of results
 //! that contain continuations.
-use crate::{
-    auth::AuthToken,
-    common::ContinuationParams,
-    parse::ParseFrom,
-    query::{GetContinuationsQuery, PostMethod, PostQuery, Query, QueryMethod},
-    ProcessedResult, Result,
-};
+use crate::auth::AuthToken;
+use crate::common::ContinuationParams;
+use crate::parse::ParseFrom;
+use crate::query::{GetContinuationsQuery, PostMethod, PostQuery, Query, QueryMethod};
+use crate::{ProcessedResult, Result};
 use futures::Stream;
 use std::fmt::Debug;
 

@@ -1,9 +1,12 @@
 //! Tests for key components, to allow for automated checking of 3rd party api
 //! changes.
 use rusty_ytdl::{Video, VideoOptions};
-use std::{env, path::Path};
+use std::env;
+use std::path::Path;
 use tokio::sync::OnceCell;
-use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, YtMusic, YtMusicBuilder};
+use ytmapi_rs::auth::BrowserToken;
+use ytmapi_rs::common::YoutubeID;
+use ytmapi_rs::{YtMusic, YtMusicBuilder};
 
 const COOKIE_PATH: &str = "../ytmapi-rs/cookie.txt";
 // From Downloader

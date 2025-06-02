@@ -1,21 +1,18 @@
-use crate::app::component::actionhandler::{ActionHandler, YoutuiEffect};
-use crate::config::keymap::Keymap;
-use crate::{
-    app::{
-        component::actionhandler::{Action, ComponentEffect, KeyRouter, TextHandler},
-        ui::AppCallback,
-        view::Drawable,
-    },
-    config::Config,
+use super::action::AppAction;
+use crate::app::component::actionhandler::{
+    Action, ActionHandler, ComponentEffect, KeyRouter, TextHandler, YoutuiEffect,
 };
+use crate::app::ui::AppCallback;
+use crate::app::view::Drawable;
+use crate::config::keymap::Keymap;
+use crate::config::Config;
 use async_callback_manager::AsyncTask;
 use draw::draw_logger;
-use ratatui::{prelude::Rect, Frame};
+use ratatui::prelude::Rect;
+use ratatui::Frame;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use tui_logger::TuiWidgetEvent;
-
-use super::action::AppAction;
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -175,11 +172,9 @@ impl Logger {
 pub mod draw {
     use super::Logger;
     use crate::drawutils::{DESELECTED_BORDER_COLOUR, SELECTED_BORDER_COLOUR};
-    use ratatui::{
-        prelude::Rect,
-        style::{Color, Style},
-        Frame,
-    };
+    use ratatui::prelude::Rect;
+    use ratatui::style::{Color, Style};
+    use ratatui::Frame;
 
     pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect, selected: bool) {
         let border_colour = if selected {

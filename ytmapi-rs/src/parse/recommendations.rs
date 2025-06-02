@@ -2,17 +2,15 @@ use super::{
     ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
     TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
-use crate::{
-    common::{MoodCategoryParams, PlaylistID, TasteToken, Thumbnail},
-    nav_consts::{
-        CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
-        SINGLE_COLUMN_TAB, SUBTITLE_RUNS, THUMBNAIL_RENDERER, TITLE_TEXT,
-    },
-    query::{
-        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
-    },
-    Result,
+use crate::common::{MoodCategoryParams, PlaylistID, TasteToken, Thumbnail};
+use crate::nav_consts::{
+    CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
+    SINGLE_COLUMN_TAB, SUBTITLE_RUNS, THUMBNAIL_RENDERER, TITLE_TEXT,
 };
+use crate::query::{
+    GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+};
+use crate::Result;
 use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
@@ -203,15 +201,12 @@ fn get_taste_profile_artist(mut crawler: JsonCrawlerOwned) -> Result<TasteProfil
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{
-            MoodCategoryParams, TasteToken, TasteTokenImpression, TasteTokenSelection, YoutubeID,
-        },
-        query::{
-            GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery,
-            SetTasteProfileQuery,
-        },
+    use crate::auth::BrowserToken;
+    use crate::common::{
+        MoodCategoryParams, TasteToken, TasteTokenImpression, TasteTokenSelection, YoutubeID,
+    };
+    use crate::query::{
+        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
     };
 
     #[tokio::test]

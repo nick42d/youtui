@@ -1,6 +1,7 @@
 //! This module contains the representation of Json exposed in the default
 //! public API in this library.
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Basic representation of any valid Json value, wrapping a

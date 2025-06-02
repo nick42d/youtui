@@ -12,13 +12,11 @@ use crate::drawutils::{
 };
 use rat_text::text_input::{TextInput, TextInputState};
 use rat_text::HasScreenCursor;
-use ratatui::{
-    prelude::{Constraint, Direction, Layout, Rect},
-    style::{Modifier, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, Clear, List, ListItem, ListState},
-    Frame,
-};
+use ratatui::prelude::{Constraint, Direction, Layout, Rect};
+use ratatui::style::{Modifier, Style};
+use ratatui::text::{Line, Span};
+use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
+use ratatui::Frame;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.

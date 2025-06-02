@@ -2,22 +2,19 @@ use super::{
     ParseFrom, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS, TAB_CONTENT, THUMBNAILS,
     THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
 };
-use crate::{
-    common::{
-        EpisodeID, LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail,
-    },
-    nav_consts::{
-        CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
-        MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
-        PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM,
-        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
-    },
-    query::{
-        GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
-        GetPodcastQuery,
-    },
-    Result,
+use crate::common::{
+    EpisodeID, LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail,
 };
+use crate::nav_consts::{
+    CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
+    MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
+    PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
+};
+use crate::query::{
+    GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
+};
+use crate::Result;
 use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
@@ -311,13 +308,11 @@ fn parse_episode(crawler: impl JsonCrawler) -> Result<Episode> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, YoutubeID},
-        query::{
-            GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
-            GetPodcastQuery,
-        },
+    use crate::auth::BrowserToken;
+    use crate::common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID, YoutubeID};
+    use crate::query::{
+        GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
+        GetPodcastQuery,
     };
 
     #[tokio::test]

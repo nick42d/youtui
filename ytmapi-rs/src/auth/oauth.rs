@@ -4,14 +4,11 @@ use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{GetQuery, PostQuery};
-use crate::{
-    query::Query,
-    utils::constants::{
-        OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE,
-        OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY,
-        YTM_URL,
-    },
+use crate::query::{GetQuery, PostQuery, Query};
+use crate::utils::constants::{
+    OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE,
+    OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY,
+    YTM_URL,
 };
 use reqwest::Url;
 use serde::{Deserialize, Serialize};

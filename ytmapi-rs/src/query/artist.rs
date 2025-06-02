@@ -1,9 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{ArtistChannelID, BrowseParams, YoutubeID},
-    parse::{ArtistParams, GetArtistAlbumsAlbum},
-};
+use crate::auth::AuthToken;
+use crate::common::{ArtistChannelID, BrowseParams, YoutubeID};
+use crate::parse::{ArtistParams, GetArtistAlbumsAlbum};
 use serde_json::json;
 
 #[derive(Debug, Clone)]

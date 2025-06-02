@@ -1,9 +1,7 @@
 use super::PrivacyStatus;
-use crate::{
-    auth::AuthToken,
-    common::{ApiOutcome, PlaylistID, SetVideoID, YoutubeID},
-    query::{PostMethod, PostQuery, Query},
-};
+use crate::auth::AuthToken;
+use crate::common::{ApiOutcome, PlaylistID, SetVideoID, YoutubeID};
+use crate::query::{PostMethod, PostQuery, Query};
 use serde_json::json;
 use std::borrow::Cow;
 
