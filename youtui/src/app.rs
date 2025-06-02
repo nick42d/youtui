@@ -50,6 +50,9 @@ pub struct Youtui {
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
     media_controls: MediaController,
+    /// Capabilities of the user's terminal in regards to image rendering - ie,
+    /// font size / kitty protocal etc. This
+    terminal_image_capabilities: Picker,
 }
 
 #[derive(PartialEq)]
@@ -109,14 +112,15 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
+        // The docs for this function state that it must be run after entering alternate
+        // screen but before events are read, therefore this is hoisted for
+        // visibility. Note that this may briefly block, delaying startup, but likely
+        // unavoidable.
+        let terminal_image_capabilities = Picker::from_query_stdio()?;
         let (media_controls, media_control_event_stream) = MediaController::new()
             .context("Unable to initialise media controls - is the application already running?")?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
-        // The docs for this function state that it must be run after entering alternate
-        // screen but before events are read, therefore this is hoisted for
-        // visibility.
-        let terminal_image_capabilities = Picker::from_query_stdio()?;
-        let (window_state, effect) = YoutuiWindow::new(config, terminal_image_capabilities);
+        let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
         task_manager.spawn_task(&server, effect);
@@ -128,6 +132,7 @@ impl Youtui {
             server,
             terminal,
             media_controls,
+            terminal_image_capabilities,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -139,7 +144,11 @@ impl Youtui {
                     // instantly react to.
                     // Draw occurs before the first event, to ensure up loads immediately.
                     self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &mut self.window_state);
+                        ui::draw::draw_app(
+                            f,
+                            &mut self.window_state,
+                            &self.terminal_image_capabilities,
+                        );
                     })?;
                     self.media_controls.update_controls(
                         ui::draw_media_controls::draw_app_media_controls(&self.window_state),

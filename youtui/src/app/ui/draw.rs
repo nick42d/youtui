@@ -14,10 +14,11 @@ use ratatui::widgets::{
     Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
 };
 use ratatui::Frame;
+use ratatui_image::picker::Picker;
 use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.
-pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
+pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities: &Picker) {
     let base_layout = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -49,7 +50,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow) {
     if w.key_pending() {
         draw_popup(f, w, base_layout[1]);
     }
-    footer::draw_footer(f, w, base_layout[2]);
+    footer::draw_footer(f, w, base_layout[2], terminal_image_capabilities);
 }
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be

@@ -9,8 +9,11 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph};
 use ratatui::Frame;
-use ratatui_image::StatefulImage;
+use ratatui_image::picker::Picker;
+use ratatui_image::Image;
 use std::time::Duration;
+
+pub const ALBUM_ART_WIDTH: u16 = 7;
 
 pub fn parse_simple_time_to_secs<S: AsRef<str>>(time_string: S) -> usize {
     time_string
@@ -33,7 +36,12 @@ pub fn secs_to_time_string(secs: usize) -> String {
     }
 }
 
-pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
+pub fn draw_footer(
+    f: &mut Frame,
+    w: &mut super::YoutuiWindow,
+    chunk: Rect,
+    terminal_image_capabilities: &Picker,
+) {
     let mut duration = 0;
     let mut progress = Duration::default();
     let play_ratio = match &w.playlist.play_status {
@@ -157,21 +165,29 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
         Some(album_art) => {
             let album_art_and_bar = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([Constraint::Length(7), Constraint::Min(0)])
+                .constraints([
+                    Constraint::Length(ALBUM_ART_WIDTH),
+                    Constraint::Length(1),
+                    Constraint::Min(0),
+                ])
                 .split(bar_and_vol[0]);
             match album_art {
                 AlbumArtState::Downloaded(album_art) => {
-                    w.footer_album_art_state = Some(
-                        w.terminal_image_capabilities
-                            .new_resize_protocol(album_art.in_mem_image.clone()),
-                    );
-                    if let Some(state) = w.footer_album_art_state.as_mut() {
-                        f.render_stateful_widget(
-                            StatefulImage::default(),
-                            album_art_and_bar[0],
-                            state,
-                        );
-                    }
+                    // TODO: hoist ability to panic here up to album_art_downloader server call.
+                    // Since album art is fixed size, no need to use resize protocol.
+                    let image = terminal_image_capabilities
+                        .new_protocol(
+                            album_art.in_mem_image.clone(),
+                            Rect {
+                                x: 0,
+                                y: 0,
+                                width: ALBUM_ART_WIDTH,
+                                height: ALBUM_ART_WIDTH,
+                            },
+                            ratatui_image::Resize::Fit(None),
+                        )
+                        .unwrap();
+                    f.render_widget(Image::new(&image), album_art_and_bar[0]);
                 }
                 AlbumArtState::Error => {
                     let fallback_album_widget = Paragraph::new("").centered();
@@ -185,7 +201,7 @@ pub fn draw_footer(f: &mut Frame, w: &mut super::YoutuiWindow, chunk: Rect) {
                     unreachable!("This arm is covered by the earlier match statement")
                 }
             };
-            get_progress_bar_and_text_layout(album_art_and_bar[1])
+            get_progress_bar_and_text_layout(album_art_and_bar[2])
         }
     };
     f.render_widget(bar, progress_bar_layout[1]);

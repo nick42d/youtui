@@ -509,7 +509,8 @@ impl Playlist {
         // Download function isn't triggered inside this function, since we
         // don't know if the caller is going to immediately change what song is
         // playing after adding songs, although we could check and accept it may
-        // be overridden.
+        // be overridden. We also need to get current playing song ID to call
+        // download_upcoming_from_id (minor inconvenience).
     }
     /// Play the next song in the list if it exists, otherwise, stop playing.
     pub fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
