@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.8](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.7...json-crawler/v0.0.8) - 2025-06-02
+
+### Other
+- Tidy imports for auto group and granularity ([#234](https://github.com/nick42d/youtui/pull/234))
+
+
+
+
 ## [0.0.7](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.6...json-crawler/v0.0.7) - 2025-04-22
 
 ### Other

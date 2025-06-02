@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.7](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.6...async-callback-manager/v0.0.7) - 2025-06-02
+
+### Added
+- Show album art ([#232](https://github.com/nick42d/youtui/pull/232))
+
+### Other
+- Tidy imports for auto group and granularity ([#234](https://github.com/nick42d/youtui/pull/234))
+
+
+
+
 ## [0.0.6](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.5...async-callback-manager/v0.0.6) - 2025-04-22
 
 ### Other

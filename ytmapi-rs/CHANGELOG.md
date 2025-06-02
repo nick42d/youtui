@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.22](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.21...ytmapi-rs/v0.0.22) - 2025-06-02
+
+### Added
+- Show album art ([#232](https://github.com/nick42d/youtui/pull/232))
+
+### Other
+- Tidy imports for auto group and granularity ([#234](https://github.com/nick42d/youtui/pull/234))
+
+
+
+
 ## [0.0.21](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.20...ytmapi-rs/v0.0.21) - 2025-04-22
 
 ### Added
