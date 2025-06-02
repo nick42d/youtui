@@ -33,7 +33,7 @@ impl Client {
     }
     #[cfg(feature = "reqwest")]
     #[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
-    /// Utilises reqwest's default tls choice for the enabled set of options.
+    /// Re-use a pre-existing reqwest::Client.
     pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
         Self { inner: client }
     }
