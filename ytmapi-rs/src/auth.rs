@@ -44,3 +44,6 @@ pub trait AuthToken: Sized + Sealed {
 /// `impl<A: LoggedIn> Query<A> for AddSongToPlaylistQuery`
 /// Since AuthToken is sealed, no-one else can implement this.
 pub trait LoggedIn: AuthToken {}
+
+impl LoggedIn for BrowserToken {}
+impl LoggedIn for OAuthToken {}
