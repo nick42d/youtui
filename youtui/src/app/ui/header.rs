@@ -1,15 +1,11 @@
-use crate::{
-    app::component::actionhandler::{get_global_keybinds_as_readable_iter, KeyRouter},
-    drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR},
-    keyaction::DisplayableKeyAction,
-};
-use ratatui::{
-    layout::Rect,
-    style::Style,
-    text::{Line, Span},
-    widgets::{Block, Borders, Paragraph},
-    Frame,
-};
+use crate::app::component::actionhandler::{get_global_keybinds_as_readable_iter, KeyRouter};
+use crate::drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR};
+use crate::keyaction::DisplayableKeyAction;
+use ratatui::layout::Rect;
+use ratatui::style::Style;
+use ratatui::text::{Line, Span};
+use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::Frame;
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let keybinds = get_global_keybinds_as_readable_iter(w.get_active_keybinds(&w.config));

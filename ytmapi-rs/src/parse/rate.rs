@@ -28,12 +28,9 @@ impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
 }
 #[cfg(test)]
 mod tests {
-    use crate::common::VideoID;
-    use crate::{
-        auth::BrowserToken,
-        common::{PlaylistID, YoutubeID},
-        query::rate::{RatePlaylistQuery, RateSongQuery},
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{PlaylistID, VideoID, YoutubeID};
+    use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
 
     #[tokio::test]
     async fn test_rate_song_like() {

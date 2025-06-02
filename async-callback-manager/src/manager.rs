@@ -1,12 +1,12 @@
-use crate::{
-    task::{
-        AsyncTask, AsyncTaskKind, FutureTask, SpawnedTask, StreamTask, TaskInformation, TaskList,
-        TaskOutcome, TaskWaiter,
-    },
-    Constraint, DEFAULT_STREAM_CHANNEL_SIZE,
+use crate::task::{
+    AsyncTask, AsyncTaskKind, FutureTask, SpawnedTask, StreamTask, TaskInformation, TaskList,
+    TaskOutcome, TaskWaiter,
 };
+use crate::{Constraint, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
-use std::{any::TypeId, future::Future, sync::Arc};
+use std::any::TypeId;
+use std::future::Future;
+use std::sync::Arc;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(pub(crate) u64);

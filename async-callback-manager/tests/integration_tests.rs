@@ -4,7 +4,9 @@ use async_callback_manager::{
     AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, Constraint,
 };
 use futures::{FutureExt, StreamExt};
-use std::{future::Future, sync::Arc, time::Duration};
+use std::future::Future;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::Mutex;
 
 #[derive(Debug)]

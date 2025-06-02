@@ -1,7 +1,5 @@
-use std::{
-    fmt::{Debug, Display},
-    sync::Arc,
-};
+use std::fmt::{Debug, Display};
+use std::sync::Arc;
 
 pub struct CrawlerError {
     inner: Box<ErrorKind>,

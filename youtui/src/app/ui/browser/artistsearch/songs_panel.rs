@@ -1,17 +1,17 @@
-use crate::app::component::actionhandler::{ComponentEffect, Scrollable, TextHandler};
-use crate::app::structures::{ListSong, ListSongDisplayableField, SongListComponent};
+use crate::app::component::actionhandler::{
+    Action, ComponentEffect, KeyRouter, Scrollable, TextHandler,
+};
+use crate::app::structures::{
+    AlbumSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
+};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::get_sort_keybinds;
 use crate::app::ui::browser::shared_components::{
     get_adjusted_list_column, FilterManager, SortManager,
 };
 use crate::app::view::{
-    FilterString, SortDirection, SortableTableView, TableFilterCommand, TableSortCommand,
-};
-use crate::app::{
-    component::actionhandler::{Action, KeyRouter},
-    structures::{AlbumSongsList, ListStatus, Percentage},
-    view::{BasicConstraint, Loadable, TableView},
+    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+    TableSortCommand, TableView,
 };
 use crate::config::keymap::Keymap;
 use crate::config::Config;

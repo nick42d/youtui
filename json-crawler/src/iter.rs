@@ -4,7 +4,9 @@ use crate::{
     CrawlerError, CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned, JsonPath,
     PathList,
 };
-use std::{slice::IterMut, sync::Arc, vec::IntoIter};
+use std::slice::IterMut;
+use std::sync::Arc;
+use std::vec::IntoIter;
 
 /// Iterator extension trait containing special methods for Json Crawler
 /// iterators to help with error handling.

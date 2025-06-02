@@ -1,9 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID},
-    parse::{Episode, GetEpisode, GetPodcast, GetPodcastChannel},
-};
+use crate::auth::AuthToken;
+use crate::common::{EpisodeID, PodcastChannelID, PodcastChannelParams, PodcastID};
+use crate::parse::{Episode, GetEpisode, GetPodcast, GetPodcastChannel};
 use serde_json::json;
 
 pub struct GetChannelQuery<'a> {

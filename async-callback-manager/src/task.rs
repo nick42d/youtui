@@ -2,16 +2,13 @@ use crate::{
     BackendStreamingTask, BackendTask, DynFutureTask, DynMutationFuture, DynMutationStream,
     DynStateMutation, DynStreamTask, TaskId,
 };
-use futures::{stream::FuturesUnordered, FutureExt, StreamExt};
-use std::{
-    any::{type_name, TypeId},
-    fmt::Debug,
-    sync::Arc,
-};
-use tokio::{
-    sync::mpsc,
-    task::{AbortHandle, JoinError, JoinHandle},
-};
+use futures::stream::FuturesUnordered;
+use futures::{FutureExt, StreamExt};
+use std::any::{type_name, TypeId};
+use std::fmt::Debug;
+use std::sync::Arc;
+use tokio::sync::mpsc;
+use tokio::task::{AbortHandle, JoinError, JoinHandle};
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
@@ -530,9 +527,8 @@ impl<Cstrnt> Constraint<Cstrnt> {
 
 #[cfg(test)]
 mod tests {
-    use futures::StreamExt;
-
     use crate::{AsyncTask, BackendStreamingTask, BackendTask};
+    use futures::StreamExt;
     #[derive(Debug)]
     struct Task1;
     #[derive(Debug)]

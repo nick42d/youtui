@@ -1,12 +1,9 @@
-use std::borrow::Cow;
-
 use super::{get_sort_order_params, GetLibrarySortOrder, PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{UploadAlbumID, UploadArtistID, UploadEntityID},
-    parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
-};
+use crate::auth::AuthToken;
+use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};
+use crate::parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist};
 use serde_json::json;
+use std::borrow::Cow;
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {

@@ -1,20 +1,18 @@
+use super::search::SearchResultVideo;
 use super::{
     parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
-    parse_upload_song_artists, search::SearchResultVideo, EpisodeDate, EpisodeDuration, ParseFrom,
-    ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum, ProcessedResult,
-    Thumbnail,
+    parse_upload_song_artists, EpisodeDate, EpisodeDuration, ParseFrom, ParsedSongAlbum,
+    ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum, ProcessedResult, Thumbnail,
 };
-use crate::{
-    common::{
-        AlbumID, AlbumType, ArtistChannelID, BrowseParams, EpisodeID, Explicit, LibraryManager,
-        LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
-    },
-    nav_consts::*,
-    process::{fixed_column_item_pointer, flex_column_item_pointer},
-    query::*,
-    youtube_enums::YoutubeMusicVideoType,
-    Result,
+use crate::common::{
+    AlbumID, AlbumType, ArtistChannelID, BrowseParams, EpisodeID, Explicit, LibraryManager,
+    LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
 };
+use crate::nav_consts::*;
+use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
+use crate::query::*;
+use crate::youtube_enums::YoutubeMusicVideoType;
+use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -751,12 +749,9 @@ impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<GetArtistAlbumsAlbum> {
 }
 #[cfg(test)]
 mod tests {
-    use crate::common::ArtistChannelID;
-    use crate::{
-        auth::BrowserToken,
-        common::{BrowseParams, YoutubeID},
-        query::GetArtistAlbumsQuery,
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{ArtistChannelID, BrowseParams, YoutubeID};
+    use crate::query::GetArtistAlbumsQuery;
 
     #[tokio::test]
     async fn test_get_artist_albums_query() {

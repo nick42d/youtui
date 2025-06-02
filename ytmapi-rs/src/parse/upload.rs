@@ -1,22 +1,20 @@
 use super::{ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE};
-use crate::{
-    common::{
-        AlbumType, LikeStatus, Thumbnail, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID,
-    },
-    nav_consts::{
-        GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
-        NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-        SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS,
-        THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
-    },
-    parse::{parse_fixed_column_item, parse_flex_column_item},
-    process::{fixed_column_item_pointer, flex_column_item_pointer},
-    query::{
-        DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-        GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    },
-    Result,
+use crate::common::{
+    AlbumType, LikeStatus, Thumbnail, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID,
 };
+use crate::nav_consts::{
+    GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
+    PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3,
+    TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT,
+    WATCH_VIDEO_ID,
+};
+use crate::parse::{parse_fixed_column_item, parse_flex_column_item};
+use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
+use crate::query::{
+    DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+};
+use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -359,10 +357,8 @@ fn get_uploads_tab(json: JsonCrawlerOwned) -> Result<JsonCrawlerOwned> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID},
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID};
     #[tokio::test]
     async fn test_get_library_upload_songs() {
         parse_test!(

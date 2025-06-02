@@ -1,35 +1,30 @@
-use std::borrow::Cow;
-
 use super::get_sort_keybinds;
 use super::shared_components::{
     get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
     SortAction, SortManager,
 };
-use crate::app::component::actionhandler::Suggestable;
-use crate::app::structures::{ListSongDisplayableField, ListStatus, Percentage, SongListComponent};
-use crate::app::view::BasicConstraint;
-use crate::{
-    app::{
-        component::actionhandler::{
-            Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler,
-            YoutuiEffect,
-        },
-        server::{HandleApiError, SearchSongs},
-        structures::{AlbumSongsList, ListSong},
-        ui::action::{AppAction, TextEntryAction},
-        view::{
-            FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
-            TableSortCommand, TableView,
-        },
-        AppCallback,
-    },
-    config::{keymap::Keymap, Config},
+use crate::app::component::actionhandler::{
+    Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, Suggestable, TextHandler,
+    YoutuiEffect,
 };
+use crate::app::server::{HandleApiError, SearchSongs};
+use crate::app::structures::{
+    AlbumSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
+};
+use crate::app::ui::action::{AppAction, TextEntryAction};
+use crate::app::view::{
+    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+    TableSortCommand, TableView,
+};
+use crate::app::AppCallback;
+use crate::config::keymap::Keymap;
+use crate::config::Config;
 use anyhow::{bail, Result};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use tracing::warn;
 use ytmapi_rs::common::SearchSuggestion;
 use ytmapi_rs::parse::SearchResultSong;

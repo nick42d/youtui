@@ -1,11 +1,10 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{ContinuationParams, YoutubeID},
-    continuations::Continuable,
-    parse::ParseFrom,
-};
-use std::{borrow::Cow, vec::Vec};
+use crate::auth::AuthToken;
+use crate::common::{ContinuationParams, YoutubeID};
+use crate::continuations::Continuable;
+use crate::parse::ParseFrom;
+use std::borrow::Cow;
+use std::vec::Vec;
 
 /// Query that will get continuations for a query that returned paginated
 /// results.

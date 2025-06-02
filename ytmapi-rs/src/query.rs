@@ -34,11 +34,6 @@
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
-use std::borrow::Cow;
-use std::future::Future;
-
-use private::Sealed;
-
 pub use album::*;
 pub use artist::*;
 pub use continuations::*;
@@ -46,8 +41,11 @@ pub use history::*;
 pub use library::*;
 pub use playlist::*;
 pub use podcasts::*;
+use private::Sealed;
 pub use recommendations::*;
 pub use search::*;
+use std::borrow::Cow;
+use std::future::Future;
 pub use upload::*;
 
 mod artist;
@@ -145,11 +143,9 @@ where
 
 pub mod album {
     use super::{PostMethod, PostQuery, Query};
-    use crate::{
-        auth::AuthToken,
-        common::{AlbumID, YoutubeID},
-        parse::GetAlbum,
-    };
+    use crate::auth::AuthToken;
+    use crate::common::{AlbumID, YoutubeID};
+    use crate::parse::GetAlbum;
     use serde_json::json;
 
     #[derive(Clone)]
@@ -187,11 +183,9 @@ pub mod album {
 
 pub mod lyrics {
     use super::{PostMethod, PostQuery, Query};
-    use crate::{
-        auth::AuthToken,
-        common::{LyricsID, YoutubeID},
-        parse::Lyrics,
-    };
+    use crate::auth::AuthToken;
+    use crate::common::{LyricsID, YoutubeID};
+    use crate::parse::Lyrics;
     use serde_json::json;
 
     pub struct GetLyricsQuery<'a> {
@@ -226,10 +220,8 @@ pub mod lyrics {
 
 pub mod watch {
     use super::{PostMethod, PostQuery, Query};
-    use crate::{
-        auth::AuthToken,
-        common::{PlaylistID, VideoID, YoutubeID},
-    };
+    use crate::auth::AuthToken;
+    use crate::common::{PlaylistID, VideoID, YoutubeID};
     use serde_json::json;
     use std::borrow::Cow;
 
@@ -336,14 +328,11 @@ pub mod watch {
 }
 
 pub mod rate {
-    use std::borrow::Cow;
-
     use super::{PostMethod, PostQuery, Query};
-    use crate::{
-        auth::AuthToken,
-        common::{LikeStatus, PlaylistID, VideoID, YoutubeID},
-    };
+    use crate::auth::AuthToken;
+    use crate::common::{LikeStatus, PlaylistID, VideoID, YoutubeID};
     use serde_json::json;
+    use std::borrow::Cow;
 
     pub struct RateSongQuery<'a> {
         video_id: VideoID<'a>,
@@ -420,8 +409,9 @@ pub mod rate {
 // Potentially better belongs within another module.
 pub mod song {
     use super::{PostMethod, PostQuery, Query};
-    use crate::common::VideoID;
-    use crate::{auth::AuthToken, common::SongTrackingUrl, Result};
+    use crate::auth::AuthToken;
+    use crate::common::{SongTrackingUrl, VideoID};
+    use crate::Result;
     use serde_json::json;
     use std::borrow::Cow;
     use std::time::SystemTime;

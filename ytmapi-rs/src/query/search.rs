@@ -1,5 +1,6 @@
 use super::*;
-use crate::{common::SearchSuggestion, parse::SearchResults};
+use crate::common::SearchSuggestion;
+use crate::parse::SearchResults;
 pub use filteredsearch::*;
 use std::borrow::Cow;
 

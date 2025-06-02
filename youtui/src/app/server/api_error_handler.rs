@@ -1,4 +1,5 @@
-use crate::{core::get_limited_sequential_file, get_data_dir};
+use crate::core::get_limited_sequential_file;
+use crate::get_data_dir;
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::io::AsyncWriteExt;
