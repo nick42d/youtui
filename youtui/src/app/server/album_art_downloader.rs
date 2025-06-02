@@ -7,7 +7,6 @@ use futures::FutureExt;
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::SystemTime;
 use tracing::{error, info};
 use ytmapi_rs::common::{AlbumID, YoutubeID};
 
@@ -61,7 +60,6 @@ impl AlbumArtDownloader {
             match create_or_clean_directory(
                 &album_art_dir,
                 ALBUM_ART_FILENAME_PREFIX,
-                SystemTime::now(),
                 ALBUM_ART_IMAGE_MAX_AGE,
             )
             .await
