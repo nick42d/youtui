@@ -39,26 +39,36 @@ use std::future::Future;
 
 use private::Sealed;
 
-pub use album::*;
-pub use artist::*;
-pub use continuations::*;
-pub use history::*;
-pub use library::*;
-pub use playlist::*;
-pub use podcasts::*;
-pub use recommendations::*;
-pub use search::*;
-pub use upload::*;
+pub use album::GetAlbumQuery;
+pub use artist::{GetArtistAlbumsQuery, GetArtistQuery};
+pub use continuations::GetContinuationsQuery;
+pub use history::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery};
+pub use library::{
+    EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+};
+pub use playlist::{DeletePlaylistQuery, GetPlaylistQuery, RemovePlaylistItemsQuery};
+pub use podcasts::{
+    GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
+};
+pub use recommendations::{
+    GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+};
+pub use search::{GetSearchSuggestionsQuery, SearchQuery};
+pub use upload::{
+    DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+};
 
-mod artist;
-mod continuations;
-mod history;
-mod library;
-mod playlist;
-mod podcasts;
-mod recommendations;
-mod search;
-mod upload;
+pub mod artist;
+pub mod continuations;
+pub mod history;
+pub mod library;
+pub mod playlist;
+pub mod podcasts;
+pub mod recommendations;
+pub mod search;
+pub mod upload;
 
 mod private {
     pub trait Sealed {}
