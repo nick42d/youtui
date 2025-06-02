@@ -1,4 +1,5 @@
-use super::server::downloader::InMemSong;
+use super::server::album_art_downloader::AlbumArt;
+use super::server::song_downloader::InMemSong;
 use super::view::SortDirection;
 use itertools::Itertools;
 use std::borrow::Cow;
@@ -6,7 +7,7 @@ use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{Explicit, Thumbnail, VideoID};
+use ytmapi_rs::common::{AlbumID, Explicit, Thumbnail, VideoID};
 use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultSong};
 
 pub trait SongListComponent {
@@ -51,6 +52,15 @@ pub struct ListSongID(#[cfg(test)] pub usize, #[cfg(not(test))] usize);
 #[derive(Clone, PartialEq, Copy, Debug, Default, PartialOrd)]
 pub struct Percentage(pub u8);
 
+#[derive(Clone, Debug, PartialEq, Default)]
+pub enum AlbumArtState {
+    #[default]
+    Init,
+    Downloaded(Rc<AlbumArt>),
+    None,
+    Error,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ListSong {
     pub video_id: VideoID<'static>,
@@ -63,6 +73,7 @@ pub struct ListSong {
     pub duration_string: String,
     pub actual_duration: Option<Duration>,
     pub year: Option<Rc<String>>,
+    pub album_art: AlbumArtState,
     pub artists: MaybeRc<Vec<ParsedSongArtist>>,
     pub thumbnails: MaybeRc<Vec<Thumbnail>>,
     pub album: Option<MaybeRc<ParsedSongAlbum>>,
@@ -292,6 +303,7 @@ impl AlbumSongsList {
             explicit,
             duration_string: duration,
             thumbnails: MaybeRc::Rc(thumbnails),
+            album_art: Default::default(),
         });
         id
     }
@@ -325,6 +337,7 @@ impl AlbumSongsList {
             explicit,
             duration_string: duration,
             thumbnails: MaybeRc::Owned(thumbnails),
+            album_art: Default::default(),
         });
         id
     }
@@ -354,5 +367,32 @@ impl AlbumSongsList {
         let id = self.next_id;
         self.next_id.0 += 1;
         id
+    }
+    pub fn update_album_art(&mut self, album_art: AlbumArt) {
+        let shared = Rc::new(album_art);
+        for song in &mut self.list {
+            if !matches!(song.album_art, AlbumArtState::Downloaded(_))
+                && song
+                    .album
+                    .as_ref()
+                    .is_some_and(|album| album.id == shared.album_id)
+            {
+                song.album_art = AlbumArtState::Downloaded(shared.clone());
+            }
+            tracing::info!("Album art updated");
+        }
+    }
+    pub fn set_album_art_error(&mut self, album_id: AlbumID<'_>) {
+        for song in &mut self.list {
+            if !matches!(song.album_art, AlbumArtState::Downloaded(_))
+                && song
+                    .album
+                    .as_ref()
+                    .is_some_and(|album| album.id == album_id)
+            {
+                song.album_art = AlbumArtState::Error;
+            }
+            tracing::info!("Album art updated");
+        }
     }
 }

@@ -1,5 +1,6 @@
 //! Re-usable core functionality.
 use anyhow::bail;
+use futures::TryStreamExt;
 use serde::de::{self, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::borrow::Borrow;
@@ -9,6 +10,7 @@ use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::{SystemTime, UNIX_EPOCH};
+use tokio::fs::DirEntry;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReadDirStream;
 use tokio_stream::StreamExt;
@@ -78,6 +80,44 @@ pub async fn get_limited_sequential_file(
     ))
 }
 
+/// Either creates a new directory at dir, or deletes all files in the directory
+/// starting with managed_file_prefix that are older (last modified) than
+/// max_age. Returns the number of files cleaned up, if any.
+pub async fn create_or_clean_directory(
+    dir: &Path,
+    managed_file_prefix: impl AsRef<str>,
+    max_age: std::time::Duration,
+) -> std::io::Result<usize> {
+    tokio::fs::create_dir_all(dir).await?;
+    let time_now = SystemTime::now();
+    let album_art_dir_reader = tokio::fs::read_dir(dir).await?;
+    let filename_prefix_matches = |entry: &DirEntry| {
+        let matches = entry
+            .file_name()
+            .to_str()
+            .is_some_and(|s| s.starts_with(managed_file_prefix.as_ref()));
+        async move { matches }
+    };
+    let delete_file_if_aged = |entry: DirEntry| async move {
+        let last_modified = entry.metadata().await?.modified()?;
+        if !time_now
+            .duration_since(last_modified)
+            .is_ok_and(|dif| dif <= max_age)
+        {
+            tokio::fs::remove_file(entry.path()).await.map(Some)
+        } else {
+            Ok(None)
+        }
+    };
+    let files_deleted = ReadDirStream::new(album_art_dir_reader)
+        .try_filter(filename_prefix_matches)
+        .try_filter_map(delete_file_if_aged)
+        .try_collect::<Vec<_>>()
+        .await?
+        .len();
+    Ok(files_deleted)
+}
+
 /// From serde documentation: [https://serde.rs/string-or-struct.html]
 pub fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
 where
@@ -123,13 +163,75 @@ where
 /// lowest one first.
 #[cfg(test)]
 mod tests {
-    use crate::core::get_limited_sequential_file;
+    use crate::core::{create_or_clean_directory, get_limited_sequential_file};
     use pretty_assertions::assert_eq;
-    use std::time::Duration;
+    use std::time::{Duration, SystemTime};
     use tempfile::TempDir;
     use tokio_stream::wrappers::ReadDirStream;
     use tokio_stream::StreamExt;
 
+    #[tokio::test]
+    async fn test_create_or_clean_directory_creates_directory() {
+        let tmpdir = TempDir::new().unwrap();
+        let target_dir = tmpdir.path().join("test_dir");
+        create_or_clean_directory(
+            &target_dir,
+            "test_",
+            std::time::Duration::from_secs(u64::MAX),
+        )
+        .await
+        .unwrap();
+        assert!(tokio::fs::remove_dir(target_dir).await.is_ok());
+    }
+    #[tokio::test]
+    async fn test_create_or_clean_directory_deletes_aged() {
+        let tmpdir = TempDir::new().unwrap();
+        let target_dir = tmpdir.path().join("test_dir");
+        let target_file = target_dir.join("test_file");
+        tokio::fs::create_dir_all(&target_dir).await.unwrap();
+        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        file.into_std()
+            .await
+            .set_modified(SystemTime::now() - Duration::from_secs(60))
+            .unwrap();
+        create_or_clean_directory(&target_dir, "test_", std::time::Duration::from_secs(59))
+            .await
+            .unwrap();
+        assert!(tokio::fs::File::open(target_file).await.is_err());
+    }
+    #[tokio::test]
+    async fn test_create_or_clean_directory_doesnt_delete_aged_wrong_prefix() {
+        let tmpdir = TempDir::new().unwrap();
+        let target_dir = tmpdir.path().join("test_dir");
+        let target_file = target_dir.join("users file");
+        tokio::fs::create_dir_all(&target_dir).await.unwrap();
+        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        file.into_std()
+            .await
+            .set_modified(SystemTime::now() - Duration::from_secs(60))
+            .unwrap();
+        create_or_clean_directory(&target_dir, "test_", std::time::Duration::from_secs(59))
+            .await
+            .unwrap();
+        assert!(tokio::fs::File::open(target_file).await.is_ok());
+    }
+    #[tokio::test]
+    async fn test_create_or_clean_directory_doesnt_delete_unaged() {
+        let tmpdir = TempDir::new().unwrap();
+        let target_dir = tmpdir.path().join("test_dir");
+        let target_file = target_dir.join("test_file");
+        tokio::fs::create_dir_all(&target_dir).await.unwrap();
+        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        drop(file);
+        create_or_clean_directory(
+            &target_dir,
+            "test_",
+            std::time::Duration::from_secs(u64::MAX),
+        )
+        .await
+        .unwrap();
+        assert!(tokio::fs::File::open(target_file).await.is_ok());
+    }
     #[tokio::test]
     async fn test_get_limited_sequential_file_has_correct_filename() {
         let tmpdir = TempDir::new().unwrap();

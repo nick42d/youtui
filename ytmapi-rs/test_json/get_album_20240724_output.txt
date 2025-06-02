@@ -23,6 +23,28 @@ GetAlbum {
             url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w544-h544-l90-rj",
         },
     ],
+    artist_thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w60-h60-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w120-h120-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w226-h226-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://lh3.googleusercontent.com/Gv6RFeTy0GXha5O_ppV_D-kVlS7MG4vdXMhPfFY30pRaU3TFzDESG_0ORMo5BgdshhRaiZqP1lJfsa4=w544-h544-l90-rj",
+        },
+    ],
     description: Some(
         "Vultures 1 is the debut studio album by the American hip hop supergroup ¥$, composed of the rapper Kanye West and the singer Ty Dolla Sign. It was released independently by the former's YZY brand on February 10, 2024. Guest appearances include West's daughter North, India Love, Freddie Gibbs, YG, Quavo, Playboi Carti, Travis Scott, Bump J, Lil Durk, Rich the Kid and Chris Brown. Production was primarily handled by West, alongside the Legendary Traxster, 88-Keys, Camper, JPEGMafia, Timbaland, Swizz Beatz, Ojivolta, Chrishan, Anthony Kilhoffer, and others.\nWest and Ty Dolla Sign began recording the album with collaborators in Italy in October 2023, then relocated to Saudi Arabia for three months. The album sustained multiple delays and changes to the tracklist before release, following West's struggle to secure a distributor. The release was first teased throughout late 2023 under the placeholder title ¥$ and was set to be titled Vultures before being retitled to Vultures 1 as the first volume in an album series. The tracks \"Everybody\" and \"New Body\" were announced for the album, but could not be included due to clearance issues.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/Vultures_1) under Creative Commons Attribution CC-BY-SA 3.0 (https://creativecommons.org/licenses/...)",
     ),

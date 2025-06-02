@@ -1,24 +1,25 @@
-use crate::api::DynamicApiError;
+use crate::api::{DynamicApiError, DynamicYtMusic};
 use crate::async_rodio_sink::send_or_error;
-use crate::{api::DynamicYtMusic, config::ApiKey, get_config_dir, OAUTH_FILENAME};
+use crate::config::ApiKey;
+use crate::{get_config_dir, OAUTH_FILENAME};
 use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;
-use futures::Stream;
-use futures::{stream::FuturesOrdered, StreamExt};
-use std::{borrow::Borrow, sync::Arc};
-use tokio::{io::AsyncWriteExt, sync::RwLock};
+use futures::stream::FuturesOrdered;
+use futures::{Stream, StreamExt};
+use rusty_ytdl::reqwest;
+use std::borrow::Borrow;
+use std::sync::Arc;
+use tokio::io::AsyncWriteExt;
+use tokio::sync::RwLock;
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
-use ytmapi_rs::common::Thumbnail;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, Thumbnail};
 use ytmapi_rs::parse::{
-    AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist, SearchResultSong,
+    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist,
+    SearchResultSong,
 };
-use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    common::{AlbumID, ArtistChannelID, SearchSuggestion},
-    parse::{GetAlbum, GetArtistAlbums},
-    query::{GetAlbumQuery, GetArtistAlbumsQuery},
-};
+use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
 
 #[derive(Clone)]
 /// # Note
@@ -30,11 +31,11 @@ pub struct Api {
 pub type ConcurrentApi = Arc<RwLock<DynamicYtMusic>>;
 
 impl Api {
-    pub fn new(api_key: ApiKey) -> Api {
+    pub fn new(api_key: ApiKey, client: reqwest::Client) -> Api {
         let api = AsyncCell::new().into_shared();
         let api_clone = api.clone();
         tokio::spawn(async move {
-            let api = DynamicYtMusic::new(api_key)
+            let api = DynamicYtMusic::new(api_key, client)
                 .await
                 .map(|api| Arc::new(RwLock::new(api)));
             api_clone.set(api)
