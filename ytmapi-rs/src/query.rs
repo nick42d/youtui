@@ -47,18 +47,25 @@ pub use library::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
-pub use playlist::{DeletePlaylistQuery, GetPlaylistQuery, RemovePlaylistItemsQuery};
+pub use lyrics::GetLyricsQuery;
+pub use playlist::{
+    AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+    GetPlaylistQuery, RemovePlaylistItemsQuery,
+};
 pub use podcasts::{
     GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
 };
+pub use rate::{RatePlaylistQuery, RateSongQuery};
 pub use recommendations::{
     GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
 pub use search::{GetSearchSuggestionsQuery, SearchQuery};
+pub use song::GetSongTrackingUrlQuery;
 pub use upload::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
+pub use watch::GetWatchPlaylistQuery;
 
 pub mod artist;
 pub mod continuations;

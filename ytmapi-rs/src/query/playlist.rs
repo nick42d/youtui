@@ -1,6 +1,6 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
-    auth::AuthToken,
+    auth::{AuthToken, LoggedIn},
     common::{PlaylistID, SetVideoID, YoutubeID},
     parse::GetPlaylist,
 };
@@ -95,7 +95,7 @@ impl PostQuery for GetPlaylistQuery<'_> {
     }
 }
 
-impl<A: AuthToken> Query<A> for DeletePlaylistQuery<'_> {
+impl<A: LoggedIn> Query<A> for DeletePlaylistQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
@@ -122,7 +122,7 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
     }
 }
 
-impl<A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'_> {
+impl<A: LoggedIn> Query<A> for RemovePlaylistItemsQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }

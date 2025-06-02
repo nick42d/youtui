@@ -21,29 +21,31 @@ use crate::parse::{
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults, WatchPlaylist,
 };
+use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
+use crate::query::search::BasicSearch;
 use crate::query::song::GetSongTrackingUrlQuery;
 use crate::query::{
-    filteredsearch::{
+    lyrics::GetLyricsQuery,
+    rate::{RatePlaylistQuery, RateSongQuery},
+    search::filteredsearch::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
         FeaturedPlaylistsFilter, FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
         SongsFilter, VideosFilter,
     },
-    lyrics::GetLyricsQuery,
-    rate::{RatePlaylistQuery, RateSongQuery},
     watch::GetWatchPlaylistQuery,
-    AddPlaylistItemsQuery, BasicSearch, CreatePlaylistQuery, CreatePlaylistType,
-    DeletePlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
-    GetArtistAlbumsQuery, GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
-    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-    GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetPlaylistQuery, GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery,
+    DeletePlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery, GetArtistAlbumsQuery,
+    GetArtistQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+    GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
+    GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetPlaylistQuery,
+    GetSearchSuggestionsQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+    SearchQuery,
 };
 use crate::query::{
-    AddHistoryItemQuery, DuplicateHandlingMode, GetChannelEpisodesQuery, GetChannelQuery,
-    GetEpisodeQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
-    GetPodcastQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+    AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, EditPlaylistQuery,
+    GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetMoodCategoriesQuery,
+    GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetPodcastQuery, GetTasteProfileQuery,
+    SetTasteProfileQuery,
 };
 use crate::{common::UploadEntityID, query::DeleteUploadEntityQuery};
 use crate::{Result, YtMusic};
