@@ -9,6 +9,11 @@ use ytmapi_rs::common::{
 use ytmapi_rs::common::{LyricsID, PlaylistID, YoutubeID};
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
+use ytmapi_rs::query::playlist::PrivacyStatus;
+use ytmapi_rs::query::search::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
+};
 use ytmapi_rs::query::*;
 use ytmapi_rs::{auth::*, *};
 
