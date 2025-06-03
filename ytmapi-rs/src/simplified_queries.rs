@@ -5,7 +5,7 @@
 //! # Optional
 //! To enable this module, feature `simplified-queries` must be enabled (enabled
 //! by default)
-use crate::auth::AuthToken;
+use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{
     AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, EpisodeID, LyricsID, MoodCategoryParams,
     PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, VideoID,
@@ -309,92 +309,302 @@ impl<A: AuthToken> YtMusic<A> {
         let query = query.into();
         self.query(query).await
     }
-    /// Gets a list of all playlists in your Library.
+    /// Fetches suggested artists from taste profile
+    /// <https://music.youtube.com/tasteprofile>.
+    /// Tasteprofile allows users to pick artists to update their
+    /// recommendations.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_library_playlists().await;
+    /// yt.get_taste_profile().await
     /// # };
-    pub async fn get_library_playlists(&self) -> Result<GetLibraryPlaylists> {
-        let query = GetLibraryPlaylistsQuery;
+    pub async fn get_taste_profile(&self) -> Result<<GetTasteProfileQuery as Query<A>>::Output> {
+        self.query(GetTasteProfileQuery).await
+    }
+    /// Sets artists as favourites to influence your recommendations.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_taste_profile().await.unwrap();
+    /// yt.set_taste_profile(results.into_iter()
+    ///     .take(5)
+    ///     .map(|r| r.taste_tokens))
+    ///     .await
+    /// # };
+    pub async fn set_taste_profile<'a, I, II>(
+        &self,
+        taste_tokens: II,
+    ) -> Result<<SetTasteProfileQuery<'a, I> as Query<A>>::Output>
+    where
+        I: Iterator<Item = TasteToken<'a>> + Clone,
+        II: IntoIterator<IntoIter = I>,
+    {
+        self.query(SetTasteProfileQuery::new(taste_tokens)).await
+    }
+    /// Fetches 'Moods & Genres' categories.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_mood_categories().await
+    /// # };
+    pub async fn get_mood_categories(
+        &self,
+    ) -> Result<<GetMoodCategoriesQuery as Query<A>>::Output> {
+        self.query(GetMoodCategoriesQuery).await
+    }
+    /// Returns a list of playlists for a given mood category.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_mood_categories().await.unwrap();
+    /// yt.get_mood_playlists(&results[0].mood_categories[0].params).await
+    /// # };
+    pub async fn get_mood_playlists<'a, T: Into<MoodCategoryParams<'a>>>(
+        &self,
+        mood_params: T,
+    ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
+        self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
+            .await
+    }
+    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
+    /// history using `add_history_item()`.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let song = yt.search_songs("While My Guitar Gently Weeps")
+    ///     .await
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .next()
+    ///     .unwrap();
+    /// yt.get_song_tracking_url(song.video_id).await
+    /// # };
+    pub async fn get_song_tracking_url<'a, T: Into<VideoID<'a>>>(
+        &self,
+        video_id: T,
+    ) -> Result<SongTrackingUrl<'static>> {
+        let query = GetSongTrackingUrlQuery::new(video_id.into())?;
         self.query(query).await
     }
-    /// Gets a list of all artists in your Library.
+    /// Gets information about a Channel of Podcasts.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
+    /// yt.get_channel(podcast.channels[0].id.as_ref().unwrap()).await
+    /// # };
+    pub async fn get_channel(
+        &self,
+        channel_id: impl Into<PodcastChannelID<'_>>,
+    ) -> Result<<GetChannelQuery as Query<A>>::Output> {
+        self.query(GetChannelQuery::new(channel_id)).await
+    }
+    /// Gets a list of all Episodes for a Channel. Note, if GetPodcastChannel
+    /// doesn't contain `episode_params`, you can be sure that all episodes are
+    /// already included at `episodes` key.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
+    /// let channel_id = podcast.channels[0].id.as_ref().unwrap();
+    /// let channel = yt.get_channel(channel_id).await.unwrap();
+    /// match channel.episode_params {
+    ///     Some(p) => yt.get_channel_episodes(channel_id, p).await,
+    ///     None => Ok(channel.episodes),
+    /// }
+    /// # };
+    pub async fn get_channel_episodes<'a>(
+        &self,
+        channel_id: impl Into<PodcastChannelID<'a>>,
+        podcast_channel_params: impl Into<PodcastChannelParams<'a>>,
+    ) -> Result<<GetChannelEpisodesQuery as Query<A>>::Output> {
+        self.query(GetChannelEpisodesQuery::new(
+            channel_id,
+            podcast_channel_params,
+        ))
+        .await
+    }
+    /// Gets information about a Podcast, including Episodes.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
+    /// yt.get_podcast(&podcasts[0].podcast_id).await
+    /// # };
+    pub async fn get_podcast(
+        &self,
+        podcast_id: impl Into<PodcastID<'_>>,
+    ) -> Result<<GetPodcastQuery as Query<A>>::Output> {
+        self.query(GetPodcastQuery::new(podcast_id)).await
+    }
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let episodes = yt.search_episodes("Ratatui").await.unwrap();
+    /// yt.get_episode(&episodes[0].episode_id).await
+    /// # };
+    pub async fn get_episode(
+        &self,
+        episode_id: impl Into<EpisodeID<'_>>,
+    ) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
+        self.query(GetEpisodeQuery::new(episode_id)).await
+    }
+    /// Gets the special 'New Episodes' playlist.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.get_new_episodes().await
+    /// # };
+    pub async fn get_new_episodes(&self) -> Result<<GetNewEpisodesQuery as Query<A>>::Output> {
+        self.query(GetNewEpisodesQuery).await
+    }
+}
+
+impl<A: LoggedIn> YtMusic<A> {
+    /// Removes items from a playlist you own.
+    ///  ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
+    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
+    /// let source_playlist = yt.search_featured_playlists("Heavy metal")
+    ///     .await
+    ///     .unwrap();
+    /// let outcome = yt.add_playlist_to_playlist(
+    ///     &playlist_id,
+    ///     &source_playlist[0].playlist_id
+    /// ).await.unwrap();
+    /// yt.remove_playlist_items(
+    ///     playlist_id,
+    ///     outcome.iter().map(|o| (&o.set_video_id).into()).collect(),
+    /// ).await
+    /// # };
+    pub async fn remove_playlist_items<'a, T: Into<PlaylistID<'a>>>(
+        &self,
+        playlist_id: T,
+        video_items: Vec<SetVideoID<'a>>,
+    ) -> Result<()> {
+        let query = RemovePlaylistItemsQuery::new(playlist_id.into(), video_items);
+        self.query(query).await
+    }
+    /// Makes changes to a playlist.
+    ///  ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let playlists = yt.get_library_playlists()
+    ///     .await
+    ///     .unwrap()
+    ///     .playlists;
+    /// let query = ytmapi_rs::query::EditPlaylistQuery::new_title(
+    ///     &playlists[0].playlist_id,
+    ///     "Better playlist title",
+    /// )
+    ///     .with_new_description("Edited description");
+    /// yt.edit_playlist(query).await
+    /// # };
+    pub async fn edit_playlist(&self, query: EditPlaylistQuery<'_>) -> Result<ApiOutcome> {
+        self.query(query).await
+    }
+    /// Gets a list of all uploaded songs in your Library.
     /// # Additional functionality
-    /// See [`GetLibraryArtistsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibraryUploadSongsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryArtistsQuery]: crate::query::GetLibraryArtistsQuery
+    /// [GetLibraryUploadSongsQuery]: crate::query::GetLibraryUploadSongsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_library_artists().await;
+    /// yt.get_library_upload_songs().await
     /// # };
-    pub async fn get_library_artists(&self) -> Result<GetLibraryArtists> {
-        let query = GetLibraryArtistsQuery::default();
+    pub async fn get_library_upload_songs(
+        &self,
+    ) -> Result<<GetLibraryUploadSongsQuery as Query<A>>::Output> {
+        let query = GetLibraryUploadSongsQuery::default();
         self.query(query).await
     }
-    /// Gets a list of all songs in your Library.
+    /// Gets a list of all uploaded artists in your Library.
     /// # Additional functionality
-    /// See [`GetLibrarySongsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibraryUploadArtistsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibrarySongsQuery]: crate::query::GetLibrarySongsQuery
+    /// [GetLibraryUploadArtistsQuery]: crate::query::GetLibraryUploadArtistsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_library_songs().await;
+    /// yt.get_library_upload_artists().await
     /// # };
-    pub async fn get_library_songs(&self) -> Result<<GetLibrarySongsQuery as Query<A>>::Output> {
-        let query = GetLibrarySongsQuery::default();
+    pub async fn get_library_upload_artists(
+        &self,
+    ) -> Result<<GetLibraryUploadArtistsQuery as Query<A>>::Output> {
+        let query = GetLibraryUploadArtistsQuery::default();
         self.query(query).await
     }
-    /// Gets a list of all albums in your Library.
+    /// Gets a list of all uploaded albums in your Library.
     /// # Additional functionality
-    /// See [`GetLibraryAlbumsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibraryUploadAlbumsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryAlbumsQuery]: crate::query::GetLibraryAlbumsQuery
+    /// [GetLibraryUploadAlbumsQuery]: crate::query::GetLibraryUploadAlbumsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_library_albums().await;
+    /// yt.get_library_upload_albums().await
     /// # };
-    pub async fn get_library_albums(&self) -> Result<GetLibraryAlbums> {
-        let query = GetLibraryAlbumsQuery::default();
+    pub async fn get_library_upload_albums(
+        &self,
+    ) -> Result<<GetLibraryUploadAlbumsQuery as Query<A>>::Output> {
+        let query = GetLibraryUploadAlbumsQuery::default();
         self.query(query).await
     }
-    /// Gets a list of all artist subscriptions in your Library.
-    /// # Additional functionality
-    /// See [`GetLibraryArtistSubscriptionsQuery`] and [`YtMusic.query()`]
-    /// for more ways to construct and run.
-    ///
-    /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryArtistSubscriptionsQuery]: crate::query::GetLibraryArtistSubscriptionsQuery
-    ///
+    /// Gets information and tracks for an uploaded album in your Library.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_library_artist_subscriptions().await;
+    /// let albums = yt.get_library_upload_albums().await.unwrap();
+    /// yt.get_library_upload_album(&albums[0].album_id).await
     /// # };
-    pub async fn get_library_artist_subscriptions(&self) -> Result<GetLibraryArtistSubscriptions> {
-        let query = GetLibraryArtistSubscriptionsQuery::default();
+    pub async fn get_library_upload_album<'a, T: Into<UploadAlbumID<'a>>>(
+        &self,
+        upload_album_id: T,
+    ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
+        let query = GetLibraryUploadAlbumQuery::new(upload_album_id.into());
         self.query(query).await
     }
-    /// Gets your recently played history.
+    /// Gets all tracks for an uploaded artist in your Library.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_history().await;
+    /// let artists = yt.get_library_upload_artists().await.unwrap();
+    /// yt.get_library_upload_artist(&artists[0].artist_id).await
     /// # };
-    pub async fn get_history(&self) -> Result<Vec<HistoryPeriod>> {
-        let query = GetHistoryQuery;
+    pub async fn get_library_upload_artist<'a, T: Into<UploadArtistID<'a>>>(
+        &self,
+        upload_artist_id: T,
+    ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
+        let query = GetLibraryUploadArtistQuery::new(upload_artist_id.into());
+        self.query(query).await
+    }
+    /// Deletes an upload entity from your library - this is either a song or an
+    /// album.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let albums = yt.get_library_upload_albums().await.unwrap();
+    /// yt.delete_upload_entity(&albums[0].entity_id).await
+    /// # };
+    pub async fn delete_upload_entity<'a, T: Into<UploadEntityID<'a>>>(
+        &self,
+        upload_entity_id: T,
+    ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
+        let query = DeleteUploadEntityQuery::new(upload_entity_id.into());
         self.query(query).await
     }
     /// Removes a list of items from your recently played history.
@@ -543,225 +753,92 @@ impl<A: AuthToken> YtMusic<A> {
         );
         self.query(query).await
     }
-    /// Removes items from a playlist you own.
-    ///  ```no_run
+    /// Gets a list of all playlists in your Library.
+    /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
-    /// let source_playlist = yt.search_featured_playlists("Heavy metal")
-    ///     .await
-    ///     .unwrap();
-    /// let outcome = yt.add_playlist_to_playlist(
-    ///     &playlist_id,
-    ///     &source_playlist[0].playlist_id
-    /// ).await.unwrap();
-    /// yt.remove_playlist_items(
-    ///     playlist_id,
-    ///     outcome.iter().map(|o| (&o.set_video_id).into()).collect(),
-    /// ).await
+    /// yt.get_library_playlists().await;
     /// # };
-    pub async fn remove_playlist_items<'a, T: Into<PlaylistID<'a>>>(
-        &self,
-        playlist_id: T,
-        video_items: Vec<SetVideoID<'a>>,
-    ) -> Result<()> {
-        let query = RemovePlaylistItemsQuery::new(playlist_id.into(), video_items);
+    pub async fn get_library_playlists(&self) -> Result<GetLibraryPlaylists> {
+        let query = GetLibraryPlaylistsQuery;
         self.query(query).await
     }
-    /// Makes changes to a playlist.
-    ///  ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let playlists = yt.get_library_playlists()
-    ///     .await
-    ///     .unwrap()
-    ///     .playlists;
-    /// let query = ytmapi_rs::query::EditPlaylistQuery::new_title(
-    ///     &playlists[0].playlist_id,
-    ///     "Better playlist title",
-    /// )
-    ///     .with_new_description("Edited description");
-    /// yt.edit_playlist(query).await
-    /// # };
-    pub async fn edit_playlist(&self, query: EditPlaylistQuery<'_>) -> Result<ApiOutcome> {
-        self.query(query).await
-    }
-    /// Gets a list of all uploaded songs in your Library.
+    /// Gets a list of all artists in your Library.
     /// # Additional functionality
-    /// See [`GetLibraryUploadSongsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibraryArtistsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryUploadSongsQuery]: crate::query::GetLibraryUploadSongsQuery
+    /// [GetLibraryArtistsQuery]: crate::query::GetLibraryArtistsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_library_upload_songs().await
+    /// let results = yt.get_library_artists().await;
     /// # };
-    pub async fn get_library_upload_songs(
-        &self,
-    ) -> Result<<GetLibraryUploadSongsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadSongsQuery::default();
+    pub async fn get_library_artists(&self) -> Result<GetLibraryArtists> {
+        let query = GetLibraryArtistsQuery::default();
         self.query(query).await
     }
-    /// Gets a list of all uploaded artists in your Library.
+    /// Gets a list of all songs in your Library.
     /// # Additional functionality
-    /// See [`GetLibraryUploadArtistsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibrarySongsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryUploadArtistsQuery]: crate::query::GetLibraryUploadArtistsQuery
+    /// [GetLibrarySongsQuery]: crate::query::GetLibrarySongsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_library_upload_artists().await
+    /// let results = yt.get_library_songs().await;
     /// # };
-    pub async fn get_library_upload_artists(
-        &self,
-    ) -> Result<<GetLibraryUploadArtistsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadArtistsQuery::default();
+    pub async fn get_library_songs(&self) -> Result<<GetLibrarySongsQuery as Query<A>>::Output> {
+        let query = GetLibrarySongsQuery::default();
         self.query(query).await
     }
-    /// Gets a list of all uploaded albums in your Library.
+    /// Gets a list of all albums in your Library.
     /// # Additional functionality
-    /// See [`GetLibraryUploadAlbumsQuery`] and [`YtMusic.query()`]
+    /// See [`GetLibraryAlbumsQuery`] and [`YtMusic.query()`]
     /// for more ways to construct and run.
     ///
     /// [`YtMusic.query()`]: crate::YtMusic::query
-    /// [GetLibraryUploadAlbumsQuery]: crate::query::GetLibraryUploadAlbumsQuery
+    /// [GetLibraryAlbumsQuery]: crate::query::GetLibraryAlbumsQuery
     ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_library_upload_albums().await
+    /// let results = yt.get_library_albums().await;
     /// # };
-    pub async fn get_library_upload_albums(
-        &self,
-    ) -> Result<<GetLibraryUploadAlbumsQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadAlbumsQuery::default();
+    pub async fn get_library_albums(&self) -> Result<GetLibraryAlbums> {
+        let query = GetLibraryAlbumsQuery::default();
         self.query(query).await
     }
-    /// Gets information and tracks for an uploaded album in your Library.
+    /// Gets a list of all artist subscriptions in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryArtistSubscriptionsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryArtistSubscriptionsQuery]: crate::query::GetLibraryArtistSubscriptionsQuery
+    ///
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let albums = yt.get_library_upload_albums().await.unwrap();
-    /// yt.get_library_upload_album(&albums[0].album_id).await
+    /// let results = yt.get_library_artist_subscriptions().await;
     /// # };
-    pub async fn get_library_upload_album<'a, T: Into<UploadAlbumID<'a>>>(
-        &self,
-        upload_album_id: T,
-    ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadAlbumQuery::new(upload_album_id.into());
+    pub async fn get_library_artist_subscriptions(&self) -> Result<GetLibraryArtistSubscriptions> {
+        let query = GetLibraryArtistSubscriptionsQuery::default();
         self.query(query).await
     }
-    /// Gets all tracks for an uploaded artist in your Library.
+    /// Gets your recently played history.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let artists = yt.get_library_upload_artists().await.unwrap();
-    /// yt.get_library_upload_artist(&artists[0].artist_id).await
+    /// let results = yt.get_history().await;
     /// # };
-    pub async fn get_library_upload_artist<'a, T: Into<UploadArtistID<'a>>>(
-        &self,
-        upload_artist_id: T,
-    ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
-        let query = GetLibraryUploadArtistQuery::new(upload_artist_id.into());
-        self.query(query).await
-    }
-    /// Deletes an upload entity from your library - this is either a song or an
-    /// album.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let albums = yt.get_library_upload_albums().await.unwrap();
-    /// yt.delete_upload_entity(&albums[0].entity_id).await
-    /// # };
-    pub async fn delete_upload_entity<'a, T: Into<UploadEntityID<'a>>>(
-        &self,
-        upload_entity_id: T,
-    ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
-        let query = DeleteUploadEntityQuery::new(upload_entity_id.into());
-        self.query(query).await
-    }
-    /// Fetches suggested artists from taste profile
-    /// <https://music.youtube.com/tasteprofile>.
-    /// Tasteprofile allows users to pick artists to update their
-    /// recommendations.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_taste_profile().await
-    /// # };
-    pub async fn get_taste_profile(&self) -> Result<<GetTasteProfileQuery as Query<A>>::Output> {
-        self.query(GetTasteProfileQuery).await
-    }
-    /// Sets artists as favourites to influence your recommendations.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_taste_profile().await.unwrap();
-    /// yt.set_taste_profile(results.into_iter()
-    ///     .take(5)
-    ///     .map(|r| r.taste_tokens))
-    ///     .await
-    /// # };
-    pub async fn set_taste_profile<'a, I, II>(
-        &self,
-        taste_tokens: II,
-    ) -> Result<<SetTasteProfileQuery<'a, I> as Query<A>>::Output>
-    where
-        I: Iterator<Item = TasteToken<'a>> + Clone,
-        II: IntoIterator<IntoIter = I>,
-    {
-        self.query(SetTasteProfileQuery::new(taste_tokens)).await
-    }
-    /// Fetches 'Moods & Genres' categories.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_mood_categories().await
-    /// # };
-    pub async fn get_mood_categories(
-        &self,
-    ) -> Result<<GetMoodCategoriesQuery as Query<A>>::Output> {
-        self.query(GetMoodCategoriesQuery).await
-    }
-    /// Returns a list of playlists for a given mood category.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.get_mood_categories().await.unwrap();
-    /// yt.get_mood_playlists(&results[0].mood_categories[0].params).await
-    /// # };
-    pub async fn get_mood_playlists<'a, T: Into<MoodCategoryParams<'a>>>(
-        &self,
-        mood_params: T,
-    ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
-        self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
-            .await
-    }
-    /// Get the 'SongTrackingUrl' for a song. This is used to add items to
-    /// history using `add_history_item()`.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let song = yt.search_songs("While My Guitar Gently Weeps")
-    ///     .await
-    ///     .unwrap()
-    ///     .into_iter()
-    ///     .next()
-    ///     .unwrap();
-    /// yt.get_song_tracking_url(song.video_id).await
-    /// # };
-    pub async fn get_song_tracking_url<'a, T: Into<VideoID<'a>>>(
-        &self,
-        video_id: T,
-    ) -> Result<SongTrackingUrl<'static>> {
-        let query = GetSongTrackingUrlQuery::new(video_id.into())?;
+    pub async fn get_history(&self) -> Result<Vec<HistoryPeriod>> {
+        let query = GetHistoryQuery;
         self.query(query).await
     }
     /// Adds an item to the accounts history.
@@ -782,79 +859,5 @@ impl<A: AuthToken> YtMusic<A> {
         song_url: T,
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
-    }
-    /// Gets information about a Channel of Podcasts.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
-    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
-    /// yt.get_channel(podcast.channels[0].id.as_ref().unwrap()).await
-    /// # };
-    pub async fn get_channel(
-        &self,
-        channel_id: impl Into<PodcastChannelID<'_>>,
-    ) -> Result<<GetChannelQuery as Query<A>>::Output> {
-        self.query(GetChannelQuery::new(channel_id)).await
-    }
-    /// Gets a list of all Episodes for a Channel. Note, if GetPodcastChannel
-    /// doesn't contain `episode_params`, you can be sure that all episodes are
-    /// already included at `episodes` key.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
-    /// let podcast = yt.get_podcast(&podcasts[0].podcast_id).await.unwrap();
-    /// let channel_id = podcast.channels[0].id.as_ref().unwrap();
-    /// let channel = yt.get_channel(channel_id).await.unwrap();
-    /// match channel.episode_params {
-    ///     Some(p) => yt.get_channel_episodes(channel_id, p).await,
-    ///     None => Ok(channel.episodes),
-    /// }
-    /// # };
-    pub async fn get_channel_episodes<'a>(
-        &self,
-        channel_id: impl Into<PodcastChannelID<'a>>,
-        podcast_channel_params: impl Into<PodcastChannelParams<'a>>,
-    ) -> Result<<GetChannelEpisodesQuery as Query<A>>::Output> {
-        self.query(GetChannelEpisodesQuery::new(
-            channel_id,
-            podcast_channel_params,
-        ))
-        .await
-    }
-    /// Gets information about a Podcast, including Episodes.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let podcasts = yt.search_podcasts("Rustacean").await.unwrap();
-    /// yt.get_podcast(&podcasts[0].podcast_id).await
-    /// # };
-    pub async fn get_podcast(
-        &self,
-        podcast_id: impl Into<PodcastID<'_>>,
-    ) -> Result<<GetPodcastQuery as Query<A>>::Output> {
-        self.query(GetPodcastQuery::new(podcast_id)).await
-    }
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let episodes = yt.search_episodes("Ratatui").await.unwrap();
-    /// yt.get_episode(&episodes[0].episode_id).await
-    /// # };
-    pub async fn get_episode(
-        &self,
-        episode_id: impl Into<EpisodeID<'_>>,
-    ) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
-        self.query(GetEpisodeQuery::new(episode_id)).await
-    }
-    /// Gets the special 'New Episodes' playlist.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// yt.get_new_episodes().await
-    /// # };
-    pub async fn get_new_episodes(&self) -> Result<<GetNewEpisodesQuery as Query<A>>::Output> {
-        self.query(GetNewEpisodesQuery).await
     }
 }

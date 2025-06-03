@@ -1,6 +1,6 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::{
-    auth::AuthToken,
+    auth::LoggedIn,
     common::{ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID},
     parse::{
         GetLibraryAlbums, GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists,
@@ -103,7 +103,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
     }
 }
 
-impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryPlaylistsQuery {
     type Output = GetLibraryPlaylists;
     type Method = PostMethod;
 }
@@ -118,7 +118,7 @@ impl PostQuery for GetLibraryPlaylistsQuery {
         vec![]
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryArtistsQuery {
     type Output = GetLibraryArtists;
     type Method = PostMethod;
 }
@@ -147,7 +147,7 @@ impl PostQuery for GetLibraryArtistsQuery {
     }
 }
 
-impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
+impl<A: LoggedIn> Query<A> for GetLibrarySongsQuery {
     type Output = GetLibrarySongs;
     type Method = PostMethod;
 }
@@ -169,7 +169,7 @@ impl PostQuery for GetLibrarySongsQuery {
         "browse"
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryAlbumsQuery {
     type Output = GetLibraryAlbums;
     type Method = PostMethod;
 }
@@ -191,7 +191,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
         "browse"
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryArtistSubscriptionsQuery {
     type Output = GetLibraryArtistSubscriptions;
     type Method = PostMethod;
 }
@@ -221,7 +221,7 @@ impl PostQuery for GetLibraryArtistSubscriptionsQuery {
 }
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
-impl<A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'_> {
+impl<A: LoggedIn> Query<A> for EditSongLibraryStatusQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }

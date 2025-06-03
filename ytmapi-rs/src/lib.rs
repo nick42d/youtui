@@ -127,12 +127,10 @@ impl YtMusic<NoAuthToken> {
     /// Utilises the default TLS option for the enabled features.
     /// # Panics
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
-    pub fn new_unauthenticated() -> YtMusic<NoAuthToken> {
+    pub async fn new_unauthenticated() -> Result<Self> {
         let client = Client::new().expect("Expected Client build to succeed");
-        YtMusic {
-            client,
-            token: NoAuthToken,
-        }
+        let token = NoAuthToken::new(&client).await?;
+        Ok(YtMusic { client, token })
     }
 }
 impl YtMusic<BrowserToken> {

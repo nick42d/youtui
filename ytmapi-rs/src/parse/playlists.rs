@@ -9,9 +9,9 @@ use crate::{
         RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
     },
     query::{
-        AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
-        EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
-        SpecialisedQuery,
+        playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery},
+        AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+        GetPlaylistQuery, RemovePlaylistItemsQuery,
     },
     Error, Result,
 };

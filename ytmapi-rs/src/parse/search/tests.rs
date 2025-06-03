@@ -2,7 +2,7 @@ use crate::{
     auth::BrowserToken,
     parse::SearchResults,
     process_json,
-    query::{
+    query::search::{
         AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
         FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
         VideosFilter,

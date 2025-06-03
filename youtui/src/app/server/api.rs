@@ -140,16 +140,16 @@ where
 async fn search_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
     tracing::info!("Searching artists for {text}");
     let query = ytmapi_rs::query::SearchQuery::new(text)
-        .with_filter(ytmapi_rs::query::ArtistsFilter)
-        .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch);
+        .with_filter(ytmapi_rs::query::search::ArtistsFilter)
+        .with_spelling_mode(ytmapi_rs::query::search::SpellingMode::ExactMatch);
     query_api_with_retry(&api, query).await
 }
 
 async fn search_songs(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultSong>> {
     tracing::info!("Searching songs for {text}");
     let query = ytmapi_rs::query::SearchQuery::new(text)
-        .with_filter(ytmapi_rs::query::SongsFilter)
-        .with_spelling_mode(ytmapi_rs::query::SpellingMode::ExactMatch);
+        .with_filter(ytmapi_rs::query::search::SongsFilter)
+        .with_spelling_mode(ytmapi_rs::query::search::SpellingMode::ExactMatch);
     query_api_with_retry(&api, query).await
 }
 

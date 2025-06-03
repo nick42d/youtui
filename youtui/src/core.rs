@@ -73,7 +73,7 @@ pub async fn get_limited_sequential_file(
     ))
 }
 
-/// From serde documentation: [https://serde.rs/string-or-struct.html]
+/// From serde documentation: [<https://serde.rs/string-or-struct.html>]
 pub fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
 where
     T: Deserialize<'de> + FromStr<Err = Infallible>,

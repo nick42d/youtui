@@ -10,15 +10,16 @@ use crate::nav_consts::{
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
 use crate::process::flex_column_item_pointer;
-use crate::query::*;
-use crate::youtube_enums::PlaylistEndpointParams;
-use crate::{Error, Result};
-use const_format::concatcp;
-use filteredsearch::{
+use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use crate::query::search::UnfilteredSearchType;
+use crate::query::*;
+use crate::youtube_enums::PlaylistEndpointParams;
+use crate::{Error, Result};
+use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;

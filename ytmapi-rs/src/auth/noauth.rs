@@ -12,6 +12,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::path::Path;
 use std::time::SystemTime;
@@ -31,7 +32,7 @@ impl NoAuthToken {
             ("X-Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),
         ];
-        let result = client.get_query(YTM_URL, headers, &[]).await?;
+        let result = client.get_query(YTM_URL, headers, &()).await?;
         // Extract the parameter from inside the ytcfg.set() function.
         // Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L44
         let ytcfg_raw = result
@@ -41,20 +42,29 @@ impl NoAuthToken {
             .split_once("})")
             .unwrap()
             .0;
-        let ytcfg: serde_json::Value = serde_json::from_str(ytcfg_raw).unwrap();
+        let mut ytcfg: serde_json::Value = serde_json::from_str(ytcfg_raw).unwrap();
         let visitor_id = ytcfg
-            .as_object()
+            .as_object_mut()
             .unwrap()
             .remove("VISITOR_DATA")
             .unwrap()
-            // TODO: Remove allocation
             .as_str()
             .unwrap()
+            // TODO: Remove allocation
             .to_string();
         Ok(Self {
             create_time: std::time::SystemTime::now(),
             visitor_id,
         })
+    }
+    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
+        [
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
+            ("X-Origin", YTM_URL.into()),
+            ("X-Goog-Visitor-Id", (&self.visitor_id).into()),
+            ("Content-Type", "application/json".into()),
+        ]
     }
 }
 
@@ -81,16 +91,8 @@ impl AuthToken for NoAuthToken {
         } else {
             unreachable!("Body created in this function as an object")
         };
-        let hash = utils::hash_sapisid(&self.sapisid);
-        let headers = [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("X-Goog-Visitor-Id", self.visitor_id),
-            ("Content-Type", "application/json".into()),
-        ];
         let result = client
-            .post_query(url, headers, &body, &query.params())
+            .post_query(url, self.headers(), &body, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -100,16 +102,8 @@ impl AuthToken for NoAuthToken {
         client: &Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, Self>> {
-        // COPY AND PASTE OF ABOVE.
-        let hash = utils::hash_sapisid(&self.sapisid);
-        let headers = [
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
-        ];
         let result = client
-            .get_query(query.url(), headers, &query.params())
+            .get_query(query.url(), self.headers(), &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)

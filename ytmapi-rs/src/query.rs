@@ -39,32 +39,46 @@ use std::future::Future;
 
 use private::Sealed;
 
+#[doc(inline)]
 pub use album::GetAlbumQuery;
+#[doc(inline)]
 pub use artist::{GetArtistAlbumsQuery, GetArtistQuery};
+#[doc(inline)]
 pub use continuations::GetContinuationsQuery;
+#[doc(inline)]
 pub use history::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery};
+#[doc(inline)]
 pub use library::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
 };
+#[doc(inline)]
 pub use lyrics::GetLyricsQuery;
+#[doc(inline)]
 pub use playlist::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
     GetPlaylistQuery, RemovePlaylistItemsQuery,
 };
+#[doc(inline)]
 pub use podcasts::{
     GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
 };
+#[doc(inline)]
 pub use rate::{RatePlaylistQuery, RateSongQuery};
+#[doc(inline)]
 pub use recommendations::{
     GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
+#[doc(inline)]
 pub use search::{GetSearchSuggestionsQuery, SearchQuery};
+#[doc(inline)]
 pub use song::GetSongTrackingUrlQuery;
+#[doc(inline)]
 pub use upload::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
+#[doc(inline)]
 pub use watch::GetWatchPlaylistQuery;
 
 pub mod artist;
@@ -357,7 +371,7 @@ pub mod rate {
 
     use super::{PostMethod, PostQuery, Query};
     use crate::{
-        auth::AuthToken,
+        auth::LoggedIn,
         common::{LikeStatus, PlaylistID, VideoID, YoutubeID},
     };
     use serde_json::json;
@@ -384,8 +398,7 @@ pub mod rate {
         }
     }
 
-    // AUTH REQUIRED
-    impl<A: AuthToken> Query<A> for RateSongQuery<'_> {
+    impl<A: LoggedIn> Query<A> for RateSongQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }
@@ -404,8 +417,7 @@ pub mod rate {
         }
     }
 
-    // AUTH REQUIRED
-    impl<A: AuthToken> Query<A> for RatePlaylistQuery<'_> {
+    impl<A: LoggedIn> Query<A> for RatePlaylistQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }

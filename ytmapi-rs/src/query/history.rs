@@ -1,6 +1,6 @@
 use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::{
-    auth::AuthToken,
+    auth::LoggedIn,
     common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID},
     parse::HistoryPeriod,
 };
@@ -28,9 +28,8 @@ impl<'a> AddHistoryItemQuery<'a> {
     }
 }
 
-// NOTE: Requires auth
 // TODO: Return played and feedback_token component.
-impl<A: AuthToken> Query<A> for GetHistoryQuery {
+impl<A: LoggedIn> Query<A> for GetHistoryQuery {
     type Output = Vec<HistoryPeriod>;
     type Method = PostMethod;
 }
@@ -47,7 +46,7 @@ impl PostQuery for GetHistoryQuery {
 }
 
 // NOTE: Does not work on brand accounts
-impl<A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'_> {
+impl<A: LoggedIn> Query<A> for RemoveHistoryItemsQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }
@@ -63,7 +62,7 @@ impl PostQuery for RemoveHistoryItemsQuery<'_> {
     }
 }
 
-impl<A: AuthToken> Query<A> for AddHistoryItemQuery<'_> {
+impl<A: LoggedIn> Query<A> for AddHistoryItemQuery<'_> {
     type Output = ();
     type Method = GetMethod;
 }

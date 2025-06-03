@@ -1,12 +1,14 @@
-use std::borrow::Cow;
-
-use super::{get_sort_order_params, GetLibrarySortOrder, PostMethod, PostQuery, Query};
+use super::{
+    library::{get_sort_order_params, GetLibrarySortOrder},
+    PostMethod, PostQuery, Query,
+};
 use crate::{
-    auth::AuthToken,
+    auth::LoggedIn,
     common::{UploadAlbumID, UploadArtistID, UploadEntityID},
     parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist},
 };
 use serde_json::json;
+use std::borrow::Cow;
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
@@ -64,7 +66,7 @@ impl<'a> DeleteUploadEntityQuery<'a> {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for GetLibraryUploadAlbumQuery<'_> {
+impl<A: LoggedIn> Query<A> for GetLibraryUploadAlbumQuery<'_> {
     type Output = GetLibraryUploadAlbum;
     type Method = PostMethod;
 }
@@ -80,7 +82,7 @@ impl PostQuery for GetLibraryUploadAlbumQuery<'_> {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for GetLibraryUploadArtistQuery<'_> {
+impl<A: LoggedIn> Query<A> for GetLibraryUploadArtistQuery<'_> {
     type Output = Vec<TableListUploadSong>;
     type Method = PostMethod;
 }
@@ -96,7 +98,7 @@ impl PostQuery for GetLibraryUploadArtistQuery<'_> {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for GetLibraryUploadSongsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryUploadSongsQuery {
     type Output = Vec<TableListUploadSong>;
     type Method = PostMethod;
 }
@@ -126,7 +128,7 @@ impl PostQuery for GetLibraryUploadSongsQuery {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for GetLibraryUploadAlbumsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryUploadAlbumsQuery {
     type Output = Vec<UploadAlbum>;
     type Method = PostMethod;
 }
@@ -156,7 +158,7 @@ impl PostQuery for GetLibraryUploadAlbumsQuery {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for GetLibraryUploadArtistsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryUploadArtistsQuery {
     type Output = Vec<UploadArtist>;
     type Method = PostMethod;
 }
@@ -186,7 +188,7 @@ impl PostQuery for GetLibraryUploadArtistsQuery {
     }
 }
 // Auth required
-impl<A: AuthToken> Query<A> for DeleteUploadEntityQuery<'_> {
+impl<A: LoggedIn> Query<A> for DeleteUploadEntityQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
