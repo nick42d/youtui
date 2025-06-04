@@ -333,6 +333,16 @@ mod tests {
         );
     }
     #[tokio::test]
+    // In 2025, playlist channel details were moved from strapline to facepile.
+    async fn test_get_playlist_query_2025() {
+        parse_test!(
+            "./test_json/get_playlist_20250604.json",
+            "./test_json/get_playlist_20250604_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
     async fn test_get_playlist_query_2024_no_channel_thumbnail() {
         parse_test!(
             "./test_json/get_playlist_no_channel_thumbnail_20240818.json",
