@@ -4,7 +4,7 @@ use ytmapi_rs::{
     auth::{BrowserToken, OAuthToken},
     common::{
         AlbumID, ArtistChannelID, BrowseParams, EpisodeID, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromHistory, LikeStatus, MoodCategoryParams, PlaylistID,
+        FeedbackTokenRemoveFromHistory, LikeStatus, LyricsID, MoodCategoryParams, PlaylistID,
         PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, TasteToken,
         TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
         VideoID, YoutubeID,
@@ -27,9 +27,10 @@ use ytmapi_rs::{
         GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
         GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
         GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-        GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetPlaylistQuery,
-        GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery, PostQuery, Query,
-        RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+        GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
+        GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
+        GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+        SearchQuery, SetTasteProfileQuery,
     },
 };
 
@@ -477,6 +478,22 @@ pub async fn command_to_query(
         }
         Command::GetNewEpisodes => {
             get_string_output_of_query(yt, GetNewEpisodesQuery, cli_query).await
+        }
+        Command::GetLyrics { lyrics_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLyricsQuery::new(LyricsID::from_raw(lyrics_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetWatchPlaylist { video_id } => {
+            get_string_output_of_query(
+                yt,
+                GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(video_id)),
+                cli_query,
+            )
+            .await
         }
     }
 }

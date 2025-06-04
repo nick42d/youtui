@@ -216,6 +216,13 @@ enum Command {
     GetSongTrackingUrl {
         video_id: String,
     },
+    GetLyrics {
+        lyrics_id: String,
+    },
+    // TODO: Option to use playlist ID instead
+    GetWatchPlaylist {
+        video_id: String,
+    },
     GetChannel {
         channel_id: String,
     },
