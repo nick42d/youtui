@@ -440,8 +440,14 @@ fn parse_top_result_from_music_shelf_contents(
         Some(TopResultType::Podcast) => publisher = Some(parse_flex_column_item(&mut mrlir, 1, 2)?),
         None => {
             artist = Some(flex_1_0);
-            album = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
-            duration = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
+            let flex_1_2 = parse_flex_column_item(&mut mrlir, 1, 2)?;
+            // If this does not show up, album isn't included in the results.
+            if let Ok(flex_1_4) = parse_flex_column_item(&mut mrlir, 1, 4) {
+                album = Some(flex_1_2);
+                duration = Some(flex_1_4);
+            } else {
+                duration = Some(flex_1_2);
+            }
             // This does not show up in all Card renderer results and so we'll define it as
             // optional. TODO: Could make this more type safe in future.
             plays = parse_flex_column_item(&mut mrlir, 1, 6).ok();

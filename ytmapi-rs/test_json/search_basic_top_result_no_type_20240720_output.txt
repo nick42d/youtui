@@ -101,9 +101,7 @@ SearchResults {
             artist: Some(
                 "Rose Tattoo",
             ),
-            album: Some(
-                "Scarred for Live 1980-1982",
-            ),
+            album: None,
             duration: Some(
                 "3:45",
             ),

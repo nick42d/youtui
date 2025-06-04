@@ -226,6 +226,8 @@ mod lyrics {
     impl<'a> ParseFrom<GetLyricsQuery<'a>> for Lyrics {
         fn parse_from(p: ProcessedResult<GetLyricsQuery<'a>>) -> crate::Result<Self> {
             let json_crawler: JsonCrawlerOwned = p.into();
+            // TODO: May also get a "Lyrics not available" message at
+            // /contents/messageRenderer/text/runs/0/text
             let mut description_shelf = json_crawler.navigate_pointer(concatcp!(
                 "/contents",
                 SECTION_LIST_ITEM,
