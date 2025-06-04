@@ -228,13 +228,11 @@ fn parse_history_item_episode(
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .map(|m| m != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT")
         .unwrap_or(true);
-    // Assumption - deletion token is always the last item.
-    // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = data
         .navigate_pointer(MENU_ITEMS)?
         .try_into_iter()?
-        .try_last()?
-        .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
+        .find_path(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?
+        .take_value()?;
     Ok(HistoryItemEpisode {
         episode_id: video_id,
         duration,
@@ -275,12 +273,10 @@ fn parse_history_item_video(
         "/0/menuNavigationItemRenderer",
         NAVIGATION_PLAYLIST_ID
     ))?;
-    // Assumption - deletion token is always the last item.
-    // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .try_into_iter()?
-        .try_last()?
-        .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
+        .find_path(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?
+        .take_value()?;
     Ok(HistoryItemVideo {
         video_id,
         duration,
@@ -314,12 +310,10 @@ fn parse_history_item_upload_song(
         .try_iter_mut()?
         .find_path(DELETION_ENTITY_ID)?
         .take_value()?;
-    // Assumption - deletion token is always the last item.
-    // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .try_into_iter()?
-        .try_last()?
-        .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
+        .find_path(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?
+        .take_value()?;
     Ok(HistoryItemUploadSong {
         entity_id,
         video_id,
@@ -364,12 +358,10 @@ fn parse_history_item_song(
         "/0/menuNavigationItemRenderer",
         NAVIGATION_PLAYLIST_ID
     ))?;
-    // Assumption - deletion token is always the last item.
-    // Future improvement: Check to see if item is the right type.
     let feedback_token_remove = menu
         .try_into_iter()?
-        .try_last()?
-        .take_value_pointer(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?;
+        .find_path(concatcp!(MENU_SERVICE, FEEDBACK_TOKEN))?
+        .take_value()?;
     Ok(HistoryItemSong {
         video_id,
         duration,

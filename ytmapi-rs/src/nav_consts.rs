@@ -104,6 +104,14 @@ pub const _CAROUSEL_CONTENTS: &str = concatcp!(CAROUSEL, "/contents");
 pub const CAROUSEL_TITLE: &str = concatcp!("/header/musicCarouselShelfBasicHeaderRenderer", TITLE);
 pub const _CARD_SHELF_TITLE: &str =
     concatcp!("/header/musicCardShelfHeaderBasicRenderer", TITLE_TEXT);
+#[deprecated = "Google deprecating this path in future"]
 pub const STRAPLINE_TEXT: &str = concatcp!("/straplineTextOne", RUN_TEXT);
+#[deprecated = "Google deprecating this path in future"]
 pub const STRAPLINE_RUNS: &str = "/straplineTextOne/runs";
 pub const DELETION_ENTITY_ID: &str = "/menuNavigationItemRenderer/navigationEndpoint/confirmDialogEndpoint/content/confirmDialogRenderer/confirmButton/buttonRenderer/command/musicDeletePrivatelyOwnedEntityCommand/entityId";
+pub const FACEPILE_MODEL: &str = "/facepile/avatarStackViewModel";
+pub const FACEPILE_TEXT: &str = concatcp!(FACEPILE_MODEL, "/text/content");
+pub const FACEPILE_AVATAR_URL: &str = concatcp!(
+    FACEPILE_MODEL,
+    "/avatars/0/avatarViewModel/image/sources/0/url"
+);

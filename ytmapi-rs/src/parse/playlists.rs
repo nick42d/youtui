@@ -6,7 +6,8 @@ use super::{
 use crate::{
     common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID},
     nav_consts::{
-        RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
+        FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS,
+        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS, THUMBNAIL_RENDERER,
     },
     query::{
         playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery},
@@ -16,7 +17,9 @@ use crate::{
     Error, Result,
 };
 use const_format::concatcp;
+use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
+use reqwest::header::AUTHORIZATION;
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -29,6 +32,7 @@ pub struct GetPlaylist {
     pub title: String,
     pub description: Option<String>,
     pub author: String,
+    pub author_avatar_url: Option<String>,
     pub year: String,
     pub duration: String,
     pub track_count_text: String,
@@ -166,6 +170,7 @@ fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         related,
         views,
         tracks,
+        author_avatar_url: None,
     })
 }
 
@@ -189,11 +194,12 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     // TODO
     let related = Vec::new();
     let title = header.take_value_pointer(TITLE_TEXT)?;
-    let author = header.take_value_pointer(STRAPLINE_TEXT)?;
-    // Thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
-    let thumbnails: Vec<Thumbnail> = header
-        .take_value_pointer(STRAPLINE_THUMBNAIL)
-        .unwrap_or_default();
+    // STRAPLINE_TEXT to be deprecated in future.
+    let author = header
+        .take_value_pointers(&[STRAPLINE_TEXT, FACEPILE_TEXT])
+        .unwrap();
+    let thumbnails: Vec<Thumbnail> = header.take_value_pointer(THUMBNAILS)?;
+    let author_avatar_url: Option<String> = header.take_value_pointer(FACEPILE_AVATAR_URL).ok();
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
         .and_then(|d| d.try_into_iter())
@@ -256,6 +262,7 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         related,
         views,
         tracks,
+        author_avatar_url,
     })
 }
 
