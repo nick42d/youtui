@@ -4,13 +4,14 @@ use super::{
 };
 use crate::{
     common::{
-        EpisodeID, LibraryStatus, PodcastChannelID, PodcastChannelParams, PodcastID, Thumbnail,
+        EpisodeID, LibraryStatus, PlaylistID, PodcastChannelID, PodcastChannelParams, PodcastID,
+        Thumbnail,
     },
     nav_consts::{
         CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
         MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
         PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM,
-        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
+        SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
     },
     query::{
         GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery,
@@ -31,6 +32,7 @@ pub struct GetPodcastChannel {
     pub episode_params: Option<PodcastChannelParams<'static>>,
     pub episodes: Vec<Episode>,
     pub podcasts: Vec<GetPodcastChannelPodcast>,
+    pub playlists: Vec<GetPodcastChannelPlaylist>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -52,6 +54,15 @@ pub struct GetPodcastChannelPodcast {
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct GetPodcastChannelPlaylist {
+    pub title: String,
+    pub channel: ParsedPodcastChannel,
+    pub playlist_id: PlaylistID<'static>,
+    pub views: String,
+    pub thumbnails: Vec<Thumbnail>,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 // Intentionally not marked non_exhaustive - not expected to change.
 pub struct ParsedPodcastChannel {
     pub name: String,
@@ -69,6 +80,7 @@ pub enum PodcastChannelTopResult {
     #[serde(rename = "Latest episodes")]
     Episodes,
     Podcasts,
+    Playlists,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -114,12 +126,29 @@ impl ParseFrom<GetChannelQuery<'_>> for GetPodcastChannel {
                 thumbnails,
             })
         }
+        fn parse_playlist(crawler: impl JsonCrawler) -> Result<GetPodcastChannelPlaylist> {
+            let mut podcast = crawler.navigate_pointer(MTRIR)?;
+            let title = podcast.take_value_pointer(TITLE_TEXT)?;
+            let playlist_id = podcast.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let thumbnails = podcast.take_value_pointer(THUMBNAIL_RENDERER)?;
+            let views = podcast.take_value_pointer(SUBTITLE3)?;
+            let channel =
+                parse_podcast_channel(podcast.navigate_pointer(SUBTITLE_RUNS)?.navigate_index(2)?)?;
+            Ok(GetPodcastChannelPlaylist {
+                title,
+                channel,
+                thumbnails,
+                playlist_id,
+                views,
+            })
+        }
         let mut json_crawler = JsonCrawlerOwned::from(p);
         let mut header = json_crawler.borrow_pointer(VISUAL_HEADER)?;
         let title = header.take_value_pointer(TITLE_TEXT)?;
         let thumbnails = header.take_value_pointer(THUMBNAILS)?;
         let mut podcasts = Vec::new();
         let mut episodes = Vec::new();
+        let mut playlists = Vec::new();
         let mut episode_params = None;
         // I spent a good few hours trying to make this declarative. It this stage this
         // seems to be more readable and more efficient. The best declarative approach I
@@ -153,6 +182,13 @@ impl ParseFrom<GetChannelQuery<'_>> for GetPodcastChannel {
                         .map(parse_podcast)
                         .collect::<Result<_>>()?;
                 }
+                PodcastChannelTopResult::Playlists => {
+                    playlists = carousel
+                        .navigate_pointer("/contents")?
+                        .try_into_iter()?
+                        .map(parse_playlist)
+                        .collect::<Result<_>>()?;
+                }
             }
         }
         Ok(GetPodcastChannel {
@@ -161,6 +197,7 @@ impl ParseFrom<GetChannelQuery<'_>> for GetPodcastChannel {
             episode_params,
             episodes,
             podcasts,
+            playlists,
         })
     }
 }
