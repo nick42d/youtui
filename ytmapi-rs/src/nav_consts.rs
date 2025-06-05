@@ -18,7 +18,7 @@ pub const _TOGGLE_MENU: &str = "/toggleMenuServiceItemRenderer";
 pub const PLAY_BUTTON: &str =
     "/overlay/musicItemThumbnailOverlayRenderer/content/musicPlayButtonRenderer";
 pub const NAVIGATION_BROWSE: &str = "/navigationEndpoint/browseEndpoint";
-pub const _PAGE_TYPE: &str =
+pub const PAGE_TYPE: &str =
     "/browseEndpointContextSupportedConfigs/browseEndpointContextMusicConfig/pageType";
 pub const WATCH_VIDEO_ID: &str = "/watchEndpoint/videoId";
 pub const NAVIGATION_WATCH_PLAYLIST_ID: &str =

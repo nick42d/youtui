@@ -4,9 +4,9 @@ use crate::common::{
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
 };
 use crate::nav_consts::{
-    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
-    THUMBNAILS, TITLE_TEXT,
+    BADGE_LABEL, LIVE_BADGE_LABEL, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE,
+    NAVIGATION_BROWSE_ID, PAGE_TYPE, PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE,
+    SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
 use crate::process::flex_column_item_pointer;
@@ -17,7 +17,7 @@ use crate::query::search::filteredsearch::{
 };
 use crate::query::search::UnfilteredSearchType;
 use crate::query::*;
-use crate::youtube_enums::PlaylistEndpointParams;
+use crate::youtube_enums::{PlaylistEndpointParams, YoutubeMusicPageType};
 use crate::{Error, Result};
 use const_format::concatcp;
 use itertools::Itertools;
@@ -192,6 +192,15 @@ pub enum SearchResultPlaylist {
     Featured(SearchResultFeaturedPlaylist),
     Community(SearchResultCommunityPlaylist),
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+// When doing a basic search, community playlists might actually be podcasts.
+pub enum BasicSearchResultCommunityPlaylist {
+    Podcast(SearchResultPodcast),
+    Playlist(SearchResultCommunityPlaylist),
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 /// A community playlist search result.
@@ -758,8 +767,22 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-// TODO: Type safety
-// TODO: Tests
+fn parse_community_playlist_basic_search_result_from_music_shelf_contents(
+    mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<BasicSearchResultCommunityPlaylist> {
+    let result_type: YoutubeMusicPageType =
+        music_shelf_contents.take_value_pointer(concatcp!(MRLIR, NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let result = match result_type {
+        YoutubeMusicPageType::Podcast => BasicSearchResultCommunityPlaylist::Podcast(
+            parse_podcast_search_result_from_music_shelf_contents(music_shelf_contents)?,
+        ),
+        YoutubeMusicPageType::Playlist => BasicSearchResultCommunityPlaylist::Playlist(
+            parse_community_playlist_search_result_from_music_shelf_contents(music_shelf_contents)?,
+        ),
+    };
+    todo!("Not yet working, also add test case");
+    Ok(result)
+}
 fn parse_community_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultCommunityPlaylist> {
