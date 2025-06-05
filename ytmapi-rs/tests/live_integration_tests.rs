@@ -138,8 +138,8 @@ generate_query_test!(
     test_get_channel_episodes,
     // Rustacean Station
     GetChannelEpisodesQuery::new(
-        PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),
-        PodcastChannelParams::from_raw("6gPmAUdxa0JXcGtCQ3BZQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS1R6UXllbDlIYUdzYVRRQUFaVzR0UjBJQUFVRlZBQUZCVlFBQkFFWkZiWFZ6YVdOZlpHVjBZV2xzWDJGeWRHbHpkQUFCQVVNQUFBRUFBQUVCQUZWRGVsbE1iM00wY1dNeWIwTTBjakJGWm1RdGRGTjFkd0FCOHRxenFnb0hRQUJJQUZDYkFR")
+        PodcastChannelID::from_raw("UCupvZG-5ko_eiXAupbDfxWw"),
+        PodcastChannelParams::from_raw("6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D")
     )
 );
 generate_query_test!(
