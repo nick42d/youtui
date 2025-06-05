@@ -159,6 +159,15 @@ async fn test_basic_search_with_about_message() {
     );
 }
 #[tokio::test]
+async fn test_basic_search_with_podcast_community_playlists() {
+    parse_test!(
+        "./test_json/search_basic_with_podcast_community_playlists_20250605.json",
+        "./test_json/search_basic_with_podcast_community_playlists_20250605_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_artists() {
     parse_test!(
         "./test_json/search_artists_20231226.json",

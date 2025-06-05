@@ -368,76 +368,82 @@ SearchResults {
         },
     ],
     community_playlists: [
-        SearchResultCommunityPlaylist {
-            title: "Beaten In Lips",
-            author: "Khaya Murphy",
-            views: "158 views",
-            playlist_id: PlaylistID(
-                "VLPL0foXylfYKx6Z_iDVvcL2gXxDobrXuxsh",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Mara  beat",
-            author: "Abdulbasit Abdulwahab",
-            views: "56K views",
-            playlist_id: PlaylistID(
-                "VLPLv6zItff9F7SKANBJ1yK_FYIGm_4Xg-7f",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Beating Again Best Bits",
-            author: "TroubleMcTrouble",
-            views: "51K views",
-            playlist_id: PlaylistID(
-                "VLPLwlfAxK4NisNl0Xi8U9CbP6Cq05dlRUk3",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 225,
-                    width: 400,
-                    url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mBuh_6b-4ikO7JhYZwvD-nN5zPXQ",
-                },
-                Thumbnail {
-                    height: 240,
-                    width: 426,
-                    url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k6losySYtaw6VCKDItkrmFqXlzIA",
-                },
-            ],
-        },
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Beaten In Lips",
+                author: "Khaya Murphy",
+                views: "158 views",
+                playlist_id: PlaylistID(
+                    "VLPL0foXylfYKx6Z_iDVvcL2gXxDobrXuxsh",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Mara  beat",
+                author: "Abdulbasit Abdulwahab",
+                views: "56K views",
+                playlist_id: PlaylistID(
+                    "VLPLv6zItff9F7SKANBJ1yK_FYIGm_4Xg-7f",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.googleusercontent.com/RrKQgsTU9ChE15ayprRnkD6_mS_OK9Jd9BOXjVEMWCB3vclW9SlkZgpl9po7XxtvdWAgAL2M2QE=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Beating Again Best Bits",
+                author: "TroubleMcTrouble",
+                views: "51K views",
+                playlist_id: PlaylistID(
+                    "VLPLwlfAxK4NisNl0Xi8U9CbP6Cq05dlRUk3",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mBuh_6b-4ikO7JhYZwvD-nN5zPXQ",
+                    },
+                    Thumbnail {
+                        height: 240,
+                        width: 426,
+                        url: "https://i.ytimg.com/vi/k-fnbB-Ful4/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k6losySYtaw6VCKDItkrmFqXlzIA",
+                    },
+                ],
+            },
+        ),
     ],
     songs: [
         SearchResultSong {
