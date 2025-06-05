@@ -1,7 +1,7 @@
 //! Library to crawl Json using the pointer syntax and return useful errors.
 //! Documentation is a work in progress.
 use error::ParseTarget;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Deserialize};
 use std::{fmt::Display, ops::ControlFlow, str::FromStr, sync::Arc};
 
 pub use error::{CrawlerError, CrawlerResult};
@@ -41,6 +41,11 @@ where
     fn take_value<T: DeserializeOwned>(&mut self) -> CrawlerResult<T>;
     fn take_value_pointer<T: DeserializeOwned>(
         &mut self,
+        path: impl AsRef<str>,
+    ) -> CrawlerResult<T>;
+    fn borrow_value<T: for<'de> Deserialize<'de>>(&self) -> CrawlerResult<T>;
+    fn borrow_value_pointer<T: for<'de> Deserialize<'de>>(
+        &self,
         path: impl AsRef<str>,
     ) -> CrawlerResult<T>;
     /// For use when you want to try and take value that could be at multiple
@@ -337,6 +342,37 @@ impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
             )
         })
     }
+    fn borrow_value<T: for<'de> Deserialize<'de>>(&self) -> CrawlerResult<T> {
+        T::deserialize(&*self.crawler).map_err(|e| {
+            CrawlerError::parsing(
+                &self.path,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
+    fn borrow_value_pointer<T: for<'de> Deserialize<'de>>(
+        &self,
+        path: impl AsRef<str>,
+    ) -> CrawlerResult<T> {
+        let mut path_clone = self.path.clone();
+        path_clone.push(JsonPath::pointer(path.as_ref()));
+        // Deserialize without taking ownership or cloning.
+        T::deserialize(
+            self.crawler
+                .pointer(path.as_ref())
+                .ok_or_else(|| CrawlerError::navigation(&path_clone, self.source.clone()))?,
+        )
+        .map_err(|e| {
+            CrawlerError::parsing(
+                &path_clone,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
     fn path_exists(&self, path: &str) -> bool {
         self.crawler.pointer(path).is_some()
     }
@@ -507,6 +543,33 @@ impl JsonCrawler for JsonCrawlerOwned {
         };
         path_clone.push(JsonPath::Pointer(path.as_ref().to_string()));
         serde_json::from_value(found).map_err(|e| {
+            CrawlerError::parsing(
+                &path_clone,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
+    fn borrow_value<T: DeserializeOwned>(&self) -> CrawlerResult<T> {
+        T::deserialize(&self.crawler).map_err(|e| {
+            CrawlerError::parsing(
+                &self.path,
+                self.source.clone(),
+                ParseTarget::Other(std::any::type_name::<T>().to_string()),
+                Some(format!("{e}")),
+            )
+        })
+    }
+    fn borrow_value_pointer<T: DeserializeOwned>(&self, path: impl AsRef<str>) -> CrawlerResult<T> {
+        let mut path_clone = self.path.clone();
+        path_clone.push(JsonPath::pointer(path.as_ref()));
+        T::deserialize(
+            self.crawler
+                .pointer(path.as_ref())
+                .ok_or_else(|| CrawlerError::navigation(&path_clone, self.source.clone()))?,
+        )
+        .map_err(|e| {
             CrawlerError::parsing(
                 &path_clone,
                 self.source.clone(),
