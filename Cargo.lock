@@ -4546,6 +4546,7 @@ dependencies = [
  "futures",
  "itertools 0.14.0",
  "json-crawler",
+ "paste",
  "pretty_assertions",
  "rand 0.9.0",
  "reqwest",

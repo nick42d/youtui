@@ -57,22 +57,7 @@ async fn test_expired_oauth() {
 // #[tokio::test]
 // async fn test_expired_header() {
 // }
-#[tokio::test]
-async fn test_invalid_header() {
-    let api = YtMusic::from_cookie(INVALID_COOKIE).await;
-    // Library query needs authentication.
-    let res = api.unwrap().json_query(GetLibraryPlaylistsQuery).await;
-    // TODO: Add matching functions to error type. Current method not very
-    // ergonomic.
-    let Err(error) = res else {
-        eprintln!("{:#?}", res);
-        panic!("Expected an error")
-    };
-    assert!(matches!(
-        error.into_kind(),
-        ErrorKind::BrowserAuthenticationFailed
-    ));
-}
+
 // Placeholder for future implementation
 // #[tokio::test]
 // async fn test_invalid_expired_oauth() {
@@ -92,7 +77,8 @@ async fn test_invalid_header() {
 #[tokio::test]
 async fn test_new() {
     new_standard_api().await.unwrap();
-    new_standard_oauth_api().await.unwrap();
+    // OAuth disabled due to pending removal / change.
+    // new_standard_oauth_api().await.unwrap();
 }
 //// BASIC STREAM TESTS
 generate_stream_test!(
@@ -123,18 +109,18 @@ generate_query_test!(
     GetSearchSuggestionsQuery::new("faded")
 );
 
-generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
+generate_query_test_logged_in!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
-generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
-generate_query_test!(test_get_history, GetHistoryQuery);
-generate_query_test!(
+generate_query_test_logged_in!(test_get_taste_profile, GetTasteProfileQuery);
+generate_query_test_logged_in!(test_get_history, GetHistoryQuery);
+generate_query_test_logged_in!(
     test_get_channel,
     // Rustacean Station
     GetChannelQuery::new(PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),)
 );
 // NOTE: Can be flaky - visiting this page on the website seems to reset it.
-generate_query_test!(
+generate_query_test_logged_in!(
     test_get_channel_episodes,
     // Rustacean Station
     GetChannelEpisodesQuery::new(
@@ -142,106 +128,106 @@ generate_query_test!(
         PodcastChannelParams::from_raw("6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D")
     )
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_get_podcast,
     // Rustacean Station
     GetPodcastQuery::new(PodcastID::from_raw(
         "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct"
     ))
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_get_episode,
     // Chasing scratch S7E21
     GetEpisodeQuery::new(EpisodeID::from_raw("MPED2i5poDoWjFU"))
 );
-generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
-generate_query_test!(
+generate_query_test_logged_in!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
+generate_query_test_logged_in!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_get_artist,
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_songs,
     GetLibraryUploadSongsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_albums,
     GetLibraryUploadAlbumsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_artists,
     GetLibraryUploadArtistsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_songs,
     GetLibrarySongsQuery::default()
 );
-generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
-generate_query_test!(
+generate_query_test_logged_in!(test_get_library_albums, GetLibraryAlbumsQuery::default());
+generate_query_test_logged_in!(
     test_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
-generate_query_test!(test_basic_search, SearchQuery::new("Beatles"));
-generate_query_test!(
+generate_query_test_logged_in!(test_basic_search, SearchQuery::new("Beatles"));
+generate_query_test_logged_in!(
     test_basic_search_alternate_query_1,
     SearchQuery::new("Beaten")
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_basic_search_alternate_query_2,
     SearchQuery::new("Chasing scratch")
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_basic_search_alternate_query_3_genre,
     SearchQuery::new("Metal")
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_basic_search_alternate_query_no_results,
     SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_artists,
     SearchQuery::new("Beatles").with_filter(ArtistsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_songs,
     SearchQuery::new("Beatles").with_filter(SongsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_albums,
     SearchQuery::new("Beatles").with_filter(AlbumsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_videos,
     SearchQuery::new("Beatles").with_filter(VideosFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_episodes,
     SearchQuery::new("Beatles").with_filter(EpisodesFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_podcasts,
     SearchQuery::new("Beatles").with_filter(PodcastsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_profiles,
     SearchQuery::new("Beatles").with_filter(ProfilesFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_featured_playlists,
     SearchQuery::new("Beatles").with_filter(FeaturedPlaylistsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_community_playlists,
     SearchQuery::new("Beatles").with_filter(CommunityPlaylistsFilter)
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     test_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );

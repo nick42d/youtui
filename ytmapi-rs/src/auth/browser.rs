@@ -92,13 +92,7 @@ impl AuthToken for BrowserToken {
                 .and_then(|s| s.as_str())
                 .map(|s| s.to_string())
                 .unwrap_or_default();
-            match code {
-                // Assuming Error:NotAuthenticated means browser token has expired.
-                // May be incorrect - browser token may be invalid?
-                // TODO: Investigate.
-                401 => return Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other, message)),
-            }
+            return Err(Error::other_code(code, message));
         }
         Ok(processed)
     }

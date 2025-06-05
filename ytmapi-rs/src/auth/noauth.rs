@@ -41,8 +41,10 @@ impl NoAuthToken {
             .1
             .split_once("})")
             .unwrap()
-            .0;
-        let mut ytcfg: serde_json::Value = serde_json::from_str(ytcfg_raw).unwrap();
+            .0
+            .trim();
+        let mut ytcfg: serde_json::Value = serde_json::from_str(&format!("{{{}}}", ytcfg_raw))
+            .unwrap_or_else(|e| panic!("{{{ytcfg_raw}}} error {e}"));
         let visitor_id = ytcfg
             .as_object_mut()
             .unwrap()
@@ -124,13 +126,7 @@ impl AuthToken for NoAuthToken {
                 .and_then(|s| s.as_str())
                 .map(|s| s.to_string())
                 .unwrap_or_default();
-            match code {
-                // Assuming Error:NotAuthenticated means browser token has expired.
-                // May be incorrect - browser token may be invalid?
-                // TODO: Investigate.
-                401 => return Err(Error::browser_authentication_failed()),
-                other => return Err(Error::other_code(other, message)),
-            }
+            return Err(Error::other_code(code, message));
         }
         Ok(processed)
     }

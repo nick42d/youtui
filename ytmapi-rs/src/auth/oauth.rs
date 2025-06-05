@@ -195,7 +195,6 @@ impl AuthToken for OAuthToken {
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {
-                // TODO: Better error.
                 return Err(Error::response("API reported an error but no code"));
             };
             let message = error
@@ -203,7 +202,6 @@ impl AuthToken for OAuthToken {
                 .and_then(|s| s.as_str())
                 .map(|s| s.to_string())
                 .unwrap_or_default();
-            // TODO: Error matching
             return Err(Error::other_code(code, message));
         }
         Ok(processed)

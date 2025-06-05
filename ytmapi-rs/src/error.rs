@@ -40,9 +40,6 @@ pub enum ErrorKind {
     },
     /// InnerTube rejected the User Agent we are using.
     InvalidUserAgent(String),
-    /// Failed to authenticate using Browse Auth credentials (may have expired,
-    /// or been incorrectly provided).
-    BrowserAuthenticationFailed,
     /// OAuthToken has expired.
     /// Returns a hash of the expired token generated using the default hasher.
     OAuthTokenExpired { token_hash: u64 },
@@ -77,11 +74,6 @@ impl Error {
         let token_hash = h.finish();
         Self {
             inner: Box::new(ErrorKind::OAuthTokenExpired { token_hash }),
-        }
-    }
-    pub(crate) fn browser_authentication_failed() -> Self {
-        Self {
-            inner: Box::new(ErrorKind::BrowserAuthenticationFailed),
         }
     }
     pub(crate) fn header() -> Self {
@@ -145,7 +137,6 @@ impl Display for ErrorKind {
             ErrorKind::ApiStatusFailed => write!(f, "Api returned STATUS_FAILED for the query"),
             ErrorKind::OAuthTokenExpired { token_hash: _ } => write!(f, "OAuth token has expired"),
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
-            ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
             ErrorKind::UnableToSerializeGoogleOAuthToken { response, err } => write!(
                 f,
                 "Unable to serialize Google auth token {}, received error {}",
