@@ -5,10 +5,6 @@ use crate::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
 };
-use crate::query::{
-    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
-    PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
-};
 use pretty_assertions::assert_eq;
 use std::path::Path;
 
