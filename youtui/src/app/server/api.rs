@@ -90,7 +90,11 @@ where
     Q: ytmapi_rs::query::Query<BrowserToken, Output = O>,
     Q: ytmapi_rs::query::Query<OAuthToken, Output = O>,
 {
-    let res = api.read().await.query::<Q, O>(query.borrow()).await;
+    let res = api
+        .read()
+        .await
+        .query_browser_or_oauth::<Q, O>(query.borrow())
+        .await;
     match res {
         Ok(r) => Ok(r),
         Err(e) => {
@@ -122,12 +126,16 @@ where
                             Ok::<_,anyhow::Error>(api_locked)
                         }).await??;
                     }
-                    Ok(api_clone.read_owned().await.query(query).await?)
+                    Ok(api_clone
+                        .read_owned()
+                        .await
+                        .query_browser_or_oauth(query)
+                        .await?)
                 }
                 // Regular retry without token refresh, if token isn't expired.
                 Ok(_) => {
                     info!("Retrying once");
-                    Ok(api.read().await.query(query).await?)
+                    Ok(api.read().await.query_browser_or_oauth(query).await?)
                 }
                 // If the DynamicApi didn't return a ytmapi_rs::Error, the error must be
                 // non-retryable.

@@ -5,7 +5,7 @@ use error::wrong_auth_token_error_message;
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
-    auth::{noauth::NoAuthToken, BrowserToken, OAuthToken},
+    auth::{noauth::NoAuthToken, AuthToken, BrowserToken, LoggedIn, OAuthToken},
     continuations::Continuable,
     query::{PostQuery, Query},
     YtMusic, YtMusicBuilder,
@@ -73,6 +73,17 @@ impl DynamicYtMusic {
             DynamicYtMusic::NoAuth(yt) => yt.query(query).await?,
         })
     }
+    pub async fn query_browser_or_oauth<Q, O>(&self, query: impl Borrow<Q>) -> Result<O>
+    where
+        Q: Query<BrowserToken, Output = O>,
+        Q: Query<OAuthToken, Output = O>,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => yt.query(query).await?,
+            DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
+            DynamicYtMusic::NoAuth(yt) => todo!(),
+        })
+    }
     pub async fn stream<Q, O>(&self, query: impl Borrow<Q>, max_pages: usize) -> Result<Vec<O>>
     where
         Q: Query<BrowserToken, Output = O>,
@@ -100,6 +111,33 @@ impl DynamicYtMusic {
                     .try_collect()
                     .await?
             }
+        })
+    }
+    pub async fn stream_browser_or_oauth<Q, O>(
+        &self,
+        query: impl Borrow<Q>,
+        max_pages: usize,
+    ) -> Result<Vec<O>>
+    where
+        Q: Query<BrowserToken, Output = O>,
+        Q: Query<OAuthToken, Output = O>,
+        O: Continuable<Q>,
+        Q: PostQuery,
+    {
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => {
+                yt.stream(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::OAuth(yt) => {
+                yt.stream(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::NoAuth(_) => todo!(),
         })
     }
     pub async fn _browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
