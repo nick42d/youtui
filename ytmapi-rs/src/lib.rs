@@ -71,9 +71,7 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
 use auth::noauth::NoAuthToken;
 use auth::oauth::OAuthDeviceCode;
-use auth::{
-    AuthToken, AuthToken, OAuthToken, OAuthToken, OAuthTokenGenerator, OAuthTokenGenerator,
-};
+use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
 #[doc(inline)]
@@ -87,9 +85,9 @@ use parse::ParseFrom;
 pub use parse::ProcessedResult;
 #[doc(inline)]
 pub use process::RawResult;
-use query::{PostQuery, PostQuery, Query, Query, QueryMethod, QueryMethod};
+use query::{PostQuery, Query, QueryMethod};
 use std::borrow::Borrow;
-use std::hash::{DefaultHasher, DefaultHasher, Hash, Hash, Hasher, Hasher};
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::Path;
 
 #[macro_use]

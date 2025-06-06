@@ -1,6 +1,6 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
-use crate::common::{PlaylistID, SetVideoID, SetVideoID, YoutubeID, YoutubeID};
+use crate::common::{PlaylistID, SetVideoID, YoutubeID};
 use crate::parse::GetPlaylist;
 pub use additems::*;
 pub use create::*;

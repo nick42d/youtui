@@ -1,9 +1,6 @@
 use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
-use crate::common::{
-    ApiOutcome, ApiOutcome, FeedbackTokenRemoveFromHistory, FeedbackTokenRemoveFromHistory,
-    SongTrackingUrl, SongTrackingUrl, YoutubeID, YoutubeID,
-};
+use crate::common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID};
 use crate::parse::HistoryPeriod;
 use rand::Rng;
 use serde_json::json;

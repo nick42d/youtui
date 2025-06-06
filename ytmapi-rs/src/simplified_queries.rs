@@ -10,7 +10,7 @@ use crate::common::{
     AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, EpisodeID, FeedbackTokenRemoveFromHistory,
     LikeStatus, LyricsID, MoodCategoryParams, PlaylistID, PodcastChannelID, PodcastChannelParams,
     PodcastID, SearchSuggestion, SetVideoID, SongTrackingUrl, TasteToken, UploadAlbumID,
-    UploadArtistID, UploadEntityID, UploadEntityID, VideoID,
+    UploadArtistID, UploadEntityID, VideoID,
 };
 use crate::parse::{
     AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryAlbums,
@@ -19,13 +19,9 @@ use crate::parse::{
     SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
     SearchResultSong, SearchResultVideo, SearchResults, WatchPlaylist,
 };
-use crate::query::filteredsearch::{
-    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
-    FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
-};
 use crate::query::lyrics::GetLyricsQuery;
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
-use crate::query::rate::{RatePlaylistQuery, RatePlaylistQuery, RateSongQuery, RateSongQuery};
+use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
 use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,

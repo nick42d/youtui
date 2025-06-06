@@ -2,23 +2,17 @@ use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
-use crate::common::{
-    ApiOutcome, ApiOutcome, PlaylistID, PlaylistID, SetVideoID, SetVideoID, Thumbnail, Thumbnail,
-    VideoID, VideoID,
-};
+use crate::common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID};
 use crate::nav_consts::{
-    FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS,
-    SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    SINGLE_COLUMN_TAB, TAB_CONTENT, TAB_CONTENT, THUMBNAILS,
+    FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM,
+    SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
 };
 use crate::query::playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery};
 use crate::query::{
-    AddPlaylistItemsQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistQuery,
-    CreatePlaylistType, DeletePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    EditPlaylistQuery, GetPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
-    RemovePlaylistItemsQuery, SpecialisedQuery,
+    AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+    GetPlaylistQuery, RemovePlaylistItemsQuery,
 };
-use crate::{Error, Error, Result, Result};
+use crate::{Error, Result};
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};

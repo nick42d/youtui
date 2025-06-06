@@ -1,16 +1,8 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
-use super::{
-    get_sort_order_params, GetLibrarySortOrder, PostMethod, PostMethod, PostQuery, PostQuery,
-    Query, Query,
-};
+use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
-use crate::common::{
-    UploadAlbumID, UploadAlbumID, UploadArtistID, UploadArtistID, UploadEntityID, UploadEntityID,
-};
-use crate::parse::{
-    GetLibraryUploadAlbum, GetLibraryUploadAlbum, TableListUploadSong, TableListUploadSong,
-    UploadAlbum, UploadAlbum, UploadArtist, UploadArtist,
-};
+use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};
+use crate::parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist};
 use serde_json::json;
 use std::borrow::Cow;
 

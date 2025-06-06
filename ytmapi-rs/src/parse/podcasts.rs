@@ -3,23 +3,17 @@ use super::{
     THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
 };
 use crate::common::{
-    EpisodeID, EpisodeID, LibraryStatus, LibraryStatus, PlaylistID, PodcastChannelID,
-    PodcastChannelID, PodcastChannelParams, PodcastChannelParams, PodcastID, PodcastID, Thumbnail,
+    EpisodeID, LibraryStatus, PlaylistID, PodcastChannelID, PodcastChannelParams, PodcastID,
     Thumbnail,
 };
 use crate::nav_consts::{
-    CAROUSEL, CAROUSEL, CAROUSEL_TITLE, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION,
-    DESCRIPTION_SHELF, DESCRIPTION_SHELF, GRID_ITEMS, GRID_ITEMS, MMRLIR, MMRLIR, MTRIR, MTRIR,
-    MUSIC_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID,
-    NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT, PLAYBACK_DURATION_TEXT, PLAYBACK_PROGRESS_TEXT,
-    PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST,
-    SECTION_LIST_ITEM, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TAB, SUBTITLE, SUBTITLE,
-    SUBTITLE3, SUBTITLE_RUNS, SUBTITLE_RUNS, TITLE, TITLE, TWO_COLUMN, TWO_COLUMN,
+    CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
+    MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
+    PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    SUBTITLE, SUBTITLE3, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
 };
 use crate::query::{
-    GetChannelEpisodesQuery, GetChannelEpisodesQuery, GetChannelQuery, GetChannelQuery,
-    GetEpisodeQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetNewEpisodesQuery, GetPodcastQuery,
-    GetPodcastQuery,
+    GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
 };
 use crate::Result;
 use const_format::concatcp;
