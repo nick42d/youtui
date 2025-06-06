@@ -10,6 +10,7 @@ use crate::{
     query::Query,
     utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL},
 };
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
@@ -19,7 +20,7 @@ use std::time::SystemTime;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NoAuthToken {
-    create_time: SystemTime,
+    create_time: chrono::DateTime<Utc>,
     visitor_id: String,
 }
 
@@ -55,7 +56,7 @@ impl NoAuthToken {
             // TODO: Remove allocation
             .to_string();
         Ok(Self {
-            create_time: std::time::SystemTime::now(),
+            create_time: Utc::now(),
             visitor_id,
         })
     }
@@ -134,7 +135,6 @@ impl AuthToken for NoAuthToken {
 
 /// Generate a dummy client version at the provided time.
 /// Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L35C18-L35C31
-fn fallback_client_version(time: &std::time::SystemTime) -> String {
-    let time_formatted = "TODO";
-    format!("1.{time_formatted}..01.00")
+fn fallback_client_version(time: &chrono::DateTime<Utc>) -> String {
+    format!("1.{}.01.00", time.format("%Y%m%d"))
 }

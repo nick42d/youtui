@@ -7,7 +7,10 @@ use std::{
     path::{Path, PathBuf},
     process::ExitCode,
 };
-use ytmapi_rs::auth::OAuthToken;
+use ytmapi_rs::{
+    auth::{noauth::NoAuthToken, OAuthToken},
+    Client,
+};
 
 mod api;
 mod app;
@@ -328,7 +331,12 @@ async fn get_api(config: &Config) -> anyhow::Result<api::DynamicYtMusic> {
                 .await?;
             api::DynamicYtMusic::Browser(api)
         }
-        config::AuthType::Unauthenticated => todo!(),
+        config::AuthType::Unauthenticated => {
+            let api = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
+                .build()
+                .await?;
+            api::DynamicYtMusic::NoAuth(api)
+        }
     };
     Ok(api)
 }

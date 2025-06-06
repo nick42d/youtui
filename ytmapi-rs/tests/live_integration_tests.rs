@@ -81,26 +81,26 @@ async fn test_new() {
     // new_standard_oauth_api().await.unwrap();
 }
 //// BASIC STREAM TESTS
-generate_stream_test!(
+generate_stream_test_logged_in!(
     test_stream_get_library_songs,
     GetLibrarySongsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_playlists,
     GetLibraryPlaylistsQuery
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_albums,
     GetLibraryAlbumsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     test_stream_get_library_artists,
     GetLibraryArtistsQuery::default()
 );
@@ -109,18 +109,18 @@ generate_query_test!(
     GetSearchSuggestionsQuery::new("faded")
 );
 
-generate_query_test_logged_in!(test_get_mood_categories, GetMoodCategoriesQuery);
+generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
-generate_query_test_logged_in!(test_get_taste_profile, GetTasteProfileQuery);
+generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
 generate_query_test_logged_in!(test_get_history, GetHistoryQuery);
-generate_query_test_logged_in!(
+generate_query_test!(
     test_get_channel,
     // Rustacean Station
     GetChannelQuery::new(PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),)
 );
 // NOTE: Can be flaky - visiting this page on the website seems to reset it.
-generate_query_test_logged_in!(
+generate_query_test!(
     test_get_channel_episodes,
     // Rustacean Station
     GetChannelEpisodesQuery::new(
@@ -128,24 +128,24 @@ generate_query_test_logged_in!(
         PodcastChannelParams::from_raw("6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D")
     )
 );
-generate_query_test_logged_in!(
+generate_query_test!(
     test_get_podcast,
     // Rustacean Station
     GetPodcastQuery::new(PodcastID::from_raw(
         "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct"
     ))
 );
-generate_query_test_logged_in!(
+generate_query_test!(
     test_get_episode,
     // Chasing scratch S7E21
     GetEpisodeQuery::new(EpisodeID::from_raw("MPED2i5poDoWjFU"))
 );
-generate_query_test_logged_in!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
-generate_query_test_logged_in!(
+generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
+generate_query_test!(
     test_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
-generate_query_test_logged_in!(
+generate_query_test!(
     test_get_artist,
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
