@@ -3,14 +3,14 @@ use crate::config::{ApiKey, AuthType};
 use anyhow::{bail, Result};
 use error::wrong_auth_token_error_message;
 pub use error::*;
-use futures::{StreamExt, StreamExt, TryStreamExt, TryStreamExt};
+use futures::{StreamExt, TryStreamExt};
 use rusty_ytdl::reqwest;
 use std::borrow::Borrow;
 use ytmapi_rs::auth::noauth::NoAuthToken;
-use ytmapi_rs::auth::{BrowserToken, BrowserToken, OAuthToken, OAuthToken};
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::continuations::Continuable;
-use ytmapi_rs::query::{PostQuery, PostQuery, Query, Query};
-use ytmapi_rs::{YtMusic, YtMusic, YtMusicBuilder, YtMusicBuilder};
+use ytmapi_rs::query::{PostQuery, Query};
+use ytmapi_rs::{YtMusic, YtMusicBuilder};
 mod error;
 
 #[derive(Debug, Clone)]

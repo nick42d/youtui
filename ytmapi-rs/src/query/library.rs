@@ -1,5 +1,5 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::{AuthToken, LoggedIn};
+use crate::auth::LoggedIn;
 use crate::common::{
     ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
 };

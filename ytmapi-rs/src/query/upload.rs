@@ -1,6 +1,6 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::{AuthToken, LoggedIn};
+use crate::auth::LoggedIn;
 use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};
 use crate::parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist};
 use serde_json::json;

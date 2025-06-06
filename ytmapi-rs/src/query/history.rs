@@ -1,5 +1,5 @@
 use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
-use crate::auth::{AuthToken, LoggedIn};
+use crate::auth::LoggedIn;
 use crate::common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID};
 use crate::parse::HistoryPeriod;
 use rand::Rng;

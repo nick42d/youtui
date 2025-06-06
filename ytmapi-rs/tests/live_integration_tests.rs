@@ -1,8 +1,8 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use crate::utils::{new_standard_api, new_standard_oauth_api, INVALID_COOKIE};
+use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
-use parse::{GetArtistAlbumsAlbum, Lyrics};
+use parse::GetArtistAlbumsAlbum;
 use std::time::Duration;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{

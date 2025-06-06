@@ -360,7 +360,7 @@ pub mod watch {
 
 pub mod rate {
     use super::{PostMethod, PostQuery, Query};
-    use crate::auth::{AuthToken, LoggedIn};
+    use crate::auth::LoggedIn;
     use crate::common::{LikeStatus, PlaylistID, VideoID, YoutubeID};
     use serde_json::json;
     use std::borrow::Cow;
