@@ -119,7 +119,6 @@ impl AuthToken for OAuthToken {
         client: &Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, OAuthToken>> {
-        // TODO: Functionize - used for Browser Auth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
         let client_version = format!("1.{}.01.00", now_datetime.format("%Y%m%d"));
@@ -147,7 +146,6 @@ impl AuthToken for OAuthToken {
         client: &Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, Self>> {
-        // CODE DUPLICATION WITH RAW QUERY.
         let url = Url::parse_with_params(query.url(), query.params())
             .map_err(|e| Error::web(format!("{e}")))?;
         let result = client

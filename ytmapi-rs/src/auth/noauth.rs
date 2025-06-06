@@ -23,7 +23,6 @@ pub struct NoAuthToken {
 
 impl NoAuthToken {
     pub async fn new(client: &Client) -> Result<Self> {
-        // COPY AND PASTE OF RAW_QUERY_GET.
         let initial_headers = [
             // TODO: Confirm if parsing for expired user agent also relevant here.
             ("User-Agent", USER_AGENT.into()),
@@ -73,7 +72,6 @@ impl AuthToken for NoAuthToken {
         client: &client::Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, NoAuthToken>> {
-        // TODO: Functionize - used for OAuth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let mut body = json!({
             "context" : {

@@ -30,7 +30,6 @@ impl AuthToken for BrowserToken {
         client: &client::Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, BrowserToken>> {
-        // TODO: Functionize - used for OAuth as well.
         let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
         let mut body = json!({
             "context" : {
