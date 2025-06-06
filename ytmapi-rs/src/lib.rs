@@ -2,6 +2,17 @@
 //! Library into YouTube Music's internal API.
 //! ## Examples
 //! For additional examples using builder, see [`builder`] module.
+//! ### Unauthenticated usage - note, not all queries supported.
+//! ```no_run
+//! #[tokio::main]
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let yt = ytmapi_rs::YtMusic::new_unauthenticated().await?;
+//!     yt.get_search_suggestions("Beatles").await?;
+//!     let result = yt.get_search_suggestions("Beatles").await?;
+//!     println!("{:?}", result);
+//!     Ok(())
+//! }
+//! ```
 //! ### Basic usage with a pre-created cookie file.
 //! ```no_run
 //! #[tokio::main]
