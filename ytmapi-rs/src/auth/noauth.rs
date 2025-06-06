@@ -24,34 +24,32 @@ pub struct NoAuthToken {
 impl NoAuthToken {
     pub async fn new(client: &Client) -> Result<Self> {
         // COPY AND PASTE OF RAW_QUERY_GET.
-        let headers = [
+        let initial_headers = [
             // TODO: Confirm if parsing for expired user agent also relevant here.
             ("User-Agent", USER_AGENT.into()),
             ("X-Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),
         ];
-        let result = client.get_query(YTM_URL, headers, &()).await?;
+        let result = client.get_query(YTM_URL, initial_headers, &()).await?;
         // Extract the parameter from inside the ytcfg.set() function.
         // Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L44
         let ytcfg_raw = result
             .split_once("ytcfg.set({")
-            .unwrap()
+            .ok_or_else(|| Error::ytcfg(&result))?
             .1
             .split_once("})")
-            .unwrap()
+            .ok_or_else(|| Error::ytcfg(&result))?
             .0
             .trim();
-        let mut ytcfg: serde_json::Value = serde_json::from_str(&format!("{{{}}}", ytcfg_raw))
-            .unwrap_or_else(|e| panic!("{{{ytcfg_raw}}} error {e}"));
-        let visitor_id = ytcfg
-            .as_object_mut()
-            .unwrap()
-            .remove("VISITOR_DATA")
-            .unwrap()
-            .as_str()
-            .unwrap()
-            // TODO: Remove allocation
-            .to_string();
+        let mut ytcfg: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(&format!("{{{}}}", ytcfg_raw))
+                .map_err(|_| Error::ytcfg(ytcfg_raw))?;
+        let visitor_id = serde_json::from_value(
+            ytcfg
+                .remove("VISITOR_DATA")
+                .ok_or_else(Error::no_visitor_data)?,
+        )
+        .map_err(|_| Error::no_visitor_data())?;
         Ok(Self {
             create_time: Utc::now(),
             visitor_id,

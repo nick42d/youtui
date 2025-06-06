@@ -38,6 +38,10 @@ pub enum ErrorKind {
         response: String,
         err: serde_json::Error,
     },
+    /// ytcfg not in expected format.
+    UnableToParseYtCfg { ytcfg: String },
+    /// ytcfg didn't include visitor data.
+    NoVisitorData,
     /// InnerTube rejected the User Agent we are using.
     InvalidUserAgent(String),
     /// OAuthToken has expired.
@@ -79,6 +83,18 @@ impl Error {
     pub(crate) fn header() -> Self {
         Self {
             inner: Box::new(ErrorKind::Header),
+        }
+    }
+    pub(crate) fn ytcfg(ytcfg: impl Into<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::UnableToParseYtCfg {
+                ytcfg: ytcfg.into(),
+            }),
+        }
+    }
+    pub(crate) fn no_visitor_data() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::NoVisitorData),
         }
     }
     pub(crate) fn response<S: Into<String>>(response: S) -> Self {
@@ -147,6 +163,8 @@ impl Display for ErrorKind {
                 "Error obtaining system time to use in API query. <{message}>"
             ),
             ErrorKind::JsonParsing(e) => write!(f, "{e}"),
+            ErrorKind::UnableToParseYtCfg { ytcfg } => write!(f,"Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"),
+            ErrorKind::NoVisitorData => write!(f, "ytcfg didn't include VISITOR_DATA"),
         }
     }
 }

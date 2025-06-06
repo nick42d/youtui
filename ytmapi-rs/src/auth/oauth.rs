@@ -16,6 +16,7 @@ use crate::{
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::borrow::Cow;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // The original reason for the two different structs was that we did not save
@@ -135,25 +136,8 @@ impl AuthToken for OAuthToken {
         } else {
             unreachable!("Body created in this function as an object")
         };
-        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
-        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-        // TODO: Better handling for expiration case.
-        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired(self));
-        }
-        let headers = [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            (
-                "Authorization",
-                format!("{} {}", self.token_type, self.access_token).into(),
-            ),
-            ("X-Goog-Request-Time", request_time_unix.to_string().into()),
-        ];
         let result = client
-            .post_query(url, headers, &body, &query.params())
+            .post_query(url, self.headers()?, &body, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -166,24 +150,9 @@ impl AuthToken for OAuthToken {
         // CODE DUPLICATION WITH RAW QUERY.
         let url = Url::parse_with_params(query.url(), query.params())
             .map_err(|e| Error::web(format!("{e}")))?;
-        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
-        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-        // TODO: Better handling for expiration case.
-        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired(self));
-        }
-        let headers = [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            (
-                "Authorization",
-                format!("{} {}", self.token_type, self.access_token).into(),
-            ),
-            ("X-Goog-Request-Time", request_time_unix.to_string().into()),
-        ];
-        let result = client.get_query(url, headers, &query.params()).await?;
+        let result = client
+            .get_query(url, self.headers()?, &query.params())
+            .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
     }
@@ -246,6 +215,25 @@ impl OAuthToken {
             // TODO: Remove clone.
             self.refresh_token.clone(),
         ))
+    }
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
+        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        // TODO: Better handling for expiration case.
+        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
+            return Err(Error::oauth_token_expired(self));
+        }
+        Ok([
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            (
+                "Authorization",
+                format!("{} {}", self.token_type, self.access_token).into(),
+            ),
+            ("X-Goog-Request-Time", request_time_unix.to_string().into()),
+        ])
     }
 }
 

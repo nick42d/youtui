@@ -12,6 +12,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::path::Path;
 
@@ -44,15 +45,8 @@ impl AuthToken for BrowserToken {
         } else {
             unreachable!("Body created in this function as an object")
         };
-        let hash = utils::hash_sapisid(&self.sapisid);
-        let headers = [
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
-        ];
         let result = client
-            .post_query(url, headers, &body, &query.params())
+            .post_query(url, self.headers(), &body, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -62,16 +56,8 @@ impl AuthToken for BrowserToken {
         client: &Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, Self>> {
-        // COPY AND PASTE OF ABOVE.
-        let hash = utils::hash_sapisid(&self.sapisid);
-        let headers = [
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
-        ];
         let result = client
-            .get_query(query.url(), headers, &query.params())
+            .get_query(query.url(), self.headers(), &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -102,11 +88,12 @@ impl BrowserToken {
     pub async fn from_str(cookie_str: &str, client: &Client) -> Result<Self> {
         let cookies = cookie_str.trim().to_string();
         let user_agent = USER_AGENT;
-        let headers = [
+        // TODO: Confirm if parsing for expired user agent also relevant here.
+        let initial_headers = [
             ("User-Agent", user_agent.into()),
             ("Cookie", cookies.as_str().into()),
         ];
-        let response = client.get_query(YTM_URL, headers, &()).await?;
+        let response = client.get_query(YTM_URL, initial_headers, &()).await?;
         // parse for user agent issues here.
         if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
             return Err(Error::invalid_user_agent(user_agent));
@@ -140,6 +127,15 @@ impl BrowserToken {
     {
         let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
+    }
+    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
+        let hash = utils::hash_sapisid(&self.sapisid);
+        [
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            ("Authorization", format!("SAPISIDHASH {hash}").into()),
+            ("Cookie", self.cookies.as_str().into()),
+        ]
     }
 }
 
