@@ -1,10 +1,10 @@
 use super::private::Sealed;
 use super::AuthToken;
+use crate::client;
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::query::PostQuery;
-use crate::{client, utils};
 use crate::{
     process::RawResult,
     query::Query,
@@ -14,9 +14,6 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
-use std::fmt::Debug;
-use std::path::Path;
-use std::time::SystemTime;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NoAuthToken {

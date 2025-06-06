@@ -1,5 +1,3 @@
-use std::fmt::DebugStruct;
-
 use crate::get_config_dir;
 use anyhow::Context;
 use anyhow::Result;
@@ -20,7 +18,7 @@ pub enum ApiKey {
     // BrowserToken takes the cookie, not the BrowserToken itself. This is because to obtain the
     // BrowserToken you must make a web request, and we want to obtain it as lazily as possible.
     BrowserToken(String),
-    NoAuthToken,
+    None,
 }
 
 impl std::fmt::Debug for ApiKey {
@@ -34,7 +32,7 @@ impl std::fmt::Debug for ApiKey {
                 .debug_tuple("BrowserToken")
                 .field(&"/* private fields */")
                 .finish(),
-            ApiKey::NoAuthToken => f.debug_tuple("NoAuthToken").finish(),
+            ApiKey::None => f.debug_tuple("NoAuthToken").finish(),
         }
     }
 }

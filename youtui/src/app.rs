@@ -84,7 +84,7 @@ impl Youtui {
         }
         // Youtui is not designed to try to bypass youtube music advertising.
         // Authentication is required to use it.
-        if let ApiKey::NoAuthToken = api_key {
+        if let ApiKey::None = api_key {
             bail!("Authentication is required to run youtui");
         }
         // Setup terminal

@@ -7,10 +7,7 @@ use std::{
     path::{Path, PathBuf},
     process::ExitCode,
 };
-use ytmapi_rs::{
-    auth::{noauth::NoAuthToken, OAuthToken},
-    Client,
-};
+use ytmapi_rs::auth::OAuthToken;
 
 mod api;
 mod app;
@@ -420,7 +417,7 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     let api_key = match cfg.auth_type {
         config::AuthType::OAuth => ApiKey::OAuthToken(load_oauth_file().await?),
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
-        config::AuthType::Unauthenticated => ApiKey::NoAuthToken,
+        config::AuthType::Unauthenticated => ApiKey::None,
     };
     Ok(api_key)
 }

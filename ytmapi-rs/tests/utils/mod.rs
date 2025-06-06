@@ -105,7 +105,7 @@ macro_rules! generate_query_test {
 /// NOTE: Oauth not handled due to oauth issues.
 ///
 /// https://github.com/nick42d/youtui/issues/179
-macro_rules! generate_stream_test {
+macro_rules! _generate_stream_test {
     ($(#[$m:meta])*
     $fname:ident,$query:expr) => {
         paste::paste! {

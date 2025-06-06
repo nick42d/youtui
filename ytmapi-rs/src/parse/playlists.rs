@@ -1,13 +1,12 @@
 use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
-    HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
-    TITLE_TEXT, TWO_COLUMN,
+    HEADER_DETAIL, STRAPLINE_TEXT, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
 use crate::{
     common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID},
     nav_consts::{
         FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS,
-        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS, THUMBNAIL_RENDERER,
+        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
     },
     query::{
         playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery},
@@ -17,9 +16,7 @@ use crate::{
     Error, Result,
 };
 use const_format::concatcp;
-use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
-use reqwest::header::AUTHORIZATION;
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]

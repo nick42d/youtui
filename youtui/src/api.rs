@@ -35,7 +35,7 @@ impl DynamicYtMusic {
                     .with_oauth_token(token)
                     .build()?,
             )),
-            ApiKey::NoAuthToken => Ok(DynamicYtMusic::NoAuth(
+            ApiKey::None => Ok(DynamicYtMusic::NoAuth(
                 YtMusicBuilder::new_rustls_tls().build().await?,
             )),
         }
@@ -80,7 +80,7 @@ impl DynamicYtMusic {
             )),
         })
     }
-    pub async fn stream<Q, O>(&self, query: impl Borrow<Q>, max_pages: usize) -> Result<Vec<O>>
+    pub async fn _stream<Q, O>(&self, query: impl Borrow<Q>, max_pages: usize) -> Result<Vec<O>>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -171,7 +171,7 @@ impl DynamicYtMusic {
             )),
         })
     }
-    pub async fn stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
+    pub async fn _stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,

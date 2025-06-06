@@ -601,7 +601,7 @@ where
     }
 }
 
-async fn get_string_output_of_streaming_query<Q, O>(
+async fn _get_string_output_of_streaming_query<Q, O>(
     yt: DynamicYtMusic,
     q: impl Borrow<Q>,
     cli_query: CliQuery,
@@ -618,11 +618,11 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.stream_source(q.borrow(), max_pages).await,
+        } => yt._stream_source(q.borrow(), max_pages).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt.stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
+        } => yt._stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
