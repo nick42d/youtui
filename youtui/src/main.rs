@@ -1,12 +1,11 @@
 use anyhow::{bail, Context};
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap_complete::{generate, Shell};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
-use std::{
-    path::{Path, PathBuf},
-    process::ExitCode,
-};
+use std::path::{Path, PathBuf};
+use std::process::ExitCode;
 use ytmapi_rs::auth::OAuthToken;
 
 mod api;
@@ -38,6 +37,9 @@ struct Arguments {
     cli: Cli,
     #[command(subcommand)]
     auth_cmd: Option<AuthCmd>,
+    /// Generate shell completions for the specified shell
+    #[arg(short, long, id = "SHELL", value_enum)]
+    generate_completions: Option<Shell>,
     /// Force the use of an auth type.
     #[arg(value_enum, short, long)]
     auth_type: Option<AuthType>,
@@ -54,7 +56,7 @@ struct Cli {
     /// the endpoint supports continuations. If multiple files are
     /// passed but the endpoint doesn't support continuations, only the
     /// first one is processed.
-    #[arg(short, long)]
+    #[arg(short, long, id = "PATH")]
     input_json: Option<Vec<PathBuf>>,
     #[command(subcommand)]
     command: Option<Command>,
@@ -265,14 +267,24 @@ async fn try_main() -> anyhow::Result<()> {
         cli,
         auth_cmd,
         auth_type,
+        generate_completions,
     } = args;
-    // We don't need configuration to setup oauth token.
+    // We don't need configuration to setup oauth token or generate completions.
     if let Some(c) = auth_cmd {
         match c {
             AuthCmd::SetupOauth { file_name, stdout } => {
                 cli::get_and_output_oauth_token(file_name, stdout).await?
             }
         };
+        // Done here if we got this command. No need to go further.
+        return Ok(());
+    };
+    // We don't need configuration to setup oauth token or generate completions.
+    if let Some(shell) = generate_completions {
+        let mut cmd = Arguments::command();
+        let bin_name = cmd.get_name().to_string();
+        eprintln!("Generating completion file for {shell:?}");
+        generate(shell, &mut cmd, bin_name, &mut std::io::stdout());
         // Done here if we got this command. No need to go further.
         return Ok(());
     };

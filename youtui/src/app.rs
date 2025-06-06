@@ -1,28 +1,30 @@
 use super::appevent::{AppEvent, EventHandler};
-use crate::{config::ApiKey, core::get_limited_sequential_file, get_data_dir, RuntimeInfo};
+use crate::config::ApiKey;
+use crate::core::get_limited_sequential_file;
+use crate::{get_data_dir, RuntimeInfo};
 use anyhow::{bail, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
-use crossterm::{
-    event::{
-        DisableMouseCapture, EnableMouseCapture, KeyboardEnhancementFlags,
-        PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
-    },
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+use crossterm::execute;
+use crossterm::terminal::{
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
-use ratatui::{backend::CrosstermBackend, Terminal};
+use media_controls::MediaController;
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
-use std::{io, sync::Arc};
+use std::io;
+use std::sync::Arc;
 use structures::ListSong;
 use tracing::{error, info};
 use tracing_subscriber::prelude::*;
-use ui::WindowContext;
-use ui::YoutuiWindow;
+use ui::{WindowContext, YoutuiWindow};
 
 #[macro_use]
 pub mod component;
+mod media_controls;
 mod server;
 mod structures;
 pub mod ui;
@@ -47,6 +49,7 @@ pub struct Youtui {
     task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
+    media_controls: MediaController,
 }
 
 #[derive(PartialEq)]
@@ -90,12 +93,7 @@ impl Youtui {
         // Setup terminal
         enable_raw_mode()?;
         let mut stdout = io::stdout();
-        execute!(
-            stdout,
-            EnterAlternateScreen,
-            EnableMouseCapture,
-            PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES)
-        )?;
+        execute!(stdout, EnterAlternateScreen, EnableMouseCapture,)?;
         // Ensure clean return to shell if panic.
         IS_MAIN_THREAD.with(|flag| flag.set(true));
         std::panic::set_hook(Box::new(|panic_info| {
@@ -116,7 +114,8 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE)?;
+        let (media_controls, media_control_event_stream) = MediaController::new()?;
+        let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
         // away.
@@ -128,6 +127,7 @@ impl Youtui {
             task_manager,
             server,
             terminal,
+            media_controls,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -141,6 +141,9 @@ impl Youtui {
                     self.terminal.draw(|f| {
                         ui::draw::draw_app(f, &mut self.window_state);
                     })?;
+                    self.media_controls.update_controls(
+                        ui::draw_media_controls::draw_app_media_controls(&self.window_state),
+                    )?;
                     // When running, the app is event based, and will block until one of the
                     // following 2 message types is received.
                     tokio::select! {
@@ -194,7 +197,16 @@ impl Youtui {
         match event {
             AppEvent::Tick => self.window_state.handle_tick().await,
             AppEvent::Crossterm(e) => {
-                let YoutuiEffect { effect, callback } = self.window_state.handle_event(e).await;
+                let YoutuiEffect { effect, callback } =
+                    self.window_state.handle_crossterm_event(e).await;
+                self.task_manager.spawn_task(&self.server, effect);
+                if let Some(callback) = callback {
+                    self.handle_callback(callback);
+                }
+            }
+            AppEvent::MediaControls(e) => {
+                let YoutuiEffect { effect, callback } =
+                    self.window_state.handle_media_controls_event(e).await;
                 self.task_manager.spawn_task(&self.server, effect);
                 if let Some(callback) = callback {
                     self.handle_callback(callback);
@@ -226,7 +238,6 @@ fn destruct_terminal() -> Result<()> {
         io::stdout(),
         LeaveAlternateScreen,
         DisableMouseCapture,
-        PopKeyboardEnhancementFlags,
         crossterm::cursor::Show
     )?;
     Ok(())

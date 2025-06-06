@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.23](https://github.com/nick42d/youtui/compare/youtui/v0.0.22...youtui/v0.0.23) - 2025-05-25
+
+### Added
+- Use platform media controls ([#223](https://github.com/nick42d/youtui/pull/223))
+- Add ability to use media keys as keybinds ([#221](https://github.com/nick42d/youtui/pull/221))
+- _Note - currently disabled_ 
+
+### Other
+- Update README.md ([#228](https://github.com/nick42d/youtui/pull/228))
+
 ## [0.0.22](https://github.com/nick42d/youtui/compare/youtui/v0.0.21...youtui/v0.0.22) - 2025-04-22
 
 ### Added

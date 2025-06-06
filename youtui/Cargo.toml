@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.22"
+version = "0.0.23"
 edition = "2021"
 authors = ["nick42d"]
 license = "MIT"
@@ -10,11 +10,12 @@ repository = "https://github.com/nick42d/youtui"
 readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
-# Required for async trait support
-rust-version = "1.79"
+# Required for Duration::abs_dif
+rust-version = "1.82"
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
+clap_complete = "4.5.51"
 crossterm = { version = "0.28.1", features = ["event-stream", "serde"] }
 futures = "0.3.31"
 rat-text = "1.0.3"
@@ -25,8 +26,8 @@ serde_json = "1.0.138"
 tokio = "1.43.1"
 gag = "1.0.0"
 ytmapi-rs = { path = "../ytmapi-rs", version = "0.0.21", default-features = false, features = [
-    "rustls-tls",
-    "simplified-queries",
+  "rustls-tls",
+  "simplified-queries",
 ] }
 async-callback-manager = { path = "../async-callback-manager", version = "0.0.6" }
 tracing = "0.1.41"
@@ -41,6 +42,15 @@ async_cell = "0.2.2"
 bytes = "1.10.0"
 anyhow = "1.0.95"
 chrono = { version = "0.4.41", features = ["serde"] }
+souvlaki = { version = "0.8.2", default-features = false, features = [
+  "use_zbus",
+] }
+
+# These platforms require an open window to use media controls.
+# https://github.com/Sinono3/souvlaki/blob/master/examples/window.rs
+[target.'cfg(any(target_os="windows",target_os="macos"))'.dependencies]
+raw-window-handle = "0.6.2"
+winit = "0.30.10"
 
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
@@ -58,7 +68,7 @@ version = "0.20.1"
 features = ["symphonia-all"]
 
 [dev-dependencies]
-pretty_assertions= "1.4.1"
+pretty_assertions = "1.4.1"
 tempfile = "3.16.0"
 
 [lints]

@@ -72,8 +72,8 @@ Chrome example (Select manually and paste):
 - [x] Seeking
 - [x] Configurable key bindings
 - [x] Logging to a file
+- [x] Dbus support for media keys
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
-- [ ] Dbus support for media keys
 - [ ] Mouse support
 - [ ] Offline cache
 - [ ] Streaming of buffered tracks

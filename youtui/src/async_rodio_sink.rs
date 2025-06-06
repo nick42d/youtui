@@ -3,21 +3,14 @@
 //! This module has been designed to be implemented as a library in future.
 use futures::Stream;
 use rodio::cpal::FromSample;
-use rodio::source::EmptyCallback;
-use rodio::source::PeriodicAccess;
-use rodio::source::TrackPosition;
-use rodio::Sample;
-use rodio::Source;
+use rodio::source::{EmptyCallback, PeriodicAccess, TrackPosition};
+use rodio::{Sample, Source};
 use std::borrow::Borrow;
 use std::fmt::Debug;
 use std::time::Duration;
-use tokio::sync::mpsc;
-use tokio::sync::oneshot;
+use tokio::sync::{mpsc, oneshot};
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::debug;
-use tracing::error;
-use tracing::info;
-use tracing::warn;
+use tracing::{debug, error, info, warn};
 
 pub mod rodio {
     pub use rodio::*;
@@ -46,9 +39,14 @@ enum AsyncRodioRequest<S, I> {
     AutoplaySong(S, I, RodioMpscSender<AsyncRodioResponse>),
     QueueSong(S, I, RodioMpscSender<AsyncRodioResponse>),
     Stop(I, RodioOneshot<()>),
+    StopAll(RodioOneshot<()>),
     PausePlay(I, RodioOneshot<AsyncRodioPlayActionTaken>),
+    Resume(I, RodioOneshot<()>),
+    Pause(I, RodioOneshot<()>),
     IncreaseVolume(i8, RodioOneshot<Percentage>),
+    SetVolume(u8, RodioOneshot<Percentage>),
     Seek(Duration, SeekDirection, RodioOneshot<(Duration, I)>),
+    SeekTo(Duration, I, RodioOneshot<(Duration, I)>),
 }
 #[derive(Debug)]
 enum AsyncRodioResponse {
@@ -107,11 +105,20 @@ pub struct ProgressUpdate<I> {
     pub duration: Duration,
     pub identifier: I,
 }
-// NOTE: At this stage this difference between StoppedPlaying and Stopped is
+// NOTE: At this stage this difference between DonePlaying and Stopped is
 // very thin. DonePlaying means that the song has been dropped by the player,
 // whereas Stopped simply means that a Stop message to the player was succesful.
 #[derive(Debug)]
 pub struct Stopped<I>(pub I);
+/// Message to say that playback has stopped - all songs.
+#[derive(Debug)]
+pub struct AllStopped;
+#[derive(Debug)]
+pub struct Resumed<I>(pub I);
+#[derive(Debug)]
+pub struct Paused<I>(pub I);
+// This is different to Paused and Resumed, as a PausePlay message could return
+// either.
 #[derive(Debug)]
 pub enum PausePlayResponse<I> {
     Paused(I),
@@ -324,6 +331,16 @@ where
                         cur_song_duration = None;
                         oneshot_send_or_error(tx.0, ());
                     }
+                    AsyncRodioRequest::StopAll(tx) => {
+                        info!("Got message to stop playing all");
+                        if !sink.empty() {
+                            sink.stop()
+                        }
+                        cur_song_id = None;
+                        next_song_id = None;
+                        cur_song_duration = None;
+                        oneshot_send_or_error(tx.0, ());
+                    }
                     AsyncRodioRequest::PausePlay(song_id, tx) => {
                         info!("Got message to pause / play {:?}", song_id);
                         if cur_song_id != Some(song_id) {
@@ -341,8 +358,40 @@ where
                             oneshot_send_or_error(tx.0, AsyncRodioPlayActionTaken::Paused);
                         }
                     }
+                    AsyncRodioRequest::Resume(song_id, tx) => {
+                        info!("Got message to resume {:?}", song_id);
+                        if cur_song_id != Some(song_id) {
+                            continue;
+                        }
+                        if sink.is_paused() {
+                            sink.play();
+                            info!("Sending Played message {:?}", song_id);
+                            oneshot_send_or_error(tx.0, ());
+                        }
+                    }
+                    AsyncRodioRequest::Pause(song_id, tx) => {
+                        info!("Got message to pause {:?}", song_id);
+                        if cur_song_id != Some(song_id) {
+                            continue;
+                        }
+                        // We don't want to pause if sink is empty (but case
+                        // could be handled in Playlist also)
+                        if !sink.is_paused() && !sink.empty() {
+                            sink.pause();
+                            info!("Sending Paused message {:?}", song_id);
+                            oneshot_send_or_error(tx.0, ());
+                        }
+                    }
                     AsyncRodioRequest::IncreaseVolume(vol_inc, tx) => {
                         sink.set_volume((sink.volume() + vol_inc as f32 / 100.0).clamp(0.0, 1.0));
+                        oneshot_send_or_error(
+                            tx.0,
+                            Percentage((sink.volume() * 100.0).round() as u8),
+                        );
+                        info!("Rodio sent volume update");
+                    }
+                    AsyncRodioRequest::SetVolume(percentage, tx) => {
+                        sink.set_volume((percentage as f32 / 100.0).clamp(0.0, 1.0));
                         oneshot_send_or_error(
                             tx.0,
                             Percentage((sink.volume() * 100.0).round() as u8),
@@ -365,17 +414,42 @@ where
                                     .min(cur_song_duration.unwrap_or_default()),
                             ),
                         };
-                        if res.is_err() {
-                            error!("Failed to seek!!");
+                        if let Err(e) = res {
+                            error!("Failed to seek {:?}", e);
                         }
                         let Some(cur_song_id) = cur_song_id else {
                             warn!("Tried to seek, but no song loaded");
                             continue;
                         };
                         // It seems that there is a race condition with seeking a paused track in
-                        // rodio itself. This delay is sufficient.
+                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
+                        // right position.
+                        // TODO: Report upstream
                         std::thread::sleep(Duration::from_millis(5));
                         oneshot_send_or_error(tx.0, (sink.get_pos(), cur_song_id));
+                    }
+                    AsyncRodioRequest::SeekTo(seek_to_pos, song_id, tx) => {
+                        info!(
+                            "Got message to seek to {:?} in song {:?}",
+                            seek_to_pos, song_id
+                        );
+                        if cur_song_id != Some(song_id) {
+                            continue;
+                        }
+                        // Rodio always you to seek past song end when paused, and will report back
+                        // an incorrect position for sink.get_pos().
+                        // TODO: Report upstream
+                        let res =
+                            sink.try_seek(seek_to_pos.min(cur_song_duration.unwrap_or_default()));
+                        if let Err(e) = res {
+                            error!("Failed to seek {:?}", e);
+                        }
+                        // It seems that there is a race condition with seeking a paused track in
+                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
+                        // right position.
+                        // TODO: Report upstream
+                        std::thread::sleep(Duration::from_millis(5));
+                        oneshot_send_or_error(tx.0, (sink.get_pos(), song_id));
                     }
                 }
             }
@@ -557,6 +631,21 @@ where
             identifier: song_id,
         })
     }
+    pub async fn seek_to(&self, seek_to_pos: Duration, id: I) -> Option<ProgressUpdate<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::SeekTo(seek_to_pos, id, tx)).await;
+        let Ok((current_duration, song_id)) = rx.await else {
+            // This happens intentionally - when a seek is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop
+            // sender.
+            info!("The song I tried to seek is no longer playing");
+            return None;
+        };
+        Some(ProgressUpdate {
+            duration: current_duration,
+            identifier: song_id,
+        })
+    }
     pub async fn stop(&self, identifier: I) -> Option<Stopped<I>> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::Stop(identifier, tx)).await;
@@ -567,6 +656,16 @@ where
             return None;
         };
         Some(Stopped(identifier))
+    }
+    pub async fn stop_all(&self) -> Option<AllStopped> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::StopAll(tx)).await;
+        let Ok(_) = rx.await else {
+            // Should never happen!
+            error!("stop_all sender dropped - unknown reason");
+            return None;
+        };
+        Some(AllStopped)
     }
     pub async fn pause_play(&self, identifier: I) -> Option<PausePlayResponse<I>> {
         let (tx, rx) = rodio_oneshot_channel();
@@ -582,9 +681,41 @@ where
             AsyncRodioPlayActionTaken::Played => Some(PausePlayResponse::Resumed(identifier)),
         }
     }
+    pub async fn pause(&self, identifier: I) -> Option<Paused<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::Pause(identifier, tx)).await;
+        let Ok(_) = rx.await else {
+            // This happens intentionally - when a pauseplay is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            info!("The song I tried to pause/play was no longer selected",);
+            return None;
+        };
+        Some(Paused(identifier))
+    }
+    pub async fn resume(&self, identifier: I) -> Option<Resumed<I>> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::Resume(identifier, tx)).await;
+        let Ok(_) = rx.await else {
+            // This happens intentionally - when a pauseplay is requested for a song
+            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            info!("The song I tried to pause/play was no longer selected",);
+            return None;
+        };
+        Some(Resumed(identifier))
+    }
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<VolumeUpdate> {
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::IncreaseVolume(vol_inc, tx)).await;
+        let Ok(current_volume) = rx.await else {
+            // Should never happen!
+            error!("The player has been dropped while I was waiting for a volume update for",);
+            return None;
+        };
+        Some(VolumeUpdate(current_volume))
+    }
+    pub async fn set_volume(&self, new_vol: u8) -> Option<VolumeUpdate> {
+        let (tx, rx) = rodio_oneshot_channel();
+        std_send_or_error(&self.tx, AsyncRodioRequest::SetVolume(new_vol, tx)).await;
         let Ok(current_volume) = rx.await else {
             // Should never happen!
             error!("The player has been dropped while I was waiting for a volume update for",);
