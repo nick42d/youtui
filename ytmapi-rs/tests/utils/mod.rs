@@ -24,6 +24,9 @@ pub const INVALID_COOKIE: &str = "HSID=abc; SSID=abc; APISID=abc; SAPISID=abc; _
 
 // It may be possible to put these inside a static, but last time I tried I kept
 // getting web errors.
+// The cause of the web errors is that each tokio::test has its own runtime.
+// To resolve this, we'll need a shared runtime as well as a static containing
+// the API.
 pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
     let oauth_token = if let Ok(tok) = env::var("youtui_test_oauth") {
         tok
@@ -48,17 +51,15 @@ pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
 }
 
 /// Macro to generate both oauth and browser tests for provided query.
-/// May not really need a macro for this, could use a function.
-/// Attributes like #[ignore] can be passed.
-// NOTE: Oauth not handled due to oauth
-// issues.
-//
-// https://github.com/nick42d/youtui/issues/179
-// TODO: generalise
+/// Attributes like #[ignore] can be passed as the optional first argument.
+/// NOTE: Oauth not handled due to oauth issues.
+///
+/// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_query_test_logged_in {
     ($(#[$m:meta])*
     $fname:ident,$query:expr) => {
         paste::paste! {
+            $(#[$m])*
             #[tokio::test]
             async fn [<$fname _browser>]() {
                 let api = crate::utils::new_standard_api().await.unwrap();
@@ -70,18 +71,16 @@ macro_rules! generate_query_test_logged_in {
     };
 }
 
-/// Macro to generate both oauth and browser tests for provided query.
-/// May not really need a macro for this, could use a function.
-/// Attributes like #[ignore] can be passed.
-// NOTE: Oauth not handled due to oauth
-// issues.
-//
-// https://github.com/nick42d/youtui/issues/179
-// TODO: generalise
+/// Macro to generate noauth, oauth and browser tests for provided query.
+/// Attributes like #[ignore] can be passed as the optional first argument.
+/// NOTE: Oauth not handled due to oauth issues.
+///
+/// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_query_test {
     ($(#[$m:meta])*
     $fname:ident,$query:expr) => {
         paste::paste! {
+            $(#[$m])*
             #[tokio::test]
             async fn [<$fname _browser>]() {
                 let api = crate::utils::new_standard_api().await.unwrap();
@@ -89,6 +88,7 @@ macro_rules! generate_query_test {
                     .await
                     .expect("Expected query to run succesfully under browser auth");
             }
+            $(#[$m])*
             #[tokio::test]
             async fn [<$fname _noauth>]() {
                 let api = YtMusic::new_unauthenticated().await.unwrap();
@@ -100,18 +100,16 @@ macro_rules! generate_query_test {
     };
 }
 
-/// Macro to generate both oauth and browser tests for provided stream.
-/// May not really need a macro for this, could use a function.
-/// Attributes like #[ignore] can be passed.
-// NOTE: Oauth not handled due to oauth
-// issues.
-//
-// https://github.com/nick42d/youtui/issues/179
-// TODO: generalise
+/// Macro to generate noauth, oauth and browser tests for provided stream.
+/// Attributes like #[ignore] can be passed as the optional first argument.
+/// NOTE: Oauth not handled due to oauth issues.
+///
+/// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_stream_test {
     ($(#[$m:meta])*
     $fname:ident,$query:expr) => {
         paste::paste! {
+            $(#[$m])*
             #[tokio::test]
             async fn [<$fname _browser>]() {
                 use futures::stream::{StreamExt, TryStreamExt};
@@ -126,6 +124,7 @@ macro_rules! generate_stream_test {
                     .await
                     .expect("Expected all results from browser stream to suceed");
             }
+            $(#[$m])*
             #[tokio::test]
             async fn [<$fname _noauth>]() {
                 use futures::stream::{StreamExt, TryStreamExt};
@@ -145,29 +144,29 @@ macro_rules! generate_stream_test {
 }
 
 /// Macro to generate both oauth and browser tests for provided stream.
-/// May not really need a macro for this, could use a function.
-/// Attributes like #[ignore] can be passed.
-// NOTE: Oauth not handled due to oauth
-// issues.
-//
-// https://github.com/nick42d/youtui/issues/179
-// TODO: generalise
+/// Attributes like #[ignore] can be passed as the optional first argument.
+/// NOTE: Oauth not handled due to oauth issues.
+///
+/// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_stream_test_logged_in {
     ($(#[$m:meta])*
     $fname:ident,$query:expr) => {
-        #[tokio::test]
-        async fn $fname() {
-            use futures::stream::{StreamExt, TryStreamExt};
-            let api = crate::utils::new_standard_api().await.unwrap();
-            let query = $query;
-            let stream = api.stream(&query);
-            tokio::pin!(stream);
-            stream
-                // limit test to 5 results to avoid overload
-                .take(5)
-                .try_collect::<Vec<_>>()
-                .await
-                .expect("Expected all results from browser stream to suceed");
+        paste::paste! {
+            $(#[$m])*
+            #[tokio::test]
+            async fn $fname() {
+                use futures::stream::{StreamExt, TryStreamExt};
+                let api = crate::utils::new_standard_api().await.unwrap();
+                let query = $query;
+                let stream = api.stream(&query);
+                tokio::pin!(stream);
+                stream
+                    // limit test to 5 results to avoid overload
+                    .take(5)
+                    .try_collect::<Vec<_>>()
+                    .await
+                    .expect("Expected all results from browser stream to suceed");
+            }
         }
     };
 }
