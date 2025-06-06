@@ -693,7 +693,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let query = ytmapi_rs::query::CreatePlaylistQuery::new(
     ///     "My heavy metal playlist",
     ///     None,
-    ///     ytmapi_rs::query::PrivacyStatus::Public,
+    ///     ytmapi_rs::query::playlist::PrivacyStatus::Public,
     /// )
     ///     .with_source(&playlists[0].playlist_id);
     /// yt.create_playlist(query).await
