@@ -2,19 +2,23 @@ use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
-use crate::{
-    common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID},
-    nav_consts::{
-        FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS,
-        SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
-    },
-    query::{
-        playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery},
-        AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-        GetPlaylistQuery, RemovePlaylistItemsQuery,
-    },
-    Error, Result,
+use crate::common::{
+    ApiOutcome, ApiOutcome, PlaylistID, PlaylistID, SetVideoID, SetVideoID, Thumbnail, Thumbnail,
+    VideoID, VideoID,
 };
+use crate::nav_consts::{
+    FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS,
+    SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    SINGLE_COLUMN_TAB, TAB_CONTENT, TAB_CONTENT, THUMBNAILS,
+};
+use crate::query::playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery};
+use crate::query::{
+    AddPlaylistItemsQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistQuery,
+    CreatePlaylistType, DeletePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+    EditPlaylistQuery, GetPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery,
+    RemovePlaylistItemsQuery, SpecialisedQuery,
+};
+use crate::{Error, Error, Result, Result};
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -263,13 +267,10 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{ApiOutcome, PlaylistID, YoutubeID},
-        process_json,
-        query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery},
-        Error,
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{ApiOutcome, PlaylistID, YoutubeID};
+    use crate::query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery};
+    use crate::{process_json, Error};
     use pretty_assertions::assert_eq;
     use std::path::Path;
 

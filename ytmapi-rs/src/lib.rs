@@ -68,30 +68,29 @@
     feature = "default-tls"
 )))]
 compile_error!("One of the TLS features must be enabled for this crate");
+use auth::browser::BrowserToken;
+use auth::noauth::NoAuthToken;
+use auth::oauth::OAuthDeviceCode;
 use auth::{
-    browser::BrowserToken, noauth::NoAuthToken, oauth::OAuthDeviceCode, AuthToken, OAuthToken,
-    OAuthTokenGenerator,
+    AuthToken, AuthToken, OAuthToken, OAuthToken, OAuthTokenGenerator, OAuthTokenGenerator,
 };
-use continuations::Continuable;
-use futures::Stream;
-use parse::ParseFrom;
-use query::{PostQuery, Query, QueryMethod};
-use std::{
-    borrow::Borrow,
-    hash::{DefaultHasher, Hash, Hasher},
-    path::Path,
-};
-
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
 #[doc(inline)]
 pub use client::Client;
+use continuations::Continuable;
 #[doc(inline)]
 pub use error::{Error, Result};
+use futures::Stream;
+use parse::ParseFrom;
 #[doc(inline)]
 pub use parse::ProcessedResult;
 #[doc(inline)]
 pub use process::RawResult;
+use query::{PostQuery, PostQuery, Query, Query, QueryMethod, QueryMethod};
+use std::borrow::Borrow;
+use std::hash::{DefaultHasher, DefaultHasher, Hash, Hash, Hasher, Hasher};
+use std::path::Path;
 
 #[macro_use]
 mod utils;

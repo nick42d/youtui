@@ -20,30 +20,26 @@
 //! An alternative to working directly with [`crate::json::Json`] is to add
 //! `json-crawler` as a dependency and use the provided
 //! `From<ProcessedResult> for JsonCrawlerOwned` implementation.
-use crate::{
-    auth::AuthToken,
-    common::{AlbumID, ArtistChannelID, Thumbnail},
-    error,
-    json::Json,
-    nav_consts::*,
-    process::{fixed_column_item_pointer, flex_column_item_pointer},
-    query::Query,
-};
-use crate::{RawResult, Result};
-use json_crawler::{JsonCrawler, JsonCrawlerOwned};
-use serde::de::DeserializeOwned;
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
-
+use crate::auth::AuthToken;
+use crate::common::{AlbumID, ArtistChannelID, Thumbnail};
+use crate::json::Json;
+use crate::nav_consts::*;
+use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
+use crate::query::Query;
+use crate::{error, RawResult, Result};
 pub use album::*;
 pub use artist::*;
 pub use history::*;
+use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 pub use library::*;
 pub use lyrics::*;
 pub use playlists::*;
 pub use podcasts::*;
 pub use recommendations::*;
 pub use search::*;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 pub use upload::*;
 pub use watch::*;
 
@@ -242,13 +238,11 @@ mod lyrics {
 
     #[cfg(test)]
     mod tests {
-        use crate::{
-            auth::BrowserToken,
-            common::{LyricsID, YoutubeID},
-            parse::lyrics::Lyrics,
-            process_json,
-            query::lyrics::GetLyricsQuery,
-        };
+        use crate::auth::BrowserToken;
+        use crate::common::{LyricsID, YoutubeID};
+        use crate::parse::lyrics::Lyrics;
+        use crate::process_json;
+        use crate::query::lyrics::GetLyricsQuery;
 
         #[tokio::test]
         async fn test_get_lyrics_query() {
@@ -272,12 +266,10 @@ mod lyrics {
 }
 mod watch {
     use super::{ParseFrom, ProcessedResult};
-    use crate::{
-        common::{LyricsID, PlaylistID},
-        nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT},
-        query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID},
-        Result,
-    };
+    use crate::common::{LyricsID, PlaylistID};
+    use crate::nav_consts::{NAVIGATION_PLAYLIST_ID, TAB_CONTENT};
+    use crate::query::watch::{GetWatchPlaylistQuery, GetWatchPlaylistQueryID};
+    use crate::Result;
     use const_format::concatcp;
     use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
     use serde::{Deserialize, Serialize};
@@ -331,7 +323,8 @@ mod watch {
 }
 mod song {
     use super::ParseFrom;
-    use crate::{common::SongTrackingUrl, query::song::GetSongTrackingUrlQuery};
+    use crate::common::SongTrackingUrl;
+    use crate::query::song::GetSongTrackingUrlQuery;
     use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 
     impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
@@ -347,11 +340,9 @@ mod song {
 
     #[cfg(test)]
     mod tests {
-        use crate::{
-            auth::BrowserToken,
-            common::{SongTrackingUrl, VideoID, YoutubeID},
-            query::song::GetSongTrackingUrlQuery,
-        };
+        use crate::auth::BrowserToken;
+        use crate::common::{SongTrackingUrl, VideoID, YoutubeID};
+        use crate::query::song::GetSongTrackingUrlQuery;
 
         #[tokio::test]
         async fn test_get_song_tracking_url_query() {

@@ -1,38 +1,53 @@
-use crate::{api::DynamicYtMusic, Command};
+use crate::api::DynamicYtMusic;
+use crate::Command;
 use anyhow::bail;
 use std::borrow::Borrow;
-use ytmapi_rs::{
-    auth::{noauth::NoAuthToken, BrowserToken, OAuthToken},
-    common::{
-        AlbumID, ArtistChannelID, BrowseParams, EpisodeID, FeedbackTokenAddToLibrary,
-        FeedbackTokenRemoveFromHistory, LikeStatus, LyricsID, MoodCategoryParams, PlaylistID,
-        PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, TasteToken,
-        TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
-        VideoID, YoutubeID,
-    },
-    continuations::Continuable,
-    parse::ParseFrom,
-    process_json,
-    query::{
-        rate::{RatePlaylistQuery, RateSongQuery},
-        search::{
-            AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
-            FeaturedPlaylistsFilter, PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter,
-            VideosFilter,
-        },
-        song::GetSongTrackingUrlQuery,
-        AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery,
-        DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
-        GetArtistAlbumsQuery, GetArtistQuery, GetChannelEpisodesQuery, GetChannelQuery,
-        GetContinuationsQuery, GetEpisodeQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
-        GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
-        GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
-        GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-        GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
-        GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
-        GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
-        SearchQuery, SetTasteProfileQuery,
-    },
+use ytmapi_rs::auth::noauth::NoAuthToken;
+use ytmapi_rs::auth::{BrowserToken, BrowserToken, OAuthToken, OAuthToken};
+use ytmapi_rs::common::{
+    AlbumID, AlbumID, ArtistChannelID, ArtistChannelID, BrowseParams, BrowseParams, EpisodeID,
+    EpisodeID, FeedbackTokenAddToLibrary, FeedbackTokenAddToLibrary,
+    FeedbackTokenRemoveFromHistory, FeedbackTokenRemoveFromHistory, LikeStatus, LikeStatus,
+    LyricsID, MoodCategoryParams, MoodCategoryParams, PlaylistID, PlaylistID, PodcastChannelID,
+    PodcastChannelID, PodcastChannelParams, PodcastChannelParams, PodcastID, PodcastID, SetVideoID,
+    SetVideoID, SongTrackingUrl, SongTrackingUrl, TasteToken, TasteToken, TasteTokenImpression,
+    TasteTokenImpression, TasteTokenSelection, TasteTokenSelection, UploadAlbumID, UploadAlbumID,
+    UploadArtistID, UploadArtistID, UploadEntityID, UploadEntityID, VideoID, VideoID, YoutubeID,
+    YoutubeID,
+};
+use ytmapi_rs::continuations::Continuable;
+use ytmapi_rs::parse::ParseFrom;
+use ytmapi_rs::process_json;
+use ytmapi_rs::query::rate::{RatePlaylistQuery, RatePlaylistQuery, RateSongQuery, RateSongQuery};
+use ytmapi_rs::query::search::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
+};
+use ytmapi_rs::query::song::GetSongTrackingUrlQuery;
+use ytmapi_rs::query::{
+    AddHistoryItemQuery, AddHistoryItemQuery, AddPlaylistItemsQuery, AddPlaylistItemsQuery,
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, CreatePlaylistQuery,
+    CreatePlaylistQuery, DeletePlaylistQuery, DeletePlaylistQuery, DeleteUploadEntityQuery,
+    DeleteUploadEntityQuery, EditPlaylistQuery, EditPlaylistQuery, EditSongLibraryStatusQuery,
+    EditSongLibraryStatusQuery, EpisodesFilter, FeaturedPlaylistsFilter, GetAlbumQuery,
+    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistAlbumsQuery, GetArtistQuery, GetArtistQuery,
+    GetChannelEpisodesQuery, GetChannelEpisodesQuery, GetChannelQuery, GetChannelQuery,
+    GetContinuationsQuery, GetContinuationsQuery, GetEpisodeQuery, GetEpisodeQuery,
+    GetHistoryQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryAlbumsQuery,
+    GetLibraryArtistSubscriptionsQuery, GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibraryPlaylistsQuery,
+    GetLibrarySongsQuery, GetLibrarySongsQuery, GetLibraryUploadAlbumQuery,
+    GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadAlbumsQuery,
+    GetLibraryUploadArtistQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
+    GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetLibraryUploadSongsQuery,
+    GetLyricsQuery, GetMoodCategoriesQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetNewEpisodesQuery, GetPlaylistQuery,
+    GetPlaylistQuery, GetPodcastQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
+    GetSearchSuggestionsQuery, GetTasteProfileQuery, GetTasteProfileQuery, GetWatchPlaylistQuery,
+    PlaylistsFilter, PodcastsFilter, PostQuery, PostQuery, ProfilesFilter, Query, Query,
+    RemoveHistoryItemsQuery, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SearchQuery, SetTasteProfileQuery, SetTasteProfileQuery,
+    SongsFilter, VideosFilter,
 };
 
 pub struct CliQuery {

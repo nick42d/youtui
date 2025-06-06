@@ -1,6 +1,6 @@
-use crate::{
-    app::component::actionhandler::Action, config::keymap::KeyActionTree, keybind::Keybind,
-};
+use crate::app::component::actionhandler::Action;
+use crate::config::keymap::KeyActionTree;
+use crate::keybind::Keybind;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 

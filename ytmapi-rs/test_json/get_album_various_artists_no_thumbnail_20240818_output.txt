@@ -1,7 +1,29 @@
 GetAlbum {
     title: "Pavarotti & Friends for Cambodia and Tibet",
     category: Album,
-    thumbnails: [],
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://lh3.googleusercontent.com/5v1BTaQkF-4Z43ooJpE-iIVH_IXwV4gSR6iMZfuFXVLH5xTT-ljjoGGcetqDffEHljnNCgjL-KCKO2ey=w60-h60-s-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://lh3.googleusercontent.com/5v1BTaQkF-4Z43ooJpE-iIVH_IXwV4gSR6iMZfuFXVLH5xTT-ljjoGGcetqDffEHljnNCgjL-KCKO2ey=w120-h120-s-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://lh3.googleusercontent.com/5v1BTaQkF-4Z43ooJpE-iIVH_IXwV4gSR6iMZfuFXVLH5xTT-ljjoGGcetqDffEHljnNCgjL-KCKO2ey=w226-h226-s-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://lh3.googleusercontent.com/5v1BTaQkF-4Z43ooJpE-iIVH_IXwV4gSR6iMZfuFXVLH5xTT-ljjoGGcetqDffEHljnNCgjL-KCKO2ey=w544-h544-s-l90-rj",
+        },
+    ],
+    artist_thumbnails: [],
     description: None,
     artists: [
         ParsedSongArtist {

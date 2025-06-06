@@ -1,13 +1,9 @@
-use std::borrow::Cow;
-
-use serde_json::{json, Value};
-
 use super::{PostMethod, PostQuery, Query};
-use crate::{
-    auth::AuthToken,
-    common::{MoodCategoryParams, TasteToken},
-    parse::{MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist},
-};
+use crate::auth::AuthToken;
+use crate::common::{MoodCategoryParams, TasteToken};
+use crate::parse::{MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist};
+use serde_json::{json, Value};
+use std::borrow::Cow;
 
 #[derive(Clone)]
 pub struct GetTasteProfileQuery;

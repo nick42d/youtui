@@ -1,9 +1,8 @@
 #![allow(clippy::unwrap_used)]
-use std::{env, path::Path};
-use ytmapi_rs::{
-    auth::{BrowserToken, OAuthToken},
-    Result, YtMusic,
-};
+use std::env;
+use std::path::Path;
+use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::{Result, YtMusic};
 
 pub const COOKIE_PATH: &str = "cookie.txt";
 pub const EXPIRED_OAUTH_PATH: &str = "oauth.json";

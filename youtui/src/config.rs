@@ -1,10 +1,7 @@
 use crate::get_config_dir;
-use anyhow::Context;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::ValueEnum;
-use keymap::YoutuiKeymap;
-use keymap::YoutuiKeymapIR;
-use keymap::YoutuiModeNamesIR;
+use keymap::{YoutuiKeymap, YoutuiKeymapIR, YoutuiModeNamesIR};
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::auth::OAuthToken;
 
@@ -106,7 +103,8 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
-    use crate::config::{keymap::YoutuiKeymap, Config, ConfigIR};
+    use crate::config::keymap::YoutuiKeymap;
+    use crate::config::{Config, ConfigIR};
     use pretty_assertions::{assert_eq, assert_ne};
 
     async fn example_config_file() -> String {

@@ -4,22 +4,19 @@ use super::{
     ParsedUploadSongAlbum, BADGE_LABEL, DELETION_ENTITY_ID, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR,
     MUSIC_SHELF, TEXT_RUN_TEXT, THUMBNAILS, TITLE_TEXT,
 };
-use crate::{
-    common::{
-        ApiOutcome, ArtistChannelID, EpisodeID, Explicit, FeedbackTokenRemoveFromHistory,
-        LibraryManager, LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
-    },
-    nav_consts::{
-        FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID,
-        NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST,
-        SINGLE_COLUMN_TAB, TEXT_RUN, WATCH_VIDEO_ID,
-    },
-    parse::parse_flex_column_item,
-    process::{fixed_column_item_pointer, flex_column_item_pointer},
-    query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery},
-    youtube_enums::YoutubeMusicVideoType,
-    Result,
+use crate::common::{
+    ApiOutcome, ArtistChannelID, EpisodeID, Explicit, FeedbackTokenRemoveFromHistory,
+    LibraryManager, LikeStatus, PlaylistID, Thumbnail, UploadEntityID, VideoID,
 };
+use crate::nav_consts::{
+    FEEDBACK_TOKEN, LIVE_BADGE_LABEL, MENU_SERVICE, NAVIGATION_BROWSE_ID, NAVIGATION_PLAYLIST_ID,
+    NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST, SINGLE_COLUMN_TAB, TEXT_RUN, WATCH_VIDEO_ID,
+};
+use crate::parse::parse_flex_column_item;
+use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
+use crate::query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery};
+use crate::youtube_enums::YoutubeMusicVideoType;
+use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -380,11 +377,9 @@ fn parse_history_item_song(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        auth::BrowserToken,
-        common::{SongTrackingUrl, YoutubeID},
-        query::AddHistoryItemQuery,
-    };
+    use crate::auth::BrowserToken;
+    use crate::common::{SongTrackingUrl, YoutubeID};
+    use crate::query::AddHistoryItemQuery;
 
     #[tokio::test]
     async fn test_add_history_item_query() {

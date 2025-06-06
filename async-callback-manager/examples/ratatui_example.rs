@@ -6,12 +6,11 @@ use async_callback_manager::{
 };
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{stream, FutureExt};
-use ratatui::{
-    layout::{Constraint, Layout},
-    widgets::{Block, Paragraph},
-    Frame,
-};
-use std::{future::Future, time::Duration};
+use ratatui::layout::{Constraint, Layout};
+use ratatui::widgets::{Block, Paragraph};
+use ratatui::Frame;
+use std::future::Future;
+use std::time::Duration;
 use tokio_stream::StreamExt;
 
 #[derive(Default, Debug)]

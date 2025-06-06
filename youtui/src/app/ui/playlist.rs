@@ -2,14 +2,14 @@ use super::action::AppAction;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, IncreaseVolume, Pause, PausePlay, PlaySong, QueueSong,
-    Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, GetAlbumArt, IncreaseVolume, Pause, PausePlay,
+    PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID, Percentage,
-    PlayState, SongListComponent,
+    AlbumArtState, AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID,
+    Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::draw_table;
@@ -26,12 +26,14 @@ use ratatui::widgets::TableState;
 use ratatui::Frame;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter;
 use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
+use ytmapi_rs::common::{AlbumID, Thumbnail};
 
 #[cfg(test)]
 mod tests;
@@ -463,9 +465,52 @@ impl Playlist {
         self.volume.0 = new_vol.clamp(0, 100);
     }
     /// Add a song list to the playlist. Returns the ID of the first song added.
-    pub fn push_song_list(&mut self, song_list: Vec<ListSong>) -> ListSongID {
-        self.list.push_song_list(song_list)
-        // Consider then triggering the download function.
+    pub fn push_song_list(
+        &mut self,
+        mut song_list: Vec<ListSong>,
+    ) -> (ListSongID, ComponentEffect<Self>) {
+        let get_largest_thumbnails_url = |thumbs: &Vec<Thumbnail>| {
+            thumbs
+                .iter()
+                .max_by_key(|thumbs| thumbs.height * thumbs.width)
+                .map(|thumb| thumb.url.clone())
+        };
+        let albums = song_list
+            .iter_mut()
+            .filter_map(|song| {
+                let Some(thumb_url) = get_largest_thumbnails_url(song.thumbnails.as_ref()) else {
+                    song.album_art = AlbumArtState::None;
+                    return None;
+                };
+                Some((song.album.as_deref().map(|album| &album.id)?, thumb_url))
+            })
+            .collect::<HashMap<&AlbumID, String>>();
+        let effect = albums
+            .into_iter()
+            .map(|(album_id, thumbnail_url)| {
+                let album_id = album_id.clone();
+                AsyncTask::new_future(
+                    GetAlbumArt {
+                        thumbnail_url,
+                        album_id: album_id.clone(),
+                    },
+                    |this: &mut Self, result| match result {
+                        Ok(album_art) => this.list.update_album_art(album_art),
+                        Err(e) => {
+                            error!("Error {e} getting album art");
+                            this.list.set_album_art_error(album_id);
+                        }
+                    },
+                    None,
+                )
+            })
+            .collect::<ComponentEffect<Self>>();
+        (self.list.push_song_list(song_list), effect)
+        // Download function isn't triggered inside this function, since we
+        // don't know if the caller is going to immediately change what song is
+        // playing after adding songs, although we could check and accept it may
+        // be overridden. We also need to get current playing song ID to call
+        // download_upcoming_from_id (minor inconvenience).
     }
     /// Play the next song in the list if it exists, otherwise, stop playing.
     pub fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {

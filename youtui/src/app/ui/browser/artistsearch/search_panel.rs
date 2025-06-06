@@ -5,11 +5,14 @@ use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
 use crate::app::view::{ListView, Loadable};
-use crate::config::{keymap::Keymap, Config};
+use crate::config::keymap::Keymap;
+use crate::config::Config;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, iter::Iterator};
-use ytmapi_rs::{common::SearchSuggestion, parse::SearchResultArtist};
+use std::borrow::Cow;
+use std::iter::Iterator;
+use ytmapi_rs::common::SearchSuggestion;
+use ytmapi_rs::parse::SearchResultArtist;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ArtistInputRouting {

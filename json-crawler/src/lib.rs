@@ -1,16 +1,19 @@
 //! Library to crawl Json using the pointer syntax and return useful errors.
 //! Documentation is a work in progress.
 use error::ParseTarget;
-use serde::{de::DeserializeOwned, Deserialize};
-use std::{fmt::Display, ops::ControlFlow, str::FromStr, sync::Arc};
-
 pub use error::{CrawlerError, CrawlerResult};
 pub use iter::*;
+use serde::de::DeserializeOwned;
+use serde::Deserialize;
 // Currently the only way to create a crawler is from a serde_json::Value, so we
 // might as well re-export it.
 // doc(no_inline) means that the re-export will be clear in the docs.
 #[doc(no_inline)]
 pub use serde_json::Value;
+use std::fmt::Display;
+use std::ops::ControlFlow;
+use std::str::FromStr;
+use std::sync::Arc;
 
 mod error;
 mod iter;

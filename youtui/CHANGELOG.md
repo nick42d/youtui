@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.24](https://github.com/nick42d/youtui/compare/youtui/v0.0.23...youtui/v0.0.24) - 2025-06-02
+
+### Added
+- Show album art ([#232](https://github.com/nick42d/youtui/pull/232))
+- Add shell completions with generate-completions cmdline option ([#233](https://github.com/nick42d/youtui/pull/233)) (Closes #47)
+
+### Other
+- Tidy imports for auto group and granularity ([#234](https://github.com/nick42d/youtui/pull/234))
+- [**breaking**] Revert unneeded part of #221 ([#230](https://github.com/nick42d/youtui/pull/230))
+- _Removes ability to set media keys as keybinds. Instead, you should use platform media controls (and media keys are likely routed through these already)._
 
 ## [0.0.23](https://github.com/nick42d/youtui/compare/youtui/v0.0.22...youtui/v0.0.23) - 2025-05-25
 

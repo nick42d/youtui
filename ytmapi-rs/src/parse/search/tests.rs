@@ -1,12 +1,13 @@
-use crate::{
-    auth::BrowserToken,
-    parse::SearchResults,
-    process_json,
-    query::search::{
-        AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter,
-        FeaturedPlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter,
-        VideosFilter,
-    },
+use crate::auth::BrowserToken;
+use crate::parse::SearchResults;
+use crate::process_json;
+use crate::query::search::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
+};
+use crate::query::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
 };
 use pretty_assertions::assert_eq;
 use std::path::Path;

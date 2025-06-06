@@ -1,7 +1,5 @@
-use ratatui::{
-    prelude::Rect,
-    style::{Color, Style},
-};
+use ratatui::prelude::Rect;
+use ratatui::style::{Color, Style};
 
 // Standard app colour scheme
 pub const SELECTED_BORDER_COLOUR: Color = Color::Cyan;
@@ -60,6 +58,16 @@ pub fn bottom_of_rect(r: Rect) -> Rect {
         height: 1,
     }
 }
+/// Helper function to get the middle line of a chunk, ignoring side borders.
+/// Warning: Not currently bounds checked.
+pub fn middle_of_rect(r: Rect) -> Rect {
+    Rect {
+        x: r.x,
+        y: r.y + (r.height - 1) / 2,
+        width: r.width,
+        height: 1,
+    }
+}
 
 /// Return the standard list / table highlight style
 pub fn highlight_style() -> Style {
@@ -69,6 +77,7 @@ pub fn highlight_style() -> Style {
 #[cfg(test)]
 mod tests {
     use super::{below_left_rect, centered_rect, left_bottom_corner_rect};
+    use crate::drawutils::middle_of_rect;
     use ratatui::layout::Rect;
 
     fn bounds_check_rect(r: Rect, max_bounds: Rect) {
@@ -228,6 +237,54 @@ mod tests {
         bounds_check_rect(r2, t_r2);
         bounds_check_rect(r3, t_r3);
         bounds_check_rect(r4, t_r4);
+    }
+    #[test]
+    fn test_middle_of_rect() {
+        let r1 = Rect {
+            x: 0,
+            y: 0,
+            width: 10,
+            height: 3,
+        };
+        assert_eq!(
+            middle_of_rect(r1),
+            Rect {
+                x: 0,
+                y: 1,
+                width: 10,
+                height: 1
+            }
+        );
+        let r2 = Rect {
+            x: 0,
+            y: 0,
+            width: 10,
+            height: 10,
+        };
+        assert_eq!(
+            middle_of_rect(r2),
+            Rect {
+                x: 0,
+                y: 4,
+                width: 10,
+                height: 1
+            }
+        );
+        let r3 = Rect {
+            x: 0,
+            y: 10,
+            width: 10,
+            height: 5,
+        };
+        assert_eq!(
+            middle_of_rect(r3),
+            Rect {
+                x: 0,
+                y: 12,
+                width: 10,
+                height: 1
+            }
+        );
     }
     #[test]
     fn bounds_check_below_left_rect() {

@@ -2,7 +2,7 @@ use super::appevent::{AppEvent, EventHandler};
 use crate::config::ApiKey;
 use crate::core::get_limited_sequential_file;
 use crate::{get_data_dir, RuntimeInfo};
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -13,6 +13,7 @@ use crossterm::terminal::{
 use media_controls::MediaController;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui_image::picker::Picker;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
 use std::io;
@@ -50,6 +51,9 @@ pub struct Youtui {
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
     media_controls: MediaController,
+    /// Capabilities of the user's terminal in regards to image rendering - ie,
+    /// font size / kitty protocal etc. This
+    terminal_image_capabilities: Picker,
 }
 
 #[derive(PartialEq)]
@@ -114,7 +118,13 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let (media_controls, media_control_event_stream) = MediaController::new()?;
+        // The docs for this function state that it must be run after entering alternate
+        // screen but before events are read, therefore this is hoisted for
+        // visibility. Note that this may briefly block, delaying startup, but likely
+        // unavoidable.
+        let terminal_image_capabilities = Picker::from_query_stdio()?;
+        let (media_controls, media_control_event_stream) = MediaController::new()
+            .context("Unable to initialise media controls - is the application already running?")?;
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
@@ -128,6 +138,7 @@ impl Youtui {
             server,
             terminal,
             media_controls,
+            terminal_image_capabilities,
         })
     }
     pub async fn run(&mut self) -> Result<()> {
@@ -139,7 +150,11 @@ impl Youtui {
                     // instantly react to.
                     // Draw occurs before the first event, to ensure up loads immediately.
                     self.terminal.draw(|f| {
-                        ui::draw::draw_app(f, &mut self.window_state);
+                        ui::draw::draw_app(
+                            f,
+                            &mut self.window_state,
+                            &self.terminal_image_capabilities,
+                        );
                     })?;
                     self.media_controls.update_controls(
                         ui::draw_media_controls::draw_app_media_controls(&self.window_state),
@@ -219,9 +234,10 @@ impl Youtui {
         match callback {
             AppCallback::Quit => self.status = AppStatus::Exiting("Quitting".into()),
             AppCallback::ChangeContext(context) => self.window_state.handle_change_context(context),
-            AppCallback::AddSongsToPlaylist(song_list) => {
-                self.window_state.handle_add_songs_to_playlist(song_list)
-            }
+            AppCallback::AddSongsToPlaylist(song_list) => self.task_manager.spawn_task(
+                &self.server,
+                self.window_state.handle_add_songs_to_playlist(song_list),
+            ),
             AppCallback::AddSongsToPlaylistAndPlay(song_list) => self.task_manager.spawn_task(
                 &self.server,
                 self.window_state

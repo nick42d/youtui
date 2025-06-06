@@ -1,12 +1,8 @@
-use crate::{
-    app::AppCallback,
-    config::{
-        keymap::{KeyActionTree, Keymap},
-        Config,
-    },
-    keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility},
-    keybind::Keybind,
-};
+use crate::app::AppCallback;
+use crate::config::keymap::{KeyActionTree, Keymap};
+use crate::config::Config;
+use crate::keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility};
+use crate::keybind::Keybind;
 use async_callback_manager::AsyncTask;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use std::borrow::Cow;
@@ -291,11 +287,9 @@ where
 mod tests {
     #![allow(clippy::todo)]
     use super::{Action, Component};
-    use crate::{
-        app::component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap},
-        config::keymap::KeyActionTree,
-        keybind::Keybind,
-    };
+    use crate::app::component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap};
+    use crate::config::keymap::KeyActionTree;
+    use crate::keybind::Keybind;
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use pretty_assertions::assert_eq;
 

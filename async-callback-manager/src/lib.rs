@@ -1,5 +1,4 @@
-use futures::Future;
-use futures::Stream;
+use futures::{Future, Stream};
 use std::any::Any;
 
 mod adaptors;
@@ -10,7 +9,7 @@ mod task;
 pub use adaptors::*;
 pub use error::*;
 pub use manager::*;
-pub use task::{AsyncTask, Constraint, TaskOutcome};
+pub use task::{AsyncTask, Constraint, TaskInformation, TaskOutcome};
 
 // Size of the channel used for each stream task.
 // In future, this could be settable.

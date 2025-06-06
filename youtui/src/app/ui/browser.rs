@@ -1,22 +1,16 @@
 use self::draw::draw_browser;
-use super::{
-    action::{AppAction, TextEntryAction},
-    AppCallback, WindowContext,
+use super::action::{AppAction, TextEntryAction};
+use super::{AppCallback, WindowContext};
+use crate::app::component::actionhandler::{
+    apply_action_mapped, Action, ActionHandler, ComponentEffect, DelegateScrollable,
+    DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::{app::component::actionhandler::apply_action_mapped, config::Config};
-use crate::{
-    app::{
-        component::actionhandler::{
-            Action, ActionHandler, ComponentEffect, DelegateScrollable, DominantKeyRouter,
-            KeyRouter, Scrollable, TextHandler, YoutuiEffect,
-        },
-        view::DrawableMut,
-    },
-    config::keymap::Keymap,
-};
-use artistsearch::{
-    search_panel::BrowserArtistsAction, songs_panel::BrowserArtistSongsAction, ArtistSearchBrowser,
-};
+use crate::app::view::DrawableMut;
+use crate::config::keymap::Keymap;
+use crate::config::Config;
+use artistsearch::search_panel::BrowserArtistsAction;
+use artistsearch::songs_panel::BrowserArtistSongsAction;
+use artistsearch::ArtistSearchBrowser;
 use async_callback_manager::AsyncTask;
 use itertools::Either;
 use serde::{Deserialize, Serialize};
@@ -379,21 +373,17 @@ pub fn get_sort_keybinds(config: &Config) -> impl Iterator<Item = &Keymap<AppAct
 
 #[cfg(test)]
 mod tests {
+    use super::artistsearch::songs_panel::BrowserArtistSongsAction;
+    use super::Browser;
+    use crate::app::component::actionhandler::{ActionHandler, KeyRouter};
+    use crate::app::ui::action::AppAction;
+    use crate::app::ui::browser::shared_components::BrowserSearchAction;
+    use crate::app::ui::browser::BrowserAction;
+    use crate::config::keymap::KeyActionTree;
+    use crate::config::Config;
+    use crate::keyaction::KeyActionVisibility;
+    use crate::keybind::Keybind;
     use itertools::Itertools;
-
-    use super::{artistsearch::songs_panel::BrowserArtistSongsAction, Browser};
-    use crate::{
-        app::{
-            component::actionhandler::{ActionHandler, KeyRouter},
-            ui::{
-                action::AppAction,
-                browser::{shared_components::BrowserSearchAction, BrowserAction},
-            },
-        },
-        config::{keymap::KeyActionTree, Config},
-        keyaction::KeyActionVisibility,
-        keybind::Keybind,
-    };
     #[tokio::test]
     async fn toggle_search_opens_popup() {
         let mut b = Browser::new();
