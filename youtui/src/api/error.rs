@@ -16,13 +16,13 @@ pub struct DynamicApiError(String);
 
 pub fn wrong_auth_token_error_message<Q>(
     current_authtype: AuthType,
-    expected_authtype: AuthType,
+    expected_authtypes: &[AuthType],
 ) -> String {
     format!(
         "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
         std::any::type_name::<Q>(),
         current_authtype,
-        expected_authtype
+        expected_authtypes
     )
 }
 
