@@ -412,7 +412,7 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     let api_key = match cfg.auth_type {
         config::AuthType::OAuth => ApiKey::OAuthToken(load_oauth_file().await?),
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
-        config::AuthType::Unauthenticated => todo!(),
+        config::AuthType::Unauthenticated => ApiKey::NoAuthToken,
     };
     Ok(api_key)
 }

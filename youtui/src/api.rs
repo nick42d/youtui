@@ -1,7 +1,7 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::config::{ApiKey, AuthType};
 use anyhow::{bail, Result};
-use error::_wrong_auth_token_error_message;
+use error::wrong_auth_token_error_message;
 use futures::{StreamExt, TryStreamExt};
 use std::borrow::Borrow;
 use ytmapi_rs::{
@@ -35,40 +35,49 @@ impl DynamicYtMusic {
                     .with_oauth_token(token)
                     .build()?,
             )),
-            ApiKey::NoAuthToken => todo!(),
+            ApiKey::NoAuthToken => Ok(DynamicYtMusic::NoAuth(
+                YtMusicBuilder::new_rustls_tls().build().await?,
+            )),
         }
     }
-    // TO DETERMINE HOW TO HANDLE BROWSER CASE.
+    pub fn get_type(&self) -> AuthType {
+        match self {
+            DynamicYtMusic::Browser(_) => AuthType::Browser,
+            DynamicYtMusic::OAuth(_) => AuthType::OAuth,
+            DynamicYtMusic::NoAuth(_) => AuthType::Unauthenticated,
+        }
+    }
+    // TO DETERMINE HOW TO HANDLE BROWSER/NOAUTH CASE.
     pub async fn refresh_token(&mut self) -> Result<Option<OAuthToken>> {
         Ok(match self {
-            DynamicYtMusic::Browser(_) => None,
+            DynamicYtMusic::Browser(_) | DynamicYtMusic::NoAuth(_) => None,
             DynamicYtMusic::OAuth(yt) => Some(yt.refresh_token().await?),
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
         })
     }
-    // TO DETERMINE HOW TO HANDLE BROWSER CASE.
+    // TO DETERMINE HOW TO HANDLE BROWSER/NOAUTH CASE.
     pub fn get_token_hash(&self) -> Result<Option<u64>> {
         Ok(match self {
-            DynamicYtMusic::Browser(_) => None,
+            DynamicYtMusic::Browser(_) | DynamicYtMusic::NoAuth(_) => None,
             DynamicYtMusic::OAuth(yt) => Some(yt.get_token_hash()),
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
         })
     }
     pub async fn query<Q, O>(&self, query: impl Borrow<Q>) -> Result<O>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
+        Q: Query<NoAuthToken, Output = O>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            DynamicYtMusic::NoAuth(yt) => yt.query(query).await?,
         })
     }
     pub async fn stream<Q, O>(&self, query: impl Borrow<Q>, max_pages: usize) -> Result<Vec<O>>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
+        Q: Query<NoAuthToken, Output = O>,
         O: Continuable<Q>,
         Q: PostQuery,
     {
@@ -85,7 +94,12 @@ impl DynamicYtMusic {
                     .try_collect()
                     .await?
             }
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            DynamicYtMusic::NoAuth(yt) => {
+                yt.stream(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
         })
     }
     pub async fn _browser_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
@@ -94,10 +108,10 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => yt.query(query).await?,
-            DynamicYtMusic::OAuth(_) => {
-                bail!(_wrong_auth_token_error_message::<Q>(AuthType::OAuth))
-            }
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            _ => bail!(wrong_auth_token_error_message::<Q>(
+                self.get_type(),
+                AuthType::Browser
+            )),
         })
     }
     pub async fn _oauth_query<Q>(&self, query: impl Borrow<Q>) -> Result<Q::Output>
@@ -105,30 +119,34 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(_) => {
-                bail!(_wrong_auth_token_error_message::<Q>(AuthType::Browser))
-            }
             DynamicYtMusic::OAuth(yt) => yt.query(query).await?,
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            _ => bail!(wrong_auth_token_error_message::<Q>(
+                self.get_type(),
+                AuthType::OAuth
+            )),
         })
     }
     pub async fn query_source<Q, O>(&self, query: &Q) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
+        Q: Query<NoAuthToken, Output = O>,
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            DynamicYtMusic::NoAuth(yt) => {
+                yt.raw_query(query).await.map(|r| r.destructure_json())?
+            }
         })
     }
     pub async fn stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
+        Q: Query<NoAuthToken, Output = O>,
         Q: PostQuery,
         O: Continuable<Q>,
     {
@@ -142,10 +160,12 @@ impl DynamicYtMusic {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_query(query).await.map(|r| r.destructure_json())?
             }
-            DynamicYtMusic::OAuth(_) => {
-                bail!(_wrong_auth_token_error_message::<Q>(AuthType::OAuth))
+            _ => {
+                bail!(wrong_auth_token_error_message::<Q>(
+                    self.get_type(),
+                    AuthType::OAuth
+                ))
             }
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
         })
     }
     pub async fn _oauth_query_source<Q>(&self, query: &Q) -> Result<String>
@@ -153,11 +173,13 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(_) => {
-                bail!(_wrong_auth_token_error_message::<Q>(AuthType::Browser))
-            }
             DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
-            DynamicYtMusic::NoAuth(yt_music) => todo!(),
+            _ => {
+                bail!(wrong_auth_token_error_message::<Q>(
+                    self.get_type(),
+                    AuthType::OAuth
+                ))
+            }
         })
     }
 }
