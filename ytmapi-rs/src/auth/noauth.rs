@@ -17,7 +17,7 @@ use std::fmt::Debug;
 use std::path::Path;
 use std::time::SystemTime;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NoAuthToken {
     create_time: SystemTime,
     visitor_id: String,

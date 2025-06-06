@@ -613,5 +613,6 @@ where
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
             .map(|r| format!("{:#?}", r))
             .map_err(|e| e.into()),
+        DynamicYtMusic::NoAuth(yt_music) => todo!(),
     }
 }
