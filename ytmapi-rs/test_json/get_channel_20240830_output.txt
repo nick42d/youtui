@@ -284,4 +284,33 @@ GetPodcastChannel {
             ],
         },
     ],
+    playlists: [
+        GetPodcastChannelPlaylist {
+            title: "CNN's 'The Fourth In America'",
+            channel: ParsedPodcastChannel {
+                name: "CNN",
+                id: Some(
+                    PodcastChannelID(
+                        "UCupvZG-5ko_eiXAupbDfxWw",
+                    ),
+                ),
+            },
+            playlist_id: PlaylistID(
+                "VLPL6XRrncXkMaVKJiRkKEDLbOQ7kaAIBR1t",
+            ),
+            views: "1.2K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/AS8YCfDDF30/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mgj-eN4S2PH31zjURNVd7Ds1L8Aw",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/AS8YCfDDF30/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kE9iPUICQVdu3DKTiZMaXq1Lgg0A",
+                },
+            ],
+        },
+    ],
 }
