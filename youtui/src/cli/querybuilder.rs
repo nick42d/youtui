@@ -302,8 +302,7 @@ pub async fn command_to_query(
                 RemoveHistoryItemsQuery::new(
                     feedback_tokens
                         .iter()
-                        .map(FeedbackTokenRemoveFromHistory::from_raw)
-                        .collect(),
+                        .map(FeedbackTokenRemoveFromHistory::from_raw),
                 ),
                 cli_query,
             )
