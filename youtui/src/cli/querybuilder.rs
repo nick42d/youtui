@@ -356,8 +356,7 @@ pub async fn command_to_query(
                 EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
                     feedback_tokens
                         .iter()
-                        .map(FeedbackTokenAddToLibrary::from_raw)
-                        .collect(),
+                        .map(FeedbackTokenAddToLibrary::from_raw),
                 ),
                 cli_query,
             )

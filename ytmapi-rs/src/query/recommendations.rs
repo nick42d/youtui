@@ -50,14 +50,14 @@ impl PostQuery for GetTasteProfileQuery {
     }
 }
 
-impl<'a, A> Query<A> for SetTasteProfileQuery<'a>
+impl<A> Query<A> for SetTasteProfileQuery<'_>
 where
     A: AuthToken,
 {
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a> PostQuery for SetTasteProfileQuery<'a> {
+impl PostQuery for SetTasteProfileQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let (impression_tokens, selection_tokens): (Vec<Value>, Vec<Value>) = self
             .taste_tokens

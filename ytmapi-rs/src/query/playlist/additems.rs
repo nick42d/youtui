@@ -29,7 +29,7 @@ pub struct AddVideosToPlaylist<'a> {
 pub struct AddPlaylistToPlaylist<'a> {
     source_playlist: PlaylistID<'a>,
 }
-impl<'a> SpecialisedQuery for AddVideosToPlaylist<'a> {
+impl SpecialisedQuery for AddVideosToPlaylist<'_> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         let actions = self
             .video_ids
