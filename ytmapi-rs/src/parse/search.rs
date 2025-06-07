@@ -4,21 +4,22 @@ use crate::common::{
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
 };
 use crate::nav_consts::{
-    BADGE_LABEL, LIVE_BADGE_LABEL, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
-    THUMBNAILS, TITLE_TEXT,
+    BADGE_LABEL, LIVE_BADGE_LABEL, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE,
+    NAVIGATION_BROWSE_ID, PAGE_TYPE, PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE,
+    SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
 use crate::process::flex_column_item_pointer;
-use crate::query::*;
-use crate::youtube_enums::PlaylistEndpointParams;
-use crate::{Error, Result};
-use const_format::concatcp;
-use filteredsearch::{
+use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
+use crate::query::search::UnfilteredSearchType;
+use crate::query::*;
+use crate::youtube_enums::{PlaylistEndpointParams, YoutubeMusicPageType};
+use crate::{Error, Result};
+use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::de::IntoDeserializer;
@@ -34,7 +35,7 @@ pub struct SearchResults {
     pub artists: Vec<SearchResultArtist>,
     pub albums: Vec<SearchResultAlbum>,
     pub featured_playlists: Vec<SearchResultFeaturedPlaylist>,
-    pub community_playlists: Vec<SearchResultCommunityPlaylist>,
+    pub community_playlists: Vec<BasicSearchResultCommunityPlaylist>,
     pub songs: Vec<SearchResultSong>,
     pub videos: Vec<SearchResultVideo>,
     pub podcasts: Vec<SearchResultPodcast>,
@@ -191,6 +192,15 @@ pub enum SearchResultPlaylist {
     Featured(SearchResultFeaturedPlaylist),
     Community(SearchResultCommunityPlaylist),
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+// When doing a basic search, community playlists might actually be podcasts.
+pub enum BasicSearchResultCommunityPlaylist {
+    Podcast(SearchResultPodcast),
+    Playlist(SearchResultCommunityPlaylist),
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 /// A community playlist search result.
@@ -276,8 +286,10 @@ fn parse_basic_search_result_from_section_list_contents(
                 community_playlists = category
                     .navigate_pointer("/contents")?
                     .try_iter_mut()?
-                    .map(|r| parse_community_playlist_search_result_from_music_shelf_contents(r))
-                    .collect::<Result<Vec<SearchResultCommunityPlaylist>>>()?
+                    .map(|r| {
+                        parse_community_playlist_basic_search_result_from_music_shelf_contents(r)
+                    })
+                    .collect::<Result<Vec<BasicSearchResultCommunityPlaylist>>>()?
             }
             SearchResultType::Songs => {
                 songs = category
@@ -338,14 +350,12 @@ fn parse_top_results_from_music_card_shelf_contents(
     let mut results = Vec::new();
     // Begin - first result parsing
     let result_name = music_shelf_contents.take_value_pointer(TITLE_TEXT)?;
+    // NOTE: Parse this before value at SUBTITLE is taken (below).
+    let result_type = music_shelf_contents
+        .borrow_value_pointer::<TopResultType>(SUBTITLE)
+        .ok();
     let subtitle: String = music_shelf_contents.take_value_pointer(SUBTITLE)?;
     let subtitle_2: Option<String> = music_shelf_contents.take_value_pointer(SUBTITLE2).ok();
-    // Deserialize without taking ownership of subtitle - not possible with
-    // JsonCrawler::take_value_pointer().
-    // TODO: add methods like borrow_value_pointer() to JsonCrawler.
-    let result_type_result: std::result::Result<_, serde::de::value::Error> =
-        TopResultType::deserialize(subtitle.as_str().into_deserializer());
-    let result_type = result_type_result.ok();
     // Possibly artists only.
     let subscribers = subtitle_2;
     let byline = match result_type {
@@ -439,8 +449,14 @@ fn parse_top_result_from_music_shelf_contents(
         Some(TopResultType::Podcast) => publisher = Some(parse_flex_column_item(&mut mrlir, 1, 2)?),
         None => {
             artist = Some(flex_1_0);
-            album = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
-            duration = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
+            let flex_1_2 = parse_flex_column_item(&mut mrlir, 1, 2)?;
+            // If this does not show up, album isn't included in the results.
+            if let Ok(flex_1_4) = parse_flex_column_item(&mut mrlir, 1, 4) {
+                album = Some(flex_1_2);
+                duration = Some(flex_1_4);
+            } else {
+                duration = Some(flex_1_2);
+            }
             // This does not show up in all Card renderer results and so we'll define it as
             // optional. TODO: Could make this more type safe in future.
             plays = parse_flex_column_item(&mut mrlir, 1, 6).ok();
@@ -751,8 +767,21 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-// TODO: Type safety
-// TODO: Tests
+fn parse_community_playlist_basic_search_result_from_music_shelf_contents(
+    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+) -> Result<BasicSearchResultCommunityPlaylist> {
+    let result_type: YoutubeMusicPageType = music_shelf_contents
+        .borrow_value_pointer(concatcp!(MRLIR, NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let result = match result_type {
+        YoutubeMusicPageType::Podcast => BasicSearchResultCommunityPlaylist::Podcast(
+            parse_podcast_search_result_from_music_shelf_contents(music_shelf_contents)?,
+        ),
+        YoutubeMusicPageType::Playlist => BasicSearchResultCommunityPlaylist::Playlist(
+            parse_community_playlist_search_result_from_music_shelf_contents(music_shelf_contents)?,
+        ),
+    };
+    Ok(result)
+}
 fn parse_community_playlist_search_result_from_music_shelf_contents(
     music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultCommunityPlaylist> {

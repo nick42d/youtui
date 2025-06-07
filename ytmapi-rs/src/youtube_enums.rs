@@ -12,6 +12,16 @@ pub(crate) enum PlaylistEndpointParams {
     Community,
 }
 
+/// Currently used to distinguish between Podcasts and Playlists for Community
+/// playlists in basic search, but may be able to be generalised further.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(crate) enum YoutubeMusicPageType {
+    #[serde(rename = "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE")]
+    Podcast,
+    #[serde(rename = "MUSIC_PAGE_TYPE_PLAYLIST")]
+    Playlist,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub(crate) enum YoutubeMusicVideoType {
     // I believe OMV is 'Official Music Video' and UGC is 'User Generated Content'

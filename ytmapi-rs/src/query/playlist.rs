@@ -1,5 +1,5 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::AuthToken;
+use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{PlaylistID, SetVideoID, YoutubeID};
 use crate::parse::GetPlaylist;
 pub use additems::*;
@@ -94,7 +94,7 @@ impl PostQuery for GetPlaylistQuery<'_> {
     }
 }
 
-impl<A: AuthToken> Query<A> for DeletePlaylistQuery<'_> {
+impl<A: LoggedIn> Query<A> for DeletePlaylistQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
@@ -121,7 +121,7 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
     }
 }
 
-impl<A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'_> {
+impl<A: LoggedIn> Query<A> for RemovePlaylistItemsQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }

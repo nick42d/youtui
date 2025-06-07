@@ -2,7 +2,18 @@
 //! Library into YouTube Music's internal API.
 //! ## Examples
 //! For additional examples using builder, see [`builder`] module.
-//! ### Basic usage with a pre-created cookie file.
+//! ### Unauthenticated usage - note, not all queries supported.
+//! ```no_run
+//! #[tokio::main]
+//! pub async fn main() -> Result<(), ytmapi_rs::Error> {
+//!     let yt = ytmapi_rs::YtMusic::new_unauthenticated().await?;
+//!     yt.get_search_suggestions("Beatles").await?;
+//!     let result = yt.get_search_suggestions("Beatles").await?;
+//!     println!("{:?}", result);
+//!     Ok(())
+//! }
+//! ```
+//! ### Basic authenticated usage with a pre-created cookie file.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -14,7 +25,7 @@
 //!     Ok(())
 //! }
 //! ```
-//! ### OAuth usage, using the workflow, and builder method to re-use the `Client`.
+//! ### OAuth authenticated usage, using the workflow, and builder method to re-use the `Client`.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -49,6 +60,7 @@
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
 //! - **serde_json**: Enables some interoperability functions with `serde_json`.
+//! - **reqwest**: Enables some interoperability functions with `reqwest`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
@@ -58,6 +70,7 @@
 )))]
 compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
+use auth::noauth::NoAuthToken;
 use auth::oauth::OAuthDeviceCode;
 use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
 #[doc(inline)]
@@ -117,7 +130,18 @@ pub struct YtMusic<A: AuthToken> {
     client: Client,
     token: A,
 }
-
+impl YtMusic<NoAuthToken> {
+    /// Create a new unauthenticated API handle.
+    /// In unauthenticated mode, less queries are supported.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    pub async fn new_unauthenticated() -> Result<Self> {
+        let client = Client::new().expect("Expected Client build to succeed");
+        let token = NoAuthToken::new(&client).await?;
+        Ok(YtMusic { client, token })
+    }
+}
 impl YtMusic<BrowserToken> {
     /// Create a new API handle using a BrowserToken.
     /// Utilises the default TLS option for the enabled features.
@@ -185,8 +209,8 @@ impl<A: AuthToken> YtMusic<A> {
     ///
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query =
-    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
     /// let raw_result = yt.raw_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(raw_result.process()?)?;
@@ -210,8 +234,8 @@ impl<A: AuthToken> YtMusic<A> {
     ///
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query =
-    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
     /// let processed_result = yt.processed_query(&query).await?;
     /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
     ///     ParseFrom::parse_from(processed_result)?;
@@ -233,8 +257,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query =
-    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
     /// let json_string = yt.json_query(query).await?;
     /// assert!(serde_json::from_str::<serde_json::Value>(&json_string).is_ok());
     /// # Ok::<(), ytmapi_rs::Error>(())
@@ -255,8 +279,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
-    /// let query =
-    ///     ytmapi_rs::query::SearchQuery::new("Beatles").with_filter(ytmapi_rs::query::ArtistsFilter);
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
     /// let result = yt.query(query).await?;
     /// assert_eq!(result[0].artist, "The Beatles");
     /// # Ok::<(), ytmapi_rs::Error>(())

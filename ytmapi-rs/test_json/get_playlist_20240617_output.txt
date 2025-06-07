@@ -6,6 +6,7 @@ GetPlaylist {
     title: "The Beatles - Beatles 100 (Official Playlist)",
     description: None,
     author: "The Beatles",
+    author_avatar_url: None,
     year: "2020",
     duration: "4 hours, 53 minutes",
     track_count_text: "100 tracks",

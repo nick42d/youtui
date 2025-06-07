@@ -1,15 +1,16 @@
 use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
-    HEADER_DETAIL, STRAPLINE_TEXT, STRAPLINE_THUMBNAIL, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED,
-    TITLE_TEXT, TWO_COLUMN,
+    HEADER_DETAIL, STRAPLINE_TEXT, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
 use crate::common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID};
 use crate::nav_consts::{
-    RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT,
+    FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM,
+    SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
 };
+use crate::query::playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery};
 use crate::query::{
-    AddPlaylistItemsQuery, CreatePlaylistQuery, CreatePlaylistType, DeletePlaylistQuery,
-    EditPlaylistQuery, GetPlaylistQuery, PrivacyStatus, RemovePlaylistItemsQuery, SpecialisedQuery,
+    AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+    GetPlaylistQuery, RemovePlaylistItemsQuery,
 };
 use crate::{Error, Result};
 use const_format::concatcp;
@@ -26,6 +27,7 @@ pub struct GetPlaylist {
     pub title: String,
     pub description: Option<String>,
     pub author: String,
+    pub author_avatar_url: Option<String>,
     pub year: String,
     pub duration: String,
     pub track_count_text: String,
@@ -163,6 +165,7 @@ fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         related,
         views,
         tracks,
+        author_avatar_url: None,
     })
 }
 
@@ -186,11 +189,10 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
     // TODO
     let related = Vec::new();
     let title = header.take_value_pointer(TITLE_TEXT)?;
-    let author = header.take_value_pointer(STRAPLINE_TEXT)?;
-    // Thumbnails may not be present, refer to https://github.com/nick42d/youtui/issues/144
-    let thumbnails: Vec<Thumbnail> = header
-        .take_value_pointer(STRAPLINE_THUMBNAIL)
-        .unwrap_or_default();
+    // STRAPLINE_TEXT to be deprecated in future.
+    let author = header.take_value_pointers(&[STRAPLINE_TEXT, FACEPILE_TEXT])?;
+    let thumbnails: Vec<Thumbnail> = header.take_value_pointer(THUMBNAILS)?;
+    let author_avatar_url: Option<String> = header.take_value_pointer(FACEPILE_AVATAR_URL).ok();
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
         .and_then(|d| d.try_into_iter())
@@ -253,6 +255,7 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylist> {
         related,
         views,
         tracks,
+        author_avatar_url,
     })
 }
 
@@ -315,6 +318,16 @@ mod tests {
         parse_test!(
             "./test_json/get_playlist_20240624.json",
             "./test_json/get_playlist_20240624_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    // In 2025, playlist channel details were moved from strapline to facepile.
+    async fn test_get_playlist_query_2025() {
+        parse_test!(
+            "./test_json/get_playlist_20250604.json",
+            "./test_json/get_playlist_20250604_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
