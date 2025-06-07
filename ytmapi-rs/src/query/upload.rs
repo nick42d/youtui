@@ -1,8 +1,10 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
-use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};
-use crate::parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist};
+use crate::common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, UploadUrl};
+use crate::parse::{
+    GetLibraryUploadAlbum, ParseFrom, TableListUploadSong, UploadAlbum, UploadArtist,
+};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -31,6 +33,18 @@ pub struct GetLibraryUploadAlbumQuery<'a> {
 pub struct DeleteUploadEntityQuery<'a> {
     upload_entity_id: UploadEntityID<'a>,
 }
+#[derive(Clone)]
+pub struct GetUploadSongQuery<'a> {
+    upload_filename: Cow<'a, str>,
+    song_bytes: &'a [u8],
+}
+#[derive(Clone, Debug)]
+// TODO: Custom debug due to the Bytes.
+pub struct UploadSongQuery<'a> {
+    upload_url: UploadUrl<'a>,
+    song_bytes: &'a [u8],
+}
+
 impl GetLibraryUploadSongsQuery {
     pub fn new(sort_order: GetLibrarySortOrder) -> Self {
         Self { sort_order }
@@ -59,6 +73,22 @@ impl<'a> GetLibraryUploadAlbumQuery<'a> {
 impl<'a> DeleteUploadEntityQuery<'a> {
     pub fn new(upload_entity_id: UploadEntityID<'a>) -> Self {
         Self { upload_entity_id }
+    }
+}
+impl<'a> GetUploadSongQuery<'a> {
+    pub fn new(upload_filename: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            upload_filename: upload_filename.into(),
+            song_bytes: todo!(),
+        }
+    }
+}
+impl<'a> UploadSongQuery<'a> {
+    pub fn new(upload_url: UploadUrl<'a>, song_bytes: &'a [u8]) -> Self {
+        Self {
+            upload_url,
+            song_bytes,
+        }
     }
 }
 // Auth required
@@ -197,5 +227,47 @@ impl PostQuery for DeleteUploadEntityQuery<'_> {
     }
     fn path(&self) -> &str {
         "music/delete_privately_owned_entity"
+    }
+}
+// Auth required
+impl<'a, A: LoggedIn> Query<A> for GetUploadSongQuery<'a> {
+    type Output = UploadSongQuery<'a>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetUploadSongQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        todo!()
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        todo!()
+    }
+    fn path(&self) -> &str {
+        todo!()
+    }
+}
+impl<'a> ParseFrom<GetUploadSongQuery<'a>> for UploadSongQuery<'a> {
+    fn parse_from(p: crate::ProcessedResult<GetUploadSongQuery<'_>>) -> crate::Result<Self> {
+        todo!()
+    }
+}
+// Auth required
+impl<A: LoggedIn> Query<A> for UploadSongQuery<'_> {
+    type Output = ApiOutcome;
+    type Method = PostMethod;
+}
+impl PostQuery for UploadSongQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        todo!()
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        todo!()
+    }
+    fn path(&self) -> &str {
+        todo!()
+    }
+}
+impl ParseFrom<UploadSongQuery<'_>> for ApiOutcome {
+    fn parse_from(p: crate::ProcessedResult<UploadSongQuery<'_>>) -> crate::Result<Self> {
+        todo!()
     }
 }

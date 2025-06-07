@@ -175,6 +175,8 @@ pub struct UploadAlbumID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct UploadArtistID<'a>(Cow<'a, str>);
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+pub struct UploadUrl<'a>(Cow<'a, str>);
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct TasteTokenSelection<'a>(Cow<'a, str>);
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct TasteTokenImpression<'a>(Cow<'a, str>);
@@ -188,6 +190,7 @@ impl_youtube_id!(SetVideoID<'a>);
 impl_youtube_id!(AlbumID<'a>);
 impl_youtube_id!(UploadAlbumID<'a>);
 impl_youtube_id!(UploadArtistID<'a>);
+impl_youtube_id!(UploadUrl<'a>);
 impl_youtube_id!(ProfileID<'a>);
 impl_youtube_id!(PodcastID<'a>);
 impl_youtube_id!(EpisodeID<'a>);
