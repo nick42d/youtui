@@ -7,6 +7,8 @@ use crate::parse::{
 };
 use serde_json::json;
 use std::borrow::Cow;
+use std::marker::PhantomData;
+use std::path::Path;
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
@@ -35,8 +37,10 @@ pub struct DeleteUploadEntityQuery<'a> {
 }
 #[derive(Clone)]
 pub struct GetUploadSongQuery<'a> {
-    upload_filename: Cow<'a, str>,
-    song_bytes: &'a [u8],
+    upload_filename: String,
+    upload_fileext: String,
+    song_bytes: Vec<u8>,
+    _p: PhantomData<&'a ()>,
 }
 #[derive(Clone, Debug)]
 // TODO: Custom debug due to the Bytes.
@@ -75,12 +79,27 @@ impl<'a> DeleteUploadEntityQuery<'a> {
         Self { upload_entity_id }
     }
 }
-impl<'a> GetUploadSongQuery<'a> {
-    pub fn new(upload_filename: impl Into<Cow<'a, str>>) -> Self {
-        Self {
-            upload_filename: upload_filename.into(),
-            song_bytes: todo!(),
-        }
+impl GetUploadSongQuery<'_> {
+    pub async fn new(file_path: impl AsRef<Path>) -> Option<Self> {
+        let upload_filename = file_path
+            .as_ref()
+            .file_name()
+            .unwrap_or_default()
+            .to_str()?
+            .to_string();
+        let upload_fileext = file_path
+            .as_ref()
+            .extension()
+            .unwrap_or_default()
+            .to_str()?
+            .to_string();
+        let song_bytes = tokio::fs::read(file_path).await.unwrap();
+        Some(Self {
+            upload_filename,
+            song_bytes,
+            upload_fileext,
+            _p: PhantomData,
+        })
     }
 }
 impl<'a> UploadSongQuery<'a> {
