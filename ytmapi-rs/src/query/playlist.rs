@@ -66,9 +66,12 @@ impl<'a> DeletePlaylistQuery<'a> {
 impl<'a> RemovePlaylistItemsQuery<'a> {
     pub fn new(
         id: PlaylistID<'a>,
-        video_items: Vec<SetVideoID<'a>>,
+        video_items: impl IntoIterator<Item = SetVideoID<'a>>,
     ) -> RemovePlaylistItemsQuery<'a> {
-        RemovePlaylistItemsQuery { id, video_items }
+        RemovePlaylistItemsQuery {
+            id,
+            video_items: video_items.into_iter().collect(),
+        }
     }
 }
 
