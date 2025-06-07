@@ -9,10 +9,7 @@ use std::borrow::Cow;
 pub struct GetTasteProfileQuery;
 
 #[derive(Clone)]
-pub struct SetTasteProfileQuery<'a, I>
-where
-    I: Iterator<Item = TasteToken<'a>> + Clone,
-{
+pub struct SetTasteProfileQuery<I> {
     taste_tokens: I,
 }
 
@@ -24,7 +21,7 @@ pub struct GetMoodPlaylistsQuery<'a> {
     params: MoodCategoryParams<'a>,
 }
 
-impl<'a, I> SetTasteProfileQuery<'a, I>
+impl<'a, I> SetTasteProfileQuery<I>
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
@@ -56,7 +53,7 @@ impl PostQuery for GetTasteProfileQuery {
     }
 }
 
-impl<'a, A, I> Query<A> for SetTasteProfileQuery<'a, I>
+impl<'a, A, I> Query<A> for SetTasteProfileQuery<I>
 where
     A: AuthToken,
     I: Iterator<Item = TasteToken<'a>> + Clone,
@@ -64,7 +61,7 @@ where
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a, I> PostQuery for SetTasteProfileQuery<'a, I>
+impl<'a, I> PostQuery for SetTasteProfileQuery<I>
 where
     I: Iterator<Item = TasteToken<'a>> + Clone,
 {
