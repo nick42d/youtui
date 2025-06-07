@@ -218,6 +218,13 @@ enum Command {
     GetSongTrackingUrl {
         video_id: String,
     },
+    GetLyrics {
+        lyrics_id: String,
+    },
+    // TODO: Option to use playlist ID instead
+    GetWatchPlaylist {
+        video_id: String,
+    },
     GetChannel {
         channel_id: String,
     },
@@ -333,6 +340,12 @@ async fn get_api(config: &Config) -> anyhow::Result<api::DynamicYtMusic> {
                 .await?;
             api::DynamicYtMusic::Browser(api)
         }
+        config::AuthType::Unauthenticated => {
+            let api = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
+                .build()
+                .await?;
+            api::DynamicYtMusic::NoAuth(api)
+        }
     };
     Ok(api)
 }
@@ -416,6 +429,7 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     let api_key = match cfg.auth_type {
         config::AuthType::OAuth => ApiKey::OAuthToken(load_oauth_file().await?),
         config::AuthType::Browser => ApiKey::BrowserToken(load_cookie_file().await?),
+        config::AuthType::Unauthenticated => ApiKey::None,
     };
     Ok(api_key)
 }

@@ -1,5 +1,5 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::AuthToken;
+use crate::auth::LoggedIn;
 use crate::common::{
     ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
 };
@@ -72,38 +72,45 @@ impl GetLibraryArtistsQuery {
 }
 impl<'a> EditSongLibraryStatusQuery<'a> {
     pub fn new_from_add_to_library_feedback_tokens(
-        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+        add_to_library_feedback_tokens: impl IntoIterator<Item = FeedbackTokenAddToLibrary<'a>>,
     ) -> Self {
         Self {
-            add_to_library_feedback_tokens,
+            add_to_library_feedback_tokens: add_to_library_feedback_tokens.into_iter().collect(),
             remove_from_library_feedback_tokens: vec![],
         }
     }
     pub fn new_from_remove_from_library_feedback_tokens(
-        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+        remove_from_library_feedback_tokens: impl IntoIterator<
+            Item = FeedbackTokenRemoveFromLibrary<'a>,
+        >,
     ) -> Self {
         Self {
             add_to_library_feedback_tokens: vec![],
-            remove_from_library_feedback_tokens,
+            remove_from_library_feedback_tokens: remove_from_library_feedback_tokens
+                .into_iter()
+                .collect(),
         }
     }
     pub fn with_add_to_library_feedback_tokens(
         mut self,
-        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+        add_to_library_feedback_tokens: impl IntoIterator<Item = FeedbackTokenAddToLibrary<'a>>,
     ) -> Self {
-        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens;
+        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens.into_iter().collect();
         self
     }
     pub fn with_remove_from_library_feedback_tokens(
         mut self,
-        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+        remove_from_library_feedback_tokens: impl IntoIterator<
+            Item = FeedbackTokenRemoveFromLibrary<'a>,
+        >,
     ) -> Self {
-        self.remove_from_library_feedback_tokens = remove_from_library_feedback_tokens;
+        self.remove_from_library_feedback_tokens =
+            remove_from_library_feedback_tokens.into_iter().collect();
         self
     }
 }
 
-impl<A: AuthToken> Query<A> for GetLibraryPlaylistsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryPlaylistsQuery {
     type Output = GetLibraryPlaylists;
     type Method = PostMethod;
 }
@@ -118,7 +125,7 @@ impl PostQuery for GetLibraryPlaylistsQuery {
         vec![]
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryArtistsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryArtistsQuery {
     type Output = GetLibraryArtists;
     type Method = PostMethod;
 }
@@ -147,7 +154,7 @@ impl PostQuery for GetLibraryArtistsQuery {
     }
 }
 
-impl<A: AuthToken> Query<A> for GetLibrarySongsQuery {
+impl<A: LoggedIn> Query<A> for GetLibrarySongsQuery {
     type Output = GetLibrarySongs;
     type Method = PostMethod;
 }
@@ -169,7 +176,7 @@ impl PostQuery for GetLibrarySongsQuery {
         "browse"
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryAlbumsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryAlbumsQuery {
     type Output = GetLibraryAlbums;
     type Method = PostMethod;
 }
@@ -191,7 +198,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
         "browse"
     }
 }
-impl<A: AuthToken> Query<A> for GetLibraryArtistSubscriptionsQuery {
+impl<A: LoggedIn> Query<A> for GetLibraryArtistSubscriptionsQuery {
     type Output = GetLibraryArtistSubscriptions;
     type Method = PostMethod;
 }
@@ -221,7 +228,7 @@ impl PostQuery for GetLibraryArtistSubscriptionsQuery {
 }
 // NOTE: Does not work on brand accounts
 // NOTE: Auth required
-impl<A: AuthToken> Query<A> for EditSongLibraryStatusQuery<'_> {
+impl<A: LoggedIn> Query<A> for EditSongLibraryStatusQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }

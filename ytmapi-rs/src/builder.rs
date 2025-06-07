@@ -1,4 +1,5 @@
 //! Builder implementation for YtMusic, to allow more complicated construction.
+use crate::auth::noauth::NoAuthToken;
 // NOTE: Example requires feature, so it is conditionally built.
 #[cfg_attr(
     feature = "rustls-tls",
@@ -175,6 +176,12 @@ impl YtMusicBuilder<NoToken> {
             client_options: ClientOptions::NativeTls,
             token: NoToken,
         }
+    }
+    pub async fn build(self) -> Result<YtMusic<NoAuthToken>> {
+        let YtMusicBuilder { client_options, .. } = self;
+        let client = build_client(client_options)?;
+        let token = NoAuthToken::new(&client).await?;
+        Ok(YtMusic { client, token })
     }
 }
 

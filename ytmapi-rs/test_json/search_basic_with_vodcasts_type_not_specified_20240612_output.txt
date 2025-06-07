@@ -387,81 +387,87 @@ SearchResults {
         },
     ],
     community_playlists: [
-        SearchResultCommunityPlaylist {
-            title: "The Beatles - Beatles 100 (Official Playlist)",
-            author: "The Beatles",
-            views: "24M views",
-            playlist_id: PlaylistID(
-                "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "The Beatles greatest hits",
-            author: "Danny boi",
-            views: "28M views",
-            playlist_id: PlaylistID(
-                "VLPLxI9rM7N2E01D8pIt0sYF-k5JY4OfAJDe",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "The Beatles - Red & Blue Albums (2023 Edition)",
-            author: "The Beatles",
-            views: "1M views",
-            playlist_id: PlaylistID(
-                "VLPL0jp-uZ7a4g8OKKCTAZdVhXfJEgxkm1DU",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s1200",
-                },
-            ],
-        },
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "The Beatles - Beatles 100 (Official Playlist)",
+                author: "The Beatles",
+                views: "24M views",
+                playlist_id: PlaylistID(
+                    "VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/YBt8Xst5N_I35MAUzdZwh_5ltgdlU7uxsojLYVqUIYUV8GTuKSDZ0K5O1AaFIuH3BZ20b4KbM5U=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "The Beatles greatest hits",
+                author: "Danny boi",
+                views: "28M views",
+                playlist_id: PlaylistID(
+                    "VLPLxI9rM7N2E01D8pIt0sYF-k5JY4OfAJDe",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/Pg02uzbMPmxUzCNxPU19ZsjcEgl5Q5BF_bAsU0biTF8-VNOPJLe74ONVbdSNHzo9rt6ZI3x_LQ=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "The Beatles - Red & Blue Albums (2023 Edition)",
+                author: "The Beatles",
+                views: "1M views",
+                playlist_id: PlaylistID(
+                    "VLPL0jp-uZ7a4g8OKKCTAZdVhXfJEgxkm1DU",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.googleusercontent.com/VZHyPj-ukOrxNL9qkBT_cUYXJLvHyic_avWHWY3FYm3TzuYpmkUPWtZ25Z5Aq7f7D0-D76YT1A=s1200",
+                    },
+                ],
+            },
+        ),
     ],
     songs: [
         SearchResultSong {

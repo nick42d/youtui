@@ -45,6 +45,7 @@ tokio-stream = { version = "0.1.17", features = ["fs"] }
 async_cell = "0.2.2"
 bytes = "1.10.0"
 anyhow = "1.0.95"
+chrono = { version = "0.4.41", features = ["serde"] }
 souvlaki = { version = "0.8.2", default-features = false, features = [
   "use_zbus",
 ] }

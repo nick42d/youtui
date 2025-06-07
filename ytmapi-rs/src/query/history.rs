@@ -1,5 +1,5 @@
 use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
-use crate::auth::AuthToken;
+use crate::auth::LoggedIn;
 use crate::common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID};
 use crate::parse::HistoryPeriod;
 use rand::Rng;
@@ -15,8 +15,12 @@ pub struct AddHistoryItemQuery<'a> {
 }
 
 impl<'a> RemoveHistoryItemsQuery<'a> {
-    pub fn new(feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>) -> Self {
-        Self { feedback_tokens }
+    pub fn new(
+        feedback_tokens: impl IntoIterator<Item = FeedbackTokenRemoveFromHistory<'a>>,
+    ) -> Self {
+        Self {
+            feedback_tokens: feedback_tokens.into_iter().collect(),
+        }
     }
 }
 
@@ -26,9 +30,8 @@ impl<'a> AddHistoryItemQuery<'a> {
     }
 }
 
-// NOTE: Requires auth
 // TODO: Return played and feedback_token component.
-impl<A: AuthToken> Query<A> for GetHistoryQuery {
+impl<A: LoggedIn> Query<A> for GetHistoryQuery {
     type Output = Vec<HistoryPeriod>;
     type Method = PostMethod;
 }
@@ -45,7 +48,7 @@ impl PostQuery for GetHistoryQuery {
 }
 
 // NOTE: Does not work on brand accounts
-impl<A: AuthToken> Query<A> for RemoveHistoryItemsQuery<'_> {
+impl<A: LoggedIn> Query<A> for RemoveHistoryItemsQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
 }
@@ -61,7 +64,7 @@ impl PostQuery for RemoveHistoryItemsQuery<'_> {
     }
 }
 
-impl<A: AuthToken> Query<A> for AddHistoryItemQuery<'_> {
+impl<A: LoggedIn> Query<A> for AddHistoryItemQuery<'_> {
     type Output = ();
     type Method = GetMethod;
 }

@@ -1,5 +1,5 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::AuthToken;
+use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{PlaylistID, SetVideoID, YoutubeID};
 use crate::parse::GetPlaylist;
 pub use additems::*;
@@ -66,9 +66,12 @@ impl<'a> DeletePlaylistQuery<'a> {
 impl<'a> RemovePlaylistItemsQuery<'a> {
     pub fn new(
         id: PlaylistID<'a>,
-        video_items: Vec<SetVideoID<'a>>,
+        video_items: impl IntoIterator<Item = SetVideoID<'a>>,
     ) -> RemovePlaylistItemsQuery<'a> {
-        RemovePlaylistItemsQuery { id, video_items }
+        RemovePlaylistItemsQuery {
+            id,
+            video_items: video_items.into_iter().collect(),
+        }
     }
 }
 
@@ -94,7 +97,7 @@ impl PostQuery for GetPlaylistQuery<'_> {
     }
 }
 
-impl<A: AuthToken> Query<A> for DeletePlaylistQuery<'_> {
+impl<A: LoggedIn> Query<A> for DeletePlaylistQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
@@ -121,7 +124,7 @@ impl<'a> From<PlaylistID<'a>> for DeletePlaylistQuery<'a> {
     }
 }
 
-impl<A: AuthToken> Query<A> for RemovePlaylistItemsQuery<'_> {
+impl<A: LoggedIn> Query<A> for RemovePlaylistItemsQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
