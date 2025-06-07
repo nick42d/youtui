@@ -106,6 +106,12 @@ pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Vec<(&str, Cow<str>)>;
     fn path(&self) -> &str;
+    fn custom_path(&self) -> Option<&str> {
+        None
+    }
+    fn custom_body(&self) -> Option<Vec<u8>> {
+        None
+    }
 }
 /// Represents a plain GET query that can be sent to Innertube.
 pub trait GetQuery {

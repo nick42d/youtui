@@ -5,10 +5,14 @@ use crate::common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, U
 use crate::parse::{
     GetLibraryUploadAlbum, ParseFrom, TableListUploadSong, UploadAlbum, UploadArtist,
 };
+use itertools::Itertools;
 use serde_json::json;
 use std::borrow::Cow;
+use std::ffi::{OsStr, OsString};
 use std::marker::PhantomData;
 use std::path::Path;
+
+const ALLOWED_UPLOAD_EXTENSIONS: &[&str] = &[".mp3"];
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
@@ -37,8 +41,8 @@ pub struct DeleteUploadEntityQuery<'a> {
 }
 #[derive(Clone)]
 pub struct GetUploadSongQuery<'a> {
-    upload_filename: String,
-    upload_fileext: String,
+    upload_filename: OsString,
+    upload_fileext: OsString,
     song_bytes: Vec<u8>,
     _p: PhantomData<&'a ()>,
 }
@@ -84,15 +88,23 @@ impl GetUploadSongQuery<'_> {
         let upload_filename = file_path
             .as_ref()
             .file_name()
-            .unwrap_or_default()
-            .to_str()?
-            .to_string();
-        let upload_fileext = file_path
+            .expect("Filename required for GetUploadSongQuery")
+            .into();
+        let upload_fileext: OsString = file_path
             .as_ref()
             .extension()
-            .unwrap_or_default()
-            .to_str()?
-            .to_string();
+            .expect("Fileext required for GetUploadSongQuery")
+            .into();
+        if !ALLOWED_UPLOAD_EXTENSIONS.iter().any(|ext| {
+            upload_fileext
+                .to_str()
+                .is_some_and(|upload_ext| upload_ext == *ext)
+        }) {
+            panic!(
+                "Fileext not in allowed list. Allowed values: {:?}",
+                ALLOWED_UPLOAD_EXTENSIONS
+            );
+        }
         let song_bytes = tokio::fs::read(file_path).await.unwrap();
         Some(Self {
             upload_filename,
@@ -100,6 +112,15 @@ impl GetUploadSongQuery<'_> {
             upload_fileext,
             _p: PhantomData,
         })
+    }
+    fn get_filename_as_string(&self) -> String {
+        self.upload_filename.into_string().unwrap() + &self.upload_fileext.into_string().unwrap()
+    }
+    pub fn get_filename_and_ext(&self) -> (&OsStr, &OsStr) {
+        (&self.upload_filename, &self.upload_fileext)
+    }
+    pub fn rename_file(&mut self, s: impl Into<OsString>) {
+        self.upload_filename = s.into();
     }
 }
 impl<'a> UploadSongQuery<'a> {
