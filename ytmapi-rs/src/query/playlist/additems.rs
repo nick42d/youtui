@@ -29,7 +29,7 @@ pub struct AddVideosToPlaylist<'a> {
 pub struct AddPlaylistToPlaylist<'a> {
     source_playlist: PlaylistID<'a>,
 }
-impl SpecialisedQuery for AddVideosToPlaylist<'_> {
+impl<'a> SpecialisedQuery for AddVideosToPlaylist<'a> {
     fn additional_header(&self) -> Option<(String, serde_json::Value)> {
         let actions = self
             .video_ids
@@ -74,13 +74,13 @@ impl<'a> AddPlaylistItemsQuery<'a, AddPlaylistToPlaylist<'a>> {
 impl<'a> AddPlaylistItemsQuery<'a, AddVideosToPlaylist<'a>> {
     pub fn new_from_videos(
         id: PlaylistID<'a>,
-        video_ids: Vec<VideoID<'a>>,
+        video_ids: impl IntoIterator<Item = VideoID<'a>>,
         duplicate_handling_mode: DuplicateHandlingMode,
     ) -> Self {
         Self {
             id,
             query_type: AddVideosToPlaylist {
-                video_ids,
+                video_ids: video_ids.into_iter().collect(),
                 duplicate_handling_mode,
             },
         }

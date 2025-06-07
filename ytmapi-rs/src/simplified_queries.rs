@@ -326,12 +326,8 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     pub async fn set_taste_profile<'a, I, II>(
         &self,
-        taste_tokens: II,
-    ) -> Result<<SetTasteProfileQuery<'a, I> as Query<A>>::Output>
-    where
-        I: Iterator<Item = TasteToken<'a>> + Clone,
-        II: IntoIterator<IntoIter = I>,
-    {
+        taste_tokens: impl IntoIterator<Item = TasteToken<'a>>,
+    ) -> Result<<SetTasteProfileQuery<'a> as Query<A>>::Output> {
         self.query(SetTasteProfileQuery::new(taste_tokens)).await
     }
     /// Fetches 'Moods & Genres' categories.
