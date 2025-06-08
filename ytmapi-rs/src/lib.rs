@@ -327,8 +327,11 @@ impl<A: AuthToken> YtMusic<A> {
 /// # Ok::<(), ytmapi_rs::Error>(())
 /// # };
 /// ```
-pub async fn generate_oauth_code_and_url(client: &Client) -> Result<(OAuthDeviceCode, String)> {
-    let code = OAuthTokenGenerator::new(client).await?;
+pub async fn generate_oauth_code_and_url(
+    client: &Client,
+    client_id: impl Into<String>,
+) -> Result<(OAuthDeviceCode, String)> {
+    let code = OAuthTokenGenerator::new(client, client_id).await?;
     let url = format!("{}?user_code={}", code.verification_url, code.user_code);
     Ok((code.device_code, url))
 }
@@ -347,8 +350,13 @@ pub async fn generate_oauth_code_and_url(client: &Client) -> Result<(OAuthDevice
 /// # Ok::<(), ytmapi_rs::Error>(())
 /// # };
 /// ```
-pub async fn generate_oauth_token(client: &Client, code: OAuthDeviceCode) -> Result<OAuthToken> {
-    let token = OAuthToken::from_code(client, code).await?;
+pub async fn generate_oauth_token(
+    client: &Client,
+    code: OAuthDeviceCode,
+    client_id: impl Into<String>,
+    client_secret: impl Into<String>,
+) -> Result<OAuthToken> {
+    let token = OAuthToken::from_code(client, code, client_id, client_secret).await?;
     Ok(token)
 }
 /// Generates a Browser Token when given a browser cookie.
