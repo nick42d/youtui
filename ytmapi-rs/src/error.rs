@@ -36,11 +36,12 @@ pub enum ErrorKind {
         response: String,
         err: serde_json::Error,
     },
+    /// ytcfg not in expected format.
+    UnableToParseYtCfg { ytcfg: String },
+    /// ytcfg didn't include visitor data.
+    NoVisitorData,
     /// InnerTube rejected the User Agent we are using.
     InvalidUserAgent(String),
-    /// Failed to authenticate using Browse Auth credentials (may have expired,
-    /// or been incorrectly provided).
-    BrowserAuthenticationFailed,
     /// OAuthToken has expired.
     /// Returns a hash of the expired token generated using the default hasher.
     OAuthTokenExpired { token_hash: u64 },
@@ -77,14 +78,21 @@ impl Error {
             inner: Box::new(ErrorKind::OAuthTokenExpired { token_hash }),
         }
     }
-    pub(crate) fn browser_authentication_failed() -> Self {
-        Self {
-            inner: Box::new(ErrorKind::BrowserAuthenticationFailed),
-        }
-    }
     pub(crate) fn header() -> Self {
         Self {
             inner: Box::new(ErrorKind::Header),
+        }
+    }
+    pub(crate) fn ytcfg(ytcfg: impl Into<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::UnableToParseYtCfg {
+                ytcfg: ytcfg.into(),
+            }),
+        }
+    }
+    pub(crate) fn no_visitor_data() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::NoVisitorData),
         }
     }
     pub(crate) fn response<S: Into<String>>(response: S) -> Self {
@@ -143,7 +151,6 @@ impl Display for ErrorKind {
             ErrorKind::ApiStatusFailed => write!(f, "Api returned STATUS_FAILED for the query"),
             ErrorKind::OAuthTokenExpired { token_hash: _ } => write!(f, "OAuth token has expired"),
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
-            ErrorKind::BrowserAuthenticationFailed => write!(f, "Browser authentication failed"),
             ErrorKind::UnableToSerializeGoogleOAuthToken { response, err } => write!(
                 f,
                 "Unable to serialize Google auth token {}, received error {}",
@@ -154,6 +161,8 @@ impl Display for ErrorKind {
                 "Error obtaining system time to use in API query. <{message}>"
             ),
             ErrorKind::JsonParsing(e) => write!(f, "{e}"),
+            ErrorKind::UnableToParseYtCfg { ytcfg } => write!(f,"Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"),
+            ErrorKind::NoVisitorData => write!(f, "ytcfg didn't include VISITOR_DATA"),
         }
     }
 }

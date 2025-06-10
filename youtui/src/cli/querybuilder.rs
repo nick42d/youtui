@@ -1,31 +1,37 @@
 use crate::api::DynamicYtMusic;
 use crate::Command;
+use anyhow::bail;
 use std::borrow::Borrow;
+use ytmapi_rs::auth::noauth::NoAuthToken;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{
     AlbumID, ArtistChannelID, BrowseParams, EpisodeID, FeedbackTokenAddToLibrary,
-    FeedbackTokenRemoveFromHistory, LikeStatus, MoodCategoryParams, PlaylistID, PodcastChannelID,
-    PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, TasteToken, TasteTokenImpression,
-    TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID, YoutubeID,
+    FeedbackTokenRemoveFromHistory, LikeStatus, LyricsID, MoodCategoryParams, PlaylistID,
+    PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, TasteToken,
+    TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
+    VideoID, YoutubeID,
 };
 use ytmapi_rs::continuations::Continuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
+use ytmapi_rs::query::search::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
+};
 use ytmapi_rs::query::song::GetSongTrackingUrlQuery;
 use ytmapi_rs::query::{
-    AddHistoryItemQuery, AddPlaylistItemsQuery, AlbumsFilter, ArtistsFilter,
-    CommunityPlaylistsFilter, CreatePlaylistQuery, DeletePlaylistQuery, DeleteUploadEntityQuery,
-    EditPlaylistQuery, EditSongLibraryStatusQuery, EpisodesFilter, FeaturedPlaylistsFilter,
-    GetAlbumQuery, GetArtistAlbumsQuery, GetArtistQuery, GetChannelEpisodesQuery, GetChannelQuery,
+    AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery,
+    DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, GetChannelEpisodesQuery, GetChannelQuery,
     GetContinuationsQuery, GetEpisodeQuery, GetHistoryQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetPlaylistQuery,
-    GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery, PlaylistsFilter,
-    PodcastsFilter, PostQuery, ProfilesFilter, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SongsFilter, VideosFilter,
+    GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
+    GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
+    GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+    SearchQuery, SetTasteProfileQuery,
 };
 
 pub struct CliQuery {
@@ -161,7 +167,7 @@ pub async fn command_to_query(
             .await
         }
         Command::DeletePlaylist { playlist_id } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 DeletePlaylistQuery::new(PlaylistID::from_raw(playlist_id)),
                 cli_query,
@@ -192,7 +198,7 @@ pub async fn command_to_query(
             playlist_id,
             video_ids: set_video_ids,
         } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 RemovePlaylistItemsQuery::new(
                     PlaylistID::from_raw(playlist_id),
@@ -243,11 +249,16 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibraryPlaylists { max_pages } => {
-            get_string_output_of_streaming_query(yt, GetLibraryPlaylistsQuery, cli_query, max_pages)
-                .await
+            get_string_output_of_streaming_query_browser_or_oauth(
+                yt,
+                GetLibraryPlaylistsQuery,
+                cli_query,
+                max_pages,
+            )
+            .await
         }
         Command::GetLibraryArtists { max_pages } => {
-            get_string_output_of_streaming_query(
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryArtistsQuery::default(),
                 cli_query,
@@ -256,7 +267,7 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibrarySongs { max_pages } => {
-            get_string_output_of_streaming_query(
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibrarySongsQuery::default(),
                 cli_query,
@@ -265,7 +276,7 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibraryAlbums { max_pages } => {
-            get_string_output_of_streaming_query(
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryAlbumsQuery::default(),
                 cli_query,
@@ -274,7 +285,7 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibraryArtistSubscriptions { max_pages } => {
-            get_string_output_of_streaming_query(
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryArtistSubscriptionsQuery::default(),
                 cli_query,
@@ -282,9 +293,11 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetHistory => get_string_output_of_query(yt, GetHistoryQuery, cli_query).await,
+        Command::GetHistory => {
+            get_string_output_of_query_browser_or_oauth(yt, GetHistoryQuery, cli_query).await
+        }
         Command::RemoveHistoryItems { feedback_tokens } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 RemoveHistoryItemsQuery::new(
                     feedback_tokens
@@ -300,7 +313,7 @@ pub async fn command_to_query(
             video_id,
             like_status,
         } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 RateSongQuery::new(
                     VideoID::from_raw(video_id),
@@ -319,7 +332,7 @@ pub async fn command_to_query(
             playlist_id,
             like_status,
         } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 RatePlaylistQuery::new(
                     PlaylistID::from_raw(playlist_id),
@@ -335,7 +348,7 @@ pub async fn command_to_query(
             .await
         }
         Command::EditSongLibraryStatus { feedback_tokens } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 // Internal knowledge: Even though the string tokens we are provided could be
                 // either Add or Remove tokens, it's OK to just provide
@@ -352,16 +365,31 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibraryUploadSongs => {
-            get_string_output_of_query(yt, GetLibraryUploadSongsQuery::default(), cli_query).await
+            get_string_output_of_query_browser_or_oauth(
+                yt,
+                GetLibraryUploadSongsQuery::default(),
+                cli_query,
+            )
+            .await
         }
         Command::GetLibraryUploadArtists => {
-            get_string_output_of_query(yt, GetLibraryUploadArtistsQuery::default(), cli_query).await
+            get_string_output_of_query_browser_or_oauth(
+                yt,
+                GetLibraryUploadArtistsQuery::default(),
+                cli_query,
+            )
+            .await
         }
         Command::GetLibraryUploadAlbums => {
-            get_string_output_of_query(yt, GetLibraryUploadAlbumsQuery::default(), cli_query).await
+            get_string_output_of_query_browser_or_oauth(
+                yt,
+                GetLibraryUploadAlbumsQuery::default(),
+                cli_query,
+            )
+            .await
         }
         Command::GetLibraryUploadArtist { upload_artist_id } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw(upload_artist_id)),
                 cli_query,
@@ -369,7 +397,7 @@ pub async fn command_to_query(
             .await
         }
         Command::GetLibraryUploadAlbum { upload_album_id } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw(upload_album_id)),
                 cli_query,
@@ -377,7 +405,7 @@ pub async fn command_to_query(
             .await
         }
         Command::DeleteUploadEntity { upload_entity_id } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 DeleteUploadEntityQuery::new(UploadEntityID::from_raw(upload_entity_id)),
                 cli_query,
@@ -417,7 +445,7 @@ pub async fn command_to_query(
         Command::AddHistoryItem {
             song_tracking_url: song_url,
         } => {
-            get_string_output_of_query(
+            get_string_output_of_query_browser_or_oauth(
                 yt,
                 AddHistoryItemQuery::new(SongTrackingUrl::from_raw(song_url)),
                 cli_query,
@@ -473,6 +501,22 @@ pub async fn command_to_query(
         Command::GetNewEpisodes => {
             get_string_output_of_query(yt, GetNewEpisodesQuery, cli_query).await
         }
+        Command::GetLyrics { lyrics_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLyricsQuery::new(LyricsID::from_raw(lyrics_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetWatchPlaylist { video_id } => {
+            get_string_output_of_query(
+                yt,
+                GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(video_id)),
+                cli_query,
+            )
+            .await
+        }
     }
 }
 
@@ -484,6 +528,7 @@ async fn get_string_output_of_query<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
+    Q: Query<NoAuthToken, Output = O>,
     O: ParseFrom<Q>,
 {
     match cli_query {
@@ -514,7 +559,48 @@ where
     }
 }
 
-async fn get_string_output_of_streaming_query<Q, O>(
+async fn get_string_output_of_query_browser_or_oauth<Q, O>(
+    yt: DynamicYtMusic,
+    q: impl Borrow<Q>,
+    cli_query: CliQuery,
+) -> anyhow::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
+    match cli_query {
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: true,
+        } => yt.query_source_browser_or_oauth(q.borrow()).await,
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: false,
+        } => yt
+            .query_browser_or_oauth(q)
+            .await
+            .map(|r| format!("{:#?}", r)),
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: true,
+        } => Ok(sources.into_iter().next().unwrap_or_default()),
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: false,
+        } => {
+            // Note - if multiple sources are provided, only the first is processed - the
+            // rest are ignored.
+            if let Some(first_source) = sources.into_iter().next() {
+                process_json_based_on_dyn_api_browser_or_oauth(&yt, first_source, q)
+            } else {
+                Ok(String::new())
+            }
+        }
+    }
+}
+
+async fn _get_string_output_of_streaming_query<Q, O>(
     yt: DynamicYtMusic,
     q: impl Borrow<Q>,
     cli_query: CliQuery,
@@ -523,6 +609,7 @@ async fn get_string_output_of_streaming_query<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
+    Q: Query<NoAuthToken, Output = O>,
     Q: PostQuery,
     O: ParseFrom<Q> + Continuable<Q>,
 {
@@ -530,11 +617,11 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.stream_source(q.borrow(), max_pages).await,
+        } => yt._stream_source(q.borrow(), max_pages).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt.stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
+        } => yt._stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -571,7 +658,97 @@ where
     }
 }
 
+async fn get_string_output_of_streaming_query_browser_or_oauth<Q, O>(
+    yt: DynamicYtMusic,
+    q: impl Borrow<Q>,
+    cli_query: CliQuery,
+    max_pages: usize,
+) -> anyhow::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    Q: PostQuery,
+    O: ParseFrom<Q> + Continuable<Q>,
+{
+    match cli_query {
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: true,
+        } => {
+            yt.stream_source_browser_or_oauth(q.borrow(), max_pages)
+                .await
+        }
+        CliQuery {
+            query_type: QueryType::FromApi,
+            show_source: false,
+        } => yt
+            .stream_browser_or_oauth(q, max_pages)
+            .await
+            .map(|r| format!("{:#?}", r)),
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: true,
+        } => {
+            Ok(
+                // Replace with standard library method once stabilised.
+                itertools::intersperse(sources.into_iter().take(max_pages), "\n".to_string())
+                    .collect(),
+            )
+        }
+        CliQuery {
+            query_type: QueryType::FromSourceFiles(sources),
+            show_source: false,
+        } => {
+            let mut output_arr = vec![];
+            let mut sources_iter = sources.into_iter().take(max_pages);
+            if let Some(first_source) = sources_iter.next() {
+                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth::<Q, O>(
+                    &yt,
+                    first_source,
+                    q.borrow(),
+                )?)
+            }
+            for source in sources_iter {
+                let continuation_query = GetContinuationsQuery::new_mock_unchecked(q.borrow());
+                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth(
+                    &yt,
+                    source,
+                    continuation_query,
+                )?)
+            }
+            Ok(output_arr.join("\n"))
+        }
+    }
+}
+
 fn process_json_based_on_dyn_api<Q, O>(
+    yt: &DynamicYtMusic,
+    source: String,
+    query: impl Borrow<Q>,
+) -> anyhow::Result<String>
+where
+    Q: Query<BrowserToken, Output = O>,
+    Q: Query<OAuthToken, Output = O>,
+    Q: Query<NoAuthToken, Output = O>,
+    O: ParseFrom<Q>,
+{
+    // The matching on yt is a neat hack to ensure process_json utilises the same
+    // AuthType as was set in config. This works as the config step sets
+    // the variant of DynamicYtMusic.
+    match yt {
+        DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
+        DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
+        DynamicYtMusic::NoAuth(_) => process_json::<Q, NoAuthToken>(source, query)
+            .map(|r| format!("{:#?}", r))
+            .map_err(|e| e.into()),
+    }
+}
+
+fn process_json_based_on_dyn_api_browser_or_oauth<Q, O>(
     yt: &DynamicYtMusic,
     source: String,
     query: impl Borrow<Q>,
@@ -591,5 +768,8 @@ where
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
             .map(|r| format!("{:#?}", r))
             .map_err(|e| e.into()),
+        DynamicYtMusic::NoAuth(_) => {
+            bail!("Tried to process a query that doesnt support not being authenticated")
+        }
     }
 }

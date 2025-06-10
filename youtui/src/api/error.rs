@@ -14,16 +14,15 @@ use crate::config::AuthType;
 #[derive(Clone, Debug)]
 pub struct DynamicApiError(String);
 
-pub fn _wrong_auth_token_error_message<Q>(current_authtype: AuthType) -> String {
-    let expected_authtype = match current_authtype {
-        AuthType::Browser => AuthType::OAuth,
-        AuthType::OAuth => AuthType::Browser,
-    };
+pub fn wrong_auth_token_error_message<Q>(
+    current_authtype: AuthType,
+    expected_authtypes: &[AuthType],
+) -> String {
     format!(
         "Query <{}> not supported on auth type {:?}. Expected auth type: {:?}",
         std::any::type_name::<Q>(),
         current_authtype,
-        expected_authtype
+        expected_authtypes
     )
 }
 

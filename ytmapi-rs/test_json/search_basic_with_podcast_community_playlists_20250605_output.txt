@@ -1,0 +1,527 @@
+SearchResults {
+    top_results: [
+        TopResult {
+            result_name: "Metal Radio",
+            result_type: None,
+            thumbnails: [
+                Thumbnail {
+                    height: 200,
+                    width: 200,
+                    url: "https://music.youtube.com/image/radioart?r=CioKCC9tLzA3bTdrCgovbS8wMXBxdjlyCggvbS8wNHJjcgoIL20vMGtyaDgQyAEYyAE",
+                },
+                Thumbnail {
+                    height: 600,
+                    width: 600,
+                    url: "https://music.youtube.com/image/radioart?r=CioKCC9tLzA3bTdrCgovbS8wMXBxdjlyCggvbS8wNHJjcgoIL20vMGtyaDgQ2AQY2AQ",
+                },
+                Thumbnail {
+                    height: 800,
+                    width: 800,
+                    url: "https://music.youtube.com/image/radioart?r=CioKCC9tLzA3bTdrCgovbS8wMXBxdjlyCggvbS8wNHJjcgoIL20vMGtyaDgQoAYYoAY",
+                },
+                Thumbnail {
+                    height: 1000,
+                    width: 1000,
+                    url: "https://music.youtube.com/image/radioart?r=CioKCC9tLzA3bTdrCgovbS8wMXBxdjlyCggvbS8wNHJjcgoIL20vMGtyaDgQ6AcY6Ac",
+                },
+            ],
+            artist: None,
+            album: None,
+            duration: None,
+            year: None,
+            subscribers: None,
+            plays: None,
+            publisher: None,
+            byline: Some(
+                "Tool, Metallica, Between the Buried and Me, and more",
+            ),
+        },
+    ],
+    artists: [
+        SearchResultArtist {
+            artist: "Metal Church",
+            subscribers: Some(
+                "25.4K subscribers",
+            ),
+            browse_id: ArtistChannelID(
+                "UCSRf9xcJTj7fFzCp5FwM1Dw",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/iG7dK25ukyJs0WbqzUXHZox1guNA2KEzR8_beIZzentL-Nw6icuHZbTaAIhyrnocJRZdkypnfkcCLX5b=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/iG7dK25ukyJs0WbqzUXHZox1guNA2KEzR8_beIZzentL-Nw6icuHZbTaAIhyrnocJRZdkypnfkcCLX5b=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Brothers of Metal",
+            subscribers: Some(
+                "414K monthly audience",
+            ),
+            browse_id: ArtistChannelID(
+                "UC7apj1hieWRm-ji4_Umt2GA",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/C4lkhV4EFq_L2rm_qSUHrWULh1P-_hvxFHhfK3Sb2xoSC5GyhwMeuG04KksgMVGhSrOzd0YFQ_gxlA=w60-h60-p-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/C4lkhV4EFq_L2rm_qSUHrWULh1P-_hvxFHhfK3Sb2xoSC5GyhwMeuG04KksgMVGhSrOzd0YFQ_gxlA=w120-h120-p-l90-rj",
+                },
+            ],
+        },
+        SearchResultArtist {
+            artist: "Cinematic Metal",
+            subscribers: Some(
+                "46 subscribers",
+            ),
+            browse_id: ArtistChannelID(
+                "UCPeRp_lpV7O_XaxUABtFgmQ",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/3RVYtnkyvd1bcVHBM6pvWObIfrqH9JzooeU8tmQ2JI3CBGEt1OibE2uall_fct0HyZ1OhIYGPHZo8mc=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/3RVYtnkyvd1bcVHBM6pvWObIfrqH9JzooeU8tmQ2JI3CBGEt1OibE2uall_fct0HyZ1OhIYGPHZo8mc=w120-h120-l90-rj",
+                },
+            ],
+        },
+    ],
+    albums: [
+        SearchResultAlbum {
+            title: "Chuva de Metal Rajada",
+            artist: "MC PR, YAKUZAPHONK & mknobeatphonk",
+            year: "2025",
+            explicit: IsExplicit,
+            album_id: AlbumID(
+                "MPREb_Ld3jZZO1b6v",
+            ),
+            album_type: EP,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/uU_-ooMpvmcKhfSoWbJdhvp9LyuZ58-04Wh766H1zED3REsPXNiN9xyTnqaujBpqS2FbOcvHnw30FoZ0_Q=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/uU_-ooMpvmcKhfSoWbJdhvp9LyuZ58-04Wh766H1zED3REsPXNiN9xyTnqaujBpqS2FbOcvHnw30FoZ0_Q=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/uU_-ooMpvmcKhfSoWbJdhvp9LyuZ58-04Wh766H1zED3REsPXNiN9xyTnqaujBpqS2FbOcvHnw30FoZ0_Q=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/uU_-ooMpvmcKhfSoWbJdhvp9LyuZ58-04Wh766H1zED3REsPXNiN9xyTnqaujBpqS2FbOcvHnw30FoZ0_Q=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "Yurei Despise (J-Metal)",
+            artist: "Yoshiki Beats",
+            year: "2025",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_fvvS5f016IM",
+            ),
+            album_type: Single,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Xo1n68QZtiQV3XkPc21DCapmThRFQwra2DNSVEjJzVASHxDyhR1juoeyBblKC1t_490A3l_nIsK0TC1Q=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Xo1n68QZtiQV3XkPc21DCapmThRFQwra2DNSVEjJzVASHxDyhR1juoeyBblKC1t_490A3l_nIsK0TC1Q=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/Xo1n68QZtiQV3XkPc21DCapmThRFQwra2DNSVEjJzVASHxDyhR1juoeyBblKC1t_490A3l_nIsK0TC1Q=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/Xo1n68QZtiQV3XkPc21DCapmThRFQwra2DNSVEjJzVASHxDyhR1juoeyBblKC1t_490A3l_nIsK0TC1Q=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultAlbum {
+            title: "Undead Oni (J-Metal)",
+            artist: "Yoshiki Beats",
+            year: "2025",
+            explicit: NotExplicit,
+            album_id: AlbumID(
+                "MPREb_CnzgOVq9DpE",
+            ),
+            album_type: Single,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8hb90gHz-aVOjGeN3KCNvNsb0tn9xJ7kjX2lHceWmmuyOeAIRt4IHTeU792r22gYJwRIoVEwZ4IU-fXV=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8hb90gHz-aVOjGeN3KCNvNsb0tn9xJ7kjX2lHceWmmuyOeAIRt4IHTeU792r22gYJwRIoVEwZ4IU-fXV=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/8hb90gHz-aVOjGeN3KCNvNsb0tn9xJ7kjX2lHceWmmuyOeAIRt4IHTeU792r22gYJwRIoVEwZ4IU-fXV=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/8hb90gHz-aVOjGeN3KCNvNsb0tn9xJ7kjX2lHceWmmuyOeAIRt4IHTeU792r22gYJwRIoVEwZ4IU-fXV=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    featured_playlists: [
+        SearchResultFeaturedPlaylist {
+            title: "Essential Heavy Metal",
+            author: "YouTube Music",
+            songs: "115 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_lhO-w4BZWObj7daKVuBz_A2wORvjyBCZU",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/8Uk25jI4yFHU3JsdjiBRUFFOUaY5C61sjgUT8rcWzdgLRmiYmJruiDAQuFJ9VUaTmKF-lipMPXJcXU19=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/8Uk25jI4yFHU3JsdjiBRUFFOUaY5C61sjgUT8rcWzdgLRmiYmJruiDAQuFJ9VUaTmKF-lipMPXJcXU19=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/8Uk25jI4yFHU3JsdjiBRUFFOUaY5C61sjgUT8rcWzdgLRmiYmJruiDAQuFJ9VUaTmKF-lipMPXJcXU19=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/8Uk25jI4yFHU3JsdjiBRUFFOUaY5C61sjgUT8rcWzdgLRmiYmJruiDAQuFJ9VUaTmKF-lipMPXJcXU19=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Japan Metal",
+            author: "YouTube Music",
+            songs: "55 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_lhKsFGmKkGIdQFU4VmpyHI1sgwNu4n-KI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/TYiivM2hWUp_hiqL-Ez96byXIWgOv8q-viBtyv22OAW4IrrD5S-Y3l2i3TJyqenaB0y_XDw6VbbkAA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/TYiivM2hWUp_hiqL-Ez96byXIWgOv8q-viBtyv22OAW4IrrD5S-Y3l2i3TJyqenaB0y_XDw6VbbkAA=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/TYiivM2hWUp_hiqL-Ez96byXIWgOv8q-viBtyv22OAW4IrrD5S-Y3l2i3TJyqenaB0y_XDw6VbbkAA=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/TYiivM2hWUp_hiqL-Ez96byXIWgOv8q-viBtyv22OAW4IrrD5S-Y3l2i3TJyqenaB0y_XDw6VbbkAA=w544-h544-l90-rj",
+                },
+            ],
+        },
+        SearchResultFeaturedPlaylist {
+            title: "Heavy Metal Workout",
+            author: "YouTube Music",
+            songs: "84 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_lFuA--WIEukXUJ93HkgnVOv0Bs02c_O4g",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/uxC3H_HU-xYG0AAkzR-RtwVY6sLj9PtMVDzT6vkkWxr2v87JE1CrxL7P0u18tZ0QNl4W3OVDLiuFHA=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/uxC3H_HU-xYG0AAkzR-RtwVY6sLj9PtMVDzT6vkkWxr2v87JE1CrxL7P0u18tZ0QNl4W3OVDLiuFHA=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/uxC3H_HU-xYG0AAkzR-RtwVY6sLj9PtMVDzT6vkkWxr2v87JE1CrxL7P0u18tZ0QNl4W3OVDLiuFHA=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/uxC3H_HU-xYG0AAkzR-RtwVY6sLj9PtMVDzT6vkkWxr2v87JE1CrxL7P0u18tZ0QNl4W3OVDLiuFHA=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ],
+    community_playlists: [
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Death doom metal playlist",
+                author: "Stefan Nordström",
+                views: "2.4M views",
+                playlist_id: PlaylistID(
+                    "VLPLBWvM6w9IQeSdHoylvkxTus4GrM6dcmHY",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/VMldpE60OB81l4TpWWqcR77Wi7FF-pY1o6etor6JXmn1-7tJ5anAAKMZ70p5TPcOpJviAe8ziw=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/VMldpE60OB81l4TpWWqcR77Wi7FF-pY1o6etor6JXmn1-7tJ5anAAKMZ70p5TPcOpJviAe8ziw=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/VMldpE60OB81l4TpWWqcR77Wi7FF-pY1o6etor6JXmn1-7tJ5anAAKMZ70p5TPcOpJviAe8ziw=s1200",
+                    },
+                ],
+            },
+        ),
+        Podcast(
+            SearchResultPodcast {
+                title: "Greatest Heavy Metal rock 2000s",
+                publisher: "Rock Collection",
+                podcast_id: PodcastID(
+                    "MPSPPLPTG4itBp-AjLFb3bBtw3ArkXu2IAN9h6",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 60,
+                        width: 60,
+                        url: "https://i.ytimg.com/pl_c/PLPTG4itBp-AjLFb3bBtw3ArkXu2IAN9h6/studio_square_thumbnail.jpg?sqp=CMO7g8IG-oaymwEICDwQPCAASFqi85f_AwYIsILfoAY&rs=AMzJL3lH4APVdNxpSvblgjk99Q_h0B2XyQ",
+                    },
+                    Thumbnail {
+                        height: 120,
+                        width: 120,
+                        url: "https://i.ytimg.com/pl_c/PLPTG4itBp-AjLFb3bBtw3ArkXu2IAN9h6/studio_square_thumbnail.jpg?sqp=CMO7g8IG-oaymwEICHgQeCAASFqi85f_AwYIsILfoAY&rs=AMzJL3lraa-SSUHGwIM3U_Q79m2nqtIfiQ",
+                    },
+                    Thumbnail {
+                        height: 226,
+                        width: 226,
+                        url: "https://i.ytimg.com/pl_c/PLPTG4itBp-AjLFb3bBtw3ArkXu2IAN9h6/studio_square_thumbnail.jpg?sqp=CMO7g8IG-oaymwEKCOIBEOIBIABIWqLzl_8DBgiwgt-gBg&rs=AMzJL3kiu-I2nOdQ6oN37iGWAHkQC6c9UQ",
+                    },
+                    Thumbnail {
+                        height: 544,
+                        width: 544,
+                        url: "https://i.ytimg.com/pl_c/PLPTG4itBp-AjLFb3bBtw3ArkXu2IAN9h6/studio_square_thumbnail.jpg?sqp=CMO7g8IG-oaymwEKCKAEEKAEIABIWqLzl_8DBgiwgt-gBg&rs=AMzJL3kHkgU0cMTJ6exypj9pnfpNApRE5w",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Metal: Hellsinger OST",
+                author: "Piece Of Lembas",
+                views: "12M views",
+                playlist_id: PlaylistID(
+                    "VLPLJQHL1SwXgq0m1LuxDGHDEWnBDFdYc2Vk",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 225,
+                        width: 400,
+                        url: "https://i.ytimg.com/vi/vaErlmbQh2A/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3maBl7rcuX1GS3Zz6g48CctihqF4Q",
+                    },
+                    Thumbnail {
+                        height: 450,
+                        width: 800,
+                        url: "https://i.ytimg.com/vi/vaErlmbQh2A/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lIx1H9Hyzcmjr6gM39n2Pz_Kur8g",
+                    },
+                    Thumbnail {
+                        height: 480,
+                        width: 853,
+                        url: "https://i.ytimg.com/vi/vaErlmbQh2A/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lbdS9qe5V3yWIZfiEKIjpX4HsoyA",
+                    },
+                ],
+            },
+        ),
+    ],
+    songs: [
+        SearchResultSong {
+            title: "Toxicity",
+            artist: "System Of A Down",
+            album: Some(
+                ParsedSongAlbum {
+                    name: "Toxicity",
+                    id: AlbumID(
+                        "MPREb_3n9jhahGRLv",
+                    ),
+                },
+            ),
+            duration: "3:39",
+            plays: "1.4B plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "mUEsqQpact0",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/-YmkgDfUd9e-8_VXC90fpar-i-wa06PsUja6tb2qYR7CJLQGe8T_pJKyzW_AkuGqgQMSEMqI2VCjocM=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/-YmkgDfUd9e-8_VXC90fpar-i-wa06PsUja6tb2qYR7CJLQGe8T_pJKyzW_AkuGqgQMSEMqI2VCjocM=w120-h120-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Sonne",
+            artist: "Rammstein",
+            album: Some(
+                ParsedSongAlbum {
+                    name: "Mutter",
+                    id: AlbumID(
+                        "MPREb_KtV3PgMEVJL",
+                    ),
+                },
+            ),
+            duration: "4:33",
+            plays: "562M plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "KUZ7jG7BKE8",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/VzLpbmiJJz1FeC7qHpu7VLQkreNqZwDDIEVFRch-6Mikd3z0VDKcLDpLb_qRPKHkIRmrULJp-GiX_3Oc=w60-h60-s-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/VzLpbmiJJz1FeC7qHpu7VLQkreNqZwDDIEVFRch-6Mikd3z0VDKcLDpLb_qRPKHkIRmrULJp-GiX_3Oc=w120-h120-s-l90-rj",
+                },
+            ],
+        },
+        SearchResultSong {
+            title: "Numb",
+            artist: "Linkin Park",
+            album: Some(
+                ParsedSongAlbum {
+                    name: "Meteora (Bonus Edition)",
+                    id: AlbumID(
+                        "MPREb_ebWSmYnO2aa",
+                    ),
+                },
+            ),
+            duration: "3:08",
+            plays: "3.3B plays",
+            explicit: NotExplicit,
+            video_id: VideoID(
+                "5qZQEq_C3vc",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/Rqh2HDAD-Fj1-oHYqVklPGklMHIV3r6SMPMZmFE3FlLiWeBBnP3SCESfgeNdzQ-DmpCIvOGE4J0hzVxa=w60-h60-s-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/Rqh2HDAD-Fj1-oHYqVklPGklMHIV3r6SMPMZmFE3FlLiWeBBnP3SCESfgeNdzQ-DmpCIvOGE4J0hzVxa=w120-h120-s-l90-rj",
+                },
+            ],
+        },
+    ],
+    videos: [
+        Video {
+            title: "KORN, LIMP BIZKIT,  SYSTEM OF A DOWN, DEFTONES, SLIPKNOT #NU METAL  90´s 2000´s# by Dj Cachete",
+            channel_name: " Music Collection ",
+            video_id: VideoID(
+                "B_OB2ExizMM",
+            ),
+            views: "545K views",
+            length: "1:35:36",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/B_OB2ExizMM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mU6P5TtuJ4r65FcI5qAuP25eepuw",
+                },
+            ],
+        },
+        Video {
+            title: "90 Minutes Of Metal - Instrumental - Vol. 7",
+            channel_name: "Jacob Lizotte",
+            video_id: VideoID(
+                "pfZyBjmniM0",
+            ),
+            views: "147K views",
+            length: "1:30:49",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/pfZyBjmniM0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lcrN8AeqJRpTOjQWd2dLKUs-bKmA",
+                },
+            ],
+        },
+        Video {
+            title: "2 Hours Of Epic Power Metal Pt. 1 // Best Of Power Metal Compilation // AFM Records",
+            channel_name: "AFM Records",
+            video_id: VideoID(
+                "j6niFit62ss",
+            ),
+            views: "3.1M views",
+            length: "1:53:55",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/j6niFit62ss/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lQIDXWfA94OhFgwnwZzDt3QQog9g",
+                },
+            ],
+        },
+    ],
+    podcasts: [],
+    episodes: [],
+    profiles: [],
+}

@@ -280,81 +280,87 @@ SearchResults {
         },
     ],
     community_playlists: [
-        SearchResultCommunityPlaylist {
-            title: "60s Merseyside Beat Sounds",
-            author: "Stuart Bartlett",
-            views: "186K views",
-            playlist_id: PlaylistID(
-                "VLPLtpGNs-NgQpzaNWyfd0zWGo2WYAPNygSQ",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Beaten In Lips",
-            author: "Khaya Murphy",
-            views: "158 views",
-            playlist_id: PlaylistID(
-                "VLPL0foXylfYKx6Z_iDVvcL2gXxDobrXuxsh",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Beat 100.9",
-            author: "Oscar Yañez",
-            views: "448K views",
-            playlist_id: PlaylistID(
-                "VLPLXJmvcIhCQIXm0T_FNCbFH7TRpOPHzggD",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s1200",
-                },
-            ],
-        },
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "60s Merseyside Beat Sounds",
+                author: "Stuart Bartlett",
+                views: "186K views",
+                playlist_id: PlaylistID(
+                    "VLPLtpGNs-NgQpzaNWyfd0zWGo2WYAPNygSQ",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/2T7W2tF8op3v4_qINcJ2BcfWCJ-NcVznQielDl_-Hy5fQmxm9HsfoXCdBQBJlCeDnL1ZXJog4Q=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Beaten In Lips",
+                author: "Khaya Murphy",
+                views: "158 views",
+                playlist_id: PlaylistID(
+                    "VLPL0foXylfYKx6Z_iDVvcL2gXxDobrXuxsh",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/E6MltYb4k7xZ37HwHc43lohME-xu6GKOBUHxieKnYEDXRMRtpgqCVClbBYmevJEtuQL6RaQApxk=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Beat 100.9",
+                author: "Oscar Yañez",
+                views: "448K views",
+                playlist_id: PlaylistID(
+                    "VLPLXJmvcIhCQIXm0T_FNCbFH7TRpOPHzggD",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.googleusercontent.com/n28Oua3Kg21eaH6LAxm0aBdALPD0Q79tA9179uAO9ich9w--xxJEwFAOpFx3NnvGTG5LqS2BHiea=s1200",
+                    },
+                ],
+            },
+        ),
     ],
     songs: [
         SearchResultSong {

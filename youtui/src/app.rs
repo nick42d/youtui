@@ -1,7 +1,8 @@
 use super::appevent::{AppEvent, EventHandler};
+use crate::config::ApiKey;
 use crate::core::get_limited_sequential_file;
 use crate::{get_data_dir, RuntimeInfo};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -87,6 +88,11 @@ impl Youtui {
         match debug {
             true => info!("Starting in debug mode"),
             false => info!("Starting"),
+        }
+        // Youtui is not designed to try to bypass youtube music advertising.
+        // Authentication is required to use it.
+        if let ApiKey::None = api_key {
+            bail!("Authentication is required to run youtui");
         }
         // Setup terminal
         enable_raw_mode()?;

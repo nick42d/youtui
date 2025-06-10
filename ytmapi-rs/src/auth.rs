@@ -9,6 +9,7 @@ pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
 
 pub mod browser;
+pub mod noauth;
 pub mod oauth;
 
 mod private {
@@ -37,3 +38,12 @@ pub trait AuthToken: Sized + Sealed {
     /// Process the result, by deserializing into JSON and checking for errors.
     fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
+
+/// Marker trait to mark an AuthToken as LoggedIn
+/// To allow Query implementors to write like
+/// `impl<A: LoggedIn> Query<A> for AddSongToPlaylistQuery`
+/// Since AuthToken is sealed, no-one else can implement this.
+pub trait LoggedIn: AuthToken {}
+
+impl LoggedIn for BrowserToken {}
+impl LoggedIn for OAuthToken {}

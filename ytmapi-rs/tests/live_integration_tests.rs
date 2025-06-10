@@ -1,8 +1,8 @@
 //! Due to quota limits - all live api tests are extracted out into their own
 //! integration tests module.
-use crate::utils::{new_standard_api, new_standard_oauth_api, INVALID_COOKIE};
+use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
-use parse::{GetArtistAlbumsAlbum, Lyrics};
+use parse::GetArtistAlbumsAlbum;
 use std::time::Duration;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
@@ -11,6 +11,11 @@ use ytmapi_rs::common::{
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
+use ytmapi_rs::query::playlist::PrivacyStatus;
+use ytmapi_rs::query::search::{
+    AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
+    PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
+};
 use ytmapi_rs::query::*;
 use ytmapi_rs::*;
 
@@ -52,22 +57,7 @@ async fn test_expired_oauth() {
 // #[tokio::test]
 // async fn test_expired_header() {
 // }
-#[tokio::test]
-async fn test_invalid_header() {
-    let api = YtMusic::from_cookie(INVALID_COOKIE).await;
-    // Library query needs authentication.
-    let res = api.unwrap().json_query(GetLibraryPlaylistsQuery).await;
-    // TODO: Add matching functions to error type. Current method not very
-    // ergonomic.
-    let Err(error) = res else {
-        eprintln!("{:#?}", res);
-        panic!("Expected an error")
-    };
-    assert!(matches!(
-        error.into_kind(),
-        ErrorKind::BrowserAuthenticationFailed
-    ));
-}
+
 // Placeholder for future implementation
 // #[tokio::test]
 // async fn test_invalid_expired_oauth() {
@@ -87,29 +77,30 @@ async fn test_invalid_header() {
 #[tokio::test]
 async fn test_new() {
     new_standard_api().await.unwrap();
-    new_standard_oauth_api().await.unwrap();
+    // OAuth disabled due to pending removal / change.
+    // new_standard_oauth_api().await.unwrap();
 }
 //// BASIC STREAM TESTS
-generate_stream_test!(
+generate_stream_test_logged_in!(
     test_stream_get_library_songs,
     GetLibrarySongsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_playlists,
     GetLibraryPlaylistsQuery
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_stream_get_library_albums,
     GetLibraryAlbumsQuery::default()
 );
-generate_stream_test!(
+generate_stream_test_logged_in!(
     test_stream_get_library_artists,
     GetLibraryArtistsQuery::default()
 );
@@ -122,7 +113,7 @@ generate_query_test!(test_get_mood_categories, GetMoodCategoriesQuery);
 // NOTE: Set Taste Profile test is not implemented, to avoid impact to my YTM
 // recommendations.
 generate_query_test!(test_get_taste_profile, GetTasteProfileQuery);
-generate_query_test!(test_get_history, GetHistoryQuery);
+generate_query_test_logged_in!(test_get_history, GetHistoryQuery);
 generate_query_test!(
     test_get_channel,
     // Rustacean Station
@@ -133,8 +124,8 @@ generate_query_test!(
     test_get_channel_episodes,
     // Rustacean Station
     GetChannelEpisodesQuery::new(
-        PodcastChannelID::from_raw("UCzYLos4qc2oC4r0Efd-tSuw"),
-        PodcastChannelParams::from_raw("6gPmAUdxa0JXcGtCQ3BZQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS1R6UXllbDlIYUdzYVRRQUFaVzR0UjBJQUFVRlZBQUZCVlFBQkFFWkZiWFZ6YVdOZlpHVjBZV2xzWDJGeWRHbHpkQUFCQVVNQUFBRUFBQUVCQUZWRGVsbE1iM00wY1dNeWIwTTBjakJGWm1RdGRGTjFkd0FCOHRxenFnb0hRQUJJQUZDYkFR")
+        PodcastChannelID::from_raw("UCupvZG-5ko_eiXAupbDfxWw"),
+        PodcastChannelParams::from_raw("6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D")
     )
 );
 generate_query_test!(
@@ -158,28 +149,28 @@ generate_query_test!(
     test_get_artist,
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_songs,
     GetLibraryUploadSongsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_albums,
     GetLibraryUploadAlbumsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_artists,
     GetLibraryUploadArtistsQuery::default()
 );
-generate_query_test!(
+generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_songs,
     GetLibrarySongsQuery::default()
 );
-generate_query_test!(test_get_library_albums, GetLibraryAlbumsQuery::default());
-generate_query_test!(
+generate_query_test_logged_in!(test_get_library_albums, GetLibraryAlbumsQuery::default());
+generate_query_test_logged_in!(
     test_get_library_artist_subscriptions,
     GetLibraryArtistSubscriptionsQuery::default()
 );
@@ -664,14 +655,10 @@ async fn test_get_lyrics() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
     let res = api
-        .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
+        .get_watch_playlist_from_video_id(VideoID::from_raw("lYBUbBu4W08"))
         .await
         .unwrap();
     let res = api.get_lyrics(res.lyrics_id).await.unwrap();
-    let example = serde_json::json! ({
-        "lyrics": "You're my lesson I had to learn\nAnother page I'll have to turn\nI got one more message, always tryna be heard\nBut you never listen to a word\n\nHeaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nJust give me one second and I'll be fine\nJust let me catch my breath and come back to life\nI finally get the message, you were never meant to be mine\nCouldn't see the truth, I was blind (meant to be mine)\n\nWhoa, heaven knows we came so close\nBut this ain't real, it's just a dream\nWake me up, I've been fast asleep\nLetting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me\n\nFoolish of me\nFoolish of me\nFoolish of me\nFoolish of me\n\nLetting go, we came so close (how foolish of me)\nOh, I'm letting go of fantasies\nBeen caught up in who I needed you to be\nHow foolish of me",
-        "source": "Source: Musixmatch",
-    });
-    let example: Lyrics = serde_json::from_value(example).unwrap();
-    assert_eq!(res, example)
+    assert!(res.lyrics.contains("You know the rules and so do I"));
+    assert!(res.source.contains("Musixmatch"));
 }

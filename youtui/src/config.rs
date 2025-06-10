@@ -15,13 +15,21 @@ pub enum ApiKey {
     // BrowserToken takes the cookie, not the BrowserToken itself. This is because to obtain the
     // BrowserToken you must make a web request, and we want to obtain it as lazily as possible.
     BrowserToken(String),
+    None,
 }
 
 impl std::fmt::Debug for ApiKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ApiKey::OAuthToken(_) => write!(f, "OAuthToken(/* private fields */"),
-            ApiKey::BrowserToken(_) => write!(f, "BrowserToken(/* private fields */"),
+            ApiKey::OAuthToken(_) => f
+                .debug_tuple("OAuthToken")
+                .field(&"/* private fields */")
+                .finish(),
+            ApiKey::BrowserToken(_) => f
+                .debug_tuple("BrowserToken")
+                .field(&"/* private fields */")
+                .finish(),
+            ApiKey::None => f.debug_tuple("NoAuthToken").finish(),
         }
     }
 }
@@ -32,6 +40,7 @@ pub enum AuthType {
     OAuth,
     #[default]
     Browser,
+    Unauthenticated,
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -70,7 +79,7 @@ impl Config {
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
         if let Ok(config_file) = tokio::fs::read_to_string(&config_file_location).await {
             // NOTE: This happens before logging / app is initialised, so `println!` is
-            // used instead of `info!`
+            // used instead of `tracing::info!`
             if debug {
                 println!(
                     "Loading config from {}",

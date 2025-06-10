@@ -1,7 +1,7 @@
 use crate::auth::BrowserToken;
 use crate::parse::SearchResults;
 use crate::process_json;
-use crate::query::{
+use crate::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
 };
@@ -151,6 +151,15 @@ async fn test_basic_search_with_about_message() {
     parse_test!(
         "./test_json/search_basic_with_about_message_20240809.json",
         "./test_json/search_basic_with_about_message_20240809_output.txt",
+        SearchQuery::new(""),
+        BrowserToken
+    );
+}
+#[tokio::test]
+async fn test_basic_search_with_podcast_community_playlists() {
+    parse_test!(
+        "./test_json/search_basic_with_podcast_community_playlists_20250605.json",
+        "./test_json/search_basic_with_podcast_community_playlists_20250605_output.txt",
         SearchQuery::new(""),
         BrowserToken
     );

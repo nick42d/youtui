@@ -34,29 +34,60 @@
 use crate::auth::AuthToken;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
-pub use album::*;
-pub use artist::*;
-pub use continuations::*;
-pub use history::*;
-pub use library::*;
-pub use playlist::*;
-pub use podcasts::*;
+#[doc(inline)]
+pub use album::GetAlbumQuery;
+#[doc(inline)]
+pub use artist::{GetArtistAlbumsQuery, GetArtistQuery};
+#[doc(inline)]
+pub use continuations::GetContinuationsQuery;
+#[doc(inline)]
+pub use history::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery};
+#[doc(inline)]
+pub use library::{
+    EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
+    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
+};
+#[doc(inline)]
+pub use lyrics::GetLyricsQuery;
+#[doc(inline)]
+pub use playlist::{
+    AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
+    GetPlaylistQuery, RemovePlaylistItemsQuery,
+};
+#[doc(inline)]
+pub use podcasts::{
+    GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
+};
 use private::Sealed;
-pub use recommendations::*;
-pub use search::*;
+#[doc(inline)]
+pub use rate::{RatePlaylistQuery, RateSongQuery};
+#[doc(inline)]
+pub use recommendations::{
+    GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
+};
+#[doc(inline)]
+pub use search::{GetSearchSuggestionsQuery, SearchQuery};
+#[doc(inline)]
+pub use song::GetSongTrackingUrlQuery;
 use std::borrow::Cow;
 use std::future::Future;
-pub use upload::*;
+#[doc(inline)]
+pub use upload::{
+    DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
+    GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
+};
+#[doc(inline)]
+pub use watch::GetWatchPlaylistQuery;
 
-mod artist;
-mod continuations;
-mod history;
-mod library;
-mod playlist;
-mod podcasts;
-mod recommendations;
-mod search;
-mod upload;
+pub mod artist;
+pub mod continuations;
+pub mod history;
+pub mod library;
+pub mod playlist;
+pub mod podcasts;
+pub mod recommendations;
+pub mod search;
+pub mod upload;
 
 mod private {
     pub trait Sealed {}
@@ -329,7 +360,7 @@ pub mod watch {
 
 pub mod rate {
     use super::{PostMethod, PostQuery, Query};
-    use crate::auth::AuthToken;
+    use crate::auth::LoggedIn;
     use crate::common::{LikeStatus, PlaylistID, VideoID, YoutubeID};
     use serde_json::json;
     use std::borrow::Cow;
@@ -356,8 +387,7 @@ pub mod rate {
         }
     }
 
-    // AUTH REQUIRED
-    impl<A: AuthToken> Query<A> for RateSongQuery<'_> {
+    impl<A: LoggedIn> Query<A> for RateSongQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }
@@ -376,8 +406,7 @@ pub mod rate {
         }
     }
 
-    // AUTH REQUIRED
-    impl<A: AuthToken> Query<A> for RatePlaylistQuery<'_> {
+    impl<A: LoggedIn> Query<A> for RatePlaylistQuery<'_> {
         type Output = ();
         type Method = PostMethod;
     }

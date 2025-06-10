@@ -293,71 +293,77 @@ SearchResults {
         },
     ],
     community_playlists: [
-        SearchResultCommunityPlaylist {
-            title: "Best-of Classical Music Playlist",
-            author: "TheFbiFilesRepeat",
-            views: "12M views",
-            playlist_id: PlaylistID(
-                "VLPL2788304DC59DBEB4",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 180,
-                    width: 320,
-                    url: "https://i.ytimg.com/vi/P2l0lbn5TVg/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3n_ia3RsfOiCmdx-7R-8V-l03-3lA",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Best of Australian Classical Music",
-            author: "ABC Classic",
-            views: "16K views",
-            playlist_id: PlaylistID(
-                "VLPL9D9IMBZdc9h8cn_yzTQ35SkK2wSQnBZF",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s1200",
-                },
-            ],
-        },
-        SearchResultCommunityPlaylist {
-            title: "Classical Music Covers of Pop Songs",
-            author: "NessaxTelemmaite",
-            views: "2.2M views",
-            playlist_id: PlaylistID(
-                "VLPLgiflqPy_ePaeVc71NfFsWbVNhAiCN6UW",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 192,
-                    width: 192,
-                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s192",
-                },
-                Thumbnail {
-                    height: 576,
-                    width: 576,
-                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s576",
-                },
-                Thumbnail {
-                    height: 1200,
-                    width: 1200,
-                    url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s1200",
-                },
-            ],
-        },
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Best-of Classical Music Playlist",
+                author: "TheFbiFilesRepeat",
+                views: "12M views",
+                playlist_id: PlaylistID(
+                    "VLPL2788304DC59DBEB4",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 180,
+                        width: 320,
+                        url: "https://i.ytimg.com/vi/P2l0lbn5TVg/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3n_ia3RsfOiCmdx-7R-8V-l03-3lA",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Best of Australian Classical Music",
+                author: "ABC Classic",
+                views: "16K views",
+                playlist_id: PlaylistID(
+                    "VLPL9D9IMBZdc9h8cn_yzTQ35SkK2wSQnBZF",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/eYS9JyxThgkFr-OY3J8U6uwXvi3kJeSQ8YDrNvyqrHI5sUYdWEVuWmF26-kfOqI6wtN7HUS9n-6_=s1200",
+                    },
+                ],
+            },
+        ),
+        Playlist(
+            SearchResultCommunityPlaylist {
+                title: "Classical Music Covers of Pop Songs",
+                author: "NessaxTelemmaite",
+                views: "2.2M views",
+                playlist_id: PlaylistID(
+                    "VLPLgiflqPy_ePaeVc71NfFsWbVNhAiCN6UW",
+                ),
+                thumbnails: [
+                    Thumbnail {
+                        height: 192,
+                        width: 192,
+                        url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s192",
+                    },
+                    Thumbnail {
+                        height: 576,
+                        width: 576,
+                        url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s576",
+                    },
+                    Thumbnail {
+                        height: 1200,
+                        width: 1200,
+                        url: "https://yt3.ggpht.com/5r5CggX1X3ygqWU5MOwXRSclKCcZ4xD3A0y3-D1pacLGJh6luyJpn3dVZzLue99a9Mvcsa8lpO2K=s1200",
+                    },
+                ],
+            },
+        ),
     ],
     songs: [
         SearchResultSong {
