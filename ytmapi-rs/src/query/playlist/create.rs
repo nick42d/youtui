@@ -89,7 +89,7 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
 impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
     pub fn with_video_ids(
         self,
-        video_ids: Vec<VideoID<'a>>,
+        video_ids: impl IntoIterator<Item = VideoID<'a>>,
     ) -> CreatePlaylistQuery<'a, CreatePlaylistFromVideos<'a>> {
         let CreatePlaylistQuery {
             title,
@@ -101,7 +101,9 @@ impl<'a> CreatePlaylistQuery<'a, BasicCreatePlaylist> {
             title,
             description,
             privacy_status,
-            query_type: CreatePlaylistFromVideos { video_ids },
+            query_type: CreatePlaylistFromVideos {
+                video_ids: video_ids.into_iter().collect(),
+            },
         }
     }
 }

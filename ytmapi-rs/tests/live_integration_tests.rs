@@ -574,8 +574,7 @@ async fn test_add_remove_playlist_items() {
         .await
         .unwrap()
         .into_iter()
-        .map(|item| item.set_video_id)
-        .collect();
+        .map(|item| item.set_video_id);
     api.remove_playlist_items(&id, set_video_ids).await.unwrap();
     api.delete_playlist(id).await.unwrap();
 }

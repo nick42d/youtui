@@ -9,11 +9,8 @@ use std::borrow::Cow;
 pub struct GetTasteProfileQuery;
 
 #[derive(Clone)]
-pub struct SetTasteProfileQuery<'a, I>
-where
-    I: Iterator<Item = TasteToken<'a>> + Clone,
-{
-    taste_tokens: I,
+pub struct SetTasteProfileQuery<'a> {
+    taste_tokens: Vec<TasteToken<'a>>,
 }
 
 #[derive(Clone)]
@@ -24,12 +21,9 @@ pub struct GetMoodPlaylistsQuery<'a> {
     params: MoodCategoryParams<'a>,
 }
 
-impl<'a, I> SetTasteProfileQuery<'a, I>
-where
-    I: Iterator<Item = TasteToken<'a>> + Clone,
-{
-    pub fn new<II: IntoIterator<IntoIter = I>>(taste_tokens: II) -> Self {
-        let taste_tokens = taste_tokens.into_iter();
+impl<'a> SetTasteProfileQuery<'a> {
+    pub fn new(taste_tokens: impl IntoIterator<Item = TasteToken<'a>>) -> Self {
+        let taste_tokens = taste_tokens.into_iter().collect();
         Self { taste_tokens }
     }
 }
@@ -56,22 +50,18 @@ impl PostQuery for GetTasteProfileQuery {
     }
 }
 
-impl<'a, A, I> Query<A> for SetTasteProfileQuery<'a, I>
+impl<A> Query<A> for SetTasteProfileQuery<'_>
 where
     A: AuthToken,
-    I: Iterator<Item = TasteToken<'a>> + Clone,
 {
     type Output = ();
     type Method = PostMethod;
 }
-impl<'a, I> PostQuery for SetTasteProfileQuery<'a, I>
-where
-    I: Iterator<Item = TasteToken<'a>> + Clone,
-{
+impl PostQuery for SetTasteProfileQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         let (impression_tokens, selection_tokens): (Vec<Value>, Vec<Value>) = self
             .taste_tokens
-            .clone()
+            .iter()
             .map(|t| (json!(t.impression_value), json!(t.selection_value)))
             .unzip();
         serde_json::Map::from_iter([

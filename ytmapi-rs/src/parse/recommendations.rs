@@ -47,11 +47,8 @@ pub struct MoodPlaylist {
     pub author: String,
 }
 
-impl<'a, I> ParseFrom<SetTasteProfileQuery<'a, I>> for ()
-where
-    I: Iterator<Item = TasteToken<'a>> + Clone,
-{
-    fn parse_from(_: super::ProcessedResult<SetTasteProfileQuery<'a, I>>) -> Result<Self> {
+impl<'a> ParseFrom<SetTasteProfileQuery<'a>> for () {
+    fn parse_from(_: super::ProcessedResult<SetTasteProfileQuery<'a>>) -> Result<Self> {
         // Doesn't seem to be an identifier in the response to determine if success or
         // failure - so always assume success.
         Ok(())

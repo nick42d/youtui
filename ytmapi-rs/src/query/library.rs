@@ -72,33 +72,40 @@ impl GetLibraryArtistsQuery {
 }
 impl<'a> EditSongLibraryStatusQuery<'a> {
     pub fn new_from_add_to_library_feedback_tokens(
-        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+        add_to_library_feedback_tokens: impl IntoIterator<Item = FeedbackTokenAddToLibrary<'a>>,
     ) -> Self {
         Self {
-            add_to_library_feedback_tokens,
+            add_to_library_feedback_tokens: add_to_library_feedback_tokens.into_iter().collect(),
             remove_from_library_feedback_tokens: vec![],
         }
     }
     pub fn new_from_remove_from_library_feedback_tokens(
-        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+        remove_from_library_feedback_tokens: impl IntoIterator<
+            Item = FeedbackTokenRemoveFromLibrary<'a>,
+        >,
     ) -> Self {
         Self {
             add_to_library_feedback_tokens: vec![],
-            remove_from_library_feedback_tokens,
+            remove_from_library_feedback_tokens: remove_from_library_feedback_tokens
+                .into_iter()
+                .collect(),
         }
     }
     pub fn with_add_to_library_feedback_tokens(
         mut self,
-        add_to_library_feedback_tokens: Vec<FeedbackTokenAddToLibrary<'a>>,
+        add_to_library_feedback_tokens: impl IntoIterator<Item = FeedbackTokenAddToLibrary<'a>>,
     ) -> Self {
-        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens;
+        self.add_to_library_feedback_tokens = add_to_library_feedback_tokens.into_iter().collect();
         self
     }
     pub fn with_remove_from_library_feedback_tokens(
         mut self,
-        remove_from_library_feedback_tokens: Vec<FeedbackTokenRemoveFromLibrary<'a>>,
+        remove_from_library_feedback_tokens: impl IntoIterator<
+            Item = FeedbackTokenRemoveFromLibrary<'a>,
+        >,
     ) -> Self {
-        self.remove_from_library_feedback_tokens = remove_from_library_feedback_tokens;
+        self.remove_from_library_feedback_tokens =
+            remove_from_library_feedback_tokens.into_iter().collect();
         self
     }
 }

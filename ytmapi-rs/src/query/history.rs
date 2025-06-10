@@ -15,8 +15,12 @@ pub struct AddHistoryItemQuery<'a> {
 }
 
 impl<'a> RemoveHistoryItemsQuery<'a> {
-    pub fn new(feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'a>>) -> Self {
-        Self { feedback_tokens }
+    pub fn new(
+        feedback_tokens: impl IntoIterator<Item = FeedbackTokenRemoveFromHistory<'a>>,
+    ) -> Self {
+        Self {
+            feedback_tokens: feedback_tokens.into_iter().collect(),
+        }
     }
 }
 
