@@ -15,6 +15,11 @@ use serde_json::json;
 use std::borrow::Cow;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+/// Since we detect oauth expiry on the client side, to reduce risk of race
+/// conditions we refresh `REFRESH_S_BEFORE_EXPIRING` seconds before the token
+/// is due to expire.
+const REFRESH_S_BEFORE_EXPIRING: u64 = 60;
+
 // The original reason for the two different structs was that we did not save
 // the refresh token. But now we do, so consider simply making this only one
 // struct. Otherwise the only difference is not including Scope which is not
@@ -66,14 +71,14 @@ impl OAuthToken {
         google_token: GoogleOAuthRefreshToken,
         request_time: SystemTime,
         refresh_token: String,
+        client_id: String,
+        client_secret: String,
     ) -> Self {
         // See comment above on OAuthToken
         let GoogleOAuthRefreshToken {
             access_token,
             expires_in,
             token_type,
-            client_id,
-            client_secret,
             ..
         } = google_token;
         Self {
@@ -230,13 +235,15 @@ impl OAuthToken {
             SystemTime::now(),
             // TODO: Remove clone.
             self.refresh_token.clone(),
+            self.client_id.clone(),
+            self.client_secret.clone(),
         ))
     }
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
         let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
-        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
+        if now_unix + REFRESH_S_BEFORE_EXPIRING > request_time_unix + self.expires_in as u64 {
             return Err(Error::oauth_token_expired(self));
         }
         Ok([
