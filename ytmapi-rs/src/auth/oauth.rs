@@ -41,6 +41,7 @@ pub struct OAuthDeviceCode(String);
 #[derive(Clone, Deserialize)]
 struct GoogleOAuthToken {
     pub access_token: String,
+    /// Currently it seems Google gives out these for around 6 min.
     pub expires_in: usize,
     pub refresh_token: String,
     // Unused currently - for future use
