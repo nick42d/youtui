@@ -30,7 +30,7 @@ This project is not supported or endorsed by Google.
 `cargo install youtui`
 
 ## Running youtui
-The default option is to use browser authentication, To change this to oauth authentication, a config.toml file can be added to the local youtui config directory (e.g ~/.config/youtui/ on Linux), with the value auth_type = "Browser". Please note however that config file format is currently unstable and could change in the future.
+The default option is to use browser authentication, To change this to oauth authentication, a config.toml file can be added to the local youtui config directory (e.g ~/.config/youtui/ on Linux), with the value auth_type = "OAuth". Please note however that config file format is currently unstable and could change in the future.
 ### Commands
 1. To run the TUI application, execute `youtui` with no arguments.
 1. To use the API in command-line mode, execute `youtui --help` to see available commands.
