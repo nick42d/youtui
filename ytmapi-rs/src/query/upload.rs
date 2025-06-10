@@ -87,7 +87,7 @@ impl GetUploadSongQuery<'_> {
     pub async fn new(file_path: impl AsRef<Path>) -> Option<Self> {
         let upload_filename = file_path
             .as_ref()
-            .file_name()
+            .file_stem()
             .expect("Filename required for GetUploadSongQuery")
             .into();
         let upload_fileext: OsString = file_path
