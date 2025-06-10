@@ -1,5 +1,5 @@
 #![allow(clippy::unwrap_used)]
-use std::env;
+use std::env::{self, VarError};
 use std::path::Path;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::{Result, YtMusic};
@@ -20,6 +20,13 @@ pub const INVALID_COOKIE: &str = "HSID=abc; SSID=abc; APISID=abc; SAPISID=abc; _
 //     \"nanos_since_epoch\": 594642820
 //   }
 // }";
+
+/// (client_id, client_secret)
+pub fn get_oauth_client_id_and_secret() -> std::result::Result<(String, String), VarError> {
+    let client_id = std::env::var("youtui_client_id")?;
+    let client_secret = std::env::var("youtui_client_secret")?;
+    Ok((client_id, client_secret))
+}
 
 // It may be possible to put these inside a static, but last time I tried I kept
 // getting web errors.
@@ -66,6 +73,14 @@ macro_rules! generate_query_test_logged_in {
                     .await
                     .expect("Expected query to run succesfully under browser auth");
             }
+            $(#[$m])*
+            #[tokio::test]
+            async fn [<$fname _oauth>]() {
+                let api = crate::utils::new_standard_oauth_api().await.unwrap();
+                api.query($query)
+                    .await
+                    .expect("Expected query to run succesfully under oauth");
+            }
         }
     };
 }
@@ -94,6 +109,14 @@ macro_rules! generate_query_test {
                 api.query($query)
                     .await
                     .expect("Expected query to run succesfully without auth");
+            }
+            $(#[$m])*
+            #[tokio::test]
+            async fn [<$fname _oauth>]() {
+                let api = crate::utils::new_standard_oauth_api().await.unwrap();
+                api.query($query)
+                    .await
+                    .expect("Expected query to run succesfully under oauth");
             }
         }
     };
@@ -138,6 +161,21 @@ macro_rules! _generate_stream_test {
                     .await
                     .expect("Expected all results from stream to succeed without auth");
             }
+            $(#[$m])*
+            #[tokio::test]
+            async fn [<$fname _oauth>]() {
+                use futures::stream::{StreamExt, TryStreamExt};
+                let api = crate::utils::new_standard_oauth_api().await.unwrap();
+                let query = $query;
+                let stream = api.stream(&query);
+                tokio::pin!(stream);
+                stream
+                    // limit test to 5 results to avoid overload
+                    .take(5)
+                    .try_collect::<Vec<_>>()
+                    .await
+                    .expect("Expected all results from oauth stream to suceed");
+            }
         }
     };
 }
@@ -165,6 +203,21 @@ macro_rules! generate_stream_test_logged_in {
                     .try_collect::<Vec<_>>()
                     .await
                     .expect("Expected all results from browser stream to suceed");
+            }
+            $(#[$m])*
+            #[tokio::test]
+            async fn [<$fname _oauth>]() {
+                use futures::stream::{StreamExt, TryStreamExt};
+                let api = crate::utils::new_standard_oauth_api().await.unwrap();
+                let query = $query;
+                let stream = api.stream(&query);
+                tokio::pin!(stream);
+                stream
+                    // limit test to 5 results to avoid overload
+                    .take(5)
+                    .try_collect::<Vec<_>>()
+                    .await
+                    .expect("Expected all results from oauth stream to suceed");
             }
         }
     };
