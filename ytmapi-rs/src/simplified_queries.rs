@@ -324,14 +324,10 @@ impl<A: AuthToken> YtMusic<A> {
     ///     .map(|r| r.taste_tokens))
     ///     .await
     /// # };
-    pub async fn set_taste_profile<'a, I, II>(
+    pub async fn set_taste_profile<'a>(
         &self,
-        taste_tokens: II,
-    ) -> Result<<SetTasteProfileQuery<'a, I> as Query<A>>::Output>
-    where
-        I: Iterator<Item = TasteToken<'a>> + Clone,
-        II: IntoIterator<IntoIter = I>,
-    {
+        taste_tokens: impl IntoIterator<Item = TasteToken<'a>>,
+    ) -> Result<<SetTasteProfileQuery<'a> as Query<A>>::Output> {
         self.query(SetTasteProfileQuery::new(taste_tokens)).await
     }
     /// Fetches 'Moods & Genres' categories.
@@ -471,13 +467,13 @@ impl<A: LoggedIn> YtMusic<A> {
     /// ).await.unwrap();
     /// yt.remove_playlist_items(
     ///     playlist_id,
-    ///     outcome.iter().map(|o| (&o.set_video_id).into()).collect(),
+    ///     outcome.iter().map(|o| (&o.set_video_id).into()),
     /// ).await
     /// # };
     pub async fn remove_playlist_items<'a, T: Into<PlaylistID<'a>>>(
         &self,
         playlist_id: T,
-        video_items: Vec<SetVideoID<'a>>,
+        video_items: impl IntoIterator<Item = SetVideoID<'a>>,
     ) -> Result<()> {
         let query = RemovePlaylistItemsQuery::new(playlist_id.into(), video_items);
         self.query(query).await
@@ -615,7 +611,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # };
     pub async fn remove_history_items(
         &self,
-        feedback_tokens: Vec<FeedbackTokenRemoveFromHistory<'_>>,
+        feedback_tokens: impl IntoIterator<Item = FeedbackTokenRemoveFromHistory<'_>>,
     ) -> Result<Vec<ApiOutcome>> {
         let query = RemoveHistoryItemsQuery::new(feedback_tokens);
         self.query(query).await
@@ -706,13 +702,13 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let songs = yt.search_songs("Master of puppets").await.unwrap();
     /// yt.add_video_items_to_playlist(
     ///     playlist_id,
-    ///     songs.iter().map(|s| (&s.video_id).into()).collect()
+    ///     songs.iter().map(|s| (&s.video_id).into())
     /// ).await
     /// # };
     pub async fn add_video_items_to_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
         playlist_id: T,
-        video_ids: Vec<VideoID<'a>>,
+        video_ids: impl IntoIterator<Item = VideoID<'a>>,
     ) -> Result<Vec<AddPlaylistItem>> {
         let query = AddPlaylistItemsQuery::new_from_videos(
             playlist_id.into(),

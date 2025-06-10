@@ -202,7 +202,7 @@ pub async fn command_to_query(
                 yt,
                 RemovePlaylistItemsQuery::new(
                     PlaylistID::from_raw(playlist_id),
-                    set_video_ids.iter().map(SetVideoID::from_raw).collect(),
+                    set_video_ids.iter().map(SetVideoID::from_raw),
                 ),
                 cli_query,
             )
@@ -216,7 +216,7 @@ pub async fn command_to_query(
                 yt,
                 AddPlaylistItemsQuery::new_from_videos(
                     PlaylistID::from_raw(playlist_id),
-                    video_ids.iter().map(VideoID::from_raw).collect(),
+                    video_ids.iter().map(VideoID::from_raw),
                     Default::default(),
                 ),
                 cli_query,
@@ -302,8 +302,7 @@ pub async fn command_to_query(
                 RemoveHistoryItemsQuery::new(
                     feedback_tokens
                         .iter()
-                        .map(FeedbackTokenRemoveFromHistory::from_raw)
-                        .collect(),
+                        .map(FeedbackTokenRemoveFromHistory::from_raw),
                 ),
                 cli_query,
             )
@@ -357,8 +356,7 @@ pub async fn command_to_query(
                 EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
                     feedback_tokens
                         .iter()
-                        .map(FeedbackTokenAddToLibrary::from_raw)
-                        .collect(),
+                        .map(FeedbackTokenAddToLibrary::from_raw),
                 ),
                 cli_query,
             )
