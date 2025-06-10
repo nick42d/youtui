@@ -13,7 +13,7 @@
 //!     Ok(())
 //! }
 //! ```
-//! ### Basic usage with a pre-created cookie file.
+//! ### Basic authenticated usage with a pre-created cookie file.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -25,7 +25,7 @@
 //!     Ok(())
 //! }
 //! ```
-//! ### OAuth usage, using the workflow, and builder method to re-use the `Client`.
+//! ### OAuth authenticated usage, using the workflow, and builder method to re-use the `Client`.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -60,6 +60,7 @@
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
 //! - **serde_json**: Enables some interoperability functions with `serde_json`.
+//! - **reqwest**: Enables some interoperability functions with `reqwest`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #[cfg(not(any(
