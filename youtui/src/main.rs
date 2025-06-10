@@ -71,6 +71,10 @@ enum AuthCmd {
         /// Optional: Print to stdout instead of the config directory.
         #[arg(short, long, default_value_t = false)]
         stdout: bool,
+        /// Client ID - from Google Cloud Console
+        client_id: String,
+        /// Client Secret - from Google Cloud Console
+        client_secret: String,
     },
 }
 #[derive(Subcommand, Debug, Clone)]
@@ -272,8 +276,13 @@ async fn try_main() -> anyhow::Result<()> {
     // We don't need configuration to setup oauth token or generate completions.
     if let Some(c) = auth_cmd {
         match c {
-            AuthCmd::SetupOauth { file_name, stdout } => {
-                cli::get_and_output_oauth_token(file_name, stdout).await?
+            AuthCmd::SetupOauth {
+                file_name,
+                stdout,
+                client_id,
+                client_secret,
+            } => {
+                cli::get_and_output_oauth_token(file_name, stdout, client_id, client_secret).await?
             }
         };
         // Done here if we got this command. No need to go further.

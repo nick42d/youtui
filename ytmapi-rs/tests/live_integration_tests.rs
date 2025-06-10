@@ -4,6 +4,7 @@ use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
 use parse::GetArtistAlbumsAlbum;
 use std::time::Duration;
+use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
     ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
@@ -31,12 +32,12 @@ async fn test_refresh_expired_oauth() {
 #[tokio::test]
 async fn test_get_oauth_code() {
     let client = crate::client::Client::new().unwrap();
-    let _code = OAuthTokenGenerator::new(&client).await.unwrap();
+    let (client_id, _) = get_oauth_client_id_and_secret().unwrap();
+    let _code = OAuthTokenGenerator::new(&client, client_id).await.unwrap();
 }
 
 // NOTE: Internal only - due to use of error.is_oauth_expired()
 #[tokio::test]
-#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_expired_oauth() {
     // XXX: Assuming this error only occurs for expired headers.
     // This assumption may be incorrect.
@@ -409,7 +410,7 @@ async fn test_add_remove_history_items() {
 }
 
 #[tokio::test]
-#[ignore = "Ignored by default due to quota, also oauth is broken"]
+#[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -604,7 +605,6 @@ async fn test_edit_playlist() {
 // # BASIC TESTS WITH ADDITIONAL ASSERTIONS
 
 #[tokio::test]
-#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
@@ -620,7 +620,6 @@ async fn test_get_library_playlists() {
     assert!(!res.playlists.is_empty());
 }
 #[tokio::test]
-#[ignore = "Oauth is broken https://github.com/nick42d/youtui/issues/179"]
 async fn test_get_library_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
     // Don't stuff around trying the keep the local OAuth secret up to date, just
