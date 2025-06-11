@@ -6,13 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ## [0.0.23](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.22...ytmapi-rs/v0.0.23) - 2025-06-11
 
 ### Added
 - [**breaking**] Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
-- _Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))_ 
-- feat!(ytmapi_rs): Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+- [**breaking**] Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+- _This means some queries are now no longer generic over AuthToken as they require you to be logged in_
 
 ### Fixed
 - Get-album shouldnt hard error when not signed in ([#243](https://github.com/nick42d/youtui/pull/243))
@@ -21,9 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Other
 - small fix to ytmapi-rs::Client docs ([#235](https://github.com/nick42d/youtui/pull/235))
-
-
-
 
 ## [0.0.22](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.21...ytmapi-rs/v0.0.22) - 2025-06-02
 

@@ -10,16 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.25](https://github.com/nick42d/youtui/compare/youtui/v0.0.24...youtui/v0.0.25) - 2025-06-11
 
 ### Added
-- [**breaking**] Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
-- _Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))_ 
+- (backend): Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
 - feat!(ytmapi_rs): Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
 
 ### Fixed
 - Logging shouldnt fail when error messages occur in parallel ([#244](https://github.com/nick42d/youtui/pull/244))
 - [**breaking**] Update oauth to latest method ([#241](https://github.com/nick42d/youtui/pull/241))
-- _Methods used to create oauth tokens have been updated to reflect the need for Client ID and Client Secret._ 
-
-
+- _Oauth tokens will need to be regenerated as Client ID and Client Secret are now required. See README for more details_ 
 
 ## [0.0.24](https://github.com/nick42d/youtui/compare/youtui/v0.0.23...youtui/v0.0.24) - 2025-06-02
 
