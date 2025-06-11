@@ -180,6 +180,7 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
 
 #[cfg(test)]
 mod tests {
+    use crate::auth::noauth::NoAuthToken;
     use crate::auth::BrowserToken;
     use crate::common::{AlbumID, YoutubeID};
     use crate::parse::album::GetAlbumQuery;
@@ -200,6 +201,15 @@ mod tests {
             "./test_json/get_album_various_artists_no_thumbnail_20240818_output.txt",
             GetAlbumQuery::new(AlbumID::from_raw("")),
             BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_album_query_not_signed_in() {
+        parse_test!(
+            "./test_json/get_album_not_signed_in_20250611.json",
+            "./test_json/get_album_not_signed_in_20250611_output.txt",
+            GetAlbumQuery::new(AlbumID::from_raw("")),
+            NoAuthToken
         );
     }
 }

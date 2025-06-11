@@ -463,6 +463,16 @@ pub(crate) fn parse_library_management_items_from_menu(
                 // e.g: https://github.com/nick42d/youtui/issues/193
                 return None;
             };
+            if let Ok("Sign in") = toggle_menu
+                .take_value_pointer::<String>(DEFAULT_ENDPOINT_MODAL_TEXT)
+                .as_deref()
+            {
+                // In this case you are not signed in as so there are no add/remove from library
+                // tokens.
+                // NOTE: Since this is known at compile time, could specialise the
+                // ParseFrom and return a hard error when signed in.
+                return None;
+            }
             let (add_to_library_token, remove_from_library_token) = match status {
                 LibraryStatus::InLibrary => (
                     toggle_menu.take_value_pointer(TOGGLED_ENDPOINT),
