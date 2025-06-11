@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.9](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.8...json-crawler/v0.0.9) - 2025-06-11
+
+### Added
+- feat!(ytmapi_rs): Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+
+
+
+
 ## [0.0.8](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.7...json-crawler/v0.0.8) - 2025-06-02
 
 ### Other
