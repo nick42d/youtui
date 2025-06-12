@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
-## [0.0.25](https://github.com/nick42d/youtui/compare/youtui/v0.0.24...youtui/v0.0.25) - 2025-06-12
+## [0.0.25](https://github.com/nick42d/youtui/compare/youtui/v0.0.24...youtui/v0.0.25) - 2025-06-11
 
 ### Added
 - [**breaking**] Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
@@ -20,8 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - _Methods used to create oauth tokens have been updated to reflect the need for Client ID and Client Secret._ 
 
 ### Other
-- Revert "chore: release ([#247](https://github.com/nick42d/youtui/pull/247))" ([#249](https://github.com/nick42d/youtui/pull/249))
-- release ([#247](https://github.com/nick42d/youtui/pull/247))
 - Revert "chore: release ([#236](https://github.com/nick42d/youtui/pull/236))" ([#245](https://github.com/nick42d/youtui/pull/245))
 - release ([#236](https://github.com/nick42d/youtui/pull/236))
 
