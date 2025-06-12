@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.10](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.9...json-crawler/v0.0.10) - 2025-06-12
+
+### Other
+- fix release ([#246](https://github.com/nick42d/youtui/pull/246))
+- Revert "chore: release ([#236](https://github.com/nick42d/youtui/pull/236))" ([#245](https://github.com/nick42d/youtui/pull/245))
+
+
+
 ## [0.0.9](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.8...json-crawler/v0.0.9) - 2025-06-11
 
 ### Added
