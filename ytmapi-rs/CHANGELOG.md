@@ -6,13 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ## [0.0.23](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.22...ytmapi-rs/v0.0.23) - 2025-06-11
 
 ### Added
 - [**breaking**] Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
-- _Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))_ 
-- feat!(ytmapi_rs): Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+- _This is mostly done in a non-breaking way, however if you were using explicit type parameters for iterators on some simplified queries they have been removed_ 
+- [**breaking**]: Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+- _This is a breaking change, as some queries are now restricted to only run when authenticated_
+- _This also includes a refactor of query, reducing the number of re-exports, meaning some query parameters like SpellingMode now need to be imported more explicitely_
+- _In addition, type of PodcastChannelTopResult has changed whilst fixing tests_
+- _In addition, ErrorKind::BrowserAuthenticationFailed has been removed, as when fixing tests it was realised it isn't reliably detected_
 
 ### Fixed
 - Get-album shouldnt hard error when not signed in ([#243](https://github.com/nick42d/youtui/pull/243))
@@ -20,13 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - _Methods used to create oauth tokens have been updated to reflect the need for Client ID and Client Secret._ 
 
 ### Other
-- fix release ([#246](https://github.com/nick42d/youtui/pull/246))
-- Revert "chore: release ([#236](https://github.com/nick42d/youtui/pull/236))" ([#245](https://github.com/nick42d/youtui/pull/245))
-- release ([#236](https://github.com/nick42d/youtui/pull/236))
 - small fix to ytmapi-rs::Client docs ([#235](https://github.com/nick42d/youtui/pull/235))
-
-
-
 
 ## [0.0.22](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.21...ytmapi-rs/v0.0.22) - 2025-06-02
 
