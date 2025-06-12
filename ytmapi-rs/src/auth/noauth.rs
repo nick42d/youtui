@@ -4,12 +4,9 @@ use crate::client;
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::query::PostQuery;
-use crate::{
-    process::RawResult,
-    query::Query,
-    utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL},
-};
+use crate::process::RawResult;
+use crate::query::{PostQuery, Query};
+use crate::utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -67,7 +64,7 @@ impl NoAuthToken {
 
 impl Sealed for NoAuthToken {}
 impl AuthToken for NoAuthToken {
-    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
+    async fn raw_query_post_json<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &client::Client,
         query: &'a Q,
@@ -88,7 +85,7 @@ impl AuthToken for NoAuthToken {
             unreachable!("Body created in this function as an object")
         };
         let result = client
-            .post_query(url, self.headers(), &body, &query.params())
+            .post_json_query(url, self.headers(), &body, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -123,6 +120,14 @@ impl AuthToken for NoAuthToken {
             return Err(Error::other_code(code, message));
         }
         Ok(processed)
+    }
+
+    async fn raw_query_post_file<'a, Q: crate::query::PostFileQuery + Query<Self>>(
+        &self,
+        client: &Client,
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>> {
+        todo!()
     }
 }
 

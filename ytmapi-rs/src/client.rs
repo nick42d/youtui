@@ -37,9 +37,32 @@ impl Client {
     pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
         Self { inner: client }
     }
-    /// Run a POST query, with url and headers.
+    /// Run a POST query, with url, body representing a file handle and headers.
     /// Result is returned as a String.
-    pub async fn post_query<'a, I>(
+    pub async fn post_file_query<'a, I>(
+        &self,
+        url: impl AsRef<str>,
+        headers: impl IntoIterator<IntoIter = I>,
+        body_file: tokio::fs::File,
+        params: &(impl Serialize + ?Sized),
+    ) -> Result<String>
+    where
+        I: Iterator<Item = (&'a str, Cow<'a, str>)>,
+    {
+        let mut request_builder = self.inner.post(url.as_ref()).body(body_file).query(params);
+        for (header, value) in headers {
+            request_builder = request_builder.header(header, value.as_ref());
+        }
+        request_builder
+            .send()
+            .await?
+            .text()
+            .await
+            .map_err(Into::into)
+    }
+    /// Run a POST query, with url, body serialisable to json and headers.
+    /// Result is returned as a String.
+    pub async fn post_json_query<'a, I>(
         &self,
         url: impl AsRef<str>,
         headers: impl IntoIterator<IntoIter = I>,

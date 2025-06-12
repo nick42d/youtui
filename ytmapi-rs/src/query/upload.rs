@@ -1,18 +1,18 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
-use super::{PostMethod, PostQuery, Query};
+use super::{PostFileMethod, PostFileQuery, PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
 use crate::common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, UploadUrl};
 use crate::parse::{
     GetLibraryUploadAlbum, ParseFrom, TableListUploadSong, UploadAlbum, UploadArtist,
 };
-use itertools::Itertools;
+use crate::ProcessedResult;
 use serde_json::json;
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::marker::PhantomData;
 use std::path::Path;
 
-const ALLOWED_UPLOAD_EXTENSIONS: &[&str] = &[".mp3"];
+const ALLOWED_UPLOAD_EXTENSIONS: &[&str] = &["mp3", "m4a", "wma", "flac", "ogg"];
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
@@ -39,18 +39,17 @@ pub struct GetLibraryUploadAlbumQuery<'a> {
 pub struct DeleteUploadEntityQuery<'a> {
     upload_entity_id: UploadEntityID<'a>,
 }
-#[derive(Clone)]
-pub struct GetUploadSongQuery<'a> {
-    upload_filename: OsString,
-    upload_fileext: OsString,
-    song_bytes: Vec<u8>,
-    _p: PhantomData<&'a ()>,
+pub struct GetUploadSongQuery {
+    upload_filename: String,
+    upload_fileext: String,
+    song_file: tokio::fs::File,
 }
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 // TODO: Custom debug due to the Bytes.
 pub struct UploadSongQuery<'a> {
-    upload_url: UploadUrl<'a>,
-    song_bytes: &'a [u8],
+    upload_url: UploadUrl<'static>,
+    upload_filename: String,
+    song_file: &'a tokio::fs::File,
 }
 
 impl GetLibraryUploadSongsQuery {
@@ -83,51 +82,56 @@ impl<'a> DeleteUploadEntityQuery<'a> {
         Self { upload_entity_id }
     }
 }
-impl GetUploadSongQuery<'_> {
+impl GetUploadSongQuery {
     pub async fn new(file_path: impl AsRef<Path>) -> Option<Self> {
         let upload_filename = file_path
             .as_ref()
             .file_stem()
-            .expect("Filename required for GetUploadSongQuery")
+            .and_then(OsStr::to_str)
+            // "Filename required for GetUploadSongQuery"
+            .unwrap()
             .into();
-        let upload_fileext: OsString = file_path
+        let upload_fileext: String = file_path
             .as_ref()
             .extension()
-            .expect("Fileext required for GetUploadSongQuery")
+            .and_then(OsStr::to_str)
+            // "Fileext required for GetUploadSongQuery"
+            .unwrap()
             .into();
-        if !ALLOWED_UPLOAD_EXTENSIONS.iter().any(|ext| {
-            upload_fileext
-                .to_str()
-                .is_some_and(|upload_ext| upload_ext == *ext)
-        }) {
+        if !ALLOWED_UPLOAD_EXTENSIONS
+            .iter()
+            .any(|ext| upload_fileext.as_str() == *ext)
+        {
             panic!(
                 "Fileext not in allowed list. Allowed values: {:?}",
                 ALLOWED_UPLOAD_EXTENSIONS
             );
         }
-        let song_bytes = tokio::fs::read(file_path).await.unwrap();
+        let song_file = tokio::fs::File::open(file_path).await.unwrap();
+        let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
         Some(Self {
             upload_filename,
-            song_bytes,
             upload_fileext,
-            _p: PhantomData,
+            song_file,
         })
     }
-    fn get_filename_as_string(&self) -> String {
-        self.upload_filename.into_string().unwrap() + &self.upload_fileext.into_string().unwrap()
+    pub fn get_filename_as_string(&self) -> String {
+        format!("{}.{}", self.upload_filename, self.upload_fileext)
     }
-    pub fn get_filename_and_ext(&self) -> (&OsStr, &OsStr) {
+    pub fn get_filename_and_ext(&self) -> (&str, &str) {
         (&self.upload_filename, &self.upload_fileext)
     }
-    pub fn rename_file(&mut self, s: impl Into<OsString>) {
+    /// Don't include the extension when renaming the file.
+    pub fn rename_file(&mut self, s: impl Into<String>) {
         self.upload_filename = s.into();
     }
 }
 impl<'a> UploadSongQuery<'a> {
-    pub fn new(upload_url: UploadUrl<'a>, song_bytes: &'a [u8]) -> Self {
+    pub fn new(upload_url: UploadUrl<'a>, song_file: &'a tokio::fs::File) -> Self {
         Self {
             upload_url,
-            song_bytes,
+            song_file,
+            upload_filename: todo!(),
         }
     }
 }
@@ -270,11 +274,11 @@ impl PostQuery for DeleteUploadEntityQuery<'_> {
     }
 }
 // Auth required
-impl<'a, A: LoggedIn> Query<A> for GetUploadSongQuery<'a> {
+impl<'a, A: LoggedIn> Query<A> for &'a GetUploadSongQuery {
     type Output = UploadSongQuery<'a>;
     type Method = PostMethod;
 }
-impl PostQuery for GetUploadSongQuery<'_> {
+impl PostQuery for &GetUploadSongQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         todo!()
     }
@@ -282,21 +286,16 @@ impl PostQuery for GetUploadSongQuery<'_> {
         todo!()
     }
     fn path(&self) -> &str {
-        todo!()
-    }
-}
-impl<'a> ParseFrom<GetUploadSongQuery<'a>> for UploadSongQuery<'a> {
-    fn parse_from(p: crate::ProcessedResult<GetUploadSongQuery<'_>>) -> crate::Result<Self> {
         todo!()
     }
 }
 // Auth required
 impl<A: LoggedIn> Query<A> for UploadSongQuery<'_> {
     type Output = ApiOutcome;
-    type Method = PostMethod;
+    type Method = PostFileMethod;
 }
-impl PostQuery for UploadSongQuery<'_> {
-    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+impl PostFileQuery for UploadSongQuery<'_> {
+    fn file(&self) -> tokio::fs::File {
         todo!()
     }
     fn params(&self) -> Vec<(&str, Cow<str>)> {
@@ -306,8 +305,27 @@ impl PostQuery for UploadSongQuery<'_> {
         todo!()
     }
 }
+impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
+    fn parse_from(p: crate::ProcessedResult<&'a GetUploadSongQuery>) -> crate::Result<Self> {
+        let ProcessedResult {
+            query,
+            source,
+            json,
+        } = p;
+        Ok(UploadSongQuery {
+            upload_url: todo!(),
+            upload_filename: GetUploadSongQuery::get_filename_as_string(query),
+            song_file: &query.song_file,
+        })
+    }
+}
 impl ParseFrom<UploadSongQuery<'_>> for ApiOutcome {
     fn parse_from(p: crate::ProcessedResult<UploadSongQuery<'_>>) -> crate::Result<Self> {
+        let ProcessedResult {
+            query,
+            source,
+            json,
+        } = p;
         todo!()
     }
 }

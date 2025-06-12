@@ -22,7 +22,7 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
+    async fn raw_query_post_json<'a, Q: PostQuery + Query<Self>>(
         &self,
         client: &client::Client,
         query: &'a Q,
@@ -42,7 +42,7 @@ impl AuthToken for BrowserToken {
             unreachable!("Body created in this function as an object")
         };
         let result = client
-            .post_query(url, self.headers(), &body, &query.params())
+            .post_json_query(url, self.headers(), &body, &query.params())
             .await?;
         let result = RawResult::from_raw(result, query);
         Ok(result)
@@ -77,6 +77,14 @@ impl AuthToken for BrowserToken {
             return Err(Error::other_code(code, message));
         }
         Ok(processed)
+    }
+
+    async fn raw_query_post_file<'a, Q: crate::query::PostFileQuery + Query<Self>>(
+        &self,
+        client: &Client,
+        query: &'a Q,
+    ) -> Result<RawResult<'a, Q, Self>> {
+        todo!()
     }
 }
 

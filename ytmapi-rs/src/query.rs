@@ -106,12 +106,12 @@ pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
     fn params(&self) -> Vec<(&str, Cow<str>)>;
     fn path(&self) -> &str;
-    fn custom_path(&self) -> Option<&str> {
-        None
-    }
-    fn custom_body(&self) -> Option<Vec<u8>> {
-        None
-    }
+}
+/// Represents a plain POST query that can be sent to Innertube.
+pub trait PostFileQuery {
+    fn file(&self) -> tokio::fs::File;
+    fn params(&self) -> Vec<(&str, Cow<str>)>;
+    fn path(&self) -> &str;
 }
 /// Represents a plain GET query that can be sent to Innertube.
 pub trait GetQuery {
@@ -123,6 +123,8 @@ pub trait GetQuery {
 pub struct GetMethod;
 /// The POST query method
 pub struct PostMethod;
+/// The POST query method using a file handle as the body
+pub struct PostFileMethod;
 
 /// Represents a method of calling an query, using a query, client and auth
 /// token. Not intended to be implemented by api users, the pre-implemented
@@ -174,7 +176,25 @@ where
     where
         Self: Sized,
     {
-        tok.raw_query_post(client, query)
+        tok.raw_query_post_json(client, query)
+    }
+}
+
+impl Sealed for PostFileMethod {}
+impl<Q, A, O> QueryMethod<Q, A, O> for PostFileMethod
+where
+    Q: PostFileQuery + Query<A, Output = O>,
+    A: AuthToken,
+{
+    fn call<'a>(
+        query: &'a Q,
+        client: &crate::client::Client,
+        tok: &A,
+    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>
+    where
+        Self: Sized,
+    {
+        tok.raw_query_post_file(client, query)
     }
 }
 
