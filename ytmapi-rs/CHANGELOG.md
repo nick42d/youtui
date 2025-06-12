@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.23](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.22...ytmapi-rs/v0.0.23) - 2025-06-12
+
+### Added
+- [**breaking**] Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))
+- _Let queries take iterators as params ([#238](https://github.com/nick42d/youtui/pull/238))_ 
+- feat!(ytmapi_rs): Allow queries to be run without authentication ([#227](https://github.com/nick42d/youtui/pull/227))
+
+### Fixed
+- Chrono should have serde as dep ([#250](https://github.com/nick42d/youtui/pull/250))
+- Get-album shouldnt hard error when not signed in ([#243](https://github.com/nick42d/youtui/pull/243))
+- [**breaking**] Update oauth to latest method ([#241](https://github.com/nick42d/youtui/pull/241))
+- _Methods used to create oauth tokens have been updated to reflect the need for Client ID and Client Secret._ 
+
+### Other
+- Revert "chore: release ([#247](https://github.com/nick42d/youtui/pull/247))" ([#249](https://github.com/nick42d/youtui/pull/249))
+- release ([#247](https://github.com/nick42d/youtui/pull/247))
+- fix release ([#246](https://github.com/nick42d/youtui/pull/246))
+- Revert "chore: release ([#236](https://github.com/nick42d/youtui/pull/236))" ([#245](https://github.com/nick42d/youtui/pull/245))
+- release ([#236](https://github.com/nick42d/youtui/pull/236))
+- small fix to ytmapi-rs::Client docs ([#235](https://github.com/nick42d/youtui/pull/235))
+
+
+
+
 ## [0.0.22](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.21...ytmapi-rs/v0.0.22) - 2025-06-02
 
 ### Added
