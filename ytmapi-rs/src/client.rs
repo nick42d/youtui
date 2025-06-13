@@ -1,5 +1,6 @@
 //! This module contains the basic HTTP client used in this library.
 use crate::Result;
+use futures::channel::oneshot::Receiver;
 use serde::Serialize;
 use std::borrow::Cow;
 
@@ -9,6 +10,18 @@ use std::borrow::Cow;
 #[derive(Debug, Clone)]
 pub struct Client {
     inner: reqwest::Client,
+}
+pub enum Body<'a> {
+    FromString(String),
+    FromFileRef(&'a tokio::fs::File),
+}
+impl<'a> Body<'a> {
+    async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
+        match self {
+            Body::FromString(s) => Ok(reqwest::Body::from(s)),
+            Body::FromFileRef(f) => Ok(reqwest::Body::from(f.try_clone().await?)),
+        }
+    }
 }
 
 impl Client {
@@ -37,19 +50,23 @@ impl Client {
     pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
         Self { inner: client }
     }
-    /// Run a POST query, with url, body representing a file handle and headers.
+    /// Run a POST query, with url, body and headers.
     /// Result is returned as a String.
-    pub async fn post_file_query<'a, I>(
+    pub async fn post_query<'a, 'b, I>(
         &self,
         url: impl AsRef<str>,
         headers: impl IntoIterator<IntoIter = I>,
-        body_file: tokio::fs::File,
+        body: Body<'b>,
         params: &(impl Serialize + ?Sized),
     ) -> Result<String>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
-        let mut request_builder = self.inner.post(url.as_ref()).body(body_file).query(params);
+        let mut request_builder = self
+            .inner
+            .post(url.as_ref())
+            .body(body.try_into_reqwest_body().await.unwrap())
+            .query(params);
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }

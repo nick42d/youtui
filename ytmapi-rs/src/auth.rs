@@ -4,7 +4,7 @@ use crate::client::Client;
 use crate::error::Result;
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{GetQuery, PostFileQuery, PostQuery, Query};
+use crate::query::{GetQuery, PostQuery, PostQueryCustom, Query};
 pub use browser::BrowserToken;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
 
@@ -31,7 +31,7 @@ pub trait AuthToken: Sized + Sealed {
     ) -> Result<RawResult<'a, Q, Self>>;
     /// Run a post query with a file as the body that returns a raw json
     /// response.
-    async fn raw_query_post_file<'a, Q: PostFileQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: PostQueryCustom + Query<Self>>(
         &self,
         client: &Client,
         query: &'a Q,

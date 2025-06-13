@@ -1,13 +1,19 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
-use super::{PostFileMethod, PostFileQuery, PostMethod, PostQuery, Query};
+use super::{PostMethod, PostMethodCustom, PostQuery, PostQueryCustom, Query};
 use crate::auth::LoggedIn;
-use crate::common::{ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, UploadUrl};
+use crate::client::Body;
+use crate::common::{
+    ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, UploadUrl, YoutubeID,
+};
 use crate::parse::{
     GetLibraryUploadAlbum, ParseFrom, TableListUploadSong, UploadAlbum, UploadArtist,
 };
+use crate::utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 use crate::ProcessedResult;
+use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde_json::json;
 use std::borrow::Cow;
+use std::convert::Into;
 use std::ffi::{OsStr, OsString};
 use std::marker::PhantomData;
 use std::path::Path;
@@ -42,6 +48,7 @@ pub struct DeleteUploadEntityQuery<'a> {
 pub struct GetUploadSongQuery {
     upload_filename: String,
     upload_fileext: String,
+    upload_filesize_bytes: u64,
     song_file: tokio::fs::File,
 }
 #[derive(Debug)]
@@ -49,6 +56,7 @@ pub struct GetUploadSongQuery {
 pub struct UploadSongQuery<'a> {
     upload_url: UploadUrl<'static>,
     upload_filename: String,
+    upload_filesize_bytes: u64,
     song_file: &'a tokio::fs::File,
 }
 
@@ -109,10 +117,18 @@ impl GetUploadSongQuery {
         }
         let song_file = tokio::fs::File::open(file_path).await.unwrap();
         let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
+        const MAX_UPLOAD_FILESIZE_MB: u64 = 300;
+        if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 ^ 2) {
+            panic!(
+                "Unable to upload song greater than {} MB",
+                MAX_UPLOAD_FILESIZE_MB
+            );
+        }
         Some(Self {
             upload_filename,
             upload_fileext,
             song_file,
+            upload_filesize_bytes,
         })
     }
     pub fn get_filename_as_string(&self) -> String {
@@ -124,15 +140,6 @@ impl GetUploadSongQuery {
     /// Don't include the extension when renaming the file.
     pub fn rename_file(&mut self, s: impl Into<String>) {
         self.upload_filename = s.into();
-    }
-}
-impl<'a> UploadSongQuery<'a> {
-    pub fn new(upload_url: UploadUrl<'a>, song_file: &'a tokio::fs::File) -> Self {
-        Self {
-            upload_url,
-            song_file,
-            upload_filename: todo!(),
-        }
     }
 }
 // Auth required
@@ -276,33 +283,63 @@ impl PostQuery for DeleteUploadEntityQuery<'_> {
 // Auth required
 impl<'a, A: LoggedIn> Query<A> for &'a GetUploadSongQuery {
     type Output = UploadSongQuery<'a>;
-    type Method = PostMethod;
+    type Method = PostMethodCustom;
 }
-impl PostQuery for &GetUploadSongQuery {
-    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        todo!()
+impl PostQueryCustom for &GetUploadSongQuery {
+    fn body(&self) -> Body<'_> {
+        Body::FromString(format!("filename={}", self.get_filename_as_string()))
     }
     fn params(&self) -> Vec<(&str, Cow<str>)> {
-        todo!()
+        vec![("authuser", DEFAULT_X_GOOG_AUTHUSER.into())]
     }
-    fn path(&self) -> &str {
-        todo!()
+    fn url(&self) -> std::borrow::Cow<'_, str> {
+        "https://upload.youtube.com/upload/usermusic/http".into()
+    }
+    fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
+        [
+            (
+                "content-type",
+                "application/x-www-form-urlencoded;charset=utf-8".into(),
+            ),
+            ("X-Goog-Upload-Command", "start".into()),
+            (
+                "X-Goog-Upload-Header-Content-Length",
+                self.upload_filesize_bytes.to_string().into(),
+            ),
+            ("X-Goog-Upload-Protocol", "resumable".into()),
+        ]
     }
 }
 // Auth required
 impl<A: LoggedIn> Query<A> for UploadSongQuery<'_> {
     type Output = ApiOutcome;
-    type Method = PostFileMethod;
+    type Method = PostMethodCustom;
 }
-impl PostFileQuery for UploadSongQuery<'_> {
-    fn file(&self) -> tokio::fs::File {
-        todo!()
+impl PostQueryCustom for UploadSongQuery<'_> {
+    fn body(&self) -> Body<'_> {
+        Body::FromFileRef(self.song_file)
     }
     fn params(&self) -> Vec<(&str, Cow<str>)> {
-        todo!()
+        vec![]
     }
-    fn path(&self) -> &str {
-        todo!()
+    fn url(&self) -> std::borrow::Cow<'_, str> {
+        self.upload_url.get_raw().into()
+    }
+    fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
+        [
+            (
+                "content-type",
+                "application/x-www-form-urlencoded;charset=utf-8".into(),
+            ),
+            ("X-Goog-Upload-Command", "start".into()),
+            (
+                "X-Goog-Upload-Header-Content-Length",
+                self.upload_filesize_bytes.to_string().into(),
+            ),
+            ("X-Goog-Upload-Protocol", "resumable".into()),
+            ("X-Goog-Upload-Command", "upload, finalize".into()),
+            ("X-Goog-Upload-Offset", "0".into()),
+        ]
     }
 }
 impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
@@ -316,6 +353,7 @@ impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
             upload_url: todo!(),
             upload_filename: GetUploadSongQuery::get_filename_as_string(query),
             song_file: &query.song_file,
+            upload_filesize_bytes: query.upload_filesize_bytes,
         })
     }
 }

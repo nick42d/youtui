@@ -122,7 +122,7 @@ impl AuthToken for NoAuthToken {
         Ok(processed)
     }
 
-    async fn raw_query_post_file<'a, Q: crate::query::PostFileQuery + Query<Self>>(
+    async fn raw_query_post<'a, Q: crate::query::PostQueryCustom + Query<Self>>(
         &self,
         client: &Client,
         query: &'a Q,

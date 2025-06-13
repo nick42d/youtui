@@ -32,6 +32,7 @@
 //! }
 //! ```
 use crate::auth::AuthToken;
+use crate::client::Body;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 #[doc(inline)]
@@ -108,10 +109,11 @@ pub trait PostQuery {
     fn path(&self) -> &str;
 }
 /// Represents a plain POST query that can be sent to Innertube.
-pub trait PostFileQuery {
-    fn file(&self) -> tokio::fs::File;
+pub trait PostQueryCustom {
+    fn body(&self) -> Body<'_>;
     fn params(&self) -> Vec<(&str, Cow<str>)>;
-    fn path(&self) -> &str;
+    fn additional_headers<'a>(&'a self) -> impl IntoIterator<Item = (&'a str, Cow<'a, str>)>;
+    fn url<'a>(&'a self) -> Cow<'a, str>;
 }
 /// Represents a plain GET query that can be sent to Innertube.
 pub trait GetQuery {
@@ -124,7 +126,7 @@ pub struct GetMethod;
 /// The POST query method
 pub struct PostMethod;
 /// The POST query method using a file handle as the body
-pub struct PostFileMethod;
+pub struct PostMethodCustom;
 
 /// Represents a method of calling an query, using a query, client and auth
 /// token. Not intended to be implemented by api users, the pre-implemented
@@ -180,10 +182,10 @@ where
     }
 }
 
-impl Sealed for PostFileMethod {}
-impl<Q, A, O> QueryMethod<Q, A, O> for PostFileMethod
+impl Sealed for PostMethodCustom {}
+impl<Q, A, O> QueryMethod<Q, A, O> for PostMethodCustom
 where
-    Q: PostFileQuery + Query<A, Output = O>,
+    Q: PostQueryCustom + Query<A, Output = O>,
     A: AuthToken,
 {
     fn call<'a>(
@@ -194,7 +196,7 @@ where
     where
         Self: Sized,
     {
-        tok.raw_query_post_file(client, query)
+        tok.raw_query_post(client, query)
     }
 }
 
