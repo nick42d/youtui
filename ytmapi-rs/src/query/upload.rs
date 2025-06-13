@@ -11,6 +11,7 @@ use crate::parse::{
 use crate::utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 use crate::ProcessedResult;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
+use serde::Deserialize;
 use serde_json::json;
 use std::borrow::Cow;
 use std::convert::Into;
@@ -299,7 +300,7 @@ impl PostQueryCustom for &GetUploadSongQuery {
     fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
         [
             (
-                "content-type",
+                "Content-Type",
                 "application/x-www-form-urlencoded;charset=utf-8".into(),
             ),
             ("X-Goog-Upload-Command", "start".into()),
@@ -329,7 +330,7 @@ impl PostQueryCustom for UploadSongQuery<'_> {
     fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
         [
             (
-                "content-type",
+                "Content-Type",
                 "application/x-www-form-urlencoded;charset=utf-8".into(),
             ),
             ("X-Goog-Upload-Command", "start".into()),
@@ -350,8 +351,14 @@ impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
             source,
             json,
         } = p;
+        eprintln!("Parsing get upload song query");
+        eprintln!("Response: ");
+        eprintln!("{}", source);
+        eprintln!("{}", serde_json::to_string_pretty(&json).unwrap());
+        let json = serde_json::from_str(&source).unwrap();
+        let mut url = JsonCrawlerOwned::new(source, json);
         Ok(UploadSongQuery {
-            upload_url: UploadUrl::from_raw(source),
+            upload_url: url.take_value_pointer("/upload_url").unwrap(),
             upload_filename: GetUploadSongQuery::get_filename_as_string(query),
             song_file: &query.song_file,
             upload_filesize_bytes: query.upload_filesize_bytes,
@@ -365,6 +372,7 @@ impl ParseFrom<UploadSongQuery<'_>> for ApiOutcome {
             source,
             json,
         } = p;
+        eprintln!("Parsing upload song query");
         todo!()
     }
 }

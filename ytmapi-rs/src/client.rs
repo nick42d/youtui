@@ -1,7 +1,10 @@
 //! This module contains the basic HTTP client used in this library.
+use crate::utils::constants::{USER_AGENT, YTM_URL};
 use crate::Result;
+use chrono::format;
 use futures::channel::oneshot::Receiver;
 use serde::Serialize;
+use serde_json::json;
 use std::borrow::Cow;
 
 /// Basic HTTP client using TLS wrapping a `reqwest::Client`,
@@ -15,7 +18,7 @@ pub enum Body<'a> {
     FromString(String),
     FromFileRef(&'a tokio::fs::File),
 }
-impl<'a> Body<'a> {
+impl Body<'_> {
     pub async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
         match self {
             Body::FromString(s) => Ok(reqwest::Body::from(s)),
@@ -62,6 +65,7 @@ impl Client {
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
+        eprintln!("Running a post query");
         let mut request_builder = self
             .inner
             .post(url.as_ref())
@@ -70,12 +74,18 @@ impl Client {
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }
-        request_builder
-            .send()
-            .await?
-            .text()
-            .await
-            .map_err(Into::into)
+        let response = request_builder.send().await?;
+        eprintln!("{:?}", response.headers());
+        eprintln!("{:?}", response.status());
+        let upload_url = response
+            .headers()
+            .get("X-Goog-Upload-Url")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+        let output = json! ({ "upload_url" : upload_url });
+        Ok(serde_json::to_string_pretty(&output).unwrap())
     }
     /// Run a POST query, with url, body serialisable to json and headers.
     /// Result is returned as a String.

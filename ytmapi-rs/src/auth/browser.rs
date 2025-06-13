@@ -148,9 +148,12 @@ impl BrowserToken {
         let hash = utils::hash_sapisid(&self.sapisid);
         [
             ("X-Origin", YTM_URL.into()),
+            ("Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),
             ("Authorization", format!("SAPISIDHASH {hash}").into()),
             ("Cookie", self.cookies.as_str().into()),
+            ("Accept", "*/*".into()),
+            ("Accept-Encoding", "gzip, deflate".into()),
         ]
     }
 }
