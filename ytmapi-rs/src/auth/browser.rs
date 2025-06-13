@@ -10,6 +10,7 @@ use crate::{client, utils};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::path::Path;
 
@@ -84,7 +85,18 @@ impl AuthToken for BrowserToken {
         client: &Client,
         query: &'a Q,
     ) -> Result<RawResult<'a, Q, Self>> {
-        todo!()
+        let url = query.url();
+        let body = query.body();
+        let headers = self
+            .headers()
+            .into_iter()
+            .chain(query.additional_headers().into_iter())
+            .collect::<HashMap<_, _>>();
+        let result = client
+            .post_query(url, headers, body, &query.params())
+            .await?;
+        let result = RawResult::from_raw(result, query);
+        Ok(result)
     }
 }
 

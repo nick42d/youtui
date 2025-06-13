@@ -3,6 +3,7 @@
 use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
 use parse::GetArtistAlbumsAlbum;
+use rand::rand_core::impls::next_u32_via_fill;
 use std::time::Duration;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
@@ -16,6 +17,7 @@ use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
 };
+use ytmapi_rs::query::upload::GetUploadSongQuery;
 use ytmapi_rs::query::*;
 use ytmapi_rs::*;
 
@@ -104,6 +106,7 @@ generate_stream_test_logged_in!(
     test_stream_get_library_artists,
     GetLibraryArtistsQuery::default()
 );
+//// BASIC QUERY TESTS
 generate_query_test!(
     test_search_suggestions,
     GetSearchSuggestionsQuery::new("faded")
@@ -233,6 +236,20 @@ generate_query_test!(
 );
 
 // # MULTISTAGE TESTS
+
+#[tokio::test]
+async fn test_upload_song() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let query = GetUploadSongQuery::new("test_json/test_upload.mp3")
+        .await
+        .unwrap();
+    let next_query = browser_api
+        .query::<&GetUploadSongQuery>(&query)
+        .await
+        .unwrap();
+    let outcome = browser_api.query(next_query).await.unwrap();
+    assert_eq!(outcome, ApiOutcome::Success);
+}
 
 #[tokio::test]
 async fn test_get_mood_playlists() {

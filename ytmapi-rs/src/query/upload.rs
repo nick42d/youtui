@@ -118,10 +118,11 @@ impl GetUploadSongQuery {
         let song_file = tokio::fs::File::open(file_path).await.unwrap();
         let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
         const MAX_UPLOAD_FILESIZE_MB: u64 = 300;
-        if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 ^ 2) {
+        if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 * 1024) {
             panic!(
-                "Unable to upload song greater than {} MB",
-                MAX_UPLOAD_FILESIZE_MB
+                "Unable to upload song greater than {} MB, size is {} MB",
+                MAX_UPLOAD_FILESIZE_MB,
+                upload_filesize_bytes / (1024 * 1024)
             );
         }
         Some(Self {
@@ -350,7 +351,7 @@ impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
             json,
         } = p;
         Ok(UploadSongQuery {
-            upload_url: todo!(),
+            upload_url: UploadUrl::from_raw(source),
             upload_filename: GetUploadSongQuery::get_filename_as_string(query),
             song_file: &query.song_file,
             upload_filesize_bytes: query.upload_filesize_bytes,

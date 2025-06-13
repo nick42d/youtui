@@ -16,7 +16,7 @@ pub enum Body<'a> {
     FromFileRef(&'a tokio::fs::File),
 }
 impl<'a> Body<'a> {
-    async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
+    pub async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
         match self {
             Body::FromString(s) => Ok(reqwest::Body::from(s)),
             Body::FromFileRef(f) => Ok(reqwest::Body::from(f.try_clone().await?)),
