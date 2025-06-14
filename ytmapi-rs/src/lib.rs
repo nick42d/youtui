@@ -71,7 +71,7 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
 use auth::noauth::NoAuthToken;
 use auth::oauth::OAuthDeviceCode;
-use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
+use auth::{AuthToken, LoggedIn, OAuthToken, OAuthTokenGenerator};
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
 #[doc(inline)]
@@ -312,6 +312,22 @@ impl<A: AuthToken> YtMusic<A> {
         Q::Output: Continuable<Q>,
     {
         continuations::stream(query, &self.client, &self.token)
+    }
+}
+impl<A: LoggedIn> YtMusic<A> {
+    pub fn upload_song(&self) -> Result<()> {
+        todo!()
+    }
+    /// Run a callback every time progress_amount_bytes is uploaded.
+    pub fn upload_song_with_progress_callback<F>(
+        &self,
+        progess_amount_bytes: usize,
+        callback: F,
+    ) -> Result<()>
+    where
+        F: Fn(()),
+    {
+        todo!()
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for
