@@ -18,12 +18,40 @@ pub enum Body<'a> {
     FromString(String),
     FromFileRef(&'a tokio::fs::File),
 }
+pub struct QueryResponse {
+    pub text: String,
+    pub status_code: u16,
+    pub headers: Vec<(String, String)>,
+}
 impl Body<'_> {
-    pub async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
+    async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
         match self {
             Body::FromString(s) => Ok(reqwest::Body::from(s)),
             Body::FromFileRef(f) => Ok(reqwest::Body::from(f.try_clone().await?)),
         }
+    }
+}
+impl QueryResponse {
+    async fn try_from_reqwest_response(response: reqwest::Response) -> Result<Self> {
+        let status_code = response.status().as_u16();
+        let headers = response
+            .headers()
+            .iter()
+            .map(
+                |(header, value)| -> std::result::Result<_, reqwest::header::ToStrError> {
+                    let header = header.to_string();
+                    let value = value.to_str()?.to_owned();
+                    Ok((header, value))
+                },
+            )
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .unwrap();
+        let text = response.text().await?;
+        Ok(QueryResponse {
+            text,
+            status_code,
+            headers,
+        })
     }
 }
 
@@ -61,11 +89,10 @@ impl Client {
         headers: impl IntoIterator<IntoIter = I>,
         body: Body<'b>,
         params: &(impl Serialize + ?Sized),
-    ) -> Result<String>
+    ) -> Result<QueryResponse>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
-        eprintln!("Running a post query");
         let mut request_builder = self
             .inner
             .post(url.as_ref())
@@ -75,17 +102,7 @@ impl Client {
             request_builder = request_builder.header(header, value.as_ref());
         }
         let response = request_builder.send().await?;
-        eprintln!("{:?}", response.headers());
-        eprintln!("{:?}", response.status());
-        let upload_url = response
-            .headers()
-            .get("X-Goog-Upload-Url")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-        let output = json! ({ "upload_url" : upload_url });
-        Ok(serde_json::to_string_pretty(&output).unwrap())
+        QueryResponse::try_from_reqwest_response(response).await
     }
     /// Run a POST query, with url, body serialisable to json and headers.
     /// Result is returned as a String.
@@ -95,7 +112,7 @@ impl Client {
         headers: impl IntoIterator<IntoIter = I>,
         body_json: &(impl Serialize + ?Sized),
         params: &(impl Serialize + ?Sized),
-    ) -> Result<String>
+    ) -> Result<QueryResponse>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
@@ -103,12 +120,8 @@ impl Client {
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }
-        request_builder
-            .send()
-            .await?
-            .text()
-            .await
-            .map_err(Into::into)
+        let response = request_builder.send().await?;
+        QueryResponse::try_from_reqwest_response(response).await
     }
     /// Run a GET query, with url, key/value params and headers.
     /// Result is returned as a String.
@@ -117,7 +130,7 @@ impl Client {
         url: impl AsRef<str>,
         headers: impl IntoIterator<IntoIter = I>,
         params: &(impl Serialize + ?Sized),
-    ) -> Result<String>
+    ) -> Result<QueryResponse>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
@@ -125,11 +138,7 @@ impl Client {
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }
-        request_builder
-            .send()
-            .await?
-            .text()
-            .await
-            .map_err(Into::into)
+        let response = request_builder.send().await?;
+        QueryResponse::try_from_reqwest_response(response).await
     }
 }

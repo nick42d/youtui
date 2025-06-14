@@ -318,12 +318,12 @@ impl<A: LoggedIn> YtMusic<A> {
     pub fn upload_song(&self) -> Result<()> {
         todo!()
     }
-    /// Run a callback every time progress_amount_bytes is uploaded.
+    /// Run a callback every time callback_tick_bytes is uploaded.
     pub fn upload_song_with_progress_callback<F>(
         &self,
-        progess_amount_bytes: usize,
+        callback_tick_bytes: u64,
         callback: F,
-    ) -> Result<()>
+    ) -> Result<u64>
     where
         F: Fn(()),
     {
