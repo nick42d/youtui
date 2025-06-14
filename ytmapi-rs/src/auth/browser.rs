@@ -23,43 +23,10 @@ pub struct BrowserToken {
 
 impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
-    async fn raw_query_post_json<'a, Q: PostQuery + Query<Self>>(
-        &self,
-        client: &client::Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, BrowserToken>> {
-        let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
-        let mut body = json!({
-            "context" : {
-                "client" : {
-                    "clientName" : "WEB_REMIX",
-                    "clientVersion" : self.client_version,
-                },
-            },
-        });
-        if let Some(body) = body.as_object_mut() {
-            body.append(&mut query.header());
-        } else {
-            unreachable!("Body created in this function as an object")
-        };
-        let result = client
-            .post_json_query(url, self.headers(), &body, &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
+    fn client_version(&self) -> Cow<str> {
+        (&self.client_version).into()
     }
-    async fn raw_query_get<'a, Q: crate::query::GetQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>> {
-        let result = client
-            .get_query(query.url(), self.headers(), &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
-    }
-    fn deserialize_json<Q: Query<Self>>(
+    fn process_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -79,24 +46,17 @@ impl AuthToken for BrowserToken {
         }
         Ok(processed)
     }
-
-    async fn raw_query_post<'a, Q: crate::query::PostQueryCustom + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>> {
-        let url = query.url();
-        let body = query.body();
-        let headers = self
-            .headers()
-            .into_iter()
-            .chain(query.additional_headers().into_iter())
-            .collect::<HashMap<_, _>>();
-        let result = client
-            .post_query(url, headers, body, &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+        let hash = utils::hash_sapisid(&self.sapisid);
+        Ok([
+            ("X-Origin", YTM_URL.into()),
+            ("Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            ("Authorization", format!("SAPISIDHASH {hash}").into()),
+            ("Cookie", self.cookies.as_str().into()),
+            ("Accept", "*/*".into()),
+            ("Accept-Encoding", "gzip, deflate".into()),
+        ])
     }
 }
 
@@ -109,13 +69,13 @@ impl BrowserToken {
             ("User-Agent", user_agent.into()),
             ("Cookie", cookies.as_str().into()),
         ];
-        let response = client.get_query(YTM_URL, initial_headers, &()).await?;
+        let response_text = client.get_query(YTM_URL, initial_headers, &()).await?.text;
         // parse for user agent issues here.
-        if response.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
+        if response_text.contains("Sorry, YouTube Music is not optimised for your browser. Check for updates or try Google Chrome.") {
             return Err(Error::invalid_user_agent(user_agent));
         };
         // TODO: Better error.
-        let client_version = response
+        let client_version = response_text
             .split_once("INNERTUBE_CLIENT_VERSION\":\"")
             .ok_or(Error::header())?
             .1
@@ -143,18 +103,6 @@ impl BrowserToken {
     {
         let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
-    }
-    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
-        let hash = utils::hash_sapisid(&self.sapisid);
-        [
-            ("X-Origin", YTM_URL.into()),
-            ("Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
-            ("Accept", "*/*".into()),
-            ("Accept-Encoding", "gzip, deflate".into()),
-        ]
     }
 }
 

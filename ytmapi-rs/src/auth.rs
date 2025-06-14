@@ -5,8 +5,12 @@ use crate::error::Result;
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
 use crate::query::{GetQuery, PostQuery, PostQueryCustom, Query};
+use crate::utils::constants::{YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY};
+use crate::Error;
 pub use browser::BrowserToken;
+use chrono::Utc;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};
+use reqwest::Url;
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -18,56 +22,25 @@ mod private {
     pub trait Sealed {}
 }
 
-/// An authentication token into Youtube Music that can be used to query the
-/// API. Currently sealed due to use of async, although this could become open
-/// for implementation in future.
-// Allow async_fn_in_trait required, as trait currently sealed.
-#[allow(async_fn_in_trait)]
-pub trait AuthToken: Sized + Sealed {
-    // TODO: Continuations - as Stream?
-    /// Run a post query with json as the body that returns a raw json response.
-    async fn raw_query_post_json<'a, Q: PostQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>>;
-    /// Run a post query with a file as the body that returns a raw json
-    /// response.
-    async fn raw_query_post<'a, Q: PostQueryCustom + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>>;
-    /// Run a get query that returns a raw json response.
-    async fn raw_query_get<'a, Q: GetQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>>;
-    /// Process the result, by deserializing into JSON and checking for errors.
-    fn deserialize_json<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
-}
-
-pub trait AuthToken2 {
+pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;
     // TODO: Should be generic across Self not BrowserToken.
-    fn process_response<Q: Query<BrowserToken>>(
-        raw: RawResult<Q, BrowserToken>,
-    ) -> Result<ProcessedResult<Q>>;
+    fn process_response<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
 
-async fn run_query<A: AuthToken2, Q: Query<BrowserToken> + PostQuery>(
-    q: Q,
-    tok: A,
-    c: Client,
+pub async fn run_query<A: AuthToken, Q: Query<A> + PostQuery>(
+    q: &Q,
+    tok: &A,
+    c: &Client,
 ) -> Result<Q::Output> {
-    let url = format!("TODO");
+    let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", q.path());
     let mut body = json!({
         "context" : {
             "client" : {
                 "clientName" : "WEB_REMIX",
                 "clientVersion" : tok.client_version(),
+                "user" : {},
             },
         },
     });
@@ -76,15 +49,24 @@ async fn run_query<A: AuthToken2, Q: Query<BrowserToken> + PostQuery>(
     } else {
         unreachable!("Body created in this function as an object")
     };
-    let QueryResponse {
-        text,
-        status_code,
-        headers,
-    } = c
+    let QueryResponse { text, .. } = c
         .post_json_query(url, tok.headers().unwrap(), &body, &q.params())
         .await?;
-    let result = RawResult::from_raw(text, &q);
-    BrowserToken::deserialize_json(result).unwrap();
+    let result = RawResult::from_raw(text, q);
+    Ok(A::process_response(result).unwrap().parse_into().unwrap())
+}
+
+pub async fn run_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
+    tok: &A,
+    client: &Client,
+    query: &'a Q,
+) -> Result<RawResult<'a, Q, A>> {
+    let url = Url::parse_with_params(query.url(), query.params())
+        .map_err(|e| Error::web(format!("{e}")))?;
+    let result = client
+        .get_query(url, tok.headers()?, &query.params())
+        .await?;
+    let result = RawResult::from_raw(result.text, query);
     Ok(result)
 }
 
@@ -96,3 +78,9 @@ pub trait LoggedIn: AuthToken {}
 
 impl LoggedIn for BrowserToken {}
 impl LoggedIn for OAuthToken {}
+
+/// Generate a dummy client version at the provided time.
+/// Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L35C18-L35C31
+fn fallback_client_version(time: &chrono::DateTime<Utc>) -> String {
+    format!("1.{}.01.00", time.format("%Y%m%d"))
+}

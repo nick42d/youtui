@@ -1,5 +1,5 @@
 use super::private::Sealed;
-use super::AuthToken;
+use super::{fallback_client_version, AuthToken};
 use crate::client;
 use crate::client::Client;
 use crate::error::{Error, Result};
@@ -26,15 +26,15 @@ impl NoAuthToken {
             ("X-Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),
         ];
-        let result = client.get_query(YTM_URL, initial_headers, &()).await?;
+        let result_text = client.get_query(YTM_URL, initial_headers, &()).await?.text;
         // Extract the parameter from inside the ytcfg.set() function.
         // Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L44
-        let ytcfg_raw = result
+        let ytcfg_raw = result_text
             .split_once("ytcfg.set({")
-            .ok_or_else(|| Error::ytcfg(&result))?
+            .ok_or_else(|| Error::ytcfg(&result_text))?
             .1
             .split_once("})")
-            .ok_or_else(|| Error::ytcfg(&result))?
+            .ok_or_else(|| Error::ytcfg(&result_text))?
             .0
             .trim();
         let mut ytcfg: serde_json::Map<String, serde_json::Value> =
@@ -51,57 +51,14 @@ impl NoAuthToken {
             visitor_id,
         })
     }
-    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
-        [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("X-Goog-Visitor-Id", (&self.visitor_id).into()),
-            ("Content-Type", "application/json".into()),
-        ]
-    }
 }
 
 impl Sealed for NoAuthToken {}
 impl AuthToken for NoAuthToken {
-    async fn raw_query_post_json<'a, Q: PostQuery + Query<Self>>(
-        &self,
-        client: &client::Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, NoAuthToken>> {
-        let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
-        let mut body = json!({
-            "context" : {
-                "client" : {
-                    "clientName" : "WEB_REMIX",
-                    "clientVersion" : fallback_client_version(&self.create_time),
-                    "user" : {}
-                },
-            },
-        });
-        if let Some(body) = body.as_object_mut() {
-            body.append(&mut query.header());
-        } else {
-            unreachable!("Body created in this function as an object")
-        };
-        let result = client
-            .post_json_query(url, self.headers(), &body, &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
+    fn client_version(&self) -> Cow<str> {
+        fallback_client_version(&self.create_time).into()
     }
-    async fn raw_query_get<'a, Q: crate::query::GetQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>> {
-        let result = client
-            .get_query(query.url(), self.headers(), &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
-    }
-    fn deserialize_json<Q: Query<Self>>(
+    fn process_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -121,18 +78,13 @@ impl AuthToken for NoAuthToken {
         }
         Ok(processed)
     }
-
-    async fn raw_query_post<'a, Q: crate::query::PostQueryCustom + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>> {
-        todo!()
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+        Ok([
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
+            ("X-Origin", YTM_URL.into()),
+            ("X-Goog-Visitor-Id", (&self.visitor_id).into()),
+            ("Content-Type", "application/json".into()),
+        ])
     }
-}
-
-/// Generate a dummy client version at the provided time.
-/// Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L35C18-L35C31
-fn fallback_client_version(time: &chrono::DateTime<Utc>) -> String {
-    format!("1.{}.01.00", time.format("%Y%m%d"))
 }
