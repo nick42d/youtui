@@ -182,7 +182,13 @@ impl YtMusic<BrowserToken> {
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
     }
-    /// Upload a song to your YouTube Music library.
+    /// Upload a song to your YouTube Music library. Only available using
+    /// Browser auth.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.upload_song("test_song_to_upload.mp3").await
+    /// # };
     pub async fn upload_song(&self, file_path: impl AsRef<Path>) -> Result<ApiOutcome> {
         upload_song::upload_song(file_path, &self.token, &self.client).await
     }
