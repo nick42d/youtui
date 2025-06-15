@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.1](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.1.0...ytmapi-rs/v0.1.1) - 2025-06-15
+
+### Other
+- updated the following local packages: json-crawler
+
+
+
 ## [0.0.23](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.22...ytmapi-rs/v0.0.23) - 2025-06-11
 
 ### Added
