@@ -1,4 +1,4 @@
-[![dependency status](https://deps.rs/repo/github/nick42d/youtui/status.svg)](https://deps.rs/repo/github/nick42d/youtui)
+YAMLScriptYAMLScript[![dependency status](https://deps.rs/repo/github/nick42d/youtui/status.svg)](https://deps.rs/repo/github/nick42d/youtui)
 ![build](https://github.com/nick42d/youtui/actions/workflows/release-plz.yml/badge.svg)
 
 ## About
@@ -79,7 +79,7 @@ Chrome example (Select manually and paste):
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Mouse support
 - [ ] Offline cache
-- [ ] Streaming of buffered tracks
+- [ ] Streaming of buffered tracksYAMLScriptYAMLScriptYAMLScriptYAMLScript
 - [ ] Display lyrics
 - [ ] Theming
 ### API
@@ -145,7 +145,7 @@ Feature parity with `ytmusicapi`
 |GetLibraryUploadAlbums|[x]|[ ]|
 |GetLibraryUploadArtist|[x]|[ ]|
 |GetLibraryUploadAlbum|[x]||
-|UploadAlbum|[ ]||
+|UploadSong|[*]||
 |DeleteUploadEntity|[x]||
 
 \* GetWatchPlaylist is partially implemented only
