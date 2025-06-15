@@ -17,10 +17,6 @@ pub mod browser;
 pub mod noauth;
 pub mod oauth;
 
-mod private {
-    pub trait Sealed {}
-}
-
 pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;

@@ -1,4 +1,3 @@
-use super::private::Sealed;
 use super::{fallback_client_version, AuthToken};
 use crate::client::Client;
 use crate::error::{Error, Result};
@@ -51,7 +50,6 @@ impl NoAuthToken {
     }
 }
 
-impl Sealed for NoAuthToken {}
 impl AuthToken for NoAuthToken {
     fn client_version(&self) -> Cow<str> {
         fallback_client_version(&self.create_time).into()

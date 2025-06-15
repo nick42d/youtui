@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.23...ytmapi-rs/v0.1.0) - 2025-06-15
+
+### Added
+- [**breaking**] Implement upload song query ([#239](https://github.com/nick42d/youtui/pull/239))
+- _This includes a breaking refactor to AuthToken - now implementors just need to define headers and client_version instead of all the query types._
+
+### Other
+- Small fix to docs and remove unused UploadUrl type ([#252](https://github.com/nick42d/youtui/pull/252))
+
 ## [0.0.23](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.22...ytmapi-rs/v0.0.23) - 2025-06-11
 
 ### Added
