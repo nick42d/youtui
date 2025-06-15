@@ -83,6 +83,13 @@ impl Error {
             inner: Box::new(ErrorKind::Header),
         }
     }
+    pub(crate) fn web(msg: impl Into<String>) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::Web {
+                message: msg.into(),
+            }),
+        }
+    }
     pub(crate) fn ytcfg(ytcfg: impl Into<String>) -> Self {
         Self {
             inner: Box::new(ErrorKind::UnableToParseYtCfg {

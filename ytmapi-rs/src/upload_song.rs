@@ -87,12 +87,7 @@ pub async fn upload_song(
         ("X-Goog-Upload-Offset", "0".into()),
     ]);
     if client
-        .post_query(
-            upload_url,
-            combined_headers,
-            Body::FromFileRef(&song_file),
-            &(),
-        )
+        .post_query(upload_url, combined_headers, Body::FromFile(song_file), &())
         .await
         .unwrap()
         .status_code

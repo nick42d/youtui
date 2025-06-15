@@ -1,5 +1,5 @@
 //! This module contains the basic HTTP client used in this library.
-use crate::Result;
+use crate::{Error, Result};
 use serde::Serialize;
 use std::borrow::Cow;
 
@@ -10,22 +10,24 @@ use std::borrow::Cow;
 pub struct Client {
     inner: reqwest::Client,
 }
-pub enum Body<'a> {
+/// Body that can be sent as a POST query using our client.
+pub enum Body {
     FromString(String),
-    FromFileRef(&'a tokio::fs::File),
+    FromFile(tokio::fs::File),
 }
+impl From<Body> for reqwest::Body {
+    fn from(value: Body) -> Self {
+        match value {
+            Body::FromString(s) => reqwest::Body::from(s),
+            Body::FromFile(f) => reqwest::Body::from(f),
+        }
+    }
+}
+/// Represents a basic reponse from our basic HTTP client.
 pub struct QueryResponse {
     pub text: String,
     pub status_code: u16,
     pub headers: Vec<(String, String)>,
-}
-impl Body<'_> {
-    async fn try_into_reqwest_body(self) -> std::io::Result<reqwest::Body> {
-        match self {
-            Body::FromString(s) => Ok(reqwest::Body::from(s)),
-            Body::FromFileRef(f) => Ok(reqwest::Body::from(f.try_clone().await?)),
-        }
-    }
 }
 impl QueryResponse {
     async fn try_from_reqwest_response(response: reqwest::Response) -> Result<Self> {
@@ -33,15 +35,15 @@ impl QueryResponse {
         let headers = response
             .headers()
             .iter()
-            .map(
-                |(header, value)| -> std::result::Result<_, reqwest::header::ToStrError> {
-                    let header = header.to_string();
-                    let value = value.to_str()?.to_owned();
-                    Ok((header, value))
-                },
-            )
-            .collect::<std::result::Result<Vec<_>, _>>()
-            .unwrap();
+            .map(|(header, value)| -> Result<_> {
+                let header = header.to_string();
+                let value = value
+                    .to_str()
+                    .map_err(|_| Error::web(format!("Error parsing response header: {:?}", value)))?
+                    .to_owned();
+                Ok((header, value))
+            })
+            .collect::<Result<Vec<_>>>()?;
         let text = response.text().await?;
         Ok(QueryResponse {
             text,
@@ -77,31 +79,26 @@ impl Client {
     pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
         Self { inner: client }
     }
-    /// Run a POST query, with url, body and headers.
-    /// Result is returned as a String.
-    pub async fn post_query<'a, 'b, I>(
+    /// Run a POST query, with url, body, key/kalue params and headers.
+    pub async fn post_query<'a, I>(
         &self,
         url: impl AsRef<str>,
         headers: impl IntoIterator<IntoIter = I>,
-        body: Body<'b>,
+        body: Body,
         params: &(impl Serialize + ?Sized),
     ) -> Result<QueryResponse>
     where
         I: Iterator<Item = (&'a str, Cow<'a, str>)>,
     {
-        let mut request_builder = self
-            .inner
-            .post(url.as_ref())
-            .body(body.try_into_reqwest_body().await.unwrap())
-            .query(params);
+        let mut request_builder = self.inner.post(url.as_ref()).body(body).query(params);
         for (header, value) in headers {
             request_builder = request_builder.header(header, value.as_ref());
         }
         let response = request_builder.send().await?;
         QueryResponse::try_from_reqwest_response(response).await
     }
-    /// Run a POST query, with url, body serialisable to json and headers.
-    /// Result is returned as a String.
+    /// Run a POST query, with url, body serialisable to json, key/kalue params
+    /// and headers.
     pub async fn post_json_query<'a, I>(
         &self,
         url: impl AsRef<str>,
@@ -120,7 +117,6 @@ impl Client {
         QueryResponse::try_from_reqwest_response(response).await
     }
     /// Run a GET query, with url, key/value params and headers.
-    /// Result is returned as a String.
     pub async fn get_query<'a, I>(
         &self,
         url: impl AsRef<str>,

@@ -13,7 +13,7 @@
 //!     Ok(())
 //! }
 //! ```
-//! ### Basic authenticated usage with a pre-created cookie file.
+//! ### Basic authenticated usage with a pre-created cookie file, demonstrating uploading a song.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -22,6 +22,10 @@
 //!     yt.get_search_suggestions("Beatles").await?;
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
+//!     assert_eq!(
+//!         yt.upload_song("my_song_to_upload.mp3").await.unwrap(),
+//!         ytmapi_rs::common::ApiOutcome::Success
+//!     );
 //!     Ok(())
 //! }
 //! ```

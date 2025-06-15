@@ -108,13 +108,6 @@ pub trait PostQuery {
     fn params(&self) -> Vec<(&str, Cow<str>)>;
     fn path(&self) -> &str;
 }
-/// Represents a plain POST query that can be sent to Innertube.
-pub trait PostQueryCustom {
-    fn body(&self) -> Body<'_>;
-    fn params(&self) -> Vec<(&str, Cow<str>)>;
-    fn additional_headers<'a>(&'a self) -> impl IntoIterator<Item = (&'a str, Cow<'a, str>)>;
-    fn url<'a>(&'a self) -> Cow<'a, str>;
-}
 /// Represents a plain GET query that can be sent to Innertube.
 pub trait GetQuery {
     fn url(&self) -> &str;
