@@ -4,9 +4,9 @@ use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{PostQuery, Query};
-use crate::utils::constants::{USER_AGENT, YTM_URL};
+use crate::query::Query;
 use crate::utils;
+use crate::utils::constants::{USER_AGENT, YTM_URL};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::fmt::Debug;
@@ -24,7 +24,7 @@ impl AuthToken for BrowserToken {
     fn client_version(&self) -> Cow<str> {
         (&self.client_version).into()
     }
-    fn process_response<Q: Query<Self>>(
+    fn deserialize_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -101,15 +101,6 @@ impl BrowserToken {
     {
         let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
-    }
-    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
-        let hash = utils::hash_sapisid(&self.sapisid);
-        [
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            ("Authorization", format!("SAPISIDHASH {hash}").into()),
-            ("Cookie", self.cookies.as_str().into()),
-        ]
     }
 }
 

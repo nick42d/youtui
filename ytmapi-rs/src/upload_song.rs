@@ -1,6 +1,7 @@
 use crate::auth::{AuthToken, BrowserToken};
 use crate::client::Body;
 use crate::common::ApiOutcome;
+use crate::error::Error;
 use crate::utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 use crate::{Client, Result};
 use std::borrow::Cow;
@@ -21,18 +22,29 @@ pub async fn upload_song(
     let file_path = file_path.as_ref();
 
     // Internal validation first
-    let upload_fileext = file_path.extension().and_then(OsStr::to_str).unwrap();
+    let upload_fileext = file_path
+        .extension()
+        .and_then(OsStr::to_str)
+        .ok_or_else(|| {
+            Error::invalid_upload_filename(
+                file_path.to_string_lossy().into(),
+                "Filename contains invalid chars".into(),
+            )
+        })?;
     if !ALLOWED_UPLOAD_EXTENSIONS
         .iter()
         .any(|ext| upload_fileext == *ext)
     {
-        panic!(
-            "Fileext not in allowed list. Allowed values: {:?}",
-            ALLOWED_UPLOAD_EXTENSIONS
-        );
+        return Err(Error::invalid_upload_filename(
+            file_path.to_string_lossy().into(),
+            format!(
+                "Fileext not in allowed list. Allowed values: {:?}",
+                ALLOWED_UPLOAD_EXTENSIONS
+            ),
+        ));
     }
-    let song_file = tokio::fs::File::open(&file_path).await.unwrap();
-    let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
+    let song_file = tokio::fs::File::open(&file_path).await?;
+    let upload_filesize_bytes = song_file.metadata().await?.len();
     const MAX_UPLOAD_FILESIZE_MB: u64 = 300;
     if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 * 1024) {
         panic!(
@@ -57,8 +69,7 @@ pub async fn upload_song(
     ];
     // Deduplicate with token's headers.
     let mut combined_headers = token
-        .headers()
-        .unwrap()
+        .headers()?
         .into_iter()
         .chain(additional_headers)
         .collect::<HashMap<_, _>>();
@@ -70,16 +81,23 @@ pub async fn upload_song(
                 .map(|(k, v)| (*k, v.as_ref().into())),
             Body::FromString(format!(
                 "filename={}",
-                file_path.file_name().unwrap().to_string_lossy()
+                file_path
+                    .file_name()
+                    .ok_or_else(|| {
+                        Error::invalid_upload_filename(
+                            file_path.to_string_lossy().into(),
+                            "Filename contains invalid chars".into(),
+                        )
+                    })?
+                    .to_string_lossy()
             )),
             &[("authuser", DEFAULT_X_GOOG_AUTHUSER)],
         )
-        .await
-        .unwrap()
+        .await?
         .headers
         .into_iter()
         .find(|(k, _)| k == "x-goog-upload-url")
-        .unwrap()
+        .ok_or_else(Error::missing_upload_url)?
         .1;
     // Additional headers required to upload.
     combined_headers.extend([
@@ -88,8 +106,7 @@ pub async fn upload_song(
     ]);
     if client
         .post_query(upload_url, combined_headers, Body::FromFile(song_file), &())
-        .await
-        .unwrap()
+        .await?
         .status_code
         == 200
     {

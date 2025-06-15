@@ -24,11 +24,10 @@ mod private {
 pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;
-    // TODO: Should be generic across Self not BrowserToken.
-    fn process_response<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+    fn deserialize_response<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
 
-pub async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
+pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
     q: &'a Q,
     tok: &A,
     c: &Client,
@@ -49,12 +48,12 @@ pub async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
         unreachable!("Body created in this function as an object")
     };
     let QueryResponse { text, .. } = c
-        .post_json_query(url, tok.headers().unwrap(), &body, &q.params())
+        .post_json_query(url, tok.headers()?, &body, &q.params())
         .await?;
     Ok(RawResult::from_raw(text, q))
 }
 
-pub async fn raw_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
+pub(crate) async fn raw_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
     tok: &A,
     client: &Client,
     query: &'a Q,

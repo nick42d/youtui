@@ -34,7 +34,7 @@ impl<'a, Q: Query<A>, A: AuthToken> RawResult<'a, Q, A> {
         self.json
     }
     pub fn process(self) -> Result<ProcessedResult<'a, Q>> {
-        A::process_response(self)
+        A::deserialize_response(self)
     }
 }
 

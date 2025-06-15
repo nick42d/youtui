@@ -32,7 +32,6 @@
 //! }
 //! ```
 use crate::auth::{raw_query_get, raw_query_post, AuthToken};
-use crate::client::Body;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 #[doc(inline)]

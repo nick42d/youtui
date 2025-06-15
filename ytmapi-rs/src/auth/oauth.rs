@@ -6,7 +6,8 @@ use crate::parse::ProcessedResult;
 use crate::process::RawResult;
 use crate::query::Query;
 use crate::utils::constants::{
-    OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_URL,
+    OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT,
+    YTM_URL,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -127,7 +128,7 @@ impl OAuthDeviceCode {
 
 impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    fn process_response<Q: Query<Self>>(
+    fn deserialize_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -150,7 +151,7 @@ impl AuthToken for OAuthToken {
         let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
-        if now_unix + 3600 > request_time_unix + self.expires_in as u64 {
+        if now_unix + REFRESH_S_BEFORE_EXPIRING > request_time_unix + self.expires_in as u64 {
             return Err(Error::oauth_token_expired(self));
         }
         Ok([
@@ -220,25 +221,6 @@ impl OAuthToken {
             self.client_id.clone(),
             self.client_secret.clone(),
         ))
-    }
-    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
-        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
-        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-        // TODO: Better handling for expiration case.
-        if now_unix + REFRESH_S_BEFORE_EXPIRING > request_time_unix + self.expires_in as u64 {
-            return Err(Error::oauth_token_expired(self));
-        }
-        Ok([
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-            (
-                "Authorization",
-                format!("{} {}", self.token_type, self.access_token).into(),
-            ),
-            ("X-Goog-Request-Time", request_time_unix.to_string().into()),
-        ])
     }
 }
 

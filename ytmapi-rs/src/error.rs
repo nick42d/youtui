@@ -23,13 +23,17 @@ pub enum ErrorKind {
     /// Error parsing Json response from InnerTube.
     JsonParsing(JsonError),
     /// Error from HTTP client.
-    Web { message: String },
+    Web {
+        message: String,
+    },
     /// General io error.
     // TODO: improve
     Io(io::Error),
     /// Received a response from InnerTube that was not in the expected (JSON)
     /// format.
-    InvalidResponse { response: String },
+    InvalidResponse {
+        response: String,
+    },
     /// InnerTube credential header not in expected format.
     Header,
     UnableToSerializeGoogleOAuthToken {
@@ -37,22 +41,37 @@ pub enum ErrorKind {
         err: serde_json::Error,
     },
     /// ytcfg not in expected format.
-    UnableToParseYtCfg { ytcfg: String },
+    UnableToParseYtCfg {
+        ytcfg: String,
+    },
     /// ytcfg didn't include visitor data.
     NoVisitorData,
     /// InnerTube rejected the User Agent we are using.
     InvalidUserAgent(String),
     /// OAuthToken has expired.
     /// Returns a hash of the expired token generated using the default hasher.
-    OAuthTokenExpired { token_hash: u64 },
+    OAuthTokenExpired {
+        token_hash: u64,
+    },
     // This is a u64 not a usize as that is what serde_json will deserialize to.
     // TODO: Could use a library to handle these.
     /// Recieved an error code in the Json reply from InnerTube.
-    OtherErrorCodeInResponse { code: u64, message: String },
+    OtherErrorCodeInResponse {
+        code: u64,
+        message: String,
+    },
     /// Innertube returned a STATUS_FAILED for the query.
     ApiStatusFailed,
     /// Unable to obtain system time for the query to Innertube.
-    SystemTimeError { message: String },
+    SystemTimeError {
+        message: String,
+    },
+    /// Tried to upload a song with an invalid upload filename.
+    InvalidUploadFilename {
+        filename: String,
+        message: String,
+    },
+    MissingUploadUrl,
 }
 /// The type we were attempting to pass from the Json.
 #[derive(Debug, Clone)]
@@ -81,13 +100,6 @@ impl Error {
     pub(crate) fn header() -> Self {
         Self {
             inner: Box::new(ErrorKind::Header),
-        }
-    }
-    pub(crate) fn web(msg: impl Into<String>) -> Self {
-        Self {
-            inner: Box::new(ErrorKind::Web {
-                message: msg.into(),
-            }),
         }
     }
     pub(crate) fn ytcfg(ytcfg: impl Into<String>) -> Self {
@@ -125,6 +137,16 @@ impl Error {
     pub(crate) fn status_failed() -> Self {
         Self {
             inner: Box::new(ErrorKind::ApiStatusFailed),
+        }
+    }
+    pub(crate) fn invalid_upload_filename(filename: String, message: String) -> Self {
+        Self {
+            inner: Box::new(ErrorKind::InvalidUploadFilename { filename, message }),
+        }
+    }
+    pub(crate) fn missing_upload_url() -> Self {
+        Self {
+            inner: Box::new(ErrorKind::MissingUploadUrl),
         }
     }
     pub(crate) fn web(message: impl Into<String>) -> Self {
@@ -170,6 +192,8 @@ impl Display for ErrorKind {
             ErrorKind::JsonParsing(e) => write!(f, "{e}"),
             ErrorKind::UnableToParseYtCfg { ytcfg } => write!(f,"Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"),
             ErrorKind::NoVisitorData => write!(f, "ytcfg didn't include VISITOR_DATA"),
+            ErrorKind::InvalidUploadFilename { filename, message: msg } => write!(f, "Invalid upload filename {}. Error message: {}", filename, msg),
+            ErrorKind::MissingUploadUrl => write!(f, "expected an x-goog-upload-url but didn't get one"),
         }
     }
 }
