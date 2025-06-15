@@ -6881,7 +6881,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.0.23"
+version = "0.1.0"
 dependencies = [
  "chrono",
  "const_format",
