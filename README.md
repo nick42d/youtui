@@ -1,4 +1,4 @@
-YAMLScriptYAMLScript[![dependency status](https://deps.rs/repo/github/nick42d/youtui/status.svg)](https://deps.rs/repo/github/nick42d/youtui)
+[![dependency status](https://deps.rs/repo/github/nick42d/youtui/status.svg)](https://deps.rs/repo/github/nick42d/youtui)
 ![build](https://github.com/nick42d/youtui/actions/workflows/release-plz.yml/badge.svg)
 
 ## About
@@ -79,7 +79,7 @@ Chrome example (Select manually and paste):
 - [ ] Gapless playback (blocked - requires symphonia AAC gapless support)
 - [ ] Mouse support
 - [ ] Offline cache
-- [ ] Streaming of buffered tracksYAMLScriptYAMLScriptYAMLScriptYAMLScript
+- [ ] Streaming of buffered tracks
 - [ ] Display lyrics
 - [ ] Theming
 ### API
