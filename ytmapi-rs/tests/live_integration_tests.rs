@@ -357,20 +357,33 @@ async fn test_get_artist_album_songs() {
 // # STATEFUL TESTS
 
 #[tokio::test]
-#[ignore = "Ignored due to stateful"]
-async fn test_upload_song() {
+#[ignore = "Ignored due to long running and stateful"]
+async fn test_add_remove_upload_song() {
+    // Google spends some time processing songs after they are uploaded.
+    const UPLOAD_PROCESSING_DELAY: Duration = Duration::from_secs(60);
     let browser_api = crate::utils::new_standard_api().await.unwrap();
     let outcome = browser_api
         .upload_song("test_json/test_upload.mp3")
         .await
         .unwrap();
     assert_eq!(outcome, ApiOutcome::Success);
+    tokio::time::sleep(UPLOAD_PROCESSING_DELAY).await;
+    let uploads = browser_api.get_library_upload_songs().await.unwrap();
+    let uploaded_song = uploads
+        .into_iter()
+        .find(|song| song.title == "Lukewarm Banjo")
+        .unwrap();
+    browser_api
+        .delete_upload_entity(uploaded_song.entity_id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
+#[ignore = "Ignored due to long running and stateful"]
 async fn test_add_remove_history_items() {
     // Timeout to avoid flaky test
-    const GET_HISTORY_TIMEOUT: Duration = Duration::from_millis(2000);
+    const GET_HISTORY_TIMEOUT: Duration = Duration::from_secs(10);
     // TODO: Oauth.
     let api = new_standard_api().await.unwrap();
     let song = api
