@@ -1,4 +1,3 @@
-use super::private::Sealed;
 use super::AuthToken;
 use crate::client::Client;
 use crate::error::{Error, Result};
@@ -19,7 +18,6 @@ pub struct BrowserToken {
     cookies: String,
 }
 
-impl Sealed for BrowserToken {}
 impl AuthToken for BrowserToken {
     fn client_version(&self) -> Cow<str> {
         (&self.client_version).into()
