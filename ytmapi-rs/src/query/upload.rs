@@ -75,59 +75,6 @@ impl<'a> DeleteUploadEntityQuery<'a> {
         Self { upload_entity_id }
     }
 }
-impl GetUploadSongQuery {
-    pub async fn new(file_path: impl AsRef<Path>) -> Option<Self> {
-        let upload_filename = file_path
-            .as_ref()
-            .file_stem()
-            .and_then(OsStr::to_str)
-            // "Filename required for GetUploadSongQuery"
-            .unwrap()
-            .into();
-        let upload_fileext: String = file_path
-            .as_ref()
-            .extension()
-            .and_then(OsStr::to_str)
-            // "Fileext required for GetUploadSongQuery"
-            .unwrap()
-            .into();
-        if !ALLOWED_UPLOAD_EXTENSIONS
-            .iter()
-            .any(|ext| upload_fileext.as_str() == *ext)
-        {
-            panic!(
-                "Fileext not in allowed list. Allowed values: {:?}",
-                ALLOWED_UPLOAD_EXTENSIONS
-            );
-        }
-        let song_file = tokio::fs::File::open(file_path).await.unwrap();
-        let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
-        const MAX_UPLOAD_FILESIZE_MB: u64 = 300;
-        if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 * 1024) {
-            panic!(
-                "Unable to upload song greater than {} MB, size is {} MB",
-                MAX_UPLOAD_FILESIZE_MB,
-                upload_filesize_bytes / (1024 * 1024)
-            );
-        }
-        Some(Self {
-            upload_filename,
-            upload_fileext,
-            song_file,
-            upload_filesize_bytes,
-        })
-    }
-    pub fn get_filename_as_string(&self) -> String {
-        format!("{}.{}", self.upload_filename, self.upload_fileext)
-    }
-    pub fn get_filename_and_ext(&self) -> (&str, &str) {
-        (&self.upload_filename, &self.upload_fileext)
-    }
-    /// Don't include the extension when renaming the file.
-    pub fn rename_file(&mut self, s: impl Into<String>) {
-        self.upload_filename = s.into();
-    }
-}
 // Auth required
 impl<A: LoggedIn> Query<A> for GetLibraryUploadAlbumQuery<'_> {
     type Output = GetLibraryUploadAlbum;

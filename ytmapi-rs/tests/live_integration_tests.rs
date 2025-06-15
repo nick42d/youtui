@@ -17,7 +17,6 @@ use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
 };
-use ytmapi_rs::query::upload::GetUploadSongQuery;
 use ytmapi_rs::query::*;
 use ytmapi_rs::*;
 
@@ -238,21 +237,6 @@ generate_query_test!(
 // # MULTISTAGE TESTS
 
 #[tokio::test]
-async fn test_upload_song() {
-    // let browser_api = crate::utils::new_standard_api().await.unwrap();
-    // let query = GetUploadSongQuery::new("test_json/test_upload.mp3")
-    //     .await
-    //     .unwrap();
-    // let next_query = browser_api
-    //     .query::<&GetUploadSongQuery>(&query)
-    //     .await
-    //     .unwrap();
-    // let outcome = browser_api.query(next_query).await.unwrap();
-    // assert_eq!(outcome, ApiOutcome::Success);
-    todo!()
-}
-
-#[tokio::test]
 async fn test_get_mood_playlists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
     let first_mood_playlist = browser_api
@@ -371,6 +355,17 @@ async fn test_get_artist_album_songs() {
 }
 
 // # STATEFUL TESTS
+
+#[tokio::test]
+#[ignore = "Ignored due to stateful"]
+async fn test_upload_song() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let outcome = browser_api
+        .upload_song("test_json/test_upload.mp3")
+        .await
+        .unwrap();
+    assert_eq!(outcome, ApiOutcome::Success);
+}
 
 #[tokio::test]
 async fn test_add_remove_history_items() {

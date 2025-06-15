@@ -83,12 +83,3 @@ impl LoggedIn for OAuthToken {}
 fn fallback_client_version(time: &chrono::DateTime<Utc>) -> String {
     format!("1.{}.01.00", time.format("%Y%m%d"))
 }
-
-/// Marker trait to mark an AuthToken as LoggedIn
-/// To allow Query implementors to write like
-/// `impl<A: LoggedIn> Query<A> for AddSongToPlaylistQuery`
-/// Since AuthToken is sealed, no-one else can implement this.
-pub trait LoggedIn: AuthToken {}
-
-impl LoggedIn for BrowserToken {}
-impl LoggedIn for OAuthToken {}
