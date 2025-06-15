@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.26](https://github.com/nick42d/youtui/compare/youtui/v0.0.25...youtui/v0.0.26) - 2025-06-15
+
+### Added
+- [**breaking**] implement upload song query ([#239](https://github.com/nick42d/youtui/pull/239))
+- _AuthToken trait has been refactored - now the raw_query functions are managed elsewhere, and the AuthToken is just responsible for emmitting headers and client_version (and deserializing)._ 
+
+### Other
+- Update README.md ([#253](https://github.com/nick42d/youtui/pull/253))
+- Fix small typos, and bump vernum for ytmapi-rs ([#252](https://github.com/nick42d/youtui/pull/252))
+
+
+
+
 ## [0.0.25](https://github.com/nick42d/youtui/compare/youtui/v0.0.24...youtui/v0.0.25) - 2025-06-11
 
 ### Added
