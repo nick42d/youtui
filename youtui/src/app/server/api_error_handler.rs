@@ -3,6 +3,7 @@ use crate::get_data_dir;
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::io::AsyncWriteExt;
+use tokio::sync::Semaphore;
 use tracing::error;
 use ytmapi_rs::error::ErrorKind;
 
@@ -11,7 +12,9 @@ const JSON_FILE_NAME: &str = "source";
 const JSON_FILE_EXT: &str = "json";
 
 /// A simple logger of json files that caused errors.
-pub struct ApiErrorHandler;
+pub struct ApiErrorHandler {
+    write_lock: Semaphore,
+}
 
 pub enum ApiErrorKind {
     YtmapiErrorNonJson,
@@ -21,7 +24,9 @@ pub enum ApiErrorKind {
 
 impl ApiErrorHandler {
     pub fn new() -> Self {
-        Self
+        Self {
+            write_lock: Semaphore::new(1),
+        }
     }
     /// Apply the appropriate handling to an api error.
     /// e.g. Log to tracing and write the faulty json (if exists) to log
@@ -41,6 +46,10 @@ impl ApiErrorHandler {
         };
         let (json, key) = e.get_json_and_key();
         error!("{message} at key {:?}", key);
+        // A semaphore is used to unsure we write sequentially, since the
+        // method we use to generate filenames is based on existing files in
+        // the directory i.e it won't work as expected in parrallel.
+        let lock = self.write_lock.acquire().await;
         match log_json(json).await {
             Ok(path) => {
                 error!(
@@ -50,7 +59,14 @@ impl ApiErrorHandler {
             }
             Err(e) => error!("Error logging source json to file <{e}>"),
         }
+        drop(lock);
         ApiErrorKind::YtmapiErrorJson
+    }
+}
+
+impl Default for ApiErrorHandler {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

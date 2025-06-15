@@ -30,7 +30,7 @@ This project is not supported or endorsed by Google.
 `cargo install youtui`
 
 ## Running youtui
-The default option is to use browser authentication, oauth authentication is likely being phased out by Google. To change this to oauth authentication, a `config.toml` file can be added to the local youtui config directory (e.g `~/.config/youtui/` on Linux), with the value `auth_type = "OAuth"`. Please note however that config file format is currently unstable and could change in the future. 
+The default option is to use browser authentication, To change this to oauth authentication, a config.toml file can be added to the local youtui config directory (e.g ~/.config/youtui/ on Linux), with the value auth_type = "OAuth". Please note however that config file format is currently unstable and could change in the future.
 ### Commands
 1. To run the TUI application, execute `youtui` with no arguments.
 1. To use the API in command-line mode, execute `youtui --help` to see available commands.
@@ -44,7 +44,9 @@ Firefox example (Right click and Copy Value):
 Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
 ### OAuth Setup Steps
-1. Setup the oauth token in the default configuration directory by running `youtui setup-oauth` and following the instructions.
+1. Prerequisite: A Google Cloud Console account and project are required.
+1. Following the [YouTube Data API docs](https://developers.google.com/youtube/registering_an_application), create a new `OAuth client ID` for the application type `TVs and Limited Input devices`. 
+1. Run `youtui setup-oauth` with your Client ID and Client Secret and following the instructions. This will create a new `oauth.json` file in the default configuration directory.
 ### Other Setup
 1. If music downloads always return an error, you are able to supply a PO Token by saving it to the file `po_token.txt` into your local youtui config directory. For more information on PO Tokens and how to obtain them, see [here](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#po-token-guide).
 1. Configurable keybinds can be supplied as part of your `config.toml`. Example `config.toml`s have been provided in the `./youtui/config/` directory. Please note, the config file format is currently unstable and could break between releases.

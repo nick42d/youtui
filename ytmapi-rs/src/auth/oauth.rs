@@ -6,15 +6,19 @@ use crate::parse::ProcessedResult;
 use crate::process::RawResult;
 use crate::query::{GetQuery, PostQuery, Query};
 use crate::utils::constants::{
-    OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE,
-    OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY,
-    YTM_URL,
+    OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT,
+    YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL,
 };
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+/// Since we detect oauth expiry on the client side, to reduce risk of race
+/// conditions we refresh `REFRESH_S_BEFORE_EXPIRING` seconds before the token
+/// is due to expire.
+const REFRESH_S_BEFORE_EXPIRING: u64 = 60;
 
 // The original reason for the two different structs was that we did not save
 // the refresh token. But now we do, so consider simply making this only one
@@ -27,6 +31,8 @@ pub struct OAuthToken {
     refresh_token: String,
     expires_in: usize,
     request_time: SystemTime,
+    client_id: String,
+    client_secret: String,
 }
 // TODO: Lock down construction of this type.
 #[derive(Clone, Deserialize)]
@@ -35,6 +41,7 @@ pub struct OAuthDeviceCode(String);
 #[derive(Clone, Deserialize)]
 struct GoogleOAuthToken {
     pub access_token: String,
+    /// Currently it seems Google gives out these for around 6 min.
     pub expires_in: usize,
     pub refresh_token: String,
     // Unused currently - for future use
@@ -65,6 +72,8 @@ impl OAuthToken {
         google_token: GoogleOAuthRefreshToken,
         request_time: SystemTime,
         refresh_token: String,
+        client_id: String,
+        client_secret: String,
     ) -> Self {
         // See comment above on OAuthToken
         let GoogleOAuthRefreshToken {
@@ -79,9 +88,16 @@ impl OAuthToken {
             access_token,
             request_time,
             expires_in,
+            client_id,
+            client_secret,
         }
     }
-    fn from_google_token(google_token: GoogleOAuthToken, request_time: SystemTime) -> Self {
+    fn from_google_token(
+        google_token: GoogleOAuthToken,
+        request_time: SystemTime,
+        client_id: String,
+        client_secret: String,
+    ) -> Self {
         // See comment above on OAuthToken
         let GoogleOAuthToken {
             access_token,
@@ -96,6 +112,8 @@ impl OAuthToken {
             access_token,
             request_time,
             expires_in,
+            client_id,
+            client_secret,
         }
     }
 }
@@ -156,12 +174,19 @@ impl AuthToken for OAuthToken {
 }
 
 impl OAuthToken {
-    pub async fn from_code(client: &Client, code: OAuthDeviceCode) -> Result<OAuthToken> {
+    pub async fn from_code(
+        client: &Client,
+        code: OAuthDeviceCode,
+        client_id: impl Into<String>,
+        client_secret: impl Into<String>,
+    ) -> Result<OAuthToken> {
+        let client_id = client_id.into();
+        let client_secret = client_secret.into();
         let body = json!({
-            "client_secret" : OAUTH_CLIENT_SECRET,
+            "client_secret" : &client_secret,
             "grant_type" : OAUTH_GRANT_URL,
-            "code": code.get_code(),
-            "client_id" : OAUTH_CLIENT_ID
+            "code" : code.get_code(),
+            "client_id" : &client_id
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
         let result = client
@@ -172,14 +197,16 @@ impl OAuthToken {
         Ok(OAuthToken::from_google_token(
             google_token,
             SystemTime::now(),
+            client_id,
+            client_secret,
         ))
     }
     pub async fn refresh(&self, client: &Client) -> Result<OAuthToken> {
         let body = json!({
-            "client_secret" : OAUTH_CLIENT_SECRET,
             "grant_type" : "refresh_token",
             "refresh_token" : self.refresh_token,
-            "client_id" : OAUTH_CLIENT_ID,
+            "client_secret" : self.client_secret,
+            "client_id" : self.client_id
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
         let result = client
@@ -192,15 +219,36 @@ impl OAuthToken {
             SystemTime::now(),
             // TODO: Remove clone.
             self.refresh_token.clone(),
+            self.client_id.clone(),
+            self.client_secret.clone(),
         ))
+    }
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+        let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
+        let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        // TODO: Better handling for expiration case.
+        if now_unix + REFRESH_S_BEFORE_EXPIRING > request_time_unix + self.expires_in as u64 {
+            return Err(Error::oauth_token_expired(self));
+        }
+        Ok([
+            // TODO: Confirm if parsing for expired user agent also relevant here.
+            ("User-Agent", USER_AGENT.into()),
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            (
+                "Authorization",
+                format!("{} {}", self.token_type, self.access_token).into(),
+            ),
+            ("X-Goog-Request-Time", request_time_unix.to_string().into()),
+        ])
     }
 }
 
 impl OAuthTokenGenerator {
-    pub async fn new(client: &Client) -> Result<OAuthTokenGenerator> {
+    pub async fn new(client: &Client, client_id: impl Into<String>) -> Result<OAuthTokenGenerator> {
         let body = json!({
             "scope" : OAUTH_SCOPE,
-            "client_id" : OAUTH_CLIENT_ID
+            "client_id" : client_id.into()
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
         let result_text = client
@@ -210,11 +258,11 @@ impl OAuthTokenGenerator {
         serde_json::from_str(&result_text).map_err(|_| Error::response(&result_text))
     }
 }
-// Don't use default Debug implementation for BrowserToken - contents are
+// Don't use default Debug implementation for OAuthToken - contents are
 // private
 // TODO: Display some fields, such as time.
 impl std::fmt::Debug for OAuthToken {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Private BrowserToken")
+        write!(f, "Private OAuthToken")
     }
 }

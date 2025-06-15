@@ -1,5 +1,6 @@
 //! Re-usable core functionality.
 use anyhow::bail;
+use futures::stream::FuturesUnordered;
 use futures::TryStreamExt;
 use serde::de::{self, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
@@ -7,6 +8,7 @@ use std::borrow::Borrow;
 use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
+use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -33,49 +35,71 @@ pub fn blocking_send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Create timestamped file handle in dir with prefix filename and ext
-/// fileext, and if there are more than max_files with this pattern, delete the
-/// one with the oldest timestamp.
+/// Search directory for files matching the pattern {filename}[NUMBER].{filext}
+/// and ext fileext, creating one at {filename}[NUMBER+1].{filext}.
+/// If there are more than max_files with this pattern, delete the
+/// oldest surplus ones.
 pub async fn get_limited_sequential_file(
     dir: &Path,
     filename: impl AsRef<str>,
     fileext: impl AsRef<str>,
     max_files: u16,
-) -> Result<(tokio::fs::File, PathBuf), anyhow::Error> {
+) -> Result<(fs_err::tokio::File, PathBuf), anyhow::Error> {
     if max_files == 0 {
         bail!("Requested zero file handles")
     }
     let filename = filename.as_ref();
     let fileext = fileext.as_ref();
     let stream = tokio::fs::read_dir(dir).await?;
-    let mut entries = ReadDirStream::new(stream)
-        .filter(|try_entry| {
-            try_entry
-                .as_ref()
-                .ok()
-                .and_then(|entry| entry.file_name().into_string().ok())
-                .map(|entry_file_name| {
-                    entry_file_name.starts_with(filename) && entry_file_name.ends_with(fileext)
-                })
-                .is_some_and(|entry_file_name_matches| entry_file_name_matches)
-        })
-        .collect::<Result<Vec<_>, _>>()
-        .await?;
-    entries.sort_by_key(|f| f.file_name());
-    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-    // Use 20 characters left padding of zeros - this ensures all timestamps up to
-    // usize::MAX still sort in ascending order once stringified.
-    let next_filename = format!("{filename}{:020}.{}", timestamp, fileext);
-    if let Some(target_file) = entries
-        .into_iter()
-        .rev()
-        .nth(max_files.checked_sub(1).expect("Zero should be guarded") as usize)
-    {
-        tokio::fs::remove_file(target_file.path()).await?;
+    #[derive(Debug)]
+    struct ValidEntry {
+        entry: DirEntry,
+        file_number: usize,
     }
+    let get_valid_entry = |entry: DirEntry| {
+        let entry_file_name = entry.file_name().into_string().ok()?;
+        let file_number = entry_file_name
+            .trim_start_matches(filename)
+            .trim_end_matches(fileext)
+            .trim_end_matches(".")
+            .parse::<usize>()
+            .ok()?;
+        if entry_file_name.starts_with(filename) && entry_file_name.ends_with(fileext) {
+            Some(ValidEntry { entry, file_number })
+        } else {
+            None
+        }
+    };
+    let mut entries = ReadDirStream::new(stream)
+        .filter_map(|try_entry| {
+            let entry = match try_entry {
+                Ok(entry) => entry,
+                Err(e) => return Some(Err(e)),
+            };
+            get_valid_entry(entry).map(Ok)
+        })
+        .collect::<Result<Vec<ValidEntry>, _>>()
+        .await?;
+    entries.sort_by_key(|f| f.file_number);
+    let next_number = entries.last().map(|e| e.file_number + 1).unwrap_or(0);
+    let next_filename = format!("{filename}{}.{}", next_number, fileext);
+    // If there are max_files files or more, remove the extra files.
+    let surplus_files = entries
+        .len()
+        // Add an additional 1, as we are going to create a file bringing us up to max_files.
+        .add(1)
+        .saturating_sub(max_files as usize);
+    let _files_deleted = entries
+        .into_iter()
+        .take(surplus_files)
+        .map(|entry| fs_err::tokio::remove_file(entry.entry.path()))
+        .collect::<FuturesUnordered<_>>()
+        .try_collect::<Vec<_>>()
+        .await?
+        .len();
     let next_filepath = dir.join(next_filename);
     Ok((
-        tokio::fs::File::create_new(&next_filepath).await?,
+        fs_err::tokio::File::create_new(&next_filepath).await?,
         next_filepath,
     ))
 }
@@ -88,7 +112,7 @@ pub async fn create_or_clean_directory(
     managed_file_prefix: impl AsRef<str>,
     max_age: std::time::Duration,
 ) -> std::io::Result<usize> {
-    tokio::fs::create_dir_all(dir).await?;
+    fs_err::tokio::create_dir_all(dir).await?;
     let time_now = SystemTime::now();
     let album_art_dir_reader = tokio::fs::read_dir(dir).await?;
     let filename_prefix_matches = |entry: &DirEntry| {
@@ -104,7 +128,7 @@ pub async fn create_or_clean_directory(
             .duration_since(last_modified)
             .is_ok_and(|dif| dif <= max_age)
         {
-            tokio::fs::remove_file(entry.path()).await.map(Some)
+            fs_err::tokio::remove_file(entry.path()).await.map(Some)
         } else {
             Ok(None)
         }
@@ -181,47 +205,49 @@ mod tests {
         )
         .await
         .unwrap();
-        assert!(tokio::fs::remove_dir(target_dir).await.is_ok());
+        assert!(fs_err::tokio::remove_dir(target_dir).await.is_ok());
     }
     #[tokio::test]
     async fn test_create_or_clean_directory_deletes_aged() {
         let tmpdir = TempDir::new().unwrap();
         let target_dir = tmpdir.path().join("test_dir");
         let target_file = target_dir.join("test_file");
-        tokio::fs::create_dir_all(&target_dir).await.unwrap();
-        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        fs_err::tokio::create_dir_all(&target_dir).await.unwrap();
+        let file = fs_err::tokio::File::create(&target_file).await.unwrap();
         file.into_std()
             .await
+            .into_file()
             .set_modified(SystemTime::now() - Duration::from_secs(60))
             .unwrap();
         create_or_clean_directory(&target_dir, "test_", std::time::Duration::from_secs(59))
             .await
             .unwrap();
-        assert!(tokio::fs::File::open(target_file).await.is_err());
+        assert!(fs_err::tokio::File::open(target_file).await.is_err());
     }
     #[tokio::test]
     async fn test_create_or_clean_directory_doesnt_delete_aged_wrong_prefix() {
         let tmpdir = TempDir::new().unwrap();
         let target_dir = tmpdir.path().join("test_dir");
         let target_file = target_dir.join("users file");
-        tokio::fs::create_dir_all(&target_dir).await.unwrap();
-        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        fs_err::tokio::create_dir_all(&target_dir).await.unwrap();
+        let file = fs_err::tokio::File::create(&target_file).await.unwrap();
         file.into_std()
             .await
+            .into_file()
             .set_modified(SystemTime::now() - Duration::from_secs(60))
             .unwrap();
         create_or_clean_directory(&target_dir, "test_", std::time::Duration::from_secs(59))
             .await
             .unwrap();
-        assert!(tokio::fs::File::open(target_file).await.is_ok());
+        assert!(fs_err::tokio::File::open(target_file).await.is_ok());
     }
     #[tokio::test]
     async fn test_create_or_clean_directory_doesnt_delete_unaged() {
         let tmpdir = TempDir::new().unwrap();
         let target_dir = tmpdir.path().join("test_dir");
         let target_file = target_dir.join("test_file");
-        tokio::fs::create_dir_all(&target_dir).await.unwrap();
-        let file = tokio::fs::File::create(&target_file).await.unwrap();
+        fs_err::tokio::create_dir_all(&target_dir).await.unwrap();
+        let file = fs_err::tokio::File::create(&target_file).await.unwrap();
         drop(file);
         create_or_clean_directory(
             &target_dir,
@@ -230,7 +256,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert!(tokio::fs::File::open(target_file).await.is_ok());
+        assert!(fs_err::tokio::File::open(target_file).await.is_ok());
     }
     #[tokio::test]
     async fn test_get_limited_sequential_file_has_correct_filename() {
@@ -238,7 +264,7 @@ mod tests {
         let _file = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 5)
             .await
             .unwrap();
-        let filename = tokio::fs::read_dir(tmpdir.path())
+        let filename = fs_err::tokio::read_dir(tmpdir.path())
             .await
             .unwrap()
             .next_entry()
@@ -253,7 +279,6 @@ mod tests {
         let timestamp = filename
             .trim_start_matches("test_filename")
             .trim_end_matches(".txt");
-        assert!(timestamp.len() == 20);
         assert!(timestamp.parse::<usize>().is_ok())
     }
     #[tokio::test]
@@ -262,7 +287,7 @@ mod tests {
         let _f1 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
             .await
             .unwrap();
-        let f1_name = tokio::fs::read_dir(tmpdir.path())
+        let f1_name = fs_err::tokio::read_dir(tmpdir.path())
             .await
             .unwrap()
             .next_entry()
@@ -272,22 +297,18 @@ mod tests {
             .file_name()
             .into_string()
             .unwrap();
-        // Timestamp is in seconds, we need a delay to ensure timestamp increases.
-        tokio::time::sleep(Duration::from_secs(1)).await;
         let _f2 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
             .await
             .unwrap();
         let files_count = std::fs::read_dir(tmpdir.path()).unwrap().count();
         assert_eq!(files_count, 2);
-        // Timestamp is in seconds, we need a delay to ensure timestamp increases.
-        tokio::time::sleep(Duration::from_secs(1)).await;
         let _f3 = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 2)
             .await
             .unwrap();
         let files_count = std::fs::read_dir(tmpdir.path()).unwrap().count();
         assert_eq!(files_count, 2);
         assert!(
-            tokio::fs::File::open(tmpdir.path().join(f1_name))
+            fs_err::tokio::File::open(tmpdir.path().join(f1_name))
                 .await
                 .is_err(),
             "_f1 should have been deleted"
@@ -299,10 +320,9 @@ mod tests {
         let _f = get_limited_sequential_file(tmpdir.path(), "test_filename", "txt", 1)
             .await
             .unwrap();
-        let (Ok(_f1), Ok(_f2), _) = tokio::join!(
-            tokio::fs::File::create_new(tmpdir.path().join("xxx.txt")),
-            tokio::fs::File::create_new(tmpdir.path().join("test_filename_xxx")),
-            tokio::time::sleep(Duration::from_secs(1)),
+        let (Ok(_f1), Ok(_f2)) = tokio::join!(
+            fs_err::tokio::File::create_new(tmpdir.path().join("xxx.txt")),
+            fs_err::tokio::File::create_new(tmpdir.path().join("test_filename_xxx")),
         ) else {
             panic!("Error creating test files")
         };
@@ -314,13 +334,13 @@ mod tests {
             .await;
         assert_eq!(files_in_dir.len(), 3);
         assert!(
-            tokio::fs::File::open(tmpdir.path().join("test_filename_xxx"))
+            fs_err::tokio::File::open(tmpdir.path().join("test_filename_xxx"))
                 .await
                 .is_ok(),
             "test_filename_xxx should not have been deleted"
         );
         assert!(
-            tokio::fs::File::open(tmpdir.path().join("xxx.txt"))
+            fs_err::tokio::File::open(tmpdir.path().join("xxx.txt"))
                 .await
                 .is_ok(),
             "xxx.txt should not have been deleted"

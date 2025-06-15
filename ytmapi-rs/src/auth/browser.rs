@@ -104,6 +104,15 @@ impl BrowserToken {
         let contents = tokio::fs::read_to_string(path).await?;
         BrowserToken::from_str(&contents, client).await
     }
+    fn headers(&self) -> impl IntoIterator<Item = (&str, Cow<str>)> {
+        let hash = utils::hash_sapisid(&self.sapisid);
+        [
+            ("X-Origin", YTM_URL.into()),
+            ("Content-Type", "application/json".into()),
+            ("Authorization", format!("SAPISIDHASH {hash}").into()),
+            ("Cookie", self.cookies.as_str().into()),
+        ]
+    }
 }
 
 // Don't use default Debug implementation for BrowserToken - contents are
