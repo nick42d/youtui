@@ -1,5 +1,4 @@
 //! Available authorisation tokens.
-use self::private::Sealed;
 use crate::client::{Client, QueryResponse};
 use crate::error::Result;
 use crate::parse::ProcessedResult;

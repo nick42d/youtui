@@ -77,10 +77,9 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
 use auth::noauth::NoAuthToken;
 use auth::oauth::OAuthDeviceCode;
-use auth::{AuthToken, LoggedIn, OAuthToken, OAuthTokenGenerator};
+use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
-use client::Body;
 #[doc(inline)]
 pub use client::Client;
 use common::ApiOutcome;
@@ -94,13 +93,9 @@ pub use parse::ProcessedResult;
 #[doc(inline)]
 pub use process::RawResult;
 use query::{PostQuery, Query, QueryMethod};
-use serde_json::Value;
-use std::borrow::{Borrow, Cow};
-use std::collections::HashMap;
-use std::ffi::OsStr;
+use std::borrow::Borrow;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::Path;
-use utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 
 #[macro_use]
 mod utils;

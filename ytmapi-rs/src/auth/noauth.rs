@@ -1,15 +1,13 @@
 use super::private::Sealed;
 use super::{fallback_client_version, AuthToken};
-use crate::client;
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{PostQuery, Query};
-use crate::utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL};
+use crate::query::Query;
+use crate::utils::constants::{USER_AGENT, YTM_URL};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::borrow::Cow;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

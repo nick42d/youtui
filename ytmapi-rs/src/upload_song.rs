@@ -1,9 +1,8 @@
-use crate::auth::{AuthToken, BrowserToken, LoggedIn};
+use crate::auth::{AuthToken, BrowserToken};
 use crate::client::Body;
 use crate::common::ApiOutcome;
 use crate::utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 use crate::{Client, Result};
-use serde_json::Value;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::OsStr;

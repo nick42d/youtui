@@ -1,10 +1,6 @@
 //! This module contains the basic HTTP client used in this library.
-use crate::utils::constants::{USER_AGENT, YTM_URL};
 use crate::Result;
-use chrono::format;
-use futures::channel::oneshot::Receiver;
 use serde::Serialize;
-use serde_json::json;
 use std::borrow::Cow;
 
 /// Basic HTTP client using TLS wrapping a `reqwest::Client`,

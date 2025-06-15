@@ -1,23 +1,14 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
-use super::{PostMethod, PostQuery, PostQueryCustom, Query};
+use super::{PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
-use crate::client::Body;
 use crate::common::{
-    ApiOutcome, UploadAlbumID, UploadArtistID, UploadEntityID, UploadUrl, YoutubeID,
+    UploadAlbumID, UploadArtistID, UploadEntityID,
 };
 use crate::parse::{
-    GetLibraryUploadAlbum, ParseFrom, TableListUploadSong, UploadAlbum, UploadArtist,
+    GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist,
 };
-use crate::utils::constants::DEFAULT_X_GOOG_AUTHUSER;
-use crate::ProcessedResult;
-use json_crawler::{JsonCrawler, JsonCrawlerOwned};
-use serde::Deserialize;
 use serde_json::json;
 use std::borrow::Cow;
-use std::convert::Into;
-use std::ffi::{OsStr, OsString};
-use std::marker::PhantomData;
-use std::path::Path;
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {

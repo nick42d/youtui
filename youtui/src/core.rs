@@ -11,7 +11,7 @@ use std::marker::PhantomData;
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
 use tokio::fs::DirEntry;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReadDirStream;

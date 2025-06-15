@@ -5,12 +5,10 @@ use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
 use crate::query::{PostQuery, Query};
-use crate::utils::constants::{USER_AGENT, YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL};
-use crate::{client, utils};
+use crate::utils::constants::{USER_AGENT, YTM_URL};
+use crate::utils;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::path::Path;
 
