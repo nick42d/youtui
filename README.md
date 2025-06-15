@@ -145,7 +145,7 @@ Feature parity with `ytmusicapi`
 |GetLibraryUploadAlbums|[x]|[ ]|
 |GetLibraryUploadArtist|[x]|[ ]|
 |GetLibraryUploadAlbum|[x]||
-|UploadAlbum|[ ]||
+|UploadSong|[x]||
 |DeleteUploadEntity|[x]||
 
 \* GetWatchPlaylist is partially implemented only
