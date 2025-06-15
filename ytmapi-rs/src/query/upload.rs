@@ -1,5 +1,5 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
-use super::{PostMethod, PostMethodCustom, PostQuery, PostQueryCustom, Query};
+use super::{PostMethod, PostQuery, PostQueryCustom, Query};
 use crate::auth::LoggedIn;
 use crate::client::Body;
 use crate::common::{
@@ -18,8 +18,6 @@ use std::convert::Into;
 use std::ffi::{OsStr, OsString};
 use std::marker::PhantomData;
 use std::path::Path;
-
-const ALLOWED_UPLOAD_EXTENSIONS: &[&str] = &["mp3", "m4a", "wma", "flac", "ogg"];
 
 #[derive(Default, Clone)]
 pub struct GetLibraryUploadSongsQuery {
@@ -45,20 +43,6 @@ pub struct GetLibraryUploadAlbumQuery<'a> {
 /// Deletes a previously uploaded song or album.
 pub struct DeleteUploadEntityQuery<'a> {
     upload_entity_id: UploadEntityID<'a>,
-}
-pub struct GetUploadSongQuery {
-    upload_filename: String,
-    upload_fileext: String,
-    upload_filesize_bytes: u64,
-    song_file: tokio::fs::File,
-}
-#[derive(Debug)]
-// TODO: Custom debug due to the Bytes.
-pub struct UploadSongQuery<'a> {
-    upload_url: UploadUrl<'static>,
-    upload_filename: String,
-    upload_filesize_bytes: u64,
-    song_file: &'a tokio::fs::File,
 }
 
 impl GetLibraryUploadSongsQuery {
@@ -280,99 +264,5 @@ impl PostQuery for DeleteUploadEntityQuery<'_> {
     }
     fn path(&self) -> &str {
         "music/delete_privately_owned_entity"
-    }
-}
-// Auth required
-impl<'a, A: LoggedIn> Query<A> for &'a GetUploadSongQuery {
-    type Output = UploadSongQuery<'a>;
-    type Method = PostMethodCustom;
-}
-impl PostQueryCustom for &GetUploadSongQuery {
-    fn body(&self) -> Body<'_> {
-        Body::FromString(format!("filename={}", self.get_filename_as_string()))
-    }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
-        vec![("authuser", DEFAULT_X_GOOG_AUTHUSER.into())]
-    }
-    fn url(&self) -> std::borrow::Cow<'_, str> {
-        "https://upload.youtube.com/upload/usermusic/http".into()
-    }
-    fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
-        [
-            (
-                "Content-Type",
-                "application/x-www-form-urlencoded;charset=utf-8".into(),
-            ),
-            ("X-Goog-Upload-Command", "start".into()),
-            (
-                "X-Goog-Upload-Header-Content-Length",
-                self.upload_filesize_bytes.to_string().into(),
-            ),
-            ("X-Goog-Upload-Protocol", "resumable".into()),
-        ]
-    }
-}
-// Auth required
-impl<A: LoggedIn> Query<A> for UploadSongQuery<'_> {
-    type Output = ApiOutcome;
-    type Method = PostMethodCustom;
-}
-impl PostQueryCustom for UploadSongQuery<'_> {
-    fn body(&self) -> Body<'_> {
-        Body::FromFileRef(self.song_file)
-    }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
-        vec![]
-    }
-    fn url(&self) -> std::borrow::Cow<'_, str> {
-        self.upload_url.get_raw().into()
-    }
-    fn additional_headers(&self) -> impl IntoIterator<Item = (&str, Cow<'_, str>)> {
-        [
-            (
-                "Content-Type",
-                "application/x-www-form-urlencoded;charset=utf-8".into(),
-            ),
-            ("X-Goog-Upload-Command", "start".into()),
-            (
-                "X-Goog-Upload-Header-Content-Length",
-                self.upload_filesize_bytes.to_string().into(),
-            ),
-            ("X-Goog-Upload-Protocol", "resumable".into()),
-            ("X-Goog-Upload-Command", "upload, finalize".into()),
-            ("X-Goog-Upload-Offset", "0".into()),
-        ]
-    }
-}
-impl<'a> ParseFrom<&'a GetUploadSongQuery> for UploadSongQuery<'a> {
-    fn parse_from(p: crate::ProcessedResult<&'a GetUploadSongQuery>) -> crate::Result<Self> {
-        let ProcessedResult {
-            query,
-            source,
-            json,
-        } = p;
-        eprintln!("Parsing get upload song query");
-        eprintln!("Response: ");
-        eprintln!("{}", source);
-        eprintln!("{}", serde_json::to_string_pretty(&json).unwrap());
-        let json = serde_json::from_str(&source).unwrap();
-        let mut url = JsonCrawlerOwned::new(source, json);
-        Ok(UploadSongQuery {
-            upload_url: url.take_value_pointer("/upload_url").unwrap(),
-            upload_filename: GetUploadSongQuery::get_filename_as_string(query),
-            song_file: &query.song_file,
-            upload_filesize_bytes: query.upload_filesize_bytes,
-        })
-    }
-}
-impl ParseFrom<UploadSongQuery<'_>> for ApiOutcome {
-    fn parse_from(p: crate::ProcessedResult<UploadSongQuery<'_>>) -> crate::Result<Self> {
-        let ProcessedResult {
-            query,
-            source,
-            json,
-        } = p;
-        eprintln!("Parsing upload song query");
-        todo!()
     }
 }

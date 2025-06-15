@@ -74,6 +74,7 @@ use auth::oauth::OAuthDeviceCode;
 use auth::{AuthToken, LoggedIn, OAuthToken, OAuthTokenGenerator};
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
+use client::Body;
 #[doc(inline)]
 pub use client::Client;
 use continuations::Continuable;
@@ -86,9 +87,13 @@ pub use parse::ProcessedResult;
 #[doc(inline)]
 pub use process::RawResult;
 use query::{PostQuery, Query, QueryMethod};
-use std::borrow::Borrow;
+use serde_json::Value;
+use std::borrow::{Borrow, Cow};
+use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::Path;
+use utils::constants::DEFAULT_X_GOOG_AUTHUSER;
 
 #[macro_use]
 mod utils;
@@ -315,19 +320,106 @@ impl<A: AuthToken> YtMusic<A> {
     }
 }
 impl<A: LoggedIn> YtMusic<A> {
-    pub fn upload_song(&self) -> Result<()> {
-        todo!()
-    }
-    /// Run a callback every time callback_tick_bytes is uploaded.
-    pub fn upload_song_with_progress_callback<F>(
-        &self,
-        callback_tick_bytes: u64,
-        callback: F,
-    ) -> Result<u64>
-    where
-        F: Fn(()),
-    {
-        todo!()
+    pub async fn upload_song(&self, file_path: impl AsRef<Path>) -> Result<()> {
+        const ALLOWED_UPLOAD_EXTENSIONS: &[&str] = &["mp3", "m4a", "wma", "flac", "ogg"];
+        let file_path = file_path.as_ref();
+        let upload_fileext: String = file_path
+            .extension()
+            .and_then(OsStr::to_str)
+            // "Fileext required for GetUploadSongQuery"
+            .unwrap()
+            .into();
+        if !ALLOWED_UPLOAD_EXTENSIONS
+            .iter()
+            .any(|ext| upload_fileext.as_str() == *ext)
+        {
+            panic!(
+                "Fileext not in allowed list. Allowed values: {:?}",
+                ALLOWED_UPLOAD_EXTENSIONS
+            );
+        }
+        let song_file = tokio::fs::File::open(&file_path).await.unwrap();
+        let upload_filesize_bytes = song_file.metadata().await.unwrap().len();
+        const MAX_UPLOAD_FILESIZE_MB: u64 = 300;
+        if upload_filesize_bytes > MAX_UPLOAD_FILESIZE_MB * (1024 * 1024) {
+            panic!(
+                "Unable to upload song greater than {} MB, size is {} MB",
+                MAX_UPLOAD_FILESIZE_MB,
+                upload_filesize_bytes / (1024 * 1024)
+            );
+        }
+        let additional_headers: [(&str, Cow<str>); 4] = [
+            (
+                "Content-Type",
+                "application/x-www-form-urlencoded;charset=utf-8".into(),
+            ),
+            ("X-Goog-Upload-Command", "start".into()),
+            (
+                "X-Goog-Upload-Header-Content-Length",
+                upload_filesize_bytes.to_string().into(),
+            ),
+            ("X-Goog-Upload-Protocol", "resumable".into()),
+        ];
+        let combined_headers = self
+            .token
+            .headers()
+            .unwrap()
+            .into_iter()
+            .chain(additional_headers)
+            .collect::<HashMap<_, _>>();
+        let upload_url_raw = self
+            .client
+            .post_query(
+                "https://upload.youtube.com/upload/usermusic/http",
+                combined_headers,
+                Body::FromString(format!(
+                    "filename={}",
+                    file_path.file_name().unwrap().to_string_lossy()
+                )),
+                &[("authuser", DEFAULT_X_GOOG_AUTHUSER)],
+            )
+            .await
+            .unwrap()
+            .text;
+        let upload_url_json = serde_json::from_str::<Value>(&upload_url_raw)
+            .unwrap()
+            .get_mut("upload_url")
+            .unwrap()
+            .take();
+        let upload_url: String = serde_json::from_value(upload_url_json).unwrap();
+        let additional_headers: [(&str, Cow<str>); 6] = [
+            (
+                "Content-Type",
+                "application/x-www-form-urlencoded;charset=utf-8".into(),
+            ),
+            ("X-Goog-Upload-Command", "start".into()),
+            (
+                "X-Goog-Upload-Header-Content-Length",
+                upload_filesize_bytes.to_string().into(),
+            ),
+            ("X-Goog-Upload-Protocol", "resumable".into()),
+            ("X-Goog-Upload-Command", "upload, finalize".into()),
+            ("X-Goog-Upload-Offset", "0".into()),
+        ];
+        let combined_headers = self
+            .token
+            .headers()
+            .unwrap()
+            .into_iter()
+            .chain(additional_headers)
+            .collect::<HashMap<_, _>>();
+        let result = self
+            .client
+            .post_query(
+                upload_url,
+                combined_headers,
+                Body::FromFileRef(&song_file),
+                &(),
+            )
+            .await
+            .unwrap()
+            .status_code;
+        Ok(())
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for

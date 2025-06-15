@@ -239,16 +239,17 @@ generate_query_test!(
 
 #[tokio::test]
 async fn test_upload_song() {
-    let browser_api = crate::utils::new_standard_api().await.unwrap();
-    let query = GetUploadSongQuery::new("test_json/test_upload.mp3")
-        .await
-        .unwrap();
-    let next_query = browser_api
-        .query::<&GetUploadSongQuery>(&query)
-        .await
-        .unwrap();
-    let outcome = browser_api.query(next_query).await.unwrap();
-    assert_eq!(outcome, ApiOutcome::Success);
+    // let browser_api = crate::utils::new_standard_api().await.unwrap();
+    // let query = GetUploadSongQuery::new("test_json/test_upload.mp3")
+    //     .await
+    //     .unwrap();
+    // let next_query = browser_api
+    //     .query::<&GetUploadSongQuery>(&query)
+    //     .await
+    //     .unwrap();
+    // let outcome = browser_api.query(next_query).await.unwrap();
+    // assert_eq!(outcome, ApiOutcome::Success);
+    todo!()
 }
 
 #[tokio::test]

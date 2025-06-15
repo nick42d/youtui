@@ -29,11 +29,11 @@ pub trait AuthToken: Sized {
     fn process_response<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
 
-pub async fn run_query<A: AuthToken, Q: Query<A> + PostQuery>(
-    q: &Q,
+pub async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
+    q: &'a Q,
     tok: &A,
     c: &Client,
-) -> Result<Q::Output> {
+) -> Result<RawResult<'a, Q, A>> {
     let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", q.path());
     let mut body = json!({
         "context" : {
@@ -52,11 +52,10 @@ pub async fn run_query<A: AuthToken, Q: Query<A> + PostQuery>(
     let QueryResponse { text, .. } = c
         .post_json_query(url, tok.headers().unwrap(), &body, &q.params())
         .await?;
-    let result = RawResult::from_raw(text, q);
-    Ok(A::process_response(result).unwrap().parse_into().unwrap())
+    Ok(RawResult::from_raw(text, q))
 }
 
-pub async fn run_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
+pub async fn raw_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
     tok: &A,
     client: &Client,
     query: &'a Q,

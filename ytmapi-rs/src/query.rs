@@ -31,7 +31,7 @@
 //!     }
 //! }
 //! ```
-use crate::auth::{run_query, run_query_get, AuthToken};
+use crate::auth::{raw_query_get, raw_query_post, AuthToken};
 use crate::client::Body;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
@@ -125,8 +125,6 @@ pub trait GetQuery {
 pub struct GetMethod;
 /// The POST query method
 pub struct PostMethod;
-/// The POST query method using a file handle as the body
-pub struct PostMethodCustom;
 
 /// Represents a method of calling an query, using a query, client and auth
 /// token. Not intended to be implemented by api users, the pre-implemented
@@ -160,7 +158,7 @@ where
     where
         Self: Sized,
     {
-        run_query_get(tok, client, query)
+        raw_query_get(tok, client, query)
     }
 }
 
@@ -178,25 +176,7 @@ where
     where
         Self: Sized,
     {
-        run_query(query, tok, client)
-    }
-}
-
-impl Sealed for PostMethodCustom {}
-impl<Q, A, O> QueryMethod<Q, A, O> for PostMethodCustom
-where
-    Q: PostQueryCustom + Query<A, Output = O>,
-    A: AuthToken,
-{
-    fn call<'a>(
-        query: &'a Q,
-        client: &crate::client::Client,
-        tok: &A,
-    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>
-    where
-        Self: Sized,
-    {
-        tok.raw_query_post(client, query)
+        raw_query_post(query, tok, client)
     }
 }
 

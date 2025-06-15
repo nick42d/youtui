@@ -203,10 +203,11 @@ impl OAuthTokenGenerator {
             "client_id" : OAUTH_CLIENT_ID
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client
+        let result_text = client
             .post_json_query(OAUTH_CODE_URL, headers, &body, &())
-            .await?;
-        serde_json::from_str(&result).map_err(|_| Error::response(&result))
+            .await?
+            .text;
+        serde_json::from_str(&result_text).map_err(|_| Error::response(&result_text))
     }
 }
 // Don't use default Debug implementation for BrowserToken - contents are
