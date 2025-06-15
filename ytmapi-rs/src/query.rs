@@ -31,7 +31,7 @@
 //!     }
 //! }
 //! ```
-use crate::auth::AuthToken;
+use crate::auth::{raw_query_get, raw_query_post, AuthToken};
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 #[doc(inline)]
@@ -150,7 +150,7 @@ where
     where
         Self: Sized,
     {
-        tok.raw_query_get(client, query)
+        raw_query_get(tok, client, query)
     }
 }
 
@@ -168,7 +168,7 @@ where
     where
         Self: Sized,
     {
-        tok.raw_query_post(client, query)
+        raw_query_post(query, tok, client)
     }
 }
 

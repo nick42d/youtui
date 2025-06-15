@@ -11,7 +11,7 @@ use std::marker::PhantomData;
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
 use tokio::fs::DirEntry;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReadDirStream;
@@ -35,8 +35,8 @@ pub fn blocking_send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 
-/// Search directory for files matching the pattern {filename}[NUMBER].{filext}
-/// and ext fileext, creating one at {filename}[NUMBER+1].{filext}.
+/// Search directory for files matching the pattern {filename}{NUMBER}.{filext}
+/// and ext fileext, creating one at {filename}{NUMBER+1}.{filext}.
 /// If there are more than max_files with this pattern, delete the
 /// oldest surplus ones.
 pub async fn get_limited_sequential_file(
@@ -142,7 +142,7 @@ pub async fn create_or_clean_directory(
     Ok(files_deleted)
 }
 
-/// From serde documentation: [https://serde.rs/string-or-struct.html]
+/// From serde documentation: [<https://serde.rs/string-or-struct.html>]
 pub fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
 where
     T: Deserialize<'de> + FromStr<Err = Infallible>,

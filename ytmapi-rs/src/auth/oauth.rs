@@ -1,15 +1,14 @@
 use super::private::Sealed;
-use super::AuthToken;
+use super::{fallback_client_version, AuthToken};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
 use crate::process::RawResult;
-use crate::query::{GetQuery, PostQuery, Query};
+use crate::query::Query;
 use crate::utils::constants::{
     OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT,
-    YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY, YTM_URL,
+    YTM_URL,
 };
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::borrow::Cow;
@@ -129,47 +128,7 @@ impl OAuthDeviceCode {
 
 impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
-    async fn raw_query_post<'a, Q: PostQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, OAuthToken>> {
-        let url = format!("{YTM_API_URL}{}{YTM_PARAMS}{YTM_PARAMS_KEY}", query.path());
-        let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
-        let client_version = format!("1.{}.01.00", now_datetime.format("%Y%m%d"));
-        let mut body = json!({
-            "context" : {
-                "client" : {
-                    "clientName" : "WEB_REMIX",
-                    "clientVersion" : client_version,
-                },
-            },
-        });
-        if let Some(body) = body.as_object_mut() {
-            body.append(&mut query.header());
-        } else {
-            unreachable!("Body created in this function as an object")
-        };
-        let result = client
-            .post_query(url, self.headers()?, &body, &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
-    }
-    async fn raw_query_get<'a, Q: GetQuery + Query<Self>>(
-        &self,
-        client: &Client,
-        query: &'a Q,
-    ) -> Result<RawResult<'a, Q, Self>> {
-        let url = Url::parse_with_params(query.url(), query.params())
-            .map_err(|e| Error::web(format!("{e}")))?;
-        let result = client
-            .get_query(url, self.headers()?, &query.params())
-            .await?;
-        let result = RawResult::from_raw(result, query);
-        Ok(result)
-    }
-    fn deserialize_json<Q: Query<Self>>(
+    fn deserialize_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
@@ -187,58 +146,6 @@ impl AuthToken for OAuthToken {
             return Err(Error::other_code(code, message));
         }
         Ok(processed)
-    }
-}
-
-impl OAuthToken {
-    pub async fn from_code(
-        client: &Client,
-        code: OAuthDeviceCode,
-        client_id: impl Into<String>,
-        client_secret: impl Into<String>,
-    ) -> Result<OAuthToken> {
-        let client_id = client_id.into();
-        let client_secret = client_secret.into();
-        let body = json!({
-            "client_secret" : &client_secret,
-            "grant_type" : OAUTH_GRANT_URL,
-            "code" : code.get_code(),
-            "client_id" : &client_id
-        });
-        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client
-            .post_query(OAUTH_TOKEN_URL, headers, &body, &())
-            .await?;
-        let google_token: GoogleOAuthToken =
-            serde_json::from_str(&result).map_err(|_| Error::response(&result))?;
-        Ok(OAuthToken::from_google_token(
-            google_token,
-            SystemTime::now(),
-            client_id,
-            client_secret,
-        ))
-    }
-    pub async fn refresh(&self, client: &Client) -> Result<OAuthToken> {
-        let body = json!({
-            "grant_type" : "refresh_token",
-            "refresh_token" : self.refresh_token,
-            "client_secret" : self.client_secret,
-            "client_id" : self.client_id
-        });
-        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client
-            .post_query(OAUTH_TOKEN_URL, headers, &body, &())
-            .await?;
-        let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result)
-            .map_err(|e| Error::unable_to_serialize_oauth(&result, e))?;
-        Ok(OAuthToken::from_google_refresh_token(
-            google_token,
-            SystemTime::now(),
-            // TODO: Remove clone.
-            self.refresh_token.clone(),
-            self.client_id.clone(),
-            self.client_secret.clone(),
-        ))
     }
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
         let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
@@ -259,6 +166,62 @@ impl OAuthToken {
             ("X-Goog-Request-Time", request_time_unix.to_string().into()),
         ])
     }
+    fn client_version(&self) -> Cow<str> {
+        let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
+        fallback_client_version(&now_datetime).into()
+    }
+}
+
+impl OAuthToken {
+    pub async fn from_code(
+        client: &Client,
+        code: OAuthDeviceCode,
+        client_id: impl Into<String>,
+        client_secret: impl Into<String>,
+    ) -> Result<OAuthToken> {
+        let client_id = client_id.into();
+        let client_secret = client_secret.into();
+        let body = json!({
+            "client_secret" : &client_secret,
+            "grant_type" : OAUTH_GRANT_URL,
+            "code" : code.get_code(),
+            "client_id" : &client_id
+        });
+        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
+        let result = client
+            .post_json_query(OAUTH_TOKEN_URL, headers, &body, &())
+            .await?;
+        let google_token: GoogleOAuthToken =
+            serde_json::from_str(&result.text).map_err(|_| Error::response(&result.text))?;
+        Ok(OAuthToken::from_google_token(
+            google_token,
+            SystemTime::now(),
+            client_id,
+            client_secret,
+        ))
+    }
+    pub async fn refresh(&self, client: &Client) -> Result<OAuthToken> {
+        let body = json!({
+            "grant_type" : "refresh_token",
+            "refresh_token" : self.refresh_token,
+            "client_secret" : self.client_secret,
+            "client_id" : self.client_id
+        });
+        let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
+        let result = client
+            .post_json_query(OAUTH_TOKEN_URL, headers, &body, &())
+            .await?;
+        let google_token: GoogleOAuthRefreshToken = serde_json::from_str(&result.text)
+            .map_err(|e| Error::unable_to_serialize_oauth(&result.text, e))?;
+        Ok(OAuthToken::from_google_refresh_token(
+            google_token,
+            SystemTime::now(),
+            // TODO: Remove clone.
+            self.refresh_token.clone(),
+            self.client_id.clone(),
+            self.client_secret.clone(),
+        ))
+    }
 }
 
 impl OAuthTokenGenerator {
@@ -268,10 +231,11 @@ impl OAuthTokenGenerator {
             "client_id" : client_id.into()
         });
         let headers = [("User-Agent", OAUTH_USER_AGENT.into())];
-        let result = client
-            .post_query(OAUTH_CODE_URL, headers, &body, &())
-            .await?;
-        serde_json::from_str(&result).map_err(|_| Error::response(&result))
+        let result_text = client
+            .post_json_query(OAUTH_CODE_URL, headers, &body, &())
+            .await?
+            .text;
+        serde_json::from_str(&result_text).map_err(|_| Error::response(&result_text))
     }
 }
 // Don't use default Debug implementation for OAuthToken - contents are

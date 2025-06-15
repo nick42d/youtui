@@ -13,7 +13,7 @@
 //!     Ok(())
 //! }
 //! ```
-//! ### Basic authenticated usage with a pre-created cookie file.
+//! ### Basic authenticated usage with a pre-created cookie file, demonstrating uploading a song.
 //! ```no_run
 //! #[tokio::main]
 //! pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -22,6 +22,10 @@
 //!     yt.get_search_suggestions("Beatles").await?;
 //!     let result = yt.get_search_suggestions("Beatles").await?;
 //!     println!("{:?}", result);
+//!     assert_eq!(
+//!         yt.upload_song("my_song_to_upload.mp3").await.unwrap(),
+//!         ytmapi_rs::common::ApiOutcome::Success
+//!     );
 //!     Ok(())
 //! }
 //! ```
@@ -82,6 +86,7 @@ use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
 pub use builder::YtMusicBuilder;
 #[doc(inline)]
 pub use client::Client;
+use common::ApiOutcome;
 use continuations::Continuable;
 #[doc(inline)]
 pub use error::{Error, Result};
@@ -100,6 +105,7 @@ use std::path::Path;
 mod utils;
 mod nav_consts;
 mod process;
+mod upload_song;
 mod youtube_enums;
 
 pub mod auth;
@@ -175,6 +181,16 @@ impl YtMusic<BrowserToken> {
         let client = Client::new().expect("Expected Client build to succeed");
         let token = BrowserToken::from_str(cookie.as_ref(), &client).await?;
         Ok(Self { client, token })
+    }
+    /// Upload a song to your YouTube Music library. Only available using
+    /// Browser auth.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// yt.upload_song("test_song_to_upload.mp3").await
+    /// # };
+    pub async fn upload_song(&self, file_path: impl AsRef<Path>) -> Result<ApiOutcome> {
+        upload_song::upload_song(file_path, &self.token, &self.client).await
     }
 }
 impl YtMusic<OAuthToken> {
