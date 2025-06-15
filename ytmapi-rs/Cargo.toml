@@ -17,7 +17,7 @@ tokio = { version = "1.43.1", features = ["full"] }
 # https://github.com/rust-lang/cargo/issues/3126
 # As of 26/4/24 the following are reqwest default features:
 # http2, default-tls, charset
-# stream is not a default feature - rather it is use to allow post queries to be streamed from a file handle.
+# stream is not a default feature. It is used explicitly - allows post queries to be streamed from a file handle.
 reqwest = { version = "0.12.12", features = [
   "json",
   "http2",
