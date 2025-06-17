@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.1](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.1.0...ytmapi-rs/v0.1.1) - 2025-06-17
+
+### Other
+- AuthToken no longer needs to be sealed, and fix changelog ([#254](https://github.com/nick42d/youtui/pull/254))
+
+
+
 ## [0.1.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.23...ytmapi-rs/v0.1.0) - 2025-06-15
 
 ### Added
