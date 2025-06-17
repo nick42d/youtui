@@ -1,4 +1,3 @@
-use super::private::Sealed;
 use super::{fallback_client_version, AuthToken};
 use crate::client::Client;
 use crate::error::{Error, Result};
@@ -126,7 +125,6 @@ impl OAuthDeviceCode {
     }
 }
 
-impl Sealed for OAuthToken {}
 impl AuthToken for OAuthToken {
     fn deserialize_response<Q: Query<Self>>(
         raw: RawResult<Q, Self>,
