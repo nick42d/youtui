@@ -19,12 +19,28 @@ pub trait Continuable<Q>: Sized {
     fn parse_continuation(p: ProcessedResult<GetContinuationsQuery<'_, Q>>) -> Result<Self>;
 }
 
+pub trait ParseFromContinuable<Q>: Debug + Sized {
+    fn parse_from_continuable(
+        p: ProcessedResult<Q>,
+    ) -> crate::Result<(Self, ContinuationParams<'static>)>;
+    fn parse_continuation(p: ProcessedResult<GetContinuationsQuery<'_, Q>>) -> Result<Self>;
+}
+
+impl<T, Q> ParseFrom<Q> for T
+where
+    T: ParseFromContinuable<Q>,
+{
+    fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self> {
+        T::parse_from_continuable(p).map(|t| t.0)
+    }
+}
+
 // Implementing Continuable<Q> for T implies ParseFrom<GetContinuationsQuery<Q>
 // for T.
 // TODO: Consider if this lives here, or in parse module.
 impl<'a, T, Q> ParseFrom<GetContinuationsQuery<'a, Q>> for T
 where
-    T: Continuable<Q>,
+    T: ParseFromContinuable<Q>,
     T: Debug,
 {
     fn parse_from(p: ProcessedResult<GetContinuationsQuery<'a, Q>>) -> Result<Self> {
