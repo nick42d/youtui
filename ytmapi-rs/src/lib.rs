@@ -87,7 +87,7 @@ pub use builder::YtMusicBuilder;
 #[doc(inline)]
 pub use client::Client;
 use common::ApiOutcome;
-use continuations::Continuable;
+use continuations::ParseFromContinuable;
 #[doc(inline)]
 pub use error::{Error, Result};
 use futures::Stream;
@@ -331,7 +331,7 @@ impl<A: AuthToken> YtMusic<A> {
     where
         Q: Query<A>,
         Q: PostQuery,
-        Q::Output: Continuable<Q>,
+        Q::Output: ParseFromContinuable<Q>,
     {
         continuations::stream(query, &self.client, &self.token)
     }

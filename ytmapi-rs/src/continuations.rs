@@ -12,13 +12,6 @@ use std::fmt::Debug;
 /// It will contain continuation params, and a parsing function for its
 /// continuations.
 // TODO: Implementation example.
-// TODO: Documement _why_ we need to take_continuation_params and we can't just
-// use a reference.
-pub trait Continuable<Q>: Sized {
-    fn take_continuation_params(&mut self) -> Option<ContinuationParams<'static>>;
-    fn parse_continuation(p: ProcessedResult<GetContinuationsQuery<'_, Q>>) -> Result<Self>;
-}
-
 pub trait ParseFromContinuable<Q>: Debug + Sized {
     fn parse_from_continuable(
         p: ProcessedResult<Q>,
@@ -44,7 +37,7 @@ where
 /// - only PostQuery queries can be streamed - therefore we add the trait bound
 ///   Q: PostQuery - this simplifies code within this function.
 /// - a query can only be streamed if the output is Continuable - therefore we
-///   specify Q::Output: Continuable<Q>.
+///   specify Q::Output: ParseFromContinuable<Q>.
 // TODO: It may be possible to remove the Q: PostQuery bound,
 // instead calling QueryMethod<...>::Call directly.
 pub(crate) fn stream<'a, Q, A>(

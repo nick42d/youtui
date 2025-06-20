@@ -13,11 +13,11 @@ use crate::common::{
     UploadArtistID, UploadEntityID, VideoID,
 };
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetLibraryAlbums,
-    GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists, GetPlaylist,
-    HistoryPeriod, Lyrics, SearchResultAlbum, SearchResultArtist, SearchResultEpisode,
-    SearchResultFeaturedPlaylist, SearchResultPlaylist, SearchResultPodcast, SearchResultProfile,
-    SearchResultSong, SearchResultVideo, SearchResults, WatchPlaylist,
+    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylist, HistoryPeriod,
+    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, SearchResultAlbum,
+    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
+    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
+    WatchPlaylist,
 };
 use crate::query::lyrics::GetLyricsQuery;
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
@@ -748,7 +748,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// yt.get_library_playlists().await;
     /// # };
-    pub async fn get_library_playlists(&self) -> Result<GetLibraryPlaylists> {
+    pub async fn get_library_playlists(&self) -> Result<Vec<LibraryPlaylist>> {
         let query = GetLibraryPlaylistsQuery;
         self.query(query).await
     }
@@ -765,7 +765,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_artists().await;
     /// # };
-    pub async fn get_library_artists(&self) -> Result<GetLibraryArtists> {
+    pub async fn get_library_artists(&self) -> Result<Vec<LibraryArtist>> {
         let query = GetLibraryArtistsQuery::default();
         self.query(query).await
     }
@@ -799,7 +799,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_albums().await;
     /// # };
-    pub async fn get_library_albums(&self) -> Result<GetLibraryAlbums> {
+    pub async fn get_library_albums(&self) -> Result<Vec<SearchResultAlbum>> {
         let query = GetLibraryAlbumsQuery::default();
         self.query(query).await
     }
@@ -816,7 +816,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_artist_subscriptions().await;
     /// # };
-    pub async fn get_library_artist_subscriptions(&self) -> Result<GetLibraryArtistSubscriptions> {
+    pub async fn get_library_artist_subscriptions(&self) -> Result<Vec<LibraryArtistSubscription>> {
         let query = GetLibraryArtistSubscriptionsQuery::default();
         self.query(query).await
     }
