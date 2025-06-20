@@ -1,8 +1,9 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::AuthToken;
 use crate::common::{ContinuationParams, YoutubeID};
-use crate::continuations::Continuable;
+use crate::continuations::{Continuable, ParseFromContinuable};
 use crate::parse::ParseFrom;
+use crate::ProcessedResult;
 use std::borrow::Cow;
 use std::vec::Vec;
 
@@ -33,7 +34,35 @@ impl<'a, Q> GetContinuationsQuery<'a, Q> {
         }
     }
 }
-
+impl<'a, Q> GetContinuationsQuery<'a, Q> {
+    pub fn new_parsefrom<T: ParseFromContinuable<Q>>(
+        res: ProcessedResult<'a, Q>,
+    ) -> crate::Result<(T, Option<GetContinuationsQuery<'a, Q>>)> {
+        let query = res.query;
+        let (res, continuation_params) = T::parse_from_continuable(res)?;
+        let maybe_continuation_query =
+            continuation_params.map(|continuation_params| GetContinuationsQuery {
+                continuation_params,
+                query,
+            });
+        Ok((res, maybe_continuation_query))
+    }
+    pub fn new_parsefromcont<T: ParseFromContinuable<Q>>(
+        res: ProcessedResult<'a, GetContinuationsQuery<Q>>,
+    ) -> crate::Result<(
+        T,
+        Option<GetContinuationsQuery<'a, GetContinuationsQuery<'a, Q>>>,
+    )> {
+        let query = res.query;
+        let (res, continuation_params) = T::parse_continuation(res)?;
+        let maybe_continuation_query =
+            continuation_params.map(|continuation_params| GetContinuationsQuery {
+                continuation_params,
+                query,
+            });
+        Ok((res, maybe_continuation_query))
+    }
+}
 impl<Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'_, Q>
 where
     Q: PostQuery,

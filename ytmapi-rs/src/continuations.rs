@@ -22,8 +22,10 @@ pub trait Continuable<Q>: Sized {
 pub trait ParseFromContinuable<Q>: Debug + Sized {
     fn parse_from_continuable(
         p: ProcessedResult<Q>,
-    ) -> crate::Result<(Self, ContinuationParams<'static>)>;
-    fn parse_continuation(p: ProcessedResult<GetContinuationsQuery<'_, Q>>) -> Result<Self>;
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)>;
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, Q>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)>;
 }
 
 impl<T, Q> ParseFrom<Q> for T
@@ -32,19 +34,6 @@ where
 {
     fn parse_from(p: ProcessedResult<Q>) -> crate::Result<Self> {
         T::parse_from_continuable(p).map(|t| t.0)
-    }
-}
-
-// Implementing Continuable<Q> for T implies ParseFrom<GetContinuationsQuery<Q>
-// for T.
-// TODO: Consider if this lives here, or in parse module.
-impl<'a, T, Q> ParseFrom<GetContinuationsQuery<'a, Q>> for T
-where
-    T: ParseFromContinuable<Q>,
-    T: Debug,
-{
-    fn parse_from(p: ProcessedResult<GetContinuationsQuery<'a, Q>>) -> Result<Self> {
-        T::parse_continuation(p)
     }
 }
 
@@ -67,20 +56,24 @@ where
     A: AuthToken,
     Q: Query<A>,
     Q: PostQuery,
-    Q::Output: Continuable<Q>,
+    Q::Output: ParseFromContinuable<Q>,
 {
     futures::stream::unfold(
+        // Initial state for unfold
+        // The first component is that the first query hasn't been run.
+        // The second component of state represents if there are continuations
+        // (this is ignored on first run)
         (false, None::<GetContinuationsQuery<Q>>),
-        move |(first, maybe_next_query)| async move {
-            if !first {
-                let first_res: Result<Q::Output> = Q::Method::call(query, client, tok)
-                    .await
-                    .and_then(|res| res.process())
-                    .and_then(|res| res.parse_into());
+        move |(first_query_run, maybe_next_query)| async move {
+            if !first_query_run {
+                let first_res: Result<(Q::Output, Option<GetContinuationsQuery<Q>>)> =
+                    Q::Method::call(query, client, tok)
+                        .await
+                        .and_then(|res| res.process())
+                        .and_then(|res| GetContinuationsQuery::new_parsefrom(res));
                 match first_res {
-                    Ok(mut first) => {
-                        let maybe_next_query = GetContinuationsQuery::<Q>::new(&mut first, query);
-                        return Some((Ok(first), (true, maybe_next_query)));
+                    Ok((first, next)) => {
+                        return Some((Ok(first), (true, next)));
                     }
                     Err(e) => return Some((Err(e), (true, None))),
                 }
@@ -89,12 +82,10 @@ where
                 let next = PostMethod::call(&next_query, client, tok)
                     .await
                     .and_then(|res| res.process())
-                    .and_then(|res| res.parse_into());
-
+                    .and_then(|res| GetContinuationsQuery::new_parsefromcont(res));
                 match next {
-                    Ok(mut next) => {
-                        let maybe_next_query = GetContinuationsQuery::<Q>::new(&mut next, query);
-                        return Some((Ok(next), (true, maybe_next_query)));
+                    Ok((this, next)) => {
+                        return Some((Ok(this), (true, next)));
                     }
                     Err(e) => return Some((Err(e), (true, None))),
                 }
