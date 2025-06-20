@@ -56,7 +56,7 @@ where
         // The first component is that the first query hasn't been run.
         // The second component of state represents if there are continuations
         // (this is ignored on first run)
-        (false, None::<GetContinuationsQuery<Q>>),
+        (false, None::<GetContinuationsQuery<'a, Q>>),
         move |(first_query_run, maybe_next_query)| async move {
             if !first_query_run {
                 let first_res: Result<(Q::Output, Option<GetContinuationsQuery<Q>>)> =
@@ -71,12 +71,13 @@ where
                     Err(e) => return Some((Err(e), (true, None))),
                 }
             }
-            if let Some(next_query) = maybe_next_query {
-                let next = PostMethod::call(&next_query, client, tok)
-                    .await
-                    .and_then(|res| res.process())
-                    .and_then(|res| GetContinuationsQuery::new_parsefromcont(res));
-                match next {
+            if let Some(ref next_query) = maybe_next_query {
+                let next_res: Result<(Q::Output, Option<GetContinuationsQuery<Q>>)> =
+                    PostMethod::call(next_query, client, tok)
+                        .await
+                        .and_then(|res| res.process())
+                        .and_then(|res| GetContinuationsQuery::new_parsefromcont(res));
+                match next_res {
                     Ok((this, next)) => {
                         return Some((Ok(this), (true, next)));
                     }

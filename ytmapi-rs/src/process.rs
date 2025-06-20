@@ -10,7 +10,6 @@ use std::marker::PhantomData;
 #[derive(PartialEq, Debug)]
 pub struct RawResult<'a, Q, A>
 where
-    Q: Query<A>,
     A: AuthToken,
 {
     // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
@@ -22,8 +21,8 @@ where
     pub json: String,
 }
 
-impl<'a, Q: Query<A>, A: AuthToken> RawResult<'a, Q, A> {
-    pub fn from_raw(json: String, query: &'a Q) -> Self {
+impl<'a, Q, A: AuthToken> RawResult<'a, Q, A> {
+    pub fn from_raw(_tok: &A, json: String, query: &'a Q) -> Self {
         Self {
             query,
             token: PhantomData,

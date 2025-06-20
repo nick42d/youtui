@@ -20,10 +20,10 @@ pub mod oauth;
 pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;
-    fn deserialize_response<Q: Query<Self>>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+    fn deserialize_response<Q>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
 
-pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
+pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: PostQuery>(
     q: &'a Q,
     tok: &A,
     c: &Client,
@@ -46,10 +46,10 @@ pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: Query<A> + PostQuery>(
     let QueryResponse { text, .. } = c
         .post_json_query(url, tok.headers()?, &body, &q.params())
         .await?;
-    Ok(RawResult::from_raw(text, q))
+    Ok(RawResult::from_raw(tok, text, q))
 }
 
-pub(crate) async fn raw_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
+pub(crate) async fn raw_query_get<'a, Q: GetQuery, A: AuthToken>(
     tok: &A,
     client: &Client,
     query: &'a Q,
@@ -59,7 +59,7 @@ pub(crate) async fn raw_query_get<'a, Q: GetQuery + Query<A>, A: AuthToken>(
     let result = client
         .get_query(url, tok.headers()?, &query.params())
         .await?;
-    let result = RawResult::from_raw(result.text, query);
+    let result = RawResult::from_raw(tok, result.text, query);
     Ok(result)
 }
 

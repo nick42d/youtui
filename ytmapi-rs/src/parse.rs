@@ -98,7 +98,7 @@ pub struct ProcessedResult<'a, Q> {
     pub json: Json,
 }
 
-impl<'a, Q: Query<A>, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {
+impl<'a, Q, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q> {
     type Error = crate::Error;
     fn try_from(value: RawResult<'a, Q, A>) -> Result<Self> {
         let RawResult {

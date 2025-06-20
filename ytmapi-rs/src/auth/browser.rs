@@ -22,7 +22,7 @@ impl AuthToken for BrowserToken {
     fn client_version(&self) -> Cow<str> {
         (&self.client_version).into()
     }
-    fn deserialize_response<Q: Query<Self>>(
+    fn deserialize_response<Q>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;

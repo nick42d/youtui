@@ -54,7 +54,7 @@ impl AuthToken for NoAuthToken {
     fn client_version(&self) -> Cow<str> {
         fallback_client_version(&self.create_time).into()
     }
-    fn deserialize_response<Q: Query<Self>>(
+    fn deserialize_response<Q>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
