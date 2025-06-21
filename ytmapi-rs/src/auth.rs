@@ -2,7 +2,7 @@
 use crate::client::{Client, QueryResponse};
 use crate::error::Result;
 use crate::parse::ProcessedResult;
-use crate::query::{GetQuery, PostQuery, Query};
+use crate::query::{GetQuery, PostQuery};
 use crate::utils::constants::{YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY};
 use crate::Error;
 pub use browser::BrowserToken;

@@ -24,7 +24,6 @@ use crate::auth::AuthToken;
 use crate::common::{AlbumID, ArtistChannelID, Thumbnail};
 use crate::json::Json;
 use crate::nav_consts::*;
-use crate::query::Query;
 use crate::{error, RawResult, Result};
 pub use album::*;
 pub use artist::*;
