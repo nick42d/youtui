@@ -34,42 +34,6 @@ pub struct GetLibraryArtistSubscription {
 }
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-// Very similar to LibraryArtist struct
-// Intentionally not marked non_exhaustive - not expected to change.
-pub struct GetLibrarySongs {
-    pub songs: Vec<TableListSong>,
-    pub continuation_params: Option<ContinuationParams<'static>>,
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-// Intentionally not marked non_exhaustive - not expected to change.
-pub struct GetLibraryArtistSubscriptions {
-    pub subscriptions: Vec<LibraryArtistSubscription>,
-    pub continuation_params: Option<ContinuationParams<'static>>,
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-// Intentionally not marked non_exhaustive - not expected to change.
-pub struct GetLibraryPlaylists {
-    pub playlists: Vec<LibraryPlaylist>,
-    pub continuation_params: Option<ContinuationParams<'static>>,
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-// Intentionally not marked non_exhaustive - not expected to change.
-pub struct GetLibraryArtists {
-    pub artists: Vec<LibraryArtist>,
-    pub continuation_params: Option<ContinuationParams<'static>>,
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
-// Intentionally not marked non_exhaustive - not expected to change.
-pub struct GetLibraryAlbums {
-    pub albums: Vec<SearchResultAlbum>,
-    pub continuation_params: Option<ContinuationParams<'static>>,
-}
-
-#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
 // Very similar to LibraryArtist struct
 pub struct LibraryArtistSubscription {
