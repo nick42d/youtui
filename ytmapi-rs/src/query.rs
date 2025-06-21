@@ -126,11 +126,11 @@ pub trait QueryMethod<Q, A>: Sealed
 where
     A: AuthToken,
 {
-    async fn call<'a>(
+    fn call<'a>(
         query: &'a Q,
         client: &crate::client::Client,
         tok: &A,
-    ) -> Result<RawResult<'a, Q, A>>;
+    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>;
 }
 
 impl Sealed for GetMethod {}
