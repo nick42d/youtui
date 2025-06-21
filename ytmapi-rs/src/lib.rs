@@ -90,7 +90,7 @@ use common::ApiOutcome;
 use continuations::ParseFromContinuable;
 #[doc(inline)]
 pub use error::{Error, Result};
-use futures::Stream;
+use futures::{Stream, StreamExt};
 use parse::ParseFrom;
 #[doc(inline)]
 pub use parse::ProcessedResult;
@@ -329,6 +329,32 @@ impl<A: AuthToken> YtMusic<A> {
         Q::Output: ParseFromContinuable<Q>,
     {
         continuations::stream(query, &self.client, &self.token)
+    }
+    /// Return the sources from streaming a query that has 'continuations', i.e
+    /// can continue to stream results.
+    /// # Return type lifetime notes
+    /// The returned `impl Stream` is tied to the lifetime of self, since it's
+    /// self's client that will emit the results. It's also tied to the
+    /// lifetime of query, but ideally it could take either owned or
+    /// borrowed query.
+    /// # Usage
+    /// ```no_run
+    /// use futures::stream::TryStreamExt;
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
+    /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
+    /// let results = yt.stream_sources(&query).try_collect::<Vecc<_>>().await?;
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub fn stream_sources<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<String>> + 'a
+    where
+        Q: Query<A>,
+        Q: PostQuery,
+        Q::Output: ParseFromContinuable<Q>,
+    {
+        continuations::stream_with_source(query, &self.client, &self.token)
+            .map(|item| item.map(|(source, _)| source))
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for

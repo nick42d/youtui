@@ -170,7 +170,7 @@ impl DynamicYtMusic {
             )),
         })
     }
-    pub async fn _stream_source<Q, O>(&self, _query: &Q, _max_pages: usize) -> Result<String>
+    pub async fn _stream_source<Q, O>(&self, query: &Q, max_pages: usize) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
@@ -178,12 +178,31 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: ParseFromContinuable<Q>,
     {
-        bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params");
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => {
+                yt.stream_sources(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::OAuth(yt) => {
+                yt.stream_sources(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::NoAuth(yt) => {
+                yt.stream_sources(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+        })
     }
     pub async fn stream_source_browser_or_oauth<Q, O>(
         &self,
-        _query: &Q,
-        _max_pages: usize,
+        query: &Q,
+        max_pages: usize,
     ) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
@@ -191,6 +210,23 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: ParseFromContinuable<Q>,
     {
-        bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params");
+        Ok(match self {
+            DynamicYtMusic::Browser(yt) => {
+                yt.stream_sources(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::OAuth(yt) => {
+                yt.stream_sources(query.borrow())
+                    .take(max_pages)
+                    .try_collect()
+                    .await?
+            }
+            DynamicYtMusic::NoAuth(_) => bail!(wrong_auth_token_error_message::<Q>(
+                AuthType::Unauthenticated,
+                &[AuthType::Browser, AuthType::OAuth]
+            )),
+        })
     }
 }
