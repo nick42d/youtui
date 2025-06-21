@@ -1,9 +1,7 @@
-use super::AuthToken;
+use super::{AuthToken, RawResult};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::RawResult;
-use crate::query::Query;
 use crate::utils;
 use crate::utils::constants::{USER_AGENT, YTM_URL};
 use serde::{Deserialize, Serialize};

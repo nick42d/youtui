@@ -2,7 +2,6 @@
 use crate::client::{Client, QueryResponse};
 use crate::error::Result;
 use crate::parse::ProcessedResult;
-use crate::process::RawResult;
 use crate::query::{GetQuery, PostQuery, Query};
 use crate::utils::constants::{YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY};
 use crate::Error;
@@ -12,6 +11,7 @@ pub use oauth::{OAuthToken, OAuthTokenGenerator};
 use reqwest::Url;
 use serde_json::json;
 use std::borrow::Cow;
+use std::marker::PhantomData;
 
 pub mod browser;
 pub mod noauth;
@@ -21,6 +21,39 @@ pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;
     fn deserialize_response<Q>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
+}
+
+/// The raw result of a query to the API.
+// NOTE: The reason this is exposed in the public API, is that it is required to implement
+// AuthToken.
+#[derive(PartialEq, Debug)]
+pub struct RawResult<'a, Q, A>
+where
+    A: AuthToken,
+{
+    // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
+    // generated it.
+    token: PhantomData<A>,
+    /// The query that generated this RawResult.
+    pub query: &'a Q,
+    /// The raw string output returned from the web request to YouTube.
+    pub json: String,
+}
+
+impl<'a, Q, A: AuthToken> RawResult<'a, Q, A> {
+    pub(crate) fn from_raw(json: String, query: &'a Q) -> Self {
+        Self {
+            query,
+            token: PhantomData,
+            json,
+        }
+    }
+    pub fn destructure_json(self) -> String {
+        self.json
+    }
+    pub fn process(self) -> Result<ProcessedResult<'a, Q>> {
+        A::deserialize_response(self)
+    }
 }
 
 pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: PostQuery>(

@@ -81,7 +81,7 @@ compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
 use auth::noauth::NoAuthToken;
 use auth::oauth::OAuthDeviceCode;
-use auth::{AuthToken, OAuthToken, OAuthTokenGenerator};
+use auth::{AuthToken, OAuthToken, OAuthTokenGenerator, RawResult};
 #[doc(inline)]
 pub use builder::YtMusicBuilder;
 #[doc(inline)]
@@ -94,8 +94,6 @@ use futures::Stream;
 use parse::ParseFrom;
 #[doc(inline)]
 pub use parse::ProcessedResult;
-#[doc(inline)]
-pub use process::RawResult;
 use query::{PostQuery, Query, QueryMethod};
 use std::borrow::Borrow;
 use std::hash::{DefaultHasher, Hash, Hasher};
@@ -104,7 +102,6 @@ use std::path::Path;
 #[macro_use]
 mod utils;
 mod nav_consts;
-mod process;
 mod upload_song;
 mod youtube_enums;
 
@@ -286,16 +283,14 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     /// ```
     pub async fn json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
-        // TODO: Remove allocation
         let json = self
             .raw_query(query.borrow())
             .await?
             .process()?
-            .clone_json();
+            .serialize_json();
         Ok(json)
     }
-    /// Return a result from YouTube music that has had errors removed and been
-    /// processed into parsable JSON.
+    /// Run a Query on the API returning its output.
     /// # Usage
     /// ```no_run
     /// # async {
@@ -313,7 +308,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// Stream a query that has 'continuations', i.e can continue to stream
     /// results.
     /// # Return type lifetime notes
-    /// The returned Impl Stream is tied to the lifetime of self, since it's
+    /// The returned `impl Stream` is tied to the lifetime of self, since it's
     /// self's client that will emit the results. It's also tied to the
     /// lifetime of query, but ideally it could take either owned or
     /// borrowed query.

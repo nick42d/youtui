@@ -1,9 +1,7 @@
-use super::{fallback_client_version, AuthToken};
+use super::{fallback_client_version, AuthToken, RawResult};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::RawResult;
-use crate::query::Query;
 use crate::utils::constants::{USER_AGENT, YTM_URL};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};

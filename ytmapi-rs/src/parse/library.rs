@@ -1,7 +1,7 @@
 use super::{
-    parse_flex_column_item, parse_library_management_items_from_menu, ParseFrom, ProcessedResult,
-    SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, GRID_CONTINUATION,
-    MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
+    fixed_column_item_pointer, parse_flex_column_item, parse_library_management_items_from_menu,
+    ParseFrom, ProcessedResult, SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS,
+    GRID_CONTINUATION, MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
     SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::{
@@ -13,7 +13,6 @@ use crate::nav_consts::{
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
     THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
-use crate::process::fixed_column_item_pointer;
 use crate::query::{
     EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,

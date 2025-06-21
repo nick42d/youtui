@@ -1,15 +1,15 @@
 use super::search::SearchResultVideo;
 use super::{
-    parse_flex_column_item, parse_song_album, parse_song_artists, parse_upload_song_album,
-    parse_upload_song_artists, EpisodeDate, EpisodeDuration, ParseFrom, ParsedSongAlbum,
-    ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum, ProcessedResult, Thumbnail,
+    fixed_column_item_pointer, flex_column_item_pointer, parse_flex_column_item, parse_song_album,
+    parse_song_artists, parse_upload_song_album, parse_upload_song_artists, EpisodeDate,
+    EpisodeDuration, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
+    ParsedUploadSongAlbum, ProcessedResult, Thumbnail,
 };
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, BrowseParams, EpisodeID, Explicit, LibraryManager,
     LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
 };
 use crate::nav_consts::*;
-use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
 use crate::query::*;
 use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::Result;

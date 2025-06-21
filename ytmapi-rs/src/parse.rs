@@ -24,7 +24,6 @@ use crate::auth::AuthToken;
 use crate::common::{AlbumID, ArtistChannelID, Thumbnail};
 use crate::json::Json;
 use crate::nav_consts::*;
-use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
 use crate::query::Query;
 use crate::{error, RawResult, Result};
 pub use album::*;
@@ -130,7 +129,7 @@ impl<'a, Q> ProcessedResult<'a, Q> {
         } = self;
         (query, source, json.inner)
     }
-    pub(crate) fn clone_json(self) -> String {
+    pub(crate) fn serialize_json(self) -> String {
         serde_json::to_string_pretty(&self.json)
             .expect("Serialization of serde_json::value should not fail")
     }
@@ -150,6 +149,14 @@ impl<Q> From<ProcessedResult<'_, Q>> for JsonCrawlerOwned {
         let (_, source, crawler) = value.destructure();
         JsonCrawlerOwned::new(source, crawler)
     }
+}
+
+fn fixed_column_item_pointer(col_idx: usize) -> String {
+    format!("/fixedColumns/{col_idx}/musicResponsiveListItemFixedColumnRenderer")
+}
+
+fn flex_column_item_pointer(col_idx: usize) -> String {
+    format!("/flexColumns/{col_idx}/musicResponsiveListItemFlexColumnRenderer")
 }
 
 // Should take FlexColumnItem? or Data?. Regular serde_json::Value could tryInto

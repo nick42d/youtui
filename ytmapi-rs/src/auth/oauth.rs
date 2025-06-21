@@ -1,9 +1,7 @@
-use super::{fallback_client_version, AuthToken};
+use super::{fallback_client_version, AuthToken, RawResult};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::RawResult;
-use crate::query::Query;
 use crate::utils::constants::{
     OAUTH_CODE_URL, OAUTH_GRANT_URL, OAUTH_SCOPE, OAUTH_TOKEN_URL, OAUTH_USER_AGENT, USER_AGENT,
     YTM_URL,
