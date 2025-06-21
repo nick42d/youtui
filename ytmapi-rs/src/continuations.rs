@@ -30,6 +30,23 @@ where
     }
 }
 
+impl<T, Q> ParseFromContinuable<GetContinuationsQuery<'_, Q>> for T
+where
+    T: std::fmt::Debug + Sized,
+    T: ParseFromContinuable<Q>,
+{
+    fn parse_from_continuable(
+        p: ProcessedResult<GetContinuationsQuery<Q>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        T::parse_continuation(p)
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetContinuationsQuery<Q>>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        todo!()
+    }
+}
+
 /// Stream a query that can be streamed.
 /// This function has quite complicated trait bounds. To step through them;
 /// - query must meet the standard trait bounds for a query - Q: Query<A:

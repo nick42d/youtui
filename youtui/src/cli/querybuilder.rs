@@ -11,6 +11,7 @@ use ytmapi_rs::common::{
     TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
     VideoID, YoutubeID,
 };
+use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
@@ -608,7 +609,7 @@ where
     Q: Query<OAuthToken, Output = O>,
     Q: Query<NoAuthToken, Output = O>,
     Q: PostQuery,
-    O: ParseFrom<Q> + Continuable<Q>,
+    O: ParseFromContinuable<Q>,
 {
     match cli_query {
         CliQuery {
@@ -665,7 +666,7 @@ where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
     Q: PostQuery,
-    O: ParseFrom<Q> + Continuable<Q>,
+    O: ParseFromContinuable<Q>,
 {
     match cli_query {
         CliQuery {
@@ -707,11 +708,10 @@ where
             }
             for source in sources_iter {
                 let continuation_query = GetContinuationsQuery::new_mock_unchecked(q.borrow());
-                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth(
-                    &yt,
-                    source,
-                    continuation_query,
-                )?)
+                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth::<
+                    GetContinuationsQuery<Q>,
+                    O,
+                >(&yt, source, continuation_query)?)
             }
             Ok(output_arr.join("\n"))
         }
@@ -727,7 +727,7 @@ where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
     Q: Query<NoAuthToken, Output = O>,
-    O: ParseFrom<Q>,
+    O: std::fmt::Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets
@@ -753,7 +753,7 @@ fn process_json_based_on_dyn_api_browser_or_oauth<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
-    O: ParseFrom<Q>,
+    O: std::fmt::Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets

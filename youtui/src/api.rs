@@ -8,6 +8,7 @@ use rusty_ytdl::reqwest;
 use std::borrow::Borrow;
 use ytmapi_rs::auth::noauth::NoAuthToken;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
+use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::query::{PostQuery, Query};
 use ytmapi_rs::{YtMusic, YtMusicBuilder};
 mod error;
@@ -83,7 +84,7 @@ impl DynamicYtMusic {
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
         Q: Query<NoAuthToken, Output = O>,
-        O: Continuable<Q>,
+        O: ParseFromContinuable<Q>,
         Q: PostQuery,
     {
         Ok(match self {
@@ -115,7 +116,7 @@ impl DynamicYtMusic {
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
-        O: Continuable<Q>,
+        O: ParseFromContinuable<Q>,
         Q: PostQuery,
     {
         Ok(match self {
@@ -175,7 +176,7 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken, Output = O>,
         Q: Query<NoAuthToken, Output = O>,
         Q: PostQuery,
-        O: Continuable<Q>,
+        O: ParseFromContinuable<Q>,
     {
         bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params");
     }
@@ -188,7 +189,7 @@ impl DynamicYtMusic {
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
         Q: PostQuery,
-        O: Continuable<Q>,
+        O: ParseFromContinuable<Q>,
     {
         bail!("It's not currently possible to get source files for each result of a stream, since the source files get consumed to obtain continuation params");
     }
