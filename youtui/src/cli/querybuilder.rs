@@ -708,10 +708,11 @@ where
             }
             for source in sources_iter {
                 let continuation_query = GetContinuationsQuery::new_mock_unchecked(q.borrow());
-                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth::<
-                    GetContinuationsQuery<Q>,
-                    O,
-                >(&yt, source, continuation_query)?)
+                output_arr.push(process_json_based_on_dyn_api_browser_or_oauth(
+                    &yt,
+                    source,
+                    continuation_query,
+                )?)
             }
             Ok(output_arr.join("\n"))
         }
