@@ -11,7 +11,6 @@ use ytmapi_rs::common::{
     TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
     VideoID, YoutubeID,
 };
-use ytmapi_rs::continuations::Continuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};

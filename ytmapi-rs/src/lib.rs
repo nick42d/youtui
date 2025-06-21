@@ -422,5 +422,5 @@ pub fn process_json<Q: Query<A>, A: AuthToken>(
     json: String,
     query: impl Borrow<Q>,
 ) -> Result<Q::Output> {
-    Q::Output::parse_from(RawResult::from_raw(json, query.borrow()).process()?)
+    Q::Output::parse_from(RawResult::<Q, A>::from_raw(json, query.borrow()).process()?)
 }

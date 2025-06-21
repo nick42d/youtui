@@ -46,7 +46,7 @@ pub(crate) async fn raw_query_post<'a, A: AuthToken, Q: PostQuery>(
     let QueryResponse { text, .. } = c
         .post_json_query(url, tok.headers()?, &body, &q.params())
         .await?;
-    Ok(RawResult::from_raw(tok, text, q))
+    Ok(RawResult::from_raw(text, q))
 }
 
 pub(crate) async fn raw_query_get<'a, Q: GetQuery, A: AuthToken>(
@@ -59,7 +59,7 @@ pub(crate) async fn raw_query_get<'a, Q: GetQuery, A: AuthToken>(
     let result = client
         .get_query(url, tok.headers()?, &query.params())
         .await?;
-    let result = RawResult::from_raw(tok, result.text, query);
+    let result = RawResult::from_raw(result.text, query);
     Ok(result)
 }
 

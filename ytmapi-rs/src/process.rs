@@ -22,7 +22,7 @@ where
 }
 
 impl<'a, Q, A: AuthToken> RawResult<'a, Q, A> {
-    pub fn from_raw(_tok: &A, json: String, query: &'a Q) -> Self {
+    pub fn from_raw(json: String, query: &'a Q) -> Self {
         Self {
             query,
             token: PhantomData,

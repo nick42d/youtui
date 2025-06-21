@@ -59,11 +59,10 @@ where
         (false, None::<GetContinuationsQuery<'a, Q>>),
         move |(first_query_run, maybe_next_query)| async move {
             if !first_query_run {
-                let first_res: Result<(Q::Output, Option<GetContinuationsQuery<Q>>)> =
-                    Q::Method::call(query, client, tok)
-                        .await
-                        .and_then(|res| res.process())
-                        .and_then(|res| GetContinuationsQuery::new_parsefrom(res));
+                let first_res = Q::Method::call(query, client, tok)
+                    .await
+                    .and_then(|res| res.process())
+                    .and_then(|res| GetContinuationsQuery::from_first_result(res));
                 match first_res {
                     Ok((first, next)) => {
                         return Some((Ok(first), (true, next)));
@@ -72,11 +71,11 @@ where
                 }
             }
             if let Some(ref next_query) = maybe_next_query {
-                let next_res: Result<(Q::Output, Option<GetContinuationsQuery<Q>>)> =
-                    PostMethod::call(next_query, client, tok)
-                        .await
-                        .and_then(|res| res.process())
-                        .and_then(|res| GetContinuationsQuery::new_parsefromcont(res));
+                let next_res = PostMethod::call(next_query, client, tok)
+                    .await
+                    .and_then(|res| res.process());
+                let next_res =
+                    next_res.and_then(|res| GetContinuationsQuery::from_continuation(res));
                 match next_res {
                     Ok((this, next)) => {
                         return Some((Ok(this), (true, next)));
