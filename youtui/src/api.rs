@@ -180,19 +180,19 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
-                yt.stream_sources(query.borrow())
+                yt.json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::OAuth(yt) => {
-                yt.stream_sources(query.borrow())
+                yt.json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::NoAuth(yt) => {
-                yt.stream_sources(query.borrow())
+                yt.json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
@@ -212,13 +212,13 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
-                yt.stream_sources(query.borrow())
+                yt.json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::OAuth(yt) => {
-                yt.stream_sources(query.borrow())
+                yt.json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?

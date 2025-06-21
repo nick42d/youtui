@@ -457,7 +457,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
     ///     .unwrap();
@@ -484,8 +484,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let playlists = yt.get_library_playlists()
     ///     .await
-    ///     .unwrap()
-    ///     .playlists;
+    ///     .unwrap();
     /// let query = ytmapi_rs::query::EditPlaylistQuery::new_title(
     ///     &playlists[0].playlist_id,
     ///     "Better playlist title",
@@ -666,7 +665,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.get_library_playlists().await.unwrap();
-    /// yt.delete_playlist(&results.playlists[0].playlist_id).await
+    /// yt.delete_playlist(&results[0].playlist_id).await
     /// # };
     pub async fn delete_playlist<'a, T: Into<PlaylistID<'a>>>(&self, playlist_id: T) -> Result<()> {
         let query = DeletePlaylistQuery::new(playlist_id.into());
@@ -698,7 +697,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let songs = yt.search_songs("Master of puppets").await.unwrap();
     /// yt.add_video_items_to_playlist(
     ///     playlist_id,
@@ -722,7 +721,7 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let ytmapi_rs::parse::LibraryPlaylist { playlist_id, .. } =
-    ///     yt.get_library_playlists().await.unwrap().playlists.pop().unwrap();
+    ///     yt.get_library_playlists().await.unwrap().pop().unwrap();
     /// let source_playlist = yt.search_featured_playlists("Heavy metal")
     ///     .await
     ///     .unwrap();

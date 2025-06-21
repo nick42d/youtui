@@ -343,11 +343,14 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
     /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
-    /// let results = yt.stream_sources(&query).try_collect::<Vecc<_>>().await?;
+    /// let results = yt
+    ///     .stream_sources(&query)
+    ///     .try_collect::<Vec<String>>()
+    ///     .await?;
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub fn stream_sources<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<String>> + 'a
+    pub fn json_stream<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<String>> + 'a
     where
         Q: Query<A>,
         Q: PostQuery,
