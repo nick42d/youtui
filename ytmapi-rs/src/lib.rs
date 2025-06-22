@@ -91,6 +91,7 @@ use continuations::ParseFromContinuable;
 #[doc(inline)]
 pub use error::{Error, Result};
 use futures::{Stream, StreamExt};
+use json::Json;
 use parse::ParseFrom;
 #[doc(inline)]
 pub use parse::ProcessedResult;
@@ -215,11 +216,29 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
-    /// Return a raw result from YouTube music for query Q that requires further
-    /// processing.
-    /// # Note
-    /// The returned raw result will hold a reference to the query it was called
-    /// with. Therefore, passing an owned value is not permitted.
+    /// Return the source JSON returned by YouTube music for the query, prior to
+    /// deserialization and error processing.
+    /// # Usage
+    /// ```no_run
+    /// use ytmapi_rs::auth::BrowserToken;
+    ///
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
+    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
+    /// let result = yt.raw_json_query(&query).await?;
+    /// assert!(result.is_ok());
+    /// # Ok::<(), ytmapi_rs::Error>(())
+    /// # };
+    /// ```
+    pub async fn raw_json_query<'a, Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
+        Q::Method::call(query.borrow(), &self.client, &self.token)
+            .await
+            .map(|raw| raw.json)
+    }
+    /// Return a result from YouTube music that has had errors removed and been
+    /// deserialized into parsable JSON.
+    /// The return type implements Serialize and Deserialize.
     /// # Usage
     /// ```no_run
     /// use ytmapi_rs::auth::BrowserToken;
@@ -229,66 +248,16 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
     ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
-    /// let raw_result = yt.raw_query(&query).await?;
-    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
-    ///     ParseFrom::parse_from(raw_result.process()?)?;
-    /// assert_eq!(result[0].artist, "The Beatles");
+    /// let result = yt.json_query(&query).await?;
+    /// assert!(result.is_ok());
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn raw_query<'a, Q: Query<A>>(&self, query: &'a Q) -> Result<RawResult<'a, Q, A>> {
-        // TODO: Check for a response the reflects an expired Headers token
-        Q::Method::call(query, &self.client, &self.token).await
-    }
-    /// Return a result from YouTube music that has had errors removed and been
-    /// processed into parsable JSON.
-    /// # Note
-    /// The returned raw result will hold a reference to the query it was called
-    /// with. Therefore, passing an owned value is not permitted.
-    /// # Usage
-    /// ```no_run
-    /// use ytmapi_rs::auth::BrowserToken;
-    /// use ytmapi_rs::parse::ParseFrom;
-    ///
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
-    /// let processed_result = yt.processed_query(&query).await?;
-    /// let result: Vec<ytmapi_rs::parse::SearchResultArtist> =
-    ///     ParseFrom::parse_from(processed_result)?;
-    /// assert_eq!(result[0].artist, "The Beatles");
-    /// # Ok::<(), ytmapi_rs::Error>(())
-    /// # };
-    /// ```
-    pub async fn processed_query<'a, Q: Query<A>>(
-        &self,
-        query: &'a Q,
-    ) -> Result<ProcessedResult<'a, Q>> {
-        // TODO: Check for a response the reflects an expired Headers token
-        self.raw_query(query).await?.process()
-    }
-    /// Return the raw JSON returned by YouTube music for Query Q.
-    /// Return a result from YouTube music that has had errors removed and been
-    /// processed into parsable JSON.
-    /// # Usage
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
-    /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
-    ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
-    /// let json_string = yt.json_query(query).await?;
-    /// assert!(serde_json::from_str::<serde_json::Value>(&json_string).is_ok());
-    /// # Ok::<(), ytmapi_rs::Error>(())
-    /// # };
-    /// ```
-    pub async fn json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
-        let json = self
-            .raw_query(query.borrow())
+    pub async fn json_query<'a, Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Json> {
+        Q::Method::call(query.borrow(), &self.client, &self.token)
             .await?
-            .process()?
-            .serialize_json();
-        Ok(json)
+            .process()
+            .map(|processed| processed.json)
     }
     /// Run a Query on the API returning its output.
     /// # Usage
@@ -303,7 +272,11 @@ impl<A: AuthToken> YtMusic<A> {
     /// # };
     /// ```
     pub async fn query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Q::Output> {
-        Q::Output::parse_from(self.processed_query(query.borrow()).await?)
+        Q::Output::parse_from(
+            Q::Method::call(query.borrow(), &self.client, &self.token)
+                .await?
+                .process()?,
+        )
     }
     /// Stream a query that has 'continuations', i.e can continue to stream
     /// results.
@@ -330,8 +303,10 @@ impl<A: AuthToken> YtMusic<A> {
     {
         continuations::stream(query, &self.client, &self.token)
     }
-    /// Return the sources from streaming a query that has 'continuations', i.e
-    /// can continue to stream results.
+    /// Return the source JSON from streaming a query that has 'continuations',
+    /// i.e can continue to stream results.
+    /// Note that the stream will stop if an error is detected (after returning
+    /// the source file that produced the error).
     /// # Return type lifetime notes
     /// The returned `impl Stream` is tied to the lifetime of self, since it's
     /// self's client that will emit the results. It's also tied to the
@@ -347,7 +322,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub fn json_stream<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<String>> + 'a
+    pub fn raw_json_stream<'a, Q>(&'a self, query: &'a Q) -> impl Stream<Item = Result<String>> + 'a
     where
         Q: Query<A>,
         Q: PostQuery,

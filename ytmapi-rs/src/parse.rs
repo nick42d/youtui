@@ -128,10 +128,6 @@ impl<'a, Q> ProcessedResult<'a, Q> {
         } = self;
         (query, source, json.inner)
     }
-    pub(crate) fn serialize_json(self) -> String {
-        serde_json::to_string_pretty(&self.json)
-            .expect("Serialization of serde_json::value should not fail")
-    }
     pub(crate) fn get_json(&self) -> &serde_json::Value {
         &self.json.inner
     }

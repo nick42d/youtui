@@ -25,6 +25,7 @@ impl AuthToken for BrowserToken {
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
         // Guard against error codes in json response.
+        // TODO: Check for a response the reflects an expired Headers token
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {

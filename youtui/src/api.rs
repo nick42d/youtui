@@ -145,13 +145,18 @@ impl DynamicYtMusic {
         Q: Query<NoAuthToken, Output = O>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => {
-                yt.raw_query(query).await.map(|r| r.destructure_json())?
-            }
-            DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
-            DynamicYtMusic::NoAuth(yt) => {
-                yt.raw_query(query).await.map(|r| r.destructure_json())?
-            }
+            DynamicYtMusic::Browser(yt) => yt
+                .raw_json_query(query)
+                .await
+                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::OAuth(yt) => yt
+                .raw_json_query(query)
+                .await
+                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::NoAuth(yt) => yt
+                .raw_json_query(query)
+                .await
+                .map(|r| r.destructure_json())?,
         })
     }
     pub async fn query_source_browser_or_oauth<Q, O>(&self, query: &Q) -> Result<String>
@@ -160,10 +165,14 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken, Output = O>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => {
-                yt.raw_query(query).await.map(|r| r.destructure_json())?
-            }
-            DynamicYtMusic::OAuth(yt) => yt.raw_query(query).await.map(|r| r.destructure_json())?,
+            DynamicYtMusic::Browser(yt) => yt
+                .raw_json_query(query)
+                .await
+                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::OAuth(yt) => yt
+                .raw_json_query(query)
+                .await
+                .map(|r| r.destructure_json())?,
             DynamicYtMusic::NoAuth(_) => bail!(wrong_auth_token_error_message::<Q>(
                 AuthType::Unauthenticated,
                 &[AuthType::Browser, AuthType::OAuth]
@@ -180,19 +189,19 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
-                yt.json_stream(query.borrow())
+                yt.raw_json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::OAuth(yt) => {
-                yt.json_stream(query.borrow())
+                yt.raw_json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::NoAuth(yt) => {
-                yt.json_stream(query.borrow())
+                yt.raw_json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
@@ -212,13 +221,13 @@ impl DynamicYtMusic {
     {
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
-                yt.json_stream(query.borrow())
+                yt.raw_json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?
             }
             DynamicYtMusic::OAuth(yt) => {
-                yt.json_stream(query.borrow())
+                yt.raw_json_stream(query.borrow())
                     .take(max_pages)
                     .try_collect()
                     .await?

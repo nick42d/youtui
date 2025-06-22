@@ -27,7 +27,7 @@ pub trait AuthToken: Sized {
 // NOTE: The reason this is exposed in the public API, is that it is required to implement
 // AuthToken.
 #[derive(PartialEq, Debug)]
-pub struct RawResult<'a, Q, A>
+pub(crate) struct RawResult<'a, Q, A>
 where
     A: AuthToken,
 {
