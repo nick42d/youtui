@@ -2,13 +2,14 @@ use super::{
     flex_column_item_pointer, parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY,
 };
 use crate::common::{
-    AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
-    SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, ContinuationParams, EpisodeID, Explicit, PlaylistID,
+    PodcastID, ProfileID, SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
 };
+use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
-    BADGE_LABEL, LIVE_BADGE_LABEL, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF, NAVIGATION_BROWSE,
-    NAVIGATION_BROWSE_ID, PAGE_TYPE, PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE,
-    SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
+    BADGE_LABEL, CONTINUATION_PARAMS, LIVE_BADGE_LABEL, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF,
+    NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PAGE_TYPE, PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON,
+    SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
 use crate::query::search::filteredsearch::{
@@ -1148,15 +1149,31 @@ impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
         FilteredSearchMSRContents::try_from(section_contents)?.try_into()
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>> for Vec<SearchResultPlaylist> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>
+    for Vec<SearchResultPlaylist>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = SectionContentsCrawler::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMSRContents::try_from(section_contents)?.try_into()
+        let continuation_params = section_contents
+            .0
+            .try_iter_mut()
+            .and_then(|contents| contents.find_path(concatcp!(MUSIC_SHELF, CONTINUATION_PARAMS)))
+            .and_then(|mut continuation_params| continuation_params.take_value())
+            .ok();
+        let results = FilteredSearchMSRContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
 
