@@ -294,7 +294,7 @@ async fn test_get_artist_albums() {
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
-    let res = api.raw_query(&q).await.unwrap();
+    let res = api.raw_json_query(&q).await.unwrap();
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
@@ -319,7 +319,7 @@ async fn test_get_artist_album_songs() {
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
-    let res = api.raw_query(&q).await.unwrap();
+    let res = api.raw_json_query(&q).await.unwrap();
     println!("Get artist took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     // TODO: fix temporary value dropped while borrowed error.
@@ -333,7 +333,7 @@ async fn test_get_artist_album_songs() {
     let params = albums.params.unwrap();
     let channel_id = &albums.browse_id.unwrap();
     let q = GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(channel_id.get_raw()), params);
-    let res = api.raw_query(&q).await.unwrap();
+    let res = api.raw_json_query(&q).await.unwrap();
     println!("Get albums took {} ms", now.elapsed().as_millis());
     let now = std::time::Instant::now();
     let res = res.process().unwrap();
@@ -342,7 +342,7 @@ async fn test_get_artist_album_songs() {
     let now = std::time::Instant::now();
     let browse_id = &res[0].browse_id;
     let q = GetAlbumQuery::new(browse_id.clone());
-    let res = api.raw_query(&q).await.unwrap();
+    let res = api.raw_json_query(&q).await.unwrap();
     println!(
         "Get album {} took {} ms",
         browse_id.get_raw(),
@@ -636,13 +636,13 @@ async fn test_get_library_playlists_oauth() {
     // refresh it each time.
     api.refresh_token().await.unwrap();
     let res = api.get_library_playlists().await.unwrap();
-    assert!(!res.playlists.is_empty());
+    assert!(!res.is_empty());
 }
 #[tokio::test]
 async fn test_get_library_playlists() {
     let api = new_standard_api().await.unwrap();
     let res = api.get_library_playlists().await.unwrap();
-    assert!(!res.playlists.is_empty());
+    assert!(!res.is_empty());
 }
 #[tokio::test]
 async fn test_get_library_artists_oauth() {
@@ -651,13 +651,13 @@ async fn test_get_library_artists_oauth() {
     // refresh it each time.
     api.refresh_token().await.unwrap();
     let res = api.get_library_artists().await.unwrap();
-    assert!(!res.artists.is_empty());
+    assert!(!res.is_empty());
 }
 #[tokio::test]
 async fn test_get_library_artists() {
     let api = new_standard_api().await.unwrap();
     let res = api.get_library_artists().await.unwrap();
-    assert!(!res.artists.is_empty());
+    assert!(!res.is_empty());
 }
 #[tokio::test]
 async fn test_watch_playlist() {

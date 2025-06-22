@@ -1,12 +1,11 @@
 use super::{
-    parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist, ParseFrom,
-    ParsedSongArtist, ProcessedResult,
+    fixed_column_item_pointer, parse_flex_column_item, parse_library_management_items_from_menu,
+    parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
 };
 use crate::common::{
     AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, PlaylistID, Thumbnail, VideoID,
 };
 use crate::nav_consts::*;
-use crate::process::fixed_column_item_pointer;
 use crate::query::*;
 use crate::Result;
 use const_format::concatcp;

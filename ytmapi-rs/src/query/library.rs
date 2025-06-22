@@ -4,8 +4,7 @@ use crate::common::{
     ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
 };
 use crate::parse::{
-    GetLibraryAlbums, GetLibraryArtistSubscriptions, GetLibraryArtists, GetLibraryPlaylists,
-    GetLibrarySongs,
+    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, SearchResultAlbum, TableListSong,
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -111,7 +110,7 @@ impl<'a> EditSongLibraryStatusQuery<'a> {
 }
 
 impl<A: LoggedIn> Query<A> for GetLibraryPlaylistsQuery {
-    type Output = GetLibraryPlaylists;
+    type Output = Vec<LibraryPlaylist>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryPlaylistsQuery {
@@ -126,7 +125,7 @@ impl PostQuery for GetLibraryPlaylistsQuery {
     }
 }
 impl<A: LoggedIn> Query<A> for GetLibraryArtistsQuery {
-    type Output = GetLibraryArtists;
+    type Output = Vec<LibraryArtist>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistsQuery {
@@ -155,7 +154,7 @@ impl PostQuery for GetLibraryArtistsQuery {
 }
 
 impl<A: LoggedIn> Query<A> for GetLibrarySongsQuery {
-    type Output = GetLibrarySongs;
+    type Output = Vec<TableListSong>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibrarySongsQuery {
@@ -177,7 +176,7 @@ impl PostQuery for GetLibrarySongsQuery {
     }
 }
 impl<A: LoggedIn> Query<A> for GetLibraryAlbumsQuery {
-    type Output = GetLibraryAlbums;
+    type Output = Vec<SearchResultAlbum>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryAlbumsQuery {
@@ -199,7 +198,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
     }
 }
 impl<A: LoggedIn> Query<A> for GetLibraryArtistSubscriptionsQuery {
-    type Output = GetLibraryArtistSubscriptions;
+    type Output = Vec<LibraryArtistSubscription>;
     type Method = PostMethod;
 }
 impl PostQuery for GetLibraryArtistSubscriptionsQuery {

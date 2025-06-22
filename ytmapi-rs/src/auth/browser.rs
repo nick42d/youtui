@@ -1,9 +1,7 @@
-use super::AuthToken;
+use super::{AuthToken, RawResult};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;
-use crate::process::RawResult;
-use crate::query::Query;
 use crate::utils;
 use crate::utils::constants::{USER_AGENT, YTM_URL};
 use serde::{Deserialize, Serialize};
@@ -22,11 +20,12 @@ impl AuthToken for BrowserToken {
     fn client_version(&self) -> Cow<str> {
         (&self.client_version).into()
     }
-    fn deserialize_response<Q: Query<Self>>(
+    fn deserialize_response<Q>(
         raw: RawResult<Q, Self>,
     ) -> Result<crate::parse::ProcessedResult<Q>> {
         let processed = ProcessedResult::try_from(raw)?;
         // Guard against error codes in json response.
+        // TODO: Check for a response the reflects an expired Headers token
         // TODO: Add a test for this
         if let Some(error) = processed.get_json().pointer("/error") {
             let Some(code) = error.pointer("/code").and_then(|v| v.as_u64()) else {

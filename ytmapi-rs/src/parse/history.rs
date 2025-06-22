@@ -1,8 +1,8 @@
 use super::{
-    parse_library_management_items_from_menu, parse_upload_song_album, parse_upload_song_artists,
-    EpisodeDate, EpisodeDuration, ParseFrom, ParsedSongAlbum, ParsedUploadArtist,
-    ParsedUploadSongAlbum, BADGE_LABEL, DELETION_ENTITY_ID, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR,
-    MUSIC_SHELF, TEXT_RUN_TEXT, THUMBNAILS, TITLE_TEXT,
+    fixed_column_item_pointer, flex_column_item_pointer, parse_library_management_items_from_menu,
+    parse_upload_song_album, parse_upload_song_artists, EpisodeDate, EpisodeDuration, ParseFrom,
+    ParsedSongAlbum, ParsedUploadArtist, ParsedUploadSongAlbum, BADGE_LABEL, DELETION_ENTITY_ID,
+    MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, TEXT_RUN_TEXT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::common::{
     ApiOutcome, ArtistChannelID, EpisodeID, Explicit, FeedbackTokenRemoveFromHistory,
@@ -13,7 +13,6 @@ use crate::nav_consts::{
     NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, SECTION_LIST, SINGLE_COLUMN_TAB, TEXT_RUN, WATCH_VIDEO_ID,
 };
 use crate::parse::parse_flex_column_item;
-use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
 use crate::query::{AddHistoryItemQuery, GetHistoryQuery, RemoveHistoryItemsQuery};
 use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::Result;

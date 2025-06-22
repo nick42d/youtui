@@ -1,62 +1,59 @@
-GetLibraryArtistSubscriptions {
-    subscriptions: [
-        LibraryArtistSubscription {
-            name: "Calibre",
-            subscribers: "19.2K subscribers",
-            channel_id: ArtistChannelID(
-                "UC48r7vjqthkREf6NdoNEzww",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/ekgr9Uw3RvCzSov6-tEfVNKlH6w-C5rjm_AHQN842igNINVrJxD9eaXatLF2MLtCCWyd4TfDIeuIgGg=w60-h60-p-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/ekgr9Uw3RvCzSov6-tEfVNKlH6w-C5rjm_AHQN842igNINVrJxD9eaXatLF2MLtCCWyd4TfDIeuIgGg=w120-h120-p-l90-rj",
-                },
-            ],
-        },
-        LibraryArtistSubscription {
-            name: "Have a Nice Life",
-            subscribers: "22.3K subscribers",
-            channel_id: ArtistChannelID(
-                "UCmc-p5a2CHyCNpyAiI47Mzg",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/dV3t3XLnMv0ah2iEoCvCH_FdN45qMH6jYUMsWmsH8t5LwAwgqPzvpDMioGqkgvWfZWrXbzpfenA2dcs=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/dV3t3XLnMv0ah2iEoCvCH_FdN45qMH6jYUMsWmsH8t5LwAwgqPzvpDMioGqkgvWfZWrXbzpfenA2dcs=w120-h120-l90-rj",
-                },
-            ],
-        },
-        LibraryArtistSubscription {
-            name: "The Smile",
-            subscribers: "152K subscribers",
-            channel_id: ArtistChannelID(
-                "UChy8y7EpURH4K_LXIHENROA",
-            ),
-            thumbnails: [
-                Thumbnail {
-                    height: 60,
-                    width: 60,
-                    url: "https://lh3.googleusercontent.com/h9i1qm_EXC_3-2E6OacFiwMB4tRYseuOps2PEHF71kmFQBYhOi-A-Np0PlPrEj5tikBRdnkk9yqKhQk=w60-h60-l90-rj",
-                },
-                Thumbnail {
-                    height: 120,
-                    width: 120,
-                    url: "https://lh3.googleusercontent.com/h9i1qm_EXC_3-2E6OacFiwMB4tRYseuOps2PEHF71kmFQBYhOi-A-Np0PlPrEj5tikBRdnkk9yqKhQk=w120-h120-l90-rj",
-                },
-            ],
-        },
-    ],
-    continuation_params: None,
-}
+[
+    LibraryArtistSubscription {
+        name: "Calibre",
+        subscribers: "19.2K subscribers",
+        channel_id: ArtistChannelID(
+            "UC48r7vjqthkREf6NdoNEzww",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/ekgr9Uw3RvCzSov6-tEfVNKlH6w-C5rjm_AHQN842igNINVrJxD9eaXatLF2MLtCCWyd4TfDIeuIgGg=w60-h60-p-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/ekgr9Uw3RvCzSov6-tEfVNKlH6w-C5rjm_AHQN842igNINVrJxD9eaXatLF2MLtCCWyd4TfDIeuIgGg=w120-h120-p-l90-rj",
+            },
+        ],
+    },
+    LibraryArtistSubscription {
+        name: "Have a Nice Life",
+        subscribers: "22.3K subscribers",
+        channel_id: ArtistChannelID(
+            "UCmc-p5a2CHyCNpyAiI47Mzg",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/dV3t3XLnMv0ah2iEoCvCH_FdN45qMH6jYUMsWmsH8t5LwAwgqPzvpDMioGqkgvWfZWrXbzpfenA2dcs=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/dV3t3XLnMv0ah2iEoCvCH_FdN45qMH6jYUMsWmsH8t5LwAwgqPzvpDMioGqkgvWfZWrXbzpfenA2dcs=w120-h120-l90-rj",
+            },
+        ],
+    },
+    LibraryArtistSubscription {
+        name: "The Smile",
+        subscribers: "152K subscribers",
+        channel_id: ArtistChannelID(
+            "UChy8y7EpURH4K_LXIHENROA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/h9i1qm_EXC_3-2E6OacFiwMB4tRYseuOps2PEHF71kmFQBYhOi-A-Np0PlPrEj5tikBRdnkk9yqKhQk=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/h9i1qm_EXC_3-2E6OacFiwMB4tRYseuOps2PEHF71kmFQBYhOi-A-Np0PlPrEj5tikBRdnkk9yqKhQk=w120-h120-l90-rj",
+            },
+        ],
+    },
+]

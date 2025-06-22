@@ -1,4 +1,7 @@
-use super::{ParseFrom, DELETION_ENTITY_ID, HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE};
+use super::{
+    fixed_column_item_pointer, flex_column_item_pointer, ParseFrom, DELETION_ENTITY_ID,
+    HEADER_DETAIL, SECOND_SUBTITLE_RUNS, SUBTITLE,
+};
 use crate::common::{
     AlbumType, LikeStatus, Thumbnail, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID,
 };
@@ -9,7 +12,6 @@ use crate::nav_consts::{
     WATCH_VIDEO_ID,
 };
 use crate::parse::{parse_fixed_column_item, parse_flex_column_item};
-use crate::process::{fixed_column_item_pointer, flex_column_item_pointer};
 use crate::query::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
