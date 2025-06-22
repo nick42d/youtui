@@ -343,10 +343,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
     /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
-    /// let results = yt
-    ///     .stream_sources(&query)
-    ///     .try_collect::<Vec<String>>()
-    ///     .await?;
+    /// let results = yt.json_stream(&query).try_collect::<Vec<String>>().await?;
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
