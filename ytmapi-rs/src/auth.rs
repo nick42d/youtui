@@ -17,6 +17,9 @@ pub mod browser;
 pub mod noauth;
 pub mod oauth;
 
+/// An AuthToken is required to use the API.
+/// AuthToken is reponsible for HTTP request headers, client_version and
+/// performing the initial error checking and processing prior to parsing.
 pub trait AuthToken: Sized {
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
     fn client_version(&self) -> Cow<str>;
