@@ -2,6 +2,7 @@ use crate::api::DynamicYtMusic;
 use crate::Command;
 use anyhow::bail;
 use std::borrow::Borrow;
+use std::fmt::Debug;
 use ytmapi_rs::auth::noauth::NoAuthToken;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{
@@ -728,7 +729,7 @@ where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
     Q: Query<NoAuthToken, Output = O>,
-    O: std::fmt::Debug,
+    O: Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets
@@ -754,7 +755,7 @@ fn process_json_based_on_dyn_api_browser_or_oauth<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
-    O: std::fmt::Debug,
+    O: Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets
