@@ -50,6 +50,33 @@ impl<'a, Q> GetContinuationsQuery<'a, Q> {
     }
 }
 
+impl<T, Q> ParseFromContinuable<GetContinuationsQuery<'_, Q>> for T
+where
+    T: std::fmt::Debug + Sized,
+    T: ParseFromContinuable<Q>,
+{
+    fn parse_from_continuable(
+        p: ProcessedResult<GetContinuationsQuery<Q>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        T::parse_continuation(p)
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetContinuationsQuery<Q>>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        let ProcessedResult {
+            query,
+            source,
+            json,
+        } = p;
+        let p = ProcessedResult {
+            query: query.query,
+            source,
+            json,
+        };
+        T::parse_continuation(p)
+    }
+}
+
 impl<Q: Query<A>, A: AuthToken> Query<A> for GetContinuationsQuery<'_, Q>
 where
     Q: PostQuery,
