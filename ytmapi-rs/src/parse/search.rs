@@ -1,4 +1,6 @@
-use super::{parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY};
+use super::{
+    flex_column_item_pointer, parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY,
+};
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, EpisodeID, Explicit, PlaylistID, PodcastID, ProfileID,
     SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
@@ -9,7 +11,6 @@ use crate::nav_consts::{
     SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
-use crate::process::flex_column_item_pointer;
 use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,

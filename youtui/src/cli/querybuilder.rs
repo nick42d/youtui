@@ -2,6 +2,7 @@ use crate::api::DynamicYtMusic;
 use crate::Command;
 use anyhow::bail;
 use std::borrow::Borrow;
+use std::fmt::Debug;
 use ytmapi_rs::auth::noauth::NoAuthToken;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{
@@ -11,7 +12,7 @@ use ytmapi_rs::common::{
     TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
     VideoID, YoutubeID,
 };
-use ytmapi_rs::continuations::Continuable;
+use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
@@ -533,7 +534,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source(q.borrow()).await,
+        } => yt.query_source(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
@@ -571,7 +572,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source_browser_or_oauth(q.borrow()).await,
+        } => yt.query_source_browser_or_oauth(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
@@ -609,7 +610,7 @@ where
     Q: Query<OAuthToken, Output = O>,
     Q: Query<NoAuthToken, Output = O>,
     Q: PostQuery,
-    O: ParseFrom<Q> + Continuable<Q>,
+    O: ParseFromContinuable<Q>,
 {
     match cli_query {
         CliQuery {
@@ -666,7 +667,7 @@ where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
     Q: PostQuery,
-    O: ParseFrom<Q> + Continuable<Q>,
+    O: ParseFromContinuable<Q>,
 {
     match cli_query {
         CliQuery {
@@ -728,7 +729,7 @@ where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
     Q: Query<NoAuthToken, Output = O>,
-    O: ParseFrom<Q>,
+    O: Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets
@@ -754,7 +755,7 @@ fn process_json_based_on_dyn_api_browser_or_oauth<Q, O>(
 where
     Q: Query<BrowserToken, Output = O>,
     Q: Query<OAuthToken, Output = O>,
-    O: ParseFrom<Q>,
+    O: Debug,
 {
     // The matching on yt is a neat hack to ensure process_json utilises the same
     // AuthType as was set in config. This works as the config step sets

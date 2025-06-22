@@ -70,6 +70,7 @@ pub use search::{GetSearchSuggestionsQuery, SearchQuery};
 #[doc(inline)]
 pub use song::GetSongTrackingUrlQuery;
 use std::borrow::Cow;
+use std::fmt::Debug;
 use std::future::Future;
 #[doc(inline)]
 pub use upload::{
@@ -98,7 +99,7 @@ mod private {
 /// and the Method associated type describes how to call the query.
 pub trait Query<A: AuthToken>: Sized {
     type Output: ParseFrom<Self>;
-    type Method: QueryMethod<Self, A, Self::Output>;
+    type Method: QueryMethod<Self, A>;
 }
 
 /// Represents a plain POST query that can be sent to Innertube.
@@ -122,11 +123,10 @@ pub struct PostMethod;
 /// token. Not intended to be implemented by api users, the pre-implemented
 /// GetMethod and PostMethod structs should be sufficient, and in addition,
 /// async methods are required currently.
-// Allow async_fn_in_trait required, as trait currently sealed.
+// Use of async fn in trait is OK here, trait is Sealed.
 #[allow(async_fn_in_trait)]
-pub trait QueryMethod<Q, A, O>: Sealed
+pub trait QueryMethod<Q, A>: Sealed
 where
-    Q: Query<A>,
     A: AuthToken,
 {
     async fn call<'a>(
@@ -137,9 +137,9 @@ where
 }
 
 impl Sealed for GetMethod {}
-impl<Q, A, O> QueryMethod<Q, A, O> for GetMethod
+impl<Q, A> QueryMethod<Q, A> for GetMethod
 where
-    Q: GetQuery + Query<A, Output = O>,
+    Q: GetQuery,
     A: AuthToken,
 {
     fn call<'a>(
@@ -155,9 +155,9 @@ where
 }
 
 impl Sealed for PostMethod {}
-impl<Q, A, O> QueryMethod<Q, A, O> for PostMethod
+impl<Q, A> QueryMethod<Q, A> for PostMethod
 where
-    Q: PostQuery + Query<A, Output = O>,
+    Q: PostQuery,
     A: AuthToken,
 {
     fn call<'a>(
