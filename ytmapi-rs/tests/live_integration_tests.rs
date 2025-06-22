@@ -2,7 +2,6 @@
 //! integration tests module.
 use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
-use parse::GetArtistAlbumsAlbum;
 use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
@@ -11,7 +10,6 @@ use ytmapi_rs::common::{
     LyricsID, PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::parse::{ArtistParams, GetAlbum, ParseFrom};
 use ytmapi_rs::query::playlist::PrivacyStatus;
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
@@ -286,72 +284,34 @@ async fn test_get_library_upload_album() {
 
 #[tokio::test]
 async fn test_get_artist_albums() {
-    let now = std::time::Instant::now();
     let api = new_standard_api().await.unwrap();
-    println!("API took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
     let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
-    let res = api.raw_json_query(&q).await.unwrap();
-    println!("Get artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let res: ArtistParams = ParseFrom::parse_from(res).unwrap();
-    println!("Parse artist took {} ms", now.elapsed().as_millis());
-    let _now = std::time::Instant::now();
+    let res = api.query(q).await.unwrap();
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     let channel_id = albums.browse_id.unwrap();
     api.get_artist_albums(channel_id, params).await.unwrap();
-    let now = std::time::Instant::now();
-    println!("Get albums took {} ms", now.elapsed().as_millis());
 }
 
 #[tokio::test]
 async fn test_get_artist_album_songs() {
-    let now = std::time::Instant::now();
     let api = new_standard_api().await.unwrap();
-    println!("API took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
     let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
     ));
-    let res = api.raw_json_query(&q).await.unwrap();
-    println!("Get artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    // TODO: fix temporary value dropped while borrowed error.
-    // This won't compile:
-    // let res = res.process().unwrap().parse().unwrap();
-    let res = res.process().unwrap();
-    let res = ArtistParams::parse_from(res).unwrap();
-    println!("Parse artist took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
+    let res = api.query(q).await.unwrap();
     let albums = res.top_releases.albums.unwrap();
     let params = albums.params.unwrap();
     let channel_id = &albums.browse_id.unwrap();
     let q = GetArtistAlbumsQuery::new(ArtistChannelID::from_raw(channel_id.get_raw()), params);
-    let res = api.raw_json_query(&q).await.unwrap();
-    println!("Get albums took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let res: Vec<GetArtistAlbumsAlbum> = ParseFrom::parse_from(res).unwrap();
-    println!("Process albums took {} ms", now.elapsed().as_millis());
-    let now = std::time::Instant::now();
+    let res = api.query(q).await.unwrap();
     let browse_id = &res[0].browse_id;
     let q = GetAlbumQuery::new(browse_id.clone());
-    let res = api.raw_json_query(&q).await.unwrap();
-    println!(
-        "Get album {} took {} ms",
-        browse_id.get_raw(),
-        now.elapsed().as_millis()
-    );
-    let now = std::time::Instant::now();
-    let res = res.process().unwrap();
-    let _ = GetAlbum::parse_from(res).unwrap();
-    println!("Process album took {} ms", now.elapsed().as_millis());
+    api.query(q).await.unwrap();
 }
 
 // # STATEFUL TESTS

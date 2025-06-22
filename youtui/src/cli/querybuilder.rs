@@ -534,7 +534,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source(q.borrow()).await,
+        } => yt.query_source(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
@@ -572,7 +572,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: true,
-        } => yt.query_source_browser_or_oauth(q.borrow()).await,
+        } => yt.query_source_browser_or_oauth(q).await,
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,

@@ -226,12 +226,12 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
     ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
-    /// let result = yt.raw_json_query(&query).await?;
-    /// assert!(result.is_ok());
+    /// let result = yt.raw_json_query(query).await?;
+    /// assert!(result.len() != 0);
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn raw_json_query<'a, Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
+    pub async fn raw_json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<String> {
         Q::Method::call(query.borrow(), &self.client, &self.token)
             .await
             .map(|raw| raw.json)
@@ -248,12 +248,12 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await?;
     /// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
     ///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
-    /// let result = yt.json_query(&query).await?;
-    /// assert!(result.is_ok());
+    /// let result = yt.json_query(query).await?;
+    /// println!("{:?}", result);
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```
-    pub async fn json_query<'a, Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Json> {
+    pub async fn json_query<Q: Query<A>>(&self, query: impl Borrow<Q>) -> Result<Json> {
         Q::Method::call(query.borrow(), &self.client, &self.token)
             .await?
             .process()
@@ -318,7 +318,10 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("").await?;
     /// let query = ytmapi_rs::query::GetLibrarySongsQuery::default();
-    /// let results = yt.json_stream(&query).try_collect::<Vec<String>>().await?;
+    /// let results = yt
+    ///     .raw_json_stream(&query)
+    ///     .try_collect::<Vec<String>>()
+    ///     .await?;
     /// # Ok::<(), ytmapi_rs::Error>(())
     /// # };
     /// ```

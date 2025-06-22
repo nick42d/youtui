@@ -70,6 +70,7 @@ pub use search::{GetSearchSuggestionsQuery, SearchQuery};
 #[doc(inline)]
 pub use song::GetSongTrackingUrlQuery;
 use std::borrow::Cow;
+use std::fmt::Debug;
 use std::future::Future;
 #[doc(inline)]
 pub use upload::{
@@ -97,7 +98,7 @@ mod private {
 /// The Output associated type describes how to parse a result from the query,
 /// and the Method associated type describes how to call the query.
 pub trait Query<A: AuthToken>: Sized {
-    type Output: ParseFrom<Self>;
+    type Output: ParseFrom<Self> + Debug;
     type Method: QueryMethod<Self, A>;
 }
 

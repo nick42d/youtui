@@ -138,41 +138,26 @@ impl DynamicYtMusic {
             )),
         })
     }
-    pub async fn query_source<Q, O>(&self, query: &Q) -> Result<String>
+    pub async fn query_source<Q, O>(&self, query: impl Borrow<Q>) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
         Q: Query<NoAuthToken, Output = O>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => yt
-                .raw_json_query(query)
-                .await
-                .map(|r| r.destructure_json())?,
-            DynamicYtMusic::OAuth(yt) => yt
-                .raw_json_query(query)
-                .await
-                .map(|r| r.destructure_json())?,
-            DynamicYtMusic::NoAuth(yt) => yt
-                .raw_json_query(query)
-                .await
-                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::Browser(yt) => yt.raw_json_query(query).await?,
+            DynamicYtMusic::OAuth(yt) => yt.raw_json_query(query).await?,
+            DynamicYtMusic::NoAuth(yt) => yt.raw_json_query(query).await?,
         })
     }
-    pub async fn query_source_browser_or_oauth<Q, O>(&self, query: &Q) -> Result<String>
+    pub async fn query_source_browser_or_oauth<Q, O>(&self, query: impl Borrow<Q>) -> Result<String>
     where
         Q: Query<BrowserToken, Output = O>,
         Q: Query<OAuthToken, Output = O>,
     {
         Ok(match self {
-            DynamicYtMusic::Browser(yt) => yt
-                .raw_json_query(query)
-                .await
-                .map(|r| r.destructure_json())?,
-            DynamicYtMusic::OAuth(yt) => yt
-                .raw_json_query(query)
-                .await
-                .map(|r| r.destructure_json())?,
+            DynamicYtMusic::Browser(yt) => yt.raw_json_query(query).await?,
+            DynamicYtMusic::OAuth(yt) => yt.raw_json_query(query).await?,
             DynamicYtMusic::NoAuth(_) => bail!(wrong_auth_token_error_message::<Q>(
                 AuthType::Unauthenticated,
                 &[AuthType::Browser, AuthType::OAuth]
