@@ -90,7 +90,7 @@ use common::ApiOutcome;
 use continuations::ParseFromContinuable;
 #[doc(inline)]
 pub use error::{Error, Result};
-use futures::{Stream, StreamExt};
+use futures::Stream;
 use json::Json;
 use parse::ParseFrom;
 #[doc(inline)]
@@ -306,7 +306,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// Return the source JSON from streaming a query that has 'continuations',
     /// i.e can continue to stream results.
     /// Note that the stream will stop if an error is detected (after returning
-    /// the source file that produced the error).
+    /// the source string that produced the error).
     /// # Return type lifetime notes
     /// The returned `impl Stream` is tied to the lifetime of self, since it's
     /// self's client that will emit the results. It's also tied to the
@@ -331,8 +331,7 @@ impl<A: AuthToken> YtMusic<A> {
         Q: PostQuery,
         Q::Output: ParseFromContinuable<Q>,
     {
-        continuations::stream_with_source(query, &self.client, &self.token)
-            .map(|item| item.map(|(source, _)| source))
+        continuations::raw_json_stream(query, &self.client, &self.token)
     }
 }
 /// Generates a tuple containing fresh OAuthDeviceCode and corresponding url for

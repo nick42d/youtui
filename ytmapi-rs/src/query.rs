@@ -98,7 +98,7 @@ mod private {
 /// The Output associated type describes how to parse a result from the query,
 /// and the Method associated type describes how to call the query.
 pub trait Query<A: AuthToken>: Sized {
-    type Output: ParseFrom<Self> + Debug;
+    type Output: ParseFrom<Self>;
     type Method: QueryMethod<Self, A>;
 }
 
@@ -123,15 +123,17 @@ pub struct PostMethod;
 /// token. Not intended to be implemented by api users, the pre-implemented
 /// GetMethod and PostMethod structs should be sufficient, and in addition,
 /// async methods are required currently.
+// Use of async fn in trait is OK here, trait is Sealed.
+#[allow(async_fn_in_trait)]
 pub trait QueryMethod<Q, A>: Sealed
 where
     A: AuthToken,
 {
-    fn call<'a>(
+    async fn call<'a>(
         query: &'a Q,
         client: &crate::client::Client,
         tok: &A,
-    ) -> impl Future<Output = Result<RawResult<'a, Q, A>>>;
+    ) -> Result<RawResult<'a, Q, A>>;
 }
 
 impl Sealed for GetMethod {}
