@@ -190,10 +190,12 @@ pub struct SearchResultSong {
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-// A playlist search result may be a featured or community playlist.
+// A playlist search result may be a featured or community playlist or even a
+// podcast.
 pub enum SearchResultPlaylist {
     Featured(SearchResultFeaturedPlaylist),
     Community(SearchResultCommunityPlaylist),
+    Podcast(SearchResultPodcast),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -802,43 +804,44 @@ fn parse_community_playlist_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-// TODO: Type safety
-// TODO: Tests
-// TODO: Generalize using other parse functions.
+
 fn parse_playlist_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+    mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
 ) -> Result<SearchResultPlaylist> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
-    let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
-    let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
-    let playlist_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-    // The playlist search contains a mix of Community and Featured playlists.
-    let playlist_params: PlaylistEndpointParams = mrlir.take_value_pointer(concatcp!(
-        PLAY_BUTTON,
-        "/playNavigationEndpoint/watchPlaylistEndpoint/params"
-    ))?;
-    let thumbnails: Vec<Thumbnail> = mrlir.take_value_pointer(THUMBNAILS)?;
-    let playlist = match playlist_params {
-        PlaylistEndpointParams::Featured => {
-            SearchResultPlaylist::Featured(SearchResultFeaturedPlaylist {
-                title,
-                author,
-                songs: parse_flex_column_item(&mut mrlir, 1, 2)?,
-                playlist_id,
-                thumbnails,
-            })
+    let result_type: YoutubeMusicPageType = music_shelf_contents
+        .borrow_value_pointer(concatcp!(MRLIR, NAVIGATION_BROWSE, PAGE_TYPE))?;
+
+    // Search result for this query can be Podcast or Playlist.
+    match result_type {
+        YoutubeMusicPageType::Podcast => {
+            let res = parse_podcast_search_result_from_music_shelf_contents(music_shelf_contents)?;
+            Ok(SearchResultPlaylist::Podcast(res))
         }
-        PlaylistEndpointParams::Community => {
-            SearchResultPlaylist::Community(SearchResultCommunityPlaylist {
-                title,
-                author,
-                views: parse_flex_column_item(&mut mrlir, 1, 2)?,
-                playlist_id,
-                thumbnails,
-            })
+        YoutubeMusicPageType::Playlist => {
+            // The playlist search contains a mix of Community and Featured playlists.
+            let playlist_params: PlaylistEndpointParams =
+                music_shelf_contents.take_value_pointer(concatcp!(
+                    MRLIR,
+                    PLAY_BUTTON,
+                    "/playNavigationEndpoint/watchPlaylistEndpoint/params"
+                ))?;
+            let playlist = match playlist_params {
+                PlaylistEndpointParams::Featured => {
+                    let res = parse_featured_playlist_search_result_from_music_shelf_contents(
+                        music_shelf_contents,
+                    )?;
+                    SearchResultPlaylist::Featured(res)
+                }
+                PlaylistEndpointParams::Community => {
+                    let res = parse_community_playlist_search_result_from_music_shelf_contents(
+                        music_shelf_contents,
+                    )?;
+                    SearchResultPlaylist::Community(res)
+                }
+            };
+            Ok(playlist)
         }
-    };
-    Ok(playlist)
+    }
 }
 
 struct FilteredSearchSectionContents(JsonCrawlerOwned);

@@ -225,18 +225,10 @@ async fn test_search_videos_2024() {
 }
 #[tokio::test]
 async fn test_search_playlists() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_playlists_20231228.json",
+        "./test_json/search_playlists_continuation_20231228.json",
         "./test_json/search_playlists_20231228_output.txt",
-        SearchQuery::new("").with_filter(PlaylistsFilter),
-        BrowserToken
-    );
-}
-#[tokio::test]
-async fn test_search_playlists_continuation() {
-    parse_continuations_test!(
-        "./test_json/search_playlists_continuation_20250623.json",
-        "./test_json/search_playlists_continuation_20250623_output.txt",
         SearchQuery::new("").with_filter(PlaylistsFilter),
         BrowserToken
     );
