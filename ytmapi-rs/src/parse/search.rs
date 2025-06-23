@@ -1074,107 +1074,245 @@ impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResult
     }
 }
 
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ArtistsFilter>>> for Vec<SearchResultArtist> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>
+    for Vec<SearchResultArtist>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<ArtistsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<ProfilesFilter>>> for Vec<SearchResultProfile> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>
+    for Vec<SearchResultProfile>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<ProfilesFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<AlbumsFilter>>> for Vec<SearchResultAlbum> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>
+    for Vec<SearchResultAlbum>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<AlbumsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<SongsFilter>>> for Vec<SearchResultSong> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<SongsFilter>>>
+    for Vec<SearchResultSong>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<SongsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<SongsFilter>>>>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<VideosFilter>>> for Vec<SearchResultVideo> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<VideosFilter>>>
+    for Vec<SearchResultVideo>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<VideosFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<VideosFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<EpisodesFilter>>> for Vec<SearchResultEpisode> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>
+    for Vec<SearchResultEpisode>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<EpisodesFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<PodcastsFilter>>> for Vec<SearchResultPodcast> {
-    fn parse_from(
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>
+    for Vec<SearchResultPodcast>
+{
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<PodcastsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>
     for Vec<SearchResultPlaylist>
 {
-    fn parse_from(
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<CommunityPlaylistsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
-impl<'a> ParseFrom<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
+impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>
     for Vec<SearchResultFeaturedPlaylist>
 {
-    fn parse_from(
+    fn parse_from_continuable(
         p: ProcessedResult<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
-    ) -> crate::Result<Self> {
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let mut section_contents = FilteredSearchSectionContents::try_from(p)?;
         if section_contents_is_empty(&mut section_contents)? {
-            return Ok(Vec::new());
+            return Ok((Vec::new(), None));
         }
-        FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()
+        let continuation_params =
+            take_continuation_params_from_section_contents(&mut section_contents)?;
+        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        Ok((results, continuation_params))
+    }
+    fn parse_continuation(
+        p: ProcessedResult<
+            GetContinuationsQuery<'_, SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFilter>>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        let crawler: JsonCrawlerOwned = p.into();
+        let (contents, continuation_params) =
+            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
+        let results = contents.try_into()?;
+        Ok((results, continuation_params))
     }
 }
 impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>

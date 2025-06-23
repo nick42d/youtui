@@ -88,26 +88,29 @@ pub async fn command_to_query(
             get_string_output_of_query(yt, SearchQuery::new(query), cli_query).await
         }
         Command::SearchArtists { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(ArtistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchAlbums { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(AlbumsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchSongs { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(SongsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
@@ -121,50 +124,56 @@ pub async fn command_to_query(
             .await
         }
         Command::SearchCommunityPlaylists { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(CommunityPlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchFeaturedPlaylists { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(FeaturedPlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchVideos { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(VideosFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchEpisodes { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(EpisodesFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchProfiles { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(ProfilesFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
         Command::SearchPodcasts { query, max_pages } => {
-            get_string_output_of_query(
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(PodcastsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
