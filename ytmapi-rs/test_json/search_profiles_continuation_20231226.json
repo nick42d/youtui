@@ -1,0 +1,2129 @@
+{
+  "continuationContents": {
+    "musicShelfContinuation": {
+      "title": {
+        "runs": [
+          {
+            "text": "Profiles"
+          }
+        ]
+      },
+      "contents": [
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CFwQgawKGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/rhlRYRLXvy8BGtkhkoOLtiyeUqGcweikhnMQJwi_9yzxBZrKhORGtBNvlUQp262DRdpRKH7k6Q=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/rhlRYRLXvy8BGtkhkoOLtiyeUqGcweikhnMQJwi_9yzxBZrKhORGtBNvlUQp262DRdpRKH7k6Q=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CF8QhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "The Beatles Diary Project"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@yuji-ilikebeatles1962"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CF4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ0pVZFdVMlUtR0FpdHdkQlB6Vy1SVkE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CF4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CF0QpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CFwQgawKGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCJUdWU2U-GAitwdBPzW-RVA",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CFgQgawKGAEiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/0ZQvKPfdrMaKQO4rTHaj4cfvhr-LnJ3U43r-zBVSN9RQ_rNF597LQGoyd4bXOT7nm-FD7xsTRw=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/0ZQvKPfdrMaKQO4rTHaj4cfvhr-LnJ3U43r-zBVSN9RQ_rNF597LQGoyd4bXOT7nm-FD7xsTRw=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CFsQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "The Beatles Man"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatlesman6193"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CFoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ21sWHNaYm5UUXh2bUJBNXF1SUhnX3c%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CFoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CFkQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CFgQgawKGAEiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCmlXsZbnTQxvmBA5quIHg_w",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CFQQgawKGAIiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTj6UO2MMaaR8GYNak6N3zhvWYBu9iuVqRVzzROtA=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTj6UO2MMaaR8GYNak6N3zhvWYBu9iuVqRVzzROtA=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CFcQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles CD Bootlegs"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@Jrsrommel1"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CFYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ1pSV2xnT3BSQnNTenB2RzlaUi1IRmc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CFYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CFUQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CFQQgawKGAIiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCZRWlgOpRBsSzpvG9ZR-HFg",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CFAQgawKGAMiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTsjBSyqn41_h01IPfPMW6zICmqXdLo2QOLLN0=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTsjBSyqn41_h01IPfPMW6zICmqXdLo2QOLLN0=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CFMQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Space the Beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@spacethebeatles1573"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CFIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQzNneGJHRGh5UVZ5VjdNbDZxeldUNUE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CFIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CFEQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CFAQgawKGAMiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UC3gxbGDhyQVyV7Ml6qzWT5A",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CEwQgawKGAQiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZT1z6wZr7kWbEjkKG_y0RlOKhUeMyHoIyc8fAmpQho=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZT1z6wZr7kWbEjkKG_y0RlOKhUeMyHoIyc8fAmpQho=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CE8QhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "The Beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatles8976"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CE4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ2tueVh3dnplR3ZsUXMyYm1pWEZHWmc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CE4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CE0QpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CEwQgawKGAQiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCknyXwvzeGvlQs2bmiXFGZg",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CEgQgawKGAUiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/HvR7dzsuXmesFw_AXDg6GRD9f1QyI8WxG1-KB2K--GJg5QHC-DzYugQ7ZUivgnOSSiv9IrmC7Q=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/HvR7dzsuXmesFw_AXDg6GRD9f1QyI8WxG1-KB2K--GJg5QHC-DzYugQ7ZUivgnOSSiv9IrmC7Q=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CEsQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles covers On a budget"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@BeatlescoversOnabudget"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CEoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ0hXWUNQclZmSm9Xc0pVWTZIVlpYNmc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CEoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CEkQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CEgQgawKGAUiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCHWYCPrVfJoWsJUY6HVZX6g",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CEQQgawKGAYiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZS-xTfUHJ3FwOQ0HnU3t5D2_74bNJIluVRrsBr7-w=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZS-xTfUHJ3FwOQ0HnU3t5D2_74bNJIluVRrsBr7-w=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CEcQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "LET IT BEATLES Marcelo Sanches"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@letitbeatlesmarcelosanches9473"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CEYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ3pyemdGbFRZejhpMGt6bURidE5qQnc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CEYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CEUQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CEQQgawKGAYiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCzrzgFlTYz8i0kzmDbtNjBw",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CEAQgawKGAciEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZShPJxQrharrd19jEleweyjhu80mH0g00s-vXTe=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZShPJxQrharrd19jEleweyjhu80mH0g00s-vXTe=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CEMQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles Forever"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@beatlesforever5278"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CEIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ2dFQzRCbElMMWoxVWlyUkxEYUhRZWc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CEIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CEEQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CEAQgawKGAciEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCgEC4BlIL1j1UirRLDaHQeg",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CDwQgawKGAgiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZQgiRLcR9TrQD67gJ_aIxRw9q9on7_482Wd4zmHaw=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZQgiRLcR9TrQD67gJ_aIxRw9q9on7_482Wd4zmHaw=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CD8QhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "The Liverpool 4 Canada's Beatles Tribute"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@Liverpool4Tribute"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CD4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQy1qRGJNaXdTOG01TzFCZ0xlanNrc2c%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CD4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CD0QpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CDwQgawKGAgiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UC-jDbMiwS8m5O1BgLejsksg",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CDgQgawKGAkiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZSIyQ3j5Cuxf37NhBEEPJg_yUaM_SOxhhWkzPDkuQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZSIyQ3j5Cuxf37NhBEEPJg_yUaM_SOxhhWkzPDkuQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CDsQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "the beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatles4893"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CDoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ2FvdHUyX0lxYmNSN3hJMXpWNjdjTHc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CDoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CDkQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CDgQgawKGAkiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCaotu2_IqbcR7xI1zV67cLw",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CDQQgawKGAoiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/BowJWGB8TtBaSeyYVRtvJEjjl7VHjR5bFzYr_P7pYyXt_Jrkk6C09-R47gm5vCnr6dLTjEMFOkY=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/BowJWGB8TtBaSeyYVRtvJEjjl7VHjR5bFzYr_P7pYyXt_Jrkk6C09-R47gm5vCnr6dLTjEMFOkY=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CDcQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Vaghetti ♡ Beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@Vaghetti"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CDYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ3VjbnZJVWVLSXhmZXZlUmJtSkVENGc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CDYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CDUQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CDQQgawKGAoiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCucnvIUeKIxfeveRbmJED4g",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CDAQgawKGAsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTyg_M81_Pel6CVyqoKxj7yEdOuBq-AJq3_ew=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTyg_M81_Pel6CVyqoKxj7yEdOuBq-AJq3_ew=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CDMQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "the beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatles4047"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CDIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ0pxYlpTWjN4RnFvamlTSEx3NTR0b2c%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CDIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CDEQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CDAQgawKGAsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCJqbZSZ3xFqojiSHLw54tog",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CCwQgawKGAwiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZQwZ726JlRtrdRg6pIsSURE5HmhPrEnsf8bmdVP=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZQwZ726JlRtrdRg6pIsSURE5HmhPrEnsf8bmdVP=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CC8QhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Help Beatles Tribute Band"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@helpbeatlestributeband3314"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CC4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ1owWWUzc3lISjNfYjcyRkstLW9oWVE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CC4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CC0QpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CCwQgawKGAwiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCZ0Ye3syHJ3_b72FK--ohYQ",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CCgQgawKGA0iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/mYGLpJYw0B_KJvHWj3afUHBwdXJUizo1jRIWEEMhXoMQalJWX4SdHSEu1WzQiFKOjgqJN7Z7YMg=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/mYGLpJYw0B_KJvHWj3afUHBwdXJUizo1jRIWEEMhXoMQalJWX4SdHSEu1WzQiFKOjgqJN7Z7YMg=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CCsQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Vintage Remasters"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@vintageremasters8912"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CCoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ1B2R3ZrY0IzUHBnUGhiV1NwLTVyTUE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CCoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CCkQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CCgQgawKGA0iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCPvGvkcB3PpgPhbWSp-5rMA",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CCQQgawKGA4iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZSMHIs1KHNdl5GuS9Bh7QbajrvKyuzPHJHNnlhC=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZSMHIs1KHNdl5GuS9Bh7QbajrvKyuzPHJHNnlhC=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CCcQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "TheSkelters"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@TheSkelters"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CCYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ0ZJLS1mbGRUWWV3SEpYbkNyS1E4N1E%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CCYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CCUQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CCQQgawKGA4iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCFI--fldTYewHJXnCrKQ87Q",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CCAQgawKGA8iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTJYfUZO55Vo9NpHdPujMM4sBlp-PMa2N1_ce9TUw=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTJYfUZO55Vo9NpHdPujMM4sBlp-PMa2N1_ce9TUw=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CCMQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "the beatles fan"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatlesfan3865"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CCIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ3pPalRwWUp2eFV0dlQ4MXBZSkdBY2c%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CCIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CCEQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CCAQgawKGA8iEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCzOjTpYJvxUtvT81pYJGAcg",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBwQgawKGBAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTTalZaRpzJvDkqmdSYzj5zMJlfVlmwZGc8Fy7u=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTTalZaRpzJvDkqmdSYzj5zMJlfVlmwZGc8Fy7u=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CB8QhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles Fan"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@beatlesfan6136"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CB4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ0tHcnpUcDJIZFhoOWM2LTlQRUw2dFE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CB4QkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CB0QpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBwQgawKGBAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCKGrzTp2HdXh9c6-9PEL6tQ",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBgQgawKGBEiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/BAMSsHdD1HLXr2lEOA29pynx3SwzkilHYqjekSUtmR-H6nNaxDgpI0o8vh47P97d33gp2aSCcRk=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/BAMSsHdD1HLXr2lEOA29pynx3SwzkilHYqjekSUtmR-H6nNaxDgpI0o8vh47P97d33gp2aSCcRk=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CBsQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "The beatles fan and Lego man"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@thebeatlesfanandlegoman"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ1NwYnVVRlFyUFozeXlKNXVqVURFclE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CBoQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CBkQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBgQgawKGBEiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCSpbuUFQrPZ3yyJ5ujUDErQ",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBQQgawKGBIiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZRazZsy3XpzP8KecyyzOJGbX5uN7aJnHvvuHthf2YtDcgBhKTSWD3Bo9v4b0_gW=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZRazZsy3XpzP8KecyyzOJGbX5uN7aJnHvvuHthf2YtDcgBhKTSWD3Bo9v4b0_gW=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CBcQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles guitarist"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@ajtech1086"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ3l6TE44blpIRUVZWVhWaHplV0N4WHc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CBYQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CBUQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBQQgawKGBIiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCyzLN8nZHEEYYXVhzeWCxXw",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBAQgawKGBMiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTWB_iWX68gjKGZ075wTAGiH9u91_IkMOiewqMY2A=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIf8zZTWB_iWX68gjKGZ075wTAGiH9u91_IkMOiewqMY2A=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CBMQhL8CIhMIitSa7resgwMViA23AB1tiQDP"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Beatles"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Profile"
+                      },
+                      {
+                        "text": " • "
+                      },
+                      {
+                        "text": "@beatles7238"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ3JDdU14TUNTVUxVOWctM3pOTngyLUE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CBIQkfsFGAAiEwiK1Jrut6yDAxWIDbcAHW2JAM8="
+                    }
+                  }
+                ],
+                "trackingParams": "CBEQpzsiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBAQgawKGBMiEwiK1Jrut6yDAxWIDbcAHW2JAM8=",
+              "browseEndpoint": {
+                "browseId": "UCrCuMxMCSULU9g-3zNNx2-A",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        }
+      ],
+      "trackingParams": "CA4Q-V4YACITCIrUmu63rIMDFYgNtwAdbYkAzw==",
+      "continuations": [
+        {
+          "nextContinuationData": {
+            "continuation": "EjUSB2JlYXRsZXMaKkVnV0tBUUpZQVVnVWFoSVFDUkFPRUFvUUF4QUZFQVFRRVJBUUVCVSUzRBjx6tAu",
+            "clickTrackingParams": "CA8QybcCIhMIitSa7resgwMViA23AB1tiQDP"
+          }
+        }
+      ],
+      "shelfDivider": {
+        "musicShelfDividerRenderer": {
+          "hidden": true
+        }
+      }
+    }
+  }
+}

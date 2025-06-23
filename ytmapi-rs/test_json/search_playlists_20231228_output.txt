@@ -1,0 +1,593 @@
+[
+    Featured(
+        SearchResultFeaturedPlaylist {
+            title: "Chill Korean Hip-Hop/R&B",
+            author: "YouTube Music",
+            songs: "79 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_kT-sIJz2O-hpkxwjosN2hMt9Y5xevcPYI",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/eh7t_hmhzgxfm3_gcESZ4Arebt6qBEPuBegLhYzF-yxI4EYhLEYUUOIzOW-FizdnW3_d5r1WOw8GczE=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/eh7t_hmhzgxfm3_gcESZ4Arebt6qBEPuBegLhYzF-yxI4EYhLEYUUOIzOW-FizdnW3_d5r1WOw8GczE=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/eh7t_hmhzgxfm3_gcESZ4Arebt6qBEPuBegLhYzF-yxI4EYhLEYUUOIzOW-FizdnW3_d5r1WOw8GczE=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/eh7t_hmhzgxfm3_gcESZ4Arebt6qBEPuBegLhYzF-yxI4EYhLEYUUOIzOW-FizdnW3_d5r1WOw8GczE=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ),
+    Featured(
+        SearchResultFeaturedPlaylist {
+            title: "Coffee Shop Blend",
+            author: "YouTube Music",
+            songs: "127 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_nBE4bLuBHUXWZrF59ZrkPEToKt8M_I3Vc",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/CDt4RjHDGr0YiX6WxARTBFkdb9k9VsAIm88sJXZ7B3O1yMoS53kLS_dy8ZIKRrFRHHCB6OJePWU1GbY=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/CDt4RjHDGr0YiX6WxARTBFkdb9k9VsAIm88sJXZ7B3O1yMoS53kLS_dy8ZIKRrFRHHCB6OJePWU1GbY=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/CDt4RjHDGr0YiX6WxARTBFkdb9k9VsAIm88sJXZ7B3O1yMoS53kLS_dy8ZIKRrFRHHCB6OJePWU1GbY=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/CDt4RjHDGr0YiX6WxARTBFkdb9k9VsAIm88sJXZ7B3O1yMoS53kLS_dy8ZIKRrFRHHCB6OJePWU1GbY=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ),
+    Featured(
+        SearchResultFeaturedPlaylist {
+            title: "Freshly Chilled",
+            author: "YouTube Music",
+            songs: "92 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_m0X_CFV7sbR3EKDoP_FvqyK5faV7xorUY",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/dQaic8cocQVGqI0ZHfCIaow7mCJCy2fe4I-G1Kim0yqgcvvJftZ5dZnbLp7U-mkwD9asaXIuzycVmQ=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/dQaic8cocQVGqI0ZHfCIaow7mCJCy2fe4I-G1Kim0yqgcvvJftZ5dZnbLp7U-mkwD9asaXIuzycVmQ=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/dQaic8cocQVGqI0ZHfCIaow7mCJCy2fe4I-G1Kim0yqgcvvJftZ5dZnbLp7U-mkwD9asaXIuzycVmQ=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/dQaic8cocQVGqI0ZHfCIaow7mCJCy2fe4I-G1Kim0yqgcvvJftZ5dZnbLp7U-mkwD9asaXIuzycVmQ=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Hits",
+            author: "Denielle Rabanez",
+            views: "2.5M views",
+            playlist_id: PlaylistID(
+                "VLPLHLua7lnY9X-uAKqwp0T23h3A4d-ZajTO",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/Z5WKxzZ8IYqiINP3OEX1KWRUrf0UIs-O9DCBNQCxfgfbnCH62uabb9ROaGzZ_QSt9igQK58euQSh=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/Z5WKxzZ8IYqiINP3OEX1KWRUrf0UIs-O9DCBNQCxfgfbnCH62uabb9ROaGzZ_QSt9igQK58euQSh=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/Z5WKxzZ8IYqiINP3OEX1KWRUrf0UIs-O9DCBNQCxfgfbnCH62uabb9ROaGzZ_QSt9igQK58euQSh=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Top Chill Songs - Spotify Playlist 2024 - [Weekly Update]",
+            author: "Gionatan Consiglio",
+            views: "15M views",
+            playlist_id: PlaylistID(
+                "VLPLgzTt0k8mXzEpH7-dOCHqRZOsakqXmzmG",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/rYOOCzzRbQJXD9mn2VTk3hmAhb-_usDQn8XeKkORsKqG8JyaGdCtW0hR9KcthUzqwcvGq5pl0uw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/rYOOCzzRbQJXD9mn2VTk3hmAhb-_usDQn8XeKkORsKqG8JyaGdCtW0hR9KcthUzqwcvGq5pl0uw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/rYOOCzzRbQJXD9mn2VTk3hmAhb-_usDQn8XeKkORsKqG8JyaGdCtW0hR9KcthUzqwcvGq5pl0uw=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Electro Chill (Taken from Spotify Playlist)",
+            author: "Himanshu Gupta",
+            views: "1.4M views",
+            playlist_id: PlaylistID(
+                "VLPLNJAfDSqnN-JjFTZYtMz4INDcj6a3-X3v",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/baKLkDTZR2cutnzQp-xQFv9KqiGAyprzr5Js_C5S1P_OIRg4kHa32k6R0-Vhd2UeIuaC5J9rHw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/baKLkDTZR2cutnzQp-xQFv9KqiGAyprzr5Js_C5S1P_OIRg4kHa32k6R0-Vhd2UeIuaC5J9rHw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/baKLkDTZR2cutnzQp-xQFv9KqiGAyprzr5Js_C5S1P_OIRg4kHa32k6R0-Vhd2UeIuaC5J9rHw=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Rap Vibes 2021",
+            author: "Matthew Bejarano",
+            views: "3.9M views",
+            playlist_id: PlaylistID(
+                "VLPL5F_lIxu0wUog5Ea5JvGm2LANEdduU9Rq",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/YJVahGhap03fXs6PRYXmwTwb6IfCVpHV6ArRiQWibkdzMLid9QZsD6BjNn-rHGfZ9W2lCY_lxA=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/YJVahGhap03fXs6PRYXmwTwb6IfCVpHV6ArRiQWibkdzMLid9QZsD6BjNn-rHGfZ9W2lCY_lxA=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/YJVahGhap03fXs6PRYXmwTwb6IfCVpHV6ArRiQWibkdzMLid9QZsD6BjNn-rHGfZ9W2lCY_lxA=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Rap & Trap Hits - Spotify Playlist 2024",
+            author: "Gionatan Consiglio",
+            views: "2.3M views",
+            playlist_id: PlaylistID(
+                "VLPLgzTt0k8mXzEaqjkc-CeNg1q5YphbnY2E",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/E7IAbXIZmkIWb86gDXimnOu_uA8EbDHBTMjfJK6ZbuO2w4jnxmKfoknKOvjUIRcX_WECgKsFlw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/E7IAbXIZmkIWb86gDXimnOu_uA8EbDHBTMjfJK6ZbuO2w4jnxmKfoknKOvjUIRcX_WECgKsFlw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/E7IAbXIZmkIWb86gDXimnOu_uA8EbDHBTMjfJK6ZbuO2w4jnxmKfoknKOvjUIRcX_WECgKsFlw=s1200",
+                },
+            ],
+        },
+    ),
+    Featured(
+        SearchResultFeaturedPlaylist {
+            title: "Low Key",
+            author: "YouTube Music",
+            songs: "101 songs",
+            playlist_id: PlaylistID(
+                "VLRDCLAK5uy_kKEOZ3x5ED4hNxb8lHXhOp5cHFW_CbwMk",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://lh3.googleusercontent.com/ltvj8pz6TQUDy8TbWWK_FUG9UlO35d_l3YWx-wzCCVW_htbnkVWxUGRoxmUB6lGyzNupNkIikWMVliY=w60-h60-l90-rj",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://lh3.googleusercontent.com/ltvj8pz6TQUDy8TbWWK_FUG9UlO35d_l3YWx-wzCCVW_htbnkVWxUGRoxmUB6lGyzNupNkIikWMVliY=w120-h120-l90-rj",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://lh3.googleusercontent.com/ltvj8pz6TQUDy8TbWWK_FUG9UlO35d_l3YWx-wzCCVW_htbnkVWxUGRoxmUB6lGyzNupNkIikWMVliY=w226-h226-l90-rj",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://lh3.googleusercontent.com/ltvj8pz6TQUDy8TbWWK_FUG9UlO35d_l3YWx-wzCCVW_htbnkVWxUGRoxmUB6lGyzNupNkIikWMVliY=w544-h544-l90-rj",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Alternative Rock Music Playlist - Chill Out Alternative Songs (Updated 2024)",
+            author: "Redlist - Today's Hits",
+            views: "2M views",
+            playlist_id: PlaylistID(
+                "VLPLinS5uF49IBqNvkIBlLUg8rYPLOb21Z0U",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/hSiW13wNkuGWhQ4txO8v3NZcMFcmQjlChge2FftsW8ImnTCxsPXU-kGQ_ZD498j7UfHRwS-1wKhM=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/hSiW13wNkuGWhQ4txO8v3NZcMFcmQjlChge2FftsW8ImnTCxsPXU-kGQ_ZD498j7UfHRwS-1wKhM=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/hSiW13wNkuGWhQ4txO8v3NZcMFcmQjlChge2FftsW8ImnTCxsPXU-kGQ_ZD498j7UfHRwS-1wKhM=s1200",
+                },
+            ],
+        },
+    ),
+    Podcast(
+        SearchResultPodcast {
+            title: "HELLO FARMAISH",
+            publisher: "ABHINAV ARUN",
+            podcast_id: PodcastID(
+                "MPSPPLhgSQZ_KRXZur0OuW3uL6SqLAA8E1JnhU",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://i.ytimg.com/pl_c/PLhgSQZ_KRXZur0OuW3uL6SqLAA8E1JnhU/studio_square_thumbnail.jpg?sqp=CPy44sIG-oaymwEICDwQPCAASFqi85f_AwYIlbDrqAY&rs=AMzJL3m1KJRrHOk525QJClcIs35RNP27mg",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://i.ytimg.com/pl_c/PLhgSQZ_KRXZur0OuW3uL6SqLAA8E1JnhU/studio_square_thumbnail.jpg?sqp=CPy44sIG-oaymwEICHgQeCAASFqi85f_AwYIlbDrqAY&rs=AMzJL3k9r-bNgibTI9pR15vIRhW--6jb1Q",
+                },
+                Thumbnail {
+                    height: 226,
+                    width: 226,
+                    url: "https://i.ytimg.com/pl_c/PLhgSQZ_KRXZur0OuW3uL6SqLAA8E1JnhU/studio_square_thumbnail.jpg?sqp=CPy44sIG-oaymwEKCOIBEOIBIABIWqLzl_8DBgiVsOuoBg&rs=AMzJL3nXbtEQbYRVBdDZJy48D12Y-XEtoQ",
+                },
+                Thumbnail {
+                    height: 544,
+                    width: 544,
+                    url: "https://i.ytimg.com/pl_c/PLhgSQZ_KRXZur0OuW3uL6SqLAA8E1JnhU/studio_square_thumbnail.jpg?sqp=CPy44sIG-oaymwEKCKAEEKAEIABIWqLzl_8DBgiVsOuoBg&rs=AMzJL3n3D0bEek7fn4TYK4A2Gs9YMUB6Bw",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Music (No Copyright) 🌴",
+            author: "BreakingCopyright — Royalty Free Music",
+            views: "1.9M views",
+            playlist_id: PlaylistID(
+                "VLPLfP6i5T0-DkLrBQvVfxeL-zGZdBvQ5Jm5",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/xneiaE_SCg8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k6Z7ZcgHfUU5EO3Cgd_V_VdUtVYA",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/xneiaE_SCg8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kBarI4Vhcr-yYVgrTotnep6Qyzkg",
+                },
+                Thumbnail {
+                    height: 480,
+                    width: 853,
+                    url: "https://i.ytimg.com/vi/xneiaE_SCg8/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mbPd-vRjJhY2aNjRz1wJu-9XReDg",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill House 2024 Playlist - Top Chill House Music 2024",
+            author: "Redlist - Worldwide Songs",
+            views: "396K views",
+            playlist_id: PlaylistID(
+                "VLPL4QNnZJr8sRMK4PqqyYt52-SOscJDaEsq",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/lqdcBb0FSiAmhVKtXrAcNWmfYU4TDq5JpGv6lhRkBlpedHBAWFATA5rt7Kup-MIgon27Xw6q=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/lqdcBb0FSiAmhVKtXrAcNWmfYU4TDq5JpGv6lhRkBlpedHBAWFATA5rt7Kup-MIgon27Xw6q=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/lqdcBb0FSiAmhVKtXrAcNWmfYU4TDq5JpGv6lhRkBlpedHBAWFATA5rt7Kup-MIgon27Xw6q=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill House 2023",
+            author: "MrRevillz",
+            views: "840K views",
+            playlist_id: PlaylistID(
+                "VLPLp8iASaiMbWr3g5MX0V-uy4vUZ5d1SUoB",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/EUd5wUQhJ65kWNYPIhWlffQKkFFtB8-REcrhlRgXY4O1j7mkGxB3oGQiLM7sPZtCbWLX3sKDIigs=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/EUd5wUQhJ65kWNYPIhWlffQKkFFtB8-REcrhlRgXY4O1j7mkGxB3oGQiLM7sPZtCbWLX3sKDIigs=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/EUd5wUQhJ65kWNYPIhWlffQKkFFtB8-REcrhlRgXY4O1j7mkGxB3oGQiLM7sPZtCbWLX3sKDIigs=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Best Mellow Pop Music: Mellow Hit Songs - Chill POP Playlist (Updated Weekly 2024)",
+            author: "Redlist - Best Sounds",
+            views: "1.3M views",
+            playlist_id: PlaylistID(
+                "VLPL7W9LuUf6bFrvd4NVz2iGQg1AP46za4Ra",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/tn1E5-ei309LhlRD7cihPrkdfjP5AFLExrw3hRknyuSFO_rXeC0lb0ux1sdo0jG-9a4UYFL3lqw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/tn1E5-ei309LhlRD7cihPrkdfjP5AFLExrw3hRknyuSFO_rXeC0lb0ux1sdo0jG-9a4UYFL3lqw=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/tn1E5-ei309LhlRD7cihPrkdfjP5AFLExrw3hRknyuSFO_rXeC0lb0ux1sdo0jG-9a4UYFL3lqw=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "ChillYourMind - Chill House 2023 🌴 | Newest Uploads",
+            author: "ChillYourMind",
+            views: "1.4M views",
+            playlist_id: PlaylistID(
+                "VLPLqP7At6_Cf_alSnvNgtUskQtSU0uVzskj",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/hsCiMiWIKRG6GGHfYw7B2YnGAQ4d51PSEH4I1bKpy5OEeMZzGBevSvfaeOO7UF4TisylkWE-G4jV=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/hsCiMiWIKRG6GGHfYw7B2YnGAQ4d51PSEH4I1bKpy5OEeMZzGBevSvfaeOO7UF4TisylkWE-G4jV=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/hsCiMiWIKRG6GGHfYw7B2YnGAQ4d51PSEH4I1bKpy5OEeMZzGBevSvfaeOO7UF4TisylkWE-G4jV=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "The Weeknd Chill",
+            author: "Ibra",
+            views: "262K views",
+            playlist_id: PlaylistID(
+                "VLPLXIe2O83tnXsCosDf9qF97vksT3hC3m0T",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/14Q0Ikzh7A_GD6ZjVw6HRscLA61OfyXuM8UH5OlunnG2P_Mi6AopbrCUzR2Gvad6o_OK4U08kqg=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/14Q0Ikzh7A_GD6ZjVw6HRscLA61OfyXuM8UH5OlunnG2P_Mi6AopbrCUzR2Gvad6o_OK4U08kqg=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.googleusercontent.com/14Q0Ikzh7A_GD6ZjVw6HRscLA61OfyXuM8UH5OlunnG2P_Mi6AopbrCUzR2Gvad6o_OK4U08kqg=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Copyright-Free: Chill Songs 🎧",
+            author: "NEFFEX",
+            views: "1.2M views",
+            playlist_id: PlaylistID(
+                "VLPLrxcNWZXdQ2lCJAkmH0XD0FiNZob0yiTG",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/7cKR31LEsofcTNwtY2si7StzPMePDxvmancGTKLl3-fs1XMcMd6QQ_TFE-cXxleAUGv5d_AfW_LZ=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/7cKR31LEsofcTNwtY2si7StzPMePDxvmancGTKLl3-fs1XMcMd6QQ_TFE-cXxleAUGv5d_AfW_LZ=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/7cKR31LEsofcTNwtY2si7StzPMePDxvmancGTKLl3-fs1XMcMd6QQ_TFE-cXxleAUGv5d_AfW_LZ=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Lofi / Chill Instrumental",
+            author: "Mellowbeat Seeker",
+            views: "1.4M views",
+            playlist_id: PlaylistID(
+                "VLPLJiWP_BcOyda1NEBEG7Xgq_53k2_uOXR-",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/LliFEpjL8mY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3liidX4FGHSFGxlVj3Fv_vjkIXjbw",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/LliFEpjL8mY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mYkcTl_xQvADTHaRoKkKadkfmhbw",
+                },
+                Thumbnail {
+                    height: 480,
+                    width: 853,
+                    url: "https://i.ytimg.com/vi/LliFEpjL8mY/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nhyn70SQNwMS4uu28xEDij8zCuTg",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Chill Beach - Surf Music",
+            author: "Violeta Bocage",
+            views: "33M views",
+            playlist_id: PlaylistID(
+                "VLPLD790D878D999E573",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/Q7tDV1PAiz1nSrxG3Xio-YZR9jemSgnuos9e4fbzdjfUfhpP6D-vJZEmVAqaCH8xvAav06-SPQ=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/Q7tDV1PAiz1nSrxG3Xio-YZR9jemSgnuos9e4fbzdjfUfhpP6D-vJZEmVAqaCH8xvAav06-SPQ=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/Q7tDV1PAiz1nSrxG3Xio-YZR9jemSgnuos9e4fbzdjfUfhpP6D-vJZEmVAqaCH8xvAav06-SPQ=s1200",
+                },
+            ],
+        },
+    ),
+    Community(
+        SearchResultCommunityPlaylist {
+            title: "Sirius XM Chill - Playlist (Weekly updated)",
+            author: "Meghie",
+            views: "375K views",
+            playlist_id: PlaylistID(
+                "VLPLSHSIWxJDV0kFJvoszcbPWqHtk--J6icT",
+            ),
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/wXt1n8QF45vMrJVzPaMD0ycDeNBTQ3PMCZu_kYPK2EZaxdKlfEBmcTrak7fAHflCx4vkKz5JKAk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/wXt1n8QF45vMrJVzPaMD0ycDeNBTQ3PMCZu_kYPK2EZaxdKlfEBmcTrak7fAHflCx4vkKz5JKAk=s576",
+                },
+                Thumbnail {
+                    height: 1200,
+                    width: 1200,
+                    url: "https://yt3.ggpht.com/wXt1n8QF45vMrJVzPaMD0ycDeNBTQ3PMCZu_kYPK2EZaxdKlfEBmcTrak7fAHflCx4vkKz5JKAk=s1200",
+                },
+            ],
+        },
+    ),
+]

@@ -3,7 +3,7 @@ use crate::parse::SearchResults;
 use crate::process_json;
 use crate::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
-    PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
+    PlaylistsFilter, PodcastsFilter, ProfilesFilter, SearchQuery, SongsFilter, VideosFilter,
 };
 use pretty_assertions::assert_eq;
 use std::path::Path;
@@ -166,8 +166,9 @@ async fn test_basic_search_with_podcast_community_playlists() {
 }
 #[tokio::test]
 async fn test_search_artists() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_artists_20231226.json",
+        "./test_json/search_artists_continuation_20231226.json",
         "./test_json/search_artists_20231226_output.txt",
         SearchQuery::new("").with_filter(ArtistsFilter),
         BrowserToken
@@ -184,8 +185,9 @@ async fn test_search_artists_with_about_message() {
 }
 #[tokio::test]
 async fn test_search_albums() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_albums_20231226.json",
+        "./test_json/search_albums_continuation_20231226.json",
         "./test_json/search_albums_20231226_output.txt",
         SearchQuery::new("").with_filter(AlbumsFilter),
         BrowserToken
@@ -193,8 +195,9 @@ async fn test_search_albums() {
 }
 #[tokio::test]
 async fn test_search_songs() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_songs_20231226.json",
+        "./test_json/search_songs_continuation_20231226.json",
         "./test_json/search_songs_20231226_output.txt",
         SearchQuery::new("").with_filter(SongsFilter),
         BrowserToken
@@ -212,17 +215,29 @@ async fn test_search_videos() {
 #[tokio::test]
 async fn test_search_videos_2024() {
     // Vodcasts were added for this version
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_videos_20240612.json",
+        "./test_json/search_videos_continuation_20240612.json",
         "./test_json/search_videos_20240612_output.txt",
         SearchQuery::new("").with_filter(VideosFilter),
         BrowserToken
     );
 }
 #[tokio::test]
+async fn test_search_playlists() {
+    parse_with_matching_continuation_test!(
+        "./test_json/search_playlists_20231228.json",
+        "./test_json/search_playlists_continuation_20231228.json",
+        "./test_json/search_playlists_20231228_output.txt",
+        SearchQuery::new("").with_filter(PlaylistsFilter),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_featured_playlists() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_featured_playlists_20231226.json",
+        "./test_json/search_featured_playlists_continuation_20231226.json",
         "./test_json/search_featured_playlists_20231226_output.txt",
         SearchQuery::new("").with_filter(FeaturedPlaylistsFilter),
         BrowserToken
@@ -230,8 +245,9 @@ async fn test_search_featured_playlists() {
 }
 #[tokio::test]
 async fn test_search_community_playlists() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_community_playlists_20231226.json",
+        "./test_json/search_community_playlists_continuation_20231226.json",
         "./test_json/search_community_playlists_20231226_output.txt",
         SearchQuery::new("").with_filter(CommunityPlaylistsFilter),
         BrowserToken
@@ -239,8 +255,9 @@ async fn test_search_community_playlists() {
 }
 #[tokio::test]
 async fn test_search_episodes() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_episodes_20231226.json",
+        "./test_json/search_episodes_continuation_20231226.json",
         "./test_json/search_episodes_20231226_output.txt",
         SearchQuery::new("").with_filter(EpisodesFilter),
         BrowserToken
@@ -248,8 +265,9 @@ async fn test_search_episodes() {
 }
 #[tokio::test]
 async fn test_search_podcasts() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_podcasts_20231226.json",
+        "./test_json/search_podcasts_continuation_20231226.json",
         "./test_json/search_podcasts_20231226_output.txt",
         SearchQuery::new("").with_filter(PodcastsFilter),
         BrowserToken
@@ -257,8 +275,9 @@ async fn test_search_podcasts() {
 }
 #[tokio::test]
 async fn test_search_profiles() {
-    parse_test!(
+    parse_with_matching_continuation_test!(
         "./test_json/search_profiles_20231226.json",
+        "./test_json/search_profiles_continuation_20231226.json",
         "./test_json/search_profiles_20231226_output.txt",
         SearchQuery::new("").with_filter(ProfilesFilter),
         BrowserToken

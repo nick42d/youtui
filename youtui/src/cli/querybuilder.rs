@@ -87,83 +87,93 @@ pub async fn command_to_query(
         Command::Search { query } => {
             get_string_output_of_query(yt, SearchQuery::new(query), cli_query).await
         }
-        Command::SearchArtists { query } => {
-            get_string_output_of_query(
+        Command::SearchArtists { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(ArtistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchAlbums { query } => {
-            get_string_output_of_query(
+        Command::SearchAlbums { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(AlbumsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchSongs { query } => {
-            get_string_output_of_query(
+        Command::SearchSongs { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(SongsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchPlaylists { query } => {
-            get_string_output_of_query(
+        Command::SearchPlaylists { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(PlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchCommunityPlaylists { query } => {
-            get_string_output_of_query(
+        Command::SearchCommunityPlaylists { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(CommunityPlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchFeaturedPlaylists { query } => {
-            get_string_output_of_query(
+        Command::SearchFeaturedPlaylists { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(FeaturedPlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchVideos { query } => {
-            get_string_output_of_query(
+        Command::SearchVideos { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(VideosFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchEpisodes { query } => {
-            get_string_output_of_query(
+        Command::SearchEpisodes { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(EpisodesFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchProfiles { query } => {
-            get_string_output_of_query(
+        Command::SearchProfiles { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(ProfilesFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchPodcasts { query } => {
-            get_string_output_of_query(
+        Command::SearchPodcasts { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(PodcastsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
@@ -599,7 +609,7 @@ where
     }
 }
 
-async fn _get_string_output_of_streaming_query<Q, O>(
+async fn get_string_output_of_streaming_query<Q, O>(
     yt: DynamicYtMusic,
     q: impl Borrow<Q>,
     cli_query: CliQuery,
