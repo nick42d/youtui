@@ -103,6 +103,47 @@ generate_stream_test_logged_in!(
     test_stream_get_library_artists,
     GetLibraryArtistsQuery::default()
 );
+generate_stream_test!(
+    test_stream_search_artists,
+    SearchQuery::new("Beatles").with_filter(ArtistsFilter)
+);
+generate_stream_test!(
+    test_stream_search_songs,
+    SearchQuery::new("Beatles").with_filter(SongsFilter)
+);
+generate_stream_test!(
+    test_stream_search_albums,
+    SearchQuery::new("Beatles").with_filter(AlbumsFilter)
+);
+generate_stream_test!(
+    test_stream_search_videos,
+    SearchQuery::new("Beatles").with_filter(VideosFilter)
+);
+generate_stream_test!(
+    test_stream_search_episodes,
+    SearchQuery::new("Beatles").with_filter(EpisodesFilter)
+);
+generate_stream_test!(
+    test_stream_search_podcasts,
+    SearchQuery::new("Beatles").with_filter(PodcastsFilter)
+);
+generate_stream_test!(
+    test_stream_search_profiles,
+    SearchQuery::new("Beatles").with_filter(ProfilesFilter)
+);
+generate_stream_test!(
+    test_stream_search_featured_playlists,
+    SearchQuery::new("Beatles").with_filter(FeaturedPlaylistsFilter)
+);
+generate_stream_test!(
+    test_stream_search_community_playlists,
+    SearchQuery::new("Beatles").with_filter(CommunityPlaylistsFilter)
+);
+generate_stream_test!(
+    test_stream_search_playlists,
+    SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
+);
+
 //// BASIC QUERY TESTS
 generate_query_test!(
     test_search_suggestions,
@@ -191,47 +232,6 @@ generate_query_test!(
     test_basic_search_alternate_query_no_results,
     SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
 );
-generate_query_test!(
-    test_search_artists,
-    SearchQuery::new("Beatles").with_filter(ArtistsFilter)
-);
-generate_query_test!(
-    test_search_songs,
-    SearchQuery::new("Beatles").with_filter(SongsFilter)
-);
-generate_query_test!(
-    test_search_albums,
-    SearchQuery::new("Beatles").with_filter(AlbumsFilter)
-);
-generate_query_test!(
-    test_search_videos,
-    SearchQuery::new("Beatles").with_filter(VideosFilter)
-);
-generate_query_test!(
-    test_search_episodes,
-    SearchQuery::new("Beatles").with_filter(EpisodesFilter)
-);
-generate_query_test!(
-    test_search_podcasts,
-    SearchQuery::new("Beatles").with_filter(PodcastsFilter)
-);
-generate_query_test!(
-    test_search_profiles,
-    SearchQuery::new("Beatles").with_filter(ProfilesFilter)
-);
-generate_query_test!(
-    test_search_featured_playlists,
-    SearchQuery::new("Beatles").with_filter(FeaturedPlaylistsFilter)
-);
-generate_query_test!(
-    test_search_community_playlists,
-    SearchQuery::new("Beatles").with_filter(CommunityPlaylistsFilter)
-);
-generate_query_test!(
-    test_search_playlists,
-    SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
-);
-
 // # MULTISTAGE TESTS
 
 #[tokio::test]
