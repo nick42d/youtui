@@ -96,7 +96,7 @@ Feature parity with `ytmusicapi`
 |GetArtist |[x]||
 |GetAlbum |[x]*||
 |GetArtistAlbums |[x]||
-|Search |[x]|[ ]|
+|Search |[x]|[x]|
 |GetSearchSuggestions|[x]||
 |GetHome|Not Planned*||
 |GetAlbumBrowseId|[ ]||
