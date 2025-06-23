@@ -431,19 +431,10 @@ fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<LibraryPlaylist
 mod tests {
     use crate::auth::BrowserToken;
 
-    // Consider if the parse function itself should be removed from impl.
     #[tokio::test]
     async fn test_library_playlists_dummy_json() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_playlists.json",
-            "./test_json/get_library_playlists_output.txt",
-            crate::query::GetLibraryPlaylistsQuery,
-            BrowserToken
-        );
-    }
-    #[tokio::test]
-    async fn test_get_library_playlists_continuation() {
-        parse_continuations_test!(
             "./test_json/get_library_playlists_continuation_mock.json",
             "./test_json/get_library_playlists_output.txt",
             crate::query::GetLibraryPlaylistsQuery,
@@ -451,17 +442,9 @@ mod tests {
         );
     }
     #[tokio::test]
-    async fn test_library_artists_dummy_json() {
-        parse_test!(
+    async fn test_get_library_artists_dummy_json() {
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_artists.json",
-            "./test_json/get_library_artists_output.txt",
-            crate::query::GetLibraryArtistsQuery::default(),
-            BrowserToken
-        );
-    }
-    #[tokio::test]
-    async fn test_get_library_artists_continuation() {
-        parse_continuations_test!(
             "./test_json/get_library_artists_continuation_mock.json",
             "./test_json/get_library_artists_output.txt",
             crate::query::GetLibraryArtistsQuery::default(),
@@ -470,16 +453,8 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_albums() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_albums_20240701.json",
-            "./test_json/get_library_albums_20240701_output.txt",
-            crate::query::GetLibraryAlbumsQuery::default(),
-            BrowserToken
-        );
-    }
-    #[tokio::test]
-    async fn test_get_library_albums_continuation() {
-        parse_continuations_test!(
             "./test_json/get_library_albums_continuation_mock.json",
             "./test_json/get_library_albums_20240701_output.txt",
             crate::query::GetLibraryAlbumsQuery::default(),
@@ -506,16 +481,8 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_artist_subscriptions() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_artist_subscriptions_20240701.json",
-            "./test_json/get_library_artist_subscriptions_20240701_output.txt",
-            crate::query::GetLibraryArtistSubscriptionsQuery::default(),
-            BrowserToken
-        );
-    }
-    #[tokio::test]
-    async fn test_get_library_artist_subscriptions_continuation() {
-        parse_continuations_test!(
             "./test_json/get_library_artist_subscriptions_continuation_mock.json",
             "./test_json/get_library_artist_subscriptions_20240701_output.txt",
             crate::query::GetLibraryArtistSubscriptionsQuery::default(),

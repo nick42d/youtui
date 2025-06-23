@@ -132,3 +132,35 @@ macro_rules! parse_continuations_test {
         pretty_assertions::assert_eq!(expected, output);
     };
 }
+
+/// Macro to generate a parsing test for continuations based on the following
+/// values: May not really need a macro for this, could use a function.
+/// Input file, continuation file producing same output as input file, output
+/// file, query, token Note, this is async due to use of tokio::fs
+#[cfg(test)]
+macro_rules! parse_with_matching_continuation_test {
+    ($in_first:expr,$in_cont:expr,$out:expr,$query:expr,$token:ty) => {
+        let first_path = std::path::Path::new($in_first);
+        let continuation_path = std::path::Path::new($in_cont);
+        let expected_path = std::path::Path::new($out);
+        let source_first = tokio::fs::read_to_string(first_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let source_continuation = tokio::fs::read_to_string(continuation_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = tokio::fs::read_to_string(expected_path)
+            .await
+            .expect("Expect file read to pass during tests");
+        let expected = expected.trim();
+        let query = $query;
+        let continuations_query = crate::query::GetContinuationsQuery::new_mock_unchecked(&query);
+        let output_first = crate::process_json::<_, $token>(source_first, $query).unwrap();
+        let output_first = format!("{:#?}", output_first);
+        let output_continuation =
+            crate::process_json::<_, $token>(source_continuation, continuations_query).unwrap();
+        let output_continuation = format!("{:#?}", output_continuation);
+        pretty_assertions::assert_eq!(expected, output_first);
+        pretty_assertions::assert_eq!(expected, output_continuation);
+    };
+}
