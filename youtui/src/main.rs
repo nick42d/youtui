@@ -140,6 +140,7 @@ enum Command {
     SearchPlaylists {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchCommunityPlaylists {
