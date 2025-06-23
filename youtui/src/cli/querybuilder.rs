@@ -87,7 +87,7 @@ pub async fn command_to_query(
         Command::Search { query } => {
             get_string_output_of_query(yt, SearchQuery::new(query), cli_query).await
         }
-        Command::SearchArtists { query } => {
+        Command::SearchArtists { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(ArtistsFilter),
@@ -95,7 +95,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchAlbums { query } => {
+        Command::SearchAlbums { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(AlbumsFilter),
@@ -103,7 +103,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchSongs { query } => {
+        Command::SearchSongs { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(SongsFilter),
@@ -111,15 +111,16 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchPlaylists { query } => {
-            get_string_output_of_query(
+        Command::SearchPlaylists { query, max_pages } => {
+            get_string_output_of_streaming_query(
                 yt,
                 SearchQuery::new(query).with_filter(PlaylistsFilter),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::SearchCommunityPlaylists { query } => {
+        Command::SearchCommunityPlaylists { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(CommunityPlaylistsFilter),
@@ -127,7 +128,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchFeaturedPlaylists { query } => {
+        Command::SearchFeaturedPlaylists { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(FeaturedPlaylistsFilter),
@@ -135,7 +136,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchVideos { query } => {
+        Command::SearchVideos { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(VideosFilter),
@@ -143,7 +144,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchEpisodes { query } => {
+        Command::SearchEpisodes { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(EpisodesFilter),
@@ -151,7 +152,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchProfiles { query } => {
+        Command::SearchProfiles { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(ProfilesFilter),
@@ -159,7 +160,7 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SearchPodcasts { query } => {
+        Command::SearchPodcasts { query, max_pages } => {
             get_string_output_of_query(
                 yt,
                 SearchQuery::new(query).with_filter(PodcastsFilter),
@@ -599,7 +600,7 @@ where
     }
 }
 
-async fn _get_string_output_of_streaming_query<Q, O>(
+async fn get_string_output_of_streaming_query<Q, O>(
     yt: DynamicYtMusic,
     q: impl Borrow<Q>,
     cli_query: CliQuery,

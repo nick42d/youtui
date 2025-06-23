@@ -124,33 +124,53 @@ enum Command {
     },
     SearchArtists {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchAlbums {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchSongs {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchPlaylists {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchCommunityPlaylists {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchFeaturedPlaylists {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchVideos {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchEpisodes {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchProfiles {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     SearchPodcasts {
         query: String,
+        /// Maximum number of pages that the API is allowed to return.
+        max_pages: usize,
     },
     // TODO: Privacy status, video ids, source playlist
     CreatePlaylist {
