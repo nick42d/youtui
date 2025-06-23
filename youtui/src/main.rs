@@ -97,26 +97,31 @@ enum Command {
     },
     GetLibraryPlaylists {
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     //TODO: Allow sorting
     GetLibraryArtists {
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     //TODO: Allow sorting
     GetLibrarySongs {
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     //TODO: Allow sorting
     GetLibraryAlbums {
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     //TODO: Allow sorting
     GetLibraryArtistSubscriptions {
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     Search {
@@ -125,16 +130,19 @@ enum Command {
     SearchArtists {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchAlbums {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchSongs {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchPlaylists {
@@ -146,31 +154,37 @@ enum Command {
     SearchCommunityPlaylists {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchFeaturedPlaylists {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchVideos {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchEpisodes {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchProfiles {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     SearchPodcasts {
         query: String,
         /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
         max_pages: usize,
     },
     // TODO: Privacy status, video ids, source playlist
