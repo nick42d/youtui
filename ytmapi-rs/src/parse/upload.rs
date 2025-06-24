@@ -5,6 +5,7 @@ use super::{
 use crate::common::{
     AlbumType, LikeStatus, Thumbnail, UploadAlbumID, UploadArtistID, UploadEntityID, VideoID,
 };
+use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3,
@@ -95,8 +96,10 @@ pub struct GetLibraryUploadAlbumSong {
     pub like_status: LikeStatus,
 }
 
-impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
-    fn parse_from(p: super::ProcessedResult<GetLibraryUploadSongsQuery>) -> Result<Self> {
+impl ParseFromContinuable<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
+    fn parse_from_continuable(
+        p: super::ProcessedResult<GetLibraryUploadSongsQuery>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
@@ -117,11 +120,21 @@ impl ParseFrom<GetLibraryUploadSongsQuery> for Vec<TableListUploadSong> {
                 Ok(Some(parse_table_list_upload_song(title, data)?))
             })
             .filter_map(Result::transpose)
-            .collect()
+            .collect();
+        todo!();
+    }
+    fn parse_continuation(
+        p: super::ProcessedResult<
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadSongsQuery>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
-impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
-    fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>) -> Result<Self> {
+impl ParseFromContinuable<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
+    fn parse_from_continuable(
+        p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         fn parse_item_list_upload_album(mut json_crawler: JsonCrawlerOwned) -> Result<UploadAlbum> {
             let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
             let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -152,11 +165,21 @@ impl ParseFrom<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
         items
             .try_into_iter()?
             .map(parse_item_list_upload_album)
-            .collect()
+            .collect();
+        todo!()
+    }
+    fn parse_continuation(
+        p: super::ProcessedResult<
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadAlbumsQuery>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
-impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
-    fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistsQuery>) -> Result<Self> {
+impl ParseFromContinuable<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
+    fn parse_from_continuable(
+        p: super::ProcessedResult<GetLibraryUploadArtistsQuery>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         fn parse_item_list_upload_artist(
             mut json_crawler: JsonCrawlerOwned,
         ) -> Result<UploadArtist> {
@@ -182,11 +205,21 @@ impl ParseFrom<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
         items
             .try_into_iter()?
             .map(parse_item_list_upload_artist)
-            .collect()
+            .collect();
+        todo!()
+    }
+    fn parse_continuation(
+        p: super::ProcessedResult<
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadArtistsQuery>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
-impl ParseFrom<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
-    fn parse_from(p: super::ProcessedResult<GetLibraryUploadAlbumQuery>) -> Result<Self> {
+impl ParseFromContinuable<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
+    fn parse_from_continuable(
+        p: super::ProcessedResult<GetLibraryUploadAlbumQuery<'_>>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         fn parse_playlist_upload_song(
             mut json_crawler: JsonCrawlerOwned,
         ) -> Result<GetLibraryUploadAlbumSong> {
@@ -248,11 +281,21 @@ impl ParseFrom<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
             entity_id,
             songs,
             thumbnails,
-        })
+        });
+        todo!()
+    }
+    fn parse_continuation(
+        p: super::ProcessedResult<
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadAlbumQuery<'_>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
-impl ParseFrom<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
-    fn parse_from(p: super::ProcessedResult<GetLibraryUploadArtistQuery>) -> Result<Self> {
+impl ParseFromContinuable<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
+    fn parse_from_continuable(
+        p: super::ProcessedResult<GetLibraryUploadArtistQuery<'_>>,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
@@ -273,7 +316,15 @@ impl ParseFrom<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
                 Ok(Some(parse_table_list_upload_song(title, data)?))
             })
             .filter_map(Result::transpose)
-            .collect()
+            .collect();
+        todo!()
+    }
+    fn parse_continuation(
+        p: super::ProcessedResult<
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadArtistQuery<'_>>,
+        >,
+    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        todo!()
     }
 }
 impl<'a> ParseFrom<DeleteUploadEntityQuery<'a>> for () {
@@ -363,8 +414,9 @@ mod tests {
     use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID, YoutubeID};
     #[tokio::test]
     async fn test_get_library_upload_songs() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_songs_20240712.json",
+            "",
             "./test_json/get_library_upload_songs_20240712_output.txt",
             crate::query::GetLibraryUploadSongsQuery::default(),
             BrowserToken
@@ -372,8 +424,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_upload_albums() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_albums_20240712.json",
+            "",
             "./test_json/get_library_upload_albums_20240712_output.txt",
             crate::query::GetLibraryUploadAlbumsQuery::default(),
             BrowserToken
@@ -381,8 +434,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_upload_artists() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_artists_20240712.json",
+            "",
             "./test_json/get_library_upload_artists_20240712_output.txt",
             crate::query::GetLibraryUploadArtistsQuery::default(),
             BrowserToken
@@ -390,8 +444,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_upload_artist() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_artist_20240712.json",
+            "",
             "./test_json/get_library_upload_artist_20240712_output.txt",
             crate::query::GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw("")),
             BrowserToken
@@ -399,8 +454,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_upload_album() {
-        parse_test!(
+        parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_album_20240712.json",
+            "",
             "./test_json/get_library_upload_album_20240712_output.txt",
             crate::query::GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw("")),
             BrowserToken
