@@ -37,3 +37,20 @@ pub(crate) enum YoutubeMusicVideoType {
     #[serde(rename = "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK")]
     Upload,
 }
+
+/// Some albums or songs receive a special badge icon instead of a thumbnail
+/// which can be used to distinguish items like 'Shuffle all' from actual songs.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(crate) enum YoutubeMusicBadgeRendererIcon {
+    #[serde(rename = "MUSIC_SHUFFLE")]
+    Shuffle,
+}
+
+/// Some albums or songs receive a special animated icon instead of a thumbnail
+/// which can be used to distinguish items like '1 song processing..' from
+/// actual songs.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(crate) enum YoutubeMusicAnimatedIcon {
+    #[serde(rename = "ANIMATED_ICON_TYPE_LOADING_SPINNER")]
+    LoadingSpinner,
+}

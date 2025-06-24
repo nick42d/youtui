@@ -9,14 +9,15 @@ use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3,
-    TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT,
-    WATCH_VIDEO_ID,
+    TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_ANIMATED_ICON, THUMBNAIL_BADGE_ICON,
+    THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::parse::{parse_fixed_column_item, parse_flex_column_item};
 use crate::query::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
+use crate::youtube_enums::{YoutubeMusicAnimatedIcon, YoutubeMusicBadgeRendererIcon};
 use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
@@ -110,13 +111,24 @@ impl ParseFromContinuable<GetLibraryUploadSongsQuery> for Vec<TableListUploadSon
         contents
             .try_into_iter()?
             .map(|mut item| {
+                // Handle list item is "Shuffle all"
+                if item
+                    .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON)
+                    .is_ok()
+                {
+                    return Ok(None);
+                }
+                // Handle list item is "x song(s) processing..."
+                if item
+                    .take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON)
+                    .is_ok()
+                {
+                    return Ok(None);
+                }
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_flex_column_item(&mut data, 0, 0)?;
-                if title == "Shuffle all" {
-                    return Ok(None);
-                };
+                let title: String = parse_flex_column_item(&mut data, 0, 0)?;
                 Ok(Some(parse_table_list_upload_song(title, data)?))
             })
             .filter_map(Result::transpose)
