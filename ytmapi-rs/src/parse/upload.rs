@@ -216,10 +216,10 @@ impl ParseFromContinuable<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
         todo!()
     }
 }
-impl ParseFromContinuable<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
-    fn parse_from_continuable(
+impl ParseFrom<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
+    fn parse_from(
         p: super::ProcessedResult<GetLibraryUploadAlbumQuery<'_>>,
-    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+    ) -> crate::Result<Self> {
         fn parse_playlist_upload_song(
             mut json_crawler: JsonCrawlerOwned,
         ) -> Result<GetLibraryUploadAlbumSong> {
@@ -281,15 +281,7 @@ impl ParseFromContinuable<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAl
             entity_id,
             songs,
             thumbnails,
-        });
-        todo!()
-    }
-    fn parse_continuation(
-        p: super::ProcessedResult<
-            crate::query::GetContinuationsQuery<'_, GetLibraryUploadAlbumQuery<'_>>,
-        >,
-    ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        })
     }
 }
 impl ParseFromContinuable<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
@@ -416,7 +408,7 @@ mod tests {
     async fn test_get_library_upload_songs() {
         parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_songs_20240712.json",
-            "",
+            "./test_json/get_library_upload_songs_continuation_20240712.json",
             "./test_json/get_library_upload_songs_20240712_output.txt",
             crate::query::GetLibraryUploadSongsQuery::default(),
             BrowserToken
@@ -426,7 +418,7 @@ mod tests {
     async fn test_get_library_upload_albums() {
         parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_albums_20240712.json",
-            "",
+            "./test_json/get_library_upload_albums_continuation_20240712.json",
             "./test_json/get_library_upload_albums_20240712_output.txt",
             crate::query::GetLibraryUploadAlbumsQuery::default(),
             BrowserToken
@@ -436,7 +428,7 @@ mod tests {
     async fn test_get_library_upload_artists() {
         parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_artists_20240712.json",
-            "",
+            "./test_json/get_library_upload_artists_continuation_20240712.json",
             "./test_json/get_library_upload_artists_20240712_output.txt",
             crate::query::GetLibraryUploadArtistsQuery::default(),
             BrowserToken
@@ -446,7 +438,7 @@ mod tests {
     async fn test_get_library_upload_artist() {
         parse_with_matching_continuation_test!(
             "./test_json/get_library_upload_artist_20240712.json",
-            "",
+            "./test_json/get_library_upload_artist_continuation_20240712.json",
             "./test_json/get_library_upload_artist_20240712_output.txt",
             crate::query::GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw("")),
             BrowserToken
@@ -454,9 +446,8 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_library_upload_album() {
-        parse_with_matching_continuation_test!(
+        parse_test!(
             "./test_json/get_library_upload_album_20240712.json",
-            "",
             "./test_json/get_library_upload_album_20240712_output.txt",
             crate::query::GetLibraryUploadAlbumQuery::new(UploadAlbumID::from_raw("")),
             BrowserToken
