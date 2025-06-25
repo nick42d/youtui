@@ -227,13 +227,28 @@ enum Command {
         feedback_tokens: Vec<String>,
     },
     // TODO: Sorting
-    GetLibraryUploadSongs,
+    GetLibraryUploadSongs {
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
+    },
     // TODO: Sorting
-    GetLibraryUploadArtists,
+    GetLibraryUploadArtists {
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
+    },
     // TODO: Sorting
-    GetLibraryUploadAlbums,
+    GetLibraryUploadAlbums {
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
+    },
     GetLibraryUploadArtist {
         upload_artist_id: String,
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
     },
     GetLibraryUploadAlbum {
         upload_album_id: String,

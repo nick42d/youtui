@@ -2,6 +2,7 @@
 //! integration tests module.
 use crate::utils::{new_standard_api, new_standard_oauth_api};
 use common::{EpisodeID, LikeStatus, PodcastChannelID, PodcastChannelParams, PodcastID, VideoID};
+use futures::{StreamExt, TryStreamExt};
 use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
@@ -103,6 +104,21 @@ generate_stream_test_logged_in!(
     test_stream_get_library_artists,
     GetLibraryArtistsQuery::default()
 );
+generate_stream_test_logged_in!(
+    #[ignore = "Ignored by default due to quota"]
+    test_get_library_upload_songs,
+    GetLibraryUploadSongsQuery::default()
+);
+generate_stream_test_logged_in!(
+    #[ignore = "Ignored by default due to quota"]
+    test_get_library_upload_albums,
+    GetLibraryUploadAlbumsQuery::default()
+);
+generate_stream_test_logged_in!(
+    #[ignore = "Ignored by default due to quota"]
+    test_get_library_upload_artists,
+    GetLibraryUploadArtistsQuery::default()
+);
 generate_stream_test!(
     test_stream_search_artists,
     SearchQuery::new("Beatles").with_filter(ArtistsFilter)
@@ -192,21 +208,6 @@ generate_query_test!(
 );
 generate_query_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_songs,
-    GetLibraryUploadSongsQuery::default()
-);
-generate_query_test_logged_in!(
-    #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_albums,
-    GetLibraryUploadAlbumsQuery::default()
-);
-generate_query_test_logged_in!(
-    #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_artists,
-    GetLibraryUploadArtistsQuery::default()
-);
-generate_query_test_logged_in!(
-    #[ignore = "Ignored by default due to quota"]
     test_get_library_songs,
     GetLibrarySongsQuery::default()
 );
@@ -264,7 +265,12 @@ async fn test_get_library_upload_artist() {
         .next()
         .expect("To run this test, you will need to upload songs from at least one artist");
     let query = GetLibraryUploadArtistQuery::new(first_artist.artist_id);
-    browser_api.query(query.clone()).await.unwrap();
+    browser_api
+        .stream(&query)
+        .take(5)
+        .try_collect::<Vec<_>>()
+        .await
+        .unwrap();
 }
 
 #[ignore = "Ignored by default due to quota"]

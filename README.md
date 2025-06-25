@@ -140,10 +140,10 @@ Feature parity with `ytmusicapi`
 |GetEpisode|[*]||
 |GetEpisodesPlaylist|Not Planned*||
 |Original: GetNewEpisodes|[*]||
-|GetLibraryUploadSongs|[x]|[ ]|
-|GetLibraryUploadArtists|[x]|[ ]|
-|GetLibraryUploadAlbums|[x]|[ ]|
-|GetLibraryUploadArtist|[x]|[ ]|
+|GetLibraryUploadSongs|[x]|[x]|
+|GetLibraryUploadArtists|[x]|[x]|
+|GetLibraryUploadAlbums|[x]|[x]|
+|GetLibraryUploadArtist|[x]|[x]|
 |GetLibraryUploadAlbum|[x]||
 |UploadSong|[x]||
 |DeleteUploadEntity|[x]||

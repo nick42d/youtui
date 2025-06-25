@@ -30,6 +30,9 @@ pub const TEXT_RUNS: &str = "/text/runs";
 pub const SUBTITLE_RUNS: &str = "/subtitle/runs";
 pub const SECOND_SUBTITLE_RUNS: &str = "/secondSubtitle/runs";
 pub const THUMBNAIL: &str = "/thumbnail/thumbnails";
+pub const THUMBNAIL_BADGE_ICON: &str = "/thumbnail/musicIconBadgeRenderer/icon/iconType";
+pub const THUMBNAIL_ANIMATED_ICON: &str =
+    "/thumbnail/musicIconBadgeRenderer/animatedIcon/animatedIconType";
 pub const FEEDBACK_TOKEN: &str = "/feedbackEndpoint/feedbackToken";
 pub const BADGE_PATH: &str =
     "/0/musicInlineBadgeRenderer/accessibilityData/accessibilityData/label";

@@ -373,35 +373,42 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetLibraryUploadSongs => {
-            get_string_output_of_query_browser_or_oauth(
+        Command::GetLibraryUploadSongs { max_pages } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadSongsQuery::default(),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::GetLibraryUploadArtists => {
-            get_string_output_of_query_browser_or_oauth(
+        Command::GetLibraryUploadArtists { max_pages } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadArtistsQuery::default(),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::GetLibraryUploadAlbums => {
-            get_string_output_of_query_browser_or_oauth(
+        Command::GetLibraryUploadAlbums { max_pages } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadAlbumsQuery::default(),
                 cli_query,
+                max_pages,
             )
             .await
         }
-        Command::GetLibraryUploadArtist { upload_artist_id } => {
-            get_string_output_of_query_browser_or_oauth(
+        Command::GetLibraryUploadArtist {
+            upload_artist_id,
+            max_pages,
+        } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryUploadArtistQuery::new(UploadArtistID::from_raw(upload_artist_id)),
                 cli_query,
+                max_pages,
             )
             .await
         }
