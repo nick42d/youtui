@@ -30,7 +30,7 @@ where
     type IterMut<'a>: Iterator<Item = Self::BorrowTo<'a>>
     where
         Self: 'a;
-    type IntoIter: Iterator<Item = Self>;
+    type IntoIter: JsonCrawlerIterator<Item = Self>;
     fn navigate_pointer(self, new_path: impl AsRef<str>) -> CrawlerResult<Self>;
     fn navigate_index(self, index: usize) -> CrawlerResult<Self>;
     fn borrow_pointer(&mut self, path: impl AsRef<str>) -> CrawlerResult<Self::BorrowTo<'_>>;
