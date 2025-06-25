@@ -19,7 +19,6 @@ use crate::parse::{
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
     WatchPlaylist,
 };
-use crate::query::lyrics::GetLyricsQuery;
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
 use crate::query::search::filteredsearch::{
@@ -27,8 +26,8 @@ use crate::query::search::filteredsearch::{
     FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
 };
 use crate::query::search::BasicSearch;
-use crate::query::song::GetSongTrackingUrlQuery;
-use crate::query::watch::GetWatchPlaylistQuery;
+use crate::query::song::{GetLyricsQuery, GetSongTrackingUrlQuery};
+use crate::query::watch_playlist::GetWatchPlaylistQuery;
 use crate::query::{
     AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery,
     DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
