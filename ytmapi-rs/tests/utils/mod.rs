@@ -22,6 +22,8 @@ pub const EXPIRED_OAUTH_PATH: &str = "oauth.json";
 //   }
 // }";
 
+/// To avoid refreshing OAuthToken on every API call, it's refreshed on
+/// initialization and stored here.
 static OAUTH_TOKEN: OnceCell<OAuthToken> = OnceCell::const_new();
 
 /// (client_id, client_secret)
