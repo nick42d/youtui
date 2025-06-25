@@ -7,10 +7,10 @@ use crate::common::{
 };
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
-    GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3,
-    TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_ANIMATED_ICON, THUMBNAIL_BADGE_ICON,
-    THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
+    CONTINUATION_PARAMS, GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
+    NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS,
+    SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_ANIMATED_ICON,
+    THUMBNAIL_BADGE_ICON, THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::parse::{parse_fixed_column_item, parse_flex_column_item};
 use crate::query::{
@@ -18,7 +18,7 @@ use crate::query::{
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
 use crate::youtube_enums::{YoutubeMusicAnimatedIcon, YoutubeMusicBadgeRendererIcon};
-use crate::Result;
+use crate::{Error, Result};
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -42,7 +42,7 @@ pub struct ParsedUploadSongAlbum {
 pub struct TableListUploadSong {
     pub entity_id: UploadEntityID<'static>,
     pub video_id: VideoID<'static>,
-    pub album: ParsedUploadSongAlbum,
+    pub album: Option<ParsedUploadSongAlbum>,
     pub duration: String,
     pub like_status: LikeStatus,
     pub title: String,
@@ -102,38 +102,38 @@ impl ParseFromContinuable<GetLibraryUploadSongsQuery> for Vec<TableListUploadSon
         p: super::ProcessedResult<GetLibraryUploadSongsQuery>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
-        let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+        let mut music_shelf = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
             MUSIC_SHELF,
-            "/contents"
         ))?;
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let contents = music_shelf.navigate_pointer("/contents")?;
         let res = contents
             .try_into_iter()?
             .map(|mut item| {
+                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
+                    return Ok(None);
+                };
                 // Handle list item is "Shuffle all"
-                if item
+                if data
                     .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON)
                     .is_ok()
                 {
                     return Ok(None);
                 }
                 // Handle list item is "x song(s) processing..."
-                if item
+                if data
                     .take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON)
                     .is_ok()
                 {
                     return Ok(None);
                 }
-                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
-                    return Ok(None);
-                };
-                let title: String = parse_flex_column_item(&mut data, 0, 0)?;
-                Ok(Some(parse_table_list_upload_song(title, data)?))
+                Ok(Some(parse_table_list_upload_song(data)?))
             })
             .filter_map(Result::transpose)
             .collect::<Result<Vec<_>>>()?;
-        Ok((res, None))
+        Ok((res, continuation_params))
     }
     fn parse_continuation(
         p: super::ProcessedResult<
@@ -200,11 +200,21 @@ impl ParseFromContinuable<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUplo
                 let Ok(mut data) = item.borrow_pointer(MRLIR) else {
                     return Ok(None);
                 };
-                let title = parse_flex_column_item(&mut data, 0, 0)?;
-                if title == "Shuffle all" {
+                // Handle list item is "Shuffle all"
+                if data
+                    .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON)
+                    .is_ok()
+                {
                     return Ok(None);
-                };
-                Ok(Some(parse_table_list_upload_song(title, data)?))
+                }
+                // Handle list item is "x song(s) processing..."
+                if data
+                    .take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON)
+                    .is_ok()
+                {
+                    return Ok(None);
+                }
+                Ok(Some(parse_table_list_upload_song(data)?))
             })
             .filter_map(Result::transpose)
             .collect::<Result<Vec<_>>>()?;
@@ -374,9 +384,9 @@ pub(crate) fn parse_upload_song_album(
     })
 }
 pub(crate) fn parse_table_list_upload_song(
-    title: String,
     mut crawler: JsonCrawlerBorrowed,
 ) -> Result<TableListUploadSong> {
+    let title: String = parse_flex_column_item(&mut crawler, 0, 0)?;
     let duration =
         crawler.take_value_pointer(format!("{}{TEXT_RUN_TEXT}", fixed_column_item_pointer(0)))?;
     let like_status = crawler.take_value_pointer(MENU_LIKE_STATUS)?;
@@ -385,8 +395,10 @@ pub(crate) fn parse_table_list_upload_song(
         "/playNavigationEndpoint/watchEndpoint/videoId"
     ))?;
     let thumbnails = crawler.take_value_pointer(THUMBNAILS)?;
-    let artists = parse_upload_song_artists(crawler.borrow_mut(), 1)?;
-    let album = parse_upload_song_album(crawler.borrow_mut(), 2)?;
+    // An uploaded song may not have artists metadata
+    let artists = parse_upload_song_artists(crawler.borrow_mut(), 1).unwrap_or_default();
+    // An uploaded song may not have aalbum metadata
+    let album = parse_upload_song_album(crawler.borrow_mut(), 2).ok();
     let entity_id = crawler
         .navigate_pointer(MENU_ITEMS)?
         .try_into_iter()?
