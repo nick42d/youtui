@@ -6,12 +6,14 @@
         video_id: VideoID(
             "Xs5XVhmlO18",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "3:41",
         like_status: Indifferent,
         title: "Burn The Witch",
@@ -45,12 +47,14 @@
         video_id: VideoID(
             "T6yIXDvR3ec",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "6:25",
         like_status: Indifferent,
         title: "Daydreaming",
@@ -84,12 +88,14 @@
         video_id: VideoID(
             "BT6vKtULBNk",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "4:41",
         like_status: Indifferent,
         title: "Decks Dark",
@@ -123,12 +129,14 @@
         video_id: VideoID(
             "2A09JB1H9aA",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "3:45",
         like_status: Indifferent,
         title: "Desert Island Disk",
@@ -162,12 +170,14 @@
         video_id: VideoID(
             "N4UgxImPfRs",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "6:08",
         like_status: Indifferent,
         title: "Ful Stop",
@@ -201,12 +211,14 @@
         video_id: VideoID(
             "fYeU9kIOYFg",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "2:53",
         like_status: Indifferent,
         title: "Glass Eyes",
@@ -240,12 +252,14 @@
         video_id: VideoID(
             "72f-xl-4Pbo",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "4:27",
         like_status: Indifferent,
         title: "Identikit",
@@ -279,12 +293,14 @@
         video_id: VideoID(
             "7gSxluH1wuc",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "5:46",
         like_status: Indifferent,
         title: "The Numbers",
@@ -318,12 +334,14 @@
         video_id: VideoID(
             "gVceI17xWh4",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "5:07",
         like_status: Indifferent,
         title: "Present Tense",
@@ -357,12 +375,14 @@
         video_id: VideoID(
             "l8A9RnpvOaM",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "5:04",
         like_status: Indifferent,
         title: "Tinker Tailor Soldier Sailor Rich Man Poor Man Beggar Man Thief",
@@ -396,12 +416,14 @@
         video_id: VideoID(
             "vkYettN29Cw",
         ),
-        album: ParsedUploadSongAlbum {
-            name: "A Moon Shaped Pool",
-            id: UploadAlbumID(
-                "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
-            ),
-        },
+        album: Some(
+            ParsedUploadSongAlbum {
+                name: "A Moon Shaped Pool",
+                id: UploadAlbumID(
+                    "FEmusic_library_privately_owned_release_detailb_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
+                ),
+            },
+        ),
         duration: "4:44",
         like_status: Indifferent,
         title: "True Love Waits",

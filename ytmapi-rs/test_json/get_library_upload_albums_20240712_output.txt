@@ -1,7 +1,9 @@
 [
     UploadAlbum {
         title: "A Moon Shaped Pool",
-        artist: "Radiohead",
+        subtitle: Some(
+            "Radiohead",
+        ),
         year: None,
         entity_id: UploadEntityID(
             "b_po_COmmveTQqc6_pQESEG1vb24gc2hhcGVkIHBvb2waCXJhZGlvaGVhZCIDZ3Bt",
@@ -24,7 +26,9 @@
     },
     UploadAlbum {
         title: "Oh Inhuman Spectacle",
-        artist: "Methyl Ethel",
+        subtitle: Some(
+            "Methyl Ethel",
+        ),
         year: Some(
             "2015",
         ),

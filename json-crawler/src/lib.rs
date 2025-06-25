@@ -27,7 +27,7 @@ where
     type BorrowTo<'a>: JsonCrawler
     where
         Self: 'a;
-    type IterMut<'a>: Iterator<Item = Self::BorrowTo<'a>>
+    type IterMut<'a>: JsonCrawlerIterator<Item = Self::BorrowTo<'a>>
     where
         Self: 'a;
     type IntoIter: JsonCrawlerIterator<Item = Self>;

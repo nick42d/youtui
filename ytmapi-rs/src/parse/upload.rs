@@ -7,11 +7,11 @@ use crate::common::{
 };
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
-    CONTINUATION_PARAMS, GRID_ITEMS, INDEX_TEXT, MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF,
-    MUSIC_SHELF_CONTINUATION, NAVIGATION_BROWSE_ID, PLAY_BUTTON, SECTION_LIST_ITEM,
-    SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3, TAB_RENDERER, TEXT_RUN_TEXT,
-    THUMBNAILS, THUMBNAIL_ANIMATED_ICON, THUMBNAIL_BADGE_ICON, THUMBNAIL_CROPPED,
-    THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
+    CONTINUATION_PARAMS, GRID, GRID_CONTINUATION, GRID_ITEMS, INDEX_TEXT, MENU_ITEMS,
+    MENU_LIKE_STATUS, MRLIR, MUSIC_SHELF, MUSIC_SHELF_CONTINUATION, NAVIGATION_BROWSE_ID,
+    PLAY_BUTTON, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, SINGLE_COLUMN_TABS, SUBTITLE2, SUBTITLE3,
+    TAB_RENDERER, TEXT_RUN_TEXT, THUMBNAILS, THUMBNAIL_ANIMATED_ICON, THUMBNAIL_BADGE_ICON,
+    THUMBNAIL_CROPPED, THUMBNAIL_RENDERER, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::parse::{parse_fixed_column_item, parse_flex_column_item};
 use crate::query::{
@@ -19,9 +19,9 @@ use crate::query::{
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
 use crate::youtube_enums::{YoutubeMusicAnimatedIcon, YoutubeMusicBadgeRendererIcon};
-use crate::{Error, Result};
+use crate::Result;
 use const_format::concatcp;
-use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -55,8 +55,8 @@ pub struct TableListUploadSong {
 #[non_exhaustive]
 pub struct UploadAlbum {
     pub title: String,
-    pub artist: String,
-    // Year appears to be optional.
+    /// Artist name or year, if year field is empty.
+    pub subtitle: Option<String>,
     pub year: Option<String>,
     pub entity_id: UploadEntityID<'static>,
     pub album_id: UploadAlbumID<'static>,
@@ -160,92 +160,62 @@ impl ParseFromContinuable<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
 }
 impl ParseFromContinuable<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
     fn parse_from_continuable(
-        p: super::ProcessedResult<GetLibraryUploadArtistQuery<'_>>,
+        p: super::ProcessedResult<GetLibraryUploadArtistQuery>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
-        let contents = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+        let mut music_shelf = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
             MUSIC_SHELF,
-            "/contents"
         ))?;
-        let res = contents
-            .try_into_iter()?
-            .map(|mut item| {
-                let Ok(mut data) = item.borrow_pointer(MRLIR) else {
-                    return Ok(None);
-                };
-                // Handle list item is "Shuffle all"
-                if data
-                    .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON)
-                    .is_ok()
-                {
-                    return Ok(None);
-                }
-                // Handle list item is "x song(s) processing..."
-                if data
-                    .take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON)
-                    .is_ok()
-                {
-                    return Ok(None);
-                }
-                Ok(Some(parse_table_list_upload_song(data)?))
-            })
-            .filter_map(Result::transpose)
-            .collect::<Result<Vec<_>>>()?;
-        Ok((res, None))
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let songs = parse_table_list_upload_songs(music_shelf)?;
+        Ok((songs, continuation_params))
     }
     fn parse_continuation(
         p: super::ProcessedResult<
-            crate::query::GetContinuationsQuery<'_, GetLibraryUploadArtistQuery<'_>>,
+            crate::query::GetContinuationsQuery<'_, GetLibraryUploadArtistQuery>,
         >,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let crawler: JsonCrawlerOwned = p.into();
+        let mut music_shelf = crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let songs = parse_table_list_upload_songs(music_shelf)?;
+        Ok((songs, continuation_params))
     }
 }
 impl ParseFromContinuable<GetLibraryUploadAlbumsQuery> for Vec<UploadAlbum> {
     fn parse_from_continuable(
         p: super::ProcessedResult<GetLibraryUploadAlbumsQuery>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        fn parse_item_list_upload_album(mut json_crawler: JsonCrawlerOwned) -> Result<UploadAlbum> {
-            let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
-            let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-            let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
-            let title = data.take_value_pointer(TITLE_TEXT)?;
-            let artist = data.take_value_pointer(SUBTITLE2)?;
-            let year = data.take_value_pointer(SUBTITLE3).ok();
-            let entity_id = data
-                .borrow_pointer(MENU_ITEMS)?
-                .try_iter_mut()?
-                .find_path(DELETION_ENTITY_ID)?
-                .take_value()?;
-            Ok(UploadAlbum {
-                title,
-                year,
-                thumbnails,
-                artist,
-                entity_id,
-                album_id,
-            })
-        }
         let crawler: JsonCrawlerOwned = p.into();
-        let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+        let mut grid_renderer = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
-            GRID_ITEMS
+            GRID
         ))?;
-        let res = items
+        let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let res = grid_renderer
+            .navigate_pointer("/items")?
             .try_into_iter()?
             .map(parse_item_list_upload_album)
             .collect::<Result<Vec<_>>>()?;
-        Ok((res, None))
+        Ok((res, continuation_params))
     }
     fn parse_continuation(
         p: super::ProcessedResult<
             crate::query::GetContinuationsQuery<'_, GetLibraryUploadAlbumsQuery>,
         >,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let crawler: JsonCrawlerOwned = p.into();
+        let mut grid_renderer = crawler.navigate_pointer(GRID_CONTINUATION)?;
+        let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let res = grid_renderer
+            .navigate_pointer("/items")?
+            .try_into_iter()?
+            .map(parse_item_list_upload_album)
+            .collect::<Result<Vec<_>>>()?;
+        Ok((res, continuation_params))
     }
 }
 impl ParseFrom<GetLibraryUploadAlbumQuery<'_>> for GetLibraryUploadAlbum {
@@ -369,17 +339,15 @@ fn parse_table_list_upload_songs(
                 return Ok(None);
             };
             // Handle list item is "Shuffle all"
-            if data
-                .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON)
-                .is_ok()
-            {
+            let badge_icon =
+                data.take_value_pointer::<YoutubeMusicBadgeRendererIcon>(THUMBNAIL_BADGE_ICON);
+            if badge_icon.is_ok() {
                 return Ok(None);
             }
             // Handle list item is "x song(s) processing..."
-            if data
-                .take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON)
-                .is_ok()
-            {
+            let animated_icon =
+                data.take_value_pointer::<YoutubeMusicAnimatedIcon>(THUMBNAIL_ANIMATED_ICON);
+            if animated_icon.is_ok() {
                 return Ok(None);
             }
             Ok(Some(parse_table_list_upload_song(data.borrow_mut())?))
@@ -419,7 +387,6 @@ pub(crate) fn parse_table_list_upload_song(
         thumbnails,
     })
 }
-
 fn parse_item_list_upload_artist(mut item: impl JsonCrawler) -> Result<UploadArtist> {
     let mut data = item.borrow_pointer(MRLIR)?;
     let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
@@ -431,6 +398,27 @@ fn parse_item_list_upload_artist(mut item: impl JsonCrawler) -> Result<UploadArt
         artist_name,
         song_count: songs,
         artist_id,
+    })
+}
+fn parse_item_list_upload_album(mut json_crawler: impl JsonCrawler) -> Result<UploadAlbum> {
+    let mut data = json_crawler.borrow_pointer("/musicTwoRowItemRenderer")?;
+    let album_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails = data.take_value_pointer(THUMBNAIL_RENDERER)?;
+    let title = data.take_value_pointer(TITLE_TEXT)?;
+    let subtitle = data.take_value_pointer(SUBTITLE2).ok();
+    let year = data.take_value_pointer(SUBTITLE3).ok();
+    let entity_id = data
+        .borrow_pointer(MENU_ITEMS)?
+        .try_iter_mut()?
+        .find_path(DELETION_ENTITY_ID)?
+        .take_value()?;
+    Ok(UploadAlbum {
+        title,
+        year,
+        thumbnails,
+        subtitle,
+        entity_id,
+        album_id,
     })
 }
 

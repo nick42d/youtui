@@ -1,8 +1,9 @@
 #![allow(clippy::unwrap_used)]
 use std::env::{self, VarError};
 use std::path::Path;
+use tokio::sync::OnceCell;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
-use ytmapi_rs::{Result, YtMusic};
+use ytmapi_rs::{Client, Result, YtMusic};
 
 pub const COOKIE_PATH: &str = "cookie.txt";
 pub const EXPIRED_OAUTH_PATH: &str = "oauth.json";
@@ -21,6 +22,8 @@ pub const EXPIRED_OAUTH_PATH: &str = "oauth.json";
 //   }
 // }";
 
+static OAUTH_TOKEN: OnceCell<OAuthToken> = OnceCell::const_new();
+
 /// (client_id, client_secret)
 pub fn get_oauth_client_id_and_secret() -> std::result::Result<(String, String), VarError> {
     let client_id = std::env::var("youtui_client_id")?;
@@ -34,14 +37,22 @@ pub fn get_oauth_client_id_and_secret() -> std::result::Result<(String, String),
 // To resolve this, we'll need a shared runtime as well as a static containing
 // the API.
 pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
-    let oauth_token = if let Ok(tok) = env::var("youtui_test_oauth") {
-        tok
-    } else {
-        tokio::fs::read_to_string(EXPIRED_OAUTH_PATH).await.unwrap()
-    };
-    Ok(YtMusic::from_oauth_token(
-        serde_json::from_slice(oauth_token.as_bytes()).unwrap(),
-    ))
+    let oauth_token = OAUTH_TOKEN
+        .get_or_init(|| async {
+            let tok_str = if let Ok(tok) = env::var("youtui_test_oauth") {
+                tok
+            } else {
+                tokio::fs::read_to_string(EXPIRED_OAUTH_PATH).await.unwrap()
+            };
+            let tok: OAuthToken = serde_json::from_slice(tok_str.as_bytes()).unwrap();
+            let client = Client::new_rustls_tls().unwrap();
+            tok.refresh(&client).await.unwrap();
+            tok
+        })
+        .await;
+    let mut api = YtMusic::from_oauth_token(oauth_token.clone());
+    api.refresh_token().await.unwrap();
+    Ok(api)
 }
 // It may be possible to put these inside a static, but last time I tried I kept
 // getting web errors.
@@ -191,7 +202,7 @@ macro_rules! generate_stream_test_logged_in {
         paste::paste! {
             $(#[$m])*
             #[tokio::test]
-            async fn $fname() {
+            async fn [<$fname _browser>]() {
                 use futures::stream::{StreamExt, TryStreamExt};
                 let api = crate::utils::new_standard_api().await.unwrap();
                 let query = $query;
