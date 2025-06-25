@@ -128,40 +128,34 @@ impl ParseFromContinuable<GetLibraryUploadArtistsQuery> for Vec<UploadArtist> {
     fn parse_from_continuable(
         p: super::ProcessedResult<GetLibraryUploadArtistsQuery>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        fn parse_item_list_upload_artist(
-            mut json_crawler: JsonCrawlerOwned,
-        ) -> Result<UploadArtist> {
-            let mut data = json_crawler.borrow_pointer(MRLIR)?;
-            let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
-            let songs = parse_flex_column_item(&mut data.borrow_mut(), 1, 0)?;
-            let thumbnails = data.take_value_pointer(THUMBNAILS)?;
-            let artist_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-            Ok(UploadArtist {
-                thumbnails,
-                artist_name,
-                song_count: songs,
-                artist_id,
-            })
-        }
         let crawler: JsonCrawlerOwned = p.into();
-        let items = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
+        let mut music_shelf = get_uploads_tab(crawler)?.navigate_pointer(concatcp!(
             TAB_RENDERER,
             SECTION_LIST_ITEM,
             MUSIC_SHELF,
-            "/contents"
         ))?;
-        let res = items
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let res = music_shelf
+            .navigate_pointer("/contents")?
             .try_into_iter()?
             .map(parse_item_list_upload_artist)
             .collect::<Result<Vec<_>>>()?;
-        Ok((res, None))
+        Ok((res, continuation_params))
     }
     fn parse_continuation(
         p: super::ProcessedResult<
             crate::query::GetContinuationsQuery<'_, GetLibraryUploadArtistsQuery>,
         >,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let crawler: JsonCrawlerOwned = p.into();
+        let mut music_shelf = crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let res = music_shelf
+            .navigate_pointer("/contents")?
+            .try_into_iter()?
+            .map(parse_item_list_upload_artist)
+            .collect::<Result<Vec<_>>>()?;
+        Ok((res, continuation_params))
     }
 }
 impl ParseFromContinuable<GetLibraryUploadArtistQuery<'_>> for Vec<TableListUploadSong> {
@@ -423,6 +417,20 @@ pub(crate) fn parse_table_list_upload_song(
         title,
         artists,
         thumbnails,
+    })
+}
+
+fn parse_item_list_upload_artist(mut item: impl JsonCrawler) -> Result<UploadArtist> {
+    let mut data = item.borrow_pointer(MRLIR)?;
+    let artist_name = parse_flex_column_item(&mut data.borrow_mut(), 0, 0)?;
+    let songs = parse_flex_column_item(&mut data.borrow_mut(), 1, 0)?;
+    let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+    let artist_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    Ok(UploadArtist {
+        thumbnails,
+        artist_name,
+        song_count: songs,
+        artist_id,
     })
 }
 
