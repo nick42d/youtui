@@ -105,6 +105,14 @@ generate_stream_test_logged_in!(
     GetLibraryArtistsQuery::default()
 );
 generate_stream_test_logged_in!(
+    test_stream_get_library_podcasts,
+    GetLibraryPodcastsQuery::default()
+);
+generate_stream_test_logged_in!(
+    test_stream_get_library_channels,
+    GetLibraryChannelsQuery::default()
+);
+generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
     test_get_library_upload_songs,
     GetLibraryUploadSongsQuery::default()

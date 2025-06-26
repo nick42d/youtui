@@ -15,6 +15,7 @@ use ytmapi_rs::common::{
 use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
+use ytmapi_rs::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
@@ -299,6 +300,24 @@ pub async fn command_to_query(
             get_string_output_of_streaming_query_browser_or_oauth(
                 yt,
                 GetLibraryArtistSubscriptionsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
+        }
+        Command::GetLibraryPodcasts { max_pages } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
+                yt,
+                GetLibraryPodcastsQuery::default(),
+                cli_query,
+                max_pages,
+            )
+            .await
+        }
+        Command::GetLibraryChannels { max_pages } => {
+            get_string_output_of_streaming_query_browser_or_oauth(
+                yt,
+                GetLibraryChannelsQuery::default(),
                 cli_query,
                 max_pages,
             )

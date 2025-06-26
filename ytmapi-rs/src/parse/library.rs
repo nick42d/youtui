@@ -523,6 +523,26 @@ mod tests {
         );
     }
     #[tokio::test]
+    async fn test_get_library_podcasts() {
+        parse_with_matching_continuation_test!(
+            "./test_json/get_library_podcasts_20240701.json",
+            "./test_json/get_library_podcasts_continuation_mock.json",
+            "./test_json/get_library_podcasts_20240701_output.txt",
+            crate::query::GetLibraryPodcastsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_channels() {
+        parse_with_matching_continuation_test!(
+            "./test_json/get_library_channels_20240701.json",
+            "./test_json/get_library_channels_continuation_mock.json",
+            "./test_json/get_library_channels_20240701_output.txt",
+            crate::query::GetLibraryChannelsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
     async fn test_edit_song_library_status() {
         // Note - same files as remove_histry_items
         parse_test!(
