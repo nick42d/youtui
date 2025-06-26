@@ -193,6 +193,14 @@ impl ParseFromContinuable<GetLibraryPodcastsQuery> for Vec<LibraryPodcast> {
     fn parse_from_continuable(
         p: ProcessedResult<GetLibraryPodcastsQuery>,
     ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        fn parse_library_podcasts(grid: impl JsonCrawler) -> Vec<LibraryPodcast> {}
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let maybe_grid_renderer = process_library_contents_grid(json_crawler);
+        if let Some(grid_renderer) = maybe_grid_renderer {
+            parse_library_playlists(grid_renderer)
+        } else {
+            Ok((vec![], None))
+        }
         todo!()
     }
     fn parse_continuation(
