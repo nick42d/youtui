@@ -116,8 +116,8 @@ Feature parity with `ytmusicapi`
 |GetLibraryAlbums|[x]|[x]|
 |GetLibraryArtists|[x]|[x]|
 |GetLibrarySubscriptions|[x]|[x]|
-|GetLibraryPodcasts|[ ]|[ ]|
-|GetLibraryChannels|[ ]|[ ]|
+|GetLibraryPodcasts|[x]|[x]|
+|GetLibraryChannels|[x]|[x]|
 |GetLikedSongs|[ ]|[ ]|
 |GetSavedEpisodes|[ ]|[ ]|
 |GetHistory|[x]||

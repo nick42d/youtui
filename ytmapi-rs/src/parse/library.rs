@@ -13,6 +13,7 @@ use crate::nav_consts::{
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
     THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
+use crate::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
 use crate::query::{
     EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
@@ -60,6 +61,12 @@ pub struct LibraryArtist {
     pub artist: String,
     pub byline: String, // e.g 16 songs or 17.8k subscribers
 }
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryPodcast {}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryChannel {}
 
 impl ParseFromContinuable<GetLibraryArtistSubscriptionsQuery> for Vec<LibraryArtistSubscription> {
     fn parse_from_continuable(
@@ -161,6 +168,32 @@ impl ParseFromContinuable<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
         parse_library_playlists(grid_renderer)
+    }
+}
+
+impl ParseFromContinuable<GetLibraryPodcastsQuery> for Vec<LibraryPodcast> {
+    fn parse_from_continuable(
+        p: ProcessedResult<GetLibraryPodcastsQuery>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        todo!()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPodcastsQuery>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        todo!()
+    }
+}
+
+impl ParseFromContinuable<GetLibraryChannelsQuery> for Vec<LibraryChannel> {
+    fn parse_from_continuable(
+        p: ProcessedResult<GetLibraryChannelsQuery>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        todo!()
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryChannelsQuery>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        todo!()
     }
 }
 
