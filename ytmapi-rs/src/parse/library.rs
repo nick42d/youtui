@@ -1,11 +1,12 @@
 use super::{
     fixed_column_item_pointer, parse_flex_column_item, parse_library_management_items_from_menu,
-    ParseFrom, ProcessedResult, SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS,
-    GRID_CONTINUATION, MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
-    SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    ParseFrom, ParsedPodcastChannel, ProcessedResult, SearchResultAlbum, TableListSong,
+    BADGE_LABEL, CONTINUATION_PARAMS, GRID_CONTINUATION, MENU_LIKE_STATUS,
+    MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::{
-    ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
+    ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, PodcastChannelID,
+    PodcastID, Thumbnail,
 };
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
@@ -63,10 +64,27 @@ pub struct LibraryArtist {
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct LibraryPodcast {}
+pub struct LibraryPodcast {
+    pub title: String,
+    pub channels: Vec<ParsedPodcastChannel>,
+    pub podcast_id: PodcastID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+    pub podcast_sourcec: PodcastSource,
+}
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
-pub struct LibraryChannel {}
+pub struct LibraryChannel {
+    pub title: String,
+    pub subscribers: String,
+    pub channel_id: PodcastChannelID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub enum PodcastSource {
+    Rss,
+    YouTube,
+}
 
 impl ParseFromContinuable<GetLibraryArtistSubscriptionsQuery> for Vec<LibraryArtistSubscription> {
     fn parse_from_continuable(
@@ -525,9 +543,9 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_podcasts() {
         parse_with_matching_continuation_test!(
-            "./test_json/get_library_podcasts_20240701.json",
-            "./test_json/get_library_podcasts_continuation_mock.json",
-            "./test_json/get_library_podcasts_20240701_output.txt",
+            "./test_json/get_library_podcasts_20250626.json",
+            "./test_json/get_library_podcasts_continuation_20250626.json",
+            "./test_json/get_library_podcasts_20250626_output.txt",
             crate::query::GetLibraryPodcastsQuery::default(),
             BrowserToken
         );
@@ -535,9 +553,9 @@ mod tests {
     #[tokio::test]
     async fn test_get_library_channels() {
         parse_with_matching_continuation_test!(
-            "./test_json/get_library_channels_20240701.json",
-            "./test_json/get_library_channels_continuation_mock.json",
-            "./test_json/get_library_channels_20240701_output.txt",
+            "./test_json/get_library_channels_20250626.json",
+            "./test_json/get_library_channels_continuation_20250626.json",
+            "./test_json/get_library_channels_20250626_output.txt",
             crate::query::GetLibraryChannelsQuery::default(),
             BrowserToken
         );
