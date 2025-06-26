@@ -44,6 +44,8 @@ pub(crate) enum YoutubeMusicVideoType {
 pub(crate) enum YoutubeMusicBadgeRendererIcon {
     #[serde(rename = "MUSIC_SHUFFLE")]
     Shuffle,
+    #[serde(rename = "RSS")]
+    Rss,
 }
 
 /// Some albums or songs receive a special animated icon instead of a thumbnail

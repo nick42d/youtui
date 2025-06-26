@@ -18,7 +18,6 @@ use std::borrow::Cow;
 pub enum GetLibrarySortOrder {
     NameAsc,
     NameDesc,
-    MostSongs,
     RecentlySaved,
     #[default]
     Default,
@@ -327,8 +326,6 @@ pub(crate) fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static 
     match o {
         GetLibrarySortOrder::NameAsc => Some("ggMGKgQIARAA"),
         GetLibrarySortOrder::NameDesc => Some("ggMGKgQIARAB"),
-        // This option is available in the UI - but unsure where to get the params from.
-        GetLibrarySortOrder::MostSongs => todo!(),
         GetLibrarySortOrder::RecentlySaved => Some("ggMGKgQIABAB"),
         GetLibrarySortOrder::Default => None,
     }
