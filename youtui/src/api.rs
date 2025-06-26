@@ -173,6 +173,10 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: ParseFromContinuable<Q>,
     {
+        // If only one page, no need to stream.
+        if max_pages == 1 {
+            return self.query_source::<Q, O>(query).await;
+        }
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_json_stream(query.borrow())
@@ -206,15 +210,9 @@ impl DynamicYtMusic {
         O: ParseFromContinuable<Q>,
         O: ParseFrom<Q>,
     {
+        // If only one page, no need to stream.
         if max_pages == 1 {
-            return Ok(match self {
-                DynamicYtMusic::Browser(yt) => yt.raw_json_query(query.borrow()).await?,
-                DynamicYtMusic::OAuth(yt) => yt.raw_json_query(query.borrow()).await?,
-                DynamicYtMusic::NoAuth(_) => bail!(wrong_auth_token_error_message::<Q>(
-                    AuthType::Unauthenticated,
-                    &[AuthType::Browser, AuthType::OAuth]
-                )),
-            });
+            return self.query_source_browser_or_oauth::<Q, O>(query).await;
         }
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
