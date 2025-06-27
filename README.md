@@ -102,24 +102,26 @@ Feature parity with `ytmusicapi`
 |GetAlbumBrowseId|[ ]||
 |GetUser|[ ]||
 |GetUserPlaylists|[ ]||
+|GetUserVideos|[ ]||
 |GetSong|[ ]*||
-|GetSongRelated|[ ]||
+|GetSongRelated|[ ]*||
 |GetLyrics|[x]||
 |GetTasteProfile|[x]||
 |SetTasteProfile|[x]||
 |GetMoodCategories|[x]||
 |GetMoodPlaylists|[x]||
 |GetCharts|Not Planned*||
-|GetWatchPlaylist|[x]\*|[ ]|
+|GetWatchPlaylist|[x]|[x]|
 |GetLibraryPlaylists|[x]|[x]|
 |GetLibrarySongs|[x]|[x]|
 |GetLibraryAlbums|[x]|[x]|
 |GetLibraryArtists|[x]|[x]|
-|GetLibrarySubscriptions|[x]|[x]|
+|GetLibraryArtistSubscriptions|[x]|[x]|
 |GetLibraryPodcasts|[x]|[x]|
 |GetLibraryChannels|[x]|[x]|
 |GetLikedSongs|[ ]|[ ]|
 |GetSavedEpisodes|[ ]|[ ]|
+|GetAccountInfo|[ ]||
 |GetHistory|[x]||
 |AddHistoryItem|[x]||
 |RemoveHistoryItem|[x]||
@@ -128,7 +130,7 @@ Feature parity with `ytmusicapi`
 |RatePlaylist|[x]||
 |SubscribeArtists|[ ]||
 |UnsubscribeArtists|[ ]||
-|GetPlaylist|[x]|[ ]|
+|GetPlaylist|[x]|[x]|
 |CreatePlaylist|[x]||
 |EditPlaylist|[x]||
 |DeletePlaylist|[x]||
@@ -148,15 +150,12 @@ Feature parity with `ytmusicapi`
 |UploadSong|[x]||
 |DeleteUploadEntity|[x]||
 
-\* GetWatchPlaylist is partially implemented only
-- only returns playlist and lyrics ids
-
 \* GetArtist is partially implemented only
 - only returns albums and songs
 
 \* Only the tracking url from GetSong is implemented - as GetSongTrackingUrl. Any additional features for GetSong are not currently planned - recommend taking a look at `rusty_ytdl` library for these features.
 
-\* Note, significantly dynamic pages, such as Get Home are not currently planned.
+\* Note, significantly dynamic pages, such as GetHome and GetSongRelated are not currently planned.
 
 \* GetEpisodesPlaylist is not implemented - it seems the only use case is to get the New Episodes playlist, which has been implemented instead as GetNewEpisodes.
 
