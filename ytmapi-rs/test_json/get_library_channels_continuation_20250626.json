@@ -1,0 +1,336 @@
+{
+  "continuationContents": {
+    "musicShelfContinuation": {
+      "contents": [
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CB8QyfQCGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/qmzT9xGCl0NYosbXnNl9gWHdmJXEhGVj-NKRYXyyF4-tP6ADufGeVzByH1E5vQF8IVcaOKie=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/qmzT9xGCl0NYosbXnNl9gWHdmJXEhGVj-NKRYXyyF4-tP6ADufGeVzByH1E5vQF8IVcaOKie=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CCIQhL8CIhMI-L7ls_COjgMV4phWAR2wTTC6"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Muthu Murugesan"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "1.72K subscribers"
+                      }
+                    ],
+                    "accessibility": {
+                      "accessibilityData": {
+                        "label": "1.72 thousand subscribers"
+                      }
+                    }
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CCEQkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQ192OTgzWF8yZGw3dU52WGs0YWtkQnc%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CCEQkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo="
+                    }
+                  }
+                ],
+                "trackingParams": "CCAQpzsiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CB8QyfQCGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+              "browseEndpoint": {
+                "browseId": "UC_v983X_2dl7uNvXk4akdBw",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBsQyfQCGAEiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/vdqJ4m9GeBi_nTOzcq29NO_aOj1HQRIXnG87vSVG5QWF5jvePQOnNRL19LUH_LakzGkW3m3pGQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/vdqJ4m9GeBi_nTOzcq29NO_aOj1HQRIXnG87vSVG5QWF5jvePQOnNRL19LUH_LakzGkW3m3pGQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CB4QhL8CIhMI-L7ls_COjgMV4phWAR2wTTC6"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "Developer Voices"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "29.3K subscribers"
+                      }
+                    ],
+                    "accessibility": {
+                      "accessibilityData": {
+                        "label": "29.3 thousand subscribers"
+                      }
+                    }
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CB0QkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQy0wZldqb3NJdElPRDRUaGhTNm95ZkE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CB0QkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo="
+                    }
+                  }
+                ],
+                "trackingParams": "CBwQpzsiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBsQyfQCGAEiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+              "browseEndpoint": {
+                "browseId": "UC-0fWjosItIOD4ThhS6oyfA",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        },
+        {
+          "musicResponsiveListItemRenderer": {
+            "trackingParams": "CBcQyfQCGAIiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+            "thumbnail": {
+              "musicThumbnailRenderer": {
+                "thumbnail": {
+                  "thumbnails": [
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIdro_msa14A7aNQeqIhSVKCljy3pWwiO9yp_Vb_VApWUC65kQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+                      "width": 60,
+                      "height": 60
+                    },
+                    {
+                      "url": "https://yt3.googleusercontent.com/ytc/AIdro_msa14A7aNQeqIhSVKCljy3pWwiO9yp_Vb_VApWUC65kQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+                      "width": 120,
+                      "height": 120
+                    }
+                  ]
+                },
+                "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_CIRCLE",
+                "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FILL",
+                "trackingParams": "CBoQhL8CIhMI-L7ls_COjgMV4phWAR2wTTC6"
+              }
+            },
+            "flexColumns": [
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "code_report"
+                      }
+                    ]
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              },
+              {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                  "text": {
+                    "runs": [
+                      {
+                        "text": "61.7K subscribers"
+                      }
+                    ],
+                    "accessibility": {
+                      "accessibilityData": {
+                        "label": "61.7 thousand subscribers"
+                      }
+                    }
+                  },
+                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+              }
+            ],
+            "menu": {
+              "menuRenderer": {
+                "items": [
+                  {
+                    "menuNavigationItemRenderer": {
+                      "text": {
+                        "runs": [
+                          {
+                            "text": "Share"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "iconType": "SHARE"
+                      },
+                      "navigationEndpoint": {
+                        "clickTrackingParams": "CBkQkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                        "shareEntityEndpoint": {
+                          "serializedShareEntity": "GhhVQzFrQnhrazJiY0c3OFlCWDdMTWw5cFE%3D",
+                          "sharePanelType": "SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL"
+                        }
+                      },
+                      "trackingParams": "CBkQkfsFGAAiEwj4vuWz8I6OAxXimFYBHbBNMLo="
+                    }
+                  }
+                ],
+                "trackingParams": "CBgQpzsiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+                "accessibility": {
+                  "accessibilityData": {
+                    "label": "Action menu"
+                  }
+                }
+              }
+            },
+            "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+            "navigationEndpoint": {
+              "clickTrackingParams": "CBcQyfQCGAIiEwj4vuWz8I6OAxXimFYBHbBNMLo=",
+              "browseEndpoint": {
+                "browseId": "UC1kBxkk2bcG78YBX7LMl9pQ",
+                "browseEndpointContextSupportedConfigs": {
+                  "browseEndpointContextMusicConfig": {
+                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                  }
+                }
+              }
+            },
+            "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+          }
+        }
+      ],
+      "trackingParams": "CA8Q-V4YACITCJ3FqOCioYcDFeqAVgEdQkkO2g==",
+      "shelfDivider": {
+        "musicShelfDividerRenderer": {
+          "hidden": true
+        }
+      },
+      "continuations": [
+        {
+          "nextContinuationData": {
+            "continuation": "4qmFsgJiEiZGRW11c2ljX2xpYnJhcnlfcHJpdmF0ZWx5X293bmVkX3RyYWNrcxo4Q0V4NkprTkZjMUZOYUc5SlEwRkZVVUZvYjBOYVZ6UnBSRUZwTldkbFgwTkNhRU5uT1ZsaGFrRjM%3D",
+            "clickTrackingParams": "CAIQybcCIhMI057BzKCMjgMVqplWAR2psCcg"
+          }
+        }
+      ]
+    }
+  },
+  "trackingParams": "CAAQhGciEwjTnsHMoIyOAxWqmVYBHamwJyA="
+}
+

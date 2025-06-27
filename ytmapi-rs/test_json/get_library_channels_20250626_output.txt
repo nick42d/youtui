@@ -1,0 +1,59 @@
+[
+    LibraryChannel {
+        title: "Muthu Murugesan",
+        subscribers: "1.72K subscribers",
+        channel_id: PodcastChannelID(
+            "UC_v983X_2dl7uNvXk4akdBw",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://yt3.googleusercontent.com/qmzT9xGCl0NYosbXnNl9gWHdmJXEhGVj-NKRYXyyF4-tP6ADufGeVzByH1E5vQF8IVcaOKie=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://yt3.googleusercontent.com/qmzT9xGCl0NYosbXnNl9gWHdmJXEhGVj-NKRYXyyF4-tP6ADufGeVzByH1E5vQF8IVcaOKie=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+            },
+        ],
+    },
+    LibraryChannel {
+        title: "Developer Voices",
+        subscribers: "29.3K subscribers",
+        channel_id: PodcastChannelID(
+            "UC-0fWjosItIOD4ThhS6oyfA",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://yt3.googleusercontent.com/vdqJ4m9GeBi_nTOzcq29NO_aOj1HQRIXnG87vSVG5QWF5jvePQOnNRL19LUH_LakzGkW3m3pGQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://yt3.googleusercontent.com/vdqJ4m9GeBi_nTOzcq29NO_aOj1HQRIXnG87vSVG5QWF5jvePQOnNRL19LUH_LakzGkW3m3pGQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+            },
+        ],
+    },
+    LibraryChannel {
+        title: "code_report",
+        subscribers: "61.7K subscribers",
+        channel_id: PodcastChannelID(
+            "UC1kBxkk2bcG78YBX7LMl9pQ",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://yt3.googleusercontent.com/ytc/AIdro_msa14A7aNQeqIhSVKCljy3pWwiO9yp_Vb_VApWUC65kQ=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://yt3.googleusercontent.com/ytc/AIdro_msa14A7aNQeqIhSVKCljy3pWwiO9yp_Vb_VApWUC65kQ=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+            },
+        ],
+    },
+]

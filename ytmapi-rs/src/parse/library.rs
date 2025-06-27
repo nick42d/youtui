@@ -216,12 +216,20 @@ impl ParseFromContinuable<GetLibraryChannelsQuery> for Vec<LibraryChannel> {
     fn parse_from_continuable(
         p: ProcessedResult<GetLibraryChannelsQuery>,
     ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler = p.into();
+        let maybe_music_shelf = process_library_contents_music_shelf(json_crawler);
+        if let Some(music_shelf) = maybe_music_shelf {
+            parse_content_list_channels(music_shelf)
+        } else {
+            Ok((Vec::new(), None))
+        }
     }
     fn parse_continuation(
         p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryChannelsQuery>>,
     ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler = JsonCrawlerOwned::from(p);
+        let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        parse_content_list_channels(music_shelf)
     }
 }
 
@@ -418,6 +426,30 @@ fn parse_content_list_artists(
                 channel_id,
                 artist,
                 byline,
+            })
+        })
+        .collect::<Result<_>>()?;
+    Ok((artists, continuation_params))
+}
+
+fn parse_content_list_channels(
+    mut json_crawler: JsonCrawlerOwned,
+) -> Result<(Vec<LibraryChannel>, Option<ContinuationParams<'static>>)> {
+    let continuation_params = json_crawler.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let artists = json_crawler
+        .navigate_pointer("/contents")?
+        .try_iter_mut()?
+        .map(|item| {
+            let mut data = item.navigate_pointer(MRLIR)?;
+            let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let title = parse_flex_column_item(&mut data, 0, 0)?;
+            let subscribers = parse_flex_column_item(&mut data, 1, 0)?;
+            let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+            Ok(LibraryChannel {
+                title,
+                subscribers,
+                channel_id,
+                thumbnails,
             })
         })
         .collect::<Result<_>>()?;
