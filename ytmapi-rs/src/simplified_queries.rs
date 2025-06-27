@@ -19,7 +19,6 @@ use crate::parse::{
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
     WatchPlaylist,
 };
-use crate::query::lyrics::GetLyricsQuery;
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
 use crate::query::search::filteredsearch::{
@@ -27,19 +26,19 @@ use crate::query::search::filteredsearch::{
     FilteredSearch, PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
 };
 use crate::query::search::BasicSearch;
-use crate::query::song::GetSongTrackingUrlQuery;
-use crate::query::watch::GetWatchPlaylistQuery;
+use crate::query::song::{GetLyricsQuery, GetSongTrackingUrlQuery};
+use crate::query::watch_playlist::GetWatchPlaylistQuery;
 use crate::query::{
     AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery,
     DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
     GetArtistAlbumsQuery, GetArtistQuery, GetChannelEpisodesQuery, GetChannelQuery,
     GetEpisodeQuery, GetHistoryQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
-    GetLibraryArtistsQuery, GetLibraryPlaylistsQuery, GetLibrarySongsQuery,
-    GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery,
-    GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery, GetMoodCategoriesQuery,
-    GetMoodPlaylistsQuery, GetNewEpisodesQuery, GetPlaylistQuery, GetPodcastQuery,
-    GetSearchSuggestionsQuery, GetTasteProfileQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+    GetLibraryArtistsQuery, GetLibraryChannelsQuery, GetLibraryPlaylistsQuery,
+    GetLibraryPodcastsQuery, GetLibrarySongsQuery, GetLibraryUploadAlbumQuery,
+    GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
+    GetLibraryUploadSongsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
+    GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery, Query,
+    RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
 };
 use crate::{Result, YtMusic};
 
@@ -817,6 +816,44 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # };
     pub async fn get_library_artist_subscriptions(&self) -> Result<Vec<LibraryArtistSubscription>> {
         let query = GetLibraryArtistSubscriptionsQuery::default();
+        self.query(query).await
+    }
+    /// Gets a list of all podcasts in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryPodcastsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryPodcastsQuery]: crate::query::GetLibraryPodcastsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_podcasts().await;
+    /// # };
+    pub async fn get_library_podcasts(
+        &self,
+    ) -> Result<<GetLibraryPodcastsQuery as Query<A>>::Output> {
+        let query = GetLibraryPodcastsQuery::default();
+        self.query(query).await
+    }
+    /// Gets a list of all channels in your Library.
+    /// # Additional functionality
+    /// See [`GetLibraryChannelsQuery`] and [`YtMusic.query()`]
+    /// for more ways to construct and run.
+    ///
+    /// [`YtMusic.query()`]: crate::YtMusic::query
+    /// [GetLibraryChannelsQuery]: crate::query::GetLibraryChannelsQuery
+    ///
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.get_library_channels().await;
+    /// # };
+    pub async fn get_library_channels(
+        &self,
+    ) -> Result<<GetLibraryChannelsQuery as Query<A>>::Output> {
+        let query = GetLibraryChannelsQuery::default();
         self.query(query).await
     }
     /// Gets your recently played history.

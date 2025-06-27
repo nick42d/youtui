@@ -9,6 +9,7 @@ use std::borrow::Borrow;
 use ytmapi_rs::auth::noauth::NoAuthToken;
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::continuations::ParseFromContinuable;
+use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::query::{PostQuery, Query};
 use ytmapi_rs::{YtMusic, YtMusicBuilder};
 mod error;
@@ -172,6 +173,10 @@ impl DynamicYtMusic {
         Q: PostQuery,
         O: ParseFromContinuable<Q>,
     {
+        // If only one page, no need to stream.
+        if max_pages == 1 {
+            return self.query_source::<Q, O>(query).await;
+        }
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_json_stream(query.borrow())
@@ -203,7 +208,12 @@ impl DynamicYtMusic {
         Q: Query<OAuthToken, Output = O>,
         Q: PostQuery,
         O: ParseFromContinuable<Q>,
+        O: ParseFrom<Q>,
     {
+        // If only one page, no need to stream.
+        if max_pages == 1 {
+            return self.query_source_browser_or_oauth::<Q, O>(query).await;
+        }
         Ok(match self {
             DynamicYtMusic::Browser(yt) => {
                 yt.raw_json_stream(query.borrow())

@@ -1,25 +1,29 @@
 use super::{
     fixed_column_item_pointer, parse_flex_column_item, parse_library_management_items_from_menu,
-    ParseFrom, ProcessedResult, SearchResultAlbum, TableListSong, BADGE_LABEL, CONTINUATION_PARAMS,
-    GRID_CONTINUATION, MENU_LIKE_STATUS, MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3,
-    SUBTITLE_BADGE_LABEL, THUMBNAILS,
+    parse_podcast_channel, ParseFrom, ParsedPodcastChannel, ProcessedResult, SearchResultAlbum,
+    TableListSong, BADGE_LABEL, CONTINUATION_PARAMS, GRID_CONTINUATION, MENU_LIKE_STATUS,
+    MUSIC_SHELF_CONTINUATION, SUBTITLE, SUBTITLE2, SUBTITLE3, SUBTITLE_BADGE_LABEL, THUMBNAILS,
 };
 use crate::common::{
-    ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, Thumbnail,
+    ApiOutcome, ArtistChannelID, ContinuationParams, Explicit, PlaylistID, PodcastChannelID,
+    PodcastID, Thumbnail,
 };
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     GRID, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
     NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
+    SUBTITLE_BADGE_ICON, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
+use crate::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
 use crate::query::{
     EditSongLibraryStatusQuery, GetContinuationsQuery, GetLibraryAlbumsQuery,
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery,
 };
+use crate::youtube_enums::YoutubeMusicBadgeRendererIcon;
 use crate::Result;
 use const_format::concatcp;
+use itertools::Itertools;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
@@ -59,6 +63,29 @@ pub struct LibraryArtist {
     pub channel_id: ArtistChannelID<'static>,
     pub artist: String,
     pub byline: String, // e.g 16 songs or 17.8k subscribers
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryPodcast {
+    pub title: String,
+    pub channels: Vec<ParsedPodcastChannel>,
+    pub podcast_id: PodcastID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+    pub podcast_source: PodcastSource,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct LibraryChannel {
+    pub title: String,
+    pub subscribers: String,
+    pub channel_id: PodcastChannelID<'static>,
+    pub thumbnails: Vec<Thumbnail>,
+}
+
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+pub enum PodcastSource {
+    Rss,
+    YouTube,
 }
 
 impl ParseFromContinuable<GetLibraryArtistSubscriptionsQuery> for Vec<LibraryArtistSubscription> {
@@ -164,6 +191,48 @@ impl ParseFromContinuable<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
     }
 }
 
+impl ParseFromContinuable<GetLibraryPodcastsQuery> for Vec<LibraryPodcast> {
+    fn parse_from_continuable(
+        p: ProcessedResult<GetLibraryPodcastsQuery>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let maybe_grid_renderer = process_library_contents_grid(json_crawler);
+        if let Some(grid_renderer) = maybe_grid_renderer {
+            parse_library_podcasts(grid_renderer)
+        } else {
+            Ok((vec![], None))
+        }
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPodcastsQuery>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
+        parse_library_podcasts(grid_renderer)
+    }
+}
+
+impl ParseFromContinuable<GetLibraryChannelsQuery> for Vec<LibraryChannel> {
+    fn parse_from_continuable(
+        p: ProcessedResult<GetLibraryChannelsQuery>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        let json_crawler = p.into();
+        let maybe_music_shelf = process_library_contents_music_shelf(json_crawler);
+        if let Some(music_shelf) = maybe_music_shelf {
+            parse_content_list_channels(music_shelf)
+        } else {
+            Ok((Vec::new(), None))
+        }
+    }
+    fn parse_continuation(
+        p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryChannelsQuery>>,
+    ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
+        let json_crawler = JsonCrawlerOwned::from(p);
+        let music_shelf = json_crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
+        parse_content_list_channels(music_shelf)
+    }
+}
+
 impl ParseFrom<EditSongLibraryStatusQuery<'_>> for Vec<ApiOutcome> {
     fn parse_from(p: super::ProcessedResult<EditSongLibraryStatusQuery>) -> Result<Self> {
         let json_crawler = JsonCrawlerOwned::from(p);
@@ -245,6 +314,19 @@ fn parse_library_playlists(
         .map(parse_content_list_playlist)
         .collect::<Result<_>>()?;
     Ok((playlists, continuation_params))
+}
+fn parse_library_podcasts(
+    mut grid_renderer: impl JsonCrawler,
+) -> Result<(Vec<LibraryPodcast>, Option<ContinuationParams<'static>>)> {
+    let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let res = grid_renderer
+        .navigate_pointer("/items")?
+        .try_into_iter()?
+        // First result is just a link to create a new podcast.
+        .skip(1)
+        .filter_map(|item| parse_content_list_podcast(item).transpose())
+        .collect::<Result<_>>()?;
+    Ok((res, continuation_params))
 }
 
 // Consider returning ProcessedLibraryContents
@@ -350,6 +432,30 @@ fn parse_content_list_artists(
     Ok((artists, continuation_params))
 }
 
+fn parse_content_list_channels(
+    mut json_crawler: JsonCrawlerOwned,
+) -> Result<(Vec<LibraryChannel>, Option<ContinuationParams<'static>>)> {
+    let continuation_params = json_crawler.take_value_pointer(CONTINUATION_PARAMS).ok();
+    let artists = json_crawler
+        .navigate_pointer("/contents")?
+        .try_iter_mut()?
+        .map(|item| {
+            let mut data = item.navigate_pointer(MRLIR)?;
+            let channel_id = data.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+            let title = parse_flex_column_item(&mut data, 0, 0)?;
+            let subscribers = parse_flex_column_item(&mut data, 1, 0)?;
+            let thumbnails = data.take_value_pointer(THUMBNAILS)?;
+            Ok(LibraryChannel {
+                title,
+                subscribers,
+                channel_id,
+                thumbnails,
+            })
+        })
+        .collect::<Result<_>>()?;
+    Ok((artists, continuation_params))
+}
+
 fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result<TableListSong> {
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -427,6 +533,42 @@ fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<LibraryPlaylist
     })
 }
 
+fn parse_content_list_podcast(item: impl JsonCrawler) -> Result<Option<LibraryPodcast>> {
+    let mut mtrir = item.navigate_pointer(MTRIR)?;
+    let title = mtrir.take_value_pointer(TITLE_TEXT)?;
+    // There are some potential non-podcast special playlist results. This is one
+    // way to filter them out.
+    // TODO: i18n or more robust method of filtering.
+    if title == "New Episodes" || title == "Episodes for Later" {
+        return Ok(None);
+    }
+    let podcast_id: PodcastID = mtrir
+        .borrow_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?
+        // ytmusicapi uses range index [2:] here but doesn't seem to be required.
+        // Revisit later if we crash.
+        .take_value()?;
+    let thumbnails: Vec<Thumbnail> = mtrir.take_value_pointer(THUMBNAIL_RENDERER)?;
+    let maybe_badge_icon = mtrir
+        .take_value_pointer::<YoutubeMusicBadgeRendererIcon>(SUBTITLE_BADGE_ICON)
+        .ok();
+    let podcast_source = match maybe_badge_icon {
+        Some(YoutubeMusicBadgeRendererIcon::Rss) => PodcastSource::Rss,
+        _ => PodcastSource::YouTube,
+    };
+    let channels = mtrir
+        .navigate_pointer("/subtitle/runs")?
+        .try_into_iter()?
+        .map(parse_podcast_channel)
+        .collect::<Result<Vec<_>>>()?;
+    Ok(Some(LibraryPodcast {
+        title,
+        thumbnails,
+        channels,
+        podcast_id,
+        podcast_source,
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use crate::auth::BrowserToken;
@@ -486,6 +628,26 @@ mod tests {
             "./test_json/get_library_artist_subscriptions_continuation_mock.json",
             "./test_json/get_library_artist_subscriptions_20240701_output.txt",
             crate::query::GetLibraryArtistSubscriptionsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_podcasts() {
+        parse_with_matching_continuation_test!(
+            "./test_json/get_library_podcasts_20250626.json",
+            "./test_json/get_library_podcasts_continuation_20250626.json",
+            "./test_json/get_library_podcasts_20250626_output.txt",
+            crate::query::GetLibraryPodcastsQuery::default(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_library_channels() {
+        parse_with_matching_continuation_test!(
+            "./test_json/get_library_channels_20250626.json",
+            "./test_json/get_library_channels_continuation_20250626.json",
+            "./test_json/get_library_channels_20250626_output.txt",
+            crate::query::GetLibraryChannelsQuery::default(),
             BrowserToken
         );
     }

@@ -97,6 +97,8 @@ pub const STRAPLINE_THUMBNAIL: &str =
 pub const BADGE_LABEL: &str = concatcp!("/badges", BADGE_PATH);
 pub const LIVE_BADGE_LABEL: &str = concatcp!("/badges", LIVE_BADGE_PATH);
 pub const SUBTITLE_BADGE_LABEL: &str = concatcp!("/subtitleBadges", BADGE_PATH);
+pub const SUBTITLE_BADGE_ICON: &str =
+    concatcp!("/subtitleBadges/0/musicInlineBadgeRenderer/icon/iconType");
 pub const CATEGORY_TITLE: &str = concatcp!("/buttonText", RUN_TEXT);
 pub const MENU_PLAYLIST_ID: &str = concatcp!(
     MENU_ITEMS,

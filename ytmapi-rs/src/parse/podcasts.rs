@@ -315,7 +315,7 @@ impl ParseFrom<GetNewEpisodesQuery> for Vec<Episode> {
     }
 }
 
-fn parse_podcast_channel(mut data: impl JsonCrawler) -> Result<ParsedPodcastChannel> {
+pub(crate) fn parse_podcast_channel(mut data: impl JsonCrawler) -> Result<ParsedPodcastChannel> {
     Ok(ParsedPodcastChannel {
         name: data.take_value_pointer("/text")?,
         id: data.take_value_pointer(NAVIGATION_BROWSE_ID).ok(),

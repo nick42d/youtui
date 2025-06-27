@@ -124,6 +124,18 @@ enum Command {
         #[arg(default_value_t = 1)]
         max_pages: usize,
     },
+    //TODO: Allow sorting
+    GetLibraryPodcasts {
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
+    },
+    //TODO: Allow sorting
+    GetLibraryChannels {
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
+    },
     Search {
         query: String,
     },

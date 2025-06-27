@@ -1,0 +1,56 @@
+[
+    LibraryPodcast {
+        title: "Rustacean Station",
+        channels: [
+            ParsedPodcastChannel {
+                name: "Rustacean Station",
+                id: Some(
+                    PodcastChannelID(
+                        "UCzYLos4qc2oC4r0Efd-tSuw",
+                    ),
+                ),
+            },
+        ],
+        podcast_id: PodcastID(
+            "MPSPPLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/podcasts_artwork/PLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct/rss_feed_ingested.jpg?sqp=CJHB9MIG-oaymwEKCOIBEOIBIABIWg&rs=AMzJL3nks-_f1ZGjS3atBh8OuwWXlCIhrQ",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/podcasts_artwork/PLWnnGn_Lw9os50MbtFCouWYsArlq2s8ct/rss_feed_ingested.jpg?sqp=CJHB9MIG-oaymwEKCKAEEKAEIABIWg&rs=AMzJL3mXOuz6D4cjYPf2CD8nIxKuOkpRWw",
+            },
+        ],
+        podcast_source: YouTube,
+    },
+    LibraryPodcast {
+        title: "Chasing Scratch: A Golf Podcast",
+        channels: [
+            ParsedPodcastChannel {
+                name: "Chasing Scratch",
+                id: None,
+            },
+        ],
+        podcast_id: PodcastID(
+            "MPSPPL-DKwJ9DPK50GVw01eGOULr7R-kJmMPoq",
+        ),
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/ALXqWX5Q_G84JRtUt12KS9u9lNzV4YO_dmvM6VbHR9ZNyYydmEh7E7bUrXcY9rYPtOLMmbjKlPUHTwHZcE9uIQBL91trXtEeaEWILI3SRb7TKhm5wh0JBtJkDx8dKGedqfzBXZt5qX9u3t1g4lwOe_hvlm7W1ytui9lMy8IqG_GVVAnuTLSyuHHmsR2-sA4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://lh3.googleusercontent.com/youtube-podcasts-ingestion-proxy/ALXqWX5Q_G84JRtUt12KS9u9lNzV4YO_dmvM6VbHR9ZNyYydmEh7E7bUrXcY9rYPtOLMmbjKlPUHTwHZcE9uIQBL91trXtEeaEWILI3SRb7TKhm5wh0JBtJkDx8dKGedqfzBXZt5qX9u3t1g4lwOe_hvlm7W1ytui9lMy8IqG_GVVAnuTLSyuHHmsR2-sA4=s576",
+            },
+        ],
+        podcast_source: Rss,
+    },
+]

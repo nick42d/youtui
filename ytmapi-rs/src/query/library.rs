@@ -4,7 +4,8 @@ use crate::common::{
     ApiOutcome, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, YoutubeID,
 };
 use crate::parse::{
-    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, SearchResultAlbum, TableListSong,
+    LibraryArtist, LibraryArtistSubscription, LibraryChannel, LibraryPlaylist, LibraryPodcast,
+    SearchResultAlbum, TableListSong,
 };
 use serde_json::json;
 use std::borrow::Cow;
@@ -17,7 +18,6 @@ use std::borrow::Cow;
 pub enum GetLibrarySortOrder {
     NameAsc,
     NameDesc,
-    MostSongs,
     RecentlySaved,
     #[default]
     Default,
@@ -25,23 +25,27 @@ pub enum GetLibrarySortOrder {
 
 pub struct GetLibraryPlaylistsQuery;
 #[derive(Default)]
-// TODO: Method to add sort order
 pub struct GetLibrarySongsQuery {
     sort_order: GetLibrarySortOrder,
 }
 #[derive(Default)]
-// TODO: Method to add sort order
 pub struct GetLibraryAlbumsQuery {
     sort_order: GetLibrarySortOrder,
 }
 #[derive(Default)]
-// TODO: Method to add sort order
 pub struct GetLibraryArtistSubscriptionsQuery {
     sort_order: GetLibrarySortOrder,
 }
 #[derive(Default)]
-// TODO: Method to add sort order
 pub struct GetLibraryArtistsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+#[derive(Default)]
+pub struct GetLibraryPodcastsQuery {
+    sort_order: GetLibrarySortOrder,
+}
+#[derive(Default)]
+pub struct GetLibraryChannelsQuery {
     sort_order: GetLibrarySortOrder,
 }
 pub struct EditSongLibraryStatusQuery<'a> {
@@ -65,6 +69,16 @@ impl GetLibraryArtistSubscriptionsQuery {
     }
 }
 impl GetLibraryArtistsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryPodcastsQuery {
+    pub fn new(sort_order: GetLibrarySortOrder) -> Self {
+        Self { sort_order }
+    }
+}
+impl GetLibraryChannelsQuery {
     pub fn new(sort_order: GetLibrarySortOrder) -> Self {
         Self { sort_order }
     }
@@ -226,7 +240,6 @@ impl PostQuery for GetLibraryArtistSubscriptionsQuery {
     }
 }
 // NOTE: Does not work on brand accounts
-// NOTE: Auth required
 impl<A: LoggedIn> Query<A> for EditSongLibraryStatusQuery<'_> {
     type Output = Vec<ApiOutcome>;
     type Method = PostMethod;
@@ -252,13 +265,67 @@ impl PostQuery for EditSongLibraryStatusQuery<'_> {
         "feedback"
     }
 }
+impl<A: LoggedIn> Query<A> for GetLibraryPodcastsQuery {
+    type Output = Vec<LibraryPodcast>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryPodcastsQuery {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_non_music_audio_list"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_non_music_audio_list"),
+            )])
+        }
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
+    }
+}
+impl<A: LoggedIn> Query<A> for GetLibraryChannelsQuery {
+    type Output = Vec<LibraryChannel>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLibraryChannelsQuery {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        if let Some(params) = get_sort_order_params(&self.sort_order) {
+            serde_json::Map::from_iter([
+                (
+                    "browseId".to_string(),
+                    json!("FEmusic_library_non_music_audio_channels_list"),
+                ),
+                ("params".to_string(), json!(params)),
+            ])
+        } else {
+            serde_json::Map::from_iter([(
+                "browseId".to_string(),
+                json!("FEmusic_library_non_music_audio_channels_list"),
+            )])
+        }
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
+    }
+}
 
 pub(crate) fn get_sort_order_params(o: &GetLibrarySortOrder) -> Option<&'static str> {
     match o {
         GetLibrarySortOrder::NameAsc => Some("ggMGKgQIARAA"),
         GetLibrarySortOrder::NameDesc => Some("ggMGKgQIARAB"),
-        // This option is available in the UI - but unsure where to get the params from.
-        GetLibrarySortOrder::MostSongs => todo!(),
         GetLibrarySortOrder::RecentlySaved => Some("ggMGKgQIABAB"),
         GetLibrarySortOrder::Default => None,
     }
