@@ -1,5 +1,6 @@
 //! Builder implementation for YtMusic, to allow more complicated construction.
 use crate::auth::noauth::NoAuthToken;
+use crate::auth::AuthToken;
 // NOTE: Example requires feature, so it is conditionally built.
 #[cfg_attr(
     feature = "rustls-tls",
@@ -74,7 +75,7 @@ impl<T> YtMusicBuilder<T> {
         self.client_options = ClientOptions::NativeTls;
         self
     }
-    pub fn with_browser_token(self, token: BrowserToken) -> YtMusicBuilder<BrowserToken> {
+    pub fn with_auth_token<A: AuthToken>(self, token: A) -> YtMusicBuilder<A> {
         let YtMusicBuilder {
             client_options,
             token: _,
@@ -111,6 +112,18 @@ impl<T> YtMusicBuilder<T> {
             token,
         }
     }
+    #[deprecated = "Use generic `with_auth_token` instead"]
+    pub fn with_browser_token(self, token: BrowserToken) -> YtMusicBuilder<BrowserToken> {
+        let YtMusicBuilder {
+            client_options,
+            token: _,
+        } = self;
+        YtMusicBuilder {
+            client_options,
+            token,
+        }
+    }
+    #[deprecated = "Use generic `with_auth_token` instead"]
     pub fn with_oauth_token(self, token: OAuthToken) -> YtMusicBuilder<OAuthToken> {
         let YtMusicBuilder {
             client_options,
@@ -185,19 +198,8 @@ impl YtMusicBuilder<NoToken> {
     }
 }
 
-impl YtMusicBuilder<BrowserToken> {
-    pub fn build(self) -> Result<YtMusic<BrowserToken>> {
-        let YtMusicBuilder {
-            client_options,
-            token,
-        } = self;
-        let client = build_client(client_options)?;
-        Ok(YtMusic { client, token })
-    }
-}
-
-impl YtMusicBuilder<OAuthToken> {
-    pub fn build(self) -> Result<YtMusic<OAuthToken>> {
+impl<A: AuthToken> YtMusicBuilder<A> {
+    pub fn build(self) -> Result<YtMusic<A>> {
         let YtMusicBuilder {
             client_options,
             token,

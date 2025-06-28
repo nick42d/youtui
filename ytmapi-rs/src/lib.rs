@@ -47,7 +47,7 @@
 //!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
 //!     // so it's recommended to save it to a file here.
 //!     let yt = ytmapi_rs::YtMusicBuilder::new_with_client(client)
-//!         .with_oauth_token(token)
+//!         .with_auth_token(token)
 //!         .build()
 //!         .unwrap();
 //!     let result = yt.get_search_suggestions("Beatles").await?;
@@ -156,6 +156,7 @@ impl YtMusic<BrowserToken> {
     /// Utilises the default TLS option for the enabled features.
     /// # Panics
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[deprecated = "Use generic `from_auth_token` instead"]
     pub fn from_browser_token(token: BrowserToken) -> YtMusic<BrowserToken> {
         let client = Client::new().expect("Expected Client build to succeed");
         YtMusic { client, token }
@@ -196,6 +197,7 @@ impl YtMusic<OAuthToken> {
     /// Utilises the default TLS option for the enabled features.
     /// # Panics
     /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    #[deprecated = "Use generic `from_auth_token` instead"]
     pub fn from_oauth_token(token: OAuthToken) -> YtMusic<OAuthToken> {
         let client = Client::new().expect("Expected Client build to succeed");
         YtMusic { client, token }
@@ -216,6 +218,14 @@ impl YtMusic<OAuthToken> {
     }
 }
 impl<A: AuthToken> YtMusic<A> {
+    /// Create a new API handle using a AuthToken.
+    /// Utilises the default TLS option for the enabled features.
+    /// # Panics
+    /// This will panic in some situations - see <https://docs.rs/reqwest/latest/reqwest/struct.Client.html#panics>
+    pub fn from_auth_token(token: A) -> YtMusic<A> {
+        let client = Client::new().expect("Expected Client build to succeed");
+        YtMusic { client, token }
+    }
     /// Return the source JSON returned by YouTube music for the query, prior to
     /// deserialization and error processing.
     /// # Usage

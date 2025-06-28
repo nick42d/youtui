@@ -32,7 +32,7 @@ impl DynamicYtMusic {
             )),
             ApiKey::OAuthToken(token) => Ok(DynamicYtMusic::OAuth(
                 YtMusicBuilder::new_rustls_tls()
-                    .with_oauth_token(token)
+                    .with_auth_token(token)
                     .build()?,
             )),
             ApiKey::None => Ok(DynamicYtMusic::NoAuth(
