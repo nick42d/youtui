@@ -394,9 +394,9 @@ async fn get_api(config: &Config) -> anyhow::Result<api::DynamicYtMusic> {
             let mut oauth_loc = confdir;
             oauth_loc.push(OAUTH_FILENAME);
             let file = tokio::fs::read_to_string(oauth_loc).await?;
-            let oath_tok = serde_json::from_str(&file)?;
+            let oath_tok: OAuthToken = serde_json::from_str(&file)?;
             let mut api = ytmapi_rs::builder::YtMusicBuilder::new_rustls_tls()
-                .with_oauth_token(oath_tok)
+                .with_auth_token(oath_tok)
                 .build()?;
             // For simplicity for now - refresh OAuth token every time.
             api.refresh_token().await?;
