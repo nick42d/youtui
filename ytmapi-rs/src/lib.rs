@@ -47,7 +47,7 @@
 //!     // NOTE: The token can be re-used until it expires, and refreshed once it has,
 //!     // so it's recommended to save it to a file here.
 //!     let yt = ytmapi_rs::YtMusicBuilder::new_with_client(client)
-//!         .with_oauth_token(token)
+//!         .with_auth_token(token)
 //!         .build()
 //!         .unwrap();
 //!     let result = yt.get_search_suggestions("Beatles").await?;
