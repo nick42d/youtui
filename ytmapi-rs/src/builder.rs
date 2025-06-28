@@ -112,7 +112,7 @@ impl<T> YtMusicBuilder<T> {
             token,
         }
     }
-    #[deprecated = "Use with_auth_token"]
+    #[deprecated = "Use generic `with_auth_token` instead"]
     pub fn with_browser_token(self, token: BrowserToken) -> YtMusicBuilder<BrowserToken> {
         let YtMusicBuilder {
             client_options,
@@ -123,7 +123,7 @@ impl<T> YtMusicBuilder<T> {
             token,
         }
     }
-    #[deprecated = "Use with_auth_token"]
+    #[deprecated = "Use generic `with_auth_token` instead"]
     pub fn with_oauth_token(self, token: OAuthToken) -> YtMusicBuilder<OAuthToken> {
         let YtMusicBuilder {
             client_options,
