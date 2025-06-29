@@ -104,7 +104,7 @@ Feature parity with `ytmusicapi`
 |GetUserPlaylists|[ ]||
 |GetUserVideos|[ ]||
 |GetSong|[ ]*||
-|GetSongRelated|[ ]*||
+|GetSongRelated|Not Planned*||
 |GetLyrics|[x]||
 |GetTasteProfile|[x]||
 |SetTasteProfile|[x]||

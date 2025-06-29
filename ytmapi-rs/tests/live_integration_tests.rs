@@ -77,8 +77,7 @@ async fn test_expired_oauth() {
 #[tokio::test]
 async fn test_new() {
     new_standard_api().await.unwrap();
-    // OAuth disabled due to pending removal / change.
-    // new_standard_oauth_api().await.unwrap();
+    new_standard_oauth_api().await.unwrap();
 }
 //// BASIC STREAM TESTS
 generate_stream_test_logged_in!(
@@ -119,12 +118,12 @@ generate_stream_test_logged_in!(
 );
 generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_albums,
+    test_stream_get_library_upload_albums,
     GetLibraryUploadAlbumsQuery::default()
 );
 generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_artists,
+    test_stream_get_library_upload_artists,
     GetLibraryUploadArtistsQuery::default()
 );
 generate_stream_test!(
@@ -167,6 +166,10 @@ generate_stream_test!(
     test_stream_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
+generate_stream_test!(
+    test_stream_get_playlist,
+    GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+);
 
 //// BASIC QUERY TESTS
 generate_query_test!(
@@ -206,10 +209,6 @@ generate_query_test!(
     GetEpisodeQuery::new(EpisodeID::from_raw("MPED2i5poDoWjFU"))
 );
 generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
-generate_query_test!(
-    test_get_playlist,
-    GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
-);
 generate_query_test!(
     test_get_artist,
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
@@ -637,12 +636,15 @@ async fn test_get_library_artists() {
 async fn test_watch_playlist() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
+    let query = GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw("9mWr4c_ig54"));
     let res = api
-        .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
+        .stream(&query)
+        .take(10)
+        .collect::<Result<Vec<_>>>()
         .await
         .unwrap();
     assert_eq!(
-        res.playlist_id,
+        res[0].playlist_id,
         Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54"))
     );
     assert_eq!(res.lyrics_id, LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"));
