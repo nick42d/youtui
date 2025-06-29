@@ -10,7 +10,7 @@ use std::vec::IntoIter;
 
 /// Iterator extension trait containing special methods for Json Crawler
 /// iterators to help with error handling.
-pub trait JsonCrawlerIterator: Iterator
+pub trait JsonCrawlerIterator: Iterator + DoubleEndedIterator
 where
     Self::Item: JsonCrawler,
 {

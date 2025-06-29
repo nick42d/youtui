@@ -11,6 +11,7 @@ pub const TWO_COLUMN: &str = "/contents/twoColumnBrowseResultsRenderer";
 pub const SECTION_LIST: &str = "/sectionListRenderer/contents";
 pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
 pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
+pub const MUSIC_PLAYLIST_SHELF: &str = "/musicPlaylistShelfRenderer";
 pub const GRID: &str = "/gridRenderer";
 pub const MENU: &str = "/menu/menuRenderer";
 pub const MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
@@ -48,6 +49,10 @@ pub const TASTE_PROFILE_SELECTION: &str = "/tastebuilderItemRenderer/selectionFo
 pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impressionFormValue";
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
+pub const CONTINUATION_RENDERER_COMMAND: &str =
+    "/continuationItemRenderer/continuationEndpoint/continuationCommand/token";
+pub const APPEND_CONTINUATION_ITEMS: &str =
+    "/onResponseReceivedActions/0/appendContinuationItemsAction/continuationItems";
 pub const MUSIC_SHELF_CONTINUATION: &str = "/continuationContents/musicShelfContinuation";
 pub const GRID_CONTINUATION: &str = "/continuationContents/gridContinuation";
 pub const CONTINUATION_PARAMS: &str = "/continuations/0/nextContinuationData/continuation";
@@ -74,7 +79,9 @@ pub const _NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VI
 pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
 pub const SINGLE_COLUMN_TAB: &str = concatcp!(SINGLE_COLUMN, TAB_CONTENT);
 pub const SECTION_LIST_ITEM: &str = concatcp!("/sectionListRenderer", CONTENT);
-pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!("/secondaryContents", SECTION_LIST_ITEM);
+pub const SECONDARY_SECTION_LIST_RENDERER: &str =
+    concatcp!("/secondaryContents/sectionListRenderer");
+pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!(SECONDARY_SECTION_LIST_RENDERER, CONTENT);
 pub const ITEM_SECTION: &str = concatcp!("/itemSectionRenderer", CONTENT);
 pub const GRID_ITEMS: &str = concatcp!(GRID, "/items");
 pub const MENU_ITEMS: &str = concatcp!(MENU, "/items");

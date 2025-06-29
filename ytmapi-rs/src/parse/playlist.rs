@@ -5,8 +5,10 @@ use super::{
 use crate::common::{ApiOutcome, LyricsID, PlaylistID, SetVideoID, Thumbnail, VideoID};
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
-    FACEPILE_AVATAR_URL, FACEPILE_TEXT, NAVIGATION_PLAYLIST_ID, RESPONSIVE_HEADER,
-    SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
+    APPEND_CONTINUATION_ITEMS, CONTENT, CONTINUATION_PARAMS, FACEPILE_AVATAR_URL, FACEPILE_TEXT,
+    MUSIC_PLAYLIST_SHELF, NAVIGATION_PLAYLIST_ID, RESPONSIVE_HEADER, SECONDARY_SECTION_LIST_ITEM,
+    SECONDARY_SECTION_LIST_RENDERER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    TAB_CONTENT, THUMBNAILS,
 };
 use crate::query::playlist::{
     CreatePlaylistType, GetPlaylistDetailsQuery, GetWatchPlaylistQueryID, PrivacyStatus,
@@ -113,12 +115,22 @@ impl<'a> ParseFromContinuable<GetPlaylistQuery<'a>> for Vec<PlaylistItem> {
     fn parse_from_continuable(
         p: ProcessedResult<GetPlaylistQuery<'a>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let music_playlist_shelf = json_crawler.navigate_pointer(concatcp!(
+            TWO_COLUMN,
+            SECONDARY_SECTION_LIST_RENDERER,
+            CONTENT,
+            MUSIC_PLAYLIST_SHELF,
+            "/contents"
+        ))?;
+        parse_playlist_items(music_playlist_shelf)
     }
     fn parse_continuation(
         p: ProcessedResult<crate::query::GetContinuationsQuery<'_, GetPlaylistQuery<'a>>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let continuation_items = json_crawler.navigate_pointer(APPEND_CONTINUATION_ITEMS)?;
+        parse_playlist_items(continuation_items)
     }
 }
 

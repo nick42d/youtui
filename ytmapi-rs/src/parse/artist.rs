@@ -6,8 +6,8 @@ use super::{
     ParsedUploadSongAlbum, ProcessedResult, Thumbnail,
 };
 use crate::common::{
-    AlbumID, AlbumType, ArtistChannelID, BrowseParams, EpisodeID, Explicit, LibraryManager,
-    LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, BrowseParams, ContinuationParams, EpisodeID, Explicit,
+    LibraryManager, LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
@@ -446,7 +446,7 @@ pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Resu
 }
 
 pub(crate) fn parse_library_management_items_from_menu(
-    menu: JsonCrawlerBorrowed,
+    menu: impl JsonCrawler,
 ) -> Result<Option<LibraryManager>> {
     let Some((status, add_to_library_token, remove_from_library_token)) = menu
         .try_into_iter()?
@@ -500,7 +500,7 @@ pub(crate) fn parse_library_management_items_from_menu(
 pub(crate) fn parse_playlist_song(
     title: String,
     track_no: usize,
-    mut data: JsonCrawlerBorrowed,
+    mut data: impl JsonCrawler,
 ) -> Result<PlaylistSong> {
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -558,7 +558,7 @@ pub(crate) fn parse_playlist_song(
 pub(crate) fn parse_playlist_upload_song(
     title: String,
     track_no: usize,
-    mut data: JsonCrawlerBorrowed,
+    mut data: impl JsonCrawler,
 ) -> Result<PlaylistUploadSong> {
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
@@ -591,7 +591,7 @@ pub(crate) fn parse_playlist_upload_song(
 pub(crate) fn parse_playlist_episode(
     title: String,
     track_no: usize,
-    mut data: JsonCrawlerBorrowed,
+    mut data: impl JsonCrawler,
 ) -> Result<PlaylistEpisode> {
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -641,7 +641,7 @@ pub(crate) fn parse_playlist_episode(
 pub(crate) fn parse_playlist_video(
     title: String,
     track_no: usize,
-    mut data: JsonCrawlerBorrowed,
+    mut data: impl JsonCrawler,
 ) -> Result<PlaylistVideo> {
     let video_id = data.take_value_pointer(concatcp!(
         PLAY_BUTTON,
@@ -683,7 +683,7 @@ pub(crate) fn parse_playlist_video(
 
 pub(crate) fn parse_playlist_item(
     track_no: usize,
-    json: &mut JsonCrawlerBorrowed,
+    mut json: impl JsonCrawler,
 ) -> Result<Option<PlaylistItem>> {
     let Ok(mut data) = json.borrow_pointer(MRLIR) else {
         return Ok(None);
@@ -712,18 +712,27 @@ pub(crate) fn parse_playlist_item(
         YoutubeMusicVideoType::Episode => Some(PlaylistItem::Episode(parse_playlist_episode(
             title, track_no, data,
         )?)),
+        YoutubeMusicVideoType::Shoulder => todo!(),
     };
     Ok(item)
 }
 //TODO: Menu entries
-//TODO: Consider rename
-pub(crate) fn parse_playlist_items(json: JsonCrawlerBorrowed) -> Result<Vec<PlaylistItem>> {
-    json.try_into_iter()
-        .into_iter()
-        .flatten()
+pub(crate) fn parse_playlist_items(
+    json: impl JsonCrawler,
+) -> Result<(Vec<PlaylistItem>, Option<ContinuationParams<'static>>)> {
+    let mut items = json.try_into_iter()?;
+    let mut last_item = items.next_back();
+    let continuation_params = last_item.as_mut().and_then(|ref mut last_item| {
+        last_item
+            .take_value_pointer(CONTINUATION_RENDERER_COMMAND)
+            .ok()
+    });
+    let items = items
+        .chain(last_item)
         .enumerate()
-        .filter_map(|(idx, mut item)| parse_playlist_item(idx + 1, &mut item).transpose())
-        .collect()
+        .filter_map(|(idx, item)| parse_playlist_item(idx + 1, item).transpose())
+        .collect::<Result<_>>()?;
+    Ok((items, continuation_params))
 }
 impl<'a> ParseFrom<GetArtistAlbumsQuery<'a>> for Vec<GetArtistAlbumsAlbum> {
     fn parse_from(p: ProcessedResult<GetArtistAlbumsQuery<'a>>) -> crate::Result<Self> {
