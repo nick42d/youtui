@@ -269,15 +269,6 @@ mod tests {
     use std::path::Path;
 
     #[tokio::test]
-    async fn test_get_playlist_query() {
-        parse_test!(
-            "./test_json/get_playlist_20240617.json",
-            "./test_json/get_playlist_20240617_output.txt",
-            GetPlaylistQuery::new(PlaylistID::from_raw("")),
-            BrowserToken
-        );
-    }
-    #[tokio::test]
     async fn test_add_playlist_items_query_failure() {
         let source_path = Path::new("./test_json/add_playlist_items_failure_20240626.json");
         let source = tokio::fs::read_to_string(source_path)
@@ -314,6 +305,17 @@ mod tests {
         );
     }
     #[tokio::test]
+    #[deprecated]
+    async fn test_get_playlist_query_old() {
+        parse_test!(
+            "./test_json/get_playlist_20240617.json",
+            "./test_json/get_playlist_20240617_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    #[deprecated]
     async fn test_get_playlist_query_2024() {
         parse_test!(
             "./test_json/get_playlist_20240624.json",
@@ -323,6 +325,7 @@ mod tests {
         );
     }
     #[tokio::test]
+    #[deprecated]
     // In 2025, playlist channel details were moved from strapline to facepile.
     async fn test_get_playlist_query_2025() {
         parse_test!(
@@ -332,11 +335,22 @@ mod tests {
             BrowserToken
         );
     }
+    #[deprecated]
     #[tokio::test]
     async fn test_get_playlist_query_2024_no_channel_thumbnail() {
         parse_test!(
             "./test_json/get_playlist_no_channel_thumbnail_20240818.json",
             "./test_json/get_playlist_no_channel_thumbnail_20240818_output.txt",
+            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_query() {
+        parse_with_matching_continuation_test!(
+            "./test_json/get_playlist_X.json",
+            "./test_json/get_playlist_continuation_X.json",
+            "./test_json/get_playlist_X_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
