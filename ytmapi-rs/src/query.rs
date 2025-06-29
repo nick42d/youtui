@@ -56,13 +56,13 @@ pub mod library;
 pub use library::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryChannelsQuery, GetLibraryPlaylistsQuery,
-    GetLibraryPodcastsQuery, GetLibrarySongsQuery, GetWatchPlaylistQuery,
+    GetLibraryPodcastsQuery, GetLibrarySongsQuery,
 };
 pub mod playlist;
 #[doc(inline)]
 pub use playlist::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    GetPlaylistQuery, RemovePlaylistItemsQuery,
+    GetPlaylistQuery, GetWatchPlaylistQuery, RemovePlaylistItemsQuery,
 };
 pub mod podcasts;
 #[doc(inline)]
@@ -82,7 +82,7 @@ pub mod search;
 pub use search::{GetSearchSuggestionsQuery, SearchQuery};
 pub mod song;
 #[doc(inline)]
-pub use song::{GetLyricsQuery, GetSongTrackingUrlQuery};
+pub use song::{GetLyricsIDQuery, GetLyricsQuery, GetSongTrackingUrlQuery};
 pub mod upload;
 #[doc(inline)]
 pub use upload::{

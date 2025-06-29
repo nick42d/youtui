@@ -17,7 +17,7 @@ use crate::parse::{
     LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, SearchResultAlbum,
     SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
     SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
-    WatchPlaylist,
+    WatchPlaylistTrack,
 };
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
@@ -27,7 +27,6 @@ use crate::query::search::filteredsearch::{
 };
 use crate::query::search::BasicSearch;
 use crate::query::song::{GetLyricsQuery, GetSongTrackingUrlQuery};
-use crate::query::watch_playlist::GetWatchPlaylistQuery;
 use crate::query::{
     AddHistoryItemQuery, AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery,
     DeleteUploadEntityQuery, EditPlaylistQuery, EditSongLibraryStatusQuery, GetAlbumQuery,
@@ -36,9 +35,10 @@ use crate::query::{
     GetLibraryArtistsQuery, GetLibraryChannelsQuery, GetLibraryPlaylistsQuery,
     GetLibraryPodcastsQuery, GetLibrarySongsQuery, GetLibraryUploadAlbumQuery,
     GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
-    GetLibraryUploadSongsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
-    GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery, Query,
-    RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+    GetLibraryUploadSongsQuery, GetLyricsIDQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetNewEpisodesQuery, GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
+    GetTasteProfileQuery, GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
 };
 use crate::{Result, YtMusic};
 
@@ -258,8 +258,23 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_watch_playlist_from_video_id<'a, S: Into<VideoID<'a>>>(
         &self,
         video_id: S,
-    ) -> Result<WatchPlaylist> {
+    ) -> Result<Vec<WatchPlaylistTrack>> {
         let query = GetWatchPlaylistQuery::new_from_video_id(video_id.into());
+        self.query(query).await
+    }
+    /// Gets song lyrics and the source.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
+    /// let watch_playlist = yt.get_watch_playlist_from_video_id(&results[0].video_id).await.unwrap();
+    /// yt.get_lyrics_id(watch_playlist.lyrics_id).await
+    /// # };
+    pub async fn get_lyrics_id<'a, T: Into<VideoID<'a>>>(
+        &self,
+        video_id: T,
+    ) -> Result<LyricsID<'static>> {
+        let query = GetLyricsIDQuery::new(video_id.into());
         self.query(query).await
     }
     /// Gets song lyrics and the source.

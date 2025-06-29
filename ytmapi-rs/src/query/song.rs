@@ -7,6 +7,10 @@ use serde_json::json;
 use std::borrow::Cow;
 use std::time::SystemTime;
 
+pub struct GetLyricsIDQuery<'a> {
+    video_id: VideoID<'a>,
+}
+
 pub struct GetLyricsQuery<'a> {
     id: LyricsID<'a>,
 }
@@ -14,6 +18,12 @@ pub struct GetLyricsQuery<'a> {
 pub struct GetSongTrackingUrlQuery<'a> {
     video_id: VideoID<'a>,
     signature_timestamp: u64,
+}
+
+impl<'a> GetLyricsIDQuery<'a> {
+    pub fn new(video_id: VideoID<'a>) -> GetLyricsIDQuery<'a> {
+        GetLyricsIDQuery { video_id }
+    }
 }
 
 impl<'a> GetLyricsQuery<'a> {
@@ -33,6 +43,31 @@ impl GetSongTrackingUrlQuery<'_> {
             video_id,
             signature_timestamp,
         })
+    }
+}
+
+impl<A: AuthToken> Query<A> for GetLyricsIDQuery<'_> {
+    type Output = LyricsID<'static>;
+    type Method = PostMethod;
+}
+impl PostQuery for GetLyricsIDQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        let serde_json::Value::Object(mut map) = json!({
+            "enablePersistentPlaylistPanel": true,
+            "isAudioOnly": true,
+            "tunerSettingValue": "AUTOMIX_SETTING_NORMAL",
+            "playlistId" : format!("RDAMVM{}", self.video_id.get_raw()),
+            "videoId" : self.video_id.get_raw(),
+        }) else {
+            unreachable!()
+        };
+        map
+    }
+    fn path(&self) -> &str {
+        "next"
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
     }
 }
 

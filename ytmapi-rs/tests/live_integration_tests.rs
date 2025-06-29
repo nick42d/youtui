@@ -170,6 +170,10 @@ generate_stream_test!(
     test_stream_get_playlist,
     GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
+generate_stream_test!(
+    test_stream_get_watch_playlist,
+    GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
+);
 
 //// BASIC QUERY TESTS
 generate_query_test!(
@@ -239,6 +243,10 @@ generate_query_test!(
 generate_query_test!(
     test_basic_search_alternate_query_no_results,
     SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
+);
+generate_query_test!(
+    test_get_lyrics_id,
+    GetLyricsIDQuery::new(VideoID::from_raw("TODO"))
 );
 // # MULTISTAGE TESTS
 
@@ -633,31 +641,14 @@ async fn test_get_library_artists() {
     assert!(!res.is_empty());
 }
 #[tokio::test]
-async fn test_watch_playlist() {
-    // TODO: Make more generic
-    let api = new_standard_api().await.unwrap();
-    let query = GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw("9mWr4c_ig54"));
-    let res = api
-        .stream(&query)
-        .take(10)
-        .collect::<Result<Vec<_>>>()
-        .await
-        .unwrap();
-    assert_eq!(
-        res[0].playlist_id,
-        Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54"))
-    );
-    assert_eq!(res.lyrics_id, LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"));
-}
-#[tokio::test]
 async fn test_get_lyrics() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
-    let res = api
-        .get_watch_playlist_from_video_id(VideoID::from_raw("lYBUbBu4W08"))
+    let id = api
+        .get_lyrics_id(VideoID::from_raw("lYBUbBu4W08"))
         .await
         .unwrap();
-    let res = api.get_lyrics(res.lyrics_id).await.unwrap();
+    let res = api.get_lyrics(id).await.unwrap();
     assert!(res.lyrics.contains("You know the rules and so do I"));
     assert!(res.source.contains("Musixmatch"));
 }

@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{PlaylistID, SetVideoID, VideoID, YoutubeID};
-use crate::parse::GetPlaylist;
+use crate::parse::{GetPlaylist, WatchPlaylistTrack};
 pub use additems::*;
 pub use create::*;
 pub use edit::*;
@@ -230,7 +230,7 @@ impl PostQuery for RemovePlaylistItemsQuery<'_> {
 }
 
 impl<T: GetWatchPlaylistQueryID, A: AuthToken> Query<A> for GetWatchPlaylistQuery<T> {
-    type Output = crate::parse::WatchPlaylist;
+    type Output = Vec<crate::parse::WatchPlaylistTrack>;
     type Method = PostMethod;
 }
 impl<T: GetWatchPlaylistQueryID> PostQuery for GetWatchPlaylistQuery<T> {
