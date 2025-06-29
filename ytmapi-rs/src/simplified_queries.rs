@@ -13,13 +13,13 @@ use crate::common::{
     UploadArtistID, UploadEntityID, VideoID,
 };
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylist, HistoryPeriod,
-    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, SearchResultAlbum,
-    SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist, SearchResultPlaylist,
-    SearchResultPodcast, SearchResultProfile, SearchResultSong, SearchResultVideo, SearchResults,
-    WatchPlaylistTrack,
+    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylistDetails,
+    HistoryPeriod, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
+    SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
+    SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
+    SearchResultVideo, SearchResults, WatchPlaylistTrack,
 };
-use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode};
+use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode, GetPlaylistDetailsQuery};
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
 use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
@@ -295,12 +295,28 @@ impl<A: AuthToken> YtMusic<A> {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_featured_playlists("Heavy metal").await.unwrap();
     /// yt.get_playlist(&results[0].playlist_id).await
+    /// todo!("Update test and description")
     /// # };
     pub async fn get_playlist<'a, T: Into<PlaylistID<'a>>>(
         &self,
         playlist_id: T,
-    ) -> Result<GetPlaylist> {
+    ) -> Result<Vec<PlaylistItem>> {
         let query = GetPlaylistQuery::new(playlist_id.into());
+        self.query(query).await
+    }
+    /// Gets information about a playlist and its tracks.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_featured_playlists("Heavy metal").await.unwrap();
+    /// yt.get_playlist(&results[0].playlist_id).await
+    /// todo!("Update test and description")
+    /// # };
+    pub async fn get_playlist_details<'a, T: Into<PlaylistID<'a>>>(
+        &self,
+        playlist_id: T,
+    ) -> Result<GetPlaylistDetails> {
+        let query = GetPlaylistDetailsQuery::new(playlist_id.into());
         self.query(query).await
     }
     /// Gets search suggestions

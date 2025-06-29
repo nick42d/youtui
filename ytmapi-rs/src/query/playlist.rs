@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{PlaylistID, SetVideoID, VideoID, YoutubeID};
-use crate::parse::{GetPlaylist, WatchPlaylistTrack};
+use crate::parse::{GetPlaylistDetails, PlaylistItem, WatchPlaylistTrack};
 pub use additems::*;
 pub use create::*;
 pub use edit::*;
@@ -80,6 +80,12 @@ pub struct GetPlaylistQuery<'a> {
     id: PlaylistID<'a>,
 }
 
+// Suspect this requires a browseId, not a playlistId - i.e requires VL at the
+// start.
+pub struct GetPlaylistDetailsQuery<'a> {
+    id: PlaylistID<'a>,
+}
+
 pub struct DeletePlaylistQuery<'a> {
     id: PlaylistID<'a>,
 }
@@ -96,6 +102,11 @@ pub struct RemovePlaylistItemsQuery<'a> {
 impl<'a> GetPlaylistQuery<'a> {
     pub fn new(id: PlaylistID<'a>) -> GetPlaylistQuery<'a> {
         GetPlaylistQuery { id }
+    }
+}
+impl<'a> GetPlaylistDetailsQuery<'a> {
+    pub fn new(id: PlaylistID<'a>) -> GetPlaylistDetailsQuery<'a> {
+        GetPlaylistDetailsQuery { id }
     }
 }
 impl<'a> DeletePlaylistQuery<'a> {
@@ -153,10 +164,34 @@ impl<'a> GetWatchPlaylistQuery<PlaylistID<'a>> {
 }
 
 impl<A: AuthToken> Query<A> for GetPlaylistQuery<'_> {
-    type Output = GetPlaylist;
+    type Output = Vec<PlaylistItem>;
     type Method = PostMethod;
 }
 impl PostQuery for GetPlaylistQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        // TODO: Confirm if processing required to add 'VL' portion of playlistId
+        let serde_json::Value::Object(map) = json!({
+            "browseId" : self.id.get_raw(),
+        }) else {
+            unreachable!()
+        };
+        map
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+    fn params(&self) -> Vec<(&str, Cow<str>)> {
+        vec![]
+    }
+}
+
+// Note - this is functionally the same as GetPlaylistQuery, however the output
+// is different.
+impl<A: AuthToken> Query<A> for GetPlaylistDetailsQuery<'_> {
+    type Output = GetPlaylistDetails;
+    type Method = PostMethod;
+}
+impl PostQuery for GetPlaylistDetailsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
