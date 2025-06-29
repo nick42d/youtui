@@ -94,6 +94,9 @@ enum Command {
     },
     GetPlaylist {
         playlist_id: String,
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
     },
     GetLibraryPlaylists {
         /// Maximum number of pages that the API is allowed to return.
@@ -290,6 +293,9 @@ enum Command {
     // TODO: Option to use playlist ID instead
     GetWatchPlaylist {
         video_id: String,
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
     },
     GetChannel {
         channel_id: String,

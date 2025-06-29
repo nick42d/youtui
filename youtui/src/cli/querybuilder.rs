@@ -63,11 +63,15 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetPlaylist { playlist_id } => {
-            get_string_output_of_query(
+        Command::GetPlaylist {
+            playlist_id,
+            max_pages,
+        } => {
+            get_string_output_of_streaming_query(
                 yt,
                 GetPlaylistQuery::new(PlaylistID::from_raw(playlist_id)),
                 cli_query,
+                max_pages,
             )
             .await
         }
@@ -544,11 +548,15 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetWatchPlaylist { video_id } => {
-            get_string_output_of_query(
+        Command::GetWatchPlaylist {
+            video_id,
+            max_pages,
+        } => {
+            get_string_output_of_streaming_query(
                 yt,
                 GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(video_id)),
                 cli_query,
+                max_pages,
             )
             .await
         }
