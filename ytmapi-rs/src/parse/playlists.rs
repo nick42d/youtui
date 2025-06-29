@@ -2,19 +2,20 @@ use super::{
     parse_playlist_items, ParseFrom, PlaylistItem, ProcessedResult, DESCRIPTION_SHELF_RUNS,
     HEADER_DETAIL, STRAPLINE_TEXT, SUBTITLE2, SUBTITLE3, THUMBNAIL_CROPPED, TITLE_TEXT, TWO_COLUMN,
 };
-use crate::common::{ApiOutcome, PlaylistID, SetVideoID, Thumbnail, VideoID};
+use crate::common::{ApiOutcome, LyricsID, PlaylistID, SetVideoID, Thumbnail, VideoID};
 use crate::nav_consts::{
-    FACEPILE_AVATAR_URL, FACEPILE_TEXT, RESPONSIVE_HEADER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM,
-    SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
+    FACEPILE_AVATAR_URL, FACEPILE_TEXT, NAVIGATION_PLAYLIST_ID, RESPONSIVE_HEADER,
+    SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAILS,
 };
 use crate::query::playlist::{CreatePlaylistType, PrivacyStatus, SpecialisedQuery};
+use crate::query::watch_playlist::GetWatchPlaylistQueryID;
 use crate::query::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    GetPlaylistQuery, RemovePlaylistItemsQuery,
+    GetPlaylistQuery, GetWatchPlaylistQuery, RemovePlaylistItemsQuery,
 };
 use crate::{Error, Result};
 use const_format::concatcp;
-use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
@@ -46,6 +47,15 @@ pub struct GetPlaylist {
 pub struct AddPlaylistItem {
     pub video_id: VideoID<'static>,
     pub set_video_id: SetVideoID<'static>,
+}
+#[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[non_exhaustive]
+pub struct WatchPlaylist {
+    // TODO: Implement tracks.
+    /// Unimplemented!
+    pub _tracks: Vec<()>,
+    pub playlist_id: Option<PlaylistID<'static>>,
+    pub lyrics_id: LyricsID<'static>,
 }
 
 impl<'a> ParseFrom<RemovePlaylistItemsQuery<'a>> for () {
@@ -104,6 +114,42 @@ impl<'a> ParseFrom<GetPlaylistQuery<'a>> for GetPlaylist {
         } else {
             get_playlist_2024(json_crawler)
         }
+    }
+}
+
+impl<T: GetWatchPlaylistQueryID> ParseFrom<GetWatchPlaylistQuery<T>> for WatchPlaylist {
+    fn parse_from(p: ProcessedResult<GetWatchPlaylistQuery<T>>) -> Result<Self> {
+        // Should be a Process function not Parse.
+        // XXX: Only used here!
+        fn get_tab_browse_id<'a>(
+            watch_next_renderer: &'a mut JsonCrawlerBorrowed,
+            tab_id: usize,
+        ) -> Result<JsonCrawlerBorrowed<'a>> {
+            // TODO: Safe option that returns none if tab doesn't exist.
+            let path = format!("/tabs/{tab_id}/tabRenderer/endpoint/browseEndpoint/browseId");
+            watch_next_renderer.borrow_pointer(path).map_err(Into::into)
+        }
+        // TODO: Continuations
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let mut watch_next_renderer = json_crawler.navigate_pointer("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer")?;
+        let lyrics_id =
+            get_tab_browse_id(&mut watch_next_renderer.borrow_mut(), 1)?.take_value()?;
+        let mut results = watch_next_renderer.navigate_pointer(concatcp!(
+            TAB_CONTENT,
+            "/musicQueueRenderer/content/playlistPanelRenderer/contents"
+        ))?;
+        let playlist_id = results.try_iter_mut()?.find_map(|mut v| {
+            v.take_value_pointer(concatcp!(
+                "/playlistPanelVideoRenderer",
+                NAVIGATION_PLAYLIST_ID
+            ))
+            .ok()
+        });
+        Ok(WatchPlaylist {
+            _tracks: Vec::new(),
+            playlist_id,
+            lyrics_id,
+        })
     }
 }
 

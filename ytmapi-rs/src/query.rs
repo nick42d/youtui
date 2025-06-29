@@ -56,7 +56,7 @@ pub mod library;
 pub use library::{
     EditSongLibraryStatusQuery, GetLibraryAlbumsQuery, GetLibraryArtistSubscriptionsQuery,
     GetLibraryArtistsQuery, GetLibraryChannelsQuery, GetLibraryPlaylistsQuery,
-    GetLibraryPodcastsQuery, GetLibrarySongsQuery,
+    GetLibraryPodcastsQuery, GetLibrarySongsQuery, GetWatchPlaylistQuery,
 };
 pub mod playlist;
 #[doc(inline)]
@@ -89,9 +89,6 @@ pub use upload::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
-pub mod watch_playlist;
-#[doc(inline)]
-pub use watch_playlist::GetWatchPlaylistQuery;
 
 mod private {
     pub trait Sealed {}

@@ -55,8 +55,6 @@ mod song;
 pub use song::*;
 mod upload;
 pub use upload::*;
-mod watch_playlist;
-pub use watch_playlist::*;
 
 /// Describes how to parse the ProcessedResult from a Query into the target
 /// type.
