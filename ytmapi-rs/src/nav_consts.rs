@@ -41,6 +41,7 @@ pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibil
 pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
 pub const MMRLIR: &str = "/musicMultiRowListItemRenderer";
+pub const MUSIC_QUEUE_PLAYLIST_PANEL: &str = "/musicQueueRenderer/content/playlistPanelRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
 pub const TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
@@ -56,6 +57,8 @@ pub const APPEND_CONTINUATION_ITEMS: &str =
 pub const MUSIC_SHELF_CONTINUATION: &str = "/continuationContents/musicShelfContinuation";
 pub const GRID_CONTINUATION: &str = "/continuationContents/gridContinuation";
 pub const CONTINUATION_PARAMS: &str = "/continuations/0/nextContinuationData/continuation";
+pub const RADIO_CONTINUATION_PARAMS: &str =
+    "/continuations/0/nextRadioContinuationData/continuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const VISUAL_HEADER: &str = "/header/musicVisualHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
@@ -72,6 +75,7 @@ pub const PLAYBACK_DURATION_TEXT: &str =
 pub const PLAYBACK_PROGRESS_TEXT: &str =
     "/playbackProgress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text";
 pub const DEFAULT_ENDPOINT_MODAL_TEXT: &str = "/defaultServiceEndpoint/modalEndpoint/modal/modalWithTitleAndButtonRenderer/button/buttonRenderer/text/runs/0/text";
+pub const WATCH_NEXT_CONTENT: &str = concatcp!("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer",TAB_CONTENT,"/musicQueueRenderer/content");
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);

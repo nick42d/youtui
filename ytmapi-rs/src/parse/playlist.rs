@@ -6,9 +6,10 @@ use crate::common::{ApiOutcome, LyricsID, PlaylistID, SetVideoID, Thumbnail, Vid
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     APPEND_CONTINUATION_ITEMS, CONTENT, CONTINUATION_PARAMS, FACEPILE_AVATAR_URL, FACEPILE_TEXT,
-    MUSIC_PLAYLIST_SHELF, NAVIGATION_PLAYLIST_ID, RESPONSIVE_HEADER, SECONDARY_SECTION_LIST_ITEM,
+    MUSIC_PLAYLIST_SHELF, MUSIC_QUEUE_PLAYLIST_PANEL, NAVIGATION_PLAYLIST_ID,
+    RADIO_CONTINUATION_PARAMS, RESPONSIVE_HEADER, SECONDARY_SECTION_LIST_ITEM,
     SECONDARY_SECTION_LIST_RENDERER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    TAB_CONTENT, THUMBNAILS,
+    TAB_CONTENT, THUMBNAILS, WATCH_NEXT_CONTENT,
 };
 use crate::query::playlist::{
     CreatePlaylistType, GetPlaylistDetailsQuery, GetWatchPlaylistQueryID, PrivacyStatus,
@@ -140,12 +141,24 @@ impl<T: GetWatchPlaylistQueryID> ParseFromContinuable<GetWatchPlaylistQuery<T>>
     fn parse_from_continuable(
         p: ProcessedResult<GetWatchPlaylistQuery<T>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let playlist_panel = json_crawler
+            .navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, MUSIC_QUEUE_PLAYLIST_PANEL))?;
+        let continuation_params = playlist_panel
+            .take_value_pointer(RADIO_CONTINUATION_PARAMS)
+            .ok();
+        Ok((vec![], continuation_params))
     }
     fn parse_continuation(
         p: ProcessedResult<crate::query::GetContinuationsQuery<'_, GetWatchPlaylistQuery<T>>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let playlist_panel = json_crawler
+            .navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, MUSIC_QUEUE_PLAYLIST_PANEL))?;
+        let continuation_params = playlist_panel
+            .take_value_pointer(RADIO_CONTINUATION_PARAMS)
+            .ok();
+        Ok((vec![], continuation_params))
     }
 }
 
@@ -384,9 +397,9 @@ mod tests {
     #[tokio::test]
     async fn test_get_watch_playlist_query() {
         parse_with_matching_continuation_test!(
-            "./test_json/get_watch_playlist_X.json",
-            "./test_json/get_watch_playlist_continuation_X.json",
-            "./test_json/get_watch_playlist_X_output.txt",
+            "./test_json/get_watch_playlist_20250630.json",
+            "./test_json/get_watch_playlist_continuation_20250630.json",
+            "./test_json/get_watch_playlist_20250630_output.txt",
             GetPlaylistQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );

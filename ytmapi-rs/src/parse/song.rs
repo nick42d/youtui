@@ -71,9 +71,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_lyrics_id() {
-        parse_test!(
-            "",
-            "",
+        parse_test_value!(
+            "./test_json/get_watch_playlist_20250630.json",
+            LyricsID::from_raw("MPLYt_dcYZhAh5urI-1"),
             GetLyricsIDQuery::new(VideoID::from_raw("")),
             BrowserToken
         );

@@ -246,7 +246,7 @@ generate_query_test!(
 );
 generate_query_test!(
     test_get_lyrics_id,
-    GetLyricsIDQuery::new(VideoID::from_raw("TODO"))
+    GetLyricsIDQuery::new(VideoID::from_raw("lYBUbBu4W08"))
 );
 // # MULTISTAGE TESTS
 
