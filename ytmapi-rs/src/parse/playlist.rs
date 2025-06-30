@@ -141,19 +141,27 @@ impl<T: GetWatchPlaylistQueryID> ParseFromContinuable<GetWatchPlaylistQuery<T>>
     fn parse_from_continuable(
         p: ProcessedResult<GetWatchPlaylistQuery<T>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
+        fn parse_watch_playlist_track(item: impl JsonCrawler) -> Result<WatchPlaylistTrack> {
+            let video_renderer = item.navigate_pointers
+        }
         let json_crawler: JsonCrawlerOwned = p.into();
-        let playlist_panel = json_crawler
+        let mut playlist_panel = json_crawler
             .navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, MUSIC_QUEUE_PLAYLIST_PANEL))?;
         let continuation_params = playlist_panel
             .take_value_pointer(RADIO_CONTINUATION_PARAMS)
             .ok();
-        Ok((vec![], continuation_params))
+        let tracks = playlist_panel
+            .navigate_pointer("/contents")?
+            .try_into_iter()?
+            .map(parse_watch_playlist_track)
+            .collect::<Result<Vec<_>>>()?;
+        Ok((tracks, continuation_params))
     }
     fn parse_continuation(
         p: ProcessedResult<crate::query::GetContinuationsQuery<'_, GetWatchPlaylistQuery<T>>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let json_crawler: JsonCrawlerOwned = p.into();
-        let playlist_panel = json_crawler
+        let mut playlist_panel = json_crawler
             .navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, MUSIC_QUEUE_PLAYLIST_PANEL))?;
         let continuation_params = playlist_panel
             .take_value_pointer(RADIO_CONTINUATION_PARAMS)
