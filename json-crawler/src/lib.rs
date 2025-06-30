@@ -62,18 +62,6 @@ where
     /// // Output will be an error that path should contain "header" and "headerName", if crawler contains neither.
     /// let output: CrawlerResult<String> = crawler.take_value_pointers(&["header", "headerName"]);
     /// ```
-    fn navigate_pointers<S: AsRef<str>>(self, paths: &[S]) -> CrawlerResult<Self>;
-    /// For use when you want to try and take value that could be at multiple
-    /// valid locations. Returns an error message that notes that all valid
-    /// locations were attempted.
-    ///
-    /// # Usage
-    /// ```no_run
-    /// # use json_crawler::*;
-    /// # let mut crawler = JsonCrawlerOwned::new(String::new(), serde_json::Value::Null);
-    /// // Output will be an error that path should contain "header" and "headerName", if crawler contains neither.
-    /// let output: CrawlerResult<String> = crawler.take_value_pointers(&["header", "headerName"]);
-    /// ```
     fn take_value_pointers<T: DeserializeOwned, S: AsRef<str>>(
         &mut self,
         paths: &[S],
@@ -147,7 +135,7 @@ where
     /// could impact mutation 2 for example.
     fn try_functions<O>(
         &mut self,
-        functions: Vec<fn(&mut Self) -> CrawlerResult<O>>,
+        functions: impl IntoIterator<Item = fn(&mut Self) -> CrawlerResult<O>>,
     ) -> CrawlerResult<O> {
         let original_path = self.get_path();
         let source_ptr = self.get_source();
@@ -394,30 +382,6 @@ impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
     fn get_source(&self) -> Arc<String> {
         self.source.clone()
     }
-    fn navigate_pointers<S: AsRef<str>>(self, paths: &[S]) -> CrawlerResult<Self> {
-        let Self {
-            source,
-            crawler: mut old_crawler,
-            path: mut old_path,
-        } = self;
-        let Some((found, succesful_path)) = paths.iter().find_map(move |path| {
-            old_crawler
-                .pointer_mut(path.as_ref())
-                .map(move |new_crawler| (new_crawler, path))
-        }) else {
-            return Err(CrawlerError::paths_not_found(
-                old_path,
-                self.source.clone(),
-                paths.iter().map(|s| s.as_ref().to_string()).collect(),
-            ));
-        };
-        old_path.push(JsonPath::Pointer(succesful_path.as_ref().to_string()));
-        Ok(Self {
-            source: self.source,
-            crawler: found,
-            path: old_path,
-        })
-    }
 }
 
 impl JsonCrawler for JsonCrawlerOwned {
@@ -625,10 +589,6 @@ impl JsonCrawler for JsonCrawlerOwned {
     }
     fn get_path(&self) -> String {
         (&self.path).into()
-    }
-
-    fn navigate_pointers<S: AsRef<str>>(self, paths: &[S]) -> CrawlerResult<Self> {
-        todo!()
     }
 }
 
