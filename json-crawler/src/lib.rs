@@ -398,23 +398,24 @@ impl<'a> JsonCrawler for JsonCrawlerBorrowed<'a> {
         let Self {
             source,
             crawler: mut old_crawler,
-            mut path,
+            path: mut old_path,
         } = self;
-        let Some((found, succesful_path)) = paths
-            .iter()
-            .find_map(move |p| old_crawler.pointer_mut(p.as_ref()).map(move |c| (c, p)))
-        else {
+        let Some((found, succesful_path)) = paths.iter().find_map(move |path| {
+            old_crawler
+                .pointer_mut(path.as_ref())
+                .map(move |new_crawler| (new_crawler, path))
+        }) else {
             return Err(CrawlerError::paths_not_found(
-                path,
+                old_path,
                 self.source.clone(),
                 paths.iter().map(|s| s.as_ref().to_string()).collect(),
             ));
         };
-        path.push(JsonPath::Pointer(succesful_path.as_ref().to_string()));
+        old_path.push(JsonPath::Pointer(succesful_path.as_ref().to_string()));
         Ok(Self {
             source: self.source,
             crawler: found,
-            path,
+            path: old_path,
         })
     }
 }
@@ -624,6 +625,10 @@ impl JsonCrawler for JsonCrawlerOwned {
     }
     fn get_path(&self) -> String {
         (&self.path).into()
+    }
+
+    fn navigate_pointers<S: AsRef<str>>(self, paths: &[S]) -> CrawlerResult<Self> {
+        todo!()
     }
 }
 
