@@ -177,12 +177,20 @@ impl<T: GetWatchPlaylistQueryID> ParseFromContinuable<GetWatchPlaylistQuery<T>>
     }
 }
 
-fn parse_watch_playlist_track(item: impl JsonCrawler) -> Result<WatchPlaylistTrack> {
+fn parse_watch_playlist_track(mut item: impl JsonCrawler) -> Result<WatchPlaylistTrack> {
     let video_renderer_paths = [
         "/playlistPanelVideoRenderer",
         "/playlistPanelVideoWrapperRenderer/primaryRenderer/playlistPanelVideoRenderer",
     ];
-    let mut video_renderer = item.navigate_paths(&video_renderer_paths)?;
+    item.apply_function_at_paths(
+        &video_renderer_paths,
+        parse_watch_playlist_track_from_video_renderer,
+    )?
+}
+
+fn parse_watch_playlist_track_from_video_renderer<C: JsonCrawler>(
+    mut video_renderer: C::BorrowTo<'_>,
+) -> Result<WatchPlaylistTrack> {
     let title = video_renderer.take_value_pointer(TITLE_TEXT)?;
     let author = video_renderer.take_value_pointer(concatcp!("/shortBylineText", RUN_TEXT))?;
     let duration = video_renderer.take_value_pointer(concatcp!("/lengthText", RUN_TEXT))?;
@@ -336,8 +344,10 @@ fn get_playlist_2024(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDetail
 #[cfg(test)]
 mod tests {
     use crate::auth::BrowserToken;
-    use crate::common::{ApiOutcome, PlaylistID, YoutubeID};
-    use crate::query::{AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery};
+    use crate::common::{ApiOutcome, PlaylistID, VideoID, YoutubeID};
+    use crate::query::{
+        AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistQuery, GetWatchPlaylistQuery,
+    };
     use crate::{process_json, Error};
     use pretty_assertions::assert_eq;
     use std::path::Path;
@@ -435,7 +445,7 @@ mod tests {
             "./test_json/get_watch_playlist_20250630.json",
             "./test_json/get_watch_playlist_continuation_20250630.json",
             "./test_json/get_watch_playlist_20250630_output.txt",
-            GetPlaylistQuery::new(PlaylistID::from_raw("")),
+            GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw("")),
             BrowserToken
         );
     }
