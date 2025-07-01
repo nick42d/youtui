@@ -6,10 +6,10 @@ use crate::common::{ApiOutcome, LyricsID, PlaylistID, SetVideoID, Thumbnail, Vid
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     APPEND_CONTINUATION_ITEMS, CONTENT, CONTINUATION_PARAMS, FACEPILE_AVATAR_URL, FACEPILE_TEXT,
-    MUSIC_PLAYLIST_SHELF, NAVIGATION_BROWSE_ID, NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_ID, PPR,
-    RADIO_CONTINUATION_PARAMS, RESPONSIVE_HEADER, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM,
-    SECONDARY_SECTION_LIST_RENDERER, SECOND_SUBTITLE_RUNS, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    TAB_CONTENT, THUMBNAIL, THUMBNAILS, WATCH_NEXT_CONTENT,
+    MUSIC_PLAYLIST_SHELF, NAVIGATION_BROWSE_ID, NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_ID,
+    PLAYLIST_PANEL_CONTINUATION, PPR, RADIO_CONTINUATION_PARAMS, RESPONSIVE_HEADER, RUN_TEXT,
+    SECONDARY_SECTION_LIST_ITEM, SECONDARY_SECTION_LIST_RENDERER, SECOND_SUBTITLE_RUNS,
+    SECTION_LIST_ITEM, SINGLE_COLUMN_TAB, TAB_CONTENT, THUMBNAIL, THUMBNAILS, WATCH_NEXT_CONTENT,
 };
 use crate::query::playlist::{
     CreatePlaylistType, GetPlaylistDetailsQuery, GetWatchPlaylistQueryID, PrivacyStatus,
@@ -147,26 +147,6 @@ impl<T: GetWatchPlaylistQueryID> ParseFromContinuable<GetWatchPlaylistQuery<T>>
     fn parse_from_continuable(
         p: ProcessedResult<GetWatchPlaylistQuery<T>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
-        fn parse_watch_playlist_track(item: JsonCrawlerOwned) -> Result<WatchPlaylistTrack> {
-            let video_renderer_paths = [
-                "/playlistPanelVideoRenderer",
-                "/playlistPanelVideoWrapperRenderer/primaryRenderer/playlistPanelVideoRenderer",
-            ];
-            let mut video_renderer = item.navigate_paths(&video_renderer_paths)?;
-            let title = video_renderer.take_value_pointer(TITLE_TEXT)?;
-            let author =
-                video_renderer.take_value_pointer(concatcp!("/shortBylineText", RUN_TEXT))?;
-            let duration = video_renderer.take_value_pointer(concatcp!("/lengthText", RUN_TEXT))?;
-            let video_id = video_renderer.take_value_pointer(NAVIGATION_VIDEO_ID)?;
-            let thumbnails = video_renderer.take_value_pointer(THUMBNAIL)?;
-            Ok(WatchPlaylistTrack {
-                title,
-                author,
-                duration,
-                thumbnails,
-                video_id,
-            })
-        }
         let json_crawler: JsonCrawlerOwned = p.into();
         let mut playlist_panel =
             json_crawler.navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, PPR))?;
@@ -184,13 +164,37 @@ impl<T: GetWatchPlaylistQueryID> ParseFromContinuable<GetWatchPlaylistQuery<T>>
         p: ProcessedResult<crate::query::GetContinuationsQuery<'_, GetWatchPlaylistQuery<T>>>,
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let json_crawler: JsonCrawlerOwned = p.into();
-        let mut playlist_panel =
-            json_crawler.navigate_pointer(concatcp!(WATCH_NEXT_CONTENT, PPR))?;
+        let mut playlist_panel = json_crawler.navigate_pointer(PLAYLIST_PANEL_CONTINUATION)?;
         let continuation_params = playlist_panel
             .take_value_pointer(RADIO_CONTINUATION_PARAMS)
             .ok();
-        Ok((vec![], continuation_params))
+        let tracks = playlist_panel
+            .navigate_pointer("/contents")?
+            .try_into_iter()?
+            .map(parse_watch_playlist_track)
+            .collect::<Result<Vec<_>>>()?;
+        Ok((tracks, continuation_params))
     }
+}
+
+fn parse_watch_playlist_track(item: impl JsonCrawler) -> Result<WatchPlaylistTrack> {
+    let video_renderer_paths = [
+        "/playlistPanelVideoRenderer",
+        "/playlistPanelVideoWrapperRenderer/primaryRenderer/playlistPanelVideoRenderer",
+    ];
+    let mut video_renderer = item.navigate_paths(&video_renderer_paths)?;
+    let title = video_renderer.take_value_pointer(TITLE_TEXT)?;
+    let author = video_renderer.take_value_pointer(concatcp!("/shortBylineText", RUN_TEXT))?;
+    let duration = video_renderer.take_value_pointer(concatcp!("/lengthText", RUN_TEXT))?;
+    let video_id = video_renderer.take_value_pointer(NAVIGATION_VIDEO_ID)?;
+    let thumbnails = video_renderer.take_value_pointer(THUMBNAIL)?;
+    Ok(WatchPlaylistTrack {
+        title,
+        author,
+        duration,
+        thumbnails,
+        video_id,
+    })
 }
 
 fn get_playlist(mut json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDetails> {

@@ -50,6 +50,7 @@ pub const TASTE_PROFILE_SELECTION: &str = "/tastebuilderItemRenderer/selectionFo
 pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impressionFormValue";
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
+pub const PLAYLIST_PANEL_CONTINUATION: &str = "/continuationContents/playlistPanelContinuation";
 pub const CONTINUATION_RENDERER_COMMAND: &str =
     "/continuationItemRenderer/continuationEndpoint/continuationCommand/token";
 pub const APPEND_CONTINUATION_ITEMS: &str =

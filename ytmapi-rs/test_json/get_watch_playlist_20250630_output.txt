@@ -1,0 +1,1972 @@
+[
+    WatchPlaylistTrack {
+        title: "Never Gonna Give You Up",
+        author: "Rick Astley",
+        duration: "3:34",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "lYBUbBu4W08",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Together Forever",
+        author: "Rick Astley",
+        duration: "3:26",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "i_Q88T1HI_w",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "September",
+        author: "Earth, Wind & Fire",
+        duration: "3:36",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/6yT9oflvqvXnTOu7x--2aTasgLebsNfff5RqsEd07J-oXnNYVLnn-YKu48juCBI1EKEWIa1fQTMw_Krw8A=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "3cKtSlsYVEU",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Every Breath You Take",
+        author: "The Police",
+        duration: "4:14",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Evml9zWq0msFXoyxZlyF6OLs7Wc9jliiAsSZi8ObmP5i0FJyiTr2-GI-rQDaAD6vDsEaK-28vJJPMQA=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "-SaUrDhp034",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Sweet Dreams (Are Made of This) (2005 Remaster)",
+        author: "Eurythmics",
+        duration: "3:37",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/GMZieM-K9mfnJa2Uk5ZOi6TofLEC4w31AcACKKp3eT6A0Soqg7-Qkfx3FNIxSkyAM0KmW4_MrwIeHss3=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "eRhg7qPLeN8",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Don't Stop Believin' (2022 Remaster)",
+        author: "Journey",
+        duration: "4:10",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/7ZM860lROCkR1CkvmyueyzE7wRXgDV2YJcJ4qJ4Qro19rtYL6AdXlBdZVlDrPRxokG_-dX2508JaYnc=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "mM3Vmn4pdog",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Cheri Cheri Lady",
+        author: "Modern Talking",
+        duration: "3:47",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/31gQwmEGi5mGGnQf7jRHHl_mqQZPv1ZzlXigLwAWrPJmPIGHvIgXP8Ihh59aXLR7ycOqgf6Kj2XTtz-BnQ=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "c1ZCYY-4lAM",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Just The Two Of Us",
+        author: "MINOW",
+        duration: "3:59",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/DwUHazWvDjE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nvEVVk3H20ZVceutx_Lx_yN8m-Iw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/DwUHazWvDjE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nPepvIvxhOBQjAPt8gVBTXT07C3Q",
+            },
+            Thumbnail {
+                height: 480,
+                width: 853,
+                url: "https://i.ytimg.com/vi/DwUHazWvDjE/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nsvJuX3WSBTDn5wC7Z0NPvuxRwcQ",
+            },
+        ],
+        video_id: VideoID(
+            "DwUHazWvDjE",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Take on Me",
+        author: "a-ha",
+        duration: "3:46",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/8YZqnYRc52GUz0iyQTRZvzh8RSbCNTTC0NSrpRlKf8UfSyu87K7ziegM8aFfAyMgUXBisxT_weHb4pFE=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "HzdD8kbDzZA",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "I'm Still Standing",
+        author: "Elton John",
+        duration: "3:04",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/De2qH8Uwg4XEgI0l3mWJlQJ1Vh3Gq1LX4baJJE1Bws9OsUG83tC7h392Uc1TE4-rVajykiTJ6bulSbwrJg=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Ye9hGotPPVk",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Stayin Alive",
+        author: "Bee Gees",
+        duration: "4:44",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/oB_Qkdo3-SX6vLVS1hyCKw87WNA9UbU7-BtFSPl3BYjeWY9KRmbOvulllXbp6tAMwF22QRnye1ITT092KA=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "z2qoihbzc3E",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Come and Get Your Love (Single Version)",
+        author: "Redbone",
+        duration: "3:26",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/SckDB8cUw7jpaDTj1tEElvRrNxcbCCy2OTS4WvaHWVF1Xf0Gi-vMTIMQnGoBQHCzcT9Ey-KrYXTlqQg=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "rsf_gTZG4cI",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "I Want It That Way",
+        author: "Backstreet Boys",
+        duration: "3:34",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/9_bcTlzFw20NRGy5R90FK3c0QEcDSfFMXpxp7mNqF6hk8g7EktfVMH_bnXItO-VCpcM5r0rwdzw_34mL9g=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "LwkrXybZ1uo",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Forever Young",
+        author: "Alphaville",
+        duration: "3:46",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/HEzEItN1YX2pm4ubdKidbyuH_dZVovn7Go-MtSvN8-3_lHc59QBTaELNJjDjY-c2fEvrU4048ZI_loqu=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "9OUurVdRGsc",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Everybody Wants To Rule The World (Single Version)",
+        author: "Tears For Fears",
+        duration: "4:13",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/_cIihjoSNsgJRwFfxAvEbkDTYn08-N5z4FYhhC1EkypKbdeGqK9P4s0re4ppApskUQZzvD33_jOneFQ=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "QChwm0w9nxc",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "What Is Love (7\" Mix)",
+        author: "Haddaway",
+        duration: "4:31",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Lz646ZvyuKh68QemdEz1-ZQFDe1DbGg3qeOLjQkPJjfWu9mikzqaA2M_CTYZFsQO8iVTBLzgiliDu7P2=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "dEOmR6b0IqM",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Jump",
+        author: "Van Halen",
+        duration: "4:02",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Km4TEHnp7E7XrNP9fO6Fu_Ps-Vka0Lu4U6cQ9u3hS976b3G6KK5VmZkzm0TJ_RTR7TArlYu3ocJzD6PJ=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "bX9RMdcFQAw",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Dancing Queen",
+        author: "ABBA",
+        duration: "3:51",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/uwZJDAz4hZnM_CYZS3Lgcibm1UFShAVDQqqCN4wZytyZAbFPqk-bB4MvIahp4Egszu0ulGncj459bB0b=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "YkLLcIKhJ64",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Somebody's Watching Me",
+        author: "Rockwell",
+        duration: "4:59",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/TMzZgDB0OsuAPz8-c_mmvYYcsh01yKkGO4PLS5RpXI7O2q1jdzu4t4PTaTgPIQx4NB_xDu3onOXRvpo=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "KFS9c852M_k",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Maniac",
+        author: "Michael Sembello",
+        duration: "4:05",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/3RHbLQp3270hlrgyttsjfcqxxhfb-pdSSfnkcHdXuNfD31iwLbu8o-4q2R-eC2u6_EfhpSMRv9nmN4mh=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "6GCNUeTFSbA",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Self Control",
+        author: "Laura Branigan",
+        duration: "4:07",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/97oA6pOe0ROO08afj2Ci_kjb2z-bQ-V5GDK3FPryIRbVLBoKXHJTBMWUClaU6Vm4KcWPLkO8JisLvymrWg=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Ucmo6hDZRSY",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Take Me to Your Heart",
+        author: "Rick Astley",
+        duration: "3:30",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "OFMthc9YkOw",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Get Lucky (Radio Edit - feat. Pharrell Williams and Nile Rodgers) (feat. Pharrell Williams and Nile Rodgers)",
+        author: "Daft Punk, Pharrell Williams, & Nile Rodgers",
+        duration: "4:09",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/HqegqT4tr2u0IsOqAmUgILJunBwHHkjl9s5L7t02ZFcGsRQpqKtmM7YlkeqzDdXi926mNvAn2UJu48s=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Rgrt_8mXrK8",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Nothing's Gonna Stop Us Now",
+        author: "Starship",
+        duration: "4:31",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/U0lxzJAMq69GrleMbzYiRFCyIaCKb9wVJQ5wL0LWDWaWXDpwJCmbdeIgBl5gfUgLSh13dwaAq0H86VoW=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "SZ_I0KZvezw",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Wannabe",
+        author: "Spice Girls",
+        duration: "2:54",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/84taMZvLhL9KGDAJFfMsNnUi3_ZQJPFd3DUS8OHjFy68miWUN46mY5qT9dABlR6klxgrNpM1ikXDU1zpvg=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "tscL_I2v7pU",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Your Love",
+        author: "The Outfield",
+        duration: "3:37",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/euTA9wAWmGMYUvQA-Nxczb2LmzSlvacRAFPppkkjAa7l-MiNclStrA8z327b9hYE2ZJV6uU60P1Etwt_=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "W2a8Ng1qM8Q",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Material Girl",
+        author: "Madonna",
+        duration: "4:01",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/7GluAv3UwDgiuTyIxMZjKYz-gx0dISauP9tKha03VBCtzWupgMl-K-E9sGHTZ7K8OJfwjlDrHF01_uXs=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "IlPCW6nLheM",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Whenever You Need Somebody",
+        author: "Rick Astley",
+        duration: "3:54",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/eC9DfRcYSk4FE-fvDCJSu_4xsKdVMKxwmFTYFZwP8OqB7R4TKxAjKoR-Kp1lXeRi2WddPFYulSte4eW-=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "raBobo3GZYA",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Time After Time",
+        author: "Cyndi Lauper",
+        duration: "4:02",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/N-U7_cNgPu9DCTWNP9HfqFbtmw1nQzbeIgWq7swQMNgqmjvj1GvpKBf-Um8tu9k5iA8LXHgDtiIoLe-j=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "7wBgcalM4c4",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "You Spin Me Round (Like a Record)",
+        author: "Dead Or Alive",
+        duration: "3:17",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/CSKipyx53Y1tICowEuW60mY_UKmpHBhxf5B3Ccava84Mz5HsJ3sGCOMp4tjFGxngJxRRsU3nWM5j0xom=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "BUYLdVeny5g",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Billie Jean",
+        author: "Michael Jackson",
+        duration: "4:55",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/URvHCfI2iyGAlAwqqBFeaFhU9DeKk_iuX40OIIIj8Zp0wIT3BVsJ2JRMwLLbUB9EZS7t7oDlMrI2S3OvGA=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Kr4EQDVETuA",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Video Killed The Radio Star",
+        author: "The Buggles",
+        duration: "4:14",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w60-h60-s-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w120-h120-s-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w180-h180-s-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w302-h302-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/C89MJXbvVKiUQZiAH1NVCmpd76jRtsUiFyruIbnCFksHWmin-Bvu5GHvSWMSmXWbLfTyHHsMNDLN-gJP=w544-h544-s-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "qGBohd0V2Mo",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Stevie Wonder -  I Just Called To Say I love you 「  Español 」",
+        author: "Psicodelic",
+        duration: "4:19",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Z9ZcbaLoY-U/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kYb5bmkkyCP8WN9DUxFsFsOS9vvg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Z9ZcbaLoY-U/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nB6LOwj8k16gnzJy56-vqCaFlkBA",
+            },
+            Thumbnail {
+                height: 480,
+                width: 853,
+                url: "https://i.ytimg.com/vi/Z9ZcbaLoY-U/hq720.jpg?sqp=-oaymwEXCNUGEOADIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n5eIkHcR8gFdwDzWdXBxXTeE1P9g",
+            },
+        ],
+        video_id: VideoID(
+            "Z9ZcbaLoY-U",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "99 Luftballons",
+        author: "Nena",
+        duration: "3:52",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/JQVeGRgNEtE-TA7g7bcUCLtvrK4XVJJEDvsCn1JT8Zn_htstL8mycNykNBqkLhnjGRoypa5sUsamVw4=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "AT_0zXw2rRo",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Eyes Without A Face",
+        author: "Billy Idol",
+        duration: "5:00",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/CJHZnlB6qgHnQpVajDLsI995W6L65a5M2IllZj1c_KhXMzM33qDbb4EnFYiK9EGM7MA3paD0iwSvyxm7hg=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "e7U1YZNgwnY",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Down Under",
+        author: "Men At Work",
+        duration: "3:43",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/EAT2VCtaMyv3TokdBvlDrAskjpgb1bPXBvFlQay0We8X8ZmqnQ43RNtwR9YgcDFFQUvZuD9sO9FVaKMJ=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "hfmxO-HQ5rU",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "(I Just) Died In Your Arms",
+        author: "Cutting Crew",
+        duration: "4:41",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/xVk_y8e7_tCdPuTqlbhawo5_9h6IaRQJX7TTW_-G-ycd6N6iMHwkzPPD-JlKXmNIhrnD7Sq7f7v5PCJk=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "2wf-MNzSbpA",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Eye In The Sky",
+        author: "The Alan Parsons Project",
+        duration: "4:37",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Ad1XyhJIi28mpuPD_LRBFU2NZi00VbmsQAQuJp4ppZdpVq1qzDYiTFnDhgakp1LwdNNkwaHKzgZ1qOJO=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "jEILGYq7eso",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "I Wanna Dance with Somebody (Who Loves Me)",
+        author: "Whitney Houston",
+        duration: "4:52",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/bu3-T2ZQxF8fLFpfq5mm6Bs5oeI5l2CNIe9UkoRQzNpd6wNjTTgu1FrUFZF9PbcZRrykJLeQlhhSdSxv=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "6xzN8Nt0Pok",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Losing My Religion",
+        author: "R.E.M.",
+        duration: "4:29",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/ffw_lnNxwXq9LeeaEDIB7j0YZq-6-6MKRpKFuzMJ0WJGxu0onp4AH06Nj82wyDBv-HAK-dH1sin64s-Dsg=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Efa6BAWPm9o",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Smalltown Boy",
+        author: "Bronski Beat",
+        duration: "5:04",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/_7hShaN09xDSC5nYaIy35RvTQ6Bp5lt8JQznSYT4JRFVjUY4BTHQgtV2etcsldeuAI7Eq-6igXnIz4zs=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "a8dzSKRtctU",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Gimme! Gimme! Gimme! (A Man After Midnight)",
+        author: "ABBA",
+        duration: "4:53",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Eih1DoP_1c1YySuw56IxlUWtEO_SBT59tEmavaPKnvf0cDNJobcb6oggOSPO1zMvFp4QvqOEIYZrsYr8=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "pa2j0Bh83ms",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Another Day in Paradise",
+        author: "Phil Collins",
+        duration: "5:24",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/bkxOMITkIh_wKpKM58b52_xO0-upGLCtC_HlBSHijNx6JO7QxMLUcFX3zhVGRkbi10uu2vatkL9hJtjJ=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "x_XS5q0EUQs",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Don't Dream It's Over",
+        author: "Crowded House",
+        duration: "3:59",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/LasEYXUcTgbZr5OI2IwbAcA-T0ELv4ur_c_CvmYvtdDN2FZ6o750kRZ0iWpZ8oH2iRcLcI41G_mXCcAh=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "Sr9QVlUqmrw",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "She Wants to Dance with Me",
+        author: "Rick Astley",
+        duration: "3:17",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/4FS5992ARiI40XJhH3F4-ximRbQ87gQEuZWvoaJdkjubCdaehwz0Zhg_Wh8_d83092wvyQqPho_A25qX-w=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "LbJtwIMLeRc",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Kokomo",
+        author: "The Beach Boys",
+        duration: "3:38",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/WOY4FN6yt4dZEUvIho78pBeIPXPKzOrey9fseW1GrSeUpWfA-3NN-7eaztOLbbpuQoHczgG-pN_uHw3T=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "nCEuT91UAcg",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Another One Bites The Dust",
+        author: "Queen",
+        duration: "3:35",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/b41vQwnO9ifWbnxc9fK_IC18TnZpWe5HONbxQUMpPniAnjfo0UotCMfDUS7LKNTUNQT49u16jX0wm50=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "bdf_ll68Z8o",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "The Final Countdown",
+        author: "Europe",
+        duration: "5:11",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Ng-QT35dVQKMdAvQku2fdR-Bhl1k4gMPr9pkXEFxmQ11yEN9uaY934EnqlFC-zN6tE1lwos2ChwBOR0=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "NNiTxUEnmKI",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Cry for Help",
+        author: "Rick Astley",
+        duration: "4:52",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/d_0A89HlyBYw0He7bmHvlTvWNLhHBgAQbpYeBPTsk3Zb5wgvKxIwU1xhjBqmhypin5OXnnR4EjwY-BYI=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "ptiRKQnpx8M",
+        ),
+    },
+    WatchPlaylistTrack {
+        title: "Footloose (From \"Footloose\" Soundtrack)",
+        author: "Kenny Loggins",
+        duration: "3:47",
+        thumbnails: [
+            Thumbnail {
+                height: 60,
+                width: 60,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w60-h60-l90-rj",
+            },
+            Thumbnail {
+                height: 120,
+                width: 120,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w120-h120-l90-rj",
+            },
+            Thumbnail {
+                height: 180,
+                width: 180,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w180-h180-l90-rj",
+            },
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 302,
+                width: 302,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w302-h302-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/sYwKGkGzYd0eczgsbRwd6-OWhWSJY1j5jWMWI05GDbxb8pMfOHWH2qXYciOr0Ankzq0BYGW2QDSMeJYH=w544-h544-l90-rj",
+            },
+        ],
+        video_id: VideoID(
+            "HvropLxYb5c",
+        ),
+    },
+]
