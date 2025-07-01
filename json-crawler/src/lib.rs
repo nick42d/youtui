@@ -157,6 +157,25 @@ where
             ControlFlow::Break(b) => Ok(b),
         }
     }
+    /// Try to navigate to each one in a series of paths sequentially, returning
+    /// an error if none exist.
+    ///
+    /// # NOTE
+    /// This currently iterates through the list of paths twice to avoid using
+    /// `unsafe`.
+    fn navigate_paths(self, paths: &[impl AsRef<str>]) -> CrawlerResult<Self> {
+        let successful_path = paths.iter().find(|path| self.path_exists(path.as_ref()));
+        match successful_path {
+            Some(path) => Ok(self
+                .navigate_pointer(path.as_ref())
+                .expect("Confirmed path exists prior to navigating")),
+            None => Err(CrawlerError::paths_not_found(
+                self.get_path(),
+                self.get_source(),
+                paths.iter().map(|s| s.as_ref().to_string()).collect(),
+            )),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Debug)]
