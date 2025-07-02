@@ -36,7 +36,7 @@ use crate::query::{
     GetLibraryPodcastsQuery, GetLibrarySongsQuery, GetLibraryUploadAlbumQuery,
     GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
     GetLibraryUploadSongsQuery, GetLyricsIDQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
-    GetNewEpisodesQuery, GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
+    GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery,
     RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
 };
@@ -301,7 +301,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         playlist_id: T,
     ) -> Result<Vec<PlaylistItem>> {
-        let query = GetPlaylistQuery::new(playlist_id.into());
+        let query = GetPlaylistTracksQuery::new(playlist_id.into());
         self.query(query).await
     }
     /// Gets information about a playlist and its tracks.

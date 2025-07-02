@@ -11,7 +11,7 @@ use ytmapi_rs::common::{
     LyricsID, PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::query::playlist::PrivacyStatus;
+use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
@@ -168,7 +168,7 @@ generate_stream_test!(
 );
 generate_stream_test!(
     test_stream_get_playlist,
-    GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+    GetPlaylistTracksQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
 generate_stream_test!(
     test_stream_get_watch_playlist,
@@ -247,6 +247,10 @@ generate_query_test!(
 generate_query_test!(
     test_get_lyrics_id,
     GetLyricsIDQuery::new(VideoID::from_raw("lYBUbBu4W08"))
+);
+generate_query_test!(
+    test_get_playlist_details,
+    GetPlaylistDetailsQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
 // # MULTISTAGE TESTS
 

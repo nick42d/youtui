@@ -16,6 +16,7 @@ use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
+use ytmapi_rs::query::playlist::GetPlaylistDetailsQuery;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
@@ -30,10 +31,10 @@ use ytmapi_rs::query::{
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
-    GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
-    GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
-    SearchQuery, SetTasteProfileQuery,
+    GetLyricsIDQuery, GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
+    GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
 };
 
 pub struct CliQuery {
@@ -63,13 +64,21 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetPlaylist {
+        Command::GetPlaylistDetails { playlist_id } => {
+            get_string_output_of_query(
+                yt,
+                GetPlaylistDetailsQuery::new(PlaylistID::from_raw(playlist_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetPlaylistTracks {
             playlist_id,
             max_pages,
         } => {
             get_string_output_of_streaming_query(
                 yt,
-                GetPlaylistQuery::new(PlaylistID::from_raw(playlist_id)),
+                GetPlaylistTracksQuery::new(PlaylistID::from_raw(playlist_id)),
                 cli_query,
                 max_pages,
             )
@@ -539,6 +548,14 @@ pub async fn command_to_query(
         }
         Command::GetNewEpisodes => {
             get_string_output_of_query(yt, GetNewEpisodesQuery, cli_query).await
+        }
+        Command::GetLyricsID { video_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLyricsIDQuery::new(VideoID::from_raw(video_id)),
+                cli_query,
+            )
+            .await
         }
         Command::GetLyrics { lyrics_id } => {
             get_string_output_of_query(

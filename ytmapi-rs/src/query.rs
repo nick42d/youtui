@@ -32,6 +32,7 @@
 //! }
 //! ```
 use crate::auth::{raw_query_get, raw_query_post, AuthToken};
+use crate::continuations::ParseFromContinuable;
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 use private::Sealed;
@@ -62,7 +63,7 @@ pub mod playlist;
 #[doc(inline)]
 pub use playlist::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    GetPlaylistQuery, GetWatchPlaylistQuery, RemovePlaylistItemsQuery,
+    GetPlaylistTracksQuery, GetWatchPlaylistQuery, RemovePlaylistItemsQuery,
 };
 pub mod podcasts;
 #[doc(inline)]

@@ -76,7 +76,7 @@ impl GetWatchPlaylistQueryID for PlaylistID<'_> {
 
 // Suspect this requires a browseId, not a playlistId - i.e requires VL at the
 // start.
-pub struct GetPlaylistQuery<'a> {
+pub struct GetPlaylistTracksQuery<'a> {
     id: PlaylistID<'a>,
 }
 
@@ -99,9 +99,9 @@ pub struct RemovePlaylistItemsQuery<'a> {
     video_items: Vec<SetVideoID<'a>>,
 }
 
-impl<'a> GetPlaylistQuery<'a> {
-    pub fn new(id: PlaylistID<'a>) -> GetPlaylistQuery<'a> {
-        GetPlaylistQuery { id }
+impl<'a> GetPlaylistTracksQuery<'a> {
+    pub fn new(id: PlaylistID<'a>) -> GetPlaylistTracksQuery<'a> {
+        GetPlaylistTracksQuery { id }
     }
 }
 impl<'a> GetPlaylistDetailsQuery<'a> {
@@ -163,11 +163,11 @@ impl<'a> GetWatchPlaylistQuery<PlaylistID<'a>> {
     }
 }
 
-impl<A: AuthToken> Query<A> for GetPlaylistQuery<'_> {
+impl<A: AuthToken> Query<A> for GetPlaylistTracksQuery<'_> {
     type Output = Vec<PlaylistItem>;
     type Method = PostMethod;
 }
-impl PostQuery for GetPlaylistQuery<'_> {
+impl PostQuery for GetPlaylistTracksQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // TODO: Confirm if processing required to add 'VL' portion of playlistId
         let serde_json::Value::Object(map) = json!({
