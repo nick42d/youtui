@@ -262,13 +262,12 @@ impl<A: AuthToken> YtMusic<A> {
         let query = GetWatchPlaylistQuery::new_from_video_id(video_id.into());
         self.query(query).await
     }
-    /// Gets song lyrics and the source.
+    /// Gets the `LyricsID` required to get lyrics.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
-    /// let watch_playlist = yt.get_watch_playlist_from_video_id(&results[0].video_id).await.unwrap();
-    /// yt.get_lyrics_id(watch_playlist.lyrics_id).await
+    /// yt.get_lyrics_id(&results[0].video_id).await
     /// # };
     pub async fn get_lyrics_id<'a, T: Into<VideoID<'a>>>(
         &self,
@@ -282,35 +281,33 @@ impl<A: AuthToken> YtMusic<A> {
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_songs("While My Guitar Gently Weeps").await.unwrap();
-    /// let watch_playlist = yt.get_watch_playlist_from_video_id(&results[0].video_id).await.unwrap();
-    /// yt.get_lyrics(watch_playlist.lyrics_id).await
+    /// let lyrics_id = yt.get_lyrics_id(&results[0].video_id).await.unwrap();
+    /// yt.get_lyrics(lyrics_id).await
     /// # };
     pub async fn get_lyrics<'a, T: Into<LyricsID<'a>>>(&self, lyrics_id: T) -> Result<Lyrics> {
         let query = GetLyricsQuery::new(lyrics_id.into());
         self.query(query).await
     }
-    /// Gets information about a playlist and its tracks.
+    /// Gets a playlists tracks.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_featured_playlists("Heavy metal").await.unwrap();
-    /// yt.get_playlist(&results[0].playlist_id).await
-    /// todo!("Update test and description")
+    /// yt.get_playlist_tracks(&results[0].playlist_id).await
     /// # };
-    pub async fn get_playlist<'a, T: Into<PlaylistID<'a>>>(
+    pub async fn get_playlist_tracks<'a, T: Into<PlaylistID<'a>>>(
         &self,
         playlist_id: T,
     ) -> Result<Vec<PlaylistItem>> {
         let query = GetPlaylistTracksQuery::new(playlist_id.into());
         self.query(query).await
     }
-    /// Gets information about a playlist and its tracks.
+    /// Gets information about a playlist.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_featured_playlists("Heavy metal").await.unwrap();
-    /// yt.get_playlist(&results[0].playlist_id).await
-    /// todo!("Update test and description")
+    /// yt.get_playlist_details(&results[0].playlist_id).await
     /// # };
     pub async fn get_playlist_details<'a, T: Into<PlaylistID<'a>>>(
         &self,
