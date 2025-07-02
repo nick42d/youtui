@@ -111,7 +111,8 @@ Feature parity with `ytmusicapi`
 |GetMoodCategories|[x]||
 |GetMoodPlaylists|[x]||
 |GetCharts|Not Planned*||
-|GetWatchPlaylist|[x]|[x]|
+|GetWatchPlaylist (tracks): GetWatchPlaylist|[x]|[x]|
+|GetWatchPlaylist (lyrics_id): GetLyricsID|[x]||
 |GetLibraryPlaylists|[x]|[x]|
 |GetLibrarySongs|[x]|[x]|
 |GetLibraryAlbums|[x]|[x]|
@@ -130,7 +131,8 @@ Feature parity with `ytmusicapi`
 |RatePlaylist|[x]||
 |SubscribeArtists|[ ]||
 |UnsubscribeArtists|[ ]||
-|GetPlaylist|[x]|[x]|
+|GetPlaylistTracks|[x]|[x]|
+|GetPlaylistDetails|[x]||
 |CreatePlaylist|[x]||
 |EditPlaylist|[x]||
 |DeletePlaylist|[x]||
