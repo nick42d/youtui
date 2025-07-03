@@ -1,5 +1,5 @@
 use super::{PostMethod, PostQuery, Query};
-use crate::auth::AuthToken;
+use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{ArtistChannelID, BrowseParams, YoutubeID};
 use crate::parse::{ArtistParams, GetArtistAlbumsAlbum};
 use serde_json::json;
@@ -102,6 +102,36 @@ impl PostQuery for GetArtistAlbumsQuery<'_> {
     }
     fn path(&self) -> &str {
         "browse"
+    }
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
+    }
+}
+impl<A: LoggedIn> Query<A> for SubscribeArtistsQuery<'_> {
+    type Output = ();
+    type Method = PostMethod;
+}
+impl PostQuery for SubscribeArtistsQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        FromIterator::from_iter([("channelIds".into(), json!(self.channel_ids))])
+    }
+    fn path(&self) -> &str {
+        "subscription/subscribe"
+    }
+    fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
+        vec![]
+    }
+}
+impl<A: LoggedIn> Query<A> for UnsubscribeArtistsQuery<'_> {
+    type Output = ();
+    type Method = PostMethod;
+}
+impl PostQuery for UnsubscribeArtistsQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        FromIterator::from_iter([("channelIds".into(), json!(self.channel_ids))])
+    }
+    fn path(&self) -> &str {
+        "subscription/unsubscribe"
     }
     fn params(&self) -> std::vec::Vec<(&str, std::borrow::Cow<'_, str>)> {
         vec![]

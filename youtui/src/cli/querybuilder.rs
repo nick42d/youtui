@@ -35,6 +35,7 @@ use ytmapi_rs::query::{
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
     RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistsQuery,
+    UnsubscribeArtistsQuery,
 };
 
 pub struct CliQuery {
@@ -65,11 +66,20 @@ pub async fn command_to_query(
             .await
         }
         Command::SubscribeArtists { channel_ids } => {
-            get_string_output_of_query(yt, SubscribeArtistsQuery::new(channel_ids), cli_query).await
+            get_string_output_of_query_browser_or_oauth(
+                yt,
+                SubscribeArtistsQuery::new(channel_ids.iter().map(YoutubeID::from_raw)),
+                cli_query,
+            )
+            .await
         }
         Command::UnsubscribeArtists { channel_ids } => {
-            get_string_output_of_query(yt, UnsubscribeArtistsQuery::new(channel_ids), cli_query)
-                .await
+            get_string_output_of_query_browser_or_oauth(
+                yt,
+                UnsubscribeArtistsQuery::new(channel_ids.iter().map(YoutubeID::from_raw)),
+                cli_query,
+            )
+            .await
         }
         Command::GetPlaylistDetails { playlist_id } => {
             get_string_output_of_query(

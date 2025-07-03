@@ -198,30 +198,6 @@ impl<A: AuthToken> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// fixme
-    /// # };
-    pub async fn subscribe_artists<'a>(
-        &self,
-        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
-    ) -> Result<()> {
-        self.query(SubscribeArtistsQuery::new(channels)).await
-    }
-    /// Gets information about an artist and their top releases.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// fixme
-    /// # };
-    pub async fn unsubscribe_artists<'a>(
-        &self,
-        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
-    ) -> Result<()> {
-        self.query(UnsubscribeArtistsQuery::new(channels)).await
-    }
-    /// Gets information about an artist and their top releases.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
     /// let results = yt.search_artists("Beatles").await.unwrap();
     /// yt.get_artist(&results[0].browse_id).await
     /// # };
@@ -937,5 +913,29 @@ impl<A: LoggedIn> YtMusic<A> {
         song_url: T,
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
+    }
+    /// Gets information about an artist and their top releases.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// fixme
+    /// # };
+    pub async fn subscribe_artists<'a>(
+        &self,
+        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> Result<()> {
+        self.query(SubscribeArtistsQuery::new(channels)).await
+    }
+    /// Gets information about an artist and their top releases.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// fixme
+    /// # };
+    pub async fn unsubscribe_artists<'a>(
+        &self,
+        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> Result<()> {
+        self.query(UnsubscribeArtistsQuery::new(channels)).await
     }
 }

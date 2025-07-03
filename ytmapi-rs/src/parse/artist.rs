@@ -210,6 +210,18 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
         })
     }
 }
+
+impl ParseFrom<SubscribeArtistsQuery<'_>> for () {
+    fn parse_from(p: ProcessedResult<SubscribeArtistsQuery<'_>>) -> crate::Result<Self> {
+        todo!()
+    }
+}
+impl ParseFrom<UnsubscribeArtistsQuery<'_>> for () {
+    fn parse_from(p: ProcessedResult<UnsubscribeArtistsQuery<'_>>) -> crate::Result<Self> {
+        todo!()
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
 pub struct GetArtistTopReleases {
