@@ -1,17 +1,14 @@
 use super::search::SearchResultVideo;
 use super::{
-    fixed_column_item_pointer, flex_column_item_pointer, parse_flex_column_item, parse_song_album,
-    parse_song_artists, parse_upload_song_album, parse_upload_song_artists, EpisodeDate,
-    EpisodeDuration, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist,
-    ParsedUploadSongAlbum, ProcessedResult, Thumbnail,
+    parse_flex_column_item, parse_song_album,
+    parse_song_artists, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult, Thumbnail,
 };
 use crate::common::{
-    AlbumID, AlbumType, ArtistChannelID, BrowseParams, ContinuationParams, EpisodeID, Explicit,
-    LibraryManager, LibraryStatus, LikeStatus, PlaylistID, UploadEntityID, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit,
+    LibraryManager, LibraryStatus, LikeStatus, PlaylistID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
-use crate::youtube_enums::YoutubeMusicVideoType;
 use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};

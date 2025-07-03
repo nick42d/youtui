@@ -52,7 +52,7 @@ pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
             tok
         })
         .await;
-    let mut api = YtMusic::from_oauth_token(oauth_token.clone());
+    let mut api = YtMusic::from_auth_token(oauth_token.clone());
     api.refresh_token().await.unwrap();
     Ok(api)
 }
