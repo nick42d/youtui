@@ -39,7 +39,7 @@ impl QueryResponse {
                 let header = header.to_string();
                 let value = value
                     .to_str()
-                    .map_err(|_| Error::web(format!("Error parsing response header: {:?}", value)))?
+                    .map_err(|_| Error::web(format!("Error parsing response header: {value:?}")))?
                     .to_owned();
                 Ok((header, value))
             })

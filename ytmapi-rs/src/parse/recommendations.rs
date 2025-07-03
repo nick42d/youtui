@@ -86,7 +86,7 @@ impl<'a> ParseFrom<GetMoodPlaylistsQuery<'a>> for Vec<MoodPlaylistCategory> {
         fn parse_mood_playlist_category(
             mut crawler: JsonCrawlerOwned,
         ) -> Result<MoodPlaylistCategory> {
-            let array = vec![
+            let array = [
                 |s: &mut JsonCrawlerOwned| -> std::result::Result<_, json_crawler::CrawlerError> {
                     parse_mood_playlist_category_grid(s.borrow_pointer(GRID)?)
                 },

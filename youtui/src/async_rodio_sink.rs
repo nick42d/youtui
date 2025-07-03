@@ -479,8 +479,7 @@ where
                         send_or_error(
                             &streamtx,
                             AutoplayUpdate::Error(format!(
-                                "Received queued message, but I wasn't queued... {:?}",
-                                identifier
+                                "Received queued message, but I wasn't queued... {identifier:?}"
                             )),
                         )
                         .await;
@@ -531,8 +530,7 @@ where
                         send_or_error(
                             &streamtx,
                             QueueUpdate::Error(format!(
-                                "Received AutoPlayingQueued message, but I asked to queue... {:?}",
-                                identifier
+                                "Received AutoPlayingQueued message, but I asked to queue... {identifier:?}"
                             )),
                         )
                         .await;
@@ -541,8 +539,7 @@ where
                         send_or_error(
                             &streamtx,
                             QueueUpdate::Error(format!(
-                                "Received StartedPlaying message, but I asked to queue... {:?}",
-                                identifier,
+                                "Received StartedPlaying message, but I asked to queue... {identifier:?}",
                             )),
                         )
                         .await;
@@ -578,8 +575,7 @@ where
                         send_or_error(
                             &streamtx,
                             PlayUpdate::Error(format!(
-                                "Received Queued message, but I wasn't queued... {:?}",
-                                identifier
+                                "Received Queued message, but I wasn't queued... {identifier:?}"
                             )),
                         )
                         .await;
@@ -588,8 +584,7 @@ where
                         send_or_error(
                             &streamtx,
                             PlayUpdate::Error(format!(
-                                "Received AutoPlayingQueued message, but I asked to play... {:?}",
-                                identifier
+                                "Received AutoPlayingQueued message, but I asked to play... {identifier:?}"
                             )),
                         )
                         .await;

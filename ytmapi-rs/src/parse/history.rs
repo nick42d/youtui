@@ -181,7 +181,9 @@ fn parse_history_item(mut json: JsonCrawlerOwned) -> Result<Option<HistoryItem>>
         YoutubeMusicVideoType::Episode => Some(HistoryItem::Episode(parse_history_item_episode(
             title, data,
         )?)),
-        YoutubeMusicVideoType::Ugc | YoutubeMusicVideoType::Omv => {
+        YoutubeMusicVideoType::Ugc
+        | YoutubeMusicVideoType::Omv
+        | YoutubeMusicVideoType::Shoulder => {
             Some(HistoryItem::Video(parse_history_item_video(title, data)?))
         }
         YoutubeMusicVideoType::Atv => {

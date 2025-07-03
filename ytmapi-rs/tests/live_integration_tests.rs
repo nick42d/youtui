@@ -7,11 +7,10 @@ use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
-    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-    LyricsID, PlaylistID, YoutubeID,
+    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
-use ytmapi_rs::query::playlist::PrivacyStatus;
+use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     PlaylistsFilter, PodcastsFilter, ProfilesFilter, SongsFilter, VideosFilter,
@@ -77,8 +76,7 @@ async fn test_expired_oauth() {
 #[tokio::test]
 async fn test_new() {
     new_standard_api().await.unwrap();
-    // OAuth disabled due to pending removal / change.
-    // new_standard_oauth_api().await.unwrap();
+    new_standard_oauth_api().await.unwrap();
 }
 //// BASIC STREAM TESTS
 generate_stream_test_logged_in!(
@@ -119,12 +117,12 @@ generate_stream_test_logged_in!(
 );
 generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_albums,
+    test_stream_get_library_upload_albums,
     GetLibraryUploadAlbumsQuery::default()
 );
 generate_stream_test_logged_in!(
     #[ignore = "Ignored by default due to quota"]
-    test_get_library_upload_artists,
+    test_stream_get_library_upload_artists,
     GetLibraryUploadArtistsQuery::default()
 );
 generate_stream_test!(
@@ -167,6 +165,14 @@ generate_stream_test!(
     test_stream_search_playlists,
     SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
 );
+generate_stream_test!(
+    test_stream_get_playlist,
+    GetPlaylistTracksQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+);
+generate_stream_test!(
+    test_stream_get_watch_playlist,
+    GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
+);
 
 //// BASIC QUERY TESTS
 generate_query_test!(
@@ -207,10 +213,6 @@ generate_query_test!(
 );
 generate_query_test!(test_get_new_episodes_playlist, GetNewEpisodesQuery);
 generate_query_test!(
-    test_get_playlist,
-    GetPlaylistQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
-);
-generate_query_test!(
     test_get_artist,
     GetArtistQuery::new(ArtistChannelID::from_raw("UC2XdaAVUannpujzv32jcouQ",))
 );
@@ -240,6 +242,14 @@ generate_query_test!(
 generate_query_test!(
     test_basic_search_alternate_query_no_results,
     SearchQuery::new("aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccccc")
+);
+generate_query_test!(
+    test_get_lyrics_id,
+    GetLyricsIDQuery::new(VideoID::from_raw("lYBUbBu4W08"))
+);
+generate_query_test!(
+    test_get_playlist_details,
+    GetPlaylistDetailsQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
 // # MULTISTAGE TESTS
 
@@ -634,28 +644,14 @@ async fn test_get_library_artists() {
     assert!(!res.is_empty());
 }
 #[tokio::test]
-async fn test_watch_playlist() {
-    // TODO: Make more generic
-    let api = new_standard_api().await.unwrap();
-    let res = api
-        .get_watch_playlist_from_video_id(VideoID::from_raw("9mWr4c_ig54"))
-        .await
-        .unwrap();
-    assert_eq!(
-        res.playlist_id,
-        Some(PlaylistID::from_raw("RDAMVM9mWr4c_ig54"))
-    );
-    assert_eq!(res.lyrics_id, LyricsID::from_raw("MPLYt_C8aRK1qmsDJ-1"));
-}
-#[tokio::test]
 async fn test_get_lyrics() {
     // TODO: Make more generic
     let api = new_standard_api().await.unwrap();
-    let res = api
-        .get_watch_playlist_from_video_id(VideoID::from_raw("lYBUbBu4W08"))
+    let id = api
+        .get_lyrics_id(VideoID::from_raw("lYBUbBu4W08"))
         .await
         .unwrap();
-    let res = api.get_lyrics(res.lyrics_id).await.unwrap();
+    let res = api.get_lyrics(id).await.unwrap();
     assert!(res.lyrics.contains("You know the rules and so do I"));
     assert!(res.source.contains("Musixmatch"));
 }

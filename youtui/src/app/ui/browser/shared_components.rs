@@ -253,8 +253,7 @@ pub fn get_adjusted_list_column<T: Copy, const N: usize>(
         .get(target_col)
         .with_context(|| {
             format!(
-                "Unable to sort column, doesn't match up with underlying list. {}",
-                target_col,
+                "Unable to sort column, doesn't match up with underlying list. {target_col}",
             )
         })
         .copied()

@@ -1,0 +1,38 @@
+GetPlaylistDetails {
+    id: PlaylistID(
+        "RDCLAK5uy_lMzHW51iFg1Kx0d_2EHpzbOgCrwtu8cgI",
+    ),
+    privacy: None,
+    title: "The Hits: '80s",
+    description: Some(
+        "Not just big hair and neon, the '80s had totally classic tunes! Check out some of the decade's biggest hits.\n#pop #80s #essentials",
+    ),
+    author: "YouTube Music",
+    author_avatar_url: None,
+    year: "2024",
+    duration: "7+ hours",
+    track_count_text: "148 songs",
+    views: None,
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://lh3.googleusercontent.com/d2fnwqtY8S96gce8C4rTBApWt3H-FP75C7Oih9fYSRQNT56yHC9a8WKOCdRH744Ysdr3TlKJFJENduI=w60-h60-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://lh3.googleusercontent.com/d2fnwqtY8S96gce8C4rTBApWt3H-FP75C7Oih9fYSRQNT56yHC9a8WKOCdRH744Ysdr3TlKJFJENduI=w120-h120-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://lh3.googleusercontent.com/d2fnwqtY8S96gce8C4rTBApWt3H-FP75C7Oih9fYSRQNT56yHC9a8WKOCdRH744Ysdr3TlKJFJENduI=w226-h226-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://lh3.googleusercontent.com/d2fnwqtY8S96gce8C4rTBApWt3H-FP75C7Oih9fYSRQNT56yHC9a8WKOCdRH744Ysdr3TlKJFJENduI=w544-h544-l90-rj",
+        },
+    ],
+}

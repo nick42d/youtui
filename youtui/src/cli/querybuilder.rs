@@ -16,6 +16,7 @@ use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
 use ytmapi_rs::process_json;
 use ytmapi_rs::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
+use ytmapi_rs::query::playlist::GetPlaylistDetailsQuery;
 use ytmapi_rs::query::rate::{RatePlaylistQuery, RateSongQuery};
 use ytmapi_rs::query::search::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
@@ -30,10 +31,10 @@ use ytmapi_rs::query::{
     GetLibraryArtistSubscriptionsQuery, GetLibraryArtistsQuery, GetLibraryPlaylistsQuery,
     GetLibrarySongsQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
-    GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetNewEpisodesQuery,
-    GetPlaylistQuery, GetPodcastQuery, GetSearchSuggestionsQuery, GetTasteProfileQuery,
-    GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
-    SearchQuery, SetTasteProfileQuery,
+    GetLyricsIDQuery, GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
+    GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
+    GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
 };
 
 pub struct CliQuery {
@@ -63,11 +64,23 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetPlaylist { playlist_id } => {
+        Command::GetPlaylistDetails { playlist_id } => {
             get_string_output_of_query(
                 yt,
-                GetPlaylistQuery::new(PlaylistID::from_raw(playlist_id)),
+                GetPlaylistDetailsQuery::new(PlaylistID::from_raw(playlist_id)),
                 cli_query,
+            )
+            .await
+        }
+        Command::GetPlaylistTracks {
+            playlist_id,
+            max_pages,
+        } => {
+            get_string_output_of_streaming_query(
+                yt,
+                GetPlaylistTracksQuery::new(PlaylistID::from_raw(playlist_id)),
+                cli_query,
+                max_pages,
             )
             .await
         }
@@ -536,6 +549,14 @@ pub async fn command_to_query(
         Command::GetNewEpisodes => {
             get_string_output_of_query(yt, GetNewEpisodesQuery, cli_query).await
         }
+        Command::GetLyricsID { video_id } => {
+            get_string_output_of_query(
+                yt,
+                GetLyricsIDQuery::new(VideoID::from_raw(video_id)),
+                cli_query,
+            )
+            .await
+        }
         Command::GetLyrics { lyrics_id } => {
             get_string_output_of_query(
                 yt,
@@ -544,11 +565,15 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::GetWatchPlaylist { video_id } => {
-            get_string_output_of_query(
+        Command::GetWatchPlaylist {
+            video_id,
+            max_pages,
+        } => {
+            get_string_output_of_streaming_query(
                 yt,
                 GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(video_id)),
                 cli_query,
+                max_pages,
             )
             .await
         }
@@ -574,7 +599,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt.query(q).await.map(|r| format!("{:#?}", r)),
+        } => yt.query(q).await.map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -615,7 +640,7 @@ where
         } => yt
             .query_browser_or_oauth(q)
             .await
-            .map(|r| format!("{:#?}", r)),
+            .map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -656,7 +681,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt._stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
+        } => yt._stream(q, max_pages).await.map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -719,7 +744,7 @@ where
         } => yt
             .stream_browser_or_oauth(q, max_pages)
             .await
-            .map(|r| format!("{:#?}", r)),
+            .map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -772,13 +797,13 @@ where
     // the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::NoAuth(_) => process_json::<Q, NoAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
     }
 }
@@ -798,10 +823,10 @@ where
     // the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::NoAuth(_) => {
             bail!("Tried to process a query that doesnt support not being authenticated")

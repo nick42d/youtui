@@ -92,8 +92,14 @@ enum Command {
     GetAlbum {
         browse_id: String,
     },
-    GetPlaylist {
+    GetPlaylistDetails {
         playlist_id: String,
+    },
+    GetPlaylistTracks {
+        playlist_id: String,
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
     },
     GetLibraryPlaylists {
         /// Maximum number of pages that the API is allowed to return.
@@ -287,9 +293,15 @@ enum Command {
     GetLyrics {
         lyrics_id: String,
     },
+    GetLyricsID {
+        video_id: String,
+    },
     // TODO: Option to use playlist ID instead
     GetWatchPlaylist {
         video_id: String,
+        /// Maximum number of pages that the API is allowed to return.
+        #[arg(default_value_t = 1)]
+        max_pages: usize,
     },
     GetChannel {
         channel_id: String,
@@ -318,7 +330,7 @@ pub struct RuntimeInfo {
 async fn main() -> ExitCode {
     // Using try block to print error using Display instead of Debug.
     if let Err(e) = try_main().await {
-        println!("{:?}", e);
+        println!("{e:?}");
         return ExitCode::FAILURE;
     };
     ExitCode::SUCCESS

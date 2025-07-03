@@ -38,8 +38,8 @@ mod history;
 pub use history::*;
 mod library;
 pub use library::*;
-mod playlists;
-pub use playlists::*;
+mod playlist;
+pub use playlist::*;
 mod podcasts;
 pub use podcasts::*;
 mod rate;
@@ -55,8 +55,6 @@ mod song;
 pub use song::*;
 mod upload;
 pub use upload::*;
-mod watch_playlist;
-pub use watch_playlist::*;
 
 /// Describes how to parse the ProcessedResult from a Query into the target
 /// type.
@@ -114,7 +112,7 @@ impl<'a, Q, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q
             // Workaround for Get request returning empty string.
             "" => serde_json::Value::Null,
             other => serde_json::from_str(other)
-                .map_err(|e| error::Error::response(format!("{:?}", e)))?,
+                .map_err(|e| error::Error::response(format!("{e:?}")))?,
         };
         let json = Json::new(json);
         Ok(Self {

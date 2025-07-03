@@ -11,6 +11,7 @@ pub const TWO_COLUMN: &str = "/contents/twoColumnBrowseResultsRenderer";
 pub const SECTION_LIST: &str = "/sectionListRenderer/contents";
 pub const MUSIC_SHELF: &str = "/musicShelfRenderer";
 pub const MUSIC_CARD_SHELF: &str = "/musicCardShelfRenderer";
+pub const MUSIC_PLAYLIST_SHELF: &str = "/musicPlaylistShelfRenderer";
 pub const GRID: &str = "/gridRenderer";
 pub const MENU: &str = "/menu/menuRenderer";
 pub const MENU_SERVICE: &str = "/menuServiceItemRenderer/serviceEndpoint";
@@ -40,6 +41,7 @@ pub const LIVE_BADGE_PATH: &str = "/0/liveBadgeRenderer/accessibility/accessibil
 pub const CATEGORY_PARAMS: &str = "/clickCommand/browseEndpoint/params";
 pub const MRLIR: &str = "/musicResponsiveListItemRenderer";
 pub const MMRLIR: &str = "/musicMultiRowListItemRenderer";
+pub const PPR: &str = "/playlistPanelRenderer";
 pub const _MRLIFCR: &str = "/musicResponsiveListItemFlexColumnRenderer";
 pub const MTRIR: &str = "/musicTwoRowItemRenderer";
 pub const TASTE_PROFILE_ITEMS: &str = "/contents/tastebuilderRenderer/contents";
@@ -48,9 +50,16 @@ pub const TASTE_PROFILE_SELECTION: &str = "/tastebuilderItemRenderer/selectionFo
 pub const TASTE_PROFILE_IMPRESSION: &str = "/tastebuilderItemRenderer/impressionFormValue";
 pub const TASTE_PROFILE_ARTIST: &str = "/tastebuilderItemRenderer/title/runs/0/text";
 pub const _SECTION_LIST_CONTINUATION: &str = "/continuationContents/sectionListContinuation";
+pub const PLAYLIST_PANEL_CONTINUATION: &str = "/continuationContents/playlistPanelContinuation";
+pub const CONTINUATION_RENDERER_COMMAND: &str =
+    "/continuationItemRenderer/continuationEndpoint/continuationCommand/token";
+pub const APPEND_CONTINUATION_ITEMS: &str =
+    "/onResponseReceivedActions/0/appendContinuationItemsAction/continuationItems";
 pub const MUSIC_SHELF_CONTINUATION: &str = "/continuationContents/musicShelfContinuation";
 pub const GRID_CONTINUATION: &str = "/continuationContents/gridContinuation";
 pub const CONTINUATION_PARAMS: &str = "/continuations/0/nextContinuationData/continuation";
+pub const RADIO_CONTINUATION_PARAMS: &str =
+    "/continuations/0/nextRadioContinuationData/continuation";
 pub const HEADER_DETAIL: &str = "/header/musicDetailHeaderRenderer";
 pub const VISUAL_HEADER: &str = "/header/musicVisualHeaderRenderer";
 pub const DESCRIPTION_SHELF: &str = "/musicDescriptionShelfRenderer";
@@ -67,14 +76,17 @@ pub const PLAYBACK_DURATION_TEXT: &str =
 pub const PLAYBACK_PROGRESS_TEXT: &str =
     "/playbackProgress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text";
 pub const DEFAULT_ENDPOINT_MODAL_TEXT: &str = "/defaultServiceEndpoint/modalEndpoint/modal/modalWithTitleAndButtonRenderer/button/buttonRenderer/text/runs/0/text";
+pub const WATCH_NEXT_CONTENT: &str = concatcp!("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer",TAB_CONTENT,"/musicQueueRenderer/content");
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);
-pub const _NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VIDEO_ID);
+pub const NAVIGATION_VIDEO_ID: &str = concatcp!("/navigationEndpoint", WATCH_VIDEO_ID);
 pub const PLAYLIST_ITEM_VIDEO_ID: &str = "/playlistItemData/videoId";
 pub const SINGLE_COLUMN_TAB: &str = concatcp!(SINGLE_COLUMN, TAB_CONTENT);
 pub const SECTION_LIST_ITEM: &str = concatcp!("/sectionListRenderer", CONTENT);
-pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!("/secondaryContents", SECTION_LIST_ITEM);
+pub const SECONDARY_SECTION_LIST_RENDERER: &str =
+    concatcp!("/secondaryContents/sectionListRenderer");
+pub const SECONDARY_SECTION_LIST_ITEM: &str = concatcp!(SECONDARY_SECTION_LIST_RENDERER, CONTENT);
 pub const ITEM_SECTION: &str = concatcp!("/itemSectionRenderer", CONTENT);
 pub const GRID_ITEMS: &str = concatcp!(GRID, "/items");
 pub const MENU_ITEMS: &str = concatcp!(MENU, "/items");

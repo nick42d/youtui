@@ -31,15 +31,12 @@ pub async fn upload_song(
                 "Filename contains invalid chars".into(),
             )
         })?;
-    if !ALLOWED_UPLOAD_EXTENSIONS
-        .iter()
-        .any(|ext| upload_fileext == *ext)
+    if !ALLOWED_UPLOAD_EXTENSIONS.contains(&upload_fileext)
     {
         return Err(Error::invalid_upload_filename(
             file_path.to_string_lossy().into(),
             format!(
-                "Fileext not in allowed list. Allowed values: {:?}",
-                ALLOWED_UPLOAD_EXTENSIONS
+                "Fileext not in allowed list. Allowed values: {ALLOWED_UPLOAD_EXTENSIONS:?}"
             ),
         ));
     }

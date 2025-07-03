@@ -99,7 +99,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let metadata = R::metadata();
         let type_id = request.type_id();
         let type_name = type_name::<R>();
-        let type_debug = format!("{:?}", request);
+        let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
                 let future = request.into_future(b);
@@ -137,7 +137,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let metadata = R::metadata();
         let type_id = request.type_id();
         let type_name = type_name::<R>();
-        let type_debug = format!("{:?}", request);
+        let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
                 let future = request.into_future(b);
@@ -174,7 +174,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let metadata = R::metadata();
         let type_id = request.type_id();
         let type_name = type_name::<R>();
-        let type_debug = format!("{:?}", request);
+        let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             let stream = request.into_stream(b);
             Box::new({
@@ -218,7 +218,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let metadata = R::metadata();
         let type_id = request.type_id();
         let type_name = type_name::<R>();
-        let type_debug = format!("{:?}", request);
+        let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             let stream = request.into_stream(b);
             Box::new({

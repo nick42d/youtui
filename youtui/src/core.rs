@@ -82,7 +82,7 @@ pub async fn get_limited_sequential_file(
         .await?;
     entries.sort_by_key(|f| f.file_number);
     let next_number = entries.last().map(|e| e.file_number + 1).unwrap_or(0);
-    let next_filename = format!("{filename}{}.{}", next_number, fileext);
+    let next_filename = format!("{filename}{next_number}.{fileext}");
     // If there are max_files files or more, remove the extra files.
     let surplus_files = entries
         .len()

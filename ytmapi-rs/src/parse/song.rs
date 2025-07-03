@@ -1,7 +1,7 @@
 use super::{ParseFrom, ProcessedResult};
-use crate::common::SongTrackingUrl;
+use crate::common::{LyricsID, SongTrackingUrl};
 use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
-use crate::query::song::GetSongTrackingUrlQuery;
+use crate::query::song::{GetLyricsIDQuery, GetSongTrackingUrlQuery};
 use crate::query::GetLyricsQuery;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
@@ -19,6 +19,16 @@ impl<'a> ParseFrom<GetSongTrackingUrlQuery<'a>> for SongTrackingUrl<'static> {
         let mut crawler = JsonCrawlerOwned::from(p);
         crawler
             .take_value_pointer("/playbackTracking/videostatsPlaybackUrl/baseUrl")
+            .map_err(Into::into)
+    }
+}
+
+impl<'a> ParseFrom<GetLyricsIDQuery<'a>> for LyricsID<'static> {
+    fn parse_from(p: ProcessedResult<GetLyricsIDQuery<'a>>) -> crate::Result<Self> {
+        let mut json_crawler: JsonCrawlerOwned = p.into();
+        let lyrics_id_path = "/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer/tabs/1/tabRenderer/endpoint/browseEndpoint/browseId";
+        json_crawler
+            .take_value_pointer(lyrics_id_path)
             .map_err(Into::into)
     }
 }
@@ -47,7 +57,7 @@ mod tests {
     use crate::parse::song::Lyrics;
     use crate::process_json;
     use crate::query::song::GetSongTrackingUrlQuery;
-    use crate::query::GetLyricsQuery;
+    use crate::query::{GetLyricsIDQuery, GetLyricsQuery};
 
     #[tokio::test]
     async fn test_get_song_tracking_url_query() {
@@ -56,6 +66,15 @@ mod tests {
             "./test_json/get_song_tracking_url_20240728.json",
             output,
             GetSongTrackingUrlQuery::new(VideoID::from_raw("")).unwrap(),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_lyrics_id() {
+        parse_test_value!(
+            "./test_json/get_watch_playlist_20250630.json",
+            LyricsID::from_raw("MPLYt_dcYZhAh5urI-1"),
+            GetLyricsIDQuery::new(VideoID::from_raw("")),
             BrowserToken
         );
     }

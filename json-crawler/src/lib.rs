@@ -135,7 +135,7 @@ where
     /// could impact mutation 2 for example.
     fn try_functions<O>(
         &mut self,
-        functions: Vec<fn(&mut Self) -> CrawlerResult<O>>,
+        functions: impl IntoIterator<Item = fn(&mut Self) -> CrawlerResult<O>>,
     ) -> CrawlerResult<O> {
         let original_path = self.get_path();
         let source_ptr = self.get_source();
@@ -155,6 +155,30 @@ where
                 c,
             )),
             ControlFlow::Break(b) => Ok(b),
+        }
+    }
+    /// Apply `function` at the first path that exists in `paths`, returning an
+    /// error if none exist.
+    ///
+    /// # Warning
+    /// If one of the functions mutates before failing, the mutation will still
+    /// be applied. Also, the mutations are applied sequentially - mutation 1
+    /// could impact mutation 2 for example.
+    fn apply_function_at_paths<O>(
+        &mut self,
+        paths: &[impl AsRef<str>],
+        function: fn(Self::BorrowTo<'_>) -> O,
+    ) -> CrawlerResult<O> {
+        let output = paths
+            .iter()
+            .find_map(|path| self.borrow_pointer(path.as_ref()).ok().map(function));
+        match output {
+            None => Err(CrawlerError::paths_not_found(
+                self.get_path(),
+                self.get_source(),
+                paths.iter().map(|s| s.as_ref().to_string()).collect(),
+            )),
+            Some(o) => Ok(o),
         }
     }
 }

@@ -62,7 +62,8 @@ pub mod playlist;
 #[doc(inline)]
 pub use playlist::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    GetPlaylistQuery, RemovePlaylistItemsQuery,
+    GetPlaylistDetailsQuery, GetPlaylistTracksQuery, GetWatchPlaylistQuery,
+    RemovePlaylistItemsQuery,
 };
 pub mod podcasts;
 #[doc(inline)]
@@ -82,16 +83,13 @@ pub mod search;
 pub use search::{GetSearchSuggestionsQuery, SearchQuery};
 pub mod song;
 #[doc(inline)]
-pub use song::{GetLyricsQuery, GetSongTrackingUrlQuery};
+pub use song::{GetLyricsIDQuery, GetLyricsQuery, GetSongTrackingUrlQuery};
 pub mod upload;
 #[doc(inline)]
 pub use upload::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
-pub mod watch_playlist;
-#[doc(inline)]
-pub use watch_playlist::GetWatchPlaylistQuery;
 
 mod private {
     pub trait Sealed {}

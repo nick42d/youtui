@@ -433,7 +433,7 @@ impl ArtistSearchBrowser {
         AsyncTask::new_future(
             HandleApiError {
                 error,
-                message: format!("Error searching for artist {:?} albums", artist_id),
+                message: format!("Error searching for artist {artist_id:?} albums"),
             },
             |_, _| {},
             None,
@@ -451,8 +451,7 @@ impl ArtistSearchBrowser {
             HandleApiError {
                 error,
                 message: format!(
-                    "Error getting songs for album {:?}, artist {:?}",
-                    album_id, artist_id
+                    "Error getting songs for album {album_id:?}, artist {artist_id:?}"
                 ),
             },
             |_, _| {},

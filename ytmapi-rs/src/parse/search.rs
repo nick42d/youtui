@@ -591,7 +591,7 @@ fn parse_song_search_result_from_music_shelf_contents(
             let album_idx = num_runs - 3;
             let album = ParsedSongAlbum {
                 name: album_or_duration,
-                id: mrlir.take_value_pointer(format!("/{}{}", album_idx, NAVIGATION_BROWSE_ID))?,
+                id: mrlir.take_value_pointer(format!("/{album_idx}{NAVIGATION_BROWSE_ID}"))?,
             };
             return Ok(Some((artist, Some(album), duration)));
         }

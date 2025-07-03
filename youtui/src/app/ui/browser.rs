@@ -402,7 +402,7 @@ mod tests {
             )),
         );
         let kb_found = actual_kb
-            .inspect(|kb| println!("{:#?}", kb))
+            .inspect(|kb| println!("{kb:#?}"))
             .any(|km| km.iter().contains(&expected_kb));
         assert!(kb_found);
     }
@@ -419,7 +419,7 @@ mod tests {
             )),
         );
         let kb_found = actual_kb
-            .inspect(|kb| println!("{:#?}", kb))
+            .inspect(|kb| println!("{kb:#?}"))
             .any(|km| km.iter().contains(&expected_kb));
         assert!(kb_found);
     }
@@ -437,7 +437,7 @@ mod tests {
             ),
         );
         let kb_found = actual_kb
-            .inspect(|kb| println!("{:#?}", kb))
+            .inspect(|kb| println!("{kb:#?}"))
             .any(|km| km.iter().contains(&expected_kb));
         assert!(kb_found);
     }
