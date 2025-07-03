@@ -62,7 +62,8 @@ pub mod playlist;
 #[doc(inline)]
 pub use playlist::{
     AddPlaylistItemsQuery, CreatePlaylistQuery, DeletePlaylistQuery, EditPlaylistQuery,
-    GetPlaylistTracksQuery, GetWatchPlaylistQuery, RemovePlaylistItemsQuery,
+    GetPlaylistDetailsQuery, GetPlaylistTracksQuery, GetWatchPlaylistQuery,
+    RemovePlaylistItemsQuery,
 };
 pub mod podcasts;
 #[doc(inline)]
