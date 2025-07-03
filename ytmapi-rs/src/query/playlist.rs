@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{PlaylistID, SetVideoID, VideoID, YoutubeID};
-use crate::parse::{GetPlaylistDetails, PlaylistItem, WatchPlaylistTrack};
+use crate::parse::{GetPlaylistDetails, PlaylistItem};
 pub use additems::*;
 pub use create::*;
 pub use edit::*;

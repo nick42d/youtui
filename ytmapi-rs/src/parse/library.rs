@@ -23,7 +23,6 @@ use crate::query::{
 use crate::youtube_enums::YoutubeMusicBadgeRendererIcon;
 use crate::Result;
 use const_format::concatcp;
-use itertools::Itertools;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 

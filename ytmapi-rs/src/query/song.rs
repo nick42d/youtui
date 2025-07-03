@@ -52,7 +52,7 @@ impl<A: AuthToken> Query<A> for GetLyricsIDQuery<'_> {
 }
 impl PostQuery for GetLyricsIDQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        let serde_json::Value::Object(mut map) = json!({
+        let serde_json::Value::Object(map) = json!({
             "enablePersistentPlaylistPanel": true,
             "isAudioOnly": true,
             "tunerSettingValue": "AUTOMIX_SETTING_NORMAL",

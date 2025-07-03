@@ -7,8 +7,7 @@ use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
-    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-    LyricsID, PlaylistID, YoutubeID,
+    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
