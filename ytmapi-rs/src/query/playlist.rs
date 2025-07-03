@@ -39,7 +39,7 @@ impl Display for PrivacyStatus {
             PrivacyStatus::Private => "PRIVATE",
             PrivacyStatus::Unlisted => "UNLISTED",
         };
-        write!(f, "{}", str)
+        write!(f, "{str}")
     }
 }
 

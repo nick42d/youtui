@@ -104,7 +104,7 @@ impl Youtui {
             if IS_MAIN_THREAD.with(|flag| flag.get()) {
                 // If we fail to destruct terminal, ignore the error as panicking anyway.
                 let _ = destruct_terminal();
-                println!("{}", panic_info);
+                println!("{panic_info}");
             }
         }));
         // Setup components

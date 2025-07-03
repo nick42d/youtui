@@ -30,9 +30,9 @@ pub fn secs_to_time_string(secs: usize) -> String {
     let rem_mins = (secs - (hours * 3600)) / 60;
     let rem_secs = secs - (hours * 3600 + rem_mins * 60);
     if hours > 0 {
-        format!("{}:{:02}:{:02}", hours, rem_mins, rem_secs)
+        format!("{hours}:{rem_mins:02}:{rem_secs:02}")
     } else {
-        format!("{:02}:{:02}", rem_mins, rem_secs)
+        format!("{rem_mins:02}:{rem_secs:02}")
     }
 }
 
@@ -59,7 +59,7 @@ pub fn draw_footer(
     };
     let progress_str = secs_to_time_string(progress.as_secs() as usize);
     let duration_str = secs_to_time_string(duration);
-    let bar_str = format!("{}/{}", progress_str, duration_str);
+    let bar_str = format!("{progress_str}/{duration_str}");
 
     let cur_active_song = match w.playlist.play_status {
         PlayState::Error(id)
@@ -127,7 +127,7 @@ pub fn draw_footer(
                 .bg(BUTTON_BG_COLOUR)
                 .add_modifier(Modifier::BOLD),
         )),
-        Line::from(Span::raw(format!("{:>3}", vol))),
+        Line::from(Span::raw(format!("{vol:>3}"))),
         Line::from(Span::styled(
             " - ",
             Style::new()

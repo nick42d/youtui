@@ -112,7 +112,7 @@ impl<'a, Q, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q
             // Workaround for Get request returning empty string.
             "" => serde_json::Value::Null,
             other => serde_json::from_str(other)
-                .map_err(|e| error::Error::response(format!("{:?}", e)))?,
+                .map_err(|e| error::Error::response(format!("{e:?}")))?,
         };
         let json = Json::new(json);
         Ok(Self {

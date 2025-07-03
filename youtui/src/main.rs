@@ -330,7 +330,7 @@ pub struct RuntimeInfo {
 async fn main() -> ExitCode {
     // Using try block to print error using Display instead of Debug.
     if let Err(e) = try_main().await {
-        println!("{:?}", e);
+        println!("{e:?}");
         return ExitCode::FAILURE;
     };
     ExitCode::SUCCESS

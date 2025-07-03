@@ -599,7 +599,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt.query(q).await.map(|r| format!("{:#?}", r)),
+        } => yt.query(q).await.map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -640,7 +640,7 @@ where
         } => yt
             .query_browser_or_oauth(q)
             .await
-            .map(|r| format!("{:#?}", r)),
+            .map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -681,7 +681,7 @@ where
         CliQuery {
             query_type: QueryType::FromApi,
             show_source: false,
-        } => yt._stream(q, max_pages).await.map(|r| format!("{:#?}", r)),
+        } => yt._stream(q, max_pages).await.map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -744,7 +744,7 @@ where
         } => yt
             .stream_browser_or_oauth(q, max_pages)
             .await
-            .map(|r| format!("{:#?}", r)),
+            .map(|r| format!("{r:#?}")),
         CliQuery {
             query_type: QueryType::FromSourceFiles(sources),
             show_source: true,
@@ -797,13 +797,13 @@ where
     // the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::NoAuth(_) => process_json::<Q, NoAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
     }
 }
@@ -823,10 +823,10 @@ where
     // the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::OAuth(_) => process_json::<Q, OAuthToken>(source, query)
-            .map(|r| format!("{:#?}", r))
+            .map(|r| format!("{r:#?}"))
             .map_err(|e| e.into()),
         DynamicYtMusic::NoAuth(_) => {
             bail!("Tried to process a query that doesnt support not being authenticated")

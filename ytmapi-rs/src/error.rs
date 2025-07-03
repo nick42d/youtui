@@ -182,8 +182,7 @@ impl Display for ErrorKind {
             ErrorKind::InvalidUserAgent(u) => write!(f, "InnerTube rejected User Agent {u}"),
             ErrorKind::UnableToSerializeGoogleOAuthToken { response, err } => write!(
                 f,
-                "Unable to serialize Google auth token {}, received error {}",
-                response, err
+                "Unable to serialize Google auth token {response}, received error {err}"
             ),
             ErrorKind::SystemTimeError { message } => write!(
                 f,
@@ -192,7 +191,7 @@ impl Display for ErrorKind {
             ErrorKind::JsonParsing(e) => write!(f, "{e}"),
             ErrorKind::UnableToParseYtCfg { ytcfg } => write!(f,"Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"),
             ErrorKind::NoVisitorData => write!(f, "ytcfg didn't include VISITOR_DATA"),
-            ErrorKind::InvalidUploadFilename { filename, message: msg } => write!(f, "Invalid upload filename {}. Error message: {}", filename, msg),
+            ErrorKind::InvalidUploadFilename { filename, message: msg } => write!(f, "Invalid upload filename {filename}. Error message: {msg}"),
             ErrorKind::MissingUploadUrl => write!(f, "expected an x-goog-upload-url but didn't get one"),
         }
     }

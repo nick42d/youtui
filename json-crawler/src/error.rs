@@ -194,8 +194,7 @@ impl Display for ErrorKind {
                 key, target_paths, ..
             } => write!(
                 f,
-                "Expected {key} to contain one of the following paths: {:?}",
-                target_paths
+                "Expected {key} to contain one of the following paths: {target_paths:?}"
             ),
             ErrorKind::PathNotFoundInArray {
                 key, target_path, ..
@@ -223,7 +222,7 @@ impl Display for ErrorKind {
                 "Error {}. Unable to parse into {target} at {key}",
                 message.as_deref().unwrap_or_default()
             ),
-            ErrorKind::MultipleParseError { key, json: _, messages } => write!(f,"Expected one of the parsing functions at {key} to succeed, but all failed with the following errors: {:?}",messages),
+            ErrorKind::MultipleParseError { key, json: _, messages } => write!(f,"Expected one of the parsing functions at {key} to succeed, but all failed with the following errors: {messages:?}"),
         }
     }
 }

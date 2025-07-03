@@ -33,7 +33,7 @@ impl NoAuthToken {
             .0
             .trim();
         let mut ytcfg: serde_json::Map<String, serde_json::Value> =
-            serde_json::from_str(&format!("{{{}}}", ytcfg_raw))
+            serde_json::from_str(&format!("{{{ytcfg_raw}}}"))
                 .map_err(|_| Error::ytcfg(ytcfg_raw))?;
         let visitor_id = serde_json::from_value(
             ytcfg
