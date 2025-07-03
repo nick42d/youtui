@@ -718,9 +718,13 @@ pub(crate) fn parse_playlist_item(
     Ok(item)
 }
 //TODO: Menu entries
-pub(crate) fn parse_playlist_items(
-    json: impl JsonCrawler,
-) -> Result<(Vec<PlaylistItem>, Option<ContinuationParams<'static>>)> {
+pub(crate) fn parse_playlist_items<C>(
+    json: C,
+) -> Result<(Vec<PlaylistItem>, Option<ContinuationParams<'static>>)>
+where
+    C: JsonCrawler,
+    C::IntoIter: DoubleEndedIterator,
+{
     let mut items = json.try_into_iter()?;
     let mut last_item = items.next_back();
     let continuation_params = last_item.as_mut().and_then(|ref mut last_item| {
