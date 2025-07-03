@@ -34,7 +34,7 @@ use ytmapi_rs::query::{
     GetLyricsIDQuery, GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistsQuery,
 };
 
 pub struct CliQuery {
@@ -63,6 +63,13 @@ pub async fn command_to_query(
                 cli_query,
             )
             .await
+        }
+        Command::SubscribeArtists { channel_ids } => {
+            get_string_output_of_query(yt, SubscribeArtistsQuery::new(channel_ids), cli_query).await
+        }
+        Command::UnsubscribeArtists { channel_ids } => {
+            get_string_output_of_query(yt, UnsubscribeArtistsQuery::new(channel_ids), cli_query)
+                .await
         }
         Command::GetPlaylistDetails { playlist_id } => {
             get_string_output_of_query(

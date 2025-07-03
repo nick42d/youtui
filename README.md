@@ -129,8 +129,8 @@ Feature parity with `ytmusicapi`
 |RateSong|[x]||
 |EditSongLibraryStatus|[x]||
 |RatePlaylist|[x]||
-|SubscribeArtists|[ ]||
-|UnsubscribeArtists|[ ]||
+|SubscribeArtists|[x]||
+|UnsubscribeArtists|[x]||
 |GetPlaylistTracks|[x]|[x]|
 |GetPlaylistDetails|[x]||
 |CreatePlaylist|[x]||

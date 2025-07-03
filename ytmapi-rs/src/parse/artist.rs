@@ -1,11 +1,11 @@
 use super::search::SearchResultVideo;
 use super::{
-    parse_flex_column_item, parse_song_album,
-    parse_song_artists, ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult, Thumbnail,
+    parse_flex_column_item, parse_song_album, parse_song_artists, ParseFrom, ParsedSongAlbum,
+    ParsedSongArtist, ProcessedResult, Thumbnail,
 };
 use crate::common::{
-    AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit,
-    LibraryManager, LibraryStatus, LikeStatus, PlaylistID, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
+    LikeStatus, PlaylistID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
@@ -480,6 +480,24 @@ mod tests {
             "./test_json/get_artist_20250310.json",
             "./test_json/get_artist_20250310_output.txt",
             crate::query::GetArtistQuery::new(ArtistChannelID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_subscribe_artists() {
+        parse_test!(
+            "./test_json/X.json",
+            "./test_json/X.txt",
+            crate::query::SubscribeArtistsQuery::new([]),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_unsubscribe_artists() {
+        parse_test!(
+            "./test_json/X.json",
+            "./test_json/X.txt",
+            crate::query::SubscribeArtistsQuery::new([]),
             BrowserToken
         );
     }

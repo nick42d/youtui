@@ -13,6 +13,14 @@ pub struct GetArtistAlbumsQuery<'a> {
     channel_id: ArtistChannelID<'a>,
     params: BrowseParams<'a>,
 }
+#[derive(Debug, Clone)]
+pub struct SubscribeArtistsQuery<'a> {
+    channel_ids: Vec<ArtistChannelID<'a>>,
+}
+#[derive(Debug, Clone)]
+pub struct UnsubscribeArtistsQuery<'a> {
+    channel_ids: Vec<ArtistChannelID<'a>>,
+}
 impl<'a> GetArtistQuery<'a> {
     pub fn new(channel_id: impl Into<ArtistChannelID<'a>>) -> GetArtistQuery<'a> {
         GetArtistQuery {
@@ -26,6 +34,24 @@ impl<'a> GetArtistAlbumsQuery<'a> {
         params: BrowseParams<'a>,
     ) -> GetArtistAlbumsQuery<'a> {
         GetArtistAlbumsQuery { channel_id, params }
+    }
+}
+impl<'a> SubscribeArtistsQuery<'a> {
+    pub fn new(
+        channel_ids: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> SubscribeArtistsQuery<'a> {
+        SubscribeArtistsQuery {
+            channel_ids: channel_ids.into_iter().collect(),
+        }
+    }
+}
+impl<'a> UnsubscribeArtistsQuery<'a> {
+    pub fn new(
+        channel_ids: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> UnsubscribeArtistsQuery<'a> {
+        UnsubscribeArtistsQuery {
+            channel_ids: channel_ids.into_iter().collect(),
+        }
     }
 }
 

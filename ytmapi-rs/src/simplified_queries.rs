@@ -38,7 +38,8 @@ use crate::query::{
     GetLibraryUploadSongsQuery, GetLyricsIDQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistsQuery,
+    UnsubscribeArtistsQuery,
 };
 use crate::{Result, YtMusic};
 
@@ -192,6 +193,30 @@ impl<A: AuthToken> YtMusic<A> {
     ) -> Result<Vec<SearchResultProfile>> {
         let query = query.into();
         self.query(query).await
+    }
+    /// Gets information about an artist and their top releases.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// fixme
+    /// # };
+    pub async fn subscribe_artists<'a>(
+        &self,
+        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> Result<()> {
+        self.query(SubscribeArtistsQuery::new(channels)).await
+    }
+    /// Gets information about an artist and their top releases.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// fixme
+    /// # };
+    pub async fn unsubscribe_artists<'a>(
+        &self,
+        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
+    ) -> Result<()> {
+        self.query(UnsubscribeArtistsQuery::new(channels)).await
     }
     /// Gets information about an artist and their top releases.
     /// ```no_run

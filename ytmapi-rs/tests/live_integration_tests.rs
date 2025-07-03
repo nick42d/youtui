@@ -7,7 +7,8 @@ use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
-    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, PlaylistID, YoutubeID,
+    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
+    PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
@@ -361,6 +362,13 @@ async fn test_add_remove_upload_song() {
         .delete_upload_entity(uploaded_song.entity_id)
         .await
         .unwrap();
+}
+
+#[tokio::test]
+// #[ignore = "Ignored due to stateful"]
+async fn test_subscribe_unsubscribe_artists() {
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    todo!();
 }
 
 #[tokio::test]
