@@ -4,8 +4,8 @@ use super::{
     ParsedSongArtist, ProcessedResult, Thumbnail,
 };
 use crate::common::{
-    AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
-    LikeStatus, PlaylistID, VideoID,
+    AlbumID, AlbumType, ApiOutcome, ArtistChannelID, BrowseParams, Explicit, LibraryManager,
+    LibraryStatus, LikeStatus, PlaylistID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
@@ -211,14 +211,28 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
     }
 }
 
-impl ParseFrom<SubscribeArtistsQuery<'_>> for () {
-    fn parse_from(p: ProcessedResult<SubscribeArtistsQuery<'_>>) -> crate::Result<Self> {
-        todo!()
+impl ParseFrom<SubscribeArtistQuery<'_>> for () {
+    fn parse_from(p: ProcessedResult<SubscribeArtistQuery<'_>>) -> crate::Result<Self> {
+        let json_crawler: JsonCrawlerOwned = p.into();
+        // Basically, return an error if there is no 'successResponseText'
+        json_crawler
+            .navigate_pointer("/actions")?
+            .try_into_iter()?
+            .find_path("/addToToastAction")?
+            .navigate_pointer("/item/notificationTextRenderer/successResponseText")?;
+        Ok(())
     }
 }
 impl ParseFrom<UnsubscribeArtistsQuery<'_>> for () {
     fn parse_from(p: ProcessedResult<UnsubscribeArtistsQuery<'_>>) -> crate::Result<Self> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        // Basically, return an error if there is no 'successResponseText'
+        json_crawler
+            .navigate_pointer("/actions")?
+            .try_into_iter()?
+            .find_path("/updateSubscribeButtonAction")?
+            .navigate_pointer("/subscribed")?;
+        Ok(())
     }
 }
 
@@ -497,19 +511,19 @@ mod tests {
     }
     #[tokio::test]
     async fn test_subscribe_artists() {
-        parse_test!(
-            "./test_json/X.json",
-            "./test_json/X.txt",
-            crate::query::SubscribeArtistsQuery::new([]),
+        parse_test_value!(
+            "./test_json/subscribe_artist_20250704.json",
+            (),
+            crate::query::SubscribeArtistQuery::new(ArtistChannelID::from_raw("")),
             BrowserToken
         );
     }
     #[tokio::test]
     async fn test_unsubscribe_artists() {
-        parse_test!(
-            "./test_json/X.json",
-            "./test_json/X.txt",
-            crate::query::SubscribeArtistsQuery::new([]),
+        parse_test_value!(
+            "./test_json/unsubscribe_artists_20250704.json",
+            (),
+            crate::query::UnsubscribeArtistsQuery::new([]),
             BrowserToken
         );
     }

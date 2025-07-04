@@ -34,7 +34,7 @@ use ytmapi_rs::query::{
     GetLyricsIDQuery, GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistsQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistQuery,
     UnsubscribeArtistsQuery,
 };
 
@@ -65,10 +65,10 @@ pub async fn command_to_query(
             )
             .await
         }
-        Command::SubscribeArtists { channel_ids } => {
+        Command::SubscribeArtist { channel_id } => {
             get_string_output_of_query_browser_or_oauth(
                 yt,
-                SubscribeArtistsQuery::new(channel_ids.iter().map(YoutubeID::from_raw)),
+                SubscribeArtistQuery::new(ArtistChannelID::from_raw(channel_id)),
                 cli_query,
             )
             .await

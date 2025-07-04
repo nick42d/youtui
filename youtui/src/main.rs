@@ -89,8 +89,8 @@ enum Command {
         channel_id: String,
         browse_params: String,
     },
-    SubscribeArtists {
-        channel_ids: Vec<String>,
+    SubscribeArtist {
+        channel_id: String,
     },
     UnsubscribeArtists {
         channel_ids: Vec<String>,

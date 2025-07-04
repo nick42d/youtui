@@ -45,7 +45,7 @@ pub use album::GetAlbumQuery;
 pub mod artist;
 #[doc(inline)]
 pub use artist::{
-    GetArtistAlbumsQuery, GetArtistQuery, SubscribeArtistsQuery, UnsubscribeArtistsQuery,
+    GetArtistAlbumsQuery, GetArtistQuery, SubscribeArtistQuery, UnsubscribeArtistsQuery,
 };
 pub mod continuations;
 #[doc(inline)]

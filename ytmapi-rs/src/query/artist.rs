@@ -1,6 +1,6 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
-use crate::common::{ArtistChannelID, BrowseParams, YoutubeID};
+use crate::common::{ApiOutcome, ArtistChannelID, BrowseParams, YoutubeID};
 use crate::parse::{ArtistParams, GetArtistAlbumsAlbum};
 use serde_json::json;
 
@@ -14,8 +14,8 @@ pub struct GetArtistAlbumsQuery<'a> {
     params: BrowseParams<'a>,
 }
 #[derive(Debug, Clone)]
-pub struct SubscribeArtistsQuery<'a> {
-    channel_ids: Vec<ArtistChannelID<'a>>,
+pub struct SubscribeArtistQuery<'a> {
+    channel_id: ArtistChannelID<'a>,
 }
 #[derive(Debug, Clone)]
 pub struct UnsubscribeArtistsQuery<'a> {
@@ -36,13 +36,9 @@ impl<'a> GetArtistAlbumsQuery<'a> {
         GetArtistAlbumsQuery { channel_id, params }
     }
 }
-impl<'a> SubscribeArtistsQuery<'a> {
-    pub fn new(
-        channel_ids: impl IntoIterator<Item = ArtistChannelID<'a>>,
-    ) -> SubscribeArtistsQuery<'a> {
-        SubscribeArtistsQuery {
-            channel_ids: channel_ids.into_iter().collect(),
-        }
+impl<'a> SubscribeArtistQuery<'a> {
+    pub fn new(channel_id: ArtistChannelID<'a>) -> SubscribeArtistQuery<'a> {
+        SubscribeArtistQuery { channel_id }
     }
 }
 impl<'a> UnsubscribeArtistsQuery<'a> {
@@ -107,13 +103,13 @@ impl PostQuery for GetArtistAlbumsQuery<'_> {
         vec![]
     }
 }
-impl<A: LoggedIn> Query<A> for SubscribeArtistsQuery<'_> {
+impl<A: LoggedIn> Query<A> for SubscribeArtistQuery<'_> {
     type Output = ();
     type Method = PostMethod;
 }
-impl PostQuery for SubscribeArtistsQuery<'_> {
+impl PostQuery for SubscribeArtistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        FromIterator::from_iter([("channelIds".into(), json!(self.channel_ids))])
+        FromIterator::from_iter([("channelIds".into(), json!([self.channel_id]))])
     }
     fn path(&self) -> &str {
         "subscription/subscribe"

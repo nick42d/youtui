@@ -1,0 +1,64 @@
+{
+  "actions": [
+    {
+      "clickTrackingParams": "CAAQ2YYDIhMI5-a11LOjjgMVUZ5LBR2UxwGc",
+      "addToToastAction": {
+        "item": {
+          "notificationTextRenderer": {
+            "successResponseText": {
+              "runs": [
+                {
+                  "text": "Subscribed to "
+                },
+                {
+                  "text": "The Dung Beatles"
+                }
+              ]
+            },
+            "trackingParams": "CAEQyscDIhMI5-a11LOjjgMVUZ5LBR2UxwGc"
+          }
+        }
+      }
+    },
+    {
+      "clickTrackingParams": "CAAQ2YYDIhMI5-a11LOjjgMVUZ5LBR2UxwGc",
+      "runAttestationCommand": {
+        "ids": [
+          {
+            "externalChannelId": "UCMyqqExD7o8zVB5SDUhhuCQ"
+          }
+        ],
+        "engagementType": "ENGAGEMENT_TYPE_SUBSCRIBE"
+      }
+    },
+    {
+      "clickTrackingParams": "CAAQ2YYDIhMI5-a11LOjjgMVUZ5LBR2UxwGc",
+      "updateSubscribeButtonAction": {
+        "subscribed": true,
+        "channelId": "UCMyqqExD7o8zVB5SDUhhuCQ"
+      }
+    }
+  ],
+  "trackingParams": "CAAQ2YYDIhMI5-a11LOjjgMVUZ5LBR2UxwGc",
+  "frameworkUpdates": {
+    "entityBatchUpdate": {
+      "mutations": [
+        {
+          "entityKey": "EhhVQ015cXFFeEQ3bzh6VkI1U0RVaGh1Q1EgjAEoAQ%3D%3D",
+          "type": "ENTITY_MUTATION_TYPE_REPLACE",
+          "payload": {
+            "subscriptionNotificationStateEntity": {
+              "key": "EhhVQ015cXFFeEQ3bzh6VkI1U0RVaGh1Q1EgjAEoAQ%3D%3D",
+              "state": "SUBSCRIPTION_NOTIFICATION_STATE_OFF"
+            }
+          }
+        }
+      ],
+      "timestamp": {
+        "seconds": "1751638969",
+        "nanos": 638792087
+      }
+    }
+  }
+}
+
