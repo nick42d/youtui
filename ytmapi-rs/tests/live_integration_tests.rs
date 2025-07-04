@@ -368,7 +368,22 @@ async fn test_add_remove_upload_song() {
 // #[ignore = "Ignored due to stateful"]
 async fn test_subscribe_unsubscribe_artists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
-    todo!();
+    browser_api
+        .subscribe_artist(ArtistChannelID::from_raw("UCMyqqExD7o8zVB5SDUhhuCQ"))
+        .await
+        .unwrap();
+    browser_api
+        .subscribe_artist(ArtistChannelID::from_raw("UCwMzxvcq8VmfclCG6QUTm7g"))
+        .await
+        .unwrap();
+    browser_api
+        .unsubscribe_artists([
+            ArtistChannelID::from_raw("UCwMzxvcq8VmfclCG6QUTm7g"),
+            ArtistChannelID::from_raw("UCMyqqExD7o8zVB5SDUhhuCQ"),
+        ])
+        .await
+        .unwrap();
+    todo!("Actually check if subscribed before unsubscribing");
 }
 
 #[tokio::test]
