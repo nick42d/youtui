@@ -13,8 +13,8 @@ use crate::common::{
     UploadArtistID, UploadEntityID, VideoID,
 };
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylistDetails,
-    HistoryPeriod, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
+    AddPlaylistItem, GetAlbum, GetArtist, GetArtistAlbumsAlbum, GetPlaylistDetails, HistoryPeriod,
+    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
     SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
     SearchResultVideo, SearchResults, WatchPlaylistTrack,
@@ -38,7 +38,8 @@ use crate::query::{
     GetLibraryUploadSongsQuery, GetLyricsIDQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
     GetTasteProfileQuery, GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery,
+    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistQuery,
+    UnsubscribeArtistsQuery,
 };
 use crate::{Result, YtMusic};
 
@@ -200,10 +201,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.search_artists("Beatles").await.unwrap();
     /// yt.get_artist(&results[0].browse_id).await
     /// # };
-    pub async fn get_artist<'a>(
-        &self,
-        query: impl Into<GetArtistQuery<'a>>,
-    ) -> Result<ArtistParams> {
+    pub async fn get_artist<'a>(&self, query: impl Into<GetArtistQuery<'a>>) -> Result<GetArtist> {
         self.query(query.into()).await
     }
     /// Gets a full list albums for an artist.
@@ -912,5 +910,37 @@ impl<A: LoggedIn> YtMusic<A> {
         song_url: T,
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
+    }
+    /// Subscribe to an artist.
+    /// This does not error if the artist was already subscribed to.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let the_beatles = &yt.search_artists("The Beatles").await.unwrap()[0].browse_id;
+    /// yt.subscribe_artist(the_beatles).await
+    /// # };
+    pub async fn subscribe_artist(&self, channel_id: impl Into<ArtistChannelID<'_>>) -> Result<()> {
+        self.query(SubscribeArtistQuery::new(channel_id.into()))
+            .await
+    }
+    /// Unsubscribe to one or more artists.
+    /// This does not error if the artists were not subscribed.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let some_beatles = yt.search_artists("The Beatles").await.unwrap()
+    ///     .into_iter()
+    ///     .map(|artist| artist.browse_id)
+    ///     .take(2);
+    /// yt.unsubscribe_artists(some_beatles).await
+    /// # };
+    pub async fn unsubscribe_artists<'a>(
+        &self,
+        channels: impl IntoIterator<Item = impl Into<ArtistChannelID<'a>>>,
+    ) -> Result<()> {
+        self.query(UnsubscribeArtistsQuery::new(
+            channels.into_iter().map(Into::into),
+        ))
+        .await
     }
 }

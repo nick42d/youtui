@@ -7,7 +7,8 @@ use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
-    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary, PlaylistID, YoutubeID,
+    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
+    PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
@@ -361,6 +362,81 @@ async fn test_add_remove_upload_song() {
         .delete_upload_entity(uploaded_song.entity_id)
         .await
         .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Ignored due to long running and stateful"]
+async fn test_subscribe_unsubscribe_artists() {
+    // Timeout to avoid flaky test
+    const GET_ARTIST_TIMEOUT: Duration = Duration::from_secs(5);
+    let browser_api = crate::utils::new_standard_api().await.unwrap();
+    let artist_id_list =
+        ["UCwMzxvcq8VmfclCG6QUTm7g", "UCMyqqExD7o8zVB5SDUhhuCQ"].map(ArtistChannelID::from_raw);
+    let artist_1_subscribed_initial = browser_api
+        .get_artist(&artist_id_list[0])
+        .await
+        .unwrap()
+        .subscribed;
+    let artist_2_subscribed_initial = browser_api
+        .get_artist(&artist_id_list[1])
+        .await
+        .unwrap()
+        .subscribed;
+    browser_api
+        .subscribe_artist(&artist_id_list[0])
+        .await
+        .unwrap();
+    browser_api
+        .subscribe_artist(&artist_id_list[1])
+        .await
+        .unwrap();
+    tokio::time::sleep(GET_ARTIST_TIMEOUT).await;
+    assert!(
+        browser_api
+            .get_artist(&artist_id_list[0])
+            .await
+            .unwrap()
+            .subscribed
+    );
+    assert!(
+        browser_api
+            .get_artist(&artist_id_list[1])
+            .await
+            .unwrap()
+            .subscribed
+    );
+    browser_api
+        .unsubscribe_artists(&artist_id_list)
+        .await
+        .unwrap();
+    tokio::time::sleep(GET_ARTIST_TIMEOUT).await;
+    assert!(
+        !browser_api
+            .get_artist(&artist_id_list[0])
+            .await
+            .unwrap()
+            .subscribed
+    );
+    assert!(
+        !browser_api
+            .get_artist(&artist_id_list[1])
+            .await
+            .unwrap()
+            .subscribed
+    );
+    tokio::time::sleep(GET_ARTIST_TIMEOUT).await;
+    if artist_1_subscribed_initial {
+        browser_api
+            .subscribe_artist(&artist_id_list[0])
+            .await
+            .unwrap();
+    }
+    if artist_2_subscribed_initial {
+        browser_api
+            .subscribe_artist(&artist_id_list[1])
+            .await
+            .unwrap();
+    }
 }
 
 #[tokio::test]

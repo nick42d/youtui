@@ -1,15 +1,46 @@
-ArtistParams {
-    description: "John Winston Ono Lennon was an English singer, songwriter and musician. He gained worldwide fame as the founder, co-lead vocalist and rhythm guitarist of the Beatles. His work included music, writing, drawings and film. His songwriting partnership with Paul McCartney remains the most successful in history as the primary songwriters in the Beatles.\nBorn in Liverpool, Lennon became involved in the skiffle craze as a teenager. In 1956, he formed the Quarrymen, which evolved into the Beatles in 1960. Sometimes called \"the smart Beatle\", Lennon initially was the group's de facto leader, a role he gradually seemed to cede to McCartney. Through his songwriting in the Beatles, he embraced myriad musical influences, initially writing and co-writing rock and pop-oriented hit songs in the band's early years, then later incorporating experimental elements into his compositions in the latter half of the Beatles' career as his songs became known for their increasing innovation.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/John_Lennon) under Creative Commons Attribution CC-BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)",
-    views: "1,385,779,041 views",
+GetArtist {
+    description: Some(
+        "John Winston Ono Lennon was an English singer, songwriter and musician. He gained worldwide fame as the founder, co-lead vocalist and rhythm guitarist of the Beatles. His work included music, writing, drawings and film. His songwriting partnership with Paul McCartney remains the most successful in history as the primary songwriters in the Beatles.\nBorn in Liverpool, Lennon became involved in the skiffle craze as a teenager. In 1956, he formed the Quarrymen, which evolved into the Beatles in 1960. Sometimes called \"the smart Beatle\", Lennon initially was the group's de facto leader, a role he gradually seemed to cede to McCartney. Through his songwriting in the Beatles, he embraced myriad musical influences, initially writing and co-writing rock and pop-oriented hit songs in the band's early years, then later incorporating experimental elements into his compositions in the latter half of the Beatles' career as his songs became known for their increasing innovation.\n\nFrom Wikipedia (https://en.wikipedia.org/wiki/John_Lennon) under Creative Commons Attribution CC-BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)",
+    ),
+    views: Some(
+        "1,385,779,041 views",
+    ),
     name: "John Lennon",
-    channel_id: "UCYU4eunPInnHTNWfGvOgkbg",
-    shuffle_id: None,
-    radio_id: None,
+    channel_id: ArtistChannelID(
+        "UCYU4eunPInnHTNWfGvOgkbg",
+    ),
+    shuffle_id: Some(
+        "RDAO3KI64-w5pkNlYHJkz44lkA",
+    ),
+    radio_id: Some(
+        "RDEM3KI64-w5pkNlYHJkz44lkA",
+    ),
     subscribers: Some(
         "2.18M",
     ),
-    subscribed: None,
-    thumbnails: None,
+    subscribed: false,
+    thumbnails: [
+        Thumbnail {
+            height: 225,
+            width: 540,
+            url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w540-h225-p-l90-rj",
+        },
+        Thumbnail {
+            height: 340,
+            width: 816,
+            url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w816-h340-p-l90-rj",
+        },
+        Thumbnail {
+            height: 600,
+            width: 1440,
+            url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w1440-h600-p-l90-rj",
+        },
+        Thumbnail {
+            height: 696,
+            width: 1671,
+            url: "https://lh3.googleusercontent.com/rNwrmRbk3U19r6sBBarhK0GvBmOg8VFm935fc8J85HSU13cwSvVcGNNqUrG8ols56gYLwpEZu7qf-Q=w1671-h696-p-l90-rj",
+        },
+    ],
     top_releases: GetArtistTopReleases {
         songs: Some(
             GetArtistSongs {
