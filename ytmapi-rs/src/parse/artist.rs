@@ -4,14 +4,14 @@ use super::{
     ParsedSongArtist, ProcessedResult, Thumbnail,
 };
 use crate::common::{
-    AlbumID, AlbumType, ApiOutcome, ArtistChannelID, BrowseParams, Explicit, LibraryManager,
-    LibraryStatus, LikeStatus, PlaylistID, VideoID,
+    AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
+    LikeStatus, PlaylistID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
 use crate::Result;
 use const_format::concatcp;
-use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -42,47 +42,7 @@ pub struct GetArtistAlbumsAlbum {
     pub year: Option<String>,
 }
 
-fn parse_artist_song(json: &mut JsonCrawlerBorrowed) -> Result<ArtistSong> {
-    let mut data = json.borrow_pointer(MRLIR)?;
-    let title = parse_flex_column_item(&mut data, 0, 0)?;
-    let plays = parse_flex_column_item(&mut data, 2, 0)?;
-    let artists = parse_song_artists(&mut data, 1)?;
-    let album = parse_song_album(&mut data, 3)?;
-    let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
-    let explicit = if data.path_exists(BADGE_LABEL) {
-        Explicit::IsExplicit
-    } else {
-        Explicit::NotExplicit
-    };
-    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
-    let library_management =
-        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
-    Ok(ArtistSong {
-        video_id,
-        plays,
-        album,
-        artists,
-        library_management,
-        title,
-        like_status,
-        explicit,
-    })
-}
-fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> {
-    // Unsure if this should be optional or not.
-    let browse_id = json.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
-    let results = json
-        .borrow_pointer("/contents")?
-        .try_into_iter()?
-        .map(|mut item| parse_artist_song(&mut item))
-        .collect::<Result<Vec<ArtistSong>>>()?;
-    Ok(GetArtistSongs { results, browse_id })
-}
-
 impl<'a> ParseFrom<GetArtistQuery<'a>> for GetArtist {
-    // While this function gets improved, we'll allow this lint for the creation of
-    // GetArtistTopReleases.
-    #[allow(clippy::field_reassign_with_default)]
     fn parse_from(p: ProcessedResult<GetArtistQuery<'a>>) -> crate::Result<Self> {
         let mut json_crawler: JsonCrawlerOwned = p.into();
         let mut results =
@@ -97,59 +57,7 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for GetArtist {
                 .take_value_pointer(concatcp!("/subheader", RUN_TEXT))
                 .ok()
         });
-        let mut top_releases = GetArtistTopReleases::default();
-        top_releases.songs = results
-            .borrow_pointer(concatcp!("/0", MUSIC_SHELF))
-            .ok()
-            .map(|mut j| parse_artist_songs(&mut j))
-            .transpose()?;
-        // TODO: Check if Carousel Title is in list of categories.
-        // TODO: Actually pass these variables in the return
-        // XXX: Looks to be two loops over results here.
-        // XXX: if there are multiple results for each category we only want to look at
-        // the first one.
-        for mut r in results
-            .try_iter_mut()
-            .into_iter()
-            .flatten()
-            .filter_map(|r| r.navigate_pointer("/musicCarouselShelfRenderer").ok())
-        {
-            // XXX: Should this only be on the first result per category?
-            let category = r.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
-            // Likely optional, need to confirm.
-            // XXX: Errors here
-            let browse_id: Option<ArtistChannelID> = r
-                .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
-                .ok();
-            // XXX should only be mandatory for albums, singles, playlists
-            // as a result leaving as optional for now.
-            let params = r
-                .take_value_pointer(concatcp!(
-                    CAROUSEL_TITLE,
-                    "/navigationEndpoint/browseEndpoint/params"
-                ))
-                .ok();
-            // TODO: finish other categories
-            match category {
-                ArtistTopReleaseCategory::Related => (),
-                ArtistTopReleaseCategory::Videos => (),
-                ArtistTopReleaseCategory::Singles => (),
-                ArtistTopReleaseCategory::Albums => {
-                    let mut results = Vec::new();
-                    for i in r.navigate_pointer("/contents")?.try_iter_mut()? {
-                        results.push(parse_album_from_mtrir(i.navigate_pointer(MTRIR)?)?);
-                    }
-                    let albums = GetArtistAlbums {
-                        browse_id,
-                        params,
-                        results,
-                    };
-                    top_releases.albums = Some(albums);
-                }
-                ArtistTopReleaseCategory::Playlists => (),
-                ArtistTopReleaseCategory::None => (),
-            }
-        }
+        let top_releases = parse_artist_top_releases_from_section_list_contents(results)?;
         let mut header = json_crawler.navigate_pointer("/header/musicImmersiveHeaderRenderer")?;
         let name = header.take_value_pointer(TITLE_TEXT)?;
         let shuffle_id = header
@@ -325,18 +233,113 @@ enum ArtistTopReleaseCategory {
     None,
 }
 
+fn parse_artist_song(mut json: impl JsonCrawler) -> Result<ArtistSong> {
+    let mut data = json.borrow_pointer(MRLIR)?;
+    let title = parse_flex_column_item(&mut data, 0, 0)?;
+    let plays = parse_flex_column_item(&mut data, 2, 0)?;
+    let artists = parse_song_artists(&mut data, 1)?;
+    let album = parse_song_album(&mut data, 3)?;
+    let video_id = data.take_value_pointer(PLAYLIST_ITEM_VIDEO_ID)?;
+    let explicit = if data.path_exists(BADGE_LABEL) {
+        Explicit::IsExplicit
+    } else {
+        Explicit::NotExplicit
+    };
+    let like_status = data.take_value_pointer(MENU_LIKE_STATUS)?;
+    let library_management =
+        parse_library_management_items_from_menu(data.borrow_pointer(MENU_ITEMS)?)?;
+    Ok(ArtistSong {
+        video_id,
+        plays,
+        album,
+        artists,
+        library_management,
+        title,
+        like_status,
+        explicit,
+    })
+}
+fn parse_artist_songs(mut json: impl JsonCrawler) -> Result<GetArtistSongs> {
+    // Unsure if this should be optional or not.
+    let browse_id = json.take_value_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?;
+    let results = json
+        .borrow_pointer("/contents")?
+        .try_into_iter()?
+        .map(parse_artist_song)
+        .collect::<Result<Vec<ArtistSong>>>()?;
+    Ok(GetArtistSongs { results, browse_id })
+}
+// While this function gets improved, we'll allow this lint for the creation of
+// GetArtistTopReleases.
+#[allow(clippy::field_reassign_with_default)]
+fn parse_artist_top_releases_from_section_list_contents(
+    mut contents: impl JsonCrawler,
+) -> Result<GetArtistTopReleases> {
+    let mut top_releases = GetArtistTopReleases::default();
+    top_releases.songs = contents
+        .borrow_pointer(concatcp!("/0", MUSIC_SHELF))
+        .ok()
+        .map(parse_artist_songs)
+        .transpose()?;
+    // TODO: Check if Carousel Title is in list of categories.
+    // TODO: Actually pass these variables in the return
+    // XXX: Looks to be two loops over results here.
+    // XXX: if there are multiple results for each category we only want to look at
+    // the first one.
+    for mut r in contents
+        .try_iter_mut()
+        .into_iter()
+        .flatten()
+        .filter_map(|r| r.navigate_pointer("/musicCarouselShelfRenderer").ok())
+    {
+        // XXX: Should this only be on the first result per category?
+        let category = r.take_value_pointer(concatcp!(CAROUSEL_TITLE, "/text"))?;
+        // Likely optional, need to confirm.
+        // XXX: Errors here
+        let browse_id: Option<ArtistChannelID> = r
+            .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
+            .ok();
+        // XXX should only be mandatory for albums, singles, playlists
+        // as a result leaving as optional for now.
+        let params = r
+            .take_value_pointer(concatcp!(
+                CAROUSEL_TITLE,
+                "/navigationEndpoint/browseEndpoint/params"
+            ))
+            .ok();
+        // TODO: finish other categories
+        match category {
+            ArtistTopReleaseCategory::Related => (),
+            ArtistTopReleaseCategory::Videos => (),
+            ArtistTopReleaseCategory::Singles => (),
+            ArtistTopReleaseCategory::Albums => {
+                let mut results = Vec::new();
+                for i in r.navigate_pointer("/contents")?.try_iter_mut()? {
+                    results.push(parse_album_from_mtrir(i.navigate_pointer(MTRIR)?)?);
+                }
+                let albums = GetArtistAlbums {
+                    browse_id,
+                    params,
+                    results,
+                };
+                top_releases.albums = Some(albums);
+            }
+            ArtistTopReleaseCategory::Playlists => (),
+            ArtistTopReleaseCategory::None => (),
+        }
+    }
+    Ok(top_releases)
+}
+
 /// Google A/B change pending
-pub(crate) fn parse_album_from_mtrir(mut navigator: JsonCrawlerBorrowed) -> Result<AlbumResult> {
+pub(crate) fn parse_album_from_mtrir(mut navigator: impl JsonCrawler) -> Result<AlbumResult> {
     let title = navigator.take_value_pointer(TITLE_TEXT)?;
 
-    let (year, album_type) = match navigator.borrow_pointer(SUBTITLE2) {
-        Ok(mut subtitle2) => {
+    let (year, album_type) = match navigator.take_value_pointer(SUBTITLE2) {
+        Ok(subtitle2) => {
             // See https://github.com/nick42d/youtui/issues/211
             ab_warn!();
-            (
-                subtitle2.take_value()?,
-                navigator.take_value_pointer(SUBTITLE)?,
-            )
+            (subtitle2, navigator.take_value_pointer(SUBTITLE)?)
         }
         Err(_) => (navigator.take_value_pointer(SUBTITLE)?, None),
     };
