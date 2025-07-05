@@ -1,15 +1,51 @@
-ArtistParams {
-    description: "\"We didn't dream it... though it came out of John's dream of the \"man on a flaming pie\" who said \"You are Beatles with an 'A'\". It did all happen. The whole wonderful thing did happen, a long time ago, on the Mersey, on the Elbe, by the Thames and the Hudson River.  Amazing and marvellous and, nearly [sixty] years on, forever young.\"  Derek Taylor\n\nFind out about he band, and to register for the latest updates, visit http://www.thebeatles.com\nOur links: https://linktr.ee/thebeatlesofficial",
-    views: "7,774,495,111 views",
+GetArtist {
+    description: Some(
+        "\"We didn't dream it... though it came out of John's dream of the \"man on a flaming pie\" who said \"You are Beatles with an 'A'\". It did all happen. The whole wonderful thing did happen, a long time ago, on the Mersey, on the Elbe, by the Thames and the Hudson River.  Amazing and marvellous and, nearly [sixty] years on, forever young.\"  Derek Taylor\n\nFind out about he band, and to register for the latest updates, visit http://www.thebeatles.com\nOur links: https://linktr.ee/thebeatlesofficial",
+    ),
+    views: Some(
+        "7,774,495,111 views",
+    ),
     name: "The Beatles",
-    channel_id: "UCc4K7bAqpdBP8jh1j9XZAww",
-    shuffle_id: None,
-    radio_id: None,
+    channel_id: ArtistChannelID(
+        "UCc4K7bAqpdBP8jh1j9XZAww",
+    ),
+    shuffle_id: Some(
+        "RDAODwfWqCd9jXCuVO7pjkJHTw",
+    ),
+    radio_id: Some(
+        "RDEMDwfWqCd9jXCuVO7pjkJHTw",
+    ),
     subscribers: Some(
         "8.8M",
     ),
-    subscribed: None,
-    thumbnails: None,
+    subscribed: false,
+    thumbnails: [
+        Thumbnail {
+            height: 225,
+            width: 540,
+            url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w540-h225-p-l90-rj",
+        },
+        Thumbnail {
+            height: 340,
+            width: 816,
+            url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w816-h340-p-l90-rj",
+        },
+        Thumbnail {
+            height: 600,
+            width: 1440,
+            url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w1440-h600-p-l90-rj",
+        },
+        Thumbnail {
+            height: 800,
+            width: 1920,
+            url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w1920-h800-p-l90-rj",
+        },
+        Thumbnail {
+            height: 1200,
+            width: 2880,
+            url: "https://lh3.googleusercontent.com/z8KZsHNKS-O1qYVyKlSErT_RLMSMwVht89USvSdFAd0EoRlBOppi9DOdRkv609Ye_tfq_Wp8WwhVJbw=w2880-h1200-p-l90-rj",
+        },
+    ],
     top_releases: GetArtistTopReleases {
         songs: Some(
             GetArtistSongs {
