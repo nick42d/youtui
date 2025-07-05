@@ -929,8 +929,11 @@ impl<A: LoggedIn> YtMusic<A> {
     /// # };
     pub async fn unsubscribe_artists<'a>(
         &self,
-        channels: impl IntoIterator<Item = ArtistChannelID<'a>>,
+        channels: impl IntoIterator<Item = impl Into<ArtistChannelID<'a>>>,
     ) -> Result<()> {
-        self.query(UnsubscribeArtistsQuery::new(channels)).await
+        self.query(UnsubscribeArtistsQuery::new(
+            channels.into_iter().map(Into::into),
+        ))
+        .await
     }
 }
