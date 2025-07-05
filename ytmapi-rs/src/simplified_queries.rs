@@ -911,21 +911,28 @@ impl<A: LoggedIn> YtMusic<A> {
     ) -> Result<<AddHistoryItemQuery<'a> as Query<A>>::Output> {
         self.query(AddHistoryItemQuery::new(song_url.into())).await
     }
-    /// Gets information about an artist and their top releases.
+    /// Subscribe to an artist.
+    /// This does not error if the artist was already subscribed to.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// fixme
+    /// let the_beatles = &yt.search_artists("The Beatles").await.unwrap()[0].browse_id;
+    /// yt.subscribe_artist(the_beatles).await
     /// # };
     pub async fn subscribe_artist(&self, channel_id: impl Into<ArtistChannelID<'_>>) -> Result<()> {
         self.query(SubscribeArtistQuery::new(channel_id.into()))
             .await
     }
-    /// Gets information about an artist and their top releases.
+    /// Unsubscribe to one or more artists.
+    /// This does not error if the artists were not subscribed.
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// fixme
+    /// let some_beatles = yt.search_artists("The Beatles").await.unwrap()
+    ///     .into_iter()
+    ///     .map(|artist| artist.browse_id)
+    ///     .take(2);
+    /// yt.unsubscribe_artists(some_beatles).await
     /// # };
     pub async fn unsubscribe_artists<'a>(
         &self,
