@@ -93,10 +93,10 @@ Chrome example (Select manually and paste):
 Feature parity with `ytmusicapi`
 |Endpoint | Implemented: Query | Implemented: Continuations |
 |--- | --- | --- |
-|GetArtist |[x]||
-|GetAlbum |[x]*||
-|GetArtistAlbums |[x]||
-|Search |[x]|[x]|
+|GetArtist|[x]*||
+|GetAlbum|[x]||
+|GetArtistAlbums|[x]||
+|Search|[x]|[x]|
 |GetSearchSuggestions|[x]||
 |GetHome|Not Planned*||
 |GetAlbumBrowseId|[ ]||
@@ -129,7 +129,7 @@ Feature parity with `ytmusicapi`
 |RateSong|[x]||
 |EditSongLibraryStatus|[x]||
 |RatePlaylist|[x]||
-|SubscribeArtists|[x]||
+|SubscribeArtist|[x]||
 |UnsubscribeArtists|[x]||
 |GetPlaylistTracks|[x]|[x]|
 |GetPlaylistDetails|[x]||

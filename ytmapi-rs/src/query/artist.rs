@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::{AuthToken, LoggedIn};
 use crate::common::{ApiOutcome, ArtistChannelID, BrowseParams, YoutubeID};
-use crate::parse::{ArtistParams, GetArtistAlbumsAlbum};
+use crate::parse::{GetArtist, GetArtistAlbumsAlbum};
 use serde_json::json;
 
 #[derive(Debug, Clone)]
@@ -58,7 +58,7 @@ impl<'a, T: Into<ArtistChannelID<'a>>> From<T> for GetArtistQuery<'a> {
 }
 
 impl<A: AuthToken> Query<A> for GetArtistQuery<'_> {
-    type Output = ArtistParams;
+    type Output = GetArtist;
     type Method = PostMethod;
 }
 impl PostQuery for GetArtistQuery<'_> {

@@ -16,16 +16,16 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct ArtistParams {
-    pub description: String,
-    pub views: String,
+pub struct GetArtist {
+    pub description: Option<String>,
+    pub views: Option<String>,
     pub name: String,
-    pub channel_id: String,
+    pub channel_id: ArtistChannelID<'static>,
     pub shuffle_id: Option<String>,
     pub radio_id: Option<String>,
     pub subscribers: Option<String>,
-    pub subscribed: Option<String>,
-    pub thumbnails: Option<String>,
+    pub subscribed: bool,
+    pub thumbnails: Vec<Thumbnail>,
     pub top_releases: GetArtistTopReleases,
 }
 
@@ -79,39 +79,24 @@ fn parse_artist_songs(json: &mut JsonCrawlerBorrowed) -> Result<GetArtistSongs> 
     Ok(GetArtistSongs { results, browse_id })
 }
 
-impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
+impl<'a> ParseFrom<GetArtistQuery<'a>> for GetArtist {
     // While this function gets improved, we'll allow this lint for the creation of
     // GetArtistTopReleases.
     #[allow(clippy::field_reassign_with_default)]
     fn parse_from(p: ProcessedResult<GetArtistQuery<'a>>) -> crate::Result<Self> {
-        // TODO: Make this optional.
         let mut json_crawler: JsonCrawlerOwned = p.into();
         let mut results =
             json_crawler.borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?;
-        //        artist = {'description': None, 'views': None}
-        let mut description = String::default();
-        let mut views = String::default();
-        //descriptionShelf = find_object_by_key(results, DESCRIPTION_SHELF[0],
-        // is_key=True) XXX Functional way to take description:
-        // let x: String = results
-        //     .as_array_iter_mut()
-        //     .map(|mut r| {
-        //         r.find_map(|a| a.navigate_pointer(DESCRIPTION_SHELF).ok())
-        //             .and_then(|mut d| d.take_value_pointer(DESCRIPTION).ok())
-        //     })
-        //     .unwrap_or(Some(String::new()))
-        //     .unwrap_or(String::new());
-        if let Ok(results_array) = results.try_iter_mut() {
-            for r in results_array {
-                if let Ok(mut description_shelf) = r.navigate_pointer(DESCRIPTION_SHELF) {
-                    description = description_shelf.take_value_pointer(DESCRIPTION)?;
-                    if let Ok(mut subheader) = description_shelf.borrow_pointer("/subheader") {
-                        views = subheader.take_value_pointer("/runs/0/text")?;
-                    }
-                    break;
-                }
-            }
-        }
+        let mut maybe_description_shelf = results.try_iter_mut()?.find_path(DESCRIPTION_SHELF).ok();
+        let description = maybe_description_shelf
+            .as_mut()
+            .map(|description_shelf| description_shelf.take_value_pointer(DESCRIPTION))
+            .transpose()?;
+        let views = maybe_description_shelf.and_then(|mut description_shelf| {
+            description_shelf
+                .take_value_pointer(concatcp!("/subheader", RUN_TEXT))
+                .ok()
+        });
         let mut top_releases = GetArtistTopReleases::default();
         top_releases.songs = results
             .borrow_pointer(concatcp!("/0", MUSIC_SHELF))
@@ -165,38 +150,29 @@ impl<'a> ParseFrom<GetArtistQuery<'a>> for ArtistParams {
                 ArtistTopReleaseCategory::None => (),
             }
         }
-        // Assume header exists, assumption may be incorrect.
-        // I think Json is owned by someone else here?
-        // I think I can do another self.get_navigable()
         let mut header = json_crawler.navigate_pointer("/header/musicImmersiveHeaderRenderer")?;
         let name = header.take_value_pointer(TITLE_TEXT)?;
         let shuffle_id = header
             .take_value_pointer(concatcp!(
                 "/playButton/buttonRenderer",
-                NAVIGATION_WATCH_PLAYLIST_ID
+                NAVIGATION_PLAYLIST_ID
             ))
             .ok();
         let radio_id = header
             .take_value_pointer(concatcp!(
                 "/startRadioButton/buttonRenderer",
-                NAVIGATION_WATCH_PLAYLIST_ID
+                NAVIGATION_PLAYLIST_ID
             ))
             .ok();
-        // TODO: Validate if this could instead be returned as a Thumbnails struct.
-        let thumbnails = header.take_value_pointer(THUMBNAILS).ok();
-        // Assume subscription button exists, assumption may not be correct.
+        let thumbnails = header.take_value_pointer(THUMBNAILS)?;
         let mut subscription_button =
             header.navigate_pointer("/subscriptionButton/subscribeButtonRenderer")?;
         let channel_id = subscription_button.take_value_pointer("/channelId")?;
         let subscribers = subscription_button
             .take_value_pointer("/subscriberCountText/runs/0/text")
             .ok();
-        // XXX: Unsure if this is optional. It errors currently, removed the ?.
-        let subscribed = subscription_button.take_value_pointer("/subscribed").ok();
-        //                artist[category]['results'] =
-        // parse_content_list(data[0]['contents'],
-        // categories_parser[i])
-        Ok(ArtistParams {
+        let subscribed = subscription_button.take_value_pointer("/subscribed")?;
+        Ok(GetArtist {
             views,
             description,
             name,

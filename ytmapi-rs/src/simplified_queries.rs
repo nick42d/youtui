@@ -13,8 +13,8 @@ use crate::common::{
     UploadArtistID, UploadEntityID, VideoID,
 };
 use crate::parse::{
-    AddPlaylistItem, ArtistParams, GetAlbum, GetArtistAlbumsAlbum, GetPlaylistDetails,
-    HistoryPeriod, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
+    AddPlaylistItem, GetAlbum, GetArtist, GetArtistAlbumsAlbum, GetPlaylistDetails, HistoryPeriod,
+    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
     SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
     SearchResultVideo, SearchResults, WatchPlaylistTrack,
@@ -201,10 +201,7 @@ impl<A: AuthToken> YtMusic<A> {
     /// let results = yt.search_artists("Beatles").await.unwrap();
     /// yt.get_artist(&results[0].browse_id).await
     /// # };
-    pub async fn get_artist<'a>(
-        &self,
-        query: impl Into<GetArtistQuery<'a>>,
-    ) -> Result<ArtistParams> {
+    pub async fn get_artist<'a>(&self, query: impl Into<GetArtistQuery<'a>>) -> Result<GetArtist> {
         self.query(query.into()).await
     }
     /// Gets a full list albums for an artist.
