@@ -323,6 +323,9 @@ enum Command {
         video_id: String,
     },
     GetNewEpisodes,
+    GetUser,
+    GetUserPlaylists,
+    GetUserVideos,
 }
 
 pub struct RuntimeInfo {
