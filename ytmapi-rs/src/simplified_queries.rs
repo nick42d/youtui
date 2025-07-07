@@ -474,6 +474,58 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_new_episodes(&self) -> Result<<GetNewEpisodesQuery as Query<A>>::Output> {
         self.query(GetNewEpisodesQuery).await
     }
+    /// Gets information about an user and their videos and playlists.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_profiles("PewDiePie").await.unwrap();
+    /// yt.get_user(&results[0].profile_id).await
+    /// # };
+    pub async fn get_user<'a>(&self, id: impl Into<UserChannelID<'a>>) -> Result<GetUser> {
+        self.query(GetUserQuery::new(id.into())).await
+    }
+    /// Gets a full list of videos for a user.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&*user_id).await.unwrap();
+    /// yt.get_user_videos(
+    ///     &*user_id,
+    ///     user.all_videos_params.unwrap(),
+    /// ).await
+    /// # };
+    pub async fn get_user_videos<'a, T: Into<UserChannelID<'a>>, U: Into<UserVideosParams<'a>>>(
+        &self,
+        channel_id: T,
+        browse_params: U,
+    ) -> Result<Vec<UserVideo>> {
+        let query = GetUserVideosQuery::new(channel_id.into(), browse_params.into());
+        self.query(query).await
+    }
+    /// Gets a full list of playlists for a user.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&*user_id).await.unwrap();
+    /// yt.get_user_playlists(
+    ///     &*user_id,
+    ///     user.all_playlists_params.unwrap(),
+    /// ).await
+    /// # };
+    pub async fn get_user_playlists<
+        'a,
+        T: Into<UserChannelID<'a>>,
+        U: Into<UserPlaylistsParams<'a>>,
+    >(
+        &self,
+        channel_id: T,
+        browse_params: U,
+    ) -> Result<Vec<UserPlaylist>> {
+        let query = GetUserPlaylistsQuery::new(channel_id.into(), browse_params.into());
+        self.query(query).await
+    }
 }
 
 impl<A: LoggedIn> YtMusic<A> {
@@ -942,57 +994,5 @@ impl<A: LoggedIn> YtMusic<A> {
             channels.into_iter().map(Into::into),
         ))
         .await
-    }
-    /// Gets information about an user and their videos and playlists.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let results = yt.search_profiles("PewDiePie").await.unwrap();
-    /// yt.get_user(&results[0].profile_id).await
-    /// # };
-    pub async fn get_user<'a>(&self, id: impl Into<UserChannelID<'a>>) -> Result<GetUser> {
-        self.query(GetUserQuery::new(id.into())).await
-    }
-    /// Gets a full list of videos for a user.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
-    /// let user = yt.get_user(&*user_id).await.unwrap();
-    /// yt.get_user_videos(
-    ///     &*user_id,
-    ///     user.all_videos_params.unwrap(),
-    /// ).await
-    /// # };
-    pub async fn get_user_videos<'a, T: Into<UserChannelID<'a>>, U: Into<UserVideosParams<'a>>>(
-        &self,
-        channel_id: T,
-        browse_params: U,
-    ) -> Result<Vec<UserVideo>> {
-        let query = GetUserVideosQuery::new(channel_id.into(), browse_params.into());
-        self.query(query).await
-    }
-    /// Gets a full list of playlists for a user.
-    /// ```no_run
-    /// # async {
-    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
-    /// let user = yt.get_user(&*user_id).await.unwrap();
-    /// yt.get_user_playlists(
-    ///     &*user_id,
-    ///     user.all_playlists_params.unwrap(),
-    /// ).await
-    /// # };
-    pub async fn get_user_playlists<
-        'a,
-        T: Into<UserChannelID<'a>>,
-        U: Into<UserPlaylistsParams<'a>>,
-    >(
-        &self,
-        channel_id: T,
-        browse_params: U,
-    ) -> Result<Vec<UserPlaylist>> {
-        let query = GetUserPlaylistsQuery::new(channel_id.into(), browse_params.into());
-        self.query(query).await
     }
 }
