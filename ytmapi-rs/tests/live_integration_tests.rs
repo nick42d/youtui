@@ -7,8 +7,8 @@ use std::time::Duration;
 use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
-    ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-    PlaylistID, YoutubeID,
+    ApiOutcome, ArtistChannelID, BrowseParams, FeedbackTokenAddToLibrary,
+    FeedbackTokenRemoveFromLibrary, PlaylistID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
@@ -251,6 +251,18 @@ generate_query_test!(
 generate_query_test!(
     test_get_playlist_details,
     GetPlaylistDetailsQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
+);
+generate_query_test!(
+    test_get_user,
+    GetUserQuery::new(ArtistChannelID::from_raw(""))
+);
+generate_query_test!(
+    test_get_user_videos,
+    GetUserVideosQuery::new(ArtistChannelID::from_raw(""), BrowseParams::from_raw(""))
+);
+generate_query_test!(
+    test_get_user_playlists,
+    GetUserPlaylistsQuery::new(ArtistChannelID::from_raw(""), BrowseParams::from_raw(""))
 );
 // # MULTISTAGE TESTS
 

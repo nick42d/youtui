@@ -1,0 +1,91 @@
+use super::{PostMethod, PostQuery, Query};
+use crate::auth::AuthToken;
+use crate::common::{ArtistChannelID, BrowseParams};
+use crate::parse::GetUser;
+use serde_json::json;
+
+pub struct GetUserQuery<'a> {
+    user_channel_id: ArtistChannelID<'a>,
+}
+pub struct GetUserPlaylistsQuery<'a> {
+    user_channel_id: ArtistChannelID<'a>,
+    params: BrowseParams<'a>,
+}
+pub struct GetUserVideosQuery<'a> {
+    user_channel_id: ArtistChannelID<'a>,
+    params: BrowseParams<'a>,
+}
+
+impl<'a> GetUserQuery<'a> {
+    pub fn new(user_channel_id: ArtistChannelID<'a>) -> Self {
+        Self { user_channel_id }
+    }
+}
+impl<'a> GetUserPlaylistsQuery<'a> {
+    pub fn new(user_channel_id: ArtistChannelID<'a>, params: BrowseParams<'a>) -> Self {
+        Self {
+            user_channel_id,
+            params,
+        }
+    }
+}
+impl<'a> GetUserVideosQuery<'a> {
+    pub fn new(user_channel_id: ArtistChannelID<'a>, params: BrowseParams<'a>) -> Self {
+        Self {
+            user_channel_id,
+            params,
+        }
+    }
+}
+
+impl<A: AuthToken> Query<A> for GetUserQuery<'_> {
+    type Output = GetUser;
+    type Method = PostMethod;
+}
+impl PostQuery for GetUserQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        FromIterator::from_iter([("browseId".to_string(), json!(self.user_channel_id))])
+    }
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+        vec![]
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+impl<A: AuthToken> Query<A> for GetUserPlaylistsQuery<'_> {
+    type Output = ();
+    type Method = PostMethod;
+}
+impl PostQuery for GetUserPlaylistsQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        FromIterator::from_iter([
+            ("browseId".to_string(), json!(self.user_channel_id)),
+            ("params".to_string(), json!(self.params)),
+        ])
+    }
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+        vec![]
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}
+impl<A: AuthToken> Query<A> for GetUserVideosQuery<'_> {
+    type Output = ();
+    type Method = PostMethod;
+}
+impl PostQuery for GetUserVideosQuery<'_> {
+    fn header(&self) -> serde_json::Map<String, serde_json::Value> {
+        FromIterator::from_iter([
+            ("browseId".to_string(), json!(self.user_channel_id)),
+            ("params".to_string(), json!(self.params)),
+        ])
+    }
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+        vec![]
+    }
+    fn path(&self) -> &str {
+        "browse"
+    }
+}

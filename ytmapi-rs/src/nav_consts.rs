@@ -100,6 +100,8 @@ pub const SUBTITLE: &str = concatcp!("/subtitle", RUN_TEXT);
 pub const SUBTITLE2: &str = concatcp!(SUBTITLE_RUNS, "/2/text");
 pub const SUBTITLE3: &str = concatcp!(SUBTITLE_RUNS, "/4/text");
 pub const THUMBNAILS: &str = concatcp!("/thumbnail/musicThumbnailRenderer", THUMBNAIL);
+pub const FOREGROUND_THUMBNAIL_RENDERER: &str =
+    concatcp!("/foregroundThumbnail/musicThumbnailRenderer", THUMBNAIL);
 pub const THUMBNAIL_RENDERER: &str =
     concatcp!("/thumbnailRenderer/musicThumbnailRenderer", THUMBNAIL);
 pub const THUMBNAIL_CROPPED: &str =

@@ -33,9 +33,9 @@ use ytmapi_rs::query::{
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
     GetLyricsIDQuery, GetLyricsQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
-    GetTasteProfileQuery, GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistQuery,
-    UnsubscribeArtistsQuery,
+    GetTasteProfileQuery, GetUserPlaylistsQuery, GetUserQuery, GetUserVideosQuery,
+    GetWatchPlaylistQuery, PostQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery,
+    SearchQuery, SetTasteProfileQuery, SubscribeArtistQuery, UnsubscribeArtistsQuery,
 };
 
 pub struct CliQuery {
@@ -591,6 +591,42 @@ pub async fn command_to_query(
                 GetWatchPlaylistQuery::new_from_video_id(VideoID::from_raw(video_id)),
                 cli_query,
                 max_pages,
+            )
+            .await
+        }
+        Command::GetUser { user_channel_id } => {
+            get_string_output_of_query(
+                yt,
+                GetUserQuery::new(ArtistChannelID::from_raw(user_channel_id)),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetUserPlaylists {
+            user_channel_id,
+            browse_params,
+        } => {
+            get_string_output_of_query(
+                yt,
+                GetUserPlaylistsQuery::new(
+                    ArtistChannelID::from_raw(user_channel_id),
+                    BrowseParams::from_raw(browse_params),
+                ),
+                cli_query,
+            )
+            .await
+        }
+        Command::GetUserVideos {
+            user_channel_id,
+            browse_params,
+        } => {
+            get_string_output_of_query(
+                yt,
+                GetUserVideosQuery::new(
+                    ArtistChannelID::from_raw(user_channel_id),
+                    BrowseParams::from_raw(browse_params),
+                ),
+                cli_query,
             )
             .await
         }

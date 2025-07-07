@@ -100,9 +100,9 @@ Feature parity with `ytmusicapi`
 |GetSearchSuggestions|[x]||
 |GetHome|Not Planned*||
 |GetAlbumBrowseId|[ ]||
-|GetUser|[ ]||
-|GetUserPlaylists|[ ]||
-|GetUserVideos|[ ]||
+|GetUser|[x]||
+|GetUserPlaylists|[x]||
+|GetUserVideos|[x]||
 |GetSong|[ ]*||
 |GetSongRelated|Not Planned*||
 |GetLyrics|[x]||

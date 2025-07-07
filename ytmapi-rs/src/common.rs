@@ -144,6 +144,10 @@ pub struct FeedbackTokenRemoveFromLibrary<'a>(Cow<'a, str>);
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct BrowseParams<'a>(Cow<'a, str>);
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+pub struct UserVideosParams<'a>(Cow<'a, str>);
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+pub struct UserPlaylistsParams<'a>(Cow<'a, str>);
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct PodcastChannelParams<'a>(Cow<'a, str>);
 // TODO: Add parsing - PlaylistID begining with VL should fail.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
@@ -206,3 +210,5 @@ impl_youtube_id!(TasteTokenImpression<'a>);
 impl_youtube_id!(TasteTokenSelection<'a>);
 impl_youtube_id!(MoodCategoryParams<'a>);
 impl_youtube_id!(SongTrackingUrl<'a>);
+impl_youtube_id!(UserVideosParams<'a>);
+impl_youtube_id!(UserPlaylistsParams<'a>);
