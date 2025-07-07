@@ -10,14 +10,14 @@ use crate::common::{
     AlbumID, ApiOutcome, ArtistChannelID, BrowseParams, EpisodeID, FeedbackTokenRemoveFromHistory,
     LikeStatus, LyricsID, MoodCategoryParams, PlaylistID, PodcastChannelID, PodcastChannelParams,
     PodcastID, SearchSuggestion, SetVideoID, SongTrackingUrl, TasteToken, UploadAlbumID,
-    UploadArtistID, UploadEntityID, VideoID,
+    UploadArtistID, UploadEntityID, UserChannelID, UserPlaylistsParams, UserVideosParams, VideoID,
 };
 use crate::parse::{
-    AddPlaylistItem, GetAlbum, GetArtist, GetArtistAlbumsAlbum, GetPlaylistDetails, HistoryPeriod,
-    LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
+    AddPlaylistItem, GetAlbum, GetArtist, GetArtistAlbumsAlbum, GetPlaylistDetails, GetUser,
+    HistoryPeriod, LibraryArtist, LibraryArtistSubscription, LibraryPlaylist, Lyrics, PlaylistItem,
     SearchResultAlbum, SearchResultArtist, SearchResultEpisode, SearchResultFeaturedPlaylist,
     SearchResultPlaylist, SearchResultPodcast, SearchResultProfile, SearchResultSong,
-    SearchResultVideo, SearchResults, WatchPlaylistTrack,
+    SearchResultVideo, SearchResults, UserPlaylist, UserVideo, WatchPlaylistTrack,
 };
 use crate::query::playlist::{CreatePlaylistType, DuplicateHandlingMode, GetPlaylistDetailsQuery};
 use crate::query::rate::{RatePlaylistQuery, RateSongQuery};
@@ -37,9 +37,9 @@ use crate::query::{
     GetLibraryUploadAlbumsQuery, GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery,
     GetLibraryUploadSongsQuery, GetLyricsIDQuery, GetMoodCategoriesQuery, GetMoodPlaylistsQuery,
     GetNewEpisodesQuery, GetPlaylistTracksQuery, GetPodcastQuery, GetSearchSuggestionsQuery,
-    GetTasteProfileQuery, GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery,
-    RemovePlaylistItemsQuery, SearchQuery, SetTasteProfileQuery, SubscribeArtistQuery,
-    UnsubscribeArtistsQuery,
+    GetTasteProfileQuery, GetUserPlaylistsQuery, GetUserQuery, GetUserVideosQuery,
+    GetWatchPlaylistQuery, Query, RemoveHistoryItemsQuery, RemovePlaylistItemsQuery, SearchQuery,
+    SetTasteProfileQuery, SubscribeArtistQuery, UnsubscribeArtistsQuery,
 };
 use crate::{Result, YtMusic};
 
@@ -942,5 +942,57 @@ impl<A: LoggedIn> YtMusic<A> {
             channels.into_iter().map(Into::into),
         ))
         .await
+    }
+    /// Gets information about an user and their videos and playlists.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let results = yt.search_profiles("PewDiePie").await.unwrap();
+    /// yt.get_user(&results[0].profile_id).await
+    /// # };
+    pub async fn get_user<'a>(&self, id: impl Into<UserChannelID<'a>>) -> Result<GetUser> {
+        self.query(GetUserQuery::new(id.into())).await
+    }
+    /// Gets a full list of videos for a user.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let user_id = yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&user_id).await.unwrap();
+    /// yt.get_user_videos(
+    ///     user_id,
+    ///     user.all_videos_params.unwrap(),
+    /// ).await
+    /// # };
+    pub async fn get_user_videos<'a, T: Into<UserChannelID<'a>>, U: Into<UserVideosParams<'a>>>(
+        &self,
+        channel_id: T,
+        browse_params: U,
+    ) -> Result<Vec<UserVideo>> {
+        let query = GetUserVideosQuery::new(channel_id.into(), browse_params.into());
+        self.query(query).await
+    }
+    /// Gets a full list of playlists for a user.
+    /// ```no_run
+    /// # async {
+    /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
+    /// let user_id = yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&user_id).await.unwrap();
+    /// yt.get_user_playlists(
+    ///     user_id,
+    ///     user.all_playlists_params.unwrap(),
+    /// ).await
+    /// # };
+    pub async fn get_user_playlists<
+        'a,
+        T: Into<UserChannelID<'a>>,
+        U: Into<UserPlaylistsParams<'a>>,
+    >(
+        &self,
+        channel_id: T,
+        browse_params: U,
+    ) -> Result<Vec<UserPlaylist>> {
+        let query = GetUserPlaylistsQuery::new(channel_id.into(), browse_params.into());
+        self.query(query).await
     }
 }

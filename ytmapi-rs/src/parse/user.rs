@@ -149,7 +149,9 @@ fn parse_user_playlist(c: impl JsonCrawler) -> Result<UserPlaylist> {
 #[cfg(test)]
 mod tests {
     use crate::auth::BrowserToken;
-    use crate::common::{ArtistChannelID, BrowseParams, YoutubeID};
+    use crate::common::{
+        ArtistChannelID, BrowseParams, UserPlaylistsParams, UserVideosParams, YoutubeID,
+    };
 
     #[tokio::test]
     async fn test_get_user() {
@@ -167,7 +169,7 @@ mod tests {
             "./test_json/get_user_playlists_20250707_output.txt",
             crate::query::GetUserPlaylistsQuery::new(
                 ArtistChannelID::from_raw(""),
-                BrowseParams::from_raw("")
+                UserPlaylistsParams::from_raw("")
             ),
             BrowserToken
         );
@@ -179,7 +181,7 @@ mod tests {
             "./test_json/get_user_videos_20250707_output.txt",
             crate::query::GetUserVideosQuery::new(
                 ArtistChannelID::from_raw(""),
-                BrowseParams::from_raw("")
+                UserVideosParams::from_raw("")
             ),
             BrowserToken
         );

@@ -257,21 +257,6 @@ generate_query_test!(
     GetUserQuery::new(ArtistChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ"))
 );
 // # MULTISTAGE TESTS
-
-generate_query_test!(
-    test_get_user_videos,
-    GetUserVideosQuery::new(
-        ArtistChannelID::from_raw("UCus8EVJ7Oc9zINhs-fg8l1Q"),
-        BrowseParams::from_raw("")
-    )
-);
-generate_query_test!(
-    test_get_user_playlists,
-    GetUserPlaylistsQuery::new(
-        ArtistChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ"),
-        BrowseParams::from_raw("")
-    )
-);
 #[tokio::test]
 async fn test_get_mood_playlists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
@@ -337,6 +322,26 @@ async fn test_get_artist_albums() {
     let params = albums.params.unwrap();
     let channel_id = albums.browse_id.unwrap();
     api.get_artist_albums(channel_id, params).await.unwrap();
+}
+#[tokio::test]
+async fn test_get_user_videos() {
+    let api = new_standard_oauth_api().await.unwrap();
+    // Turbo
+    let channel_id = ArtistChannelID::from_raw("UCGexNm_Kw4rdQjLxmpb2EKw");
+    let user = api.get_user(&channel_id).await.unwrap();
+    api.get_user_videos(&channel_id, user.all_videos_params.unwrap())
+        .await
+        .unwrap();
+}
+#[tokio::test]
+async fn test_get_user_playlists() {
+    let api = new_standard_oauth_api().await.unwrap();
+    // kamarillobrillo
+    let channel_id = ArtistChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ");
+    let user = api.get_user(&channel_id).await.unwrap();
+    api.get_user_playlists(&channel_id, user.all_playlists_params.unwrap())
+        .await
+        .unwrap();
 }
 
 #[tokio::test]

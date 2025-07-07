@@ -10,7 +10,7 @@ use ytmapi_rs::common::{
     FeedbackTokenRemoveFromHistory, LikeStatus, LyricsID, MoodCategoryParams, PlaylistID,
     PodcastChannelID, PodcastChannelParams, PodcastID, SetVideoID, SongTrackingUrl, TasteToken,
     TasteTokenImpression, TasteTokenSelection, UploadAlbumID, UploadArtistID, UploadEntityID,
-    VideoID, YoutubeID,
+    UserChannelID, UserPlaylistsParams, UserVideosParams, VideoID, YoutubeID,
 };
 use ytmapi_rs::continuations::ParseFromContinuable;
 use ytmapi_rs::parse::ParseFrom;
@@ -597,7 +597,7 @@ pub async fn command_to_query(
         Command::GetUser { user_channel_id } => {
             get_string_output_of_query(
                 yt,
-                GetUserQuery::new(ArtistChannelID::from_raw(user_channel_id)),
+                GetUserQuery::new(UserChannelID::from_raw(user_channel_id)),
                 cli_query,
             )
             .await
@@ -609,8 +609,8 @@ pub async fn command_to_query(
             get_string_output_of_query(
                 yt,
                 GetUserPlaylistsQuery::new(
-                    ArtistChannelID::from_raw(user_channel_id),
-                    BrowseParams::from_raw(browse_params),
+                    UserChannelID::from_raw(user_channel_id),
+                    UserPlaylistsParams::from_raw(browse_params),
                 ),
                 cli_query,
             )
@@ -623,8 +623,8 @@ pub async fn command_to_query(
             get_string_output_of_query(
                 yt,
                 GetUserVideosQuery::new(
-                    ArtistChannelID::from_raw(user_channel_id),
-                    BrowseParams::from_raw(browse_params),
+                    UserChannelID::from_raw(user_channel_id),
+                    UserVideosParams::from_raw(browse_params),
                 ),
                 cli_query,
             )

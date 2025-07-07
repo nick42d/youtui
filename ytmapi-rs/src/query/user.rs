@@ -1,28 +1,28 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::AuthToken;
-use crate::common::{ArtistChannelID, BrowseParams};
+use crate::common::{ArtistChannelID, UserChannelID, UserPlaylistsParams, UserVideosParams};
 use crate::parse::{GetUser, UserPlaylist, UserVideo};
 use serde_json::json;
 
 pub struct GetUserQuery<'a> {
-    user_channel_id: ArtistChannelID<'a>,
+    user_channel_id: UserChannelID<'a>,
 }
 pub struct GetUserPlaylistsQuery<'a> {
-    user_channel_id: ArtistChannelID<'a>,
-    params: BrowseParams<'a>,
+    user_channel_id: UserChannelID<'a>,
+    params: UserPlaylistsParams<'a>,
 }
 pub struct GetUserVideosQuery<'a> {
-    user_channel_id: ArtistChannelID<'a>,
-    params: BrowseParams<'a>,
+    user_channel_id: UserChannelID<'a>,
+    params: UserVideosParams<'a>,
 }
 
 impl<'a> GetUserQuery<'a> {
-    pub fn new(user_channel_id: ArtistChannelID<'a>) -> Self {
+    pub fn new(user_channel_id: UserChannelID<'a>) -> Self {
         Self { user_channel_id }
     }
 }
 impl<'a> GetUserPlaylistsQuery<'a> {
-    pub fn new(user_channel_id: ArtistChannelID<'a>, params: BrowseParams<'a>) -> Self {
+    pub fn new(user_channel_id: UserChannelID<'a>, params: UserPlaylistsParams<'a>) -> Self {
         Self {
             user_channel_id,
             params,
@@ -30,7 +30,7 @@ impl<'a> GetUserPlaylistsQuery<'a> {
     }
 }
 impl<'a> GetUserVideosQuery<'a> {
-    pub fn new(user_channel_id: ArtistChannelID<'a>, params: BrowseParams<'a>) -> Self {
+    pub fn new(user_channel_id: UserChannelID<'a>, params: UserVideosParams<'a>) -> Self {
         Self {
             user_channel_id,
             params,
