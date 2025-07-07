@@ -1,0 +1,2785 @@
+[
+    UserVideo {
+        title: "All The Small Things / Eurobeat Remix",
+        views: "77K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/J7_BSFLZHvo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n2wpEHAdReaUEfqYaVmUJA-iGidg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/J7_BSFLZHvo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k3M6ehrL2LYynwBy1iE35HbhdxMQ",
+            },
+        ],
+        id: VideoID(
+            "J7_BSFLZHvo",
+        ),
+    },
+    UserVideo {
+        title: "Runnin' Wild / Eurobeat Remix",
+        views: "61K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/MLxwo56u3VY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lfX5PFt-CAXoppoi4MvXgJxbRNGg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/MLxwo56u3VY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ns95KLSNsUQzdY4_T_jFgaENJbng",
+            },
+        ],
+        id: VideoID(
+            "MLxwo56u3VY",
+        ),
+    },
+    UserVideo {
+        title: "Sweet Little Sister / Eurobeat Remix",
+        views: "41K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/an4WP7TLq-g/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3naBxyOb4tErpXgsckrBbrjtSD5fA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/an4WP7TLq-g/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mz1uhQ8ZeTq9WARBwTO9y56IMmMA",
+            },
+        ],
+        id: VideoID(
+            "an4WP7TLq-g",
+        ),
+    },
+    UserVideo {
+        title: "Through the Fire and Flames / Eurobeat Remix",
+        views: "893K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/RUoi-90WsZc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3msyhV4mavLaZX155fX69nuW3IWTQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/RUoi-90WsZc/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lDJ4lUgI3EOCvlhLP1dM7u7Vsk2w",
+            },
+        ],
+        id: VideoID(
+            "RUoi-90WsZc",
+        ),
+    },
+    UserVideo {
+        title: "REINCARNA✝ION!! Idol Graduation / Moon Jelly",
+        views: "117K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/YvDrSSLmpus/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l1ajI_NPsFD3XgBrUv-fGECxvoMA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/YvDrSSLmpus/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mxQu3SyzP9xeA5nRXBvqgqZk0xvg",
+            },
+        ],
+        id: VideoID(
+            "YvDrSSLmpus",
+        ),
+    },
+    UserVideo {
+        title: "Neon Generizz Fanumgelion - A Cruel Sigma's Mewsis",
+        views: "118K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/82KcZlqV1m4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mvCSBBcfX8GbcAZ7g0nUifjczU_A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/82KcZlqV1m4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n2axOmAibkgREMzGH77lI_hu_GHw",
+            },
+        ],
+        id: VideoID(
+            "82KcZlqV1m4",
+        ),
+    },
+    UserVideo {
+        title: "Bling-Bang-Bang-Born / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/W5MpvO-7bsg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nl7UCqS20x73SrKJCB179YKghN6A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/W5MpvO-7bsg/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mEG2sBP0_Z2RCS9ovtE7RyWWZ_Pg",
+            },
+        ],
+        id: VideoID(
+            "W5MpvO-7bsg",
+        ),
+    },
+    UserVideo {
+        title: "Mr. Brightside / Eurobeat Remix",
+        views: "178K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/jdPKmTRSg30/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lTx0hP-b5Mlr26ot8kKsCFF6Qppw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/jdPKmTRSg30/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n8m_-yzwR5_NEBe5aZ6bQWAvaawQ",
+            },
+        ],
+        id: VideoID(
+            "jdPKmTRSg30",
+        ),
+    },
+    UserVideo {
+        title: "Hot n Cold / Eurobeat Remix",
+        views: "193K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/-kfvX3UncQM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n76KftwHsqsVhW1AzqYmI7GTj-pA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/-kfvX3UncQM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l1DueK5kXFzzKKif5yb7-UqR1NuA",
+            },
+        ],
+        id: VideoID(
+            "-kfvX3UncQM",
+        ),
+    },
+    UserVideo {
+        title: "mumei / Pop Punk Remix",
+        views: "410K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/LkdfUA3gveo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lDgjPCWeX1dHrTG6oPsvP4Cm9pKA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/LkdfUA3gveo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k4IpTEEA-gDt7D8AqO4CVhxjnnRg",
+            },
+        ],
+        id: VideoID(
+            "LkdfUA3gveo",
+        ),
+    },
+    UserVideo {
+        title: "Safe Light / Turbo Remix",
+        views: "34K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/D4e1PN0fWdM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n-xMavKoB0QiF3c-hGX4SR3dTQmg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/D4e1PN0fWdM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k8UtR9oRuocdrunrVWuw0a5mH5ug",
+            },
+        ],
+        id: VideoID(
+            "D4e1PN0fWdM",
+        ),
+    },
+    UserVideo {
+        title: "Fairy of AKIBerse / Eurobeat Remix",
+        views: "73K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/gkWVdhZNFSY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nxqRA9rCu8qRnRIZrf0a8Ebjk3Tg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/gkWVdhZNFSY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mA_FbkHm3CIQ0b6XH8w4xrX1SNDg",
+            },
+        ],
+        id: VideoID(
+            "gkWVdhZNFSY",
+        ),
+    },
+    UserVideo {
+        title: "Music 17 / Eurobeat Remix",
+        views: "92K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/fSVFV2wkdUs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mm-TYu8m7-6C5ZnppsAvPSrFY09A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/fSVFV2wkdUs/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lehpFZ9ghUAaYrm2Zk2CUnk-UzwA",
+            },
+        ],
+        id: VideoID(
+            "fSVFV2wkdUs",
+        ),
+    },
+    UserVideo {
+        title: "The Pretender / Eurobeat Remix",
+        views: "406K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/GavlzEkznNI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nJX9tb9hPIZR--vZHunELXt23z4Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/GavlzEkznNI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mThxkyXOHaQtCM5netWiBK6S84Gw",
+            },
+        ],
+        id: VideoID(
+            "GavlzEkznNI",
+        ),
+    },
+    UserVideo {
+        title: "Everytime We Touch / Eurobeat Remix",
+        views: "1.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/9zrskVpChc0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l8MUx05ASMP8dLlGfPlhDHadvPfQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/9zrskVpChc0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nUd-45Sun0mZZfWEWkDQM3TWlnLw",
+            },
+        ],
+        id: VideoID(
+            "9zrskVpChc0",
+        ),
+    },
+    UserVideo {
+        title: "GOODRUSH / Turbo Remix",
+        views: "85K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/VE40_NXDXuw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lmNEz9LpwWRm9mU93EvAebwoU5VA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/VE40_NXDXuw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mqMNcBtPmAGD3dNTNGk5Fxu8E60Q",
+            },
+        ],
+        id: VideoID(
+            "VE40_NXDXuw",
+        ),
+    },
+    UserVideo {
+        title: "Angel of Darkness / Eurobeat Remix",
+        views: "418K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Q94azDG0qa0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kX5HMyF-0MF6uwgV9yVd2NrFk31A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Q94azDG0qa0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mdzKPvRhk1HfjhSo0GkT5c5M5GKg",
+            },
+        ],
+        id: VideoID(
+            "Q94azDG0qa0",
+        ),
+    },
+    UserVideo {
+        title: "【東方Eurobeat】 Spirited Away 「A-One」",
+        views: "102K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/wqdUd06npUI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lgJIW5fx8Ua46iHlNsmdAM2wnBow",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/wqdUd06npUI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lucQOGK3R1vNCp1WU4OXCZsbQldA",
+            },
+        ],
+        id: VideoID(
+            "wqdUd06npUI",
+        ),
+    },
+    UserVideo {
+        title: "Shukusei!! Loli-kami Requiem☆ / Eurobeat Remix",
+        views: "1.3M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/jLygLLe9a_E/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k5xtEuOdzcoJBc13qsaCLQrgknSg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/jLygLLe9a_E/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3krJQAsw6iNwo8jUa8pUqEqVi1mUQ",
+            },
+        ],
+        id: VideoID(
+            "jLygLLe9a_E",
+        ),
+    },
+    UserVideo {
+        title: "Nightlife - Axel",
+        views: "105K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/DnWdWmBIvB4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mZeJMjcAsAApnsKVnUTs-785cJGA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/DnWdWmBIvB4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mdrY6Val-5inpUGS56vM-hgGMpSw",
+            },
+        ],
+        id: VideoID(
+            "DnWdWmBIvB4",
+        ),
+    },
+    UserVideo {
+        title: "Luminary / Eurobeat Remix",
+        views: "162K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/tlSP5ILB7tQ/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nYVdUNl5yd36KJbv_xSBMk8A6DrQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/tlSP5ILB7tQ/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kjAjsjFAfXKQEI4tqFL37H1tFO9w",
+            },
+        ],
+        id: VideoID(
+            "tlSP5ILB7tQ",
+        ),
+    },
+    UserVideo {
+        title: "Item Bounce / Eurobeat Remix (w/@devzozo)",
+        views: "226K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/n7f7m0mQKT0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lAEZVXnKE28qRFV8kgn0jMWCiaXA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/n7f7m0mQKT0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nQwcqDohVnpbRd-wcVMjl36NG9dQ",
+            },
+        ],
+        id: VideoID(
+            "n7f7m0mQKT0",
+        ),
+    },
+    UserVideo {
+        title: "Cha Cha Cha / GUMI",
+        views: "3.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/fC_WbVzvKzw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nvuaM1Udu9GeDxAcROWd9u0D3Jcw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/fC_WbVzvKzw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m29-vQLkIlSA_bqXhmulRM6dHVeQ",
+            },
+        ],
+        id: VideoID(
+            "fC_WbVzvKzw",
+        ),
+    },
+    UserVideo {
+        title: "Oath / Eurobeat Remix",
+        views: "143K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/_99WV7WvvW8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kkEfBSef-xjQah4repN2GjyZYthw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/_99WV7WvvW8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nxLmtU7GIkMDD-LvIsqZTGjV1org",
+            },
+        ],
+        id: VideoID(
+            "_99WV7WvvW8",
+        ),
+    },
+    UserVideo {
+        title: "IDOL / Eurobeat Remix",
+        views: "4.7M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/P0BiFq9cxKk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k3SZxfm2vwtblahO0MV9AXVfIHkQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/P0BiFq9cxKk/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3namOxBANNjqp5_4kLS8ysczwlFSg",
+            },
+        ],
+        id: VideoID(
+            "P0BiFq9cxKk",
+        ),
+    },
+    UserVideo {
+        title: "Tokyo Requiem / Eurobeat Remix",
+        views: "152K views",
+        thumbnails: [
+            Thumbnail {
+                height: 180,
+                width: 320,
+                url: "https://i.ytimg.com/vi/YyFZIofIAXk/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3lWD4ErizWDILWwWRkWJJlB9CNwtQ",
+            },
+        ],
+        id: VideoID(
+            "YyFZIofIAXk",
+        ),
+    },
+    UserVideo {
+        title: "【東方Eurobeat】午前2時のオーケストラ「A-One」",
+        views: "133K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/GAIDQw0iFeU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3ktim5P-BjYEItyeqKcoEzUvYXa9w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/GAIDQw0iFeU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mpF1eYcQnV7R8mFFrR12ax82AHCw",
+            },
+        ],
+        id: VideoID(
+            "GAIDQw0iFeU",
+        ),
+    },
+    UserVideo {
+        title: "Diamond City Lights / Eurobeat Remix",
+        views: "245K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/PgsG9pm-Prc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mlTiZ4keRq_jSH6vMm58Y0naJicg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/PgsG9pm-Prc/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n4WoJG5ZWdk0LITSLcV8FvewK3hg",
+            },
+        ],
+        id: VideoID(
+            "PgsG9pm-Prc",
+        ),
+    },
+    UserVideo {
+        title: "The Kids Aren't Alright / Eurobeat Remix",
+        views: "334K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/rNyQBUC3zDY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mVp36D-slxtisQMKGqMbVZLJ0_Vg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/rNyQBUC3zDY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kaMT_oKjvcA-VwLesf7yT08dhedw",
+            },
+        ],
+        id: VideoID(
+            "rNyQBUC3zDY",
+        ),
+    },
+    UserVideo {
+        title: "Gravity / Pop Punk Remix",
+        views: "219K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/mtkRKFHwO3c/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mtjEEZAHxI1bckGjPnsoPWb6MV-Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/mtkRKFHwO3c/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lvO8sxnhowotD7KrxrzMSwn8thqg",
+            },
+        ],
+        id: VideoID(
+            "mtkRKFHwO3c",
+        ),
+    },
+    UserVideo {
+        title: "I Wanna Muchuu / Eurobeat Remix",
+        views: "474K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/BmIkExtFEaQ/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nx9ZQLd64ck1qbjoVb_W_Ixr5yGA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/BmIkExtFEaQ/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lJE_Yzg_raC3SO7FUoFHNOXkyiCA",
+            },
+        ],
+        id: VideoID(
+            "BmIkExtFEaQ",
+        ),
+    },
+    UserVideo {
+        title: "Uranus Flash",
+        views: "66K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Jr4dHIHPjYI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n47p2lgRpqDz7R2mW9WY73GXB_EA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Jr4dHIHPjYI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m_e72-Pgg7Er7_T3r4wfsSmIjfwg",
+            },
+        ],
+        id: VideoID(
+            "Jr4dHIHPjYI",
+        ),
+    },
+    UserVideo {
+        title: "Guitar, Loneliness and Eurobeat",
+        views: "1.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/oijR_HvN1rA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mECjebVy8AiaNa960FSSltX-jFGg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/oijR_HvN1rA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nrJcwtyyOq2L1dQ8wiK6ejOUBNAQ",
+            },
+        ],
+        id: VideoID(
+            "oijR_HvN1rA",
+        ),
+    },
+    UserVideo {
+        title: "Kishin Douji Zenki / Eurobeat Remix",
+        views: "101K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/AYqhdRd8U4w/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lI0bFaWfflqhqRhLsKrHxXhunhnQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/AYqhdRd8U4w/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k-dyepBVsfswB9GEKBT4J5xRcKdA",
+            },
+        ],
+        id: VideoID(
+            "AYqhdRd8U4w",
+        ),
+    },
+    UserVideo {
+        title: "Heaven's Falling Down / Eurobeat Remix (w/@VikasMusic)",
+        views: "447K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Q1L0PqK2jvo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3keOBihd6Prz8iVcCgsVk3hpo6G9A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Q1L0PqK2jvo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lCHAl5YT7aHR94874B9khRAO22Kw",
+            },
+        ],
+        id: VideoID(
+            "Q1L0PqK2jvo",
+        ),
+    },
+    UserVideo {
+        title: "I Really Want To Stay At Your House / Eurobeat Remix",
+        views: "2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/llSfd-OzQBM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kSGjZ_P3Wp2UaRCi11flhJeLaG2A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/llSfd-OzQBM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lx4q2S-yKvbvIygW-oKdpNjdk_Bw",
+            },
+        ],
+        id: VideoID(
+            "llSfd-OzQBM",
+        ),
+    },
+    UserVideo {
+        title: "BERSERKER\u{2006}/ Eurobeat Remix",
+        views: "269K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/U0IvfwsH9Vk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lDqY_cyZV0fJAq80jM89KyQid1iQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/U0IvfwsH9Vk/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kHJkJS6xB1AXXcjULuwUsEPnZ8Kg",
+            },
+        ],
+        id: VideoID(
+            "U0IvfwsH9Vk",
+        ),
+    },
+    UserVideo {
+        title: "Inertial Drift: Twilight Rivals Soundtrack",
+        views: "118K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/FciLaexQ9-8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m4zP5kF31Mg5hcV3ZZ_F2rDv6u9w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/FciLaexQ9-8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lx8V9LMojYC27quouGB_1iTy3rQQ",
+            },
+        ],
+        id: VideoID(
+            "FciLaexQ9-8",
+        ),
+    },
+    UserVideo {
+        title: "CHAINSAW BLOOD / Eurobeat Remix",
+        views: "1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/fB8GAWqB_RY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3msOST63n3uPNwrNNYXl3iQeZ_P0A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/fB8GAWqB_RY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l2G538TkkKPyjZSpMVRKh_chlX7w",
+            },
+        ],
+        id: VideoID(
+            "fB8GAWqB_RY",
+        ),
+    },
+    UserVideo {
+        title: "KICK BACK / Eurobeat Remix",
+        views: "3.9M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/MjKe-g33mzE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mXUV6QmD3pONZxIhmtJsmLMlwXuw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/MjKe-g33mzE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lGbV6j4EIYe9S4KPjU0obJya49zg",
+            },
+        ],
+        id: VideoID(
+            "MjKe-g33mzE",
+        ),
+    },
+    UserVideo {
+        title: "Kun Kuuntelen Tomppaa / Eurobeat Remix (w/@kalebboss8757)",
+        views: "142K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/lBtTNLrl3UM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l1pk9k5mzNNa57SDAQvgM-qanicA",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/lBtTNLrl3UM/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m5v1fWxz3mVWnwYoUlzGDHVSCKzA",
+            },
+        ],
+        id: VideoID(
+            "lBtTNLrl3UM",
+        ),
+    },
+    UserVideo {
+        title: "24-Hour Cinderella / Eurobeat Remix",
+        views: "519K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/YrP6RNoLZlA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3muLNpRSN9bmaPJLVJ8TrPCltIsLQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/YrP6RNoLZlA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nQdVj1tFttgLux5lttz0E6AWwLxg",
+            },
+        ],
+        id: VideoID(
+            "YrP6RNoLZlA",
+        ),
+    },
+    UserVideo {
+        title: "Levoton Tuhkimo / Eurobeat Remix",
+        views: "113K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/IqxpCGP5Xug/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l_s_IE0iEKS7ucH2PXjGjfQ206pg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/IqxpCGP5Xug/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lasPaAft5KVVslHQx8YPG0ePpDYQ",
+            },
+        ],
+        id: VideoID(
+            "IqxpCGP5Xug",
+        ),
+    },
+    UserVideo {
+        title: "Space Cradle / Italo Disco Remix",
+        views: "144K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/9GYmi8R087M/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kd5BiU8nUzO-8EvzWrndHZD-nSbw",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/9GYmi8R087M/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m5Ty4vi-KVXtZoWXyOTGErYX2HQA",
+            },
+        ],
+        id: VideoID(
+            "9GYmi8R087M",
+        ),
+    },
+    UserVideo {
+        title: "Hampsterdance / Eurobeat Remix",
+        views: "324K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/BPtAdJItri4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nkgJxBLMfuUw_H5VmoKQw01iIB5A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/BPtAdJItri4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kYh4WBczeq3NIDWRke0VvzB4M1Kw",
+            },
+        ],
+        id: VideoID(
+            "BPtAdJItri4",
+        ),
+    },
+    UserVideo {
+        title: "Wow War Tonight / Eurobeat Remix",
+        views: "402K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/OTv1kYUJiXQ/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nIUtgldKeK1oDALuU8LW3hylvOkg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/OTv1kYUJiXQ/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nODnYb-1UB-gaG46p5Oxv4VheSCg",
+            },
+        ],
+        id: VideoID(
+            "OTv1kYUJiXQ",
+        ),
+    },
+    UserVideo {
+        title: "Ikenai Borderline Δ Eurobeat Remix",
+        views: "1.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/8PQl_7QhOvE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nVDSEfUQ2eIgeVrgMpxiiJoVe3pQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/8PQl_7QhOvE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mxCIoPkxaBNVtneE2-blhQkrV8iw",
+            },
+        ],
+        id: VideoID(
+            "8PQl_7QhOvE",
+        ),
+    },
+    UserVideo {
+        title: "Fuwa Fuwa Time / Eurobeat Remix",
+        views: "320K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/AQI7OI0v2nw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kEhwo9E0-0aAOdbJKgmxzsos5S1Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/AQI7OI0v2nw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kJNWXt9QSeC4SqqlNTySUo_jrgSQ",
+            },
+        ],
+        id: VideoID(
+            "AQI7OI0v2nw",
+        ),
+    },
+    UserVideo {
+        title: "Throne of Glass // Shatter Frame",
+        views: "70K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Mtu-zXVAg3I/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nmE7waWk3qQkJaiPHdFSk4NKb0Zw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Mtu-zXVAg3I/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m3_D6eb9ALMH6J_Fn-j6Kzhucm2w",
+            },
+        ],
+        id: VideoID(
+            "Mtu-zXVAg3I",
+        ),
+    },
+    UserVideo {
+        title: "Bury the Light / Eurobeat Remix",
+        views: "2.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/6BLKJhGPbJI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nMeywykQNGe-0QH4GaYzD2AvYZUg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/6BLKJhGPbJI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n_HzRQnRewE9c95kkw4a7_HWVoiA",
+            },
+        ],
+        id: VideoID(
+            "6BLKJhGPbJI",
+        ),
+    },
+    UserVideo {
+        title: "Devil Trigger / Eurobeat Remix",
+        views: "2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/PS_mU8OEDoY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l3cZmcgJEtGIpzGq5THGOkQJY6wg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/PS_mU8OEDoY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lqYVQMH42lhVhAkYVpcCPxkCbslw",
+            },
+        ],
+        id: VideoID(
+            "PS_mU8OEDoY",
+        ),
+    },
+    UserVideo {
+        title: "The Only Thing I Know for Real / Eurobeat Remix",
+        views: "1.7M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/BM56BLsYV9k/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nVrRkhvSZVd3xEd9No2e5g-6E19w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/BM56BLsYV9k/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n-eM1yVn-5nwUIHLI2SuXXrGzlqA",
+            },
+        ],
+        id: VideoID(
+            "BM56BLsYV9k",
+        ),
+    },
+    UserVideo {
+        title: "Dude (Looks Like a Lady) / Eurobeat Remix",
+        views: "382K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/H4qWKK1yxIE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lsO0ho0hgW3O6_-VL2PKgIWF5BaA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/H4qWKK1yxIE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mwL0uqAcJ-IFSwD7U2xcXbuG7llA",
+            },
+        ],
+        id: VideoID(
+            "H4qWKK1yxIE",
+        ),
+    },
+    UserVideo {
+        title: "You Give Love A Bad Name / Eurobeat Remix",
+        views: "580K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/vfTGfigzH_E/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nxy3BZ0JDPI8tfmH3iDC9h4kYazA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/vfTGfigzH_E/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kv4xNHqT9jkiqsa-iHRUx6vooG4w",
+            },
+        ],
+        id: VideoID(
+            "vfTGfigzH_E",
+        ),
+    },
+    UserVideo {
+        title: "Self Control / Eurobeat Remix",
+        views: "272K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/1MmtBc_1HhU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kp2HFNB50dGE413qQFpkNsiMYzug",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/1MmtBc_1HhU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nubPk9v_MpoXIx2S8DBj4bOHy7hg",
+            },
+        ],
+        id: VideoID(
+            "1MmtBc_1HhU",
+        ),
+    },
+    UserVideo {
+        title: "Icarus",
+        views: "68K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/s3-OSaBPGK0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kBQj_Mprw3j3atqhO9CaovMUkBag",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/s3-OSaBPGK0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nzcCCidNbCw9O0QXKkEt016633IA",
+            },
+        ],
+        id: VideoID(
+            "s3-OSaBPGK0",
+        ),
+    },
+    UserVideo {
+        title: "Nightcore - Moonlight Shadow",
+        views: "158K views",
+        thumbnails: [
+            Thumbnail {
+                height: 180,
+                width: 320,
+                url: "https://i.ytimg.com/vi/pMPEodx4l90/hqdefault.jpg?sqp=-oaymwEWCMACELQBIAQqCghQEJADGFogjgJIWg&rs=AMzJL3lwZJ43mIsiCsFaP6kb09L3helYhw",
+            },
+        ],
+        id: VideoID(
+            "pMPEodx4l90",
+        ),
+    },
+    UserVideo {
+        title: "Moonlight Shadow / Eurobeat Remix",
+        views: "685K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/wTZwZy_6Dvo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mO1r7cA_d2x6_dLXpRVKXRhxR8ZQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/wTZwZy_6Dvo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nLR1jhVPV95PRWO7GmmaQf5OGNDw",
+            },
+        ],
+        id: VideoID(
+            "wTZwZy_6Dvo",
+        ),
+    },
+    UserVideo {
+        title: "「Q」 / Eurobeat Remix (w/@tiannya)",
+        views: "1.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/uMcHu3_x-UA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nsGYi-9ImirmS5JHYVxWyi4USsBw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/uMcHu3_x-UA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mfxUFgUOup3W-1JGkxwa6DKww4aQ",
+            },
+        ],
+        id: VideoID(
+            "uMcHu3_x-UA",
+        ),
+    },
+    UserVideo {
+        title: "deicide",
+        views: "98K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/DQ1C89zne9Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lzUsSztv8EkKSfuKgqqGUN3ayBoQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/DQ1C89zne9Y/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3npWhYDzByNQX3TwBk6pegPTGzOzg",
+            },
+        ],
+        id: VideoID(
+            "DQ1C89zne9Y",
+        ),
+    },
+    UserVideo {
+        title: "Zankyo Sanka / Eurobeat Remix",
+        views: "1.6M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/RoJvkeFdPyY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3neEsSPyur-_GJ0NvgFSndSVr25XQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/RoJvkeFdPyY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l1Cmz54f35CU5hZldFoemVCV_aNA",
+            },
+        ],
+        id: VideoID(
+            "RoJvkeFdPyY",
+        ),
+    },
+    UserVideo {
+        title: "STONEOCEAN / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/pUX1vOjLEE0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n2LcF4s63tX-XmpiKDyYAoRNkN9g",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/pUX1vOjLEE0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ngl4ih1GDCOMHUrIQL9o0ORNBLcw",
+            },
+        ],
+        id: VideoID(
+            "pUX1vOjLEE0",
+        ),
+    },
+    UserVideo {
+        title: "Caesura of Despair / Eurobeat Remix",
+        views: "482K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/ZUyzBNu8JiU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3ljydy6nFCKuvrGAo4BDf5KNj5qug",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/ZUyzBNu8JiU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mEux9sj55smyL4yNNDQdU-TawHRw",
+            },
+        ],
+        id: VideoID(
+            "ZUyzBNu8JiU",
+        ),
+    },
+    UserVideo {
+        title: "EUROBEAT.EXE",
+        views: "354K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/CaBX5Zb9ShE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kNC1yXzGDPp-Oq-CILEgodBQWVQg",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/CaBX5Zb9ShE/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n1qu-q1t7woxqxvSMdMNZ61M9x_g",
+            },
+        ],
+        id: VideoID(
+            "CaBX5Zb9ShE",
+        ),
+    },
+    UserVideo {
+        title: "Cloudberry High",
+        views: "121K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/djc8FUP3BUE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3ktRzkj-EVrYV7bPXcdMwPhB0cdBg",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/djc8FUP3BUE/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3muQKV--qnTngUymtcFEbqs63OIZg",
+            },
+        ],
+        id: VideoID(
+            "djc8FUP3BUE",
+        ),
+    },
+    UserVideo {
+        title: "Walk of Life / Eurobeat Remix",
+        views: "286K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/tUCLuktu8C4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kUdt5IxNMrJqa-4KeU1URP-bDAJQ",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/tUCLuktu8C4/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n1oWXS6aXLBtieGlV2jcBZVcCsFg",
+            },
+        ],
+        id: VideoID(
+            "tUCLuktu8C4",
+        ),
+    },
+    UserVideo {
+        title: "Reflect / Eurobeat Remix (w/@tiannya)",
+        views: "2.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/ghSedPM6i5Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kIY3UdyvPhDDjePcU_G3Hq0Sidlg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/ghSedPM6i5Y/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kX1kezq5QTOmTEDsPpk71QKQFL6A",
+            },
+        ],
+        id: VideoID(
+            "ghSedPM6i5Y",
+        ),
+    },
+    UserVideo {
+        title: "Kaikai Kitan / Eurobeat Remix",
+        views: "940K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/xlHyvRwO-h8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k77MF1w9HWOOmozdQ7IklZF107CA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/xlHyvRwO-h8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lKdTa3Lnr90ib6cGRVtYSFXeVH1g",
+            },
+        ],
+        id: VideoID(
+            "xlHyvRwO-h8",
+        ),
+    },
+    UserVideo {
+        title: "Njet Molotoff / Eurobeat Remix",
+        views: "1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/018-gOpej0E/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mxgRQSe_fvirgNX1JF9GoSUl-TvQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/018-gOpej0E/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k5bNvdwY6k661UDU2HNL8zVDkfGg",
+            },
+        ],
+        id: VideoID(
+            "018-gOpej0E",
+        ),
+    },
+    UserVideo {
+        title: "Live and Learn / Eurobeat Remix",
+        views: "3.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/uFEqPEkn09U/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m0ILBAqZ3GiW5Zt0MNW5fwAJABhQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/uFEqPEkn09U/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lRXf4bYwamE_9AGZiGB981B4tCzw",
+            },
+        ],
+        id: VideoID(
+            "uFEqPEkn09U",
+        ),
+    },
+    UserVideo {
+        title: "Kizunaut - Spectre (Hack The Planet) [Turbo Remix]",
+        views: "46K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/-_pAb4Xh0DI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mJI7c8kk2RrM-0lLsPp-uWnmxq2A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/-_pAb4Xh0DI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3msJRQyZ-5GQVxZJ_NCRt5rKLjEGA",
+            },
+        ],
+        id: VideoID(
+            "-_pAb4Xh0DI",
+        ),
+    },
+    UserVideo {
+        title: "photosynthesizer",
+        views: "93K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Cn6KrKJ2yD4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k-Id-GgyuJqDLIKhbJt01IKk0hgw",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/Cn6KrKJ2yD4/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lCt__nppXuWmAUGFBpWwXJeqnnUQ",
+            },
+        ],
+        id: VideoID(
+            "Cn6KrKJ2yD4",
+        ),
+    },
+    UserVideo {
+        title: "Butter-Fly / Eurobeat Remix",
+        views: "971K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/NdPWJ6fsT8Q/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kQVCibmmLTfX4wydjNlrshhnYCvQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/NdPWJ6fsT8Q/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lJHiPEC33Ku_hQxCW3U4TtIXu4Ew",
+            },
+        ],
+        id: VideoID(
+            "NdPWJ6fsT8Q",
+        ),
+    },
+    UserVideo {
+        title: "Careless Whisper / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/3CMLK7p9j4U/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nvyWgne02nuF3Vh7qFcQTmHGXv-w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/3CMLK7p9j4U/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kgX9uRMTP7VxqY6r6wCmcc3ClK8w",
+            },
+        ],
+        id: VideoID(
+            "3CMLK7p9j4U",
+        ),
+    },
+    UserVideo {
+        title: "tähtimöhkö",
+        views: "155K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/P_Vr_DHaI74/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lJJd8sHcKusCXZ9RGAHvLIrhDThQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/P_Vr_DHaI74/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mP8QTMlR6TygZMxDPCACduFX52Zg",
+            },
+        ],
+        id: VideoID(
+            "P_Vr_DHaI74",
+        ),
+    },
+    UserVideo {
+        title: "Jager feat. Ace - I Won't Fall Apart / EBK2020 Turbo Remix",
+        views: "112K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/WPjLAzDE56k/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nC-D_nbd8-qSN3UlD7Btu5PiEMYw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/WPjLAzDE56k/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3njevgQVuImBhRd24ShuV3Ndj_a5Q",
+            },
+        ],
+        id: VideoID(
+            "WPjLAzDE56k",
+        ),
+    },
+    UserVideo {
+        title: "Witch Doctor / Eurobeat Remix",
+        views: "863K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/l-Egisu_4AA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mVNwdp_0_g6GyWKoD4QRUGC9D9DA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/l-Egisu_4AA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mZ_bkGLCacN8FIiL3sNxrx2HhUXg",
+            },
+        ],
+        id: VideoID(
+            "l-Egisu_4AA",
+        ),
+    },
+    UserVideo {
+        title: "stellar slurpin'",
+        views: "89K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/M1bk0vdXH8I/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m9CvvagkIWqAwWT55CLNqWm01UqA",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/M1bk0vdXH8I/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mlydh44WzDIU_bcI27jUb_a3IWAA",
+            },
+        ],
+        id: VideoID(
+            "M1bk0vdXH8I",
+        ),
+    },
+    UserVideo {
+        title: "【東方 Eurobeat】 Reprisal ft. T. Stebbins 【NETCAVY RECORDS】",
+        views: "318K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/TsLK-xFMD8s/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mkaA2QefI0SBE0zeOiEXJ9QEkZ6Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/TsLK-xFMD8s/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mp4UFts3IsjMhLIgfJD6jJQL3BfQ",
+            },
+        ],
+        id: VideoID(
+            "TsLK-xFMD8s",
+        ),
+    },
+    UserVideo {
+        title: "Homura / Eurobeat Remix",
+        views: "1.9M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/P2laqcLwDRk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kOmPKj8DENpQ5Ke5Q8t7wzoDxkTw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/P2laqcLwDRk/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mstWGY6IayzMzTf8pGz54etCkMQQ",
+            },
+        ],
+        id: VideoID(
+            "P2laqcLwDRk",
+        ),
+    },
+    UserVideo {
+        title: "Excuse my Rudeness, but Could You Please RIP? / Desumetal Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/hzhmXICuahs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kUbtBJb29MynIMFuPyzk0NweC42Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/hzhmXICuahs/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nhzfSZfLBjlhotBPfwNYE64rD7aw",
+            },
+        ],
+        id: VideoID(
+            "hzhmXICuahs",
+        ),
+    },
+    UserVideo {
+        title: "September / Eurobeat Remix",
+        views: "2.7M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/3RcGCRTD7sA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mQURXb7bthBc6vfM_W2YwMHhrzaA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/3RcGCRTD7sA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kIIJGLfDM-saKKeLOD2O8ZijK_dQ",
+            },
+        ],
+        id: VideoID(
+            "3RcGCRTD7sA",
+        ),
+    },
+    UserVideo {
+        title: "Holding Out for a Hero / Eurobeat Remix",
+        views: "4.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/2GVgONIvrKs/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lpZYwckcagJfs8ZY8HNGjgvjblew",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/2GVgONIvrKs/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m1HTf89ye-TKE6woI_H4_Iq1WY_w",
+            },
+        ],
+        id: VideoID(
+            "2GVgONIvrKs",
+        ),
+    },
+    UserVideo {
+        title: "Koi Oto to Amazora / Eurobeat Remix",
+        views: "218K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/W8apVhwunOA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k7_CYAm2r32N2vB3kbPyt9QXn8aQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/W8apVhwunOA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nsuC1zGsyTf5Ryh3yzweThPCnZ1A",
+            },
+        ],
+        id: VideoID(
+            "W8apVhwunOA",
+        ),
+    },
+    UserVideo {
+        title: "Fukkireta / Eurobeat Remix",
+        views: "1.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/_tH14esvT9k/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3laTz3Xn1EidR3a4vZDcWTIjKvNbw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/_tH14esvT9k/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nGRIaLC8l7Wv2geABty0FxL5_jfg",
+            },
+        ],
+        id: VideoID(
+            "_tH14esvT9k",
+        ),
+    },
+    UserVideo {
+        title: "Xue Hua Piao Piao / Eurobeat Remix (w/@ShinkoNet)",
+        views: "2.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/V7A2bx7HAJc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3m6bHjpKOrg3SsPYGPE-tsWHIcuhg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/V7A2bx7HAJc/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mC4Ifn0ROSDvT6Ck_L2Iby-GKjmA",
+            },
+        ],
+        id: VideoID(
+            "V7A2bx7HAJc",
+        ),
+    },
+    UserVideo {
+        title: "Summer of '99",
+        views: "392K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Dj4OfiTj2XI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mcvC18mrEPKnZpsrdm055UoQ87RQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Dj4OfiTj2XI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nuepbcnl29WpiPfFzLf1S5MXuEcg",
+            },
+        ],
+        id: VideoID(
+            "Dj4OfiTj2XI",
+        ),
+    },
+    UserVideo {
+        title: "Crossing Field / Eurobeat Remix",
+        views: "2.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/n8-wN0lc5qk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nMIrTFZFTBs3xMYsHOFRN5aWHAww",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/n8-wN0lc5qk/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3myl0etZTYxdmeSaviVpA8N4IMJmA",
+            },
+        ],
+        id: VideoID(
+            "n8-wN0lc5qk",
+        ),
+    },
+    UserVideo {
+        title: "Black Rover / Eurobeat Remix",
+        views: "1.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/ZqV2h2Nb3To/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3niBu-V7pw4mDVSUvTRuVjzXwPEYg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/ZqV2h2Nb3To/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k3CS0acDV9hht10AgDy65XbmXeGw",
+            },
+        ],
+        id: VideoID(
+            "ZqV2h2Nb3To",
+        ),
+    },
+    UserVideo {
+        title: "Hacking To The Gate / Eurobeat Remix",
+        views: "1.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/nLRW7VKCRRw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lOYI_0bkPuw8TKXfnNdXK6-sMW6w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/nLRW7VKCRRw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kVPTrtQfRIveNeN7WviHoL7KbLBA",
+            },
+        ],
+        id: VideoID(
+            "nLRW7VKCRRw",
+        ),
+    },
+    UserVideo {
+        title: "Kickstart My Heart / Eurobeat Remix",
+        views: "3.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Fw_-tK0n11Q/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nkYOuXavG9NIycSyDaz6eCWYd0Gg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Fw_-tK0n11Q/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m_FC3F25kKbEMV4KjdVDTmvnA6nA",
+            },
+        ],
+        id: VideoID(
+            "Fw_-tK0n11Q",
+        ),
+    },
+    UserVideo {
+        title: "A Day Late, A Dollar Short / Eurobeat Remix",
+        views: "212K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/BhOLf64yQfw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kDFCPPuC1uOJUJVUZs4ix5ytG2mg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/BhOLf64yQfw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mEvNt3i6RZw7A5cbL7-a-WbkrIXg",
+            },
+        ],
+        id: VideoID(
+            "BhOLf64yQfw",
+        ),
+    },
+    UserVideo {
+        title: "Dig Up Her Bones / Eurobeat Remix",
+        views: "263K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/-J0hLA9epgM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3med685KVhkzuENfcBgH3biFz3UjA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/-J0hLA9epgM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nRfVghV7OeFPXMo3uUlOcf4iCySg",
+            },
+        ],
+        id: VideoID(
+            "-J0hLA9epgM",
+        ),
+    },
+    UserVideo {
+        title: "Astronomia / Eurobeat Remix",
+        views: "4.3M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/sR8c3ugaSKM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mp2nW5QtXjexjqsLD0U74ODYj5UA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/sR8c3ugaSKM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nVfoybvTSE8Js5o3EKzYztfYz_vA",
+            },
+        ],
+        id: VideoID(
+            "sR8c3ugaSKM",
+        ),
+    },
+    UserVideo {
+        title: "surreal sippin'",
+        views: "187K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/kH-5SRKsj8E/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kitUCXcZI70soYdN4SlWHfDDHtzw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/kH-5SRKsj8E/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n0OLdC6s7j3TEduXsvIJF4wXllUw",
+            },
+        ],
+        id: VideoID(
+            "kH-5SRKsj8E",
+        ),
+    },
+    UserVideo {
+        title: "Säkkijärven Polkka / Eurobeat Remix",
+        views: "4.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/fxx5p8KnZ3w/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kgPekfkxgnQSbfR4GRYrPU6aIc0Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/fxx5p8KnZ3w/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ko2FKqIdZ4luhwrpsfCM2Y0qv5Hw",
+            },
+        ],
+        id: VideoID(
+            "fxx5p8KnZ3w",
+        ),
+    },
+    UserVideo {
+        title: "entropy break I",
+        views: "98K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/jsof4zdoh5s/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kGyE9lrYjXzTEZbCvydkPOv1VXnA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/jsof4zdoh5s/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mvfVnEyVVYEZDu3d2pbTMtb4Ic-Q",
+            },
+        ],
+        id: VideoID(
+            "jsof4zdoh5s",
+        ),
+    },
+    UserVideo {
+        title: "Maniac / Eurobeat\u{2006}Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/50BhOnyQ4C4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3luC5s7bhBzsoyXL3Rcot49Oh1D-g",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/50BhOnyQ4C4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k7MpJ-4Dk065w6mQ5KFREr_znMww",
+            },
+        ],
+        id: VideoID(
+            "50BhOnyQ4C4",
+        ),
+    },
+    UserVideo {
+        title: "Maneater / Eurobeat Remix",
+        views: "906K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/5QeoE4MAFQU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mo1HT3VWMLD_WSyqk5Td1p9c-Asg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/5QeoE4MAFQU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lWWYyUBD5pj-MaTmL1hpOYvBkZLA",
+            },
+        ],
+        id: VideoID(
+            "5QeoE4MAFQU",
+        ),
+    },
+    UserVideo {
+        title: "Rebel Yell / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/noCUDLkjUQ4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mP6u2mG63cuSalJxikWeTzdxmLOA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/noCUDLkjUQ4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ns6O_9PrF6pg6IuWzfOSzboIflVQ",
+            },
+        ],
+        id: VideoID(
+            "noCUDLkjUQ4",
+        ),
+    },
+    UserVideo {
+        title: "Dragostea Din Tei / Eurobeat Remix",
+        views: "3.6M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Dr1S8DfNiKw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lkaP7NmMRyvC2Y5JPxyRChvTv96w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Dr1S8DfNiKw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mcerhHR2sl2hV-MRG40x5fgxwz3Q",
+            },
+        ],
+        id: VideoID(
+            "Dr1S8DfNiKw",
+        ),
+    },
+    UserVideo {
+        title: "YOU\u{2006}WA\u{2006}SHOCK! / Eurobeat Remix",
+        views: "607K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/gwramf2YSBM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nXcaYZG8QEJYH2jL3S71egfh0_JQ",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/gwramf2YSBM/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kQCng8u9kKg_Qswt3voJZJ0_oyLw",
+            },
+        ],
+        id: VideoID(
+            "gwramf2YSBM",
+        ),
+    },
+    UserVideo {
+        title: "Chase / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/jZPMtyvL0fw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kkBEoW3WlD7k5Deyf2Dka-56VnIw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/jZPMtyvL0fw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nBBoEXClfrCutzJyBADjUOOx62IA",
+            },
+        ],
+        id: VideoID(
+            "jZPMtyvL0fw",
+        ),
+    },
+    UserVideo {
+        title: "The Bad Touch / Eurobeat Remix",
+        views: "711K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/l77qrAnW1N4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k1h_fEX7I1DQrZU-dPT_5V6Votwg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/l77qrAnW1N4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mGCyQuYuvK8BlL-_qbqCOL4fw73A",
+            },
+        ],
+        id: VideoID(
+            "l77qrAnW1N4",
+        ),
+    },
+    UserVideo {
+        title: "Ikouze☆Paradise / Eurobeat Remix",
+        views: "852K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/wotojgjK59Q/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kFsSf-2X0m1C4h0sRJa_Yuome10Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/wotojgjK59Q/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nYxvrgvMWnkzBewjtJiDsiSadFHw",
+            },
+        ],
+        id: VideoID(
+            "wotojgjK59Q",
+        ),
+    },
+    UserVideo {
+        title: "Easy Breezy / Eurobeat Remix",
+        views: "1.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/gEa8S-uv3aU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mm0oULRTgda1Y9LOPowIug-weuUA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/gEa8S-uv3aU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nWo4j9VwK2HZYqWpuIvLL0R6ClIg",
+            },
+        ],
+        id: VideoID(
+            "gEa8S-uv3aU",
+        ),
+    },
+    UserVideo {
+        title: "99.9 / Eurobeat Remix",
+        views: "3.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/e7YSAzdrJLE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kOvzjdP1KGOtn-lxIUQJ2WUd5b_Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/e7YSAzdrJLE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nSD4iiZe6bsJ7PlOpx30YOwBz_Yw",
+            },
+        ],
+        id: VideoID(
+            "e7YSAzdrJLE",
+        ),
+    },
+    UserVideo {
+        title: "odyssey.mp3",
+        views: "114K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/RIc4w8YlOyU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lRLStMawECIOM9NJNcQCWe-VipOQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/RIc4w8YlOyU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m_q3ZY66SzT2CHRne9HyNBAzIkHw",
+            },
+        ],
+        id: VideoID(
+            "RIc4w8YlOyU",
+        ),
+    },
+    UserVideo {
+        title: "Guren no Yumiya / Eurobeat Remix",
+        views: "3.9M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/D47dEfgXwwM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3khmcxJjhND6COCToBCB2Z8Mp0QqQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/D47dEfgXwwM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nrRPwODrscv_cyIe6uUekA0OsG5Q",
+            },
+        ],
+        id: VideoID(
+            "D47dEfgXwwM",
+        ),
+    },
+    UserVideo {
+        title: "All I Want For Christmas Is You / Eurobeat Remix",
+        views: "794K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/jhOUW3CrJMg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n7sbNo5A08eSQ9WppeF0S8ULoDLQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/jhOUW3CrJMg/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n9VxuA_k-AU22FsJ90fJ1m_8QgiQ",
+            },
+        ],
+        id: VideoID(
+            "jhOUW3CrJMg",
+        ),
+    },
+    UserVideo {
+        title: "Digital Princess - New Album!",
+        views: "57K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/VUF2C07zrlo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nvDmR3_Zpjs-FRgXNOUHhW9T2NZQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/VUF2C07zrlo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3m7pKLxlqgWeEwwy4lVDJtIjkNvxw",
+            },
+        ],
+        id: VideoID(
+            "VUF2C07zrlo",
+        ),
+    },
+    UserVideo {
+        title: "1・2・3 / Eurobeat Remix",
+        views: "353K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/V-auslvtJpA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nnyOtQc0nfzYVfWXQ0thAGNWhaTQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/V-auslvtJpA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lNygBWSH7FhTxtL4oGA9F9OBJD2w",
+            },
+        ],
+        id: VideoID(
+            "V-auslvtJpA",
+        ),
+    },
+    UserVideo {
+        title: "PADORU / PADORU",
+        views: "1.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/u3kRzdSnsTA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kGw9lXpFxfu4eQrqs47QRzgeb_XQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/u3kRzdSnsTA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mCSjtHUiPvQivSxAtAeEhk6IaTXA",
+            },
+        ],
+        id: VideoID(
+            "u3kRzdSnsTA",
+        ),
+    },
+    UserVideo {
+        title: "Il vento d'orifto",
+        views: "7.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Vwo1sTdZi0g/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mSRv6mtH0kIbHiIPwSwsstWPEc6g",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Vwo1sTdZi0g/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ktNBRgo4kXUwN-7L1fAElsrxldfg",
+            },
+        ],
+        id: VideoID(
+            "Vwo1sTdZi0g",
+        ),
+    },
+    UserVideo {
+        title: "Pepsiman Pepsiman Pepsiman / Pepsiman Remix",
+        views: "2.7M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/3yHL-bb0Z8k/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lBmJFDAuSllCwbBPdb_ZZnbTD3fg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/3yHL-bb0Z8k/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kYY2r-L6hi3upBJ4G8v1uRrRmFVQ",
+            },
+        ],
+        id: VideoID(
+            "3yHL-bb0Z8k",
+        ),
+    },
+    UserVideo {
+        title: "Onegai Muscle / Eurobeat Remix",
+        views: "6.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Zg1pDweZ0W8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3ne5UDrBD5bDSfnpikUslypyFB_hw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Zg1pDweZ0W8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lIIBqBL-inwORm-B2YrruKjzxQBw",
+            },
+        ],
+        id: VideoID(
+            "Zg1pDweZ0W8",
+        ),
+    },
+    UserVideo {
+        title: "Gurenge / Eurobeat Remix",
+        views: "4.6M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/sZxdCky-sU4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nfIrqu8eJVGnDk-HHQfF8Px1sTgQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/sZxdCky-sU4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nGkuHK1JlVBI-O3egmk4h13wJLZg",
+            },
+        ],
+        id: VideoID(
+            "sZxdCky-sU4",
+        ),
+    },
+    UserVideo {
+        title: "Kyouran Hey Kids!! / Eurobeat Remix",
+        views: "2.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/HqvIvkyuLu8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lPAWDfbdEhjdMt7QqzvfnayIy2LA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/HqvIvkyuLu8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lyzinDW3Lsu6u-ZxTmka_CxWF3Lw",
+            },
+        ],
+        id: VideoID(
+            "HqvIvkyuLu8",
+        ),
+    },
+    UserVideo {
+        title: "All Star / Eurobeat Remix",
+        views: "767K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/UxasaLZMCrA/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l8RSIE9kq5ArmbnwL--ruVC6GGlw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/UxasaLZMCrA/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lDtTOg_ZuCUYVaoT65akBr-pHWvw",
+            },
+        ],
+        id: VideoID(
+            "UxasaLZMCrA",
+        ),
+    },
+    UserVideo {
+        title: "Silhouette / Eurobeat Remix",
+        views: "2.3M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/n3kPvBCYT3E/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kuiOYgwon5gV1edh2QqQlPtY3q8Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/n3kPvBCYT3E/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3k3DSp_5Sfd5PFVaMBIjZKv5Ziu1A",
+            },
+        ],
+        id: VideoID(
+            "n3kPvBCYT3E",
+        ),
+    },
+    UserVideo {
+        title: "Revenge / Eurobeat Remix",
+        views: "1.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/blaJc14IkaI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3loTWQY4FEMyyLLx47OUyfciJ6uVw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/blaJc14IkaI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nBOXuJCKgpqR15A3rArW_hA3cQ9A",
+            },
+        ],
+        id: VideoID(
+            "blaJc14IkaI",
+        ),
+    },
+    UserVideo {
+        title: "Awake / Eurobeat Remix",
+        views: "2.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/D3Lw4eZv-H0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3moLBPU5cdQEZybbYPraXL2WZHnAQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/D3Lw4eZv-H0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kAQouArn-QiPnJvYs1Yj24T8gIzg",
+            },
+        ],
+        id: VideoID(
+            "D3Lw4eZv-H0",
+        ),
+    },
+    UserVideo {
+        title: "Tokyo Drift / Eurobeat Remix",
+        views: "3.9M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/JE2ixx7DTaw/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mMDuM36EWndTJi7fJn9On-TbKsuA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/JE2ixx7DTaw/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kUzwvTa5oHDWI4fSoLKzLX9EXaZg",
+            },
+        ],
+        id: VideoID(
+            "JE2ixx7DTaw",
+        ),
+    },
+    UserVideo {
+        title: "A Cruel Angel's Thesis / Eurobeat Remix",
+        views: "15M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/1gW1uHRPChc/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mSNgqnPjawiEl5ND65AcG02G0F0Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/1gW1uHRPChc/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kk7O2Gppua1VO5u28pg8MZ0JPkBA",
+            },
+        ],
+        id: VideoID(
+            "1gW1uHRPChc",
+        ),
+    },
+    UserVideo {
+        title: "Angel With A Shotgun / Eurobeat Remix",
+        views: "554K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/z-WhMFjXCyU/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nI_cndeprI3TNV6ooYzBhA6Ne4Zg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/z-WhMFjXCyU/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mHJ2hfqgzQdd-YC-atKkMp65immQ",
+            },
+        ],
+        id: VideoID(
+            "z-WhMFjXCyU",
+        ),
+    },
+    UserVideo {
+        title: "Platinum Disco / Eurobeat Remix",
+        views: "1.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/b7V1jIrFZEY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lZBSbw1CEe_AdtbeIen_9Yzwsx6Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/b7V1jIrFZEY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3njdBtdbktwsoogiljQIjamdKH3fQ",
+            },
+        ],
+        id: VideoID(
+            "b7V1jIrFZEY",
+        ),
+    },
+    UserVideo {
+        title: "Fantastic Dreamer / Eurobeat Remix",
+        views: "764K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/Yhrd615FKfg/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lHH3IaNNIBPWLZBdgUkXsCFTCfTA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/Yhrd615FKfg/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ltqHShS9S95394zhluLrvcGq64eg",
+            },
+        ],
+        id: VideoID(
+            "Yhrd615FKfg",
+        ),
+    },
+    UserVideo {
+        title: "Clattanoia / Eurobeat Remix",
+        views: "1.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/54-gUsQFefY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3k3xLlJzdcsE1C7w5axvumscC0DPA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/54-gUsQFefY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lY68nQWmikqJUzu0L1WycOOTnRzQ",
+            },
+        ],
+        id: VideoID(
+            "54-gUsQFefY",
+        ),
+    },
+    UserVideo {
+        title: "Kiss Of Death / Eurobeat Remix",
+        views: "640K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/5cxmXy9KXd0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kOCirOjJcRjflaCS1TQ44aYbFhgA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/5cxmXy9KXd0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lZdk6Ht0lC8qi5fJX-mQp-00xNpw",
+            },
+        ],
+        id: VideoID(
+            "5cxmXy9KXd0",
+        ),
+    },
+    UserVideo {
+        title: "【東方Eurobeat】 Beloved Tomboyish Girl 「TurboAutism」 【No Vocals, lol】",
+        views: "658K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/irEzFWOitHI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lESMtnSEBmkA4K-1BnJfH3pdoN3A",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/irEzFWOitHI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mFaBOZENX3LPYRR-BUutUNoSql7w",
+            },
+        ],
+        id: VideoID(
+            "irEzFWOitHI",
+        ),
+    },
+    UserVideo {
+        title: "Crazy Train / Eurobeat Remix",
+        views: "1.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/gjCv6hEp_jI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lNufImgq4Uj2YPUsv-S6fBaF3e4w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/gjCv6hEp_jI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kdYr2hicoR-Fhj6ovfZRXUr-ofdQ",
+            },
+        ],
+        id: VideoID(
+            "gjCv6hEp_jI",
+        ),
+    },
+    UserVideo {
+        title: "Dota / Eurobeat Remix",
+        views: "2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/ket3KA5onKk/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kO-OGiNhdn9Eu_7UxwAGoahmbVGw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/ket3KA5onKk/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mMlAOG6bfKv3RpOyFl9uM-X5pnfw",
+            },
+        ],
+        id: VideoID(
+            "ket3KA5onKk",
+        ),
+    },
+    UserVideo {
+        title: "Caramelldansen / Eurobeat Remix",
+        views: "3.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/PgHaG-4Op20/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kO1oAfQIpIKfzLgIrXbS7Ym_NT5g",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/PgHaG-4Op20/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kLyeLF9axY5RjsaPQ5KM5aJVK8nA",
+            },
+        ],
+        id: VideoID(
+            "PgHaG-4Op20",
+        ),
+    },
+    UserVideo {
+        title: "Fortunate Son / Eurobeat Remix",
+        views: "903K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/KtJ79ZjJ3lM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kXbjw2gglmwzyblmY8pa1lOR-pRA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/KtJ79ZjJ3lM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l6xQh9ywWtXcPpEopUw-Gb5zWbdQ",
+            },
+        ],
+        id: VideoID(
+            "KtJ79ZjJ3lM",
+        ),
+    },
+    UserVideo {
+        title: "Stand Proud / Eurobeat Remix",
+        views: "5.8M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/0LdDaK1QOoY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lFuihEG5mpp6BdVUhHvGRfHbCZ6Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/0LdDaK1QOoY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kkeZeccgjul6RSc0XNPfXRXEnF5g",
+            },
+        ],
+        id: VideoID(
+            "0LdDaK1QOoY",
+        ),
+    },
+    UserVideo {
+        title: "Uragirimono no Requiem / Eurobeat Remix",
+        views: "2.4M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/vgJhk7f8CdI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nxJuaa3Z7YpWrfE0BDGKJvBWDj0Q",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/vgJhk7f8CdI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3l5jzkiqIjRLIUWJ-jev011n1EQ0A",
+            },
+        ],
+        id: VideoID(
+            "vgJhk7f8CdI",
+        ),
+    },
+    UserVideo {
+        title: "You're Gonna Go Far, Kid / Eurobeat Remix",
+        views: "2.1M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/QQrfPbDkIoE/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lk63yYiT2Zgzb_dPKVAvaUQVA1gA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/QQrfPbDkIoE/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nIM5KJUqWXrWacJdzZXDo6dIU0Sw",
+            },
+        ],
+        id: VideoID(
+            "QQrfPbDkIoE",
+        ),
+    },
+    UserVideo {
+        title: "ADAMAS / Eurobeat Remix",
+        views: "1.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/NS0tx7atv8I/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kNO7-NuW7P06F3sOOSR4gGFPbd2w",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/NS0tx7atv8I/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nfIL5kc_KGM6vUgP6BFzGZVS3Z-A",
+            },
+        ],
+        id: VideoID(
+            "NS0tx7atv8I",
+        ),
+    },
+    UserVideo {
+        title: "Rockefeller Street / Eurobeat Remix (w/@KeisariEurobeat)",
+        views: "6.6M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/i-gA0vcBnPI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lhs2Lsy2XEDD1cwTMAh2Y8sU7UUA",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/i-gA0vcBnPI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nThlrz4jANU_IzfqCuuEg0voa6mw",
+            },
+        ],
+        id: VideoID(
+            "i-gA0vcBnPI",
+        ),
+    },
+    UserVideo {
+        title: "Fighting Gold / Eurobeat Remix",
+        views: "2.5M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/IScIscGB7VY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l6iEWgAmX21fbZRBLehIhimNQogw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/IScIscGB7VY/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nZt1XYXalYQNQmGhiTUleWudew_g",
+            },
+        ],
+        id: VideoID(
+            "IScIscGB7VY",
+        ),
+    },
+    UserVideo {
+        title: "Renai Circulation / Eurobeat Remix",
+        views: "2.2M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/xZ2GTJCxXbM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3luGp_gl8TBveWQ0X9gRKJRNPgZVQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/xZ2GTJCxXbM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kju3CvjGva0ZkN_KjqXn2liqMYNA",
+            },
+        ],
+        id: VideoID(
+            "xZ2GTJCxXbM",
+        ),
+    },
+    UserVideo {
+        title: "Bitch Lasagna / Eurobeat Remix",
+        views: "846K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/BEdzSilq4m8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3ns3Z8sg32D6Cka86SoXhEriG71Fg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/BEdzSilq4m8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n29hZrliMDrjflAkOsNbXkewZd8w",
+            },
+        ],
+        id: VideoID(
+            "BEdzSilq4m8",
+        ),
+    },
+    UserVideo {
+        title: "Bloody Stream / Eurobeat remix",
+        views: "1.9M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/ndRVcGbJP7Y/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mHDHfHPE5M1KO_ZBqqpkM49hh8Sg",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/ndRVcGbJP7Y/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3mzPE-MZ1XTDb58NsOLnJRVwkg6fw",
+            },
+        ],
+        id: VideoID(
+            "ndRVcGbJP7Y",
+        ),
+    },
+    UserVideo {
+        title: "Sono Chi No Sadame / Eurobeat remix",
+        views: "2.3M views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/JXjuDwBKZ6g/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kWGK675mblmKOt7De-IOU10qzhxw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/JXjuDwBKZ6g/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kxkgJN1enHZx0ES61B7QcINCOhqA",
+            },
+        ],
+        id: VideoID(
+            "JXjuDwBKZ6g",
+        ),
+    },
+    UserVideo {
+        title: "Bizarre Stuff",
+        views: "50K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/zQkxlpWpER8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3misJO3VZTnSoNpzx-qGVxtpjY8Sw",
+            },
+            Thumbnail {
+                height: 240,
+                width: 426,
+                url: "https://i.ytimg.com/vi/zQkxlpWpER8/sddefault.jpg?sqp=-oaymwEWCKoDEPABIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kU4zVJqTL6FYyjRZnmEhArPx2jIw",
+            },
+        ],
+        id: VideoID(
+            "zQkxlpWpER8",
+        ),
+    },
+    UserVideo {
+        title: "Trap [Trap]",
+        views: "122K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/SIwma8zaDIM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l7qQQ63ggRYNLpTa-VrLhd_c4aeQ",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/SIwma8zaDIM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3n4VIUtuI7NfXafoiRR5Zp5KYKOlA",
+            },
+        ],
+        id: VideoID(
+            "SIwma8zaDIM",
+        ),
+    },
+    UserVideo {
+        title: "Lúcio's swing",
+        views: "53K views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/yPKdq9ws3IQ/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3l8QcOy4cBn-g30jRxcb-kJYzj96g",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/yPKdq9ws3IQ/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3llKWyQz4RudPV84mB7lHUXvt4z-g",
+            },
+        ],
+        id: VideoID(
+            "yPKdq9ws3IQ",
+        ),
+    },
+]

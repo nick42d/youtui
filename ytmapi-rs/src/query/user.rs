@@ -1,7 +1,7 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::AuthToken;
 use crate::common::{ArtistChannelID, BrowseParams};
-use crate::parse::GetUser;
+use crate::parse::{GetUser, UserPlaylist, UserVideo};
 use serde_json::json;
 
 pub struct GetUserQuery<'a> {
@@ -54,7 +54,7 @@ impl PostQuery for GetUserQuery<'_> {
     }
 }
 impl<A: AuthToken> Query<A> for GetUserPlaylistsQuery<'_> {
-    type Output = ();
+    type Output = Vec<UserPlaylist>;
     type Method = PostMethod;
 }
 impl PostQuery for GetUserPlaylistsQuery<'_> {
@@ -72,7 +72,7 @@ impl PostQuery for GetUserPlaylistsQuery<'_> {
     }
 }
 impl<A: AuthToken> Query<A> for GetUserVideosQuery<'_> {
-    type Output = ();
+    type Output = Vec<UserVideo>;
     type Method = PostMethod;
 }
 impl PostQuery for GetUserVideosQuery<'_> {

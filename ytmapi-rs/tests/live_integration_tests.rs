@@ -254,18 +254,24 @@ generate_query_test!(
 );
 generate_query_test!(
     test_get_user,
-    GetUserQuery::new(ArtistChannelID::from_raw(""))
-);
-generate_query_test!(
-    test_get_user_videos,
-    GetUserVideosQuery::new(ArtistChannelID::from_raw(""), BrowseParams::from_raw(""))
-);
-generate_query_test!(
-    test_get_user_playlists,
-    GetUserPlaylistsQuery::new(ArtistChannelID::from_raw(""), BrowseParams::from_raw(""))
+    GetUserQuery::new(ArtistChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ"))
 );
 // # MULTISTAGE TESTS
 
+generate_query_test!(
+    test_get_user_videos,
+    GetUserVideosQuery::new(
+        ArtistChannelID::from_raw("UCus8EVJ7Oc9zINhs-fg8l1Q"),
+        BrowseParams::from_raw("")
+    )
+);
+generate_query_test!(
+    test_get_user_playlists,
+    GetUserPlaylistsQuery::new(
+        ArtistChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ"),
+        BrowseParams::from_raw("")
+    )
+);
 #[tokio::test]
 async fn test_get_mood_playlists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();

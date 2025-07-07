@@ -1,9 +1,9 @@
 use super::ParseFrom;
 use crate::common::{PlaylistID, Thumbnail, UserPlaylistsParams, UserVideosParams, VideoID};
 use crate::nav_consts::{
-    CAROUSEL, CAROUSEL_TITLE, FOREGROUND_THUMBNAIL_RENDERER, MTRIR, NAVIGATION_BROWSE_ID,
-    NAVIGATION_VIDEO_ID, SECTION_LIST, SINGLE_COLUMN_TAB, SUBTITLE2, SUBTITLE3, THUMBNAIL_RENDERER,
-    TITLE_TEXT, VISUAL_HEADER,
+    CAROUSEL, CAROUSEL_TITLE, FOREGROUND_THUMBNAIL_RENDERER, GRID_ITEMS, MTRIR, NAVIGATION_BROWSE,
+    NAVIGATION_BROWSE_ID, NAVIGATION_VIDEO_ID, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
+    SUBTITLE2, SUBTITLE3, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
 };
 use crate::query::{GetUserPlaylistsQuery, GetUserQuery, GetUserVideosQuery};
 use crate::Result;
@@ -41,32 +41,6 @@ pub struct UserPlaylist {
 
 impl ParseFrom<GetUserQuery<'_>> for GetUser {
     fn parse_from(p: super::ProcessedResult<GetUserQuery>) -> Result<Self> {
-        fn parse_user_video_from_carousel_contents(c: impl JsonCrawler) -> Result<UserVideo> {
-            let mut item = c.navigate_pointer(MTRIR)?;
-            let title = item.take_value_pointer(TITLE_TEXT)?;
-            let views = item.take_value_pointer(SUBTITLE2)?;
-            let id = item.take_value_pointer(NAVIGATION_VIDEO_ID)?;
-            let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
-            Ok(UserVideo {
-                title,
-                views,
-                thumbnails,
-                id,
-            })
-        }
-        fn parse_user_playlist_from_carousel_contents(c: impl JsonCrawler) -> Result<UserPlaylist> {
-            let mut item = c.navigate_pointer(MTRIR)?;
-            let title = item.take_value_pointer(TITLE_TEXT)?;
-            let views = item.take_value_pointer(SUBTITLE3)?;
-            let id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
-            let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
-            Ok(UserPlaylist {
-                title,
-                views,
-                thumbnails,
-                id,
-            })
-        }
         let mut json_crawler: JsonCrawlerOwned = p.into();
         let mut header = json_crawler.borrow_pointer(VISUAL_HEADER)?;
         let name = header.take_value_pointer(TITLE_TEXT)?;
@@ -87,28 +61,28 @@ impl ParseFrom<GetUserQuery<'_>> for GetUser {
                 .as_mut()
                 .and_then(|playlists_carousel| {
                     playlists_carousel
-                        .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
+                        .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE, "/params"))
                         .ok()
                 });
         let playlists = match maybe_playlists_carousel {
             Some(playlists_carousel) => playlists_carousel
                 .borrow_pointer("/contents")?
                 .try_into_iter()?
-                .map(parse_user_playlist_from_carousel_contents)
+                .map(parse_user_playlist)
                 .collect::<Result<_>>()?,
             None => vec![],
         };
         let mut maybe_videos_carousel = carousels.get_mut("Videos");
         let all_videos_params = maybe_videos_carousel.as_mut().and_then(|videos_carousel| {
             videos_carousel
-                .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE_ID))
+                .take_value_pointer(concatcp!(CAROUSEL_TITLE, NAVIGATION_BROWSE, "/params"))
                 .ok()
         });
         let videos = match maybe_videos_carousel {
             Some(videos_carousel) => videos_carousel
                 .borrow_pointer("/contents")?
                 .try_into_iter()?
-                .map(parse_user_video_from_carousel_contents)
+                .map(parse_user_video)
                 .collect::<Result<_>>()?,
             None => vec![],
         };
@@ -123,15 +97,53 @@ impl ParseFrom<GetUserQuery<'_>> for GetUser {
         })
     }
 }
-impl ParseFrom<GetUserPlaylistsQuery<'_>> for () {
+impl ParseFrom<GetUserPlaylistsQuery<'_>> for Vec<UserPlaylist> {
     fn parse_from(p: super::ProcessedResult<GetUserPlaylistsQuery>) -> Result<Self> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let results = json_crawler
+            .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID_ITEMS))?
+            .try_into_iter()?
+            .map(parse_user_playlist)
+            .collect::<Result<_>>()?;
+        Ok(results)
     }
 }
-impl ParseFrom<GetUserVideosQuery<'_>> for () {
+impl ParseFrom<GetUserVideosQuery<'_>> for Vec<UserVideo> {
     fn parse_from(p: super::ProcessedResult<GetUserVideosQuery>) -> Result<Self> {
-        todo!()
+        let json_crawler: JsonCrawlerOwned = p.into();
+        let results = json_crawler
+            .navigate_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST_ITEM, GRID_ITEMS))?
+            .try_into_iter()?
+            .map(parse_user_video)
+            .collect::<Result<_>>()?;
+        Ok(results)
     }
+}
+fn parse_user_video(c: impl JsonCrawler) -> Result<UserVideo> {
+    let mut item = c.navigate_pointer(MTRIR)?;
+    let title = item.take_value_pointer(TITLE_TEXT)?;
+    let views = item.take_value_pointer(SUBTITLE2)?;
+    let id = item.take_value_pointer(NAVIGATION_VIDEO_ID)?;
+    let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
+    Ok(UserVideo {
+        title,
+        views,
+        thumbnails,
+        id,
+    })
+}
+fn parse_user_playlist(c: impl JsonCrawler) -> Result<UserPlaylist> {
+    let mut item = c.navigate_pointer(MTRIR)?;
+    let title = item.take_value_pointer(TITLE_TEXT)?;
+    let views = item.take_value_pointer(SUBTITLE3)?;
+    let id = item.take_value_pointer(NAVIGATION_BROWSE_ID)?;
+    let thumbnails = item.take_value_pointer(THUMBNAIL_RENDERER)?;
+    Ok(UserPlaylist {
+        title,
+        views,
+        thumbnails,
+        id,
+    })
 }
 
 #[cfg(test)]
