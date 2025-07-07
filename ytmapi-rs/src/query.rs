@@ -92,6 +92,9 @@ pub use upload::{
     DeleteUploadEntityQuery, GetLibraryUploadAlbumQuery, GetLibraryUploadAlbumsQuery,
     GetLibraryUploadArtistQuery, GetLibraryUploadArtistsQuery, GetLibraryUploadSongsQuery,
 };
+pub mod user;
+#[doc(inline)]
+pub use user::{GetUserPlaylistsQuery, GetUserQuery, GetUserVideosQuery};
 
 mod private {
     pub trait Sealed {}

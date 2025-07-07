@@ -8,7 +8,7 @@ use utils::get_oauth_client_id_and_secret;
 use ytmapi_rs::auth::*;
 use ytmapi_rs::common::{
     ApiOutcome, ArtistChannelID, FeedbackTokenAddToLibrary, FeedbackTokenRemoveFromLibrary,
-    PlaylistID, YoutubeID,
+    PlaylistID, UserChannelID, YoutubeID,
 };
 use ytmapi_rs::error::ErrorKind;
 use ytmapi_rs::query::playlist::{GetPlaylistDetailsQuery, PrivacyStatus};
@@ -252,8 +252,11 @@ generate_query_test!(
     test_get_playlist_details,
     GetPlaylistDetailsQuery::new(PlaylistID::from_raw("VLPL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu"))
 );
+generate_query_test!(
+    test_get_user,
+    GetUserQuery::new(UserChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ"))
+);
 // # MULTISTAGE TESTS
-
 #[tokio::test]
 async fn test_get_mood_playlists() {
     let browser_api = crate::utils::new_standard_api().await.unwrap();
@@ -309,7 +312,7 @@ async fn test_get_library_upload_album() {
 
 #[tokio::test]
 async fn test_get_artist_albums() {
-    let api = new_standard_api().await.unwrap();
+    let api = YtMusic::new_unauthenticated().await.unwrap();
     let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",
@@ -320,10 +323,30 @@ async fn test_get_artist_albums() {
     let channel_id = albums.browse_id.unwrap();
     api.get_artist_albums(channel_id, params).await.unwrap();
 }
+#[tokio::test]
+async fn test_get_user_videos() {
+    let api = YtMusic::new_unauthenticated().await.unwrap();
+    // Turbo
+    let channel_id = UserChannelID::from_raw("UCus8EVJ7Oc9zINhs-fg8l1Q");
+    let user = api.get_user(&channel_id).await.unwrap();
+    api.get_user_videos(&channel_id, user.all_videos_params.unwrap())
+        .await
+        .unwrap();
+}
+#[tokio::test]
+async fn test_get_user_playlists() {
+    let api = YtMusic::new_unauthenticated().await.unwrap();
+    // kamarillobrillo
+    let channel_id = UserChannelID::from_raw("UCj0boSvCVfTmO9JHlclA8eQ");
+    let user = api.get_user(&channel_id).await.unwrap();
+    api.get_user_playlists(&channel_id, user.all_playlists_params.unwrap())
+        .await
+        .unwrap();
+}
 
 #[tokio::test]
 async fn test_get_artist_album_songs() {
-    let api = new_standard_api().await.unwrap();
+    let api = YtMusic::new_unauthenticated().await.unwrap();
     let q = GetArtistQuery::new(ArtistChannelID::from_raw(
         // Metallica
         "UCGexNm_Kw4rdQjLxmpb2EKw",

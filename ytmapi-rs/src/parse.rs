@@ -55,6 +55,8 @@ mod song;
 pub use song::*;
 mod upload;
 pub use upload::*;
+mod user;
+pub use user::*;
 
 /// Describes how to parse the ProcessedResult from a Query into the target
 /// type.
@@ -111,8 +113,9 @@ impl<'a, Q, A: AuthToken> TryFrom<RawResult<'a, Q, A>> for ProcessedResult<'a, Q
         let json = match source.as_str() {
             // Workaround for Get request returning empty string.
             "" => serde_json::Value::Null,
-            other => serde_json::from_str(other)
-                .map_err(|e| error::Error::response(format!("{e:?}")))?,
+            other => {
+                serde_json::from_str(other).map_err(|e| error::Error::response(format!("{e:?}")))?
+            }
         };
         let json = Json::new(json);
         Ok(Self {

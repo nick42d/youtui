@@ -1,0 +1,339 @@
+GetUser {
+    name: "kamarillobrillo",
+    videos: [
+        UserVideo {
+            title: "Autobeat- Johnny Rey and the Reaction",
+            views: "5 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/uk_3LEiMurI/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lin8YedDroH_0kf1IG0Cncu_fg2w",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/uk_3LEiMurI/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3laxBRQuLSU4o1OnEL29SgXdSZnjQ",
+                },
+            ],
+            id: VideoID(
+                "uk_3LEiMurI",
+            ),
+        },
+        UserVideo {
+            title: "Flesh and Blood - Johnny Rey and the Reaction",
+            views: "2 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/9wcAG8DspuM/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lf0NUqrF6to25Yrd9ls6ElNwutIw",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/9wcAG8DspuM/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ngVEkanNpx1cdTXMM7gdj_TuogIQ",
+                },
+            ],
+            id: VideoID(
+                "9wcAG8DspuM",
+            ),
+        },
+        UserVideo {
+            title: "More than I Can Do- Johnny Rey and the Reaction",
+            views: "10 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/OhUu43wjAD4/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3lFcUVj-ElTy_VZMk3RppDykrGcuw",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/OhUu43wjAD4/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3nA_Lb4_fcwgd4xLt79xaKUmRWVpw",
+                },
+            ],
+            id: VideoID(
+                "OhUu43wjAD4",
+            ),
+        },
+        UserVideo {
+            title: "Streetlife- Johnny Rey and the Reaction",
+            views: "3 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/U_u8QcX0fP8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kUbypv3W82INhNqY-A4Urvd8knFQ",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/U_u8QcX0fP8/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kXroVV2qV_Xr4JvplhusVuQuzfmQ",
+                },
+            ],
+            id: VideoID(
+                "U_u8QcX0fP8",
+            ),
+        },
+        UserVideo {
+            title: "The New Way- Johnny Rey and the Reaction",
+            views: "7 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/8wUQvu5oBjo/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3kRqYHET5gviTt3z2Q0HaAQuVm3JA",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/8wUQvu5oBjo/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3ngcDifl_b77rtFn_q9yzkOiqIEiQ",
+                },
+            ],
+            id: VideoID(
+                "8wUQvu5oBjo",
+            ),
+        },
+        UserVideo {
+            title: "D O V E R  W A V E ドーバーボーイズ (The Dover Boys)",
+            views: "918 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/VM9OM7_LIL0/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3npVNUFYhFvQZ5sHi0HKqbrUT0YJA",
+                },
+                Thumbnail {
+                    height: 450,
+                    width: 800,
+                    url: "https://i.ytimg.com/vi/VM9OM7_LIL0/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3kYrofhdkfD8I5RLYZhOjUzmPsqMw",
+                },
+            ],
+            id: VideoID(
+                "VM9OM7_LIL0",
+            ),
+        },
+    ],
+    thumbnails: [
+        Thumbnail {
+            height: 60,
+            width: 60,
+            url: "https://yt3.googleusercontent.com/cJvD2D8fhOV9-0lVSC1Z_jUzpGRTu_ZhJ-SZwMxt2WkWfVRfCao182NKhj6tc5Rh6gsqzjs_fw4=w60-c-h60-k-c0x00ffffff-no-l90-rj",
+        },
+        Thumbnail {
+            height: 120,
+            width: 120,
+            url: "https://yt3.googleusercontent.com/cJvD2D8fhOV9-0lVSC1Z_jUzpGRTu_ZhJ-SZwMxt2WkWfVRfCao182NKhj6tc5Rh6gsqzjs_fw4=w120-c-h120-k-c0x00ffffff-no-l90-rj",
+        },
+        Thumbnail {
+            height: 226,
+            width: 226,
+            url: "https://yt3.googleusercontent.com/cJvD2D8fhOV9-0lVSC1Z_jUzpGRTu_ZhJ-SZwMxt2WkWfVRfCao182NKhj6tc5Rh6gsqzjs_fw4=w226-c-h226-k-c0x00ffffff-no-l90-rj",
+        },
+        Thumbnail {
+            height: 544,
+            width: 544,
+            url: "https://yt3.googleusercontent.com/cJvD2D8fhOV9-0lVSC1Z_jUzpGRTu_ZhJ-SZwMxt2WkWfVRfCao182NKhj6tc5Rh6gsqzjs_fw4=w544-c-h544-k-c0x00ffffff-no-l90-rj",
+        },
+    ],
+    all_videos_params: None,
+    playlists: [
+        UserPlaylist {
+            title: "my rock and roll manifesto",
+            views: "40K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/xoSY4zGvOrMlJWZNRbw_-q307foj5fvZNZ_bLx2ywNudKDPrnBlSZxjpMXEcR7zcfUyiR6o_GE8=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/xoSY4zGvOrMlJWZNRbw_-q307foj5fvZNZ_bLx2ywNudKDPrnBlSZxjpMXEcR7zcfUyiR6o_GE8=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAZeP6zaA61cUk8htanhwljk",
+            ),
+        },
+        UserPlaylist {
+            title: "CSNY - Cost Of Freedom (1971)",
+            views: "13K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/7on7xcjQKXTgDKhqeTtyYWE7m5FENFteY2nWf1u6TEBAJipcgQQqyUzSV6PutYKh3gEdK6KkMtyI=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/7on7xcjQKXTgDKhqeTtyYWE7m5FENFteY2nWf1u6TEBAJipcgQQqyUzSV6PutYKh3gEdK6KkMtyI=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAawh2o3S9e1PQjTUml4KI1N",
+            ),
+        },
+        UserPlaylist {
+            title: "Brewster Tunes",
+            views: "5.4K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/0OA4CZ_m1Hjcz6NWce7-f5b1bY50sGekw3YQ6OzxZbYAvJml19lvB3ENWsB2NTNRHAjVRfQiRjk=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/0OA4CZ_m1Hjcz6NWce7-f5b1bY50sGekw3YQ6OzxZbYAvJml19lvB3ENWsB2NTNRHAjVRfQiRjk=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAboYheUgKb8w3VFklTo9Urb",
+            ),
+        },
+        UserPlaylist {
+            title: "the Beach Boys - Good Vibrations Tour (1993 Paramount Theater)",
+            views: "2.5K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/kbw5GzrLV57AjkqoSi8R6rLfYvYMGxdaztc77CdvESdEg14hwxf2swj4Xfo0P33IiYhMPrRdX9Vp=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/kbw5GzrLV57AjkqoSi8R6rLfYvYMGxdaztc77CdvESdEg14hwxf2swj4Xfo0P33IiYhMPrRdX9Vp=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAapfzMC-WnkeloTd1-CXE7w",
+            ),
+        },
+        UserPlaylist {
+            title: "the Beach Boys Anthology: Complete",
+            views: "1.8K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/KxbGuCz54NfmeJ1fgXAVZaGu8vu6ezg27H1ETJjvVNrTcOmLT-6Vab7yE9w7ijIL7XtPi-snSVc=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/KxbGuCz54NfmeJ1fgXAVZaGu8vu6ezg27H1ETJjvVNrTcOmLT-6Vab7yE9w7ijIL7XtPi-snSVc=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAZABpKU5K6MIFE1uc0HDfVJ",
+            ),
+        },
+        UserPlaylist {
+            title: "Yacht or Nyacht",
+            views: "1.8K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/P1Rfj8IvL5GWWWOhvxkSByy40toFocBKohGarAlyRkMxeAGd_dcTUmbzgEgFwLBHZcqKRCE8ov4=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/P1Rfj8IvL5GWWWOhvxkSByy40toFocBKohGarAlyRkMxeAGd_dcTUmbzgEgFwLBHZcqKRCE8ov4=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAbPbJBOfYLvWKsw_ATluyMA",
+            ),
+        },
+        UserPlaylist {
+            title: "XWAVE",
+            views: "1K views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/BcYpx7A-9aHTTipEeZmLAMobqXt0zUILFUx5Mvkpm5lfHjdUizpdtufj0bOXjr_RSv_xRJZ9VlY=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/BcYpx7A-9aHTTipEeZmLAMobqXt0zUILFUx5Mvkpm5lfHjdUizpdtufj0bOXjr_RSv_xRJZ9VlY=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAazcnP1oeWlwK4dF_i6rKrN",
+            ),
+        },
+        UserPlaylist {
+            title: "Dennis Wilson - Hubba Hubba (1971)",
+            views: "691 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/F1CAhJWNTpW4spZFEuuu80c9PSXCQRTih8GumNvJ-Tht_hDdUeCfH2AYXv0Jqy2gG46bHKh4LTl9=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/F1CAhJWNTpW4spZFEuuu80c9PSXCQRTih8GumNvJ-Tht_hDdUeCfH2AYXv0Jqy2gG46bHKh4LTl9=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAYGMhkYbrYfxdUHytRKAlg9",
+            ),
+        },
+        UserPlaylist {
+            title: "sounds of summer (my super deluxe)",
+            views: "588 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.ggpht.com/_Mr9tLSqYQm6BJ_LCaTSpK2d6jZ1bZFlCai8NeNYtGIa3bgFW89N4oamLHo9Havk3V-aFP_bLVPV=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.ggpht.com/_Mr9tLSqYQm6BJ_LCaTSpK2d6jZ1bZFlCai8NeNYtGIa3bgFW89N4oamLHo9Havk3V-aFP_bLVPV=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAasblVuINJwquTwd-49CN8j",
+            ),
+        },
+        UserPlaylist {
+            title: "The Yacht Rock Soundtrack (absolutely no Jimmy Buffett Edition)",
+            views: "564 views",
+            thumbnails: [
+                Thumbnail {
+                    height: 192,
+                    width: 192,
+                    url: "https://yt3.googleusercontent.com/ve54-hqJ-yhDDtZTAXYx-OEbRuptrWlFTNjX7h20o5Pz92qwUfXXZH_cathDE82qwpgKc4_-iiw=s192",
+                },
+                Thumbnail {
+                    height: 576,
+                    width: 576,
+                    url: "https://yt3.googleusercontent.com/ve54-hqJ-yhDDtZTAXYx-OEbRuptrWlFTNjX7h20o5Pz92qwUfXXZH_cathDE82qwpgKc4_-iiw=s576",
+                },
+            ],
+            id: PlaylistID(
+                "VLPLti4V4FomqAYVkk_WoWMlx4kSxRqq6Nyd",
+            ),
+        },
+    ],
+    all_playlists_params: Some(
+        UserPlaylistsParams(
+            "6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSSkxWRmFhMjVtYUdzYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEYWpCaWIxTjJRMVptVkcxUE9VcEliR05zUVRobFVRQUI4dHF6cWdvSFFBRklBRkMwQVE%3D",
+        ),
+    ),
+}

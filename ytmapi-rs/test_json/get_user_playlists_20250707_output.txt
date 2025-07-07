@@ -1,0 +1,3422 @@
+[
+    UserPlaylist {
+        title: "my rock and roll manifesto",
+        views: "40K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/xoSY4zGvOrMlJWZNRbw_-q307foj5fvZNZ_bLx2ywNudKDPrnBlSZxjpMXEcR7zcfUyiR6o_GE8=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/xoSY4zGvOrMlJWZNRbw_-q307foj5fvZNZ_bLx2ywNudKDPrnBlSZxjpMXEcR7zcfUyiR6o_GE8=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZeP6zaA61cUk8htanhwljk",
+        ),
+    },
+    UserPlaylist {
+        title: "CSNY - Cost Of Freedom (1971)",
+        views: "13K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/7on7xcjQKXTgDKhqeTtyYWE7m5FENFteY2nWf1u6TEBAJipcgQQqyUzSV6PutYKh3gEdK6KkMtyI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/7on7xcjQKXTgDKhqeTtyYWE7m5FENFteY2nWf1u6TEBAJipcgQQqyUzSV6PutYKh3gEdK6KkMtyI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAawh2o3S9e1PQjTUml4KI1N",
+        ),
+    },
+    UserPlaylist {
+        title: "Brewster Tunes",
+        views: "5.4K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/0OA4CZ_m1Hjcz6NWce7-f5b1bY50sGekw3YQ6OzxZbYAvJml19lvB3ENWsB2NTNRHAjVRfQiRjk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/0OA4CZ_m1Hjcz6NWce7-f5b1bY50sGekw3YQ6OzxZbYAvJml19lvB3ENWsB2NTNRHAjVRfQiRjk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAboYheUgKb8w3VFklTo9Urb",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys - Good Vibrations Tour (1993 Paramount Theater)",
+        views: "2.5K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/kbw5GzrLV57AjkqoSi8R6rLfYvYMGxdaztc77CdvESdEg14hwxf2swj4Xfo0P33IiYhMPrRdX9Vp=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/kbw5GzrLV57AjkqoSi8R6rLfYvYMGxdaztc77CdvESdEg14hwxf2swj4Xfo0P33IiYhMPrRdX9Vp=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAapfzMC-WnkeloTd1-CXE7w",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys Anthology: Complete",
+        views: "1.8K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/KxbGuCz54NfmeJ1fgXAVZaGu8vu6ezg27H1ETJjvVNrTcOmLT-6Vab7yE9w7ijIL7XtPi-snSVc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/KxbGuCz54NfmeJ1fgXAVZaGu8vu6ezg27H1ETJjvVNrTcOmLT-6Vab7yE9w7ijIL7XtPi-snSVc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZABpKU5K6MIFE1uc0HDfVJ",
+        ),
+    },
+    UserPlaylist {
+        title: "Yacht or Nyacht",
+        views: "1.8K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/P1Rfj8IvL5GWWWOhvxkSByy40toFocBKohGarAlyRkMxeAGd_dcTUmbzgEgFwLBHZcqKRCE8ov4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/P1Rfj8IvL5GWWWOhvxkSByy40toFocBKohGarAlyRkMxeAGd_dcTUmbzgEgFwLBHZcqKRCE8ov4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbPbJBOfYLvWKsw_ATluyMA",
+        ),
+    },
+    UserPlaylist {
+        title: "XWAVE",
+        views: "1K views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/BcYpx7A-9aHTTipEeZmLAMobqXt0zUILFUx5Mvkpm5lfHjdUizpdtufj0bOXjr_RSv_xRJZ9VlY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/BcYpx7A-9aHTTipEeZmLAMobqXt0zUILFUx5Mvkpm5lfHjdUizpdtufj0bOXjr_RSv_xRJZ9VlY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAazcnP1oeWlwK4dF_i6rKrN",
+        ),
+    },
+    UserPlaylist {
+        title: "Dennis Wilson - Hubba Hubba (1971)",
+        views: "691 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/F1CAhJWNTpW4spZFEuuu80c9PSXCQRTih8GumNvJ-Tht_hDdUeCfH2AYXv0Jqy2gG46bHKh4LTl9=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/F1CAhJWNTpW4spZFEuuu80c9PSXCQRTih8GumNvJ-Tht_hDdUeCfH2AYXv0Jqy2gG46bHKh4LTl9=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYGMhkYbrYfxdUHytRKAlg9",
+        ),
+    },
+    UserPlaylist {
+        title: "sounds of summer (my super deluxe)",
+        views: "588 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/_Mr9tLSqYQm6BJ_LCaTSpK2d6jZ1bZFlCai8NeNYtGIa3bgFW89N4oamLHo9Havk3V-aFP_bLVPV=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/_Mr9tLSqYQm6BJ_LCaTSpK2d6jZ1bZFlCai8NeNYtGIa3bgFW89N4oamLHo9Havk3V-aFP_bLVPV=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAasblVuINJwquTwd-49CN8j",
+        ),
+    },
+    UserPlaylist {
+        title: "The Yacht Rock Soundtrack (absolutely no Jimmy Buffett Edition)",
+        views: "564 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ve54-hqJ-yhDDtZTAXYx-OEbRuptrWlFTNjX7h20o5Pz92qwUfXXZH_cathDE82qwpgKc4_-iiw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ve54-hqJ-yhDDtZTAXYx-OEbRuptrWlFTNjX7h20o5Pz92qwUfXXZH_cathDE82qwpgKc4_-iiw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYVkk_WoWMlx4kSxRqq6Nyd",
+        ),
+    },
+    UserPlaylist {
+        title: "Halloween",
+        views: "496 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/1WJ5krxhluoDNgjyBSYcQWTT4kZ57SR0fsqf30hK2UMU_MPz_L6o4yZgCr-JYb2r6YkCqalELA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/1WJ5krxhluoDNgjyBSYcQWTT4kZ57SR0fsqf30hK2UMU_MPz_L6o4yZgCr-JYb2r6YkCqalELA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYV23GHuDda4nyqT8_9Fqzu",
+        ),
+    },
+    UserPlaylist {
+        title: "ride Sally ride",
+        views: "491 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/1ueCdCyKKZuy9mfWHTN8AaEU3EMtmWrJtPHyIVQSLoQtWEp52ZctiXk81Ov_WYc9eGBeCZ0PpA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/1ueCdCyKKZuy9mfWHTN8AaEU3EMtmWrJtPHyIVQSLoQtWEp52ZctiXk81Ov_WYc9eGBeCZ0PpA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZh1kWLPUbiFuXmBJu_y5BE",
+        ),
+    },
+    UserPlaylist {
+        title: "Go Girls Go (60s Girl Groups/ Motown/ Spector Wall of Sound)",
+        views: "468 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/C3npcu6Un-JrCOktxM8pMz2wiuwfqpQ8NiMy4eG8G_BkT11fLvZ4sBEL5MAZ8xpmSDqzuqbiuUC2=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/C3npcu6Un-JrCOktxM8pMz2wiuwfqpQ8NiMy4eG8G_BkT11fLvZ4sBEL5MAZ8xpmSDqzuqbiuUC2=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbtR-OuuFQJpC5OFMc25aBV",
+        ),
+    },
+    UserPlaylist {
+        title: "Radio Free Transmission",
+        views: "458 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/z1TP_2qSkmyHx-S2AiVJ7OG-KUcRF6CNMfrVYb0OsrhA5BIFnERRxxgmA0qZRf3FtlxHCOzaqBs=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/z1TP_2qSkmyHx-S2AiVJ7OG-KUcRF6CNMfrVYb0OsrhA5BIFnERRxxgmA0qZRf3FtlxHCOzaqBs=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbr3QFfkqVEGnXpiENRfy-z",
+        ),
+    },
+    UserPlaylist {
+        title: "Christmas Must Be Tonight",
+        views: "406 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/gb3cJh-22HfrHqT1VaA8QRNmqZm8FTfFG1IRpbpy5XUdidOFR-fqenE93hT80rlldiKh13hrKw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/gb3cJh-22HfrHqT1VaA8QRNmqZm8FTfFG1IRpbpy5XUdidOFR-fqenE93hT80rlldiKh13hrKw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZCpNF2wwPw8SnE2SxVzsst",
+        ),
+    },
+    UserPlaylist {
+        title: "Bigg City Songs",
+        views: "398 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/xuSft0z8fkfajvXvNewRXFlAPmlniGl5sHdYxg_dfJ-RTjdErupHRo-qq2HpWDWNyiAdMZHhDwQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/xuSft0z8fkfajvXvNewRXFlAPmlniGl5sHdYxg_dfJ-RTjdErupHRo-qq2HpWDWNyiAdMZHhDwQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbigxzTH_17LY4SjrkBsNeV",
+        ),
+    },
+    UserPlaylist {
+        title: "Listen to the Sounds",
+        views: "383 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/M_y2gXAX-rbzOpyNpIYoKpE4xpCEeunlAtAPwBXcQoZglgru3ETG4hA_cnCLyOEoFttmhP36DQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/M_y2gXAX-rbzOpyNpIYoKpE4xpCEeunlAtAPwBXcQoZglgru3ETG4hA_cnCLyOEoFttmhP36DQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ7BQd1_hyPX3j8GxlPXhQ6",
+        ),
+    },
+    UserPlaylist {
+        title: "I'M JAMMIN",
+        views: "375 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/4I7q27GDB2WwbVGUrWrqoz-z3grWVDHWQHd56Lh1bU7dP_GqbpxWdCHoyQzEM0m4rD5yMbBBAA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/4I7q27GDB2WwbVGUrWrqoz-z3grWVDHWQHd56Lh1bU7dP_GqbpxWdCHoyQzEM0m4rD5yMbBBAA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYXBu-lab5qgXEgZPbYoxxH",
+        ),
+    },
+    UserPlaylist {
+        title: "the best of Dennis Wilson",
+        views: "363 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Ml_VMpCDSJhxaqkoyYauW0yPcTQbbWl7BU-DI5TydetsU2gYVVgbQBvla-rJ9QfrUxnDmditNg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Ml_VMpCDSJhxaqkoyYauW0yPcTQbbWl7BU-DI5TydetsU2gYVVgbQBvla-rJ9QfrUxnDmditNg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZsTG7l5IAjFg5k3j9LX7i5",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys - Something Great from 1968 (Box Set)",
+        views: "351 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/fz1_0nhBj4D0eVaHDA0xzE0svXo6HmPdFOFb6BN6U9GB6OFDrgms7bqjORa3baTKg-91ylRKYps=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/fz1_0nhBj4D0eVaHDA0xzE0svXo6HmPdFOFb6BN6U9GB6OFDrgms7bqjORa3baTKg-91ylRKYps=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZhy7cJw0f-F7Gzf4J3RX2s",
+        ),
+    },
+    UserPlaylist {
+        title: "HIP HOP",
+        views: "345 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/vDU2JLH-a6RKOUXKwzXGkCyg8xPCibGYnRk4LhjjO6lYhfm_0E_NV5_FBah9E5BrdFAYCEW1PYc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/vDU2JLH-a6RKOUXKwzXGkCyg8xPCibGYnRk4LhjjO6lYhfm_0E_NV5_FBah9E5BrdFAYCEW1PYc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAa7PlNh0uYM3GfDvAkZh64Q",
+        ),
+    },
+    UserPlaylist {
+        title: "6/20/25",
+        views: "323 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/G-gh_B2LZ6JBNH5LgEL-3zAIGTKMBWOwdGmaaDPPZpkK15F8U4yBkvMISCPH4UbDJbcTVwiW7FI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/G-gh_B2LZ6JBNH5LgEL-3zAIGTKMBWOwdGmaaDPPZpkK15F8U4yBkvMISCPH4UbDJbcTVwiW7FI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbNWfNlDLd-Sxhb_QAooB4r",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beatles Singles Collection",
+        views: "287 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/iYyho87FNTTX-DPihRPbfqptkTCksXGBRAN1avFQpip1Xv9vL6zJMOSI7hB70cAxEje9yWNQ0iU=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/iYyho87FNTTX-DPihRPbfqptkTCksXGBRAN1avFQpip1Xv9vL6zJMOSI7hB70cAxEje9yWNQ0iU=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZngqn9WMxH0polIssrXdLy",
+        ),
+    },
+    UserPlaylist {
+        title: "Bob Dylan - Million Dollar Bash 1967",
+        views: "287 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/KQZ_M3z4D8N_OzUEF-l4v3Wd6FW6NIkPNWyg6c9qa6EFYi-ERoyQoGLJS3vTVQJB3sNZRF597g=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/KQZ_M3z4D8N_OzUEF-l4v3Wd6FW6NIkPNWyg6c9qa6EFYi-ERoyQoGLJS3vTVQJB3sNZRF597g=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZEhqf6tlNELho8U2RllBE8",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys Group Therapy (2020)",
+        views: "263 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/X2DkB1XCxYD1nolAoNxc-c-ccaXk0NjVKFrmkP_g-VFUK-rVh8AkdPcVFEL5gHy8p4a3PGB6SIid=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/X2DkB1XCxYD1nolAoNxc-c-ccaXk0NjVKFrmkP_g-VFUK-rVh8AkdPcVFEL5gHy8p4a3PGB6SIid=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY_02TcMIfQhd28IQDMoPK2",
+        ),
+    },
+    UserPlaylist {
+        title: "RADIO NEW VEGAS",
+        views: "236 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/6qodQGDBvnHYmnBJJ9U8aF1USCD2_Dv3LN4JtV4Dla9MM47W1yGAqjhp_2eiN6JeAb7jtNALg-M=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/6qodQGDBvnHYmnBJJ9U8aF1USCD2_Dv3LN4JtV4Dla9MM47W1yGAqjhp_2eiN6JeAb7jtNALg-M=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYgen0LsFfCkJqskfYzWUvt",
+        ),
+    },
+    UserPlaylist {
+        title: "best Covers of beatles songs",
+        views: "236 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/y-qL9aPevVB--86iMy9rdCu0TV9AwchMyhoEobL_y-QnCkBVzYDHsu2dhfVs1diulSMpJyrqDybS=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/y-qL9aPevVB--86iMy9rdCu0TV9AwchMyhoEobL_y-QnCkBVzYDHsu2dhfVs1diulSMpJyrqDybS=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZpegJPHHbRbRRm-PmRLGxF",
+        ),
+    },
+    UserPlaylist {
+        title: "twin peaks the whole picture",
+        views: "209 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/_Pzr5-HHWfYpiwf-X2yL1jCSRATCnNv7-PlCHAzZZ9_LgUgLaok7En6okoePH_e8niXWomdLtQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/_Pzr5-HHWfYpiwf-X2yL1jCSRATCnNv7-PlCHAzZZ9_LgUgLaok7En6okoePH_e8niXWomdLtQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAad78Rd8-SZnUBQQWA5M1QD",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys Anthology 2: The Rarities and Remixes",
+        views: "207 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/gRlEvKPBnOCvDGYAC8A4TAan1gmIR4T8MVPZOIyEcIC7Wb70Dfq4utnv10AWyAOSA65N0K1b-y0=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/gRlEvKPBnOCvDGYAC8A4TAan1gmIR4T8MVPZOIyEcIC7Wb70Dfq4utnv10AWyAOSA65N0K1b-y0=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYTlfhitOmWSrMHyHRjth8J",
+        ),
+    },
+    UserPlaylist {
+        title: "The Smiths Anthology",
+        views: "206 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/hOFyogPBRS5GbqvU_DIF1Lbo6pskYtU1CoLbUqXc20A5WpIeCgy17di1DA7cW9IShmCNmbZl4Eo=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/hOFyogPBRS5GbqvU_DIF1Lbo6pskYtU1CoLbUqXc20A5WpIeCgy17di1DA7cW9IShmCNmbZl4Eo=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYTnTtdf9W8yvH_rfQNrBcu",
+        ),
+    },
+    UserPlaylist {
+        title: "69 Golden County Greats",
+        views: "205 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/bm20VOdXgle-kv6uBNK8qk_fhPCYtJZ5TJfqjJULreoasVF1aGIuuCYTkX1dHD6p8NW-bG2Mhbk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/bm20VOdXgle-kv6uBNK8qk_fhPCYtJZ5TJfqjJULreoasVF1aGIuuCYTkX1dHD6p8NW-bG2Mhbk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaxD-wJu2dS0rHLsbrH2yRk",
+        ),
+    },
+    UserPlaylist {
+        title: "BWPS resequenced",
+        views: "184 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/VHkSE2g5Jlr2jcSFth8vh7tVWDfWltR1PNY5vD6vBYjSl8tCb0qB_g0OjvA7GgclXDzEd_RKopk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/VHkSE2g5Jlr2jcSFth8vh7tVWDfWltR1PNY5vD6vBYjSl8tCb0qB_g0OjvA7GgclXDzEd_RKopk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ3UXpe_0uxd8xYwLoyef8t",
+        ),
+    },
+    UserPlaylist {
+        title: "black label yacht",
+        views: "181 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/vieUvppdKMB1ZjQzW8Z2075jG554DJ3v8_dF9LEfy6bjZXaHr2iXrD5z5NwU3-kxFDi87MgPj26m=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/vieUvppdKMB1ZjQzW8Z2075jG554DJ3v8_dF9LEfy6bjZXaHr2iXrD5z5NwU3-kxFDi87MgPj26m=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYzwiAmixBHOSbn7pTvQJJs",
+        ),
+    },
+    UserPlaylist {
+        title: "city nitez",
+        views: "176 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/HIwHxBizDW5Hz1OzMyk_RJ_KyW42_omdJvIPzzm7OC9tSx91mQ9tYIV1zYINXwAeGDTYzxmoh0g=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/HIwHxBizDW5Hz1OzMyk_RJ_KyW42_omdJvIPzzm7OC9tSx91mQ9tYIV1zYINXwAeGDTYzxmoh0g=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYYOPaCM35UeEXA-YBg3u6L",
+        ),
+    },
+    UserPlaylist {
+        title: "SMiLE (Little Pad Edition)",
+        views: "162 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/jIvir9cqTn9vk1ltjkCHMEqAstV-ZYHpbOlIrVtrDITs8KAu7Pcz9_PIXjC_oIwBPbmjB2qLE98=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/jIvir9cqTn9vk1ltjkCHMEqAstV-ZYHpbOlIrVtrDITs8KAu7Pcz9_PIXjC_oIwBPbmjB2qLE98=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbPSpPZe41SnuMQl04atdIN",
+        ),
+    },
+    UserPlaylist {
+        title: "George Harrison- Wonderwall (1968 solo album)",
+        views: "160 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/AECsHt2gNFIbONVjWwa7GyI39_e51rZUOxIwW-CMbpYAp8UGsNtsKTse4Ij1vNA3gJhWErqtdEF8=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/AECsHt2gNFIbONVjWwa7GyI39_e51rZUOxIwW-CMbpYAp8UGsNtsKTse4Ij1vNA3gJhWErqtdEF8=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZPhLvHUkIy7TI_cAhzsLKg",
+        ),
+    },
+    UserPlaylist {
+        title: "Rock and Roll Music- The Beach Boys Hottest Tracks",
+        views: "141 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/VHuaf93b2ItF2oouSnTosB8BcDFO5NSRPCh3fLWqP3ZTVADrTQLgVXiVR0GzoDh8yvbh-b4ypA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/VHuaf93b2ItF2oouSnTosB8BcDFO5NSRPCh3fLWqP3ZTVADrTQLgVXiVR0GzoDh8yvbh-b4ypA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbwHkUao8aAyrK49oEtQ_jg",
+        ),
+    },
+    UserPlaylist {
+        title: "a doll's house (3LP)",
+        views: "136 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ZeFElwnq1UqvJ1tdDmJ0xYqS5qsGOEATGeFZgHn8K-sLFgDeHw1tE4nzrNtMR_NT9klyvwNsWg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ZeFElwnq1UqvJ1tdDmJ0xYqS5qsGOEATGeFZgHn8K-sLFgDeHw1tE4nzrNtMR_NT9klyvwNsWg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaFCk4XGj7UjNFxF-jAOUVg",
+        ),
+    },
+    UserPlaylist {
+        title: "Carl and the Passions (alt version)",
+        views: "131 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/hP7sOGcuDLmpWXUbvBh_Axt1ksgRCqXCEpg_rQZytgqTj_NiUl3kEBD4HxqJV4lHpgste1FgpM4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/hP7sOGcuDLmpWXUbvBh_Axt1ksgRCqXCEpg_rQZytgqTj_NiUl3kEBD4HxqJV4lHpgste1FgpM4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbhjGU2QLhJGxO2c-5qLB8o",
+        ),
+    },
+    UserPlaylist {
+        title: "city blues",
+        views: "128 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Vet3Y2Vs66lr0I8byPB5JJCwBl7dZ4M5QjP65jh6_hRtA7VyQGHohjVn0QAsgYuSudm2FRmdNg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Vet3Y2Vs66lr0I8byPB5JJCwBl7dZ4M5QjP65jh6_hRtA7VyQGHohjVn0QAsgYuSudm2FRmdNg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAa9qhSuRkRQxJsy8rSoaAX4",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys- SMiLE (1973 Warner / Reprise)",
+        views: "124 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/Dg2Hpc1c6ejCM6QjOCewp2EpBEue518jrIrN5wfAJPoX-v8Dr6s287hwFlP-rtE4prif4AMR9cg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/Dg2Hpc1c6ejCM6QjOCewp2EpBEue518jrIrN5wfAJPoX-v8Dr6s287hwFlP-rtE4prif4AMR9cg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZgFRPdECpRYdq_qZV8Sjs0",
+        ),
+    },
+    UserPlaylist {
+        title: "The band at winterland fan playlist",
+        views: "124 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/jxAHicW3TgBql0s0KJXSmKQBQkLhblByoy0wukDjiCZ5PafbtAM1oQkE0xY7riFE0G5aFWdhZA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/jxAHicW3TgBql0s0KJXSmKQBQkLhblByoy0wukDjiCZ5PafbtAM1oQkE0xY7riFE0G5aFWdhZA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAa62eseZCIqK_RNTCtRuTEF",
+        ),
+    },
+    UserPlaylist {
+        title: "Wild Honey Extended",
+        views: "123 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ktg6GLJhkNvTDbXm7l3Du-G_aNC1g-P3P94KcMp6tdm1BwuCNNE7QsOBNfn_QwjImsxsaeHT2aFJ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ktg6GLJhkNvTDbXm7l3Du-G_aNC1g-P3P94KcMp6tdm1BwuCNNE7QsOBNfn_QwjImsxsaeHT2aFJ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbOIE2Iatuc7EWrYRVAwdGc",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys in Mono",
+        views: "122 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Jc4ZkL81_oFS6n2FpFwOwNZUjCUQ-MxcY56j-QCqGrpq92Q75m0CrMildPxrDBX9I9qiQu9sCpI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Jc4ZkL81_oFS6n2FpFwOwNZUjCUQ-MxcY56j-QCqGrpq92Q75m0CrMildPxrDBX9I9qiQu9sCpI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYcmV6-rp5PvOs3MMYJYCWN",
+        ),
+    },
+    UserPlaylist {
+        title: "Feat. Michael McDonald",
+        views: "121 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/5Pktdu5ZWtBfaXOuaSELDkUO1wB-hmlBHq0o0r8vxPuoo9ZuCY_Pj2TYy-VW2zUQ0vdsJNbSVAA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/5Pktdu5ZWtBfaXOuaSELDkUO1wB-hmlBHq0o0r8vxPuoo9ZuCY_Pj2TYy-VW2zUQ0vdsJNbSVAA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaIe6SlpLUk6OKWNpf4Aspw",
+        ),
+    },
+    UserPlaylist {
+        title: "The Alternate Gaucho",
+        views: "121 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/zBBNnaYa5cZR-9tjJ5HwaipydeWRAMJ6HP1rt6FSliW8HUEKx82RaOlBJSP8T1VKH349YPnOnknyry0=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/zBBNnaYa5cZR-9tjJ5HwaipydeWRAMJ6HP1rt6FSliW8HUEKx82RaOlBJSP8T1VKH349YPnOnknyry0=w544-h544-s-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY684ph5bdVI_x0xgmW-4kQ",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys:  Carnegie and Elsewhere Live!!",
+        views: "118 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/8-unaW86YUnmSAhe4NP-x2sCcbWuOoRXQcR38gm2bOf-IwrXFhuNkoY1HRj3jJ9j1wU3Y2H41dt4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/8-unaW86YUnmSAhe4NP-x2sCcbWuOoRXQcR38gm2bOf-IwrXFhuNkoY1HRj3jJ9j1wU3Y2H41dt4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYkoY8JuJBTiBCTUaHa1BiT",
+        ),
+    },
+    UserPlaylist {
+        title: "Dennis Wilson Poops/ Hubba Hubba",
+        views: "110 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/RqBzGYdctgN_PYSX6tZP4trMn9iBXlSOnzvDypf_DikIfDOExjc-iBagV2bdrqG7kMqqjFFhSxl0o0W2=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/RqBzGYdctgN_PYSX6tZP4trMn9iBXlSOnzvDypf_DikIfDOExjc-iBagV2bdrqG7kMqqjFFhSxl0o0W2=w544-h544-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAa9aW7VIpXTP_hgBtiQ3vET",
+        ),
+    },
+    UserPlaylist {
+        title: "spooky skary Halloween",
+        views: "110 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/PUudpWeFPjwU7DXC21_H2jdJws2r2gaa-9BSdergKGTPycA4LG__MTLwDo42cxsEqpZTg4v-P9B8=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/PUudpWeFPjwU7DXC21_H2jdJws2r2gaa-9BSdergKGTPycA4LG__MTLwDo42cxsEqpZTg4v-P9B8=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbHuujba2eXu0SZBIoiVnxr",
+        ),
+    },
+    UserPlaylist {
+        title: "MEGGIMIX",
+        views: "108 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/oGUJVuEF5C4nIQy4indKRnse7YFX-8AjDtmbkeP_W06rxn6-zb2pMc7RjqIa14jfIvjlOQ7QWw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/oGUJVuEF5C4nIQy4indKRnse7YFX-8AjDtmbkeP_W06rxn6-zb2pMc7RjqIa14jfIvjlOQ7QWw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbDW_Zs_4Klak8PQNO3hZks",
+        ),
+    },
+    UserPlaylist {
+        title: "CITY NIGHT MIX A",
+        views: "104 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://i.ytimg.com/pl_c/PLti4V4FomqAbyOwYA0T7j8lneTHvR-oJQ/generated_thumbnail.jpg?sqp=CNL9rMMG-oaymwEUCOIBEOIBIABIWvqriqkDBBoCCAGi85f_AwYIuqPGrAY&rs=AMzJL3l6rAk5r6RL6OWR1lyM6FDToS1Ahw",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://i.ytimg.com/pl_c/PLti4V4FomqAbyOwYA0T7j8lneTHvR-oJQ/generated_thumbnail.jpg?sqp=CNL9rMMG-oaymwEUCKAEEKAEIABIWvqriqkDBBoCCAGi85f_AwYIuqPGrAY&rs=AMzJL3mko1S-lWYqH279VoLhZgZJduwYww",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbyOwYA0T7j8lneTHvR-oJQ",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys Anthology 4: The Sessions",
+        views: "104 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/gmussriYD2FngJNjyxU-ar3XUgSJyMU5zvcTiLkJZrNXcnHAgKfzTWtjCpxkM-D3bX3irMwYbOI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/gmussriYD2FngJNjyxU-ar3XUgSJyMU5zvcTiLkJZrNXcnHAgKfzTWtjCpxkM-D3bX3irMwYbOI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbZ9kHZtcU5qBDrRvWlL5of",
+        ),
+    },
+    UserPlaylist {
+        title: "Stan Rogers- The Discography",
+        views: "101 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/eHqnynmugTdOOHO0k4sTGF7RYCXovahelcfLuMT0chtlDR710RmGWzjIeGrG783sm1aaDf5jimMI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/eHqnynmugTdOOHO0k4sTGF7RYCXovahelcfLuMT0chtlDR710RmGWzjIeGrG783sm1aaDf5jimMI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbMCiLRu7vHh7W712qVjoCR",
+        ),
+    },
+    UserPlaylist {
+        title: "WEEN- A Passage to Titus",
+        views: "95 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/uaQxo0vWxm8Mhi-AOkiv6fDWlyIw1fO8Y4VvIwNGVP_Avut2MhlPOBn6KkI5RPLeNldY8HJN4pc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/uaQxo0vWxm8Mhi-AOkiv6fDWlyIw1fO8Y4VvIwNGVP_Avut2MhlPOBn6KkI5RPLeNldY8HJN4pc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZRaVynDqxV4E8-SAN82pXv",
+        ),
+    },
+    UserPlaylist {
+        title: "I can't believe it's not the Beach Boys (ultimate mix)",
+        views: "95 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/OuUzXEQWgkswiEdYCCLKPehKl8CqDDC-6lax4sCfRiaLaK8pB3TU52qSMww97XfK4WjKgb1a9w=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/OuUzXEQWgkswiEdYCCLKPehKl8CqDDC-6lax4sCfRiaLaK8pB3TU52qSMww97XfK4WjKgb1a9w=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAavWP1bsnlw8380rXvyuDYL",
+        ),
+    },
+    UserPlaylist {
+        title: "Feel Flows Highlights",
+        views: "93 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/UfINSwtNzJw-W5fh0_7R2Huy0ndTEvehXcRGPBIhiA7WAwcpRJxpeQxk3OJXSg5OYdCfo5caYdQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/UfINSwtNzJw-W5fh0_7R2Huy0ndTEvehXcRGPBIhiA7WAwcpRJxpeQxk3OJXSg5OYdCfo5caYdQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaEo18Y1hF45SEdhvIVNT6Y",
+        ),
+    },
+    UserPlaylist {
+        title: "adult / child",
+        views: "91 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/KZc-t8uvm51bfZwMP8O8UkApXg5CkpZE1IPx-1A7U2NdGy_lvLJ9o5zxko5ZtYe7-NoHPUg1qc0=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/KZc-t8uvm51bfZwMP8O8UkApXg5CkpZE1IPx-1A7U2NdGy_lvLJ9o5zxko5ZtYe7-NoHPUg1qc0=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZqRQizaNI6rTrjZ9Ap33Vf",
+        ),
+    },
+    UserPlaylist {
+        title: "the roadhouse- songs from and in the vein of Twin Peaks",
+        views: "90 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/vaUZY76PPhKmn7bIs4wFoW4uy9Qii-a_W6WN7_gWhzsjiFGDSKgpp-Z3VEZ3kFfKfpuvXtnVtrss=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/vaUZY76PPhKmn7bIs4wFoW4uy9Qii-a_W6WN7_gWhzsjiFGDSKgpp-Z3VEZ3kFfKfpuvXtnVtrss=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY91YmD3tMwmws_gc9eAwel",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beatles - Free as a Bird mini LP",
+        views: "89 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/tTtJg36jN3Mj1zQoQrEpBw4gkCUHlD3aEp83G13dZXvPhG3YluYWIDJtKgfObgS80nbhlWr8YyI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/tTtJg36jN3Mj1zQoQrEpBw4gkCUHlD3aEp83G13dZXvPhG3YluYWIDJtKgfObgS80nbhlWr8YyI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAas1mlbBMv8xtyhHGjq25N_",
+        ),
+    },
+    UserPlaylist {
+        title: "HALLOWEEN MEGAMIX (total fuckin submission)",
+        views: "86 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/fnDlE4GjXZS9xyjX0OBk0VIziYoNcX0ijeGDU_Rbcipg3IolfiJPgXIAWVMJpjkuhM-DvfPRLPY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/fnDlE4GjXZS9xyjX0OBk0VIziYoNcX0ijeGDU_Rbcipg3IolfiJPgXIAWVMJpjkuhM-DvfPRLPY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZJ2EzqVioVDgVTlyS7cyU4",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys Anthology 5: The Friends, The Family",
+        views: "86 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/eYHCWSgWvXFTW2GolbAsPvpmnOFhl0debnzUp-Y4QhQsN19IftIA-q8uVs6dHHUrXidJVEmfQysZ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/eYHCWSgWvXFTW2GolbAsPvpmnOFhl0debnzUp-Y4QhQsN19IftIA-q8uVs6dHHUrXidJVEmfQysZ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaonQVsH2CsNdlFSyVrfixy",
+        ),
+    },
+    UserPlaylist {
+        title: "Dennis Wilson - Poops/ Hubba Hubba (2024 mix)",
+        views: "80 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/RqBzGYdctgN_PYSX6tZP4trMn9iBXlSOnzvDypf_DikIfDOExjc-iBagV2bdrqG7kMqqjFFhSxl0o0W2=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/RqBzGYdctgN_PYSX6tZP4trMn9iBXlSOnzvDypf_DikIfDOExjc-iBagV2bdrqG7kMqqjFFhSxl0o0W2=w544-h544-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYUsTzG5_pIO9r2QpYUkXyv",
+        ),
+    },
+    UserPlaylist {
+        title: "Bob Dylan from Pilgrim to Pirate",
+        views: "79 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/9AGfLF_gDCRyQi-G4B1sDfeT8KIwvPx_LwA1v6HagZpzyItWzZpxeKAYrH-YaRyfwfXsLYXkFQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/9AGfLF_gDCRyQi-G4B1sDfeT8KIwvPx_LwA1v6HagZpzyItWzZpxeKAYrH-YaRyfwfXsLYXkFQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb6wZs0cS5ihAfDm-xBlsy1",
+        ),
+    },
+    UserPlaylist {
+        title: "Rubber Sou super deluxe l box set",
+        views: "73 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/lITMW1d37hJvSnR2JHSKhCSd5InZnzFRKghev6X0fskOaxRYerOB6HoDOVd7qG-vvewaPPmSB7g=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/lITMW1d37hJvSnR2JHSKhCSd5InZnzFRKghev6X0fskOaxRYerOB6HoDOVd7qG-vvewaPPmSB7g=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZuSa13iUmzHSq_81JFyVUX",
+        ),
+    },
+    UserPlaylist {
+        title: "Cassius Linett vs Sonny Compression 2011-2022 the Sessions Sessions",
+        views: "72 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/FWOvsDEkYggoKOSGHw7U9Oy2VoA_P1aVN31c5pLcrI71wokTa5VfIvusrUnEBRaq1ISVJRTd3ipJDiE=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/FWOvsDEkYggoKOSGHw7U9Oy2VoA_P1aVN31c5pLcrI71wokTa5VfIvusrUnEBRaq1ISVJRTd3ipJDiE=w544-h544-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYZCFadcpj2FmISTepCg8fR",
+        ),
+    },
+    UserPlaylist {
+        title: "MARLOWE",
+        views: "68 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/bGpCgm01W-ODBCdaVJ51Z0YmYrNNP3y0TNGjktyL5U2Jzk8lv36qHC16zZOsnpWanAwFs29y_8o=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/bGpCgm01W-ODBCdaVJ51Z0YmYrNNP3y0TNGjktyL5U2Jzk8lv36qHC16zZOsnpWanAwFs29y_8o=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZAH2flb9HFiGVSKh8T_25r",
+        ),
+    },
+    UserPlaylist {
+        title: "The Sunflower Sessions 1969-1970",
+        views: "63 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/BlNC97VGMnM_SQpRkKdC9jwgxN5Qvwewi5SNFxT09nU8GKbNsDXTj8XqNQHLRUxjr_al2NrnTg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/BlNC97VGMnM_SQpRkKdC9jwgxN5Qvwewi5SNFxT09nU8GKbNsDXTj8XqNQHLRUxjr_al2NrnTg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ9NJ8yd-f8brVpr6ieb0hU",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beatles second album (no covers)",
+        views: "62 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/7oqrpUTyigsbcN8PoIteUBJq0wXpCNSeEWnujlW-8R2AWFlnUuLbDV_CtQ5mELmuYr15GPX7jEQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/7oqrpUTyigsbcN8PoIteUBJq0wXpCNSeEWnujlW-8R2AWFlnUuLbDV_CtQ5mELmuYr15GPX7jEQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbhjGfL_vvagQzuiKyh-g0_",
+        ),
+    },
+    UserPlaylist {
+        title: "Miami Vice Soundtrack Super Deluxe",
+        views: "60 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/CWfW5UchQiL4AdaKgkbGTyEz2SpJ7O2FLq2NSaOuOoFPnvIm80FPk-NqMH3YB-QvrH-CDgv4Kw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/CWfW5UchQiL4AdaKgkbGTyEz2SpJ7O2FLq2NSaOuOoFPnvIm80FPk-NqMH3YB-QvrH-CDgv4Kw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbrU8ncqLh-rnpJlYolsLL_",
+        ),
+    },
+    UserPlaylist {
+        title: "surfs up (DOUBLE ALBUM)",
+        views: "57 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/3k8X1k-RW-ZiWAhuBnu9jqEBwCThb2WgXns5dL32ipkscv2su0yYstfG7QS72X-uJ_ipjUD1N43M=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/3k8X1k-RW-ZiWAhuBnu9jqEBwCThb2WgXns5dL32ipkscv2su0yYstfG7QS72X-uJ_ipjUD1N43M=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYezAiC1873_QK1hjtLL6Fh",
+        ),
+    },
+    UserPlaylist {
+        title: "Bob Dylan and the band- before the ages (live)",
+        views: "54 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/-1x-GLsvM2rLD1exj35PY3jALQ39Fa2fZAW2k2l9bMU13XHlScO2r8CP_lyb6-ng-t6AAep5tfGC=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/-1x-GLsvM2rLD1exj35PY3jALQ39Fa2fZAW2k2l9bMU13XHlScO2r8CP_lyb6-ng-t6AAep5tfGC=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYX_qIP6aVuvSHErCHK_qy7",
+        ),
+    },
+    UserPlaylist {
+        title: "Dennis Wilson/ Fleetwood Mac - Bamboo Tusk (1979 alt universe Collab)",
+        views: "54 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/F7SggB0eNEurwXk31g7sYROhHy884a0xdKh5qJXGCSQPHT7q9BSMazSNEcKS8Q3CAiMeB_DezLlX=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/F7SggB0eNEurwXk31g7sYROhHy884a0xdKh5qJXGCSQPHT7q9BSMazSNEcKS8Q3CAiMeB_DezLlX=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAag_wNXWRvESS0ZkyWsJMrv",
+        ),
+    },
+    UserPlaylist {
+        title: "Yacht Hop",
+        views: "52 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/rDZXoc1CjzdKjxHUWql7-ILXbni15G3-Q8xIlzeBDEL6CbWVPMKyd-tWHLZ0y7ACsS4aNxn_rB61=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/rDZXoc1CjzdKjxHUWql7-ILXbni15G3-Q8xIlzeBDEL6CbWVPMKyd-tWHLZ0y7ACsS4aNxn_rB61=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbhUDY9L9DxTMUwRD1r7pAh",
+        ),
+    },
+    UserPlaylist {
+        title: "Inherent Vice",
+        views: "50 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/fahQqNhj9pH2N1B-OAL58DurEs01-rZuGAlUnvQrYQfW-7PUCu4p5-8vR3OxEbm8T_Ba8g4dVrY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/fahQqNhj9pH2N1B-OAL58DurEs01-rZuGAlUnvQrYQfW-7PUCu4p5-8vR3OxEbm8T_Ba8g4dVrY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbDco84Q2bO7wwVCKaUw5sh",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beatles- Sessions (1985 Compilation)",
+        views: "48 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/yiwTQz14QD6wpR3UYjmrjOcJf9quGjOFH2TA23yOByUuY4aK6n7GI9TEg1CnM98PIDAOx-mqzQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/yiwTQz14QD6wpR3UYjmrjOcJf9quGjOFH2TA23yOByUuY4aK6n7GI9TEg1CnM98PIDAOx-mqzQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ9EJNDLJxL5GOieFPx8yup",
+        ),
+    },
+    UserPlaylist {
+        title: "The Smiths Over America",
+        views: "47 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/bDCL2KZa5HrUpZPF8z7Iir3chKnrf0IknYb49mjzGzn4tYhK8iGX8WqRO_VDD2OAdTeMSPHQag=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/bDCL2KZa5HrUpZPF8z7Iir3chKnrf0IknYb49mjzGzn4tYhK8iGX8WqRO_VDD2OAdTeMSPHQag=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYSTNARm_zag7iODAQDJwXm",
+        ),
+    },
+    UserPlaylist {
+        title: "WEEN- Rarities",
+        views: "47 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/F_SdvwWo2mswzcgM_8fsx8XjWjn_XppzLaHm6mmaUYp4gczkm_rPsO7Ga11ltmSIOhiYIKR52q4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/F_SdvwWo2mswzcgM_8fsx8XjWjn_XppzLaHm6mmaUYp4gczkm_rPsO7Ga11ltmSIOhiYIKR52q4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYAF901sOFklsb5S_Yd1UgP",
+        ),
+    },
+    UserPlaylist {
+        title: "Brian Wilson- Switched on Beach or The Many Moogs of Brian Wilson",
+        views: "46 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/FW_yn7K7ApGXBrq_PvlwjYiqJZJN-2vDT4IIBNHRSAaYEPDKEYCuUhl_KqJ43AXLI1BTQT4U3A=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/FW_yn7K7ApGXBrq_PvlwjYiqJZJN-2vDT4IIBNHRSAaYEPDKEYCuUhl_KqJ43AXLI1BTQT4U3A=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbyiWlJcNNoW5oZBTd4tAFN",
+        ),
+    },
+    UserPlaylist {
+        title: "Al Jardine - Islands in the Sun (LP)",
+        views: "43 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/76AeP4iCmOhSAkCL1OtrPX0r9KwCdg7RQec4eFBMVq5CfGESbWMzO_GBCLNqSQBayyEpW9-5pXE=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/76AeP4iCmOhSAkCL1OtrPX0r9KwCdg7RQec4eFBMVq5CfGESbWMzO_GBCLNqSQBayyEpW9-5pXE=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaYB0V5h4gh111nXPF5oeoZ",
+        ),
+    },
+    UserPlaylist {
+        title: "Chloe Burbank Vol. 1",
+        views: "43 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/eJjJW5xxFUEnipsW2Aj2pVJXNwbQqA1OJsRv4NqRv_Kcy_VGgV35PNmt1cgBkA2pMNRs3GiyuM0P=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/eJjJW5xxFUEnipsW2Aj2pVJXNwbQqA1OJsRv4NqRv_Kcy_VGgV35PNmt1cgBkA2pMNRs3GiyuM0P=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAas5AprsKy6jyHjugoBhfsn",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beatles- Rock n Roll Music",
+        views: "43 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/sdE3NRRixOCd6I304s7JsvcnB-n2_SiDWuEEHsQDLi7SKSQMhfE5dt5o06qs9UZMb7gL8Hd_B9SR=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/sdE3NRRixOCd6I304s7JsvcnB-n2_SiDWuEEHsQDLi7SKSQMhfE5dt5o06qs9UZMb7gL8Hd_B9SR=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbWojycpi32MzWoCp7YyWxi",
+        ),
+    },
+    UserPlaylist {
+        title: "the Smiths - Past Masters",
+        views: "39 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/5XiCzyOgB_eZQMVIf_u0RhDOIMlaYtTNS9DyHrRNFKpBYOYGWFYx8WLlbutpWZnB4RxNJ0_-T2g=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/5XiCzyOgB_eZQMVIf_u0RhDOIMlaYtTNS9DyHrRNFKpBYOYGWFYx8WLlbutpWZnB4RxNJ0_-T2g=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYDWSjF06XGgY24eaGY0TQK",
+        ),
+    },
+    UserPlaylist {
+        title: "film soundtrack",
+        views: "39 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/99aJlPQO3Xbx2W64DoFRt6toDaxebRWmt7lKbUbAxlMB7tEcim2yb9AZvz_gzbvveKwcBI6vzg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/99aJlPQO3Xbx2W64DoFRt6toDaxebRWmt7lKbUbAxlMB7tEcim2yb9AZvz_gzbvveKwcBI6vzg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAblBWLgfUpbHEx8saa1f689",
+        ),
+    },
+    UserPlaylist {
+        title: "The Surf's Up Sessions 1970-1971",
+        views: "38 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/SL--_MitJcXroi6KZFsWKy0vYKNDE2qTfjHnDcLO5VXsfyuU1XK8GNST7d9fcUurCVej3tl7LT8=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/SL--_MitJcXroi6KZFsWKy0vYKNDE2qTfjHnDcLO5VXsfyuU1XK8GNST7d9fcUurCVej3tl7LT8=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZx74GKTL8DKP36om8vKjC_",
+        ),
+    },
+    UserPlaylist {
+        title: "Marty's Popflix",
+        views: "38 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/0gVtva_EHTdcfmYjb6mTqI0q5bcY0JGZz4EtkC3k4Mao2j0YHWAih8y2wxHNkvucNGV3dXaPmbk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/0gVtva_EHTdcfmYjb6mTqI0q5bcY0JGZz4EtkC3k4Mao2j0YHWAih8y2wxHNkvucNGV3dXaPmbk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAae-uo7M6uTgW7AeZVJC4R1",
+        ),
+    },
+    UserPlaylist {
+        title: "indie fuckboy summer",
+        views: "38 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/wKCgoevwc7B4FbItYbHrEkqqo6bZyJW4DramFK_xRSsPQoJEj7Nr4thBKyMwuNbp3s_1jiSETA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/wKCgoevwc7B4FbItYbHrEkqqo6bZyJW4DramFK_xRSsPQoJEj7Nr4thBKyMwuNbp3s_1jiSETA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZIqMJT3V23IaI8YbUYiXmY",
+        ),
+    },
+    UserPlaylist {
+        title: "how the west wonders",
+        views: "36 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/tmBWjcx3YzOZBW-8HH5ALLw-qF-vO-ZawDYOjI9sfYoLqKiXY4JIH4iMmBWRoZudbLVM1Bq5AuQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/tmBWjcx3YzOZBW-8HH5ALLw-qF-vO-ZawDYOjI9sfYoLqKiXY4JIH4iMmBWRoZudbLVM1Bq5AuQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb2CcbSpHhIqXBA4aN02_X9",
+        ),
+    },
+    UserPlaylist {
+        title: "ween- music from big peen",
+        views: "36 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/tbQbROfycrQBhqo3EVlHUfo0uo5uZLgri05o-fXcQotnzf20sCm5lrJ7zum5YvHoks1H8__0R47n=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/tbQbROfycrQBhqo3EVlHUfo0uo5uZLgri05o-fXcQotnzf20sCm5lrJ7zum5YvHoks1H8__0R47n=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYViU1zYdH5yYwhUbeeiuFr",
+        ),
+    },
+    UserPlaylist {
+        title: "songs my my taught me",
+        views: "35 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/K5iVNqY_NkTmsNeMz8hoHNVoPVYRQM__ESbmUCtwv_MyV-JOLYIVIH-6vpsuY9i2_U2Yn5qClk6p=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/K5iVNqY_NkTmsNeMz8hoHNVoPVYRQM__ESbmUCtwv_MyV-JOLYIVIH-6vpsuY9i2_U2Yn5qClk6p=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAboiPOib9HDI4Vp2dApCHEr",
+        ),
+    },
+    UserPlaylist {
+        title: "autumn 🍂",
+        views: "35 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/l-PRZQpWMkfV-s6MLboRFS9EQwWX_TQi-01Q2-XqkLHoPysmhNOXqdVWMLMHK1TLbIEQ9ocZIECu=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/l-PRZQpWMkfV-s6MLboRFS9EQwWX_TQi-01Q2-XqkLHoPysmhNOXqdVWMLMHK1TLbIEQ9ocZIECu=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaAXQxAKEp_mJKv-gtVaqa4",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys In Concert (rejected single LP)",
+        views: "35 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/4K6j89OJVqJQbgwSw1H4j5y4qI7I8wf9PEQRq2iQrLdzC-N_XGee6cBovEsZFpTd8Hr3KgRrseg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/4K6j89OJVqJQbgwSw1H4j5y4qI7I8wf9PEQRq2iQrLdzC-N_XGee6cBovEsZFpTd8Hr3KgRrseg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaLJo4XLzCW-oc7SVLH3hIi",
+        ),
+    },
+    UserPlaylist {
+        title: "Johnny's rockas",
+        views: "34 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/jwS-R-2fjA1LyssSeX7I93SWWkRspYvKTw_7q_-9pEbVNVa8f4lH2e681SiH2P3JPePut4Y9Zuk0=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/jwS-R-2fjA1LyssSeX7I93SWWkRspYvKTw_7q_-9pEbVNVa8f4lH2e681SiH2P3JPePut4Y9Zuk0=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZfacWKl966U8r2cZX3unI1",
+        ),
+    },
+    UserPlaylist {
+        title: "the shins",
+        views: "33 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/SFj04_MCMxTzyn7RrRC0zBPfzyWfZnF6HR8BELQT00ly-2WsPJIHoF-HfVq68rUxH4hd6cld5l4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/SFj04_MCMxTzyn7RrRC0zBPfzyWfZnF6HR8BELQT00ly-2WsPJIHoF-HfVq68rUxH4hd6cld5l4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbW1I_md-LDK65HK25hl0Lt",
+        ),
+    },
+    UserPlaylist {
+        title: "Jawn Lemon",
+        views: "33 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/HEfvFDslvU-is8t4Jm-uWSNDwuCdYL9LOQbP1_KkRaBTwJRNZJ0b51ddRSl8Za97ChQV9-5v6Q=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/HEfvFDslvU-is8t4Jm-uWSNDwuCdYL9LOQbP1_KkRaBTwJRNZJ0b51ddRSl8Za97ChQV9-5v6Q=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaA1bC4YFTpKQ3qpOkJb7x-",
+        ),
+    },
+    UserPlaylist {
+        title: "Magical Mystery Tour (2023 faux edition)",
+        views: "33 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/SnNVwwSo__AVQum9-YJ1oaNunjZujtaka6Rn0qMHLB_-a4ZPFKYB5hat16PcK54ric4AJDtofg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/SnNVwwSo__AVQum9-YJ1oaNunjZujtaka6Rn0qMHLB_-a4ZPFKYB5hat16PcK54ric4AJDtofg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaUiClmgS3e2sUHE1kEBbxd",
+        ),
+    },
+    UserPlaylist {
+        title: "Dukes of September",
+        views: "32 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/kQqjFGWfvBJ65HilTAybI2xe9slHHuRVt9KYkZwRXRDaf1axeh5VwaDEA5ODYFtZPiSSSKlVLmE=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/kQqjFGWfvBJ65HilTAybI2xe9slHHuRVt9KYkZwRXRDaf1axeh5VwaDEA5ODYFtZPiSSSKlVLmE=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAadXa7C0TNgz5BL1XRxEZn4",
+        ),
+    },
+    UserPlaylist {
+        title: "magical mystery tour alt",
+        views: "32 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/Aihpt3oypApr_wFRkmV6EAOmrrxdayRdO4IlOY77pf-jAQInXY_nBCS1kylEpgWPrhUBbNyT7Fw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/Aihpt3oypApr_wFRkmV6EAOmrrxdayRdO4IlOY77pf-jAQInXY_nBCS1kylEpgWPrhUBbNyT7Fw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYjR4CV2zCCPngypy7qiNLO",
+        ),
+    },
+    UserPlaylist {
+        title: "Jerzy Boise",
+        views: "30 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/IWGc-jfBmvJpqVrQmo11wNNw98DV7l85T_fbglEBfSFbqe46WtBxZdwVEo8zTVxR-lRBaKfVcCJH=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/IWGc-jfBmvJpqVrQmo11wNNw98DV7l85T_fbglEBfSFbqe46WtBxZdwVEo8zTVxR-lRBaKfVcCJH=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYgRqCI7Kig67RPgy_GE88B",
+        ),
+    },
+    UserPlaylist {
+        title: "Smile (my indulgent inaccurate mix)",
+        views: "30 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/65rsdgNLP43Nlh2U_WFV3A_9h6v93f96GaZqNJmMeqN8kgU1jR5qVPly64dz1F21ym-kb2kgxg4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/65rsdgNLP43Nlh2U_WFV3A_9h6v93f96GaZqNJmMeqN8kgU1jR5qVPly64dz1F21ym-kb2kgxg4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZqoBUKA3fRhv1ZD5PtMrwy",
+        ),
+    },
+    UserPlaylist {
+        title: "mothership (2024 expanded edition)",
+        views: "30 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/taO3vpIvxWnxVA4Zp5h35knA_0V0BWaGWakTARpIXURw4R5_gNt6kzJ5RFEr_3SRUQib6W3EtJE=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/taO3vpIvxWnxVA4Zp5h35knA_0V0BWaGWakTARpIXURw4R5_gNt6kzJ5RFEr_3SRUQib6W3EtJE=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbWBEY8_E61avlItYMv1toI",
+        ),
+    },
+    UserPlaylist {
+        title: "SAMPLE",
+        views: "28 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/sk3eKQ8N4HZi4HKlWxzSNjO6ZDCGESfgTVz_B2jvPG4a8RXpbn4_gVgaYb2a9id1zBUDXZxy9vY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/sk3eKQ8N4HZi4HKlWxzSNjO6ZDCGESfgTVz_B2jvPG4a8RXpbn4_gVgaYb2a9id1zBUDXZxy9vY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYmovZdDAkjiHqTYr9dInfY",
+        ),
+    },
+    UserPlaylist {
+        title: "Brian's in Love",
+        views: "28 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ku5G8jXc6M8u1C0hxIhXAO0JNsZvsOR4KOYKZpwNxcPygWfLwjSMaZaVhA6qWQ1GkCflNeLtHbc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ku5G8jXc6M8u1C0hxIhXAO0JNsZvsOR4KOYKZpwNxcPygWfLwjSMaZaVhA6qWQ1GkCflNeLtHbc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY8l9jep4sbwijKDTyE8iGx",
+        ),
+    },
+    UserPlaylist {
+        title: "introducing the Beatles (no covers)",
+        views: "27 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/PDggc2eIQP4aUMcSqLWb7mu-dWEONgVe2Ub9DmqbVDlw0aavhq5U5ZBprxGamr_9wS0AIk8kACs=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/PDggc2eIQP4aUMcSqLWb7mu-dWEONgVe2Ub9DmqbVDlw0aavhq5U5ZBprxGamr_9wS0AIk8kACs=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY0ITe8rI1KHR3giHo4-xx6",
+        ),
+    },
+    UserPlaylist {
+        title: "The Smiths Complete (for real this time)",
+        views: "26 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/DK-aCdWevXUNTiEbtsFdZEqgSkRxfS80Yj-FlUdYXspNXV-F16jHP1XrOlDy5BFwgdUU3aT6MwBZ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/DK-aCdWevXUNTiEbtsFdZEqgSkRxfS80Yj-FlUdYXspNXV-F16jHP1XrOlDy5BFwgdUU3aT6MwBZ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY8Dlk1UEpyGnHMnl2OFc-4",
+        ),
+    },
+    UserPlaylist {
+        title: "the simp.soms",
+        views: "26 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/G_ubz4C2YJ728CT9IJ-mCTV71K6cLmrcn00DtZ0Xz8Y6De-Hx_JTanZNzkkRxPKz4TuBK-llMQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/G_ubz4C2YJ728CT9IJ-mCTV71K6cLmrcn00DtZ0Xz8Y6De-Hx_JTanZNzkkRxPKz4TuBK-llMQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaJeK3OCEiPUdKd_IpG-F6L",
+        ),
+    },
+    UserPlaylist {
+        title: "the never ending sunshine",
+        views: "25 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/lpK8BbiCLKDNIztOtps-dWxOmLThSWXVqaDHnVP1JpVNp16pFki_vtPfcvb4N0_MpzqyyeBmk3mk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/lpK8BbiCLKDNIztOtps-dWxOmLThSWXVqaDHnVP1JpVNp16pFki_vtPfcvb4N0_MpzqyyeBmk3mk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaXnE8yYgpv4lUuxG-3FBp9",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach boy- going away for a while",
+        views: "25 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/IsvhcryRT-3kz7CC-_4kfvbQ6ocMXwERG7TsvWfaq3cF22KaXoiuMekpiVbLK3SXTWtFNPgX3tSs=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/IsvhcryRT-3kz7CC-_4kfvbQ6ocMXwERG7TsvWfaq3cF22KaXoiuMekpiVbLK3SXTWtFNPgX3tSs=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaXqrPqfJewnfHuo7zuN9uo",
+        ),
+    },
+    UserPlaylist {
+        title: "led zeppelin ii alternate mix",
+        views: "24 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/OgO6LHa5xZYL0sQGfo4P17ZjmwZgnBmffdMxZFPO4yjr-S1hx6xweUmtsqz9mmbJ-5cpaugNhYTV=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/OgO6LHa5xZYL0sQGfo4P17ZjmwZgnBmffdMxZFPO4yjr-S1hx6xweUmtsqz9mmbJ-5cpaugNhYTV=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaF-PieHeDVn7pifTiSxBur",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys Anthology 3: The Concerts",
+        views: "23 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/PH2iDhuKvEI9Xdr9S9FJPj30OTHE7dUupeedS0rFcLzthjXXNYzBJDPUVBoLXiFzpKQP0gZaJEE=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/PH2iDhuKvEI9Xdr9S9FJPj30OTHE7dUupeedS0rFcLzthjXXNYzBJDPUVBoLXiFzpKQP0gZaJEE=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbHqILBT2H86o4TrL4hF6nh",
+        ),
+    },
+    UserPlaylist {
+        title: "Georgy Boy",
+        views: "22 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/i1uSFAFINKTCW5PeYoounnN6qGsQCycmw3-gf2XSn6bzJ7BXa50Q62DhZPdANY3c5Qwzj8NGwR0=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/i1uSFAFINKTCW5PeYoounnN6qGsQCycmw3-gf2XSn6bzJ7BXa50Q62DhZPdANY3c5Qwzj8NGwR0=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZnKgz6Z5tTVQH9YO6ULYa5",
+        ),
+    },
+    UserPlaylist {
+        title: "Kendrick Lamar- The Singles Collection",
+        views: "21 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/0WsE1wpmQ_JEblcK4b8-z65plHDROuOeLG7MAADK42gezzGdO4a1mS8SsAUXy8CDmzaIkMP3Zso=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/0WsE1wpmQ_JEblcK4b8-z65plHDROuOeLG7MAADK42gezzGdO4a1mS8SsAUXy8CDmzaIkMP3Zso=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAapAl4zn8IcKeLHpt1xpXV4",
+        ),
+    },
+    UserPlaylist {
+        title: "the alternate Igor",
+        views: "20 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/rQGQ3HfQeJOPhMbCNDnrqKi_Uc22DxOlfApnD6Cwk8E8WJH0fZjEt-RX2yveQpzjEnGS4MP_QrE=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/rQGQ3HfQeJOPhMbCNDnrqKi_Uc22DxOlfApnD6Cwk8E8WJH0fZjEt-RX2yveQpzjEnGS4MP_QrE=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb4OTQ5wHs_pkllTmln_ie8",
+        ),
+    },
+    UserPlaylist {
+        title: "The Golden Records",
+        views: "20 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/RpeUSedrAdBiScFR1qYjj2riXIpNCTJXtPSb3F_ya2dMHSNIxT7Kc-27DX4PBEyvTX0qts8Jdg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/RpeUSedrAdBiScFR1qYjj2riXIpNCTJXtPSb3F_ya2dMHSNIxT7Kc-27DX4PBEyvTX0qts8Jdg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY4mJOOxQ-NFwAnr98iL7qe",
+        ),
+    },
+    UserPlaylist {
+        title: "Beatles -Songs from Penny Lane",
+        views: "19 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/q1ttNd7zyOWyWDZi9DyzDewWucPvnk-_RHoyXFBwdQreg3HBRFGVQ8reLTSJzY8IYVCUGglV0HY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/q1ttNd7zyOWyWDZi9DyzDewWucPvnk-_RHoyXFBwdQreg3HBRFGVQ8reLTSJzY8IYVCUGglV0HY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZstvxcTW7n_2Ch0i0SsxkE",
+        ),
+    },
+    UserPlaylist {
+        title: "houses of the holy (reimagined)",
+        views: "19 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/yLrd2QFb8IW8fbd_yn04ptncw2GFja5cfXdWfJHZSYl0jsPC_REFSrp-YEPpqSKHxaXkLNB8wA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/yLrd2QFb8IW8fbd_yn04ptncw2GFja5cfXdWfJHZSYl0jsPC_REFSrp-YEPpqSKHxaXkLNB8wA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbaUth9mCPi0VRc1k8xER70",
+        ),
+    },
+    UserPlaylist {
+        title: "20 Greatest Hits",
+        views: "18 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/EYzTB2TE25J9BaHmhJdhWOUP_k8AHgbIGjSiGKqIH1ZDEGV2kSoeOF20EHeG-9MaaugNnnojTcQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/EYzTB2TE25J9BaHmhJdhWOUP_k8AHgbIGjSiGKqIH1ZDEGV2kSoeOF20EHeG-9MaaugNnnojTcQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbjnUEZEpbDn_CCplt7DsJZ",
+        ),
+    },
+    UserPlaylist {
+        title: "HEAD (alt mix)",
+        views: "16 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/f6fqMGcmENJpBDn8i64WdVd2oZB5cWyyzD628ggbHnbbDzrSOr71vcp-rP9r1xrP5ZM6bMe0opw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/f6fqMGcmENJpBDn8i64WdVd2oZB5cWyyzD628ggbHnbbDzrSOr71vcp-rP9r1xrP5ZM6bMe0opw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbWO8JNtNEMDquT-MEeMm4G",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys - Reel Music (Their Soundtrack Classics)",
+        views: "15 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ZK8SnLylP3eHxWAqJUqXydcJjAiHiDeyWq-p2XcGJO9fJOQftAE81bsR1cdQye6Zq2TTEQKmQjqf=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ZK8SnLylP3eHxWAqJUqXydcJjAiHiDeyWq-p2XcGJO9fJOQftAE81bsR1cdQye6Zq2TTEQKmQjqf=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYZHXQaRkR5jxEHR9_VQUwp",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys Anthology 1: The Discography",
+        views: "15 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/BFeyRbbETfijEciSwZ-_Ad9Z61U8TN36ecYB88_qmZyO2k6I9QYB14XPw2c3wmQnS3wlne4s0w=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/BFeyRbbETfijEciSwZ-_Ad9Z61U8TN36ecYB88_qmZyO2k6I9QYB14XPw2c3wmQnS3wlne4s0w=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ5nqiGGtxFgrXiaiBRlqyQ",
+        ),
+    },
+    UserPlaylist {
+        title: "help! (8 arms to hold you)",
+        views: "15 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/RWn_FvVyFxRDHDBUfCAWP3aJC8kdHr3gyXmNZp-8_NyTM7TbHpAm8n9ogD1rcxgBJpV4_JUrwZc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/RWn_FvVyFxRDHDBUfCAWP3aJC8kdHr3gyXmNZp-8_NyTM7TbHpAm8n9ogD1rcxgBJpV4_JUrwZc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZUupfNHEFODyhdTtxKNVyr",
+        ),
+    },
+    UserPlaylist {
+        title: "morning in the park with the beach boys",
+        views: "14 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/fyMy5x-uVvVe8WqikNHV-OxBIaqwV5YQ5Z-apB7ZWslQ7vZ7FZgxwobIl0KjN-yPOQ3KVlR4-Gs=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/fyMy5x-uVvVe8WqikNHV-OxBIaqwV5YQ5Z-apB7ZWslQ7vZ7FZgxwobIl0KjN-yPOQ3KVlR4-Gs=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbYHinaQvAfTgPi1v86uzwA",
+        ),
+    },
+    UserPlaylist {
+        title: "Gunfighter Ballads (LP order)",
+        views: "14 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/PV0cn1kkxCxrxeMCkkaDl073tg_Fu-mqkoIUxyO43SZvgvyx9tN0-Bf0hv34mtXBX9Vh6aohuFAbBT8E=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/PV0cn1kkxCxrxeMCkkaDl073tg_Fu-mqkoIUxyO43SZvgvyx9tN0-Bf0hv34mtXBX9Vh6aohuFAbBT8E=w544-h544-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYspmQ5E-7MlI4tnw4eKj6I",
+        ),
+    },
+    UserPlaylist {
+        title: "led zeppelin alternate take",
+        views: "14 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/MVBR3fi55bz6Cwa7RF-lm9gi_CEEv1PgUV09slXWqeriIZWdhFFXU6miohkfVzz6u1q3AMm9PcqT=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/MVBR3fi55bz6Cwa7RF-lm9gi_CEEv1PgUV09slXWqeriIZWdhFFXU6miohkfVzz6u1q3AMm9PcqT=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYNmZIcfVfWmdeGcHHOQG1A",
+        ),
+    },
+    UserPlaylist {
+        title: "strangeways alternative list",
+        views: "13 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/MuddaF1YaavtxOWee5_6hQy8cQw9508CGYt8GsPWbdT8XSZ8fQ1jGZef9qxdOtBFmtLswsOzw_WP=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/MuddaF1YaavtxOWee5_6hQy8cQw9508CGYt8GsPWbdT8XSZ8fQ1jGZef9qxdOtBFmtLswsOzw_WP=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbxnqxdHiaVdaYd6YUZVuQi",
+        ),
+    },
+    UserPlaylist {
+        title: "NWA and Co",
+        views: "13 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/B8gdYJ0Z_HItl_fQWSzmVYt8yC0owt5tBqFT35lUPazBkg4bggVpRIiMF-tQLv51eVSXTiSdNA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/B8gdYJ0Z_HItl_fQWSzmVYt8yC0owt5tBqFT35lUPazBkg4bggVpRIiMF-tQLv51eVSXTiSdNA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZv67vNrHKa22ZDs3V1csGg",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beatles - Photographs (1973 reunion LP)",
+        views: "13 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Dnp5AzBuAUOTx8jrPoOf8hd3w3EGMssXLwoTWBGOkSbhi9qoZoKciOlNEituOjkTfC_E7f7MBdQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Dnp5AzBuAUOTx8jrPoOf8hd3w3EGMssXLwoTWBGOkSbhi9qoZoKciOlNEituOjkTfC_E7f7MBdQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaDfvP_28UzwaYIWDLgBck_",
+        ),
+    },
+    UserPlaylist {
+        title: "the songs remain stolen (or covered)",
+        views: "13 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/JJug2c1hjB6mvIjV63R-mYRpwx1lDfK_I-BXG5IINc2u5MOoQUiBUsCB6FnP_IeVFj40IWm2Izk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/JJug2c1hjB6mvIjV63R-mYRpwx1lDfK_I-BXG5IINc2u5MOoQUiBUsCB6FnP_IeVFj40IWm2Izk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbqyY77zkSQlTMv5e_urgfL",
+        ),
+    },
+    UserPlaylist {
+        title: "Mini Van",
+        views: "12 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/_pIrHqxKtro1U-s7PaktfG0ADL9D_QzcyPcOrXFKeZoowbbtCQtUGaJjx6__cR7Jdfu7Zh3Jwks=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/_pIrHqxKtro1U-s7PaktfG0ADL9D_QzcyPcOrXFKeZoowbbtCQtUGaJjx6__cR7Jdfu7Zh3Jwks=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbhxhX5I8zcdtVNONIn-q6h",
+        ),
+    },
+    UserPlaylist {
+        title: "Fear of a Dune Planet",
+        views: "12 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/iGgkfESjbYiD4KASp-FCEsfkuSBK0T25X0LV6yn6LufrgC5TuqFgYBYnoRyTCQn3alpskfFlRy4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/iGgkfESjbYiD4KASp-FCEsfkuSBK0T25X0LV6yn6LufrgC5TuqFgYBYnoRyTCQn3alpskfFlRy4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAap9yQYhiZ8kujSxuLIeEeq",
+        ),
+    },
+    UserPlaylist {
+        title: "KUNG FU KENNY",
+        views: "12 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/wHVrTZVfnExikdrvcvEfuf6NxCNDf_VSo7FX7QMh_mBYl8qxeo_Vqac0FrstTByTWEUzRgSZg0E=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/wHVrTZVfnExikdrvcvEfuf6NxCNDf_VSo7FX7QMh_mBYl8qxeo_Vqac0FrstTByTWEUzRgSZg0E=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAa4fdmvSgCTNS71FzRUmOqe",
+        ),
+    },
+    UserPlaylist {
+        title: "Pink Floyd Past Masters",
+        views: "10 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/-d4S9OIK4sZhE7vtIZXLyCiCDCru7UJFfOP7sGHFSbeeSgnJ37Unx1-V8cSG34PWxXSRFFC9Dqw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/-d4S9OIK4sZhE7vtIZXLyCiCDCru7UJFfOP7sGHFSbeeSgnJ37Unx1-V8cSG34PWxXSRFFC9Dqw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb0gvjr3AbRVC7LV_2Oqvgu",
+        ),
+    },
+    UserPlaylist {
+        title: "1981",
+        views: "10 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/IAqYntGSKR8jyg58aWzKFeXxR3xzANg73mlLkIRvr3sHY0GM7c_g38QzWPcLKgKZ4LQkunK5luI=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/IAqYntGSKR8jyg58aWzKFeXxR3xzANg73mlLkIRvr3sHY0GM7c_g38QzWPcLKgKZ4LQkunK5luI=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAY_4YNdtAHfV7A02p89VKDO",
+        ),
+    },
+    UserPlaylist {
+        title: "1985",
+        views: "10 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/SKc6R_Hjdif5MbSaVdV3Vyhwj-nXMpUFZ1J-DztLGEwE2R9Iis-zrXRxetqhGadks9ynaU7fQnUo=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/SKc6R_Hjdif5MbSaVdV3Vyhwj-nXMpUFZ1J-DztLGEwE2R9Iis-zrXRxetqhGadks9ynaU7fQnUo=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZPdOR4vofTjguWfFTXbc66",
+        ),
+    },
+    UserPlaylist {
+        title: "the Nightly (Xtra cuts)",
+        views: "10 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/QeZKtR6UZgIe7Rb42rGHO4sSwr80qyvH4HaZ3JcHnPAjoEiPKw3SlWS6RoWjDwafqAcNDeLTJQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/QeZKtR6UZgIe7Rb42rGHO4sSwr80qyvH4HaZ3JcHnPAjoEiPKw3SlWS6RoWjDwafqAcNDeLTJQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbxpXDbkU1xcCsHc8MSm2ZN",
+        ),
+    },
+    UserPlaylist {
+        title: "The SiF Adventures",
+        views: "9 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/7GlQM-MtCpHWsfokcGH9UIJI0mtlN7TtFC744GZVSsAAq99l3gpLZSmiFWOV0hYc0pms9rD1eauu=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/7GlQM-MtCpHWsfokcGH9UIJI0mtlN7TtFC744GZVSsAAq99l3gpLZSmiFWOV0hYc0pms9rD1eauu=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZRcdgqxcfMjKJ7tVC1m4VY",
+        ),
+    },
+    UserPlaylist {
+        title: "led zeppelin iv (no stairway! denied!)",
+        views: "9 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/Eb2rpNLsWdBPn_flPG7yHpj2fyCXj3D5pKYASTkrGn-65OWmpbb_lFydCM0p7TS1-2vK44Kw7xU=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/Eb2rpNLsWdBPn_flPG7yHpj2fyCXj3D5pKYASTkrGn-65OWmpbb_lFydCM0p7TS1-2vK44Kw7xU=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbepUPVtThvV8IA3NM0C7v3",
+        ),
+    },
+    UserPlaylist {
+        title: "dumb angel",
+        views: "8 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/crc7y38YYMdK573yQnA46Cyndwc-OyBV_iSKbCXnPYmLU4qxRPEVaPJO0uqOauGT3XwJPhgzlmHi=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/crc7y38YYMdK573yQnA46Cyndwc-OyBV_iSKbCXnPYmLU4qxRPEVaPJO0uqOauGT3XwJPhgzlmHi=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZrevIfmFi7FCZCT-n01Ylq",
+        ),
+    },
+    UserPlaylist {
+        title: "Jersey Boys",
+        views: "8 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/NpPuQhYjeHdbAB470BskhyjdN4QRBweh0vgru9wI7PLlBTtxmsxbK9EU3unwwq-QbS4d9QsmfA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/NpPuQhYjeHdbAB470BskhyjdN4QRBweh0vgru9wI7PLlBTtxmsxbK9EU3unwwq-QbS4d9QsmfA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaTIV8YVTWkJwAEMf66WXTC",
+        ),
+    },
+    UserPlaylist {
+        title: "1984",
+        views: "8 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/-WraWJplTtW24-0Hgk-BBzMpCsQ41ms5k1bpNSOMak-Qk0JuTAGz8hQFvD0YPxZgUD6t4MdbMB2W=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/-WraWJplTtW24-0Hgk-BBzMpCsQ41ms5k1bpNSOMak-Qk0JuTAGz8hQFvD0YPxZgUD6t4MdbMB2W=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYwfJNTj54vwMtzeT9XpDAA",
+        ),
+    },
+    UserPlaylist {
+        title: "Revolver (Alternate US album)",
+        views: "8 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/tOb-TMdm3UwY-zlyH7_ctAQUimEClBZuoblbkvfxowvp5hFfq1QQIFZRdlpAeQezsG1ioNoFnw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/tOb-TMdm3UwY-zlyH7_ctAQUimEClBZuoblbkvfxowvp5hFfq1QQIFZRdlpAeQezsG1ioNoFnw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbCLtpyNeqh8pOKyhVBG_xs",
+        ),
+    },
+    UserPlaylist {
+        title: "Yachtmas",
+        views: "7 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/BkXi6RW1gMwcZVYUO4xX5SjWEm8y4a2KWSX_frPzPFSvTNh4MKF1zx7TLgMOWhH69I8lX1gI_3f7=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/BkXi6RW1gMwcZVYUO4xX5SjWEm8y4a2KWSX_frPzPFSvTNh4MKF1zx7TLgMOWhH69I8lX1gI_3f7=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYdXlbbiuy_cbNyBB5WIa_d",
+        ),
+    },
+    UserPlaylist {
+        title: "BLUE XMAS",
+        views: "7 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/0VLG0RY0dmZXpw0-KKnvx1fdt2NkCe8HJkHjkxBRjeRbhUV41rZmOzg9-oCSemKJ2Sv1ffpdQfNm=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/0VLG0RY0dmZXpw0-KKnvx1fdt2NkCe8HJkHjkxBRjeRbhUV41rZmOzg9-oCSemKJ2Sv1ffpdQfNm=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZV2Zio14fygGhR6vsLUo0s",
+        ),
+    },
+    UserPlaylist {
+        title: "iii",
+        views: "7 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/47HtAdpT9AO9t67GHwTGwxbBmQvqpDquSBZr6LSAtdO34G9k8peS90-abfMjOpSY2mKjBPj56w=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/47HtAdpT9AO9t67GHwTGwxbBmQvqpDquSBZr6LSAtdO34G9k8peS90-abfMjOpSY2mKjBPj56w=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb9kN6fsfzrX7mne1-6d7Lp",
+        ),
+    },
+    UserPlaylist {
+        title: "October tides",
+        views: "6 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/aMeA5wxFquW4xWfK6iIzmLdEIrSJXBm28G5x8pP-rsdDQ4K4fM6a25lq-78ddKlHUvGkApun7Sk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/aMeA5wxFquW4xWfK6iIzmLdEIrSJXBm28G5x8pP-rsdDQ4K4fM6a25lq-78ddKlHUvGkApun7Sk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb6d6WHQR8lByfUt5nSGbyU",
+        ),
+    },
+    UserPlaylist {
+        title: "popper music",
+        views: "6 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/iPh5NAhTyveATxqUzR-0KE4eprvFVl_jmpMQ3yMJB3YItJbye_KXOdPRG0PEBjoJjGWO-TO3dg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/iPh5NAhTyveATxqUzR-0KE4eprvFVl_jmpMQ3yMJB3YItJbye_KXOdPRG0PEBjoJjGWO-TO3dg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbjTsKWGDQZin78pS0njBqM",
+        ),
+    },
+    UserPlaylist {
+        title: "physical graffiti (single LP)",
+        views: "6 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/HaQis0e7PsriRRnaGnl6HCS6zg9arccT3lFMYRzbG1gypZRxbZ-qmejUe1easiiWS0vKLP7NUvSM=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/HaQis0e7PsriRRnaGnl6HCS6zg9arccT3lFMYRzbG1gypZRxbZ-qmejUe1easiiWS0vKLP7NUvSM=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAafAzWirhEJzgOrJYa3jtMD",
+        ),
+    },
+    UserPlaylist {
+        title: "how many Suzie Cincinnati's do you need?!",
+        views: "5 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/_dg2Kxk_J0zr4-IYs91Pt7DZtfO50cUEnLNUHlZvHh5xLglPIOj73y9rsjSQknHadaXsiQozVA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/_dg2Kxk_J0zr4-IYs91Pt7DZtfO50cUEnLNUHlZvHh5xLglPIOj73y9rsjSQknHadaXsiQozVA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaajE2bQcLRYyuZJyymgl0R",
+        ),
+    },
+    UserPlaylist {
+        title: "The Landlocked Mixtape",
+        views: "5 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/5xnh0rfCenRntVM5tTJPGJnfwwJme2JMNsf34MbU3CFi09tsvAvTkDdPtqAhyIphIw3ZO7GgDx8V=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/5xnh0rfCenRntVM5tTJPGJnfwwJme2JMNsf34MbU3CFi09tsvAvTkDdPtqAhyIphIw3ZO7GgDx8V=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ64zMwsd3zyoFhiAMLbBAD",
+        ),
+    },
+    UserPlaylist {
+        title: "AHDN complete score",
+        views: "5 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/N5f4vC3SAhc7Uv0Hy080bCuXsjTVKdCJQn1HpR9RmxwvuK-WegA6hWej8HtnQ4JSHA4vKXrX3Vw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/N5f4vC3SAhc7Uv0Hy080bCuXsjTVKdCJQn1HpR9RmxwvuK-WegA6hWej8HtnQ4JSHA4vKXrX3Vw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAadnqNEsIctf-7lwatDQOPF",
+        ),
+    },
+    UserPlaylist {
+        title: "Introducing The Quarrymen",
+        views: "4 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Y-KXSce-CbuADFaq-pA0yI6cKsr3uhYfm5I-adUYQGXtqBi3SreaGDYj8aLD8Vy_DE0VR9QvCH4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Y-KXSce-CbuADFaq-pA0yI6cKsr3uhYfm5I-adUYQGXtqBi3SreaGDYj8aLD8Vy_DE0VR9QvCH4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZtsYHVaOnWJUeXYt-eO3dT",
+        ),
+    },
+    UserPlaylist {
+        title: "Somewhere Across the Sea Demo Videos",
+        views: "4 views",
+        thumbnails: [
+            Thumbnail {
+                height: 225,
+                width: 400,
+                url: "https://i.ytimg.com/vi/3RI8MNtdx6w/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3mUTA5x4K6fEgk6PwvhoEiKPcAuxw",
+            },
+            Thumbnail {
+                height: 450,
+                width: 800,
+                url: "https://i.ytimg.com/vi/3RI8MNtdx6w/hq720.jpg?sqp=-oaymwEXCKAGEMIDIAQqCwjVARCqCBh4INgESFo&rs=AMzJL3lqcUYQrL4yqnnN9L5ug3sG_hPEuQ",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ4a-69oBdRqMbhhqDDL9ME",
+        ),
+    },
+    UserPlaylist {
+        title: "line 6 spider Liverpool Crunch",
+        views: "3 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/9JVJ_h5J-ugrqTOJB11Cz1ItSQX9Nuyrxq13iBCgGL7NxtomoRZDj4n_cf1kWe4i2me1sP6v2Ra-=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/9JVJ_h5J-ugrqTOJB11Cz1ItSQX9Nuyrxq13iBCgGL7NxtomoRZDj4n_cf1kWe4i2me1sP6v2Ra-=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbel-4UiON6XgsvJqsS6deu",
+        ),
+    },
+    UserPlaylist {
+        title: "texmin",
+        views: "3 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/zs4LwuJvmr7-32cce2-d8IcnSz1jwxgec1EbybHUBVq7BapWSxJq7PzGEMSEvQ27EbAY64elVZY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/zs4LwuJvmr7-32cce2-d8IcnSz1jwxgec1EbybHUBVq7BapWSxJq7PzGEMSEvQ27EbAY64elVZY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbN8apVVgwo9ISPG0qBqF8U",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beer Tent",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/EUu7N0QgRylyEYZXGuvF3kjK_4SPA5FsURhDqCfVDsj_xe81C29g-Uf4v-NZtVG38YJcvfLboamm=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/EUu7N0QgRylyEYZXGuvF3kjK_4SPA5FsURhDqCfVDsj_xe81C29g-Uf4v-NZtVG38YJcvfLboamm=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbvg8fcw_Fr9kD9zvnvtcUh",
+        ),
+    },
+    UserPlaylist {
+        title: "let's get on with this big romance thing",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/sVNRbv9LYoW-B3EJp_Hln7Dw30NqC-RRFlnhAslmYaigwJSkS5LdT73MldcSwK-P-1Hx37wCPQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/sVNRbv9LYoW-B3EJp_Hln7Dw30NqC-RRFlnhAslmYaigwJSkS5LdT73MldcSwK-P-1Hx37wCPQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZE-S9BuBhgEN60QjILrmDM",
+        ),
+    },
+    UserPlaylist {
+        title: "fae woods music",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/WHU2QdE-bivws4ZDz8Tmq1-iHaJr0tUuozhl8RK30fHfWOYZvRpzwVa6dawsj-RiGxlfDihjzw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/WHU2QdE-bivws4ZDz8Tmq1-iHaJr0tUuozhl8RK30fHfWOYZvRpzwVa6dawsj-RiGxlfDihjzw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbeP4t6lzGhX0OBa552qsLp",
+        ),
+    },
+    UserPlaylist {
+        title: "the Source of The Smiths",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/OfhB1MVZteH1-SaajtlqSTrJBZJxq_qZMGOKTf3PaZ-w_JsjqjYGRr6jVtBoUZvQFxm8CQcXtbw=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/OfhB1MVZteH1-SaajtlqSTrJBZJxq_qZMGOKTf3PaZ-w_JsjqjYGRr6jVtBoUZvQFxm8CQcXtbw=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAahu5IrJsyu39bJq3j55y6D",
+        ),
+    },
+    UserPlaylist {
+        title: "Peter Hook 2016 First Ave",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/FNu_QB3gr35W3AVneaXwu4HLbeqYesbZT2m0VDgAdlKNWV66z3DtgEIM0fgqlCbT2q3UcDtnuLA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/FNu_QB3gr35W3AVneaXwu4HLbeqYesbZT2m0VDgAdlKNWV66z3DtgEIM0fgqlCbT2q3UcDtnuLA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZ3wvP6tuMLU38dfWz8mwRL",
+        ),
+    },
+    UserPlaylist {
+        title: "who's 60s",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/mdWSuqKkJy0A9-tRXlXbTNUIfJLvnONat9etwbpwou0dZdn94uyj0LSFMAe64bv46lWoDOhj8xo=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/mdWSuqKkJy0A9-tRXlXbTNUIfJLvnONat9etwbpwou0dZdn94uyj0LSFMAe64bv46lWoDOhj8xo=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbTkUQHnTL2GhPS75qhReDi",
+        ),
+    },
+    UserPlaylist {
+        title: "Sing Street - self titled debut",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/OTBXwuP03apMM6nHdCSanbOJ1jvhq39KrAGaDyFT1KeQ7bp_t05mSw-F_JWU1mt2sNslnIiTgoJQwDK9=w226-h226-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/OTBXwuP03apMM6nHdCSanbOJ1jvhq39KrAGaDyFT1KeQ7bp_t05mSw-F_JWU1mt2sNslnIiTgoJQwDK9=w544-h544-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbfiqw4DKhC4e6AOKTXYBkS",
+        ),
+    },
+    UserPlaylist {
+        title: "The Alternate Aja",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/Y80QlUM84Ac3YR4Vdw-MIyR0oA1cnr7O2jOI3-ZAQ7bnTUECUR6GZgBmrNpBXUBN45OS3ZSg3cs=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/Y80QlUM84Ac3YR4Vdw-MIyR0oA1cnr7O2jOI3-ZAQ7bnTUECUR6GZgBmrNpBXUBN45OS3ZSg3cs=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAb-aDcq46YDKRQY49fiYilS",
+        ),
+    },
+    UserPlaylist {
+        title: "Marty's tune",
+        views: "2 views",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ebvFwmnWouyAHyPYXrpO8ygabOIQT1P0a9U11ERFafKtr6R9xXbau3aC5-2l_axaZwbQgyffwmg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ebvFwmnWouyAHyPYXrpO8ygabOIQT1P0a9U11ERFafKtr6R9xXbau3aC5-2l_axaZwbQgyffwmg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAawFMEHm_a26ERwkAgN3Cy9",
+        ),
+    },
+    UserPlaylist {
+        title: "last nite karaoke",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/U54ol0rw1PQzOSEt35Wo8m9MkaD3pPbnrUa9zQIxFZ1Na4pl4sigxIzT58DgsbtJTvmy_xFBa18=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/U54ol0rw1PQzOSEt35Wo8m9MkaD3pPbnrUa9zQIxFZ1Na4pl4sigxIzT58DgsbtJTvmy_xFBa18=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAagOxqik2oHLyWdO7eC7IAH",
+        ),
+    },
+    UserPlaylist {
+        title: "Kill Uncle (proper tracklist)",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 226,
+                width: 226,
+                url: "https://lh3.googleusercontent.com/Ly7OL-2a1TrZMC9bxxjs8Ml60WE3OCoeLDQJsozXKiq_8d1gJo6ps1ZDV3i7jmzlxIVoiA_RoYAh2-bg=w226-h226-s-l90-rj",
+            },
+            Thumbnail {
+                height: 544,
+                width: 544,
+                url: "https://lh3.googleusercontent.com/Ly7OL-2a1TrZMC9bxxjs8Ml60WE3OCoeLDQJsozXKiq_8d1gJo6ps1ZDV3i7jmzlxIVoiA_RoYAh2-bg=w544-h544-s-l90-rj",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYWiuujsZFO8uF3j-43DqQq",
+        ),
+    },
+    UserPlaylist {
+        title: "MCA SAMPLER (MARIO MIX)",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/YBDXf66gxmtOfZ9ieTKX85XuTd2q3HEMhyBFB55zjV25ZXNXtS-tjs7yX_tYYY8UnQUGQRYkixY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/YBDXf66gxmtOfZ9ieTKX85XuTd2q3HEMhyBFB55zjV25ZXNXtS-tjs7yX_tYYY8UnQUGQRYkixY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbpm7rbb3a1SE_fhRoiBv7-",
+        ),
+    },
+    UserPlaylist {
+        title: "Brontë-Core",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/7Gt5K7xdJQ0NeqNOMmOcZjqDU_ij4lUiI7oubn7yyaSs_L6IENiyrTdr6Kc_DOiHq1-4NZ45_Ek=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/7Gt5K7xdJQ0NeqNOMmOcZjqDU_ij4lUiI7oubn7yyaSs_L6IENiyrTdr6Kc_DOiHq1-4NZ45_Ek=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZGj2aF3769N6YbHHCvwQ86",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys Anthology 6: The Solo Projects",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/gUbVVuIjTEuel4gSzDSqKIIm6M_nDEyM_-xMQTRoSbYSxM2kJzn8Yx3wjL8PXriqD_scXrqc3-A=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/gUbVVuIjTEuel4gSzDSqKIIm6M_nDEyM_-xMQTRoSbYSxM2kJzn8Yx3wjL8PXriqD_scXrqc3-A=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbpgC3YxlnasV7gZ68VGtFd",
+        ),
+    },
+    UserPlaylist {
+        title: "1982",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/AIGwUBybCKAWMx1ExY0zA5CkaK7H6yTj2VOTGEHUWNcvc5bXMK_i2g4sVCzU6_gDC07tlVm61Se1=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/AIGwUBybCKAWMx1ExY0zA5CkaK7H6yTj2VOTGEHUWNcvc5bXMK_i2g4sVCzU6_gDC07tlVm61Se1=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAanWQnucySNEQjl0icBXoEq",
+        ),
+    },
+    UserPlaylist {
+        title: "blame Canada",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ZOKlIAodtTXGfd2jB9uNmreiNNFkxwIdfa3q7AJWKi1a02NEYlI0M2R6UpbJESKh0RvCJ5_YLIQ=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ZOKlIAodtTXGfd2jB9uNmreiNNFkxwIdfa3q7AJWKi1a02NEYlI0M2R6UpbJESKh0RvCJ5_YLIQ=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZIs6mV1wEDAZFIsyV_yMoP",
+        ),
+    },
+    UserPlaylist {
+        title: "beach boys Xmas alt mix",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/sTO3HvE8R9DAb9OHo5H8CmoGiJDaiSTrv_fo8prIqNBGxkpzJ5Nt4cfn75LooB1lvLE2blZz6wk=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/sTO3HvE8R9DAb9OHo5H8CmoGiJDaiSTrv_fo8prIqNBGxkpzJ5Nt4cfn75LooB1lvLE2blZz6wk=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZORdFaiB1EkL19yy3G8uuj",
+        ),
+    },
+    UserPlaylist {
+        title: "2 McCartney 2",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/4OiVkwVhohfXQKy4vz-tCIuQhGcUcD-koZrDY6MT5f0Z5Jfiup0fjSkTgm8I-UECHhTpMCddhcg2=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/4OiVkwVhohfXQKy4vz-tCIuQhGcUcD-koZrDY6MT5f0Z5Jfiup0fjSkTgm8I-UECHhTpMCddhcg2=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbfL5IkWkshoIR5w4msj2jK",
+        ),
+    },
+    UserPlaylist {
+        title: "add some music to your day",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/V6NbBOw7zia_ydms8Qa2hCHxP1hr9WhqJbFD6a7Y6qodMGcEdN7z1wV00xKd2UWrnxtfDsl1tRTA=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/V6NbBOw7zia_ydms8Qa2hCHxP1hr9WhqJbFD6a7Y6qodMGcEdN7z1wV00xKd2UWrnxtfDsl1tRTA=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYnPb_4DAwPOoPNFUa13BB8",
+        ),
+    },
+    UserPlaylist {
+        title: "knowing brian wilson",
+        views: "1 view",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.ggpht.com/xbtpGX78vMNyOYBlZkDAeY7wlgVmO1UpWbKgFbLYDmf0Fdu7-orUj7CDtGL7fzLVCY91mkRGxXPa=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.ggpht.com/xbtpGX78vMNyOYBlZkDAeY7wlgVmO1UpWbKgFbLYDmf0Fdu7-orUj7CDtGL7fzLVCY91mkRGxXPa=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaj3aXmannouJsk1yDehIW5",
+        ),
+    },
+    UserPlaylist {
+        title: "Feel Flows 1969-1971 chronological",
+        views: "133 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/f2Ak3QHqdvkY7_IfgGtYH4uc_Z2vP4oD1qXpzYv-CXVbgeoSdJN3LvfRx9jljYBySGMy4s8rPQg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/f2Ak3QHqdvkY7_IfgGtYH4uc_Z2vP4oD1qXpzYv-CXVbgeoSdJN3LvfRx9jljYBySGMy4s8rPQg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbWmHP1Jc39dP1peo4rarfY",
+        ),
+    },
+    UserPlaylist {
+        title: "The Beach Boys - Reel Music",
+        views: "24 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/VpfZXJeoGFMLAb5W0xvCiiDsMyb1ZBjnUHiirJVfeab3lW4hN6l6tNfly3r75PqbGmpSEcddvh8=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/VpfZXJeoGFMLAb5W0xvCiiDsMyb1ZBjnUHiirJVfeab3lW4hN6l6tNfly3r75PqbGmpSEcddvh8=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYTS-U0Z8d-1eXxQr6ccUF-",
+        ),
+    },
+    UserPlaylist {
+        title: "the Beach Boys - Psych-o-del-ic Sounds",
+        views: "18 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/aXus3CrzZ3yjg8tjUwFUJpmVEuJRBRYa4RyBNmmu5D9SBycQBFBrmnBxE63sMZ7H_QhnDj50USgc=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/aXus3CrzZ3yjg8tjUwFUJpmVEuJRBRYa4RyBNmmu5D9SBycQBFBrmnBxE63sMZ7H_QhnDj50USgc=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbcQT_wWr31LoUcno5gXPiz",
+        ),
+    },
+    UserPlaylist {
+        title: "Wilsonian Music",
+        views: "56 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/VV2RuW7acinnKqPU6VSby8pc820PNvFsbLPW9qwfFNJeMSF3ttWvnccdKQx2kOzQBf7VbYEVXTxY=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/VV2RuW7acinnKqPU6VSby8pc820PNvFsbLPW9qwfFNJeMSF3ttWvnccdKQx2kOzQBf7VbYEVXTxY=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAZmlzLIqlLNcmAWdPFKd_FZ",
+        ),
+    },
+    UserPlaylist {
+        title: "endless summer if they locked the fuck in",
+        views: "58 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/YLgadJj7ZKOmA3VgYSW3eIpaV0itaMS35sqZ9weZ6U7c_vLd0v9E4sqiOzngWeDXOmWNcCvOH6U=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/YLgadJj7ZKOmA3VgYSW3eIpaV0itaMS35sqZ9weZ6U7c_vLd0v9E4sqiOzngWeDXOmWNcCvOH6U=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAbrq_d4NOVujqa1OrvdkSxD",
+        ),
+    },
+    UserPlaylist {
+        title: "sunny sides up",
+        views: "22 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/ifbt12ekJa5789jKPWjhnt5BSRlBQ0aJBySB8HGys-E81ODiFkjSKbmFs53o3LI_p0uSqcwDO_4=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/ifbt12ekJa5789jKPWjhnt5BSRlBQ0aJBySB8HGys-E81ODiFkjSKbmFs53o3LI_p0uSqcwDO_4=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAYRkg0wb6IPkrakuXwxU_UR",
+        ),
+    },
+    UserPlaylist {
+        title: "Sunlocked",
+        views: "27 tracks",
+        thumbnails: [
+            Thumbnail {
+                height: 192,
+                width: 192,
+                url: "https://yt3.googleusercontent.com/n7w50vZWWZ-sx-5MvDzFptqDsUM64jJOajkhnl6zWIMeFXnRmxMqCUYkN8Yg50S_jvk1n97Jdg=s192",
+            },
+            Thumbnail {
+                height: 576,
+                width: 576,
+                url: "https://yt3.googleusercontent.com/n7w50vZWWZ-sx-5MvDzFptqDsUM64jJOajkhnl6zWIMeFXnRmxMqCUYkN8Yg50S_jvk1n97Jdg=s576",
+            },
+        ],
+        id: PlaylistID(
+            "VLPLti4V4FomqAaknMi-9XsLnErBmPYAv45R",
+        ),
+    },
+]

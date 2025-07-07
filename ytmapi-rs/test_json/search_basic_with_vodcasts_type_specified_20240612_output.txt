@@ -747,7 +747,7 @@ SearchResults {
         SearchResultProfile {
             title: "The Beatles",
             username: "@thebeatlesfan.",
-            profile_id: ProfileID(
+            profile_id: UserChannelID(
                 "UCIFVxbgRHVe3KyikhcKqTfA",
             ),
             thumbnails: [
@@ -766,7 +766,7 @@ SearchResults {
         SearchResultProfile {
             title: "The Dung Beatles",
             username: "@thedungbeatles3272",
-            profile_id: ProfileID(
+            profile_id: UserChannelID(
                 "UC7DWdJ5bgAahclU7F411BPQ",
             ),
             thumbnails: [
@@ -785,7 +785,7 @@ SearchResults {
         SearchResultProfile {
             title: "The Beatles",
             username: "@TheBeatles-cs4ql",
-            profile_id: ProfileID(
+            profile_id: UserChannelID(
                 "UC5JMsZOYUg4DfX0OWdzOJHA",
             ),
             thumbnails: [

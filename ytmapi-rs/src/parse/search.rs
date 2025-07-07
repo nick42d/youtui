@@ -3,7 +3,7 @@ use super::{
 };
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, ContinuationParams, EpisodeID, Explicit, PlaylistID,
-    PodcastID, ProfileID, SearchSuggestion, SuggestionType, TextRun, Thumbnail, VideoID,
+    PodcastID, SearchSuggestion, SuggestionType, TextRun, Thumbnail, UserChannelID, VideoID,
 };
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
@@ -159,7 +159,7 @@ pub enum SearchResultVideo {
 pub struct SearchResultProfile {
     pub title: String,
     pub username: String,
-    pub profile_id: ProfileID<'static>,
+    pub profile_id: UserChannelID<'static>,
     pub thumbnails: Vec<Thumbnail>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
