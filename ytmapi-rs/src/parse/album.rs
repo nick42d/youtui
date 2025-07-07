@@ -118,12 +118,14 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
     let title = header.take_value_pointer(TITLE_TEXT)?;
     let category = header.take_value_pointer(SUBTITLE)?;
     let year = header.take_value_pointer(SUBTITLE2)?;
-    let artists = header
-        .borrow_pointer("/straplineTextOne/runs")?
-        .try_into_iter()?
-        .step_by(2)
-        .map(|mut item| parse_song_artist(&mut item))
-        .collect::<Result<Vec<ParsedSongArtist>>>()?;
+    let artists = match header.borrow_pointer("/straplineTextOne/runs") {
+        Ok(strapline_runs) => strapline_runs
+            .try_into_iter()?
+            .step_by(2)
+            .map(|mut item| parse_song_artist(&mut item))
+            .collect::<Result<Vec<ParsedSongArtist>>>()?,
+        Err(_) => vec![],
+    };
     let description = header
         .borrow_pointer(DESCRIPTION_SHELF_RUNS)
         .and_then(|d| d.try_into_iter())
