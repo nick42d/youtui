@@ -957,10 +957,10 @@ impl<A: LoggedIn> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let user_id = yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
-    /// let user = yt.get_user(&user_id).await.unwrap();
+    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&*user_id).await.unwrap();
     /// yt.get_user_videos(
-    ///     user_id,
+    ///     &*user_id,
     ///     user.all_videos_params.unwrap(),
     /// ).await
     /// # };
@@ -976,10 +976,10 @@ impl<A: LoggedIn> YtMusic<A> {
     /// ```no_run
     /// # async {
     /// let yt = ytmapi_rs::YtMusic::from_cookie("FAKE COOKIE").await.unwrap();
-    /// let user_id = yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
-    /// let user = yt.get_user(&user_id).await.unwrap();
+    /// let user_id = &yt.search_profiles("PewDiePie").await.unwrap()[0].profile_id;
+    /// let user = yt.get_user(&*user_id).await.unwrap();
     /// yt.get_user_playlists(
-    ///     user_id,
+    ///     &*user_id,
     ///     user.all_playlists_params.unwrap(),
     /// ).await
     /// # };

@@ -2,7 +2,7 @@
     SearchResultProfile {
         title: "The Beatles Diary Project",
         username: "@yuji-ilikebeatles1962",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCJUdWU2U-GAitwdBPzW-RVA",
         ),
         thumbnails: [
@@ -21,7 +21,7 @@
     SearchResultProfile {
         title: "The Beatles Man",
         username: "@thebeatlesman6193",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCmlXsZbnTQxvmBA5quIHg_w",
         ),
         thumbnails: [
@@ -40,7 +40,7 @@
     SearchResultProfile {
         title: "Beatles CD Bootlegs",
         username: "@Jrsrommel1",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCZRWlgOpRBsSzpvG9ZR-HFg",
         ),
         thumbnails: [
@@ -59,7 +59,7 @@
     SearchResultProfile {
         title: "Space the Beatles",
         username: "@spacethebeatles1573",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UC3gxbGDhyQVyV7Ml6qzWT5A",
         ),
         thumbnails: [
@@ -78,7 +78,7 @@
     SearchResultProfile {
         title: "The Beatles",
         username: "@thebeatles8976",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCknyXwvzeGvlQs2bmiXFGZg",
         ),
         thumbnails: [
@@ -97,7 +97,7 @@
     SearchResultProfile {
         title: "Beatles covers On a budget",
         username: "@BeatlescoversOnabudget",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCHWYCPrVfJoWsJUY6HVZX6g",
         ),
         thumbnails: [
@@ -116,7 +116,7 @@
     SearchResultProfile {
         title: "LET IT BEATLES Marcelo Sanches",
         username: "@letitbeatlesmarcelosanches9473",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCzrzgFlTYz8i0kzmDbtNjBw",
         ),
         thumbnails: [
@@ -135,7 +135,7 @@
     SearchResultProfile {
         title: "Beatles Forever",
         username: "@beatlesforever5278",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCgEC4BlIL1j1UirRLDaHQeg",
         ),
         thumbnails: [
@@ -154,7 +154,7 @@
     SearchResultProfile {
         title: "The Liverpool 4 Canada's Beatles Tribute",
         username: "@Liverpool4Tribute",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UC-jDbMiwS8m5O1BgLejsksg",
         ),
         thumbnails: [
@@ -173,7 +173,7 @@
     SearchResultProfile {
         title: "the beatles",
         username: "@thebeatles4893",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCaotu2_IqbcR7xI1zV67cLw",
         ),
         thumbnails: [
@@ -192,7 +192,7 @@
     SearchResultProfile {
         title: "Vaghetti ♡ Beatles",
         username: "@Vaghetti",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCucnvIUeKIxfeveRbmJED4g",
         ),
         thumbnails: [
@@ -211,7 +211,7 @@
     SearchResultProfile {
         title: "the beatles",
         username: "@thebeatles4047",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCJqbZSZ3xFqojiSHLw54tog",
         ),
         thumbnails: [
@@ -230,7 +230,7 @@
     SearchResultProfile {
         title: "Help Beatles Tribute Band",
         username: "@helpbeatlestributeband3314",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCZ0Ye3syHJ3_b72FK--ohYQ",
         ),
         thumbnails: [
@@ -249,7 +249,7 @@
     SearchResultProfile {
         title: "Vintage Remasters",
         username: "@vintageremasters8912",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCPvGvkcB3PpgPhbWSp-5rMA",
         ),
         thumbnails: [
@@ -268,7 +268,7 @@
     SearchResultProfile {
         title: "TheSkelters",
         username: "@TheSkelters",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCFI--fldTYewHJXnCrKQ87Q",
         ),
         thumbnails: [
@@ -287,7 +287,7 @@
     SearchResultProfile {
         title: "the beatles fan",
         username: "@thebeatlesfan3865",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCzOjTpYJvxUtvT81pYJGAcg",
         ),
         thumbnails: [
@@ -306,7 +306,7 @@
     SearchResultProfile {
         title: "Beatles Fan",
         username: "@beatlesfan6136",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCKGrzTp2HdXh9c6-9PEL6tQ",
         ),
         thumbnails: [
@@ -325,7 +325,7 @@
     SearchResultProfile {
         title: "The beatles fan and Lego man",
         username: "@thebeatlesfanandlegoman",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCSpbuUFQrPZ3yyJ5ujUDErQ",
         ),
         thumbnails: [
@@ -344,7 +344,7 @@
     SearchResultProfile {
         title: "Beatles guitarist",
         username: "@ajtech1086",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCyzLN8nZHEEYYXVhzeWCxXw",
         ),
         thumbnails: [
@@ -363,7 +363,7 @@
     SearchResultProfile {
         title: "Beatles",
         username: "@beatles7238",
-        profile_id: ProfileID(
+        profile_id: UserChannelID(
             "UCrCuMxMCSULU9g-3zNNx2-A",
         ),
         thumbnails: [
