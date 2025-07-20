@@ -13,22 +13,31 @@ use crate::drawutils::{
 use rat_text::text_input::{TextInput, TextInputState};
 use rat_text::HasScreenCursor;
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
-use ratatui::style::{Modifier, Style};
+use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
+use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Tabs};
 use ratatui::Frame;
+use std::hash::Hash;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
+    let tabs = Tabs::new(["Artist".red(), "Song".blue()]);
+    let offset_position_for_tab = Layout::new(
+        Direction::Horizontal,
+        [Constraint::Max(1), Constraint::Min(0)],
+    )
+    .split(chunk)[1];
     match browser.variant {
         super::BrowserVariant::ArtistSearch => {
-            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected)
+            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected);
+            f.render_widget(tabs.select(0), offset_position_for_tab);
         }
         super::BrowserVariant::SongSearch => {
-            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
+            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected);
+            f.render_widget(tabs.select(1), offset_position_for_tab);
         }
     }
 }
