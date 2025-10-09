@@ -96,10 +96,44 @@ pub struct LibraryManager {
 }
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
-pub enum LibraryStatus {
+/// LIBRARY_SAVED and LIBRARY_ADD icons are being phased out so this is an
+/// intermediate step to check if a/b test is still running.
+///
+/// See https://github.com/nick42d/youtui/issues/271
+enum LibraryStatusIcon {
     #[serde(rename = "LIBRARY_SAVED")]
-    InLibrary,
+    #[deprecated = "Future deprecation see https://github.com/nick42d/youtui/issues/271"]
+    LibrarySaved,
     #[serde(rename = "LIBRARY_ADD")]
+    #[deprecated = "Future deprecation see https://github.com/nick42d/youtui/issues/271"]
+    LibraryAdd,
+    #[serde(rename = "BOOKMARK_BORDER")]
+    BookmarkBorder,
+    #[serde(rename = "BOOKMARK")]
+    Bookmark,
+}
+
+impl From<LibraryStatusIcon> for LibraryStatus {
+    fn from(value: LibraryStatusIcon) -> Self {
+        match value {
+            LibraryStatusIcon::LibrarySaved => {
+                ab_warn!();
+                LibraryStatus::InLibrary
+            }
+            LibraryStatusIcon::LibraryAdd => {
+                ab_warn!();
+                LibraryStatus::NotInLibrary
+            }
+            LibraryStatusIcon::BookmarkBorder => LibraryStatus::NotInLibrary,
+            LibraryStatusIcon::Bookmark => LibraryStatus::InLibrary,
+        }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
+#[serde(from = "LibraryStatusIcon")]
+pub enum LibraryStatus {
+    InLibrary,
     NotInLibrary,
 }
 
