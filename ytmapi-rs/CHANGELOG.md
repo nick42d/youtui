@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ## [0.2.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.1.0...ytmapi-rs/v0.2.0) - 2025-10-10
 
 ### Added
@@ -17,12 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [**breaking**] Additional queries - playlists ([#260](https://github.com/nick42d/youtui/pull/260))
 - _Stream/Query split for GetPlaylist - into GetPlaylistTracks and GetPlaylistDetails. Same applies to GetWatchPlaylist - split to GetWatchPlaylist and GetLyricsID. lyrics module is removed and it's children moved to song module. watch_playlist module is removed and it's children went to song and playlist modules._ 
 - *(ytmapi_rs)* Allow custom authtokens to be provided ([#262](https://github.com/nick42d/youtui/pull/262))
-
 - *(ytmapi_rs)* [**breaking**] Add GetLibraryPodcasts and GetLibraryChannels queries ([#259](https://github.com/nick42d/youtui/pull/259))
-
 - _Parse and Query modules have been refactored - this changes the fully qualified path of some of the output types._ 
 - *(ytmapi_rs)* [**breaking**] Add continuations for GetLibraryUpload queries ([#258](https://github.com/nick42d/youtui/pull/258))
-
 - _UploadAlbum modified to reflect optional artist and year fields. TableListUploadSong modified to reflect optional album field. This also contains a breaking change to JsonCrawler - Narrowing of trait iterator types to JsonCrawlerIterator._ 
 - *(ytmapi_rs)* Add continuations for search queries ([#257](https://github.com/nick42d/youtui/pull/257))
 

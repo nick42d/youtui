@@ -10,11 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.8](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.7...async-callback-manager/v0.0.8) - 2025-10-10
 
-### Added
-- [**breaking**] Additional queries - playlists ([#260](https://github.com/nick42d/youtui/pull/260))
-- _Stream/Query split for GetPlaylist - into GetPlaylistTracks and GetPlaylistDetails. Same applies to GetWatchPlaylist - split to GetWatchPlaylist and GetLyricsID. lyrics module is removed and it's children moved to song module. watch_playlist module is removed and it's children went to song and playlist modules._ 
-
-
+### Other
+- Cargo-fix lints ([#260](https://github.com/nick42d/youtui/pull/260))
 
 ## [0.0.7](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.6...async-callback-manager/v0.0.7) - 2025-06-02
 

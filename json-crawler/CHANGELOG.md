@@ -10,17 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.10](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.9...json-crawler/v0.0.10) - 2025-10-10
 
 ### Added
-- [**breaking**] Additional queries - playlists ([#260](https://github.com/nick42d/youtui/pull/260))
-- _Stream/Query split for GetPlaylist - into GetPlaylistTracks and GetPlaylistDetails. Same applies to GetWatchPlaylist - split to GetWatchPlaylist and GetLyricsID. lyrics module is removed and it's children moved to song module. watch_playlist module is removed and it's children went to song and playlist modules._ 
-- *(ytmapi_rs)* [**breaking**] Add continuations for GetLibraryUpload queries ([#258](https://github.com/nick42d/youtui/pull/258))
-
-- _UploadAlbum modified to reflect optional artist and year fields. TableListUploadSong modified to reflect optional album field. This also contains a breaking change to JsonCrawler - Narrowing of trait iterator types to JsonCrawlerIterator._ 
+- Add new `apply_function_at_paths` method ([#260](https://github.com/nick42d/youtui/pull/260))
 
 ### Other
-- fix release ([#246](https://github.com/nick42d/youtui/pull/246))
-- Revert "chore: release ([#236](https://github.com/nick42d/youtui/pull/236))" ([#245](https://github.com/nick42d/youtui/pull/245))
-
-
+- Force IterMut type of JsonCrawler to be JsonCrawlerIterator ([#258](https://github.com/nick42d/youtui/pull/258))
 
 ## [0.0.9](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.8...json-crawler/v0.0.9) - 2025-06-11
 
