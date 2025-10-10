@@ -47,7 +47,7 @@ jobs:
           PR_NUMBER: ${{ github.event.issue.number }}
 
       - name: Checkout source code from Github
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ steps.getRef.outputs.pr_ref }}
