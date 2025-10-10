@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: Implement upload song query ([#239](https://github.com/nick42d/youtui/pull/239))
 
 ### Other
+- Accommodate ytmapi-rs API changes ([#262](https://github.com/nick42d/youtui/pull/262))
+- Accommodate ytmapi-rs API changes ([#255](https://github.com/nick42d/youtui/pull/255))
 - *(deps)* bump tracing-subscriber ([#268](https://github.com/nick42d/youtui/pull/268))
 - Update README.md ([#253](https://github.com/nick42d/youtui/pull/253))
 - Fix small typos, and bump vernum for ytmapi-rs ([#252](https://github.com/nick42d/youtui/pull/252))
