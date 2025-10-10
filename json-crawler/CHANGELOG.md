@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.10](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.9...json-crawler/v0.0.10) - 2025-10-10
+
+### Added
+- Add new `apply_function_at_paths` method ([#260](https://github.com/nick42d/youtui/pull/260))
+
+### Other
+- Force IterMut type of JsonCrawler to be JsonCrawlerIterator ([#258](https://github.com/nick42d/youtui/pull/258))
+
 ## [0.0.9](https://github.com/nick42d/youtui/compare/json-crawler/v0.0.8...json-crawler/v0.0.9) - 2025-06-11
 
 ### Added

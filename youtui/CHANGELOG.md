@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.26](https://github.com/nick42d/youtui/compare/youtui/v0.0.25...youtui/v0.0.26) - 2025-10-10
+
+### Added
+- CLI: Add GetUser queries ([#265](https://github.com/nick42d/youtui/pull/265))
+- CLI: Add subscribe/unsubscribe artists queries ([#264](https://github.com/nick42d/youtui/pull/264))
+- CLI: Added additional playlist queries ([#260](https://github.com/nick42d/youtui/pull/260))
+- CLI: Add GetLibraryPodcasts and GetLibraryChannels queries ([#259](https://github.com/nick42d/youtui/pull/259))
+- CLI: Add continuations for GetLibraryUpload queries ([#258](https://github.com/nick42d/youtui/pull/258))
+- CLI: Add continuations for search queries ([#257](https://github.com/nick42d/youtui/pull/257))
+- CLI: Implement upload song query ([#239](https://github.com/nick42d/youtui/pull/239))
+
+### Other
+- Accommodate ytmapi-rs API changes ([#262](https://github.com/nick42d/youtui/pull/262))
+- Accommodate ytmapi-rs API changes ([#255](https://github.com/nick42d/youtui/pull/255))
+- *(deps)* bump tracing-subscriber ([#268](https://github.com/nick42d/youtui/pull/268))
+- Update README.md ([#253](https://github.com/nick42d/youtui/pull/253))
+- Fix small typos, and bump vernum for ytmapi-rs ([#252](https://github.com/nick42d/youtui/pull/252))
+
 ## [0.0.25](https://github.com/nick42d/youtui/compare/youtui/v0.0.24...youtui/v0.0.25) - 2025-06-11
 
 ### Added

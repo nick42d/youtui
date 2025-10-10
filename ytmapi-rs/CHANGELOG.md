@@ -6,6 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.1.0...ytmapi-rs/v0.2.0) - 2025-10-10
+
+### Added
+- [**breaking**] Add GetUser queries ([#265](https://github.com/nick42d/youtui/pull/265))
+- _ProfileID is renamed UserChannelID_ 
+- [**breaking**] Add subscribe/unsubscribe artists queries ([#264](https://github.com/nick42d/youtui/pull/264))
+- _ArtistParams struct renamed GetArtist in line with most of the other result sructs. Some of its returned field types have been updated to reflect reality._ 
+- [**breaking**] Additional queries - playlists ([#260](https://github.com/nick42d/youtui/pull/260))
+- _Stream/Query split for GetPlaylist - into GetPlaylistTracks and GetPlaylistDetails. Same applies to GetWatchPlaylist - split to GetWatchPlaylist and GetLyricsID. lyrics module is removed and it's children moved to song module. watch_playlist module is removed and it's children went to song and playlist modules._ 
+- *(ytmapi_rs)* Allow custom authtokens to be provided ([#262](https://github.com/nick42d/youtui/pull/262))
+- *(ytmapi_rs)* [**breaking**] Add GetLibraryPodcasts and GetLibraryChannels queries ([#259](https://github.com/nick42d/youtui/pull/259))
+- _Parse and Query modules have been refactored - this changes the fully qualified path of some of the output types._ 
+- *(ytmapi_rs)* [**breaking**] Add continuations for GetLibraryUpload queries ([#258](https://github.com/nick42d/youtui/pull/258))
+- _UploadAlbum modified to reflect optional artist and year fields. TableListUploadSong modified to reflect optional album field. This also contains a breaking change to JsonCrawler - Narrowing of trait iterator types to JsonCrawlerIterator._ 
+- *(ytmapi_rs)* Add continuations for search queries ([#257](https://github.com/nick42d/youtui/pull/257))
+
+
+### Fixed
+- handle new add/remove library icons that broke multiple queries ([#272](https://github.com/nick42d/youtui/pull/272))
+
+### Other
+- Add doc comment for AuthToken ([#256](https://github.com/nick42d/youtui/pull/256))
+- [**breaking**] Refactor continuations ([#255](https://github.com/nick42d/youtui/pull/255))
+- _Continuable queries no longer return their ContinuationParams by default, and simplification of public client API. Continuable trait replaced with new ParseFromContinuable trait._ 
+- AuthToken no longer needs to be sealed, and fix changelog ([#254](https://github.com/nick42d/youtui/pull/254))
+
+
+
 ## [0.1.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.0.23...ytmapi-rs/v0.1.0) - 2025-06-15
 
 ### Added

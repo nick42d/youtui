@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.8](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.7...async-callback-manager/v0.0.8) - 2025-10-10
+
+### Other
+- Cargo-fix lints ([#260](https://github.com/nick42d/youtui/pull/260))
+
 ## [0.0.7](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.6...async-callback-manager/v0.0.7) - 2025-06-02
 
 ### Added
