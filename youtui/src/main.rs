@@ -18,6 +18,8 @@ mod core;
 mod drawutils;
 mod keyaction;
 mod keybind;
+mod youtube_downloader;
+
 #[cfg(test)]
 mod tests;
 
