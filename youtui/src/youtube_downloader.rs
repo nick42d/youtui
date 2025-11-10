@@ -12,7 +12,13 @@ pub trait YoutubeDownloader {
     async fn download_song<'a>(
         &'a self,
         song_video_id: impl Into<String>,
-    ) -> Result<(SongInformation, impl Stream<Item = Bytes> + 'a), Self::Error>;
+    ) -> Result<
+        (
+            SongInformation,
+            impl Stream<Item = Result<Bytes, Self::Error>> + 'a,
+        ),
+        Self::Error,
+    >;
 }
 
 pub struct NativeYoutubeDownloader {
@@ -24,14 +30,20 @@ impl YoutubeDownloader for NativeYoutubeDownloader {
     async fn download_song<'a>(
         &'a self,
         song_video_id: impl Into<String>,
-    ) -> Result<(SongInformation, impl Stream<Item = Bytes> + 'a), Self::Error> {
+    ) -> Result<
+        (
+            SongInformation,
+            impl Stream<Item = Result<Bytes, Self::Error>> + 'a,
+        ),
+        Self::Error,
+    > {
         let Ok(video) = Video::new_with_options(song_video_id, &self.options) else {
             todo!();
         };
         let stream = video.stream().await.unwrap();
         let chunk_size_bytes = self.options.download_options.dl_chunk_size.unwrap();
         let total_size_bytes = stream.content_length();
-        let stream = into_futures_stream(stream).map(|item| item.unwrap());
+        let stream = into_futures_stream_DUPLICATE(stream).map(|item| item.map_err(|_| ()));
         let song_information = SongInformation {
             total_size_bytes,
             chunk_size_bytes,
@@ -43,7 +55,7 @@ impl YoutubeDownloader for NativeYoutubeDownloader {
 /// Helper function to use rusty_ytdl::stream::Stream is if it were a
 /// futures::Stream.
 // NOTE: Potentially could be upstreamed: https://github.com/Mithronn/rusty_ytdl/issues/34.
-pub fn into_futures_stream(
+pub fn into_futures_stream_DUPLICATE(
     youtube_stream: Box<dyn rusty_ytdl::stream::Stream + Send>,
 ) -> impl futures::Stream<Item = Result<Bytes, VideoError>> + Send {
     // Second value of initialisation tuple represents if the previous iteration of
@@ -63,4 +75,43 @@ pub fn into_futures_stream(
             Ok(None) => None,
         }
     })
+}
+
+pub struct YtDlpDownloader {}
+
+impl YoutubeDownloader for YtDlpDownloader {
+    type Error = ();
+
+    async fn download_song<'a>(
+        &'a self,
+        song_video_id: impl Into<String>,
+    ) -> Result<
+        (
+            SongInformation,
+            impl Stream<Item = Result<Bytes, Self::Error>> + 'a,
+        ),
+        Self::Error,
+    > {
+        const YTDLP_CMD: &str = "docker run --rm -v $(pwd):/app -w /app -it thr3a/yt-dlp";
+        const ARGS: &[&str] = &[
+            "-f",
+            "bestaudio",
+            "https://www.youtube.com/watch?v=lYBUbBu4W08",
+        ];
+        todo!()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::youtube_downloader::{YoutubeDownloader, YtDlpDownloader};
+    use bytes::Bytes;
+    use futures::StreamExt;
+
+    #[tokio::test]
+    async fn test_downloading_a_song() {
+        let downloader = YtDlpDownloader {};
+        let (_, stream) = downloader.download_song("").await.unwrap();
+        let song = stream.map(|item| item.unwrap()).collect::<Vec<Bytes>>();
+    }
 }
