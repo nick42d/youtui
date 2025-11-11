@@ -92,13 +92,45 @@ impl YoutubeDownloader for YtDlpDownloader {
         ),
         Self::Error,
     > {
-        const YTDLP_CMD: &str = "docker run --rm -v $(pwd):/app -w /app -it thr3a/yt-dlp";
-        const ARGS: &[&str] = &[
+        let song_video_id: String = song_video_id.into();
+        const DOCKER: &str = "docker";
+        let current_path = std::env::current_dir().unwrap();
+        let docker_volume_mount = format!("{}:/app", current_path.to_str().unwrap());
+        let song_url = format!("https://www.youtube.com/watch?v={song_video_id}");
+        let args = vec![
+            "run",
+            "--rm",
+            "-v",
+            &docker_volume_mount,
+            "-w",
+            "/app",
+            "thr3a/yt-dlp",
+            // "-q",
+            // "--no-warnings",
             "-f",
-            "bestaudio",
-            "https://www.youtube.com/watch?v=lYBUbBu4W08",
+            "ba",
+            "-o",
+            "your-song.%(ext)s",
+            &song_video_id,
         ];
-        todo!()
+        eprintln!("runnning cmd");
+        let status = tokio::process::Command::new(DOCKER)
+            .args(args)
+            .arg(song_url)
+            .status()
+            .await
+            .unwrap();
+        eprintln!("status: {status:?}");
+        tokio::process::Command::new("pwd").status().await.unwrap();
+        let file_u8 = tokio::fs::read("./youtui/your-song.webm").await.unwrap();
+        let file_bytes = Bytes::from(file_u8);
+        Ok((
+            SongInformation {
+                total_size_bytes: 0,
+                chunk_size_bytes: 0,
+            },
+            futures::stream::once(async { Ok(file_bytes) }),
+        ))
     }
 }
 
@@ -111,7 +143,7 @@ mod tests {
     #[tokio::test]
     async fn test_downloading_a_song() {
         let downloader = YtDlpDownloader {};
-        let (_, stream) = downloader.download_song("").await.unwrap();
+        let (_, stream) = downloader.download_song("lYBUbBu4W08").await.unwrap();
         let song = stream.map(|item| item.unwrap()).collect::<Vec<Bytes>>();
     }
 }
