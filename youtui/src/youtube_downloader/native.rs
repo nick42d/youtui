@@ -2,6 +2,7 @@ use crate::youtube_downloader::{SongInformation, YoutubeDownloader};
 use bytes::Bytes;
 use futures::Stream;
 use rusty_ytdl::{Video, VideoError, VideoOptions};
+use tokio_stream::StreamExt;
 
 pub struct NativeYoutubeDownloader {
     options: VideoOptions,
