@@ -1,6 +1,7 @@
 use crate::youtube_downloader::{SongInformation, YoutubeDownloader};
 use bytes::Bytes;
 use futures::Stream;
+use std::path::PathBuf;
 
 pub struct YtDlpDownloader {
     song_storage_dir: std::path::PathBuf,
@@ -28,7 +29,6 @@ impl YoutubeDownloader for YtDlpDownloader {
     > {
         let song_video_id: String = song_video_id.into();
         const DOCKER: &str = "docker";
-        let current_path = std::env::current_dir().unwrap();
         let docker_volume_mount = format!("{}:/app", self.song_storage_dir.to_string_lossy());
         let song_url = format!("https://www.youtube.com/watch?v={song_video_id}");
         let args = vec![
@@ -47,7 +47,7 @@ impl YoutubeDownloader for YtDlpDownloader {
             "%(id)s.%(ext)s",
             &song_video_id,
             "--exec",
-            r#""echo %(id)s.%(ext)s""#,
+            "echo",
         ];
         eprintln!("runnning cmd");
         let output = tokio::process::Command::new(DOCKER)
@@ -56,8 +56,15 @@ impl YoutubeDownloader for YtDlpDownloader {
             .output()
             .await
             .unwrap();
-        let output_str = String::from_utf8(output.stdout).unwrap();
-        eprintln!("output: {output_str}");
+        let docker_file_path = PathBuf::from(
+            String::from_utf8(output.stdout)
+                .unwrap()
+                .lines()
+                .next()
+                .unwrap(),
+        );
+        let docker_file_name = docker_file_path.file_name().unwrap();
+        eprintln!("output: {}", docker_file_name.to_string_lossy());
         let output = String::from_utf8(
             tokio::process::Command::new("ls")
                 .arg(&self.song_storage_dir)
@@ -67,10 +74,13 @@ impl YoutubeDownloader for YtDlpDownloader {
                 .stdout,
         )
         .unwrap();
-        eprintln!("{output}");
-        let filepath = self.song_storage_dir.join("your.song.webm");
+        eprintln!(
+            "contents of {}\n{output}",
+            self.song_storage_dir.to_string_lossy()
+        );
+        let filepath = self.song_storage_dir.join(docker_file_name);
         eprintln!("Looking for filename {}", filepath.to_string_lossy());
-        let file_u8 = tokio::fs::read(filepath).await.unwrap();
+        let file_u8 = fs_err::tokio::read(filepath).await.unwrap();
         let file_bytes = Bytes::from(file_u8);
         Ok((
             SongInformation {
