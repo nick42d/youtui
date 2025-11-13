@@ -1,24 +1,27 @@
 use bytes::Bytes;
 use futures::Stream;
+use std::future::Future;
 
-mod native;
-mod yt_dlp;
+pub mod native;
+pub mod yt_dlp;
 
 pub struct SongInformation {
-    total_size_bytes: usize,
-    chunk_size_bytes: u64,
+    pub total_size_bytes: usize,
+    pub chunk_size_bytes: u64,
 }
 
 pub trait YoutubeDownloader {
     type Error;
-    async fn download_song<'a>(
+    fn download_song<'a>(
         &'a self,
         song_video_id: impl Into<String>,
-    ) -> Result<
-        (
-            SongInformation,
-            impl Stream<Item = Result<Bytes, Self::Error>> + 'a,
-        ),
-        Self::Error,
-    >;
+    ) -> impl Future<
+        Output = Result<
+            (
+                SongInformation,
+                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'a,
+            ),
+            Self::Error,
+        >,
+    > + Send;
 }
