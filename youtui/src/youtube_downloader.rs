@@ -7,7 +7,6 @@ pub mod yt_dlp;
 
 pub struct SongInformation {
     pub total_size_bytes: usize,
-    pub chunk_size_bytes: u64,
 }
 
 pub trait YoutubeDownloader {

@@ -67,10 +67,7 @@ impl YoutubeDownloader for NativeYoutubeDownloader {
             let stream = video.stream().await?;
             let total_size_bytes = stream.content_length();
             let stream = into_futures_stream(stream);
-            let song_information = SongInformation {
-                total_size_bytes,
-                chunk_size_bytes,
-            };
+            let song_information = SongInformation { total_size_bytes };
             Ok((song_information, stream))
         }
     }

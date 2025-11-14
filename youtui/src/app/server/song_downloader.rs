@@ -113,7 +113,9 @@ where
             .then(|(idx, chunk)| {
                 let tx = tx.clone();
                 async move {
-                    let progress = (idx * song_information.chunk_size_bytes as usize) * 100
+                    tracing::warn!("Currently reporting incorrect progress percentage");
+                    let progress = (idx * chunk.as_deref().unwrap_or_default().len() as usize)
+                        * 100
                         / song_information.total_size_bytes;
                     info!("Sending song progress update");
                     send_or_error(

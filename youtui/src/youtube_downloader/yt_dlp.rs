@@ -1,8 +1,9 @@
 use crate::youtube_downloader::{SongInformation, YoutubeDownloader};
 use bytes::Bytes;
-use futures::Stream;
+use futures::{Stream, StreamExt};
 use std::future::Future;
 use std::path::PathBuf;
+use std::process::Stdio;
 use tokio::io::AsyncReadExt;
 
 #[derive(Clone)]
@@ -61,90 +62,30 @@ impl YoutubeDownloader for YtDlpDownloader {
                 "-f",
                 "ba[ext=m4a]",
                 "-o",
-                "%(id)s.%(ext)s",
-                &song_video_id,
-                "--exec",
-                "echo",
+                "-",
+                // "%(id)s.%(ext)s",
+                // &song_video_id,
+                // "--exec",
+                // "echo",
             ];
             tracing::info!("runnning cmd");
-            let output = tokio::process::Command::new(DOCKER)
+            let proc = tokio::process::Command::new(DOCKER)
                 .args(args)
                 .arg(song_url)
-                .output()
-                .await
+                .stdout(Stdio::piped())
+                .spawn()
                 .unwrap();
-            let docker_file_path = PathBuf::from(
-                String::from_utf8(output.stdout)
-                    .unwrap()
-                    .lines()
-                    .next()
-                    .unwrap(),
-            );
-            let docker_file_name = docker_file_path.file_name().unwrap();
-            tracing::info!("output: {}", docker_file_name.to_string_lossy());
-            let output = String::from_utf8(
-                tokio::process::Command::new("ls")
-                    .arg(&song_storage_dir)
-                    .output()
-                    .await
-                    .unwrap()
-                    .stdout,
-            )
-            .unwrap();
-            tracing::info!(
-                "contents of {}\n{output}",
-                &song_storage_dir.to_string_lossy()
-            );
-            let filepath = &song_storage_dir.join(docker_file_name);
-            tracing::info!("Looking for filename {}", filepath.to_string_lossy());
-            let file_u8 = fs_err::tokio::read(filepath).await.unwrap();
-            tracing::info!("Loaded file with {} bytes", file_u8.len());
-            let file_bytes = Bytes::from(file_u8);
+            let proc_stdout = proc.stdout.unwrap();
+            let stream = tokio_util::io::ReaderStream::new(proc_stdout).map(|maybe_bytes| {
+                maybe_bytes
+                    .map(|bytes| bytes::Bytes::from(bytes))
+                    .map_err(|_| YtDlpDownloaderError)
+            });
             Ok((
                 SongInformation {
                     total_size_bytes: 10,
-                    chunk_size_bytes: 1,
                 },
-                futures::stream::once(async { Ok(file_bytes) }),
-            ))
-        }
-    }
-}
-
-// TEMP CODE
-#[derive(Clone)]
-pub struct FileLoader {
-    pub path_to_file: PathBuf,
-}
-
-impl YoutubeDownloader for FileLoader {
-    type Error = YtDlpDownloaderError;
-
-    fn download_song(
-        &self,
-        song_video_id: impl Into<String>,
-    ) -> impl Future<
-        Output = Result<
-            (
-                SongInformation,
-                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
-            ),
-            Self::Error,
-        >,
-    > + Send
-           + 'static {
-        let path = self.path_to_file.clone();
-        tracing::info!("Reading file {path:?}");
-        async move {
-            let file_u8 = fs_err::tokio::read(path).await.unwrap();
-            tracing::info!("Loaded file with {} bytes", file_u8.len());
-            let file_bytes = Bytes::from(file_u8);
-            Ok((
-                SongInformation {
-                    total_size_bytes: 10,
-                    chunk_size_bytes: 1,
-                },
-                futures::stream::once(async { Ok(file_bytes) }),
+                stream,
             ))
         }
     }
