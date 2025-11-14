@@ -59,7 +59,7 @@ impl YoutubeDownloader for YtDlpDownloader {
                 "-q",
                 "--no-warnings",
                 "-f",
-                "ba,m4a",
+                "ba[ext=m4a]",
                 "-o",
                 "%(id)s.%(ext)s",
                 &song_video_id,
