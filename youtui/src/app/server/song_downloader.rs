@@ -109,7 +109,8 @@ where
         // stream.
         //
         // while retries <= MAX_RETRIES {
-        let song = futures::StreamExt::enumerate(stream)
+        let song = stream
+            .scan(0, |bytes_streamed, chunk| async move { Some(chunk) })
             .then(|(idx, chunk)| {
                 let tx = tx.clone();
                 async move {
