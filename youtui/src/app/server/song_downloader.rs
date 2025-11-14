@@ -3,7 +3,9 @@ use crate::app::server::MAX_RETRIES;
 use crate::app::structures::{ListSongID, Percentage};
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::core::send_or_error;
+use crate::get_data_dir;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
+use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
 use crate::youtube_downloader::YoutubeDownloader;
 use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::{reqwest, DownloadOptions, RequestOptions, Video, VideoOptions};
@@ -41,15 +43,17 @@ impl std::fmt::Debug for InMemSong {
 
 pub struct SongDownloader {
     /// Shared by tasks.
-    backend: Arc<NativeYoutubeDownloader>,
+    backend: crate::youtube_downloader::yt_dlp::YtDlpDownloader,
 }
 impl SongDownloader {
     pub fn new(po_token: Option<String>, client: reqwest::Client) -> Self {
-        let backend =
-            NativeYoutubeDownloader::new(DL_CALLBACK_CHUNK_SIZE, AUDIO_QUALITY, po_token, client);
-        Self {
-            backend: Arc::new(backend),
-        }
+        // let backend =
+        //     NativeYoutubeDownloader::new(DL_CALLBACK_CHUNK_SIZE, AUDIO_QUALITY,
+        // po_token, client);
+        let dir = get_data_dir().unwrap().join("temp_download_dir");
+        fs_err::create_dir_all(&dir);
+        let backend = YtDlpDownloader::new(dir);
+        Self { backend }
     }
     pub fn download_song(
         &self,
@@ -60,8 +64,8 @@ impl SongDownloader {
     }
 }
 
-fn download_song<T: YoutubeDownloader + Send + Sync + 'static>(
-    downloader: Arc<T>,
+fn download_song<T: YoutubeDownloader + Send + 'static>(
+    downloader: T,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
 ) -> impl Stream<Item = DownloadProgressUpdate>

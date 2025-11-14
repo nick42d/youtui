@@ -5,10 +5,14 @@ use rusty_ytdl::{
     reqwest, DownloadOptions, RequestOptions, Video, VideoError, VideoOptions, VideoQuality,
 };
 use std::future::Future;
+use std::sync::Arc;
 use tokio_stream::StreamExt;
 
+#[derive(Clone)]
+/// # Note
+/// Cheap to clone due to use of Arc to store internals.
 pub struct NativeYoutubeDownloader {
-    options: VideoOptions,
+    options: Arc<VideoOptions>,
     // hardcode dl_chunk_size in this struct to be non-optional
     dl_chunk_size: u64,
 }
@@ -20,7 +24,7 @@ impl NativeYoutubeDownloader {
         po_token: Option<String>,
         client: reqwest::Client,
     ) -> Self {
-        let options = VideoOptions {
+        let options = Arc::new(VideoOptions {
             quality,
             filter: rusty_ytdl::VideoSearchOptions::Audio,
             download_options: DownloadOptions {
@@ -31,7 +35,7 @@ impl NativeYoutubeDownloader {
                 po_token,
                 ..Default::default()
             },
-        };
+        });
         Self {
             options,
             dl_chunk_size,
@@ -41,23 +45,26 @@ impl NativeYoutubeDownloader {
 
 impl YoutubeDownloader for NativeYoutubeDownloader {
     type Error = rusty_ytdl::VideoError;
-    fn download_song<'a>(
-        &'a self,
+    fn download_song(
+        &self,
         song_video_id: impl Into<String>,
     ) -> impl Future<
         Output = Result<
             (
                 SongInformation,
-                impl Stream<Item = Result<Bytes, Self::Error>> + 'a,
+                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
             ),
             Self::Error,
         >,
-    > + Send {
-        async {
-            let video = Video::new_with_options(Into::into(song_video_id), &self.options)?;
+    > + Send
+           + 'static {
+        let options = self.options.clone();
+        let song_video_id: String = song_video_id.into();
+        let chunk_size_bytes = self.dl_chunk_size;
+        async move {
+            let video = Video::new_with_options(song_video_id, options.as_ref())?;
             // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
             let stream = video.stream().await?;
-            let chunk_size_bytes = self.dl_chunk_size;
             let total_size_bytes = stream.content_length();
             let stream = into_futures_stream(stream);
             let song_information = SongInformation {

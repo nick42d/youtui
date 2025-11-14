@@ -12,16 +12,17 @@ pub struct SongInformation {
 
 pub trait YoutubeDownloader {
     type Error;
-    fn download_song<'a>(
-        &'a self,
+    fn download_song(
+        &self,
         song_video_id: impl Into<String>,
     ) -> impl Future<
         Output = Result<
             (
                 SongInformation,
-                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'a,
+                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
             ),
             Self::Error,
         >,
-    > + Send;
+    > + Send
+           + 'static;
 }
