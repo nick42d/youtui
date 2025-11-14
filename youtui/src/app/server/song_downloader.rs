@@ -44,6 +44,7 @@ impl std::fmt::Debug for InMemSong {
 pub struct SongDownloader {
     /// Shared by tasks.
     backend: crate::youtube_downloader::yt_dlp::YtDlpDownloader,
+    // backend: crate::youtube_downloader::yt_dlp::FileLoader,
 }
 impl SongDownloader {
     pub fn new(po_token: Option<String>, client: reqwest::Client) -> Self {
@@ -53,6 +54,9 @@ impl SongDownloader {
         let dir = get_data_dir().unwrap().join("temp_download_dir");
         fs_err::create_dir_all(&dir);
         let backend = YtDlpDownloader::new(dir);
+        // let backend = crate::youtube_downloader::yt_dlp::FileLoader {
+        //     path_to_file: dir.join("CAtFrU978Xc.webm"),
+        // };
         Self { backend }
     }
     pub fn download_song(
