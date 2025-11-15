@@ -4,7 +4,8 @@ use futures::{Stream, StreamExt};
 use std::future::Future;
 use std::path::PathBuf;
 use std::process::Stdio;
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
+use tokio::process::Child;
 
 #[derive(Clone)]
 pub struct YtDlpDownloader {
@@ -57,6 +58,10 @@ impl YoutubeDownloader for YtDlpDownloader {
                 "-w",
                 "/app",
                 "thr3a/yt-dlp",
+                "--print",
+                "filesize",
+                // Force download the song even though print mode is used
+                "--no-simulate",
                 "-q",
                 "--no-warnings",
                 "-f",
@@ -72,21 +77,26 @@ impl YoutubeDownloader for YtDlpDownloader {
             let proc = tokio::process::Command::new(DOCKER)
                 .args(args)
                 .arg(song_url)
+                .stderr(Stdio::piped())
                 .stdout(Stdio::piped())
                 .spawn()
                 .unwrap();
-            let proc_stdout = proc.stdout.unwrap();
-            let stream = tokio_util::io::ReaderStream::new(proc_stdout).map(|maybe_bytes| {
+            let Child { stderr, stdout, .. } = proc;
+            let stdout = stdout.unwrap();
+            let stderr = BufReader::new(stderr.unwrap())
+                .lines()
+                .next_line()
+                .await
+                .unwrap()
+                .unwrap();
+            let total_size_bytes = str::parse(&stderr).unwrap();
+            tracing::info!("Song total size bytes {total_size_bytes}");
+            let stream = tokio_util::io::ReaderStream::new(stdout).map(|maybe_bytes| {
                 maybe_bytes
                     .map(|bytes| bytes::Bytes::from(bytes))
                     .map_err(|_| YtDlpDownloaderError)
             });
-            Ok((
-                SongInformation {
-                    total_size_bytes: 10,
-                },
-                stream,
-            ))
+            Ok((SongInformation { total_size_bytes }, stream))
         }
     }
 }

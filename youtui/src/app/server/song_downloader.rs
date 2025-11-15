@@ -110,14 +110,17 @@ where
         //
         // while retries <= MAX_RETRIES {
         let song = stream
-            .scan(0, |bytes_streamed, chunk| async move { Some(chunk) })
-            .then(|(idx, chunk)| {
+            .scan(0, |bytes_streamed, chunk| {
                 let tx = tx.clone();
+                let chunk_bytes = match &chunk {
+                    Ok(chunk) => chunk.len(),
+                    Err(_) => 0,
+                };
+                *bytes_streamed += chunk_bytes;
+                let bytes_streamed_clone = *bytes_streamed;
                 async move {
                     tracing::warn!("Currently reporting incorrect progress percentage");
-                    let progress = (idx * chunk.as_deref().unwrap_or_default().len() as usize)
-                        * 100
-                        / song_information.total_size_bytes;
+                    let progress = bytes_streamed_clone * 100 / song_information.total_size_bytes;
                     info!("Sending song progress update");
                     send_or_error(
                         tx,
@@ -129,7 +132,7 @@ where
                         },
                     )
                     .await;
-                    chunk
+                    Some(chunk)
                 }
             })
             .flat_map(|chunk| match chunk {
