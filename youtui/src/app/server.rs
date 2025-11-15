@@ -1,4 +1,4 @@
-use crate::config::ApiKey;
+use crate::config::{ApiKey, Config};
 pub use messages::*;
 use rusty_ytdl::reqwest;
 use std::sync::Arc;
@@ -27,7 +27,7 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(api_key: ApiKey, po_token: Option<String>) -> Server {
+    pub fn new(api_key: ApiKey, po_token: Option<String>, config: &Config) -> Server {
         // Cheaply cloneable reqwest client to share amongst services.
         let client = reqwest::Client::builder()
             .use_rustls_tls()
@@ -35,7 +35,8 @@ impl Server {
             .expect("Expected reqwest client build to succeed");
         let api = api::Api::new(api_key, client.clone());
         let player = player::Player::new();
-        let song_downloader = song_downloader::SongDownloader::new(po_token, client.clone());
+        let song_downloader =
+           song_downloader::SongDownloader::new(po_token, config.downloader_type, client.clone());
         let album_art_downloader = album_art_downloader::AlbumArtDownloader::new(client);
         let api_error_handler = api_error_handler::ApiErrorHandler::new();
         Server {

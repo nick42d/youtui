@@ -8,9 +8,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::process::Child;
 
 #[derive(Clone)]
-pub struct YtDlpDownloader {
-    song_storage_dir: std::path::PathBuf,
-}
+pub struct YtDlpDownloader {}
 
 #[derive(Debug)]
 pub struct YtDlpDownloaderError;
@@ -22,9 +20,8 @@ impl std::fmt::Display for YtDlpDownloaderError {
 }
 
 impl YtDlpDownloader {
-    pub fn new(song_storage_dir: impl Into<std::path::PathBuf>) -> Self {
-        let song_storage_dir = song_storage_dir.into();
-        Self { song_storage_dir }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -44,19 +41,12 @@ impl YoutubeDownloader for YtDlpDownloader {
         >,
     > + Send
            + 'static {
-        let song_storage_dir = self.song_storage_dir.clone();
         let song_video_id: String = song_video_id.into();
         async move {
             const DOCKER: &str = "docker";
-            let docker_volume_mount = format!("{}:/app", &song_storage_dir.to_string_lossy());
             let song_url = format!("https://www.youtube.com/watch?v={song_video_id}");
             let args = vec![
                 "run",
-                "--rm",
-                "-v",
-                &docker_volume_mount,
-                "-w",
-                "/app",
                 "thr3a/yt-dlp",
                 "--print",
                 "filesize",

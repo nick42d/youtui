@@ -1,6 +1,8 @@
 # Example config.toml file for youtui containing the application defaults.
 auth_type = "Browser"
 
+downloader_type = "Native"
+
 # Global keybinds
 [keybinds.global]
 "+" = "vol_up"

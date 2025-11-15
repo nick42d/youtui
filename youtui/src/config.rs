@@ -43,9 +43,17 @@ pub enum AuthType {
     Unauthenticated,
 }
 
+#[derive(ValueEnum, Copy, PartialEq, Clone, Default, Debug, Serialize, Deserialize)]
+pub enum DownloaderType {
+    #[default]
+    Native,
+    YtDlp,
+}
+
 #[derive(Debug, Default, PartialEq)]
 pub struct Config {
     pub auth_type: AuthType,
+    pub downloader_type: DownloaderType,
     pub keybinds: YoutuiKeymap,
 }
 
@@ -54,6 +62,7 @@ pub struct Config {
 /// Intermediate representation of Config for serde.
 pub struct ConfigIR {
     pub auth_type: AuthType,
+    pub downloader_type: DownloaderType,
     pub keybinds: YoutuiKeymapIR,
     pub mode_names: YoutuiModeNamesIR,
 }
@@ -63,11 +72,13 @@ impl TryFrom<ConfigIR> for Config {
     fn try_from(value: ConfigIR) -> std::result::Result<Self, Self::Error> {
         let ConfigIR {
             auth_type,
+            downloader_type,
             keybinds,
             mode_names,
         } = value;
         Ok(Config {
             auth_type,
+            downloader_type,
             keybinds: YoutuiKeymap::try_from_stringy(keybinds, mode_names)?,
         })
     }
@@ -144,6 +155,7 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
             auth_type,
             keybinds,
             mode_names,
+            downloader_type,
         } = toml::from_str(&config_file).unwrap();
         let keybinds = YoutuiKeymap::try_from_stringy_exact(keybinds, mode_names).unwrap();
         let YoutuiKeymap {
@@ -164,6 +176,7 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
         let Config {
             auth_type: def_auth_type,
             keybinds: def_keybinds,
+            downloader_type: def_downloader_type,
         } = Config::default();
         let YoutuiKeymap {
             global: def_global,
@@ -182,6 +195,10 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
         assert_eq!(auth_type, def_auth_type, "auth_type doesn't match");
+        assert_eq!(
+            downloader_type, def_downloader_type,
+            "downloader_type doesn't match"
+        );
         assert_eq!(global, def_global, "global keybinds don't match");
         assert_eq!(playlist, def_playlist, "playlist keybinds don't match");
         assert_eq!(browser, def_browser, "browser keybinds don't match");
@@ -217,6 +234,7 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
         let Config {
             auth_type,
             keybinds,
+            downloader_type,
         } = Config::try_from(ir).unwrap();
         let YoutuiKeymap {
             global,
@@ -236,6 +254,7 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
         let Config {
             auth_type: def_auth_type,
             keybinds: def_keybinds,
+            downloader_type: def_downloader_type,
         } = Config::default();
         let YoutuiKeymap {
             global: def_global,
@@ -254,6 +273,7 @@ raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
         } = def_keybinds;
         // Assertions are split up here, to better narrow down errors.
         assert_eq!(auth_type, def_auth_type);
+        assert_eq!(downloader_type, def_downloader_type);
         assert_eq!(global, def_global);
         assert_eq!(playlist, def_playlist);
         assert_eq!(browser, def_browser);

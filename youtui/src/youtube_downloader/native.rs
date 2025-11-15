@@ -60,7 +60,6 @@ impl YoutubeDownloader for NativeYoutubeDownloader {
            + 'static {
         let options = self.options.clone();
         let song_video_id: String = song_video_id.into();
-        let chunk_size_bytes = self.dl_chunk_size;
         async move {
             let video = Video::new_with_options(song_video_id, options.as_ref())?;
             // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
