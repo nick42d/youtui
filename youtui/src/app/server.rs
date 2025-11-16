@@ -36,7 +36,7 @@ impl Server {
         let api = api::Api::new(api_key, client.clone());
         let player = player::Player::new();
         let song_downloader =
-           song_downloader::SongDownloader::new(po_token, config.downloader_type, client.clone());
+            song_downloader::SongDownloader::new(po_token, client.clone(), config);
         let album_art_downloader = album_art_downloader::AlbumArtDownloader::new(client);
         let api_error_handler = api_error_handler::ApiErrorHandler::new();
         Server {

@@ -13,7 +13,7 @@ pub trait YoutubeDownloader {
     type Error;
     fn download_song(
         &self,
-        song_video_id: impl Into<String>,
+        song_video_id: impl Into<String> + Send,
     ) -> impl Future<
         Output = Result<
             (
@@ -22,6 +22,5 @@ pub trait YoutubeDownloader {
             ),
             Self::Error,
         >,
-    > + Send
-           + 'static;
+    > + Send;
 }
