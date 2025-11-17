@@ -1,10 +1,8 @@
-use crate::youtube_downloader::{SongInformation, YoutubeDownloader};
+use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use bytes::Bytes;
 use futures::{Stream, StreamExt, TryStreamExt};
 use std::ffi::OsString;
-use std::future::Future;
 use std::ops::Deref;
-use std::path::PathBuf;
 use std::process::Stdio;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
@@ -16,7 +14,10 @@ pub struct YtDlpDownloader {
 }
 
 #[derive(Debug)]
-pub struct YtDlpDownloaderError;
+pub enum YtDlpDownloaderError {
+    ErrorSpawningYtDlp { message: String },
+    ErrorRunningYtDlp,
+}
 
 impl std::fmt::Display for YtDlpDownloaderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -32,23 +33,18 @@ impl YtDlpDownloader {
     }
 }
 
-impl YoutubeDownloader for YtDlpDownloader {
+impl YoutubeMusicDownloader for YtDlpDownloader {
     type Error = YtDlpDownloaderError;
 
-    async fn download_song(
+    async fn stream_song(
         &self,
-        song_video_id: impl Into<String> + Send,
+        song_video_id: impl AsRef<str> + Send,
     ) -> Result<
-        (
-            SongInformation,
-            impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
-        ),
+        YoutubeMusicDownload<impl Stream<Item = Result<Bytes, Self::Error>> + Send>,
         Self::Error,
     > {
-        let song_video_id: String = song_video_id.into();
         let command = self.yt_dlp_command.clone();
         async move {
-            let song_url = format!("https://www.youtube.com/watch?v={song_video_id}");
             let args = vec![
                 // First, print filesize in bytes to stderr
                 "--print",
@@ -63,28 +59,42 @@ impl YoutubeDownloader for YtDlpDownloader {
                 // Output song bytes to stdout
                 "-o",
                 "-",
+                song_video_id.as_ref(),
             ];
-            tracing::info!("runnning cmd");
             let proc = tokio::process::Command::new(command.deref())
                 .args(args)
-                .arg(song_url)
                 .stderr(Stdio::piped())
                 .stdout(Stdio::piped())
+                .kill_on_drop(true)
                 .spawn()
-                .unwrap();
-            let Child { stderr, stdout, .. } = proc;
-            let stdout = stdout.unwrap();
-            let stderr = BufReader::new(stderr.unwrap())
+                .map_err(|e| YtDlpDownloaderError::ErrorSpawningYtDlp {
+                    message: format!("{e}"),
+                })?;
+            // Consider no stdout and/or no stdout to be an error.
+            // In future, could consider reading stderr if no stdout as it may contain an
+            // error message.
+            let Child {
+                stderr: Some(stderr),
+                stdout: Some(stdout),
+                ..
+            } = proc
+            else {
+                return Err(YtDlpDownloaderError::ErrorRunningYtDlp);
+            };
+            let stderr = BufReader::new(stderr)
                 .lines()
                 .next_line()
                 .await
-                .unwrap()
-                .unwrap();
+                .ok()
+                .flatten()
+                .ok_or(YtDlpDownloaderError::ErrorRunningYtDlp)?;
             let total_size_bytes = str::parse(&stderr).unwrap();
-            tracing::info!("Song total size bytes {total_size_bytes}");
-            let stream =
-                tokio_util::io::ReaderStream::new(stdout).map_err(|_| YtDlpDownloaderError);
-            Ok((SongInformation { total_size_bytes }, stream))
+            let stream = tokio_util::io::ReaderStream::new(stdout)
+                .map_err(|_| YtDlpDownloaderError::ErrorRunningYtDlp);
+            Ok(YoutubeMusicDownload {
+                total_size_bytes,
+                song: stream,
+            })
         }
         .await
     }
@@ -93,7 +103,7 @@ impl YoutubeDownloader for YtDlpDownloader {
 #[cfg(test)]
 mod tests {
     use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
-    use crate::youtube_downloader::YoutubeDownloader;
+    use crate::youtube_downloader::YoutubeMusicDownloader;
     use bytes::Bytes;
     use futures::StreamExt;
     use tempfile::tempdir;
@@ -101,7 +111,7 @@ mod tests {
     #[tokio::test]
     async fn test_downloading_a_song() {
         let downloader = YtDlpDownloader::new("yt-dlp".to_string());
-        let (_, stream) = downloader.download_song("lYBUbBu4W08").await.unwrap();
+        let (_, stream) = downloader.stream_song("lYBUbBu4W08").await.unwrap();
         let song = stream.map(|item| item.unwrap()).collect::<Vec<Bytes>>();
     }
 }

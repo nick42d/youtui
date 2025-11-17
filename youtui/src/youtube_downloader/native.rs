@@ -1,4 +1,4 @@
-use crate::youtube_downloader::{SongInformation, YoutubeDownloader};
+use crate::youtube_downloader::{SongInformation, YoutubeMusicDownloader};
 use bytes::Bytes;
 use futures::Stream;
 use rusty_ytdl::{
@@ -43,9 +43,9 @@ impl NativeYoutubeDownloader {
     }
 }
 
-impl YoutubeDownloader for NativeYoutubeDownloader {
+impl YoutubeMusicDownloader for NativeYoutubeDownloader {
     type Error = rusty_ytdl::VideoError;
-    fn download_song(
+    fn stream_song(
         &self,
         song_video_id: impl Into<String>,
     ) -> impl Future<

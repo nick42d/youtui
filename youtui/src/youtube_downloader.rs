@@ -1,25 +1,22 @@
-use bytes::Bytes;
 use futures::Stream;
 use std::future::Future;
 
 pub mod native;
 pub mod yt_dlp;
 
-pub struct SongInformation {
+pub struct YoutubeMusicDownload<S> {
     pub total_size_bytes: usize,
+    pub song: S,
 }
 
-pub trait YoutubeDownloader {
+pub trait YoutubeMusicDownloader {
     type Error;
-    fn download_song(
+    fn stream_song(
         &self,
-        song_video_id: impl Into<String> + Send,
+        song_video_id: impl AsRef<str> + Send,
     ) -> impl Future<
         Output = Result<
-            (
-                SongInformation,
-                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
-            ),
+            YoutubeMusicDownload<impl Stream<Item = Result<bytes::Bytes, Self::Error>> + Send>,
             Self::Error,
         >,
     > + Send;

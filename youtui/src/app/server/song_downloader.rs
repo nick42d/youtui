@@ -7,7 +7,7 @@ use crate::core::send_or_error;
 use crate::get_data_dir;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
 use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
-use crate::youtube_downloader::YoutubeDownloader;
+use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::{reqwest, DownloadOptions, RequestOptions, Video, VideoOptions};
 use std::sync::Arc;
@@ -81,7 +81,7 @@ impl SongDownloader {
     }
 }
 
-fn download_song<T: YoutubeDownloader + Send + 'static>(
+fn download_song<T: YoutubeMusicDownloader + Send + 'static>(
     downloader: T,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
@@ -101,22 +101,24 @@ where
             },
         )
         .await;
-        let (song_information, stream) =
-            match downloader.download_song(song_video_id.get_raw()).await {
-                Err(e) => {
-                    error!("Error received finding song: <{e}>");
-                    send_or_error(
-                        &tx,
-                        DownloadProgressUpdate {
-                            kind: DownloadProgressUpdateType::Error,
-                            id: song_playlist_id,
-                        },
-                    )
-                    .await;
-                    return;
-                }
-                Ok(x) => x,
-            };
+        let YoutubeMusicDownload {
+            total_size_bytes,
+            song: stream,
+        } = match downloader.stream_song(song_video_id.get_raw()).await {
+            Err(e) => {
+                error!("Error received finding song: <{e}>");
+                send_or_error(
+                    &tx,
+                    DownloadProgressUpdate {
+                        kind: DownloadProgressUpdateType::Error,
+                        id: song_playlist_id,
+                    },
+                )
+                .await;
+                return;
+            }
+            Ok(x) => x,
+        };
         let mut retries = 0;
         // TODO: Re-add loop - but note that each iteration requires access to a fresh
         // stream.
@@ -133,7 +135,7 @@ where
                 let bytes_streamed_clone = *bytes_streamed;
                 async move {
                     tracing::warn!("Currently reporting incorrect progress percentage");
-                    let progress = bytes_streamed_clone * 100 / song_information.total_size_bytes;
+                    let progress = bytes_streamed_clone * 100 / total_size_bytes;
                     info!("Sending song progress update");
                     send_or_error(
                         tx,
