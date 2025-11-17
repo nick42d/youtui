@@ -1,20 +1,16 @@
-use crate::youtube_downloader::{SongInformation, YoutubeMusicDownloader};
+use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use bytes::Bytes;
 use futures::Stream;
 use rusty_ytdl::{
     reqwest, DownloadOptions, RequestOptions, Video, VideoError, VideoOptions, VideoQuality,
 };
-use std::future::Future;
 use std::sync::Arc;
-use tokio_stream::StreamExt;
 
 #[derive(Clone)]
 /// # Note
 /// Cheap to clone due to use of Arc to store internals.
 pub struct NativeYoutubeDownloader {
     options: Arc<VideoOptions>,
-    // hardcode dl_chunk_size in this struct to be non-optional
-    dl_chunk_size: u64,
 }
 
 impl NativeYoutubeDownloader {
@@ -36,39 +32,30 @@ impl NativeYoutubeDownloader {
                 ..Default::default()
             },
         });
-        Self {
-            options,
-            dl_chunk_size,
-        }
+        Self { options }
     }
 }
 
 impl YoutubeMusicDownloader for NativeYoutubeDownloader {
     type Error = rusty_ytdl::VideoError;
-    fn stream_song(
+    async fn stream_song(
         &self,
-        song_video_id: impl Into<String>,
-    ) -> impl Future<
-        Output = Result<
-            (
-                SongInformation,
-                impl Stream<Item = Result<Bytes, Self::Error>> + Send + 'static,
-            ),
-            Self::Error,
-        >,
-    > + Send
-           + 'static {
+        song_video_id: impl AsRef<str> + Send,
+    ) -> Result<
+        YoutubeMusicDownload<impl Stream<Item = Result<Bytes, Self::Error>> + Send>,
+        Self::Error,
+    > {
         let options = self.options.clone();
-        let song_video_id: String = song_video_id.into();
-        async move {
-            let video = Video::new_with_options(song_video_id, options.as_ref())?;
-            // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
-            let stream = video.stream().await?;
-            let total_size_bytes = stream.content_length();
-            let stream = into_futures_stream(stream);
-            let song_information = SongInformation { total_size_bytes };
-            Ok((song_information, stream))
-        }
+        let song_video_id: String = song_video_id.as_ref().into();
+        let video = Video::new_with_options(song_video_id, options.as_ref())?;
+        // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
+        let stream = video.stream().await?;
+        let total_size_bytes = stream.content_length();
+        let stream = into_futures_stream(stream);
+        Ok(YoutubeMusicDownload {
+            total_size_bytes,
+            song: stream,
+        })
     }
 }
 

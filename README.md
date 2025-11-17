@@ -30,7 +30,6 @@ This project is not supported or endorsed by Google.
 `cargo install youtui`
 
 ## Running youtui
-The default option is to use browser authentication, To change this to oauth authentication, a config.toml file can be added to the local youtui config directory (e.g ~/.config/youtui/ on Linux), with the value auth_type = "OAuth". Please note however that config file format is currently unstable and could change in the future.
 ### Commands
 1. To run the TUI application, execute `youtui` with no arguments.
 1. To use the API in command-line mode, execute `youtui --help` to see available commands.
@@ -43,17 +42,25 @@ Firefox example (Right click and Copy Value):
 ![image](https://github.com/nick42d/youtui/assets/133559267/c7fda32c-10bc-4ebe-b18e-ee17c13f6bd0)
 Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
-### OAuth Setup Steps
+### Configuration
+- Configuration is set in the `config.toml` file in the local youtui config directory (e.g `~/.config/youtui/` on Linux).
+- *Please note*, `config.toml` format is unstable and may change in future.
+- Example `config.toml`s have been provided in the `./youtui/config/` directory.
+- The default option for searching music is to use browser authentication, To change this to oauth authentication, add `auth_type = "OAuth"`.
+- The default option for downloading music is to use the inbuilt native downloader. This can be changed to [yt-dlp](https://github.com/yt-dlp/yt-dlp) by adding `downloader_type = "YtDlp"`.
+- The command used to run `yt-dlp` can be supplied as `yt_dlp_command = "`_command_`"`.
+- Configurable keybinds can be supplied as part of your `config.toml` (see examples for the syntax).
+### PO token information
+1. If music downloads always return an error with native downloader, you are able to supply a PO Token by saving it to the file `po_token.txt` into your local youtui config directory. For more information on PO Tokens and how to obtain them, see [here](https://github.com/yt-dlp/yt-dlp/wiki/Po-Token-Guide).
+### OAuth Setup Steps (optional)
 1. Prerequisite: A Google Cloud Console account and project are required.
 1. Following the [YouTube Data API docs](https://developers.google.com/youtube/registering_an_application), create a new `OAuth client ID` for the application type `TVs and Limited Input devices`. 
 1. Run `youtui setup-oauth` with your Client ID and Client Secret and following the instructions. This will create a new `oauth.json` file in the default configuration directory.
-### Other Setup
-1. If music downloads always return an error, you are able to supply a PO Token by saving it to the file `po_token.txt` into your local youtui config directory. For more information on PO Tokens and how to obtain them, see [here](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#po-token-guide).
-1. Configurable keybinds can be supplied as part of your `config.toml`. Example `config.toml`s have been provided in the `./youtui/config/` directory. Please note, the config file format is currently unstable and could break between releases.
 
 ## Dependencies note
 ### General
 - A font that can render FontAwesome symbols is required.
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) is an optional dependancy (see [Other Setup & Configuration])
 ### Linux specific
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)

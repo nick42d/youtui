@@ -9,6 +9,8 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::process::Child;
 
 #[derive(Clone)]
+/// # Note
+/// Cheap to clone due to use of Arc to store internals.
 pub struct YtDlpDownloader {
     yt_dlp_command: Arc<OsString>,
 }
@@ -103,15 +105,19 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
 #[cfg(test)]
 mod tests {
     use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
-    use crate::youtube_downloader::YoutubeMusicDownloader;
+    use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
     use bytes::Bytes;
     use futures::StreamExt;
-    use tempfile::tempdir;
 
     #[tokio::test]
-    async fn test_downloading_a_song() {
+    #[ignore = "Network and yt-dlp required"]
+    async fn test_downloading_a_song_with_ytdlp() {
         let downloader = YtDlpDownloader::new("yt-dlp".to_string());
-        let (_, stream) = downloader.stream_song("lYBUbBu4W08").await.unwrap();
-        let song = stream.map(|item| item.unwrap()).collect::<Vec<Bytes>>();
+        let YoutubeMusicDownload { song: stream, .. } =
+            downloader.stream_song("lYBUbBu4W08").await.unwrap();
+        stream
+            .map(|item| item.unwrap())
+            .collect::<Vec<Bytes>>()
+            .await;
     }
 }
