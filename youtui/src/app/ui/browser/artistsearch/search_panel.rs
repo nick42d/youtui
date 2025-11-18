@@ -39,10 +39,10 @@ pub enum BrowserArtistsAction {
 }
 
 impl Action for BrowserArtistsAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Artist Search Panel".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             Self::DisplaySelectedArtistAlbums => "Display albums for selected artist",
         }
@@ -161,7 +161,7 @@ impl ListView for ArtistSearchPanel {
             .map(|search_result| &search_result.artist)
             .collect()
     }
-    fn get_title(&self) -> Cow<str> {
+    fn get_title(&self) -> Cow<'_, str> {
         "Artists".into()
     }
 }

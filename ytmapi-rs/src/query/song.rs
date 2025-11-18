@@ -37,7 +37,7 @@ impl GetSongTrackingUrlQuery<'_> {
     /// A GetSongTrackingUrlQuery stores a timestamp, it's not recommended
     /// to store these for a long period of time. The constructor can fail
     /// due to a System Time error.
-    pub fn new(video_id: VideoID) -> Result<GetSongTrackingUrlQuery<'_>> {
+    pub fn new(video_id: VideoID<'_>) -> Result<GetSongTrackingUrlQuery<'_>> {
         let signature_timestamp = get_signature_timestamp()?;
         Ok(GetSongTrackingUrlQuery {
             video_id,
@@ -66,7 +66,7 @@ impl PostQuery for GetLyricsIDQuery<'_> {
     fn path(&self) -> &str {
         "next"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -112,7 +112,7 @@ impl PostQuery for GetSongTrackingUrlQuery<'_> {
             ("video_id".to_string(), json!(self.video_id)),
         ])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {

@@ -1,6 +1,6 @@
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::AuthToken;
-use crate::common::{ArtistChannelID, UserChannelID, UserPlaylistsParams, UserVideosParams};
+use crate::common::{UserChannelID, UserPlaylistsParams, UserVideosParams};
 use crate::parse::{GetUser, UserPlaylist, UserVideo};
 use serde_json::json;
 
@@ -46,7 +46,7 @@ impl PostQuery for GetUserQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         FromIterator::from_iter([("browseId".to_string(), json!(self.user_channel_id))])
     }
-    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -64,7 +64,7 @@ impl PostQuery for GetUserPlaylistsQuery<'_> {
             ("params".to_string(), json!(self.params)),
         ])
     }
-    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -82,7 +82,7 @@ impl PostQuery for GetUserVideosQuery<'_> {
             ("params".to_string(), json!(self.params)),
         ])
     }
-    fn params(&self) -> Vec<(&str, std::borrow::Cow<str>)> {
+    fn params(&self) -> Vec<(&str, std::borrow::Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {

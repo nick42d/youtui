@@ -22,7 +22,9 @@ jobs:
     - uses: actions/checkout@v5
 
     - name: Update rust
-      run: rustup update
+      run: |
+        rustup update
+        rustup component add --toolchain nightly rustfmt
     
     - name: Install linux deps
       run: |
@@ -37,3 +39,9 @@ jobs:
       run: | 
         cargo test --verbose --bins --lib
         cargo test --verbose --doc
+
+    - name: Check formatting
+      run: cargo +nightly fmt --all --check
+
+    - name: Run Clippy
+      run: cargo clippy --all-targets --all-features

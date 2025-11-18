@@ -135,7 +135,7 @@ impl<C: CreatePlaylistType> PostQuery for CreatePlaylistQuery<'_, C> {
     fn path(&self) -> &str {
         "playlist/create"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

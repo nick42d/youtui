@@ -15,7 +15,7 @@ const SEARCH_QUERY_PATH: &str = "search";
 // TODO: Add relevant parameters.
 // Implements Default to allow simple implementation of Into<SearchQuery<S>>
 pub trait SearchType: Default {
-    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>>;
+    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<'_, str>>;
 }
 
 // Trait constraint - to simplify implementation of Query for BasicSearch,
@@ -53,7 +53,7 @@ pub struct LibrarySearch;
 pub struct UploadSearch;
 
 impl SearchType for BasicSearch {
-    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>> {
+    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<'_, str>> {
         match spelling_mode {
             SpellingMode::ExactMatch => Some("EhGKAQ4IARABGAEgASgAOAFAAUICCAE%3D".into()),
             SpellingMode::WithSuggestions => None,
@@ -61,13 +61,13 @@ impl SearchType for BasicSearch {
     }
 }
 impl SearchType for UploadSearch {
-    fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<str>> {
+    fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<'_, str>> {
         // TODO: Investigate if spelling suggestions take affect here.
         Some("agIYAw%3D%3D".into())
     }
 }
 impl SearchType for LibrarySearch {
-    fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<str>> {
+    fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<'_, str>> {
         // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for
         // details. TODO: Investigate if spelling suggestions take affect here.
         Some("agIYBA%3D%3D".into())
@@ -89,7 +89,7 @@ impl<S: UnfilteredSearchType> PostQuery for SearchQuery<'_, S> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -234,7 +234,7 @@ impl PostQuery for GetSearchSuggestionsQuery<'_> {
     fn path(&self) -> &str {
         "music/get_search_suggestions"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

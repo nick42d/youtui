@@ -486,7 +486,7 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
         // another component.
         //
         // Assuming here that kill implies block also.
-        let task_doesnt_match_constraint = |task: &SpawnedTask<_, _, _>| (task.type_id != type_id);
+        let task_doesnt_match_constraint = |task: &SpawnedTask<_, _, _>| task.type_id != type_id;
         let task_doesnt_match_metadata =
             |task: &SpawnedTask<_, _, _>, constraint| !task.metadata.contains(constraint);
         match constraint.constraint_type {

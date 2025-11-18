@@ -53,10 +53,10 @@ pub enum BrowserSongsAction {
 }
 
 impl Action for BrowserSongsAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Song Search Browser".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             BrowserSongsAction::Filter => "Filter",
             BrowserSongsAction::Sort => "Sort",
@@ -247,7 +247,7 @@ impl TableView for SongSearchBrowser {
     fn get_state(&self) -> TableState {
         self.widget_state.clone()
     }
-    fn get_title(&self) -> std::borrow::Cow<str> {
+    fn get_title(&self) -> std::borrow::Cow<'_, str> {
         match self.song_list.state {
             ListStatus::New => "Songs".into(),
             ListStatus::Loading => "Songs - loading".into(),

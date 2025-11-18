@@ -71,10 +71,10 @@ pub enum TextEntryAction {
 }
 
 impl Action for TextEntryAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Global".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             TextEntryAction::Submit => "Submit".into(),
             TextEntryAction::Left => "Left".into(),
@@ -84,10 +84,10 @@ impl Action for TextEntryAction {
     }
 }
 impl Action for ListAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Global".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             ListAction::Up => "List Up".into(),
             ListAction::Down => "List Down".into(),
@@ -98,7 +98,7 @@ impl Action for ListAction {
 }
 
 impl Action for AppAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         match self {
             AppAction::VolUp
             | AppAction::VolDown
@@ -125,7 +125,7 @@ impl Action for AppAction {
             AppAction::BrowserSongs(a) => a.context(),
         }
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             AppAction::Quit => "Quit".into(),
             AppAction::PrevSong => "Prev Song".into(),
@@ -186,12 +186,12 @@ impl TryFrom<String> for AppAction {
 }
 
 impl Action for HelpAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         match self {
             HelpAction::Close => "Help".into(),
         }
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             HelpAction::Close => "Close Help".into(),
         }

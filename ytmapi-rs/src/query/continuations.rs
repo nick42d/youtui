@@ -93,7 +93,7 @@ where
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         self.query.header()
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         let params = self.continuation_params.get_raw();
         vec![("ctoken", params.into()), ("continuation", params.into())]
     }

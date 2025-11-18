@@ -15,10 +15,10 @@ use std::borrow::Cow;
 // Implements Default to allow simple implementation of
 // Into<SearchQuery<FilteredSearch<F>>>
 pub trait FilteredSearchType: Default {
-    fn filtered_param_bits(&self) -> Cow<str>;
+    fn filtered_param_bits(&self) -> Cow<'_, str>;
     // By implementing a default method, we can specialize for cases were these
     // params are incorrect.
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
+    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<'_, str> {
         match spelling_mode {
             SpellingMode::ExactMatch => "AWoMEA4QChADEAQQCRAF".into(),
             SpellingMode::WithSuggestions => "AUICCAFqDBAOEAoQAxAEEAkQBQ%3D%3D".into(),
@@ -26,7 +26,7 @@ pub trait FilteredSearchType: Default {
     }
     // By implementing a default method, we can specialize for cases were these
     // params are incorrect.
-    fn filtered_prefix_param(&self) -> Cow<str> {
+    fn filtered_prefix_param(&self) -> Cow<'_, str> {
         "EgWKAQ".into()
     }
 }
@@ -67,7 +67,7 @@ pub struct PodcastsFilter;
 pub struct ProfilesFilter;
 
 impl<F: FilteredSearchType> SearchType for FilteredSearch<F> {
-    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<str>> {
+    fn specialised_params(&self, spelling_mode: &SpellingMode) -> Option<Cow<'_, str>> {
         Some(
             format!(
                 "{}{}{}",
@@ -82,83 +82,83 @@ impl<F: FilteredSearchType> SearchType for FilteredSearch<F> {
 
 // Implementations of FilteredSearchType
 impl FilteredSearchType for SongsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "II".into()
     }
 }
 impl FilteredSearchType for VideosFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "IQ".into()
     }
 }
 impl FilteredSearchType for AlbumsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "IY".into()
     }
 }
 impl FilteredSearchType for ArtistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "Ig".into()
     }
 }
 impl FilteredSearchType for PlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         // When filtering for Library params should be "Io"...
         "".into()
     }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
+    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<'_, str> {
         match spelling_mode {
             SpellingMode::ExactMatch => "MABCAggBagoQBBADEAkQBRAK",
             SpellingMode::WithSuggestions => "MABqChAEEAMQCRAFEAo%3D",
         }
         .into()
     }
-    fn filtered_prefix_param(&self) -> Cow<str> {
+    fn filtered_prefix_param(&self) -> Cow<'_, str> {
         "Eg-KAQwIABAAGAAgACgB".into()
     }
 }
 impl FilteredSearchType for CommunityPlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "EA".into()
     }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
+    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<'_, str> {
         match spelling_mode {
             SpellingMode::ExactMatch => SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
             SpellingMode::WithSuggestions => SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
         }
         .into()
     }
-    fn filtered_prefix_param(&self) -> Cow<str> {
+    fn filtered_prefix_param(&self) -> Cow<'_, str> {
         SPECIALIZED_PLAYLIST_PREFIX_PARAMS.into()
     }
 }
 impl FilteredSearchType for FeaturedPlaylistsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "Dg".into()
     }
-    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<str> {
+    fn filtered_spelling_param(&self, spelling_mode: &SpellingMode) -> Cow<'_, str> {
         match spelling_mode {
             SpellingMode::ExactMatch => SPECIALIZED_PLAYLIST_EXACT_MATCH_PARAMS,
             SpellingMode::WithSuggestions => SPECIALIZED_PLAYLIST_WITH_SUGGESTIONS_PARAMS,
         }
         .into()
     }
-    fn filtered_prefix_param(&self) -> Cow<str> {
+    fn filtered_prefix_param(&self) -> Cow<'_, str> {
         SPECIALIZED_PLAYLIST_PREFIX_PARAMS.into()
     }
 }
 impl FilteredSearchType for EpisodesFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "JI".into()
     }
 }
 impl FilteredSearchType for PodcastsFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "JQ".into()
     }
 }
 impl FilteredSearchType for ProfilesFilter {
-    fn filtered_param_bits(&self) -> Cow<str> {
+    fn filtered_param_bits(&self) -> Cow<'_, str> {
         "JY".into()
     }
 }
@@ -174,7 +174,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<SongsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -189,7 +189,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<PlaylistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -204,7 +204,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<CommunityPlaylistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -219,7 +219,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<AlbumsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -234,7 +234,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<ArtistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -249,7 +249,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<FeaturedPlaylistsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -264,7 +264,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<EpisodesFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -279,7 +279,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<PodcastsFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -294,7 +294,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<VideosFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -309,7 +309,7 @@ impl PostQuery for SearchQuery<'_, FilteredSearch<ProfilesFilter>> {
     fn path(&self) -> &str {
         SEARCH_QUERY_PATH
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

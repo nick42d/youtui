@@ -32,10 +32,10 @@ pub enum LoggerAction {
     ViewBrowser,
 }
 impl Action for LoggerAction {
-    fn context(&self) -> Cow<str> {
+    fn context(&self) -> Cow<'_, str> {
         "Logger".into()
     }
-    fn describe(&self) -> Cow<str> {
+    fn describe(&self) -> Cow<'_, str> {
         match self {
             LoggerAction::ViewBrowser => "View Browser".into(),
             LoggerAction::ToggleTargetSelector => "Toggle Target Selector Widget".into(),

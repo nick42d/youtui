@@ -60,10 +60,10 @@ pub enum BrowserSearchAction {
 }
 
 impl Action for FilterAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Filter".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             FilterAction::Close => "Close Filter",
             FilterAction::Apply => "Apply filter",
@@ -74,10 +74,10 @@ impl Action for FilterAction {
 }
 
 impl Action for SortAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Filter".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             SortAction::Close => "Close sort",
             SortAction::ClearSort => "Clear sort",
@@ -89,10 +89,10 @@ impl Action for SortAction {
 }
 
 impl Action for BrowserSearchAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Browser Search Panel".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             BrowserSearchAction::PrevSearchSuggestion => "Prev Search Suggestion",
             BrowserSearchAction::NextSearchSuggestion => "Next Search Suggestion",
@@ -252,9 +252,7 @@ pub fn get_adjusted_list_column<T: Copy, const N: usize>(
     adjusted_cols
         .get(target_col)
         .with_context(|| {
-            format!(
-                "Unable to sort column, doesn't match up with underlying list. {target_col}",
-            )
+            format!("Unable to sort column, doesn't match up with underlying list. {target_col}",)
         })
         .copied()
 }

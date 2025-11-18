@@ -376,7 +376,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_mood_playlists<'a, T: Into<MoodCategoryParams<'a>>>(
         &self,
         mood_params: T,
-    ) -> Result<<GetMoodPlaylistsQuery as Query<A>>::Output> {
+    ) -> Result<<GetMoodPlaylistsQuery<'_> as Query<A>>::Output> {
         self.query(GetMoodPlaylistsQuery::new(mood_params.into()))
             .await
     }
@@ -411,7 +411,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_channel(
         &self,
         channel_id: impl Into<PodcastChannelID<'_>>,
-    ) -> Result<<GetChannelQuery as Query<A>>::Output> {
+    ) -> Result<<GetChannelQuery<'_> as Query<A>>::Output> {
         self.query(GetChannelQuery::new(channel_id)).await
     }
     /// Gets a list of all Episodes for a Channel. Note, if GetPodcastChannel
@@ -433,7 +433,7 @@ impl<A: AuthToken> YtMusic<A> {
         &self,
         channel_id: impl Into<PodcastChannelID<'a>>,
         podcast_channel_params: impl Into<PodcastChannelParams<'a>>,
-    ) -> Result<<GetChannelEpisodesQuery as Query<A>>::Output> {
+    ) -> Result<<GetChannelEpisodesQuery<'_> as Query<A>>::Output> {
         self.query(GetChannelEpisodesQuery::new(
             channel_id,
             podcast_channel_params,
@@ -450,7 +450,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_podcast(
         &self,
         podcast_id: impl Into<PodcastID<'_>>,
-    ) -> Result<<GetPodcastQuery as Query<A>>::Output> {
+    ) -> Result<<GetPodcastQuery<'_> as Query<A>>::Output> {
         self.query(GetPodcastQuery::new(podcast_id)).await
     }
     /// ```no_run
@@ -462,7 +462,7 @@ impl<A: AuthToken> YtMusic<A> {
     pub async fn get_episode(
         &self,
         episode_id: impl Into<EpisodeID<'_>>,
-    ) -> Result<<GetEpisodeQuery as Query<A>>::Output> {
+    ) -> Result<<GetEpisodeQuery<'_> as Query<A>>::Output> {
         self.query(GetEpisodeQuery::new(episode_id)).await
     }
     /// Gets the special 'New Episodes' playlist.
@@ -639,7 +639,7 @@ impl<A: LoggedIn> YtMusic<A> {
     pub async fn get_library_upload_album<'a, T: Into<UploadAlbumID<'a>>>(
         &self,
         upload_album_id: T,
-    ) -> Result<<GetLibraryUploadAlbumQuery as Query<A>>::Output> {
+    ) -> Result<<GetLibraryUploadAlbumQuery<'_> as Query<A>>::Output> {
         let query = GetLibraryUploadAlbumQuery::new(upload_album_id.into());
         self.query(query).await
     }
@@ -653,7 +653,7 @@ impl<A: LoggedIn> YtMusic<A> {
     pub async fn get_library_upload_artist<'a, T: Into<UploadArtistID<'a>>>(
         &self,
         upload_artist_id: T,
-    ) -> Result<<GetLibraryUploadArtistQuery as Query<A>>::Output> {
+    ) -> Result<<GetLibraryUploadArtistQuery<'_> as Query<A>>::Output> {
         let query = GetLibraryUploadArtistQuery::new(upload_artist_id.into());
         self.query(query).await
     }
@@ -668,7 +668,7 @@ impl<A: LoggedIn> YtMusic<A> {
     pub async fn delete_upload_entity<'a, T: Into<UploadEntityID<'a>>>(
         &self,
         upload_entity_id: T,
-    ) -> Result<<DeleteUploadEntityQuery as Query<A>>::Output> {
+    ) -> Result<<DeleteUploadEntityQuery<'_> as Query<A>>::Output> {
         let query = DeleteUploadEntityQuery::new(upload_entity_id.into());
         self.query(query).await
     }

@@ -73,8 +73,8 @@ impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)> for YoutuiEff
 
 /// An action that can be applied to state.
 pub trait Action {
-    fn context(&self) -> Cow<str>;
-    fn describe(&self) -> Cow<str>;
+    fn context(&self) -> Cow<'_, str>;
+    fn describe(&self) -> Cow<'_, str>;
 }
 
 /// A component that can handle actions.
@@ -305,10 +305,10 @@ mod tests {
         type Md = ();
     }
     impl Action for TestAction {
-        fn context(&self) -> std::borrow::Cow<str> {
+        fn context(&self) -> std::borrow::Cow<'_, str> {
             todo!()
         }
-        fn describe(&self) -> std::borrow::Cow<str> {
+        fn describe(&self) -> std::borrow::Cow<'_, str> {
             todo!()
         }
     }

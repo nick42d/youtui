@@ -49,7 +49,7 @@ impl NoAuthToken {
 }
 
 impl AuthToken for NoAuthToken {
-    fn client_version(&self) -> Cow<str> {
+    fn client_version(&self) -> Cow<'_, str> {
         fallback_client_version(&self.create_time).into()
     }
     fn deserialize_response<Q>(
@@ -72,7 +72,7 @@ impl AuthToken for NoAuthToken {
         }
         Ok(processed)
     }
-    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<'_, str>)>> {
         Ok([
             // TODO: Confirm if parsing for expired user agent also relevant here.
             ("User-Agent", USER_AGENT.into()),

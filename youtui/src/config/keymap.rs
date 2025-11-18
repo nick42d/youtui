@@ -566,7 +566,7 @@ impl<A: Action> KeyActionTree<A> {
     /// If a key, get the context of the key's action.
     /// If a mode, recursively get the context of the first key's keyactiontree.
     /// Returns String::default() if no keys in the mode.
-    pub fn get_context(&self) -> Cow<str> {
+    pub fn get_context(&self) -> Cow<'_, str> {
         match self {
             KeyActionTree::Key(k) => k.action.context(),
             KeyActionTree::Mode { keys, .. } => keys

@@ -143,7 +143,7 @@ impl AuthToken for OAuthToken {
         }
         Ok(processed)
     }
-    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<'_, str>)>> {
         let request_time_unix = self.request_time.duration_since(UNIX_EPOCH)?.as_secs();
         let now_unix = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         // TODO: Better handling for expiration case.
@@ -162,7 +162,7 @@ impl AuthToken for OAuthToken {
             ("X-Goog-Request-Time", request_time_unix.to_string().into()),
         ])
     }
-    fn client_version(&self) -> Cow<str> {
+    fn client_version(&self) -> Cow<'_, str> {
         let now_datetime: chrono::DateTime<chrono::Utc> = SystemTime::now().into();
         fallback_client_version(&now_datetime).into()
     }

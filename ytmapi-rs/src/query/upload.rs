@@ -1,12 +1,8 @@
 use super::library::{get_sort_order_params, GetLibrarySortOrder};
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
-use crate::common::{
-    UploadAlbumID, UploadArtistID, UploadEntityID,
-};
-use crate::parse::{
-    GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist,
-};
+use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};
+use crate::parse::{GetLibraryUploadAlbum, TableListUploadSong, UploadAlbum, UploadArtist};
 use serde_json::json;
 use std::borrow::Cow;
 
@@ -75,7 +71,7 @@ impl PostQuery for GetLibraryUploadAlbumQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_album_id))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -91,7 +87,7 @@ impl PostQuery for GetLibraryUploadArtistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!(self.upload_artist_id))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -121,7 +117,7 @@ impl PostQuery for GetLibraryUploadSongsQuery {
             )])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -151,7 +147,7 @@ impl PostQuery for GetLibraryUploadAlbumsQuery {
             )])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -181,7 +177,7 @@ impl PostQuery for GetLibraryUploadArtistsQuery {
             )])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -197,7 +193,7 @@ impl PostQuery for DeleteUploadEntityQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("entityId".to_string(), json!(self.upload_entity_id))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {

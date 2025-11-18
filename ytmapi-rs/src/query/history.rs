@@ -73,7 +73,7 @@ impl GetQuery for AddHistoryItemQuery<'_> {
     fn url(&self) -> &str {
         self.song_url.get_raw()
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         // Original implementation by sigma67
         // https://github.com/sigma67/ytmusicapi/blob/a15d90c4f356a530c6b2596277a9d70c0b117a0c/ytmusicapi/mixins/library.py#L310
         let possible_chars: Vec<char> =
