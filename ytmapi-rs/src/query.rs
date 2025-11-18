@@ -111,13 +111,13 @@ pub trait Query<A: AuthToken>: Sized {
 /// Represents a plain POST query that can be sent to Innertube.
 pub trait PostQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value>;
-    fn params(&self) -> Vec<(&str, Cow<str>)>;
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)>;
     fn path(&self) -> &str;
 }
 /// Represents a plain GET query that can be sent to Innertube.
 pub trait GetQuery {
     fn url(&self) -> &str;
-    fn params(&self) -> Vec<(&str, Cow<str>)>;
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)>;
 }
 
 /// The GET query method

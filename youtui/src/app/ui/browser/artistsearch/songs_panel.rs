@@ -56,10 +56,10 @@ pub enum BrowserArtistSongsAction {
 }
 
 impl Action for BrowserArtistSongsAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Artist Songs Panel".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match &self {
             BrowserArtistSongsAction::PlaySong => "Play song",
             BrowserArtistSongsAction::PlaySongs => "Play songs",
@@ -292,7 +292,7 @@ impl TableView for AlbumSongsPanel {
     fn get_state(&self) -> ratatui::widgets::TableState {
         self.widget_state.clone()
     }
-    fn get_title(&self) -> Cow<str> {
+    fn get_title(&self) -> Cow<'_, str> {
         match self.list.state {
             ListStatus::New => "Songs".into(),
             ListStatus::Loading => "Songs - loading".into(),
@@ -325,7 +325,7 @@ impl TableView for AlbumSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
         Box::new(b)
     }
-    fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
+    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
     fn get_highlighted_row(&self) -> Option<usize> {

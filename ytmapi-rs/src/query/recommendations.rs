@@ -42,7 +42,7 @@ impl PostQuery for GetTasteProfileQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_tastebuilder"))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -75,7 +75,7 @@ impl PostQuery for SetTasteProfileQuery<'_> {
             ),
         ])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -91,7 +91,7 @@ impl PostQuery for GetMoodCategoriesQuery {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_moods_and_genres"))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -113,7 +113,7 @@ impl PostQuery for GetMoodPlaylistsQuery<'_> {
             ("params".to_string(), json!(self.params)),
         ])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {

@@ -49,10 +49,10 @@ pub enum BrowserAction {
 }
 
 impl Action for BrowserAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Browser".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             BrowserAction::ViewPlaylist => "View Playlist",
             BrowserAction::Search => "Toggle Search",

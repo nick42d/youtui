@@ -21,8 +21,8 @@ pub mod oauth;
 /// AuthToken is reponsible for HTTP request headers, client_version and
 /// performing the initial error checking and processing prior to parsing.
 pub trait AuthToken: Sized {
-    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>>;
-    fn client_version(&self) -> Cow<str>;
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<'_, str>)>>;
+    fn client_version(&self) -> Cow<'_, str>;
     fn deserialize_response<Q>(raw: RawResult<Q, Self>) -> Result<ProcessedResult<Q>>;
 }
 

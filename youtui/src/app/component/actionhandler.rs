@@ -73,8 +73,8 @@ impl<C: Component> From<(ComponentEffect<C>, Option<AppCallback>)> for YoutuiEff
 
 /// An action that can be applied to state.
 pub trait Action {
-    fn context(&self) -> Cow<str>;
-    fn describe(&self) -> Cow<str>;
+    fn context(&self) -> Cow<'_, str>;
+    fn describe(&self) -> Cow<'_, str>;
 }
 
 /// A component that can handle actions.

@@ -199,7 +199,7 @@ impl PostQuery for EditPlaylistQuery<'_> {
     fn path(&self) -> &str {
         "browse/edit_playlist"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

@@ -216,10 +216,10 @@ impl Default for AlbumSongsList {
 }
 
 impl AlbumSongsList {
-    pub fn get_list_iter(&self) -> std::slice::Iter<ListSong> {
+    pub fn get_list_iter(&self) -> std::slice::Iter<'_, ListSong> {
         self.list.iter()
     }
-    pub fn get_list_iter_mut(&mut self) -> std::slice::IterMut<ListSong> {
+    pub fn get_list_iter_mut(&mut self) -> std::slice::IterMut<'_, ListSong> {
         self.list.iter_mut()
     }
     pub fn sort(&mut self, field: ListSongDisplayableField, direction: SortDirection) {

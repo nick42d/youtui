@@ -20,8 +20,8 @@ pub trait SpecialisedQuery {
 }
 
 pub trait GetWatchPlaylistQueryID {
-    fn get_video_id(&self) -> Option<Cow<str>>;
-    fn get_playlist_id(&self) -> Cow<str>;
+    fn get_video_id(&self) -> Option<Cow<'_, str>>;
+    fn get_playlist_id(&self) -> Cow<'_, str>;
 }
 
 //TODO: Likely Common
@@ -48,28 +48,28 @@ pub struct VideoAndPlaylistID<'a> {
     playlist_id: PlaylistID<'a>,
 }
 impl GetWatchPlaylistQueryID for VideoAndPlaylistID<'_> {
-    fn get_video_id(&self) -> Option<Cow<str>> {
+    fn get_video_id(&self) -> Option<Cow<'_, str>> {
         Some(self.video_id.get_raw().into())
     }
 
-    fn get_playlist_id(&self) -> Cow<str> {
+    fn get_playlist_id(&self) -> Cow<'_, str> {
         self.playlist_id.get_raw().into()
     }
 }
 impl GetWatchPlaylistQueryID for VideoID<'_> {
-    fn get_video_id(&self) -> Option<Cow<str>> {
+    fn get_video_id(&self) -> Option<Cow<'_, str>> {
         Some(self.get_raw().into())
     }
 
-    fn get_playlist_id(&self) -> Cow<str> {
+    fn get_playlist_id(&self) -> Cow<'_, str> {
         format!("RDAMVM{}", self.get_raw()).into()
     }
 }
 impl GetWatchPlaylistQueryID for PlaylistID<'_> {
-    fn get_video_id(&self) -> Option<Cow<str>> {
+    fn get_video_id(&self) -> Option<Cow<'_, str>> {
         None
     }
-    fn get_playlist_id(&self) -> Cow<str> {
+    fn get_playlist_id(&self) -> Cow<'_, str> {
         self.get_raw().into()
     }
 }
@@ -180,7 +180,7 @@ impl PostQuery for GetPlaylistTracksQuery<'_> {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -204,7 +204,7 @@ impl PostQuery for GetPlaylistDetailsQuery<'_> {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -226,7 +226,7 @@ impl PostQuery for DeletePlaylistQuery<'_> {
     fn path(&self) -> &str {
         "playlist/delete"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -259,7 +259,7 @@ impl PostQuery for RemovePlaylistItemsQuery<'_> {
     fn path(&self) -> &str {
         "browse/edit_playlist"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -286,7 +286,7 @@ impl<T: GetWatchPlaylistQueryID> PostQuery for GetWatchPlaylistQuery<T> {
     fn path(&self) -> &str {
         "next"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

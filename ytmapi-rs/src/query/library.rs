@@ -134,7 +134,7 @@ impl PostQuery for GetLibraryPlaylistsQuery {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -162,7 +162,7 @@ impl PostQuery for GetLibraryArtistsQuery {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -182,7 +182,7 @@ impl PostQuery for GetLibrarySongsQuery {
             serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_videos"))])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -204,7 +204,7 @@ impl PostQuery for GetLibraryAlbumsQuery {
             serde_json::Map::from_iter([("browseId".to_string(), json!("FEmusic_liked_albums"))])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -232,7 +232,7 @@ impl PostQuery for GetLibraryArtistSubscriptionsQuery {
             )])
         }
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -258,7 +258,7 @@ impl PostQuery for EditSongLibraryStatusQuery<'_> {
             .collect::<Vec<_>>();
         serde_json::Map::from_iter([("feedbackTokens".to_string(), json!(feedback_tokens))])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -289,7 +289,7 @@ impl PostQuery for GetLibraryPodcastsQuery {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }
@@ -317,7 +317,7 @@ impl PostQuery for GetLibraryChannelsQuery {
     fn path(&self) -> &str {
         "browse"
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
 }

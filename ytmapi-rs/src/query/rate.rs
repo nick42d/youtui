@@ -37,7 +37,7 @@ impl PostQuery for RateSongQuery<'_> {
             json!({"videoId" : self.video_id.get_raw()} ),
         )])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {
@@ -57,7 +57,7 @@ impl PostQuery for RatePlaylistQuery<'_> {
             json!({"playlistId" : self.playlist_id.get_raw()} ),
         )])
     }
-    fn params(&self) -> Vec<(&str, Cow<str>)> {
+    fn params(&self) -> Vec<(&str, Cow<'_, str>)> {
         vec![]
     }
     fn path(&self) -> &str {

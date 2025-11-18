@@ -66,10 +66,10 @@ pub enum PlaylistAction {
 }
 
 impl Action for PlaylistAction {
-    fn context(&self) -> std::borrow::Cow<str> {
+    fn context(&self) -> std::borrow::Cow<'_, str> {
         "Playlist".into()
     }
-    fn describe(&self) -> std::borrow::Cow<str> {
+    fn describe(&self) -> std::borrow::Cow<'_, str> {
         match self {
             PlaylistAction::ViewBrowser => "View Browser",
             PlaylistAction::PlaySelected => "Play Selected",
@@ -162,7 +162,7 @@ impl TableView for Playlist {
     fn get_state(&self) -> TableState {
         self.widget_state.clone()
     }
-    fn get_title(&self) -> Cow<str> {
+    fn get_title(&self) -> Cow<'_, str> {
         format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
     }
     fn get_layout(&self) -> &[BasicConstraint] {
@@ -208,7 +208,7 @@ impl TableView for Playlist {
             ) as Box<dyn Iterator<Item = Cow<str>>>
         }))
     }
-    fn get_headings(&self) -> Box<(dyn Iterator<Item = &'static str> + 'static)> {
+    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
         Box::new(
             [
                 "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",

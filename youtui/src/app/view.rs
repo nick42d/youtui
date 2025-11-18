@@ -154,7 +154,7 @@ pub trait TableView: Loadable {
     // SortableTable), as possible we don't want to sort the Playlist (what happens
     // to play order, for eg). Could have a "commontitle" trait to prevent the
     // need for this in both Table and List
-    fn get_title(&self) -> Cow<str>;
+    fn get_title(&self) -> Cow<'_, str>;
     fn get_layout(&self) -> &[BasicConstraint];
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
@@ -199,7 +199,7 @@ pub trait ListView: Loadable {
     /// Get an owned version of the widget state, e.g scroll offset position.
     /// In practice this will clone, and this is acceptable due to the low cost.
     fn get_state(&self) -> ListState;
-    fn get_title(&self) -> Cow<str>;
+    fn get_title(&self) -> Cow<'_, str>;
     fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
     fn len(&self) -> usize {
         self.get_items_display().len()

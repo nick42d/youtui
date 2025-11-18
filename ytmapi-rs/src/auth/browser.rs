@@ -17,7 +17,7 @@ pub struct BrowserToken {
 }
 
 impl AuthToken for BrowserToken {
-    fn client_version(&self) -> Cow<str> {
+    fn client_version(&self) -> Cow<'_, str> {
         (&self.client_version).into()
     }
     fn deserialize_response<Q>(
@@ -41,7 +41,7 @@ impl AuthToken for BrowserToken {
         }
         Ok(processed)
     }
-    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<str>)>> {
+    fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<'_, str>)>> {
         let hash = utils::hash_sapisid(&self.sapisid);
         Ok([
             ("X-Origin", YTM_URL.into()),
