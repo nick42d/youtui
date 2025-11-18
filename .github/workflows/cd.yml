@@ -14,7 +14,7 @@ defaults:
 jobs:
   upload-to-aur-test:
     name: Upload to AUR test
-    if: startsWith(github.event.release.name, 'youtui/v')
+    if: startsWith(github.event.release.name, 'youtui-v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
