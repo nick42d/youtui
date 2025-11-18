@@ -50,12 +50,27 @@ pub enum DownloaderType {
     YtDlp,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Config {
     pub auth_type: AuthType,
     pub downloader_type: DownloaderType,
     pub yt_dlp_command: String,
     pub keybinds: YoutuiKeymap,
+}
+
+fn default_yt_dlp_command() -> String {
+    String::from("yt-dlp")
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            auth_type: Default::default(),
+            downloader_type: Default::default(),
+            yt_dlp_command: default_yt_dlp_command(),
+            keybinds: Default::default(),
+        }
+    }
 }
 
 #[derive(Default, Debug, Deserialize)]
@@ -68,10 +83,6 @@ pub struct ConfigIR {
     pub yt_dlp_command: String,
     pub keybinds: YoutuiKeymapIR,
     pub mode_names: YoutuiModeNamesIR,
-}
-
-fn default_yt_dlp_command() -> String {
-    String::from("yt-dlp")
 }
 
 impl TryFrom<ConfigIR> for Config {
