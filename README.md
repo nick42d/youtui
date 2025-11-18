@@ -44,8 +44,8 @@ Chrome example (Select manually and paste):
 ![image](https://github.com/nick42d/youtui/assets/133559267/bd2ec37b-1a78-490f-b313-694145bb4854)
 ### Configuration
 - Configuration is set in the `config.toml` file in the local youtui config directory (e.g `~/.config/youtui/` on Linux).
-- *Please note*, `config.toml` format is unstable and may change in future.
-- Example `config.toml`s have been provided in the `./youtui/config/` directory.
+- **Please note**, `config.toml` format is unstable and may change in future.
+- Example `config.toml`s have been provided in the `youtui/config/` directory in the project.
 - The default option for searching music is to use browser authentication, To change this to oauth authentication, add `auth_type = "OAuth"`.
 - The default option for downloading music is to use the inbuilt native downloader. This can be changed to [yt-dlp](https://github.com/yt-dlp/yt-dlp) by adding `downloader_type = "YtDlp"`.
 - The command used to run `yt-dlp` can be supplied as `yt_dlp_command = "`_command_`"`.
@@ -65,6 +65,7 @@ Chrome example (Select manually and paste):
 - Youtui uses the Rodio library for playback which relies on Cpal https://github.com/rustaudio/cpal for ALSA support. The cpal readme mentions the that the ALSA development files are required which can be found in the following packages:
   - `libasound2-dev` (Debian / Ubuntu)
   - `alsa-lib-devel` (Fedora)
+  - `alsa-lib` (Arch)
 
 ## Limitations
 - This project is under heavy development, and interfaces could change at any time. The project will use semantic versioning to indicate when interfaces have stabilised.
