@@ -305,10 +305,10 @@ mod tests {
         type Md = ();
     }
     impl Action for TestAction {
-        fn context(&self) -> std::borrow::Cow<str> {
+        fn context(&self) -> std::borrow::Cow<'_, str> {
             todo!()
         }
-        fn describe(&self) -> std::borrow::Cow<str> {
+        fn describe(&self) -> std::borrow::Cow<'_, str> {
             todo!()
         }
     }

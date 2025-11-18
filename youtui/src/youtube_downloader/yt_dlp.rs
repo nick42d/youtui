@@ -1,6 +1,6 @@
 use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use bytes::Bytes;
-use futures::{Stream, StreamExt, TryStreamExt};
+use futures::{Stream, TryStreamExt};
 use std::ffi::OsString;
 use std::ops::Deref;
 use std::process::Stdio;
@@ -19,11 +19,23 @@ pub struct YtDlpDownloader {
 pub enum YtDlpDownloaderError {
     ErrorSpawningYtDlp { message: String },
     ErrorRunningYtDlp,
+    InvalidYtDlpOutput { output: String },
 }
 
 impl std::fmt::Display for YtDlpDownloaderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "")
+        match self {
+            YtDlpDownloaderError::ErrorSpawningYtDlp { message } => {
+                write!(f, "Error running yt-dlp - <{message}>")
+            }
+            YtDlpDownloaderError::ErrorRunningYtDlp => {
+                write!(f, "Error running yt-dlp - no or invalid output")
+            }
+            YtDlpDownloaderError::InvalidYtDlpOutput { output } => write!(
+                f,
+                "Error running yt-dlp - received <{output}> instead of filesize on stderr"
+            ),
+        }
     }
 }
 
@@ -90,7 +102,8 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 .ok()
                 .flatten()
                 .ok_or(YtDlpDownloaderError::ErrorRunningYtDlp)?;
-            let total_size_bytes = str::parse(&stderr).unwrap();
+            let total_size_bytes = str::parse(&stderr)
+                .map_err(|_| YtDlpDownloaderError::InvalidYtDlpOutput { output: stderr })?;
             let stream = tokio_util::io::ReaderStream::new(stdout)
                 .map_err(|_| YtDlpDownloaderError::ErrorRunningYtDlp);
             Ok(YoutubeMusicDownload {
