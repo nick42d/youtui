@@ -24,7 +24,7 @@ jobs:
     - name: Update rust
       run: |
         rustup update
-        rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+        rustup component add --toolchain nightly rustfmt
     
     - name: Install linux deps
       run: |
