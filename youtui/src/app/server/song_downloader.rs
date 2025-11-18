@@ -13,6 +13,10 @@ use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
+// Minimum tick in song progress that is reported to UI - prevents frequent UI
+// updates.
+const MIN_SONG_PROGRESS_INTERVAL: usize = 3;
+
 #[derive(Debug)]
 pub struct DownloadProgressUpdate {
     pub kind: DownloadProgressUpdateType,
@@ -119,7 +123,7 @@ where
                 Ok(x) => x,
             };
             let song = stream
-                .scan(0, |bytes_streamed, chunk| {
+                .scan((0, 0), |(bytes_streamed, last_progress_reported), chunk| {
                     let tx = tx.clone();
                     let chunk_bytes = match &chunk {
                         Ok(chunk) => chunk.len(),
@@ -127,20 +131,26 @@ where
                     };
                     *bytes_streamed += chunk_bytes;
                     let bytes_streamed_clone = *bytes_streamed;
+                    let progress = bytes_streamed_clone * 100 / total_size_bytes;
+                    let report_progress =
+                        progress >= *last_progress_reported + MIN_SONG_PROGRESS_INTERVAL;
+                    if report_progress {
+                        *last_progress_reported = progress;
+                    }
                     async move {
-                        tracing::warn!("Currently reporting incorrect progress percentage");
-                        let progress = bytes_streamed_clone * 100 / total_size_bytes;
-                        info!("Sending song progress update");
-                        send_or_error(
-                            tx,
-                            DownloadProgressUpdate {
-                                kind: DownloadProgressUpdateType::Downloading(Percentage(
-                                    progress as u8,
-                                )),
-                                id: song_playlist_id,
-                            },
-                        )
-                        .await;
+                        if report_progress {
+                            info!("Sending song progress update");
+                            send_or_error(
+                                tx,
+                                DownloadProgressUpdate {
+                                    kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                        progress as u8,
+                                    )),
+                                    id: song_playlist_id,
+                                },
+                            )
+                            .await;
+                        }
                         Some(chunk)
                     }
                 })
