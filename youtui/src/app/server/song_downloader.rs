@@ -2,17 +2,20 @@ use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::app::server::MAX_RETRIES;
 use crate::app::structures::{ListSongID, Percentage};
 use crate::app::CALLBACK_CHANNEL_SIZE;
+use crate::config::{Config, DownloaderType};
 use crate::core::send_or_error;
+use crate::youtube_downloader::native::NativeYoutubeDownloader;
+use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
+use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use futures::{Stream, StreamExt, TryStreamExt};
-use rusty_ytdl::{reqwest, DownloadOptions, RequestOptions, Video, VideoOptions};
-use std::sync::Arc;
+use rusty_ytdl::reqwest;
 use tokio_stream::wrappers::ReceiverStream;
-// use tokio_stream::StreamExt;
 use tracing::{error, info, warn};
-use utils::into_futures_stream;
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
-mod utils;
+// Minimum tick in song progress that is reported to UI - prevents frequent UI
+// updates.
+const MIN_SONG_PROGRESS_INTERVAL: usize = 3;
 
 #[derive(Debug)]
 pub struct DownloadProgressUpdate {
@@ -40,40 +43,54 @@ impl std::fmt::Debug for InMemSong {
     }
 }
 
-pub struct SongDownloader {
-    /// Shared by tasks.
-    options: Arc<VideoOptions>,
+pub enum SongDownloader {
+    YtDlp(YtDlpDownloader),
+    Native(NativeYoutubeDownloader),
 }
+
 impl SongDownloader {
-    pub fn new(po_token: Option<String>, client: reqwest::Client) -> Self {
-        let options = Arc::new(VideoOptions {
-            quality: AUDIO_QUALITY,
-            filter: rusty_ytdl::VideoSearchOptions::Audio,
-            download_options: DownloadOptions {
-                dl_chunk_size: Some(DL_CALLBACK_CHUNK_SIZE),
-            },
-            request_options: RequestOptions {
-                client: Some(client),
+    pub fn new(po_token: Option<String>, client: reqwest::Client, config: &Config) -> Self {
+        match config.downloader_type {
+            DownloaderType::Native => SongDownloader::Native(NativeYoutubeDownloader::new(
+                DL_CALLBACK_CHUNK_SIZE,
+                AUDIO_QUALITY,
                 po_token,
-                ..Default::default()
-            },
-        });
-        Self { options }
+                client,
+            )),
+            DownloaderType::YtDlp => {
+                SongDownloader::YtDlp(YtDlpDownloader::new(config.yt_dlp_command.clone()))
+            }
+        }
     }
     pub fn download_song(
         &self,
         song_video_id: VideoID<'static>,
         song_playlist_id: ListSongID,
     ) -> impl Stream<Item = DownloadProgressUpdate> {
-        download_song(self.options.clone(), song_video_id, song_playlist_id)
+        match self {
+            SongDownloader::YtDlp(yt_dlp_downloader) => futures::future::Either::Left(
+                download_song(yt_dlp_downloader.clone(), song_video_id, song_playlist_id),
+            ),
+            SongDownloader::Native(native_youtube_downloader) => {
+                futures::future::Either::Right(download_song(
+                    native_youtube_downloader.clone(),
+                    song_video_id,
+                    song_playlist_id,
+                ))
+            }
+        }
     }
 }
 
-fn download_song(
-    options: Arc<VideoOptions>,
+fn download_song<T: YoutubeMusicDownloader + Send + 'static>(
+    downloader: T,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
-) -> impl Stream<Item = DownloadProgressUpdate> {
+) -> impl Stream<Item = DownloadProgressUpdate>
+where
+    T::Error: std::fmt::Display,
+    T::Error: Send,
+{
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
         tracing::info!("Running download");
@@ -85,25 +102,14 @@ fn download_song(
             },
         )
         .await;
-        let Ok(video) = Video::new_with_options(song_video_id.get_raw(), options.as_ref()) else {
-            error!("Error received finding song");
-            send_or_error(
-                &tx,
-                DownloadProgressUpdate {
-                    kind: DownloadProgressUpdateType::Error,
-                    id: song_playlist_id,
-                },
-            )
-            .await;
-            return;
-        };
         let mut retries = 0;
         while retries <= MAX_RETRIES {
-            // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
-            let stream = match video.stream().await {
-                Ok(s) => s,
+            let YoutubeMusicDownload {
+                total_size_bytes,
+                song: stream,
+            } = match downloader.stream_song(song_video_id.get_raw()).await {
                 Err(e) => {
-                    error!("Error <{e}> received converting song to stream");
+                    error!("Error received finding song: <{e}>");
                     send_or_error(
                         &tx,
                         DownloadProgressUpdate {
@@ -114,27 +120,38 @@ fn download_song(
                     .await;
                     return;
                 }
+                Ok(x) => x,
             };
-            let content_length = stream.content_length();
-            let stream = into_futures_stream(stream);
-            let song = futures::StreamExt::enumerate(stream)
-                .then(|(idx, chunk)| {
+            let song = stream
+                .scan((0, 0), |(bytes_streamed, last_progress_reported), chunk| {
                     let tx = tx.clone();
+                    let chunk_bytes = match &chunk {
+                        Ok(chunk) => chunk.len(),
+                        Err(_) => 0,
+                    };
+                    *bytes_streamed += chunk_bytes;
+                    let bytes_streamed_clone = *bytes_streamed;
+                    let progress = bytes_streamed_clone * 100 / total_size_bytes;
+                    let report_progress =
+                        progress >= *last_progress_reported + MIN_SONG_PROGRESS_INTERVAL;
+                    if report_progress {
+                        *last_progress_reported = progress;
+                    }
                     async move {
-                        let progress =
-                            (idx * DL_CALLBACK_CHUNK_SIZE as usize) * 100 / content_length;
-                        info!("Sending song progress update");
-                        send_or_error(
-                            tx,
-                            DownloadProgressUpdate {
-                                kind: DownloadProgressUpdateType::Downloading(Percentage(
-                                    progress as u8,
-                                )),
-                                id: song_playlist_id,
-                            },
-                        )
-                        .await;
-                        chunk
+                        if report_progress {
+                            info!("Sending song progress update");
+                            send_or_error(
+                                tx,
+                                DownloadProgressUpdate {
+                                    kind: DownloadProgressUpdateType::Downloading(Percentage(
+                                        progress as u8,
+                                    )),
+                                    id: song_playlist_id,
+                                },
+                            )
+                            .await;
+                        }
+                        Some(chunk)
                     }
                 })
                 .flat_map(|chunk| match chunk {
@@ -158,7 +175,7 @@ fn download_song(
                         },
                     )
                     .await;
-                    break;
+                    // break;
                 }
                 Err(e) => {
                     warn!("Error <{e}> received downloading song");

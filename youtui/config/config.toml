@@ -1,5 +1,7 @@
 # Example config.toml file for youtui containing the application defaults.
 auth_type = "Browser"
+downloader_type = "Native"
+yt_dlp_command = "yt-dlp"
 
 # Global keybinds
 [keybinds.global]
