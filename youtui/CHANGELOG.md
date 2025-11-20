@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.27](https://github.com/nick42d/youtui/compare/youtui/v0.0.26...youtui/v0.0.27) - 2025-11-20
+
+### Added
+- allow multiple backends for downloading (e.g yt-dlp) ([#273](https://github.com/nick42d/youtui/pull/273))
+
+### Fixed
+- Temporarily resolve download failures with native downloader ([#276](https://github.com/nick42d/youtui/pull/276))
+
+### Other
+- Add clippy and rustfmt, fix cd trigger ([#274](https://github.com/nick42d/youtui/pull/274))
+
 ## [0.0.26](https://github.com/nick42d/youtui/compare/youtui/v0.0.25...youtui/v0.0.26) - 2025-10-10
 
 ### Added

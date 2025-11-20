@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.9](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.8...async-callback-manager/v0.0.9) - 2025-11-20
+
+### Other
+- Add clippy and rustfmt, fix cd trigger ([#274](https://github.com/nick42d/youtui/pull/274))
 
 ## [0.0.8](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.7...async-callback-manager/v0.0.8) - 2025-10-10
 
