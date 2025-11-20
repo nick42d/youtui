@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.2.1](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.2.0...ytmapi-rs/v0.2.1) - 2025-11-20
+
+### Other
+- Add clippy and rustfmt, fix cd trigger ([#274](https://github.com/nick42d/youtui/pull/274))
+
+
+
 ## [0.2.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.1.0...ytmapi-rs/v0.2.0) - 2025-10-10
 
 ### Added
