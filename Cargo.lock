@@ -6843,9 +6843,9 @@ dependencies = [
 
 [[package]]
 name = "youtui-vendored-rusty_ytdl"
-version = "0.7.4-youtui-vendored.2"
+version = "0.7.4-youtui-vendored.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "068fcb7e346f9e740d7cab597f544ea5d3f77627ab6d8c6efcd6b202060213d6"
+checksum = "2223a93e0748d54003f2a0181bba9e1b97e6f6f12072bb58e20e62abdb86e84a"
 dependencies = [
  "aes",
  "async-trait",
