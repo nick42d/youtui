@@ -175,7 +175,7 @@ where
                         },
                     )
                     .await;
-                    // break;
+                    break;
                 }
                 Err(e) => {
                     warn!("Error <{e}> received downloading song");
