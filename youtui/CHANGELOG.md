@@ -18,9 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other
 - Add clippy and rustfmt, fix cd trigger ([#274](https://github.com/nick42d/youtui/pull/274))
 
-
-
-
 ## [0.0.26](https://github.com/nick42d/youtui/compare/youtui/v0.0.25...youtui/v0.0.26) - 2025-10-10
 
 ### Added
