@@ -35,24 +35,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       # Code to run post-release
-      - name: Test conditional
-        if: true
-        run: echo 'True'
-      - name: Test conditional 2
-        if: false
-        run: echo 'True'
-      - name: 
+      - name: Try clone AUR on release
         if: ${{ steps.release-plz.outputs.releases_created }}
-        run: echo 'Releases created'
-      - name: Read release output
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
           RELEASES_CREATED: ${{ steps.release-plz.outputs.releases_created }}
         run: |
           releases_length=$(echo "$RELEASES" | jq 'length')
           echo "releases_length: $releases_length"
-          git clone https://aur.archlinux.org/youtui.git
-          cd youtui && ls 
+          git clone https://aur.archlinux.org/youtui.git youtui2
+          cd youtui2 && ls 
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
