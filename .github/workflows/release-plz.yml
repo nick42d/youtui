@@ -35,13 +35,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       # Code to run post-release
-      - name: Try clone AUR on release
+      - name: Setup SSH agent
         # if: ${{ steps.release-plz.outputs.releases_created }}
         # enabled for testing purposes.
         if: true
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        # if: ${{ steps.release-plz.outputs.releases_created }}
+        # enabled for testing purposes.
+      - name: Try clone AUR on release
+        if: true
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
           RELEASES_CREATED: ${{ steps.release-plz.outputs.releases_created }}
