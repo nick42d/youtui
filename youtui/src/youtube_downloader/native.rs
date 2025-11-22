@@ -2,7 +2,8 @@ use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use bytes::Bytes;
 use futures::Stream;
 use rusty_ytdl::{
-    reqwest, DownloadOptions, RequestOptions, Video, VideoError, VideoOptions, VideoQuality,
+    reqwest, DownloadOptions, RequestOptions, Video, VideoError, VideoFormat, VideoOptions,
+    VideoQuality,
 };
 use std::sync::Arc;
 
@@ -20,9 +21,16 @@ impl NativeYoutubeDownloader {
         po_token: Option<String>,
         client: reqwest::Client,
     ) -> Self {
+        // Custom rusty_ytdl filter that downloads audio but prevents downloading webm
+        // files - the contained Opus codec is not supported by Symphonia.
+        let custom_filter = |video_format: &VideoFormat| {
+            video_format.has_audio
+                && !video_format.has_video
+                && video_format.mime_type.container != "webm"
+        };
         let options = Arc::new(VideoOptions {
             quality,
-            filter: rusty_ytdl::VideoSearchOptions::Audio,
+            filter: rusty_ytdl::VideoSearchOptions::Custom(Arc::new(custom_filter)),
             download_options: DownloadOptions {
                 dl_chunk_size: Some(dl_chunk_size),
             },
