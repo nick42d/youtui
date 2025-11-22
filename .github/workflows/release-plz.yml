@@ -52,7 +52,7 @@ jobs:
         run: |
           # To access aur via ssh aur public key must be added to known hosts
           mkdir -p ~/.ssh
-          echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICW1Jp3K4R41U7q1o7wX5d7j0P1i0qR0S4TzQfG4jP4Q" >> ~/.ssh/known_hosts
+          echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
           releases_length=$(echo "$RELEASES" | jq 'length')
