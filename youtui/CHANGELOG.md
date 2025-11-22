@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.29](https://github.com/nick42d/youtui/compare/youtui/v0.0.28...youtui/v0.0.29) - 2025-11-22
+
+### Fixed
+- dont download webm with native downloader ([#285](https://github.com/nick42d/youtui/pull/285))
+
+
+
+
 ## [0.0.28](https://github.com/nick42d/youtui/compare/youtui/v0.0.27...youtui/v0.0.28) - 2025-11-21
 
 ### Fixed
