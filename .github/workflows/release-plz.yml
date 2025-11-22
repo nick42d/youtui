@@ -75,6 +75,7 @@ jobs:
             -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
             -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
             -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
+            --workdir /workspace \
             archlinux/archlinux:base-devel \
             /bin/bash -c "pacman -Sy --noconfirm git openssh just pacman-contrib && just release-youtui-to-aur $NEW_YOUTUI_VERSION"
 
