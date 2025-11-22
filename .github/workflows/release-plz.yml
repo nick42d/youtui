@@ -35,31 +35,58 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       # Code to run post-release
+      #
+      # Add youtui release status and version number to use in the next actions
+      - name: Check if youtui was released
+        id: check_youtui_release
+        if: ${{ steps.release-plz.outputs.releases_created }}
+        env:
+          RELEASES: ${{ steps.release-plz.outputs.releases }}
+        run: |
+          YOUTUI_IS_RELEASED=$(echo "$RELEASES" | jq -r 'any(.[]; .package_name == "youtui")')
+          echo "Checking if youtui was released: $YOUTUI_IS_RELEASED"
+          echo "youtui_released=$IS_RELEASED" >> "$GITHUB_OUTPUT"
+          if [ "$IS_RELEASED" == "true" ]; then
+             YOUTUI_VERSION=$(echo "$RELEASES" | jq -r '.[] | select(.package_name == "youtui") | .version')
+             echo "released version: $YOUTUI_VERSION"
+             echo "youtui_version=$YOUTUI_VERSION" >> "$GITHUB_OUTPUT"
+          fi
+        
       - name: Setup SSH agent
-        # if: ${{ steps.release-plz.outputs.releases_created }}
-        # enabled for testing purposes.
-        if: true
+        if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-        # if: ${{ steps.release-plz.outputs.releases_created }}
-        # enabled for testing purposes.
-      - name: Try clone AUR on release
-        if: true
+      - name: Release youtui to AUR
+        if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
+        uses: docker://archlinux/archlinux:base-devel
+        # Ensure first thing docker image runs is bash
+        with:
+          args: /bin/bash -c
         env:
-          RELEASES: ${{ steps.release-plz.outputs.releases }}
-          RELEASES_CREATED: ${{ steps.release-plz.outputs.releases_created }}
+          NEW_YOUTUI_VERSION: ${{ steps.check_youtui_release.outputs.youtui_version }}
         run: |
-          # To access aur via ssh aur public key must be added to known hosts
-          mkdir -p ~/.ssh
-          echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+            # Exit on error
+            set -e
+            echo "Attempting to update AUR"
+            pacman -Sy --noconfirm git pacman-contrib base-devel
+            # To access aur via ssh aur public key must be added to known hosts
+            mkdir -p ~/.ssh
+            echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
 
-          releases_length=$(echo "$RELEASES" | jq 'length')
-          echo "releases_length: $releases_length"
-          echo $RELEASES
-          git clone ssh://aur@aur.archlinux.org/youtui.git youtui2
-          cd youtui2 && ls 
+            git clone ssh://aur@aur.archlinux.org/youtui.git youtui-aur
+            cd youtui-aur
+            sed -i "s/^pkgver=.*/pkgver=$NEW_YOUTUI_VERSION/" PKGBUILD
+            sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+
+            updpkgsums
+            # Consider building - rust toolchain required though.
+            # makepkg -f --cleanbuild --nodeps 
+            makepkg --printsrcinfo > .SRCINFO
+            git commit -am 'nick42d-bot: Updating to latest due to GitHub release'
+            git push
+            echo "AUR update succesful"
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
