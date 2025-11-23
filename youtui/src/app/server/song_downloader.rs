@@ -108,15 +108,14 @@ where
             },
         )
         .await;
-        let tx_clone = tx.clone();
         let song_download = || {
-            let tx_clone = tx_clone.clone();
+            let tx = tx.clone();
             download_song_with_progress_update_callback(
                 &downloader,
                 song_video_id.clone(),
                 MIN_SONG_PROGRESS_INTERVAL,
                 move |p| {
-                    let tx_clone = tx_clone.clone();
+                    let tx_clone = tx.clone();
                     info!("Sending song progress update");
                     send_or_error(
                         tx_clone,
@@ -131,10 +130,10 @@ where
         let song = run_future_with_retries_and_retry_callback(
             song_download,
             |times_retried| {
-                let tx_clone = tx_clone.clone();
+                let tx = tx.clone();
                 warn!("Retrying - {} tries left", MAX_RETRIES - times_retried);
                 send_or_error(
-                    tx_clone,
+                    tx,
                     DownloadProgressUpdate {
                         kind: DownloadProgressUpdateType::Retrying { times_retried },
                         id: song_playlist_id,
@@ -187,16 +186,13 @@ where
 {
     let mut retries = 0;
     while retries <= max_retries {
-        let future = future_generator();
-        let output = future.await;
-        match output {
-            Err(_) => {
-                retries += 1;
-                if retries <= max_retries {
-                    run_on_retry(retries).await;
-                }
-            }
-            Ok(x) => return Some(x),
+        let output = future_generator().await;
+        if let Ok(output) = output {
+            return Some(output);
+        }
+        retries += 1;
+        if retries <= max_retries {
+            run_on_retry(retries).await;
         }
     }
     None
