@@ -68,8 +68,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+
           echo "Installing dependencies for arch docker image"
-          docker run --rm \
+          docker run --name setup-container \
             -v "${{ github.workspace }}:/workspace" \
             -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
             -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
@@ -79,18 +80,22 @@ jobs:
             archlinux/archlinux:base-devel \
             /bin/bash -c "pacman -Sy --noconfirm git openssh just pacman-contrib"
 
-          # Needs to run as non-root user
-          echo "Running aur update under docker image"
+          echo "Storing setup docker image"
+          docker commit setup-container arch-loaded
+          docker rm setup-container
+
+          # makepkg commands within justfile need to run as non-root user
+          echo "Running aur update under docker image as non-root user"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
+            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
             -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
             -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
             --user 1000:1000 \
             --workdir /workspace \
-            archlinux/archlinux:base-devel \
-            /bin/bash -c "just release-youtui-to-aur $NEW_YOUTUI_VERSION"
+            arch-loaded \
+            /bin/bash -c 'just release-youtui-to-aur $NEW_YOUTUI_VERSION'
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
