@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.30](https://github.com/nick42d/youtui/compare/youtui/v0.0.29...youtui/v0.0.30) - 2025-11-23
+
+### Other
+- Refactor song downloader to reduce nesting ([#292](https://github.com/nick42d/youtui/pull/292))
+
+
+
+
 ## [0.0.29](https://github.com/nick42d/youtui/compare/youtui/v0.0.28...youtui/v0.0.29) - 2025-11-22
 
 ### Fixed
