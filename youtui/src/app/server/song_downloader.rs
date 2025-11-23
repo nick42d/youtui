@@ -70,11 +70,15 @@ impl SongDownloader {
         song_playlist_id: ListSongID,
     ) -> impl Stream<Item = DownloadProgressUpdate> {
         match self {
-            SongDownloader::YtDlp(yt_dlp_downloader) => futures::future::Either::Left(
-                download_song(yt_dlp_downloader.clone(), song_video_id, song_playlist_id),
-            ),
+            SongDownloader::YtDlp(yt_dlp_downloader) => {
+                futures::future::Either::Left(download_song_using_downloader(
+                    yt_dlp_downloader.clone(),
+                    song_video_id,
+                    song_playlist_id,
+                ))
+            }
             SongDownloader::Native(native_youtube_downloader) => {
-                futures::future::Either::Right(download_song(
+                futures::future::Either::Right(download_song_using_downloader(
                     native_youtube_downloader.clone(),
                     song_video_id,
                     song_playlist_id,
@@ -84,14 +88,14 @@ impl SongDownloader {
     }
 }
 
-fn download_song<T: YoutubeMusicDownloader + Send + Sync + 'static>(
+fn download_song_using_downloader<T>(
     downloader: T,
     song_video_id: VideoID<'static>,
     song_playlist_id: ListSongID,
 ) -> impl Stream<Item = DownloadProgressUpdate>
 where
-    T::Error: std::fmt::Display,
-    T::Error: Send,
+    T: YoutubeMusicDownloader + Send + Sync + 'static,
+    T::Error: std::fmt::Display + Send,
 {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
@@ -109,7 +113,7 @@ where
             let tx_clone = tx_clone.clone();
             download_song_with_progress_update_callback(
                 &downloader,
-                &song_video_id,
+                song_video_id.clone(),
                 MIN_SONG_PROGRESS_INTERVAL,
                 move |p| {
                     let tx_clone = tx_clone.clone();
@@ -124,11 +128,11 @@ where
                 },
             )
         };
-        let song = run_future_with_retries(
+        let song = run_future_with_retries_and_retry_callback(
             song_download,
-            |times_retried, e| {
+            |times_retried| {
                 let tx_clone = tx_clone.clone();
-                error!("Error <{e}> downloading song");
+                warn!("Retrying - {} tries left", MAX_RETRIES - times_retried);
                 send_or_error(
                     tx_clone,
                     DownloadProgressUpdate {
@@ -169,25 +173,28 @@ where
     ReceiverStream::new(rx)
 }
 
-async fn run_future_with_retries<F, F2, T2, E>(
-    future_generator: impl Fn() -> F + Send,
-    run_on_retry_time: impl Fn(usize, E) -> F2 + Send,
+/// Parameter for run_on_retry callback is "times retried"
+async fn run_future_with_retries_and_retry_callback<Fut1, Fut2, T, E>(
+    future_generator: impl Fn() -> Fut1 + Send,
+    run_on_retry: impl Fn(usize) -> Fut2 + Send,
     max_retries: usize,
-) -> Option<T2>
+) -> Option<T>
 where
-    F: Future<Output = Result<T2, E>> + Send,
-    F2: Future<Output = ()> + Send,
+    Fut1: Future<Output = Result<T, E>> + Send,
+    Fut2: Future<Output = ()> + Send,
     E: Send,
-    T2: Send,
+    T: Send,
 {
     let mut retries = 0;
     while retries <= max_retries {
         let future = future_generator();
         let output = future.await;
         match output {
-            Err(e) => {
-                run_on_retry_time(retries, e).await;
+            Err(_) => {
                 retries += 1;
+                if retries <= max_retries {
+                    run_on_retry(retries).await;
+                }
             }
             Ok(x) => return Some(x),
         }
@@ -195,33 +202,26 @@ where
     None
 }
 
-async fn download_song_with_progress_update_callback<
-    'a,
-    T: YoutubeMusicDownloader + Send + 'static,
-    C,
-    F,
->(
-    downloader: &'a T,
-    song_video_id: &'a VideoID<'static>,
+async fn download_song_with_progress_update_callback<T, Fut>(
+    downloader: &T,
+    song_video_id: VideoID<'static>,
     min_song_progress_interval: usize,
-    callback: C,
+    run_on_progress_interval: impl Fn(Percentage) -> Fut + Send + Sync,
 ) -> Result<InMemSong, T::Error>
 where
-    C: Fn(Percentage) -> F + Send + Sync,
-    F: Future<Output = ()> + Send,
-    T::Error: std::fmt::Display,
-    T::Error: Send,
-    anyhow::Error: Send,
+    Fut: Future<Output = ()> + Send,
+    T: YoutubeMusicDownloader + Send + 'static,
+    T::Error: std::fmt::Display + Send,
 {
     let song_video_id = song_video_id.get_raw();
     let stream_future = downloader.stream_song(song_video_id);
-    let callback = callback;
+    let callback = run_on_progress_interval;
     let YoutubeMusicDownload {
         total_size_bytes,
         song: stream,
     } = match stream_future.await {
         Err(e) => {
-            // anyhow::bail!("Error received finding song: <{e}>")
+            error!("Error received finding song: <{e}>");
             return Err(e);
         }
         Ok(x) => x,
@@ -254,6 +254,12 @@ where
             Err(e) => futures::future::Either::Right(futures::stream::once(async { Err(e) })),
         })
         .try_collect::<Vec<u8>>()
-        .await?;
-    Ok(InMemSong(song))
+        .await;
+    match song {
+        Ok(song) => Ok(InMemSong(song)),
+        Err(e) => {
+            error!("Error received downloading song: <{e}>");
+            Err(e)
+        }
+    }
 }
