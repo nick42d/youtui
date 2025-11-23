@@ -73,7 +73,7 @@ jobs:
           docker run --name setup-container \
             -v "${{ github.workspace }}:/workspace" \
             -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
+            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
             -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
             -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
             --workdir /workspace \
