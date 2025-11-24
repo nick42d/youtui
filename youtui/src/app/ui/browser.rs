@@ -5,6 +5,7 @@ use crate::app::component::actionhandler::{
     apply_action_mapped, Action, ActionHandler, ComponentEffect, DelegateScrollable,
     DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
+use crate::app::ui::browser::playlistsearch::PlaylistSearchBrowser;
 use crate::app::view::DrawableMut;
 use crate::config::keymap::Keymap;
 use crate::config::Config;
@@ -21,6 +22,7 @@ use tracing::warn;
 
 pub mod artistsearch;
 mod draw;
+pub mod playlistsearch;
 pub mod shared_components;
 pub mod songsearch;
 
@@ -29,12 +31,14 @@ enum BrowserVariant {
     #[default]
     ArtistSearch,
     SongSearch,
+    PlaylistSearch,
 }
 
 pub struct Browser {
     variant: BrowserVariant,
     artist_search_browser: ArtistSearchBrowser,
     song_search_browser: SongSearchBrowser,
+    playlist_search_broser: PlaylistSearchBrowser,
 }
 impl_youtui_component!(Browser);
 

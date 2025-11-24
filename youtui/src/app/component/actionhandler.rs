@@ -208,6 +208,30 @@ pub trait TextHandler: Component {
         self.handle_text_event_impl(event)
     }
 }
+pub trait DelegateTextHandler: Component {}
+impl<T: DelegateTextHandler> TextHandler for T {
+    fn get_text(&self) -> &str {
+        todo!()
+    }
+    fn clear_text(&mut self) -> bool {
+        todo!()
+    }
+    fn replace_text(&mut self, text: impl Into<String>) {
+        todo!()
+    }
+    fn is_text_handling(&self) -> bool {
+        todo!()
+    }
+    fn handle_text_event_impl(
+        &mut self,
+        event: &Event,
+    ) -> Option<AsyncTask<Self, Self::Bkend, Self::Md>>
+    where
+        Self: Sized,
+    {
+        todo!()
+    }
+}
 
 // A text handler that can receive suggestions
 // TODO: Seperate library and binary APIs
