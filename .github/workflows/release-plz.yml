@@ -55,7 +55,7 @@ jobs:
         
       - name: Setup SSH agent
         if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
       - name: Release youtui to AUR
