@@ -16,7 +16,7 @@ jobs:
         toolchain: [stable]
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Update rust
       run: rustup update
