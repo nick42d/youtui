@@ -8,36 +8,45 @@ use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::SortableTableView;
 use crate::drawutils::{
-    below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    below_left_rect, bottom_of_rect, DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR,
+    SELECTED_BORDER_COLOUR, TEXT_COLOUR,
 };
+use itertools::Itertools;
 use rat_text::text_input::{TextInput, TextInputState};
 use rat_text::HasScreenCursor;
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
-use ratatui::style::{Modifier, Style, Stylize};
+use ratatui::style::{Color, Modifier, Style, Stylize};
+use ratatui::symbols::border::{DOUBLE, QUADRANT_BOTTOM_HALF, QUADRANT_INSIDE};
+use ratatui::symbols::line::{DOUBLE_HORIZONTAL, DOUBLE_HORIZONTAL_DOWN};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Tabs};
-use ratatui::Frame;
-use std::hash::Hash;
+use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Tabs, Widget};
+use ratatui::{symbols, Frame};
+use std::borrow::Cow;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
 
+
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
-    let tabs = Tabs::new(["Artist".red(), "Song".blue()]);
     let offset_position_for_tab = Layout::new(
-        Direction::Horizontal,
-        [Constraint::Max(1), Constraint::Min(0)],
+        Direction::Vertical,
+        [Constraint::Min(0), Constraint::Max(1)],
     )
-    .split(chunk)[1];
+    .split(chunk);
+    let block = Block::bordered()
+        .border_set(ratatui::symbols::border::THICK)
+        .border_style(Color::Reset);
     match browser.variant {
         super::BrowserVariant::ArtistSearch => {
             draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected);
-            f.render_widget(tabs.select(0), offset_position_for_tab);
+            // f.render_widget(block, chunk);
+            // f.render_widget(tabs.select(0), offset_position_for_tab[1]);
         }
         super::BrowserVariant::SongSearch => {
             draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected);
-            f.render_widget(tabs.select(1), offset_position_for_tab);
+            // f.render_widget(block, chunk);
+            // f.render_widget(tabs.select(1), offset_position_for_tab[1]);
         }
     }
 }

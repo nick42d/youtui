@@ -24,7 +24,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
         .margin(0)
         .constraints(
             [
-                Constraint::Length(3),
+                Constraint::Length(4),
                 Constraint::Min(2),
                 Constraint::Length(5),
             ]
