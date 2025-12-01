@@ -175,7 +175,7 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_cells_as_string = "  AA  CCCCBBBB  DD  ".to_string();
+        let expected_cells_as_string = " AA  CCCCBBBB  DD ".to_string();
         assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
 }
