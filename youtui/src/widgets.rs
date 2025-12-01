@@ -9,8 +9,8 @@ pub struct TabGrid<'a, const N: usize> {
     titles: [Cow<'a, str>; N],
     selected: Option<usize>,
     cols: u16,
-    selected_style: Style,
-    deselected_style: Style,
+    highlight_style: Option<Style>,
+    style: Style,
 }
 impl<'a, const N: usize> TabGrid<'a, N> {
     pub fn new_with_cols(titles: [impl Into<Cow<'a, str>>; N], cols: u16) -> Self {
@@ -18,8 +18,8 @@ impl<'a, const N: usize> TabGrid<'a, N> {
             titles: titles.map(|title| title.into()),
             selected: None,
             cols,
-            selected_style: Default::default(),
-            deselected_style: Default::default(),
+            highlight_style: Default::default(),
+            style: Default::default(),
         }
     }
     /// zero indexed
@@ -27,64 +27,66 @@ impl<'a, const N: usize> TabGrid<'a, N> {
         let Self {
             titles,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
             ..
         } = self;
         Self {
             titles,
             selected: Some(selected),
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
         }
     }
     pub fn deselect(self) -> Self {
         let Self {
             titles,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
             ..
         } = self;
         Self {
             titles,
             selected: None,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
         }
     }
-    pub fn with_selected_style(self, selected_style: Style) -> Self {
+    /// Sets the style for the highlighted tab - overwriting the base style.
+    pub fn highlight_style(self, highlight_style: Style) -> Self {
         let Self {
             titles,
             cols,
             selected,
-            deselected_style,
+            style,
             ..
         } = self;
         Self {
             titles,
             selected,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style: Some(highlight_style),
+            style,
         }
     }
-    pub fn with_deselected_style(self, deselected_style: Style) -> Self {
+    /// Sets the style for all tabs.
+    pub fn style(self, style: Style) -> Self {
         let Self {
             titles,
             cols,
             selected,
-            selected_style,
+            highlight_style,
             ..
         } = self;
         Self {
             titles,
             selected,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
         }
     }
     /// Returns 0 if there are 0 cols or 0 titles.
@@ -125,16 +127,16 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
             titles,
             selected,
             cols,
-            selected_style,
-            deselected_style,
+            highlight_style,
+            style,
         } = self;
         for (idx, title) in titles.into_iter().enumerate() {
             let row = idx.rem_euclid(cols as usize);
             let col = idx.div_euclid(rows);
-            let tab = if selected == Some(idx) {
-                Line::from(title).style(selected_style)
+            let tab = if let Some(highlight_style) = highlight_style && selected == Some(idx) {
+                Line::from(title).style(highlight_style)
             } else {
-                Line::from(title).style(deselected_style)
+                Line::from(title).style(style)
             }
             .centered();
             let render_area = Rect {
@@ -144,8 +146,32 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
                 y: (area.y as usize + row).try_into().unwrap(),
                 width: longest_title.try_into().unwrap(),
                 height: 1,
-            };
+            }
+            // Don't render outside provided area
+            .intersection(area);
             tab.render(render_area, buf);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ratatui::{layout::Rect, widgets::Widget};
+    use pretty_assertions::assert_eq;
+    use crate::widgets::TabGrid;
+
+    #[test]
+    fn test_basic_tab_grid() {
+        let grid = TabGrid::new_with_cols(["AA", "BBBB", "CCCC", "DD"], 2);
+        assert_eq!(grid.required_width(), 9);
+        assert_eq!(grid.required_height(), 2);
+        let area = Rect::new(0, 0, 9, 2);
+        let buf = ratatui::buffer::Buffer::empty(area);
+        grid.render(area, buf);
+        assert_eq!(buf.area, area);
+        let rendered_cells_as_string = buf.content.iter().map(|cell| cell.symbol()).collect::<String>();
+        let expected_cells_as_string = "  AA  BBBBCCCC  DD  ".to_string();
+        assert_eq!(rendered_cells_as_string, expected_cells_as_string); 
+        
     }
 }

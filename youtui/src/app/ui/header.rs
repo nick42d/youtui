@@ -43,7 +43,7 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let tabs = crate::widgets::TabGrid::new_with_cols(["Search", "Playlist", "Logs"], 2)
         .select(selected)
         // .with_selected_style(Style::new().fg(BUTTON_FG_COLOUR).bg(SELECTED_BORDER_COLOUR))
-        .with_selected_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
+        .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
     f.render_widget(header, block.inner(split[0]));
     f.render_widget(tabs, block.inner(split[1]));
     f.render_widget(block, split[0]);

@@ -1,7 +1,8 @@
 [package]
 name = "youtui"
 version = "0.0.30"
-edition = "2021"
+# Required for let chains
+edition = "2024"
 authors = ["nick42d"]
 license = "MIT"
 description = "A simple TUI YouTube Music player"
@@ -10,8 +11,8 @@ repository = "https://github.com/nick42d/youtui"
 readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
-# Required for Duration::abs_dif
-rust-version = "1.82"
+# Required for edition 2025
+rust-version = "1.85"
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
