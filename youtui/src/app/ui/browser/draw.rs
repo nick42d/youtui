@@ -28,24 +28,12 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 const MIN_POPUP_WIDTH: usize = 20;
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
-    let offset_position_for_tab = Layout::new(
-        Direction::Vertical,
-        [Constraint::Min(0), Constraint::Max(1)],
-    )
-    .split(chunk);
-    let block = Block::bordered()
-        .border_set(ratatui::symbols::border::THICK)
-        .border_style(Color::Reset);
     match browser.variant {
         super::BrowserVariant::ArtistSearch => {
             draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected);
-            // f.render_widget(block, chunk);
-            // f.render_widget(tabs.select(0), offset_position_for_tab[1]);
         }
         super::BrowserVariant::SongSearch => {
             draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected);
-            // f.render_widget(block, chunk);
-            // f.render_widget(tabs.select(1), offset_position_for_tab[1]);
         }
     }
 }
