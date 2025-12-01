@@ -68,7 +68,7 @@ impl SongDownloader {
         &self,
         song_video_id: VideoID<'static>,
         song_playlist_id: ListSongID,
-    ) -> impl Stream<Item = DownloadProgressUpdate> {
+    ) -> impl Stream<Item = DownloadProgressUpdate> + use<> {
         match self {
             SongDownloader::YtDlp(yt_dlp_downloader) => {
                 futures::future::Either::Left(download_song_using_downloader(
