@@ -166,8 +166,8 @@ mod tests {
         assert_eq!(grid.required_width(), 9);
         assert_eq!(grid.required_height(), 2);
         let area = Rect::new(0, 0, 9, 2);
-        let buf = ratatui::buffer::Buffer::empty(area);
-        grid.render(area, buf);
+        let mut buf = ratatui::buffer::Buffer::empty(area);
+        grid.render(area, &mut buf);
         assert_eq!(buf.area, area);
         let rendered_cells_as_string = buf.content.iter().map(|cell| cell.symbol()).collect::<String>();
         let expected_cells_as_string = "  AA  BBBBCCCC  DD  ".to_string();
