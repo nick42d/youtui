@@ -1,32 +1,31 @@
+use super::Browser;
 use super::artistsearch::search_panel::ArtistInputRouting;
 use super::artistsearch::songs_panel::AlbumSongsInputRouting;
 use super::artistsearch::{self, ArtistSearchBrowser};
 use super::shared_components::SearchBlock;
 use super::songsearch::SongSearchBrowser;
-use super::Browser;
 use crate::app::component::actionhandler::Suggestable;
-use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::SortableTableView;
+use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
-    below_left_rect, bottom_of_rect, DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR,
-    SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    below_left_rect, bottom_of_rect,
 };
 use itertools::Itertools;
-use rat_text::text_input::{TextInput, TextInputState};
 use rat_text::HasScreenCursor;
+use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::symbols::border::{DOUBLE, QUADRANT_BOTTOM_HALF, QUADRANT_INSIDE};
 use ratatui::symbols::line::{DOUBLE_HORIZONTAL, DOUBLE_HORIZONTAL_DOWN};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Tabs, Widget};
-use ratatui::{symbols, Frame};
+use ratatui::{Frame, symbols};
 use std::borrow::Cow;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 const MIN_POPUP_WIDTH: usize = 20;
-
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
     let offset_position_for_tab = Layout::new(

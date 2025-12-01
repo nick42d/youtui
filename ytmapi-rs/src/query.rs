@@ -31,7 +31,7 @@
 //!     }
 //! }
 //! ```
-use crate::auth::{raw_query_get, raw_query_post, AuthToken};
+use crate::auth::{AuthToken, raw_query_get, raw_query_post};
 use crate::parse::ParseFrom;
 use crate::{RawResult, Result};
 use private::Sealed;

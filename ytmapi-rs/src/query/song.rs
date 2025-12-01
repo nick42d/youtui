@@ -1,8 +1,8 @@
 use super::{PostMethod, PostQuery, Query};
+use crate::Result;
 use crate::auth::AuthToken;
 use crate::common::{LyricsID, SongTrackingUrl, VideoID, YoutubeID};
 use crate::parse::Lyrics;
-use crate::Result;
 use serde_json::json;
 use std::borrow::Cow;
 use std::time::SystemTime;

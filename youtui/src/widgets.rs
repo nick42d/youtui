@@ -133,7 +133,9 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
         for (idx, title) in titles.into_iter().enumerate() {
             let row = idx.rem_euclid(cols as usize);
             let col = idx.div_euclid(rows);
-            let tab = if let Some(highlight_style) = highlight_style && selected == Some(idx) {
+            let tab = if let Some(highlight_style) = highlight_style
+                && selected == Some(idx)
+            {
                 Line::from(title).style(highlight_style)
             } else {
                 Line::from(title).style(style)

@@ -1,10 +1,10 @@
 use crate::app::component::actionhandler::Action;
 use crate::app::ui::action::{AppAction, HelpAction, ListAction, TextEntryAction};
+use crate::app::ui::browser::BrowserAction;
 use crate::app::ui::browser::artistsearch::search_panel::BrowserArtistsAction;
 use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
 use crate::app::ui::browser::shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use crate::app::ui::browser::songsearch::BrowserSongsAction;
-use crate::app::ui::browser::BrowserAction;
 use crate::app::ui::logger::LoggerAction;
 use crate::app::ui::playlist::PlaylistAction::{self, ViewBrowser};
 use crate::keyaction::{KeyAction, KeyActionVisibility};
@@ -13,8 +13,8 @@ use anyhow::{Context, Error, Result};
 use crossterm::event::KeyModifiers;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
+use std::collections::btree_map::Entry;
 use std::convert::Infallible;
 use std::str::FromStr;
 
@@ -1077,11 +1077,11 @@ fn default_list_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{merge_keymaps, KeyActionTree};
+    use super::{KeyActionTree, merge_keymaps};
     use crate::app::ui::action::AppAction;
     use crate::app::ui::browser::artistsearch::search_panel::BrowserArtistsAction;
     use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
-    use crate::config::keymap::{remove_action_from_keymap, Keymap};
+    use crate::config::keymap::{Keymap, remove_action_from_keymap};
     use crate::keybind::Keybind;
 
     #[test]

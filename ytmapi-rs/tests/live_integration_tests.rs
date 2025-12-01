@@ -197,7 +197,9 @@ generate_query_test!(
     // Rustacean Station
     GetChannelEpisodesQuery::new(
         PodcastChannelID::from_raw("UCupvZG-5ko_eiXAupbDfxWw"),
-        PodcastChannelParams::from_raw("6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D")
+        PodcastChannelParams::from_raw(
+            "6gPiAUdxWUJXcFlCQ3BNQkNpUjVkRjl3WVdkbFgzTnVZWEJ6YUc5MFgyMTFjMmxqWDNCaFoyVmZjbVZuYVc5dVlXd1NIM05mUzNKVGJtWlphemhuWmtWUWEzaDRSRVpqWWxSS0xXODNXVUprUW1zYVNnQUFaVzRBQVVGVkFBRkJWUUFCQUVaRmJYVnphV05mWkdWMFlXbHNYMkZ5ZEdsemRBQUJBVU1BQUFFQUFBRUJBRlZEZFhCMldrY3ROV3R2WDJWcFdFRjFjR0pFWm5oWGR3QUI4dHF6cWdvSFFBQklBRkMwQVE%3D"
+        )
     )
 );
 generate_query_test!(
@@ -556,40 +558,51 @@ async fn test_add_remove_songs_from_library() {
     let api = new_standard_api().await.unwrap();
     // TODO: Confirm what songs these are.
     // Here Comes The Sun (Remastered 2009)
-    let song1_add = FeedbackTokenAddToLibrary::from_raw("AB9zfpLNiumq5xDBgjkDSZZyCueh__JX4POenJBVzci5sOatPL8q7zs8D9LIYfLPEJ7k3N4OLy4vMfFr7os-GRla9I8RgMFf0A");
-    let song1_rem = FeedbackTokenRemoveFromLibrary::from_raw("AB9zfpJpKmgLWemXCSIlIUIcrBZumoOPWw0Y0NKniqn8ZBFe2Knndo6LnKBMrFjKM1iZYZBYgzKTzATqdMZh-V8nq36Svggu5w");
+    let song1_add = FeedbackTokenAddToLibrary::from_raw(
+        "AB9zfpLNiumq5xDBgjkDSZZyCueh__JX4POenJBVzci5sOatPL8q7zs8D9LIYfLPEJ7k3N4OLy4vMfFr7os-GRla9I8RgMFf0A",
+    );
+    let song1_rem = FeedbackTokenRemoveFromLibrary::from_raw(
+        "AB9zfpJpKmgLWemXCSIlIUIcrBZumoOPWw0Y0NKniqn8ZBFe2Knndo6LnKBMrFjKM1iZYZBYgzKTzATqdMZh-V8nq36Svggu5w",
+    );
     // Let It Be
-    let song2_add = FeedbackTokenAddToLibrary::from_raw("AB9zfpIy-gtxCX1XAx__pFt0APQ_fgGGtuUqY7D7Sz4Oupazo6dxxP-VJEfvnon4eigVa_aYBVPfW99DA2Y9Ns0AEVgbJUeDyQ");
-    let song2_rem = FeedbackTokenRemoveFromLibrary::from_raw("AB9zfpLqhDJMIguP_8vxw5e-pV69_x5IVqe8KOy8jBEDoncBCCfAxOcvhaJPRi2NHLiKAukdmZgIlX7uoWcsOvqLA2zgNGUNAw");
+    let song2_add = FeedbackTokenAddToLibrary::from_raw(
+        "AB9zfpIy-gtxCX1XAx__pFt0APQ_fgGGtuUqY7D7Sz4Oupazo6dxxP-VJEfvnon4eigVa_aYBVPfW99DA2Y9Ns0AEVgbJUeDyQ",
+    );
+    let song2_rem = FeedbackTokenRemoveFromLibrary::from_raw(
+        "AB9zfpLqhDJMIguP_8vxw5e-pV69_x5IVqe8KOy8jBEDoncBCCfAxOcvhaJPRi2NHLiKAukdmZgIlX7uoWcsOvqLA2zgNGUNAw",
+    );
     let q1 = EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(vec![song1_add]);
     let q2 = EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(vec![song2_add])
         .with_remove_from_library_feedback_tokens(vec![song1_rem]);
     let q3 =
         EditSongLibraryStatusQuery::new_from_remove_from_library_feedback_tokens(vec![song2_rem]);
-    assert!(!api
-        .query(q1)
-        .await
-        .unwrap()
-        .into_iter()
-        .collect::<Vec<_>>()
-        .into_iter()
-        .any(|x| x == ApiOutcome::Failure));
-    assert!(!api
-        .query(q2)
-        .await
-        .unwrap()
-        .into_iter()
-        .collect::<Vec<_>>()
-        .into_iter()
-        .any(|x| x == ApiOutcome::Failure));
-    assert!(!api
-        .query(q3)
-        .await
-        .unwrap()
-        .into_iter()
-        .collect::<Vec<_>>()
-        .into_iter()
-        .any(|x| x == ApiOutcome::Failure));
+    assert!(
+        !api.query(q1)
+            .await
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>()
+            .into_iter()
+            .any(|x| x == ApiOutcome::Failure)
+    );
+    assert!(
+        !api.query(q2)
+            .await
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>()
+            .into_iter()
+            .any(|x| x == ApiOutcome::Failure)
+    );
+    assert!(
+        !api.query(q3)
+            .await
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>()
+            .into_iter()
+            .any(|x| x == ApiOutcome::Failure)
+    );
 }
 #[tokio::test]
 async fn test_rate_songs() {

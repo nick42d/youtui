@@ -2,7 +2,7 @@ use super::{PostMethod, PostQuery, Query};
 use crate::auth::AuthToken;
 use crate::common::{MoodCategoryParams, TasteToken};
 use crate::parse::{MoodCategorySection, MoodPlaylistCategory, TasteProfileArtist};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::borrow::Cow;
 
 #[derive(Clone)]

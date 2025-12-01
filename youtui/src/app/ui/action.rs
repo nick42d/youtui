@@ -1,11 +1,11 @@
+use super::HelpMenu;
+use super::browser::BrowserAction;
 use super::browser::artistsearch::search_panel::BrowserArtistsAction;
 use super::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
 use super::browser::shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use super::browser::songsearch::BrowserSongsAction;
-use super::browser::BrowserAction;
 use super::logger::LoggerAction;
 use super::playlist::PlaylistAction;
-use super::HelpMenu;
 use crate::app::component::actionhandler::{Action, ActionHandler, YoutuiEffect};
 use anyhow::bail;
 use async_callback_manager::AsyncTask;

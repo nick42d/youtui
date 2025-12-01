@@ -1,9 +1,9 @@
 use crate::core::create_or_clean_directory;
 use crate::get_data_dir;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
-use futures::future::try_join;
 use futures::FutureExt;
+use futures::future::try_join;
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
 use std::sync::Arc;

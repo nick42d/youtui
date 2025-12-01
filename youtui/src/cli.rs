@@ -1,7 +1,7 @@
-use crate::{get_api, get_config_dir, Cli, RuntimeInfo, OAUTH_FILENAME};
+use crate::{Cli, OAUTH_FILENAME, RuntimeInfo, get_api, get_config_dir};
 use anyhow::Result;
 use futures::future::try_join_all;
-use querybuilder::{command_to_query, CliQuery, QueryType};
+use querybuilder::{CliQuery, QueryType, command_to_query};
 use std::path::PathBuf;
 use ytmapi_rs::{generate_oauth_code_and_url, generate_oauth_token};
 

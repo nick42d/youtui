@@ -7,15 +7,15 @@ use crate::app::structures::{
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::get_sort_keybinds;
 use crate::app::ui::browser::shared_components::{
-    get_adjusted_list_column, FilterManager, SortManager,
+    FilterManager, SortManager, get_adjusted_list_column,
 };
 use crate::app::view::{
     BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
     TableSortCommand, TableView,
 };
-use crate::config::keymap::Keymap;
 use crate::config::Config;
-use anyhow::{bail, Result};
+use crate::config::keymap::Keymap;
+use anyhow::{Result, bail};
 use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};

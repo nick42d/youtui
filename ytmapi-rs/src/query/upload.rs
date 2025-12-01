@@ -1,4 +1,4 @@
-use super::library::{get_sort_order_params, GetLibrarySortOrder};
+use super::library::{GetLibrarySortOrder, get_sort_order_params};
 use super::{PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
 use crate::common::{UploadAlbumID, UploadArtistID, UploadEntityID};

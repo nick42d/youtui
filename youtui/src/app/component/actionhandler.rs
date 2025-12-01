@@ -1,6 +1,6 @@
 use crate::app::AppCallback;
-use crate::config::keymap::{KeyActionTree, Keymap};
 use crate::config::Config;
+use crate::config::keymap::{KeyActionTree, Keymap};
 use crate::keyaction::{DisplayableKeyAction, KeyAction, KeyActionVisibility};
 use crate::keybind::Keybind;
 use async_callback_manager::AsyncTask;
@@ -287,7 +287,7 @@ where
 mod tests {
     #![allow(clippy::todo)]
     use super::{Action, Component};
-    use crate::app::component::actionhandler::{handle_key_stack, KeyHandleAction, Keymap};
+    use crate::app::component::actionhandler::{KeyHandleAction, Keymap, handle_key_stack};
     use crate::config::keymap::KeyActionTree;
     use crate::keybind::Keybind;
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};

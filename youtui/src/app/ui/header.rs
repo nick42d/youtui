@@ -1,13 +1,13 @@
-use crate::app::component::actionhandler::{get_global_keybinds_as_readable_iter, KeyRouter};
+use crate::app::component::actionhandler::{KeyRouter, get_global_keybinds_as_readable_iter};
 use crate::drawutils::{
     BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, DESELECTED_BORDER_COLOUR, SELECTED_BORDER_COLOUR,
 };
 use crate::keyaction::DisplayableKeyAction;
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::{Style, Stylize};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
-use ratatui::Frame;
 use std::fmt::Debug;
 
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {

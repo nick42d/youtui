@@ -5,10 +5,10 @@ use async_callback_manager::{
     AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, TaskOutcome,
 };
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
-use futures::{stream, FutureExt};
+use futures::{FutureExt, stream};
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout};
 use ratatui::widgets::{Block, Paragraph};
-use ratatui::Frame;
 use std::future::Future;
 use std::time::Duration;
 use tokio_stream::StreamExt;

@@ -1,8 +1,8 @@
 use super::{ParseFrom, ProcessedResult};
 use crate::common::{LyricsID, SongTrackingUrl};
 use crate::nav_consts::{DESCRIPTION, DESCRIPTION_SHELF, RUN_TEXT, SECTION_LIST_ITEM};
-use crate::query::song::{GetLyricsIDQuery, GetSongTrackingUrlQuery};
 use crate::query::GetLyricsQuery;
+use crate::query::song::{GetLyricsIDQuery, GetSongTrackingUrlQuery};
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};
@@ -61,7 +61,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_song_tracking_url_query() {
-        let output = SongTrackingUrl::from_raw("https://s.youtube.com/api/stats/playback?cl=655300395&docid=FZ8BxMU3BYc&ei=JSimZqHaNeyB9fwP9oqh0Ak&fexp=&ns=yt&plid=AAYeTNocW-liNkl6&el=detailpage&len=193&of=URbTjA0hNUiM-oZxeU_KzQ&osid=AAAAAYfxXtM%3AAOeUNAZhCDiglWHfELd4I0ksz0dyuGtLVg&uga=m32&vm=CAMQARgBOjJBSHFpSlRJMDQteFk3b0Z2MUZXblN3NTlza3ZKcEhkcXpWeVhhMXl4RGQyZXVFR2twZ2JiQU9BckJGdG4zbDdCcElKTGJHNkt3dlJVX2ZzZGdKMndGR1ZZdk92MVItWWYtUTBOYmdFQnYxd3J6cGJBNzdrZUJXMlQ0QWR4MVo4S1Rza1JTM0hvWGRTd2llYk5xZFd6Nne4AQE");
+        let output = SongTrackingUrl::from_raw(
+            "https://s.youtube.com/api/stats/playback?cl=655300395&docid=FZ8BxMU3BYc&ei=JSimZqHaNeyB9fwP9oqh0Ak&fexp=&ns=yt&plid=AAYeTNocW-liNkl6&el=detailpage&len=193&of=URbTjA0hNUiM-oZxeU_KzQ&osid=AAAAAYfxXtM%3AAOeUNAZhCDiglWHfELd4I0ksz0dyuGtLVg&uga=m32&vm=CAMQARgBOjJBSHFpSlRJMDQteFk3b0Z2MUZXblN3NTlza3ZKcEhkcXpWeVhhMXl4RGQyZXVFR2twZ2JiQU9BckJGdG4zbDdCcElKTGJHNkt3dlJVX2ZzZGdKMndGR1ZZdk92MVItWWYtUTBOYmdFQnYxd3J6cGJBNzdrZUJXMlQ0QWR4MVo4S1Rza1JTM0hvWGRTd2llYk5xZFd6Nne4AQE",
+        );
         parse_test_value!(
             "./test_json/get_song_tracking_url_20240728.json",
             output,

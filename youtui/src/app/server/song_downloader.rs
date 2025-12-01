@@ -1,7 +1,7 @@
 use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
+use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::app::server::MAX_RETRIES;
 use crate::app::structures::{ListSongID, Percentage};
-use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::config::{Config, DownloaderType};
 use crate::core::send_or_error;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;

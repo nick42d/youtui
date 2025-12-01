@@ -1,6 +1,6 @@
 //! Module to allow dynamic use of the generic 'YtMusic' struct at runtime.
 use crate::config::{ApiKey, AuthType};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use error::wrong_auth_token_error_message;
 pub use error::*;
 use futures::{StreamExt, TryStreamExt};

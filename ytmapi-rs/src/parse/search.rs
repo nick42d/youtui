@@ -1,5 +1,5 @@
 use super::{
-    flex_column_item_pointer, parse_flex_column_item, ParseFrom, ProcessedResult, DISPLAY_POLICY,
+    DISPLAY_POLICY, ParseFrom, ProcessedResult, flex_column_item_pointer, parse_flex_column_item,
 };
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, ContinuationParams, EpisodeID, Explicit, PlaylistID,
@@ -8,17 +8,16 @@ use crate::common::{
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     BADGE_LABEL, CONTINUATION_PARAMS, LIVE_BADGE_LABEL, MRLIR, MUSIC_CARD_SHELF, MUSIC_SHELF,
-    MUSIC_SHELF_CONTINUATION, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PAGE_TYPE,
-    PLAYLIST_ITEM_VIDEO_ID, PLAY_BUTTON, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT,
-    THUMBNAILS, TITLE_TEXT,
+    MUSIC_SHELF_CONTINUATION, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PAGE_TYPE, PLAY_BUTTON,
+    PLAYLIST_ITEM_VIDEO_ID, SECTION_LIST, SUBTITLE, SUBTITLE2, TAB_CONTENT, THUMBNAILS, TITLE_TEXT,
 };
 use crate::parse::{EpisodeDate, ParsedSongAlbum};
+use crate::query::search::UnfilteredSearchType;
 use crate::query::search::filteredsearch::{
     AlbumsFilter, ArtistsFilter, CommunityPlaylistsFilter, EpisodesFilter, FeaturedPlaylistsFilter,
     FilteredSearch, FilteredSearchType, PlaylistsFilter, PodcastsFilter, ProfilesFilter,
     SongsFilter, VideosFilter,
 };
-use crate::query::search::UnfilteredSearchType;
 use crate::query::*;
 use crate::youtube_enums::{PlaylistEndpointParams, YoutubeMusicPageType};
 use crate::{Error, Result};

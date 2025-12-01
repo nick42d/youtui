@@ -3,8 +3,8 @@
 use error::ParseTarget;
 pub use error::{CrawlerError, CrawlerResult};
 pub use iter::*;
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 // Currently the only way to create a crawler is from a serde_json::Value, so we
 // might as well re-export it.
 // doc(no_inline) means that the re-export will be clear in the docs.
