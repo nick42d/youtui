@@ -133,7 +133,8 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
         for (idx, title) in titles.into_iter().enumerate() {
             let row = idx.rem_euclid(cols as usize);
             let col = idx.div_euclid(rows);
-            let tab = if let Some(highlight_style) = highlight_style && selected == Some(idx) {
+            let tab = if let Some(highlight_style) = highlight_style {
+                // && selected == Some(idx) {
                 Line::from(title).style(highlight_style)
             } else {
                 Line::from(title).style(style)
@@ -156,9 +157,10 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use ratatui::{layout::Rect, widgets::Widget};
-    use pretty_assertions::assert_eq;
     use crate::widgets::TabGrid;
+    use pretty_assertions::assert_eq;
+    use ratatui::layout::Rect;
+    use ratatui::widgets::Widget;
 
     #[test]
     fn test_basic_tab_grid() {
@@ -169,9 +171,12 @@ mod tests {
         let mut buf = ratatui::buffer::Buffer::empty(area);
         grid.render(area, &mut buf);
         assert_eq!(buf.area, area);
-        let rendered_cells_as_string = buf.content.iter().map(|cell| cell.symbol()).collect::<String>();
+        let rendered_cells_as_string = buf
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect::<String>();
         let expected_cells_as_string = "  AA  BBBBCCCC  DD  ".to_string();
-        assert_eq!(rendered_cells_as_string, expected_cells_as_string); 
-        
+        assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
 }
