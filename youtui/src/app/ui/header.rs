@@ -1,7 +1,5 @@
 use crate::app::component::actionhandler::{KeyRouter, get_global_keybinds_as_readable_iter};
-use crate::drawutils::{
-    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR,
-};
+use crate::drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR};
 use crate::keyaction::DisplayableKeyAction;
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
