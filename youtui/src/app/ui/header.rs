@@ -10,6 +10,8 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use std::fmt::Debug;
 
+const TAB_COLS: u16 = 2;
+
 pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let keybinds = get_global_keybinds_as_readable_iter(w.get_active_keybinds(&w.config));
 
@@ -30,20 +32,25 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             ]
         },
     ));
-    let block = Block::default().borders(Borders::ALL).title("Commands");
-    let block2 = Block::default().borders(Borders::ALL).title("Mode");
-    let header = Paragraph::new(help_string).wrap(Wrap { trim: true });
-    let split = Layout::horizontal([Constraint::Min(0), Constraint::Max(19)]).split(chunk);
+    let commands_block = Block::default().borders(Borders::ALL).title("Commands");
+    let mode_block = Block::default().borders(Borders::ALL).title("Mode");
+    let commands_widget = Paragraph::new(help_string).wrap(Wrap { trim: true });
     let selected = match w.context {
         super::WindowContext::Browser => 0,
         super::WindowContext::Playlist => 1,
         super::WindowContext::Logs => 2,
     };
-    let tabs = crate::widgets::TabGrid::new_with_cols(["Search", "Playlist", "Logs"], 2)
-        .select(selected)
-        .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
-    f.render_widget(header, block.inner(split[0]));
-    f.render_widget(tabs, block.inner(split[1]));
-    f.render_widget(block, split[0]);
-    f.render_widget(block2, split[1]);
+    let mode_widget =
+        crate::widgets::TabGrid::new_with_cols(["Search", "Playlist", "Logs"], TAB_COLS)
+            .select(selected)
+            .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
+    let split = Layout::horizontal([
+        Constraint::Min(0),
+        Constraint::Max(mode_widget.required_width().try_into().unwrap_or(u16::MAX)),
+    ])
+    .split(chunk);
+    f.render_widget(commands_widget, commands_block.inner(split[0]));
+    f.render_widget(mode_widget, mode_block.inner(split[1]));
+    f.render_widget(commands_block, split[0]);
+    f.render_widget(mode_block, split[1]);
 }

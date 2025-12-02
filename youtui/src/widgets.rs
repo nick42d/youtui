@@ -3,6 +3,7 @@ use ratatui::style::{Style, Stylize};
 use ratatui::text::Line;
 use ratatui::widgets::{Block, Widget};
 use std::borrow::Cow;
+use std::u16;
 
 /// Ratatui widgets used in application
 pub struct TabGrid<'a, const N: usize> {
@@ -144,9 +145,9 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
             let render_area = Rect {
                 x: (area.x as usize + col * (longest_title + 1))
                     .try_into()
-                    .unwrap(),
-                y: (area.y as usize + row).try_into().unwrap(),
-                width: longest_title.try_into().unwrap(),
+                    .unwrap_or(u16::MAX),
+                y: (area.y as usize + row).try_into().unwrap_or(u16::MAX),
+                width: longest_title.try_into().unwrap_or(u16::MAX),
                 height: 1,
             }
             // Don't render outside provided area
