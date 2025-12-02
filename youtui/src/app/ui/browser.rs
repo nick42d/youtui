@@ -21,6 +21,7 @@ use tracing::warn;
 
 pub mod artistsearch;
 mod draw;
+pub mod playlistsearch;
 pub mod shared_components;
 pub mod songsearch;
 
