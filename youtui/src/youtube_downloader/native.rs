@@ -2,8 +2,8 @@ use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
 use bytes::Bytes;
 use futures::Stream;
 use rusty_ytdl::{
-    reqwest, DownloadOptions, RequestOptions, Video, VideoError, VideoFormat, VideoOptions,
-    VideoQuality,
+    DownloadOptions, RequestOptions, Video, VideoError, VideoFormat, VideoOptions, VideoQuality,
+    reqwest,
 };
 use std::sync::Arc;
 

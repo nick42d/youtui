@@ -1,7 +1,7 @@
 use crate::api::{DynamicApiError, DynamicYtMusic};
 use crate::async_rodio_sink::send_or_error;
 use crate::config::ApiKey;
-use crate::{get_config_dir, OAUTH_FILENAME};
+use crate::{OAUTH_FILENAME, get_config_dir};
 use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;
 use futures::stream::FuturesOrdered;
@@ -63,7 +63,7 @@ impl Api {
     pub fn get_artist_songs(
         &self,
         browse_id: ArtistChannelID<'static>,
-    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
+    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static + use<> {
         let api = self.api.clone();
         get_artist_songs(api, browse_id)
     }

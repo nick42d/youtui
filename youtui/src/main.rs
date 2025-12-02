@@ -1,7 +1,7 @@
 use crate::config::DownloaderType;
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use clap_complete::{generate, Shell};
+use clap_complete::{Shell, generate};
 use cli::handle_cli_command;
 use config::{ApiKey, AuthType, Config};
 use directories::ProjectDirs;
@@ -547,5 +547,9 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
 }
 
 fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
-    format!("Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.", token_type, path.display())
+    format!(
+        "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.",
+        token_type,
+        path.display()
+    )
 }

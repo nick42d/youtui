@@ -1,7 +1,7 @@
 use super::song_downloader::InMemSong;
 use crate::app::structures::ListSongID;
-use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::rodio::Decoder;
+use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{self, AsyncRodio};
 use futures::Stream;
 use std::io::Cursor;
@@ -38,21 +38,21 @@ impl Player {
         &self,
         song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> impl Stream<Item = async_rodio_sink::AutoplayUpdate<ListSongID>> {
+    ) -> impl Stream<Item = async_rodio_sink::AutoplayUpdate<ListSongID>> + use<> {
         self.rodio_handle.autoplay_song(song.0, song_id)
     }
     pub fn play_song(
         &self,
         song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> impl Stream<Item = async_rodio_sink::PlayUpdate<ListSongID>> {
+    ) -> impl Stream<Item = async_rodio_sink::PlayUpdate<ListSongID>> + use<> {
         self.rodio_handle.play_song(song.0, song_id)
     }
     pub fn queue_song(
         &self,
         song: DecodedInMemSong,
         song_id: ListSongID,
-    ) -> impl Stream<Item = async_rodio_sink::QueueUpdate<ListSongID>> {
+    ) -> impl Stream<Item = async_rodio_sink::QueueUpdate<ListSongID>> + use<> {
         self.rodio_handle.queue_song(song.0, song_id)
     }
     pub async fn seek(

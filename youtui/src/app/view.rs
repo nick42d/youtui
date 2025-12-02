@@ -1,8 +1,8 @@
 /// Traits related to viewable application components.
 use super::structures::{ListSong, ListSongDisplayableField, Percentage};
+use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
 use ratatui::widgets::{ListState, TableState};
-use ratatui::Frame;
 use std::borrow::Cow;
 use std::fmt::Display;
 
@@ -229,7 +229,7 @@ pub trait Loadable {
 
 #[cfg(test)]
 mod tests {
-    use super::{basic_constraints_to_table_constraints, BasicConstraint};
+    use super::{BasicConstraint, basic_constraints_to_table_constraints};
     use crate::app::structures::Percentage;
     use ratatui::prelude::Constraint;
 

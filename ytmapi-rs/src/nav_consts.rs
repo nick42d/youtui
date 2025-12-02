@@ -76,7 +76,11 @@ pub const PLAYBACK_DURATION_TEXT: &str =
 pub const PLAYBACK_PROGRESS_TEXT: &str =
     "/playbackProgress/musicPlaybackProgressRenderer/playbackProgressText/runs/1/text";
 pub const DEFAULT_ENDPOINT_MODAL_TEXT: &str = "/defaultServiceEndpoint/modalEndpoint/modal/modalWithTitleAndButtonRenderer/button/buttonRenderer/text/runs/0/text";
-pub const WATCH_NEXT_CONTENT: &str = concatcp!("/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer",TAB_CONTENT,"/musicQueueRenderer/content");
+pub const WATCH_NEXT_CONTENT: &str = concatcp!(
+    "/contents/singleColumnMusicWatchNextResultsRenderer/tabbedRenderer/watchNextTabbedResultsRenderer",
+    TAB_CONTENT,
+    "/musicQueueRenderer/content"
+);
 pub const DEFAULT_ENDPOINT: &str = concatcp!("/defaultServiceEndpoint", FEEDBACK_TOKEN);
 pub const TOGGLED_ENDPOINT: &str = concatcp!("/toggledServiceEndpoint", FEEDBACK_TOKEN);
 pub const TITLE_TEXT: &str = concatcp!("/title", RUN_TEXT);

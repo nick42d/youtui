@@ -1,10 +1,10 @@
 //! Available authorisation tokens.
+use crate::Error;
 use crate::client::{Client, QueryResponse};
 use crate::error::Result;
 use crate::parse::ProcessedResult;
 use crate::query::{GetQuery, PostQuery};
 use crate::utils::constants::{YTM_API_URL, YTM_PARAMS, YTM_PARAMS_KEY};
-use crate::Error;
 pub use browser::BrowserToken;
 use chrono::Utc;
 pub use oauth::{OAuthToken, OAuthTokenGenerator};

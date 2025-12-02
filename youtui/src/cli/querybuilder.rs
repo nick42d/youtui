@@ -1,5 +1,5 @@
-use crate::api::DynamicYtMusic;
 use crate::Command;
+use crate::api::DynamicYtMusic;
 use anyhow::bail;
 use std::borrow::Borrow;
 use std::fmt::Debug;

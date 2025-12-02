@@ -215,9 +215,9 @@ where
                     AsyncRodioRequest::AutoplaySong(song, song_id, tx) => {
                         if Some(song_id) == next_song_id {
                             info!(
-                            "Received autoplay for {:?}, it's already queued up. It will play automatically.",
-                            song_id
-                        );
+                                "Received autoplay for {:?}, it's already queued up. It will play automatically.",
+                                song_id
+                            );
                             cur_song_id = Some(song_id);
                             next_song_id = None;
                             cur_song_duration = next_song_duration;
@@ -227,9 +227,9 @@ where
                         }
                         if Some(song_id) == cur_song_id {
                             error!(
-                            "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
-                            song_id
-                        );
+                                "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
+                                song_id
+                            );
                             blocking_send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued);
                             continue;
                         }
@@ -456,7 +456,11 @@ where
         });
         Self { _handle, tx }
     }
-    pub fn autoplay_song(&self, song: S, identifier: I) -> impl Stream<Item = AutoplayUpdate<I>> {
+    pub fn autoplay_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> impl Stream<Item = AutoplayUpdate<I>> + use<S, I> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
@@ -511,7 +515,11 @@ where
         });
         ReceiverStream::new(streamrx)
     }
-    pub fn queue_song(&self, song: S, identifier: I) -> impl Stream<Item = QueueUpdate<I>> {
+    pub fn queue_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> impl Stream<Item = QueueUpdate<I>> + use<S, I> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
@@ -559,7 +567,11 @@ where
         });
         ReceiverStream::new(streamrx)
     }
-    pub fn play_song(&self, song: S, identifier: I) -> impl Stream<Item = PlayUpdate<I>> {
+    pub fn play_song(
+        &self,
+        song: S,
+        identifier: I,
+    ) -> impl Stream<Item = PlayUpdate<I>> + use<S, I> {
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();

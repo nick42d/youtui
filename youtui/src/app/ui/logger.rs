@@ -4,12 +4,12 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::ui::AppCallback;
 use crate::app::view::Drawable;
-use crate::config::keymap::Keymap;
 use crate::config::Config;
+use crate::config::keymap::Keymap;
 use async_callback_manager::AsyncTask;
 use draw::draw_logger;
-use ratatui::prelude::Rect;
 use ratatui::Frame;
+use ratatui::prelude::Rect;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use tui_logger::TuiWidgetEvent;
@@ -172,9 +172,9 @@ impl Logger {
 pub mod draw {
     use super::Logger;
     use crate::drawutils::{DESELECTED_BORDER_COLOUR, SELECTED_BORDER_COLOUR};
+    use ratatui::Frame;
     use ratatui::prelude::Rect;
     use ratatui::style::{Color, Style};
-    use ratatui::Frame;
 
     pub fn draw_logger(f: &mut Frame, l: &Logger, chunk: Rect, selected: bool) {
         let border_colour = if selected {

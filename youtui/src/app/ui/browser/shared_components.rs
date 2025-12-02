@@ -3,7 +3,7 @@ use crate::app::server::{GetSearchSuggestions, HandleApiError};
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint};
-use rat_text::text_input::{handle_events, TextInputState};
+use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use ytmapi_rs::common::SearchSuggestion;

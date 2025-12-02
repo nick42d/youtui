@@ -1,13 +1,13 @@
 use super::{
-    fixed_column_item_pointer, parse_flex_column_item, parse_library_management_items_from_menu,
-    parse_song_artist, ParseFrom, ParsedSongArtist, ProcessedResult,
+    ParseFrom, ParsedSongArtist, ProcessedResult, fixed_column_item_pointer,
+    parse_flex_column_item, parse_library_management_items_from_menu, parse_song_artist,
 };
+use crate::Result;
 use crate::common::{
     AlbumType, Explicit, LibraryManager, LibraryStatus, LikeStatus, PlaylistID, Thumbnail, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
-use crate::Result;
 use const_format::concatcp;
 use json_crawler::{
     CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
@@ -179,8 +179,8 @@ fn parse_album_query(p: ProcessedResult<GetAlbumQuery>) -> Result<GetAlbum> {
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::noauth::NoAuthToken;
     use crate::auth::BrowserToken;
+    use crate::auth::noauth::NoAuthToken;
     use crate::common::{AlbumID, YoutubeID};
     use crate::parse::album::GetAlbumQuery;
 

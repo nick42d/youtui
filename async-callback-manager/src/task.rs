@@ -4,7 +4,7 @@ use crate::{
 };
 use futures::stream::FuturesUnordered;
 use futures::{FutureExt, StreamExt};
-use std::any::{type_name, TypeId};
+use std::any::{TypeId, type_name};
 use std::fmt::Debug;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -102,7 +102,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
-                let future = request.into_future(b);
+                let future = BackendTask::into_future(request, b);
                 Box::pin(async move {
                     let output = future.await;
                     Box::new(move |frontend: &mut Frntend| {
@@ -140,7 +140,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
-                let future = request.into_future(b);
+                let future = BackendTask::into_future(request, b);
                 Box::pin(async move {
                     let output = future.await;
                     Box::new(move |frontend: &mut Frntend| handler(frontend, output))
@@ -205,9 +205,9 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         request: R,
         // TODO: Review Clone bounds.
         handler: impl FnOnce(&mut Frntend, R::Output) -> AsyncTask<Frntend, Bkend, Md>
-            + Send
-            + Clone
-            + 'static,
+        + Send
+        + Clone
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where

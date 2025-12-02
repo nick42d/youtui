@@ -1,7 +1,7 @@
 [package]
 name = "ytmapi-rs"
 version = "0.2.1"
-edition = "2021"
+edition = "2024"
 authors = ["nick42d"]
 license = "MIT"
 description = "An asynchronous (tokio) pure Rust API for Youtube Music using Google's internal API"

@@ -1,11 +1,12 @@
-use super::{footer, header, WindowContext, YoutuiWindow};
+use super::{WindowContext, YoutuiWindow, footer, header};
 use crate::app::view::draw::draw_panel;
 use crate::app::view::{Drawable, DrawableMut};
 use crate::drawutils::{
-    highlight_style, left_bottom_corner_rect, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
-    TEXT_COLOUR,
+    SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR, TEXT_COLOUR, highlight_style,
+    left_bottom_corner_rect,
 };
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
@@ -13,7 +14,6 @@ use ratatui::symbols::{block, line};
 use ratatui::widgets::{
     Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
 };
-use ratatui::Frame;
 use ratatui_image::picker::Picker;
 use std::borrow::Cow;
 

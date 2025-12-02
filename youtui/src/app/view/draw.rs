@@ -1,10 +1,11 @@
 use super::{
-    basic_constraints_to_table_constraints, SortableTableView, TableSortCommand, TableView,
+    SortableTableView, TableSortCommand, TableView, basic_constraints_to_table_constraints,
 };
 use crate::app::view::ListView;
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
 };
+use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::symbols::{block, line};
@@ -13,7 +14,6 @@ use ratatui::widgets::{
     Block, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Scrollbar,
     ScrollbarOrientation, ScrollbarState, Table, TableState,
 };
-use ratatui::Frame;
 
 pub fn get_table_sort_character_array(
     sort_commands: &[TableSortCommand],

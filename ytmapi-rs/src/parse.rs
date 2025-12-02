@@ -24,7 +24,7 @@ use crate::auth::AuthToken;
 use crate::common::{AlbumID, ArtistChannelID, Thumbnail};
 use crate::json::Json;
 use crate::nav_consts::*;
-use crate::{error, RawResult, Result};
+use crate::{RawResult, Result, error};
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};

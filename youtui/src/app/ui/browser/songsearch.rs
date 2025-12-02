@@ -1,8 +1,9 @@
 use super::get_sort_keybinds;
 use super::shared_components::{
-    get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
-    SortAction, SortManager,
+    BrowserSearchAction, FilterAction, FilterManager, SearchBlock, SortAction, SortManager,
+    get_adjusted_list_column,
 };
+use crate::app::AppCallback;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, Suggestable, TextHandler,
     YoutuiEffect,
@@ -16,10 +17,9 @@ use crate::app::view::{
     BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
     TableSortCommand, TableView,
 };
-use crate::app::AppCallback;
-use crate::config::keymap::Keymap;
 use crate::config::Config;
-use anyhow::{bail, Result};
+use crate::config::keymap::Keymap;
+use anyhow::{Result, bail};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use ratatui::widgets::TableState;
@@ -529,19 +529,19 @@ impl SongSearchBrowser {
             Some(Constraint::new_kill_same_type()),
         )
     }
-    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         let cur_song_idx = self.get_selected_item();
         if let Some(cur_song) = self.get_song_from_idx(cur_song_idx) {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylistAndPlay(vec![
-                    cur_song.clone()
+                    cur_song.clone(),
                 ])),
             );
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
@@ -554,7 +554,7 @@ impl SongSearchBrowser {
             Some(AppCallback::AddSongsToPlaylistAndPlay(song_list)),
         )
     }
-    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
@@ -567,7 +567,7 @@ impl SongSearchBrowser {
             Some(AppCallback::AddSongsToPlaylist(song_list)),
         )
     }
-    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         let cur_idx = self.get_selected_item();
         if let Some(cur_song) = self.get_song_from_idx(cur_idx) {
             return (

@@ -1,6 +1,6 @@
 //! Builder implementation for YtMusic, to allow more complicated construction.
-use crate::auth::noauth::NoAuthToken;
 use crate::auth::AuthToken;
+use crate::auth::noauth::NoAuthToken;
 // NOTE: Example requires feature, so it is conditionally built.
 #[cfg_attr(
     feature = "rustls-tls",
@@ -24,9 +24,9 @@ pub async fn main() -> Result<(), ytmapi_rs::Error> {
 "##
 )]
 use crate::{
+    Result, YtMusic,
     auth::{BrowserToken, OAuthToken},
     client::Client,
-    Result, YtMusic,
 };
 use std::path::Path;
 

@@ -1,7 +1,7 @@
 use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
+use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::app::server::MAX_RETRIES;
 use crate::app::structures::{ListSongID, Percentage};
-use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::config::{Config, DownloaderType};
 use crate::core::send_or_error;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
@@ -68,7 +68,7 @@ impl SongDownloader {
         &self,
         song_video_id: VideoID<'static>,
         song_playlist_id: ListSongID,
-    ) -> impl Stream<Item = DownloadProgressUpdate> {
+    ) -> impl Stream<Item = DownloadProgressUpdate> + use<> {
         match self {
             SongDownloader::YtDlp(yt_dlp_downloader) => {
                 futures::future::Either::Left(download_song_using_downloader(

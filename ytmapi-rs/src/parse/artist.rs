@@ -1,15 +1,15 @@
 use super::search::SearchResultVideo;
 use super::{
-    parse_flex_column_item, parse_song_album, parse_song_artists, ParseFrom, ParsedSongAlbum,
-    ParsedSongArtist, ProcessedResult, Thumbnail,
+    ParseFrom, ParsedSongAlbum, ParsedSongArtist, ProcessedResult, Thumbnail,
+    parse_flex_column_item, parse_song_album, parse_song_artists,
 };
+use crate::Result;
 use crate::common::{
     AlbumID, AlbumType, ArtistChannelID, BrowseParams, Explicit, LibraryManager, LibraryStatus,
     LikeStatus, PlaylistID, VideoID,
 };
 use crate::nav_consts::*;
 use crate::query::*;
-use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};

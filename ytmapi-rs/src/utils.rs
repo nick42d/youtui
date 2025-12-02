@@ -77,7 +77,7 @@ macro_rules! ab_warn {
 /// Note, this is async due to use of tokio::fs
 #[cfg(test)]
 macro_rules! parse_test {
-    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+    ($in:expr_2021,$out:expr_2021,$query:expr_2021,$token:ty) => {
         let source_path = std::path::Path::new($in);
         let expected_path = std::path::Path::new($out);
         let source = tokio::fs::read_to_string(source_path)
@@ -99,7 +99,7 @@ macro_rules! parse_test {
 /// Note, this is async due to use of tokio::fs
 #[cfg(test)]
 macro_rules! parse_test_value {
-    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+    ($in:expr_2021,$out:expr_2021,$query:expr_2021,$token:ty) => {
         let source_path = std::path::Path::new($in);
         let source = tokio::fs::read_to_string(source_path)
             .await
@@ -115,7 +115,7 @@ macro_rules! parse_test_value {
 /// Note, this is async due to use of tokio::fs
 #[cfg(test)]
 macro_rules! parse_continuations_test {
-    ($in:expr,$out:expr,$query:expr,$token:ty) => {
+    ($in:expr_2021,$out:expr_2021,$query:expr_2021,$token:ty) => {
         let source_path = std::path::Path::new($in);
         let expected_path = std::path::Path::new($out);
         let source = tokio::fs::read_to_string(source_path)
@@ -139,7 +139,7 @@ macro_rules! parse_continuations_test {
 /// file, query, token Note, this is async due to use of tokio::fs
 #[cfg(test)]
 macro_rules! parse_with_matching_continuation_test {
-    ($in_first:expr,$in_cont:expr,$out:expr,$query:expr,$token:ty) => {
+    ($in_first:expr_2021,$in_cont:expr_2021,$out:expr_2021,$query:expr_2021,$token:ty) => {
         let first_path = std::path::Path::new($in_first);
         let continuation_path = std::path::Path::new($in_cont);
         let expected_path = std::path::Path::new($out);
