@@ -7,7 +7,6 @@ use crate::core::send_or_error;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
 use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
 use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
-use anyhow::anyhow;
 use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::reqwest;
 use std::future::Future;
