@@ -1,7 +1,7 @@
-use ratatui::layout::{Constraint, Layout, Rect};
-use ratatui::style::{Style, Stylize};
+use ratatui::layout::Rect;
+use ratatui::style::Style;
 use ratatui::text::Line;
-use ratatui::widgets::{Block, Widget};
+use ratatui::widgets::Widget;
 use std::borrow::Cow;
 use std::u16;
 

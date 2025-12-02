@@ -8,20 +8,17 @@ use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::SortableTableView;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
-    DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
     below_left_rect, bottom_of_rect,
 };
 use itertools::Itertools;
 use rat_text::HasScreenCursor;
 use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
-use ratatui::style::{Color, Modifier, Style, Stylize};
-use ratatui::symbols::border::{DOUBLE, QUADRANT_BOTTOM_HALF, QUADRANT_INSIDE};
-use ratatui::symbols::line::{DOUBLE_HORIZONTAL, DOUBLE_HORIZONTAL_DOWN};
+use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Tabs, Widget};
-use ratatui::{Frame, symbols};
-use std::borrow::Cow;
+use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
+use ratatui::Frame;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.

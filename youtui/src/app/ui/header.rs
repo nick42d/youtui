@@ -1,6 +1,6 @@
 use crate::app::component::actionhandler::{KeyRouter, get_global_keybinds_as_readable_iter};
 use crate::drawutils::{
-    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, DESELECTED_BORDER_COLOUR, SELECTED_BORDER_COLOUR,
+    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR,
 };
 use crate::keyaction::DisplayableKeyAction;
 use ratatui::Frame;
@@ -8,7 +8,6 @@ use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::{Style, Stylize};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
-use std::fmt::Debug;
 
 const TAB_COLS: u16 = 2;
 
