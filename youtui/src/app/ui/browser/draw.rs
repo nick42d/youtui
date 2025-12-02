@@ -8,17 +8,15 @@ use crate::app::component::actionhandler::Suggestable;
 use crate::app::view::SortableTableView;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
-    ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
-    below_left_rect, bottom_of_rect,
+    ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
 };
-use itertools::Itertools;
 use rat_text::HasScreenCursor;
 use rat_text::text_input::{TextInput, TextInputState};
+use ratatui::Frame;
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
-use ratatui::Frame;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.
@@ -27,10 +25,10 @@ const MIN_POPUP_WIDTH: usize = 20;
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
     match browser.variant {
         super::BrowserVariant::ArtistSearch => {
-            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected);
+            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected)
         }
         super::BrowserVariant::SongSearch => {
-            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected);
+            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
         }
     }
 }

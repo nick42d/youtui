@@ -3,7 +3,6 @@ use ratatui::style::Style;
 use ratatui::text::Line;
 use ratatui::widgets::Widget;
 use std::borrow::Cow;
-use std::u16;
 
 /// Ratatui widgets used in application
 pub struct TabGrid<'a, const N: usize> {
