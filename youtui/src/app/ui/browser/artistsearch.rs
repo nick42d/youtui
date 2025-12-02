@@ -309,7 +309,7 @@ impl ArtistSearchBrowser {
             Some(Constraint::new_kill_same_type()),
         )
     }
-    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_song_idx = self.album_songs_panel.get_selected_item();
         if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_song_idx) {
@@ -322,7 +322,7 @@ impl ArtistSearchBrowser {
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let song_list = self
@@ -338,7 +338,7 @@ impl ArtistSearchBrowser {
 
         // XXX: Do we want to indicate that song has been added to playlist?
     }
-    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let song_list = self
@@ -352,7 +352,7 @@ impl ArtistSearchBrowser {
             Some(AppCallback::AddSongsToPlaylist(song_list)),
         )
     }
-    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) {
@@ -363,7 +363,7 @@ impl ArtistSearchBrowser {
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
@@ -392,7 +392,7 @@ impl ArtistSearchBrowser {
             Some(AppCallback::AddSongsToPlaylist(song_list)),
         )
     }
-    pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {

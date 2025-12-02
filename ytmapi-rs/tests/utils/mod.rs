@@ -76,7 +76,7 @@ pub async fn new_standard_api() -> Result<YtMusic<BrowserToken>> {
 /// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_query_test_logged_in {
     ($(#[$m:meta])*
-    $fname:ident,$query:expr) => {
+    $fname:ident,$query:expr_2021) => {
         paste::paste! {
             $(#[$m])*
             #[tokio::test]
@@ -105,7 +105,7 @@ macro_rules! generate_query_test_logged_in {
 /// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_query_test {
     ($(#[$m:meta])*
-    $fname:ident,$query:expr) => {
+    $fname:ident,$query:expr_2021) => {
         paste::paste! {
             $(#[$m])*
             #[tokio::test]
@@ -142,7 +142,7 @@ macro_rules! generate_query_test {
 /// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_stream_test {
     ($(#[$m:meta])*
-    $fname:ident,$query:expr) => {
+    $fname:ident,$query:expr_2021) => {
         paste::paste! {
             $(#[$m])*
             #[tokio::test]
@@ -200,7 +200,7 @@ macro_rules! generate_stream_test {
 /// https://github.com/nick42d/youtui/issues/179
 macro_rules! generate_stream_test_logged_in {
     ($(#[$m:meta])*
-    $fname:ident,$query:expr) => {
+    $fname:ident,$query:expr_2021) => {
         paste::paste! {
             $(#[$m])*
             #[tokio::test]

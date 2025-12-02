@@ -102,7 +102,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
-                let future = request.into_future(b);
+                let future = BackendTask::into_future(request, b);
                 Box::pin(async move {
                     let output = future.await;
                     Box::new(move |frontend: &mut Frntend| {
@@ -140,7 +140,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_debug = format!("{request:?}");
         let task = Box::new(move |b: &Bkend| {
             Box::new({
-                let future = request.into_future(b);
+                let future = BackendTask::into_future(request, b);
                 Box::pin(async move {
                     let output = future.await;
                     Box::new(move |frontend: &mut Frntend| handler(frontend, output))

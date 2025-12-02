@@ -89,7 +89,7 @@ where
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
-            let seed = first.into_future(&backend).await;
+            let seed = BackendTask::into_future(first, &backend).await;
             match seed {
                 Ok(seed) => {
                     let mut stream = create_next(seed).into_stream(&backend);
@@ -132,9 +132,9 @@ where
         let Then { first, create_next } = self;
         let backend = backend.clone();
         async move {
-            let output = first.into_future(&backend).await;
+            let output = BackendTask::into_future(first, &backend).await;
             let next = create_next(output);
-            next.into_future(&backend).await
+            BackendTask::into_future(next, &backend).await
         }
     }
     fn metadata() -> Vec<Self::MetadataType> {
@@ -164,7 +164,7 @@ where
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         tokio::task::spawn(async move {
-            let seed = first.into_future(&backend).await;
+            let seed = BackendTask::into_future(first, &backend).await;
             let mut stream = create_next(seed).into_stream(&backend);
             while let Some(item) = stream.next().await {
                 let _ = tx.send(item).await;

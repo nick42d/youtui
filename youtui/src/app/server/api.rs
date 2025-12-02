@@ -63,7 +63,7 @@ impl Api {
     pub fn get_artist_songs(
         &self,
         browse_id: ArtistChannelID<'static>,
-    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
+    ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static + use<> {
         let api = self.api.clone();
         get_artist_songs(api, browse_id)
     }

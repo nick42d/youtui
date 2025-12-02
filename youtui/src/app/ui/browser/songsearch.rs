@@ -529,7 +529,7 @@ impl SongSearchBrowser {
             Some(Constraint::new_kill_same_type()),
         )
     }
-    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         let cur_song_idx = self.get_selected_item();
         if let Some(cur_song) = self.get_song_from_idx(cur_song_idx) {
             return (
@@ -541,7 +541,7 @@ impl SongSearchBrowser {
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
@@ -554,7 +554,7 @@ impl SongSearchBrowser {
             Some(AppCallback::AddSongsToPlaylistAndPlay(song_list)),
         )
     }
-    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
@@ -567,7 +567,7 @@ impl SongSearchBrowser {
             Some(AppCallback::AddSongsToPlaylist(song_list)),
         )
     }
-    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
+    pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         let cur_idx = self.get_selected_item();
         if let Some(cur_song) = self.get_song_from_idx(cur_idx) {
             return (
