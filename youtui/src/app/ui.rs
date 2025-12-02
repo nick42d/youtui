@@ -1,19 +1,19 @@
 use self::browser::Browser;
 use self::logger::Logger;
 use self::playlist::Playlist;
+use super::AppCallback;
 use super::component::actionhandler::{
-    apply_action_mapped, get_visible_keybinds_as_readable_iter, handle_key_stack, ActionHandler,
-    ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable, TextHandler,
-    YoutuiEffect,
+    ActionHandler, ComponentEffect, DominantKeyRouter, KeyHandleAction, KeyRouter, Scrollable,
+    TextHandler, YoutuiEffect, apply_action_mapped, get_visible_keybinds_as_readable_iter,
+    handle_key_stack,
 };
 use super::server::{IncreaseVolume, SetVolume};
 use super::structures::*;
-use super::AppCallback;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
-use crate::config::keymap::Keymap;
 use crate::config::Config;
+use crate::config::keymap::Keymap;
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
-use action::{AppAction, ListAction, TextEntryAction, PAGE_KEY_LINES, SEEK_AMOUNT};
+use action::{AppAction, ListAction, PAGE_KEY_LINES, SEEK_AMOUNT, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
@@ -237,50 +237,50 @@ impl ActionHandler<AppAction> for YoutuiWindow {
         // out here.
         match action {
             AppAction::VolUp => {
-                return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5))
+                return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5));
             }
             AppAction::VolDown => return self.handle_increase_volume(-5).into(),
             AppAction::NextSong => return self.handle_next().into(),
             AppAction::PrevSong => return self.handle_prev().into(),
             AppAction::SeekForward => {
-                return self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward).into()
+                return self.handle_seek(SEEK_AMOUNT, SeekDirection::Forward).into();
             }
             AppAction::SeekBack => {
-                return self.handle_seek(SEEK_AMOUNT, SeekDirection::Back).into()
+                return self.handle_seek(SEEK_AMOUNT, SeekDirection::Back).into();
             }
             AppAction::ToggleHelp => self.toggle_help(),
             AppAction::Quit => return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into(),
             AppAction::ViewLogs => self.handle_change_context(WindowContext::Logs),
             AppAction::PlayPause => return self.pauseplay().into(),
             AppAction::Log(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.logger)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.logger);
             }
             AppAction::Playlist(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.playlist)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.playlist);
             }
             AppAction::Browser(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::Filter(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::Sort(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::Help(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help);
             }
             AppAction::BrowserArtists(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::BrowserSearch(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::BrowserArtistSongs(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::BrowserSongs(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser)
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),
@@ -360,21 +360,21 @@ impl YoutuiWindow {
             souvlaki::MediaControlEvent::Seek(seek_direction) => {
                 return self
                     .handle_seek(SEEK_AMOUNT, convert_dir(seek_direction))
-                    .into()
+                    .into();
             }
             souvlaki::MediaControlEvent::SeekBy(seek_direction, duration) => {
                 return self
                     .handle_seek(duration, convert_dir(seek_direction))
-                    .into()
+                    .into();
             }
             souvlaki::MediaControlEvent::SetPosition(media_position) => {
-                return self.handle_seek_to(media_position.0).into()
+                return self.handle_seek_to(media_position.0).into();
             }
             souvlaki::MediaControlEvent::SetVolume(v) => {
-                return self.handle_set_volume((v * 100.0) as u8).into()
+                return self.handle_set_volume((v * 100.0) as u8).into();
             }
             souvlaki::MediaControlEvent::Quit => {
-                return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into()
+                return (AsyncTask::new_no_op(), Some(AppCallback::Quit)).into();
             }
             souvlaki::MediaControlEvent::OpenUri(_) => {
                 tracing::info!("Received intentionally unhandled event {:?}", event)

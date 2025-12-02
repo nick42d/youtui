@@ -18,12 +18,12 @@ use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
 };
-use crate::config::keymap::Keymap;
 use crate::config::Config;
+use crate::config::keymap::Keymap;
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
+use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::widgets::TableState;
-use ratatui::Frame;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -862,7 +862,7 @@ impl Playlist {
         if let Some(song) = self.get_song_from_id(id) {
             match song.download_status {
                 DownloadStatus::None | DownloadStatus::Downloaded(_) | DownloadStatus::Failed => {
-                    return AsyncTask::new_no_op()
+                    return AsyncTask::new_no_op();
                 }
                 _ => (),
             }
@@ -911,7 +911,7 @@ impl Playlist {
     pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) -> ComponentEffect<Self> {
         match update {
             PlayUpdate::PlayProgress(duration, id) => {
-                return self.handle_set_song_play_progress(duration, id)
+                return self.handle_set_song_play_progress(duration, id);
             }
             PlayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
             PlayUpdate::DonePlaying(id) => return self.handle_done_playing(id),
@@ -926,7 +926,7 @@ impl Playlist {
     ) -> ComponentEffect<Self> {
         match update {
             QueueUpdate::PlayProgress(duration, id) => {
-                return self.handle_set_song_play_progress(duration, id)
+                return self.handle_set_song_play_progress(duration, id);
             }
             QueueUpdate::Queued(duration, id) => self.handle_queued(duration, id),
             QueueUpdate::DonePlaying(id) => return self.handle_done_playing(id),
@@ -940,7 +940,7 @@ impl Playlist {
     ) -> ComponentEffect<Self> {
         match update {
             AutoplayUpdate::PlayProgress(duration, id) => {
-                return self.handle_set_song_play_progress(duration, id)
+                return self.handle_set_song_play_progress(duration, id);
             }
             AutoplayUpdate::Playing(duration, id) => self.handle_playing(duration, id),
             AutoplayUpdate::DonePlaying(id) => return self.handle_done_playing(id),

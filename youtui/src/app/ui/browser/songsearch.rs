@@ -1,8 +1,9 @@
 use super::get_sort_keybinds;
 use super::shared_components::{
-    get_adjusted_list_column, BrowserSearchAction, FilterAction, FilterManager, SearchBlock,
-    SortAction, SortManager,
+    BrowserSearchAction, FilterAction, FilterManager, SearchBlock, SortAction, SortManager,
+    get_adjusted_list_column,
 };
+use crate::app::AppCallback;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, Suggestable, TextHandler,
     YoutuiEffect,
@@ -16,10 +17,9 @@ use crate::app::view::{
     BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
     TableSortCommand, TableView,
 };
-use crate::app::AppCallback;
-use crate::config::keymap::Keymap;
 use crate::config::Config;
-use anyhow::{bail, Result};
+use crate::config::keymap::Keymap;
+use anyhow::{Result, bail};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use ratatui::widgets::TableState;
@@ -535,7 +535,7 @@ impl SongSearchBrowser {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylistAndPlay(vec![
-                    cur_song.clone()
+                    cur_song.clone(),
                 ])),
             );
         }

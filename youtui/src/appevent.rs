@@ -6,7 +6,7 @@ use souvlaki::MediaControlEvent;
 use std::time::Duration;
 #[cfg(target_family = "unix")]
 use tokio::signal::unix::SignalKind;
-use tokio::sync::mpsc::{channel, Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, Sender, channel};
 use tokio::task::JoinHandle;
 use tokio::time::interval;
 use tracing::warn;

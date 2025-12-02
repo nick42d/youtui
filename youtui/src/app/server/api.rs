@@ -1,7 +1,7 @@
 use crate::api::{DynamicApiError, DynamicYtMusic};
 use crate::async_rodio_sink::send_or_error;
 use crate::config::ApiKey;
-use crate::{get_config_dir, OAUTH_FILENAME};
+use crate::{OAUTH_FILENAME, get_config_dir};
 use anyhow::{Error, Result};
 use async_cell::sync::AsyncCell;
 use futures::stream::FuturesOrdered;

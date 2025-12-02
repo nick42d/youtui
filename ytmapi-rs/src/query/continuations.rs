@@ -1,8 +1,8 @@
 use super::{PostMethod, PostQuery, Query};
+use crate::ProcessedResult;
 use crate::auth::AuthToken;
 use crate::common::{ContinuationParams, YoutubeID};
 use crate::continuations::ParseFromContinuable;
-use crate::ProcessedResult;
 use std::borrow::Cow;
 use std::vec::Vec;
 

@@ -1,7 +1,8 @@
 use super::{
-    ParseFrom, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS, TAB_CONTENT, THUMBNAILS,
-    THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
+    ParseFrom, RUN_TEXT, SECONDARY_SECTION_LIST_ITEM, STRAPLINE_RUNS, TAB_CONTENT,
+    THUMBNAIL_RENDERER, THUMBNAILS, TITLE_TEXT, VISUAL_HEADER,
 };
+use crate::Result;
 use crate::common::{
     EpisodeID, LibraryStatus, PlaylistID, PodcastChannelID, PodcastChannelParams, PodcastID,
     Thumbnail,
@@ -10,12 +11,11 @@ use crate::nav_consts::{
     CAROUSEL, CAROUSEL_TITLE, DESCRIPTION, DESCRIPTION_SHELF, GRID_ITEMS, MMRLIR, MTRIR,
     MUSIC_SHELF, NAVIGATION_BROWSE, NAVIGATION_BROWSE_ID, PLAYBACK_DURATION_TEXT,
     PLAYBACK_PROGRESS_TEXT, RESPONSIVE_HEADER, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    SUBTITLE, SUBTITLE3, SUBTITLE_RUNS, TITLE, TWO_COLUMN,
+    SUBTITLE, SUBTITLE_RUNS, SUBTITLE3, TITLE, TWO_COLUMN,
 };
 use crate::query::{
     GetChannelEpisodesQuery, GetChannelQuery, GetEpisodeQuery, GetNewEpisodesQuery, GetPodcastQuery,
 };
-use crate::Result;
 use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};

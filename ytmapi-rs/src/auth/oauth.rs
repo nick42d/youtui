@@ -1,4 +1,4 @@
-use super::{fallback_client_version, AuthToken, RawResult};
+use super::{AuthToken, RawResult, fallback_client_version};
 use crate::client::Client;
 use crate::error::{Error, Result};
 use crate::parse::ProcessedResult;

@@ -1,16 +1,16 @@
 use crate::app::structures::{AlbumArtState, PlayState};
 use crate::drawutils::{
-    middle_of_rect, BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
+    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR, middle_of_rect,
 };
 use itertools::Itertools;
+use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::prelude::Alignment;
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph};
-use ratatui::Frame;
-use ratatui_image::picker::Picker;
 use ratatui_image::Image;
+use ratatui_image::picker::Picker;
 use std::time::Duration;
 
 pub const ALBUM_ART_WIDTH: u16 = 7;

@@ -1,5 +1,5 @@
-use super::footer::parse_simple_time_to_secs;
 use super::YoutuiWindow;
+use super::footer::parse_simple_time_to_secs;
 use crate::app::media_controls::{MediaControlsStatus, MediaControlsUpdate, MediaControlsVolume};
 use crate::app::structures::{AlbumArtState, PlayState};
 use itertools::Itertools;

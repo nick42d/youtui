@@ -1,7 +1,8 @@
 use super::{
-    ParseFrom, CATEGORY_TITLE, GRID, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
+    CATEGORY_TITLE, GRID, ParseFrom, RUN_TEXT, TASTE_ITEM_CONTENTS, TASTE_PROFILE_ARTIST,
     TASTE_PROFILE_IMPRESSION, TASTE_PROFILE_ITEMS, TASTE_PROFILE_SELECTION,
 };
+use crate::Result;
 use crate::common::{MoodCategoryParams, PlaylistID, TasteToken, Thumbnail};
 use crate::nav_consts::{
     CAROUSEL, CAROUSEL_TITLE, CATEGORY_PARAMS, MTRIR, NAVIGATION_BROWSE_ID, SECTION_LIST,
@@ -10,7 +11,6 @@ use crate::nav_consts::{
 use crate::query::{
     GetMoodCategoriesQuery, GetMoodPlaylistsQuery, GetTasteProfileQuery, SetTasteProfileQuery,
 };
-use crate::Result;
 use const_format::concatcp;
 use itertools::Itertools;
 use json_crawler::{CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerOwned};

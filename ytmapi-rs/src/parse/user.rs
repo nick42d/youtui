@@ -1,4 +1,5 @@
 use super::ParseFrom;
+use crate::Result;
 use crate::common::{PlaylistID, Thumbnail, UserPlaylistsParams, UserVideosParams, VideoID};
 use crate::nav_consts::{
     CAROUSEL, CAROUSEL_TITLE, FOREGROUND_THUMBNAIL_RENDERER, GRID_ITEMS, MTRIR, NAVIGATION_BROWSE,
@@ -6,7 +7,6 @@ use crate::nav_consts::{
     SUBTITLE2, SUBTITLE3, THUMBNAIL_RENDERER, TITLE_TEXT, VISUAL_HEADER,
 };
 use crate::query::{GetUserPlaylistsQuery, GetUserQuery, GetUserVideosQuery};
-use crate::Result;
 use const_format::concatcp;
 use json_crawler::{JsonCrawler, JsonCrawlerOwned};
 use serde::{Deserialize, Serialize};

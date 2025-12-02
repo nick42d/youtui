@@ -2,15 +2,15 @@ use self::draw::draw_browser;
 use super::action::{AppAction, TextEntryAction};
 use super::{AppCallback, WindowContext};
 use crate::app::component::actionhandler::{
-    apply_action_mapped, Action, ActionHandler, ComponentEffect, DelegateScrollable,
-    DominantKeyRouter, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
+    Action, ActionHandler, ComponentEffect, DelegateScrollable, DominantKeyRouter, KeyRouter,
+    Scrollable, TextHandler, YoutuiEffect, apply_action_mapped,
 };
 use crate::app::view::DrawableMut;
-use crate::config::keymap::Keymap;
 use crate::config::Config;
+use crate::config::keymap::Keymap;
+use artistsearch::ArtistSearchBrowser;
 use artistsearch::search_panel::BrowserArtistsAction;
 use artistsearch::songs_panel::BrowserArtistSongsAction;
-use artistsearch::ArtistSearchBrowser;
 use async_callback_manager::AsyncTask;
 use itertools::Either;
 use serde::{Deserialize, Serialize};
@@ -96,7 +96,7 @@ impl ActionHandler<BrowserArtistSongsAction> for Browser {
             BrowserVariant::ArtistSearch => {
                 return apply_action_mapped(self, action, |this: &mut Self| {
                     &mut this.artist_search_browser
-                })
+                });
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -112,7 +112,7 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
             BrowserVariant::ArtistSearch => {
                 return apply_action_mapped(self, action, |this: &mut Self| {
                     &mut this.artist_search_browser
-                })
+                });
             }
             BrowserVariant::SongSearch => warn!(
                 "Received action {:?} but song artist search browser not active",
@@ -128,7 +128,7 @@ impl ActionHandler<BrowserSongsAction> for Browser {
             BrowserVariant::SongSearch => {
                 return apply_action_mapped(self, action, |this: &mut Self| {
                     &mut this.song_search_browser
-                })
+                });
             }
             BrowserVariant::ArtistSearch => warn!(
                 "Received action {:?} but song search browser not active",
@@ -147,7 +147,7 @@ impl ActionHandler<BrowserAction> for Browser {
                 return (
                     AsyncTask::new_no_op(),
                     Some(AppCallback::ChangeContext(WindowContext::Playlist)),
-                )
+                );
             }
             BrowserAction::Search => self.handle_toggle_search(),
             BrowserAction::ChangeSearchType => self.handle_change_search_type(),
@@ -373,14 +373,14 @@ pub fn get_sort_keybinds(config: &Config) -> impl Iterator<Item = &Keymap<AppAct
 
 #[cfg(test)]
 mod tests {
-    use super::artistsearch::songs_panel::BrowserArtistSongsAction;
     use super::Browser;
+    use super::artistsearch::songs_panel::BrowserArtistSongsAction;
     use crate::app::component::actionhandler::{ActionHandler, KeyRouter};
     use crate::app::ui::action::AppAction;
-    use crate::app::ui::browser::shared_components::BrowserSearchAction;
     use crate::app::ui::browser::BrowserAction;
-    use crate::config::keymap::KeyActionTree;
+    use crate::app::ui::browser::shared_components::BrowserSearchAction;
     use crate::config::Config;
+    use crate::config::keymap::KeyActionTree;
     use crate::keyaction::KeyActionVisibility;
     use crate::keybind::Keybind;
     use itertools::Itertools;

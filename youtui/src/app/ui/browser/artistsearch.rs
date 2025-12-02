@@ -1,16 +1,16 @@
 use super::shared_components::{BrowserSearchAction, FilterAction, SortAction};
+use crate::app::AppCallback;
 use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::api::GetArtistSongsProgressUpdate;
 use crate::app::server::{GetArtistSongs, HandleApiError, SearchArtists};
 use crate::app::structures::SongListComponent;
-use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::ui::ListStatus;
+use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{ListView, TableView};
-use crate::app::AppCallback;
-use crate::config::keymap::Keymap;
 use crate::config::Config;
+use crate::config::keymap::Keymap;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use search_panel::{ArtistSearchPanel, BrowserArtistsAction};
@@ -157,13 +157,13 @@ impl ActionHandler<BrowserArtistSongsAction> for ArtistSearchBrowser {
             BrowserArtistSongsAction::PlaySong => return self.play_song().into(),
             BrowserArtistSongsAction::PlaySongs => return self.play_songs().into(),
             BrowserArtistSongsAction::AddAlbumToPlaylist => {
-                return self.add_album_to_playlist().into()
+                return self.add_album_to_playlist().into();
             }
             BrowserArtistSongsAction::AddSongToPlaylist => {
-                return self.add_song_to_playlist().into()
+                return self.add_song_to_playlist().into();
             }
             BrowserArtistSongsAction::AddSongsToPlaylist => {
-                return self.add_songs_to_playlist().into()
+                return self.add_songs_to_playlist().into();
             }
             BrowserArtistSongsAction::Sort => self.album_songs_panel.handle_pop_sort(),
             BrowserArtistSongsAction::Filter => self.album_songs_panel.toggle_filter(),
@@ -285,10 +285,10 @@ impl ArtistSearchBrowser {
                 GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
                 GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
                 GetArtistSongsProgressUpdate::GetArtistAlbumsError(e) => {
-                    return this.handle_search_artist_error(cur_artist_id_clone, e)
+                    return this.handle_search_artist_error(cur_artist_id_clone, e);
                 }
                 GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error } => {
-                    return this.handle_get_album_songs_error(cur_artist_id_clone, album_id, error)
+                    return this.handle_get_album_songs_error(cur_artist_id_clone, album_id, error);
                 }
                 GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
                 GetArtistSongsProgressUpdate::Songs {
@@ -316,7 +316,7 @@ impl ArtistSearchBrowser {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylistAndPlay(vec![
-                    cur_song.clone()
+                    cur_song.clone(),
                 ])),
             );
         }
@@ -446,7 +446,9 @@ impl ArtistSearchBrowser {
         album_id: AlbumID<'static>,
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
-        warn!("Received a get_album_songs_error. This will be logged but is not visible in the main ui!");
+        warn!(
+            "Received a get_album_songs_error. This will be logged but is not visible in the main ui!"
+        );
         AsyncTask::new_future(
             HandleApiError {
                 error,

@@ -1,22 +1,22 @@
+use super::Browser;
 use super::artistsearch::search_panel::ArtistInputRouting;
 use super::artistsearch::songs_panel::AlbumSongsInputRouting;
 use super::artistsearch::{self, ArtistSearchBrowser};
 use super::shared_components::SearchBlock;
 use super::songsearch::SongSearchBrowser;
-use super::Browser;
 use crate::app::component::actionhandler::Suggestable;
-use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::app::view::SortableTableView;
+use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
-    below_left_rect, bottom_of_rect, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR,
+    ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
 };
-use rat_text::text_input::{TextInput, TextInputState};
 use rat_text::HasScreenCursor;
+use rat_text::text_input::{TextInput, TextInputState};
+use ratatui::Frame;
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
-use ratatui::Frame;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 // Popups look aesthetically weird when really small, so setting a minimum.

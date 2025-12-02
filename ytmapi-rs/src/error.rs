@@ -189,10 +189,21 @@ impl Display for ErrorKind {
                 "Error obtaining system time to use in API query. <{message}>"
             ),
             ErrorKind::JsonParsing(e) => write!(f, "{e}"),
-            ErrorKind::UnableToParseYtCfg { ytcfg } => write!(f,"Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"),
+            ErrorKind::UnableToParseYtCfg { ytcfg } => write!(
+                f,
+                "Unable to parse ytcfg - expected the function to exist and contain json. Received: {ytcfg}"
+            ),
             ErrorKind::NoVisitorData => write!(f, "ytcfg didn't include VISITOR_DATA"),
-            ErrorKind::InvalidUploadFilename { filename, message: msg } => write!(f, "Invalid upload filename {filename}. Error message: {msg}"),
-            ErrorKind::MissingUploadUrl => write!(f, "expected an x-goog-upload-url but didn't get one"),
+            ErrorKind::InvalidUploadFilename {
+                filename,
+                message: msg,
+            } => write!(
+                f,
+                "Invalid upload filename {filename}. Error message: {msg}"
+            ),
+            ErrorKind::MissingUploadUrl => {
+                write!(f, "expected an x-goog-upload-url but didn't get one")
+            }
         }
     }
 }

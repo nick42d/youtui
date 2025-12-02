@@ -1,7 +1,7 @@
 //! Re-usable core functionality.
 use anyhow::bail;
-use futures::stream::FuturesUnordered;
 use futures::TryStreamExt;
+use futures::stream::FuturesUnordered;
 use serde::de::{self, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::borrow::Borrow;
@@ -14,8 +14,8 @@ use std::str::FromStr;
 use std::time::SystemTime;
 use tokio::fs::DirEntry;
 use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReadDirStream;
 use tokio_stream::StreamExt;
+use tokio_stream::wrappers::ReadDirStream;
 use tracing::error;
 
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
@@ -191,8 +191,8 @@ mod tests {
     use pretty_assertions::assert_eq;
     use std::time::{Duration, SystemTime};
     use tempfile::TempDir;
-    use tokio_stream::wrappers::ReadDirStream;
     use tokio_stream::StreamExt;
+    use tokio_stream::wrappers::ReadDirStream;
 
     #[tokio::test]
     async fn test_create_or_clean_directory_creates_directory() {

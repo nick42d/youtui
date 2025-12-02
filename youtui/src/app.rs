@@ -1,18 +1,18 @@
 use super::appevent::{AppEvent, EventHandler};
 use crate::config::ApiKey;
 use crate::core::get_limited_sequential_file;
-use crate::{get_data_dir, RuntimeInfo};
-use anyhow::{bail, Context, Result};
+use crate::{RuntimeInfo, get_data_dir};
+use anyhow::{Context, Result, bail};
 use async_callback_manager::{AsyncCallbackManager, TaskOutcome};
 use component::actionhandler::YoutuiEffect;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::execute;
 use crossterm::terminal::{
-    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
+    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
 use media_controls::MediaController;
-use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui::backend::CrosstermBackend;
 use ratatui_image::picker::Picker;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
