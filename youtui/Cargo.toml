@@ -11,7 +11,7 @@ repository = "https://github.com/nick42d/youtui"
 readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
-# Required for edition 2025
+# Required for Edition 2024
 rust-version = "1.85"
 
 [dependencies]
