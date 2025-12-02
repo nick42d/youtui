@@ -1,7 +1,7 @@
 [package]
 name = "json-crawler"
 version = "0.0.10"
-edition = "2021"
+edition = "2024"
 authors = ["nick42d"]
 license = "MIT"
 description = "Wrapper for serde_json that provides nicer errors when crawling through large json files."
