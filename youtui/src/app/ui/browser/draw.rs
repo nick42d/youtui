@@ -14,7 +14,7 @@ use rat_text::HasScreenCursor;
 use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Direction, Layout, Rect};
-use ratatui::style::{Modifier, Style, Stylize};
+use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
 use ytmapi_rs::common::{SuggestionType, TextRun};

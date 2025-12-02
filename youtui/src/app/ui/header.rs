@@ -3,7 +3,7 @@ use crate::drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR};
 use crate::keyaction::DisplayableKeyAction;
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
-use ratatui::style::{Style, Stylize};
+use ratatui::style::Style;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 
