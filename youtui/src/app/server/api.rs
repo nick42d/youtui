@@ -1,4 +1,5 @@
 use crate::api::{DynamicApiError, DynamicYtMusic};
+use crate::app::{CALLBACK_CHANNEL_SIZE, EVENT_CHANNEL_SIZE};
 use crate::async_rodio_sink::send_or_error;
 use crate::config::ApiKey;
 use crate::{OAUTH_FILENAME, get_config_dir};
@@ -14,10 +15,10 @@ use tokio::sync::RwLock;
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, Thumbnail};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
 use ytmapi_rs::parse::{
-    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist,
-    SearchResultSong,
+    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
+    PlaylistSong, SearchResultArtist, SearchResultPlaylist, SearchResultSong,
 };
 use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
 
@@ -54,11 +55,22 @@ impl Api {
     ) -> Result<(Vec<SearchSuggestion>, String)> {
         get_search_suggestions(self.get_api().await?, text).await
     }
+    pub async fn search_playlists(&self, text: String) -> Result<Vec<SearchResultPlaylist>> {
+        search_playlists(self.get_api().await?, text).await
+    }
     pub async fn search_artists(&self, text: String) -> Result<Vec<SearchResultArtist>> {
         search_artists(self.get_api().await?, text).await
     }
     pub async fn search_songs(&self, text: String) -> Result<Vec<SearchResultSong>> {
         search_songs(self.get_api().await?, text).await
+    }
+    pub fn get_playlist_songs(
+        &self,
+        playlist_id: PlaylistID<'static>,
+        max_results: usize,
+    ) -> impl Stream<Item = GetPlaylistSongsProgressUpdate> + 'static + use<> {
+        let api = self.api.clone();
+        get_playlist_songs(api, playlist_id, max_results)
     }
     pub fn get_artist_songs(
         &self,
@@ -146,6 +158,14 @@ where
     }
 }
 
+async fn search_playlists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultPlaylist>> {
+    tracing::info!("Searching playlists for {text}");
+    let query = ytmapi_rs::query::SearchQuery::new(text)
+        .with_filter(ytmapi_rs::query::search::PlaylistsFilter)
+        .with_spelling_mode(ytmapi_rs::query::search::SpellingMode::ExactMatch);
+    query_api_with_retry(&api, query).await
+}
+
 async fn search_artists(api: ConcurrentApi, text: String) -> Result<Vec<SearchResultArtist>> {
     tracing::info!("Searching artists for {text}");
     let query = ytmapi_rs::query::SearchQuery::new(text)
@@ -197,11 +217,24 @@ pub enum GetArtistSongsProgressUpdate {
     NoSongsFound,
 }
 
+pub enum GetPlaylistSongsProgressUpdate {
+    Loading,
+    Songs(Vec<PlaylistItem>),
+    // Caller should know the PlaylistID already, as they provided it.
+    // May occur before or after sending some songs, ie api could fail straight away or stream
+    // some songs then fail. Stream closes here.
+    GetPlaylistSongsError(Error),
+    // Stream closes here.
+    AllSongsSent,
+    // Stream closes here.
+    NoSongsFound,
+}
+
 fn get_artist_songs(
     api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
-    let (tx, rx) = tokio::sync::mpsc::channel(50);
+    let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
@@ -326,6 +359,50 @@ fn get_artist_songs(
             .await;
         }
         send_or_error(tx, GetArtistSongsProgressUpdate::AllSongsSent).await;
+    });
+    ReceiverStream::new(rx)
+}
+
+fn get_playlist_songs(
+    api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
+    playlist_id: PlaylistID<'static>,
+    max_results: usize,
+) -> impl Stream<Item = GetPlaylistSongsProgressUpdate> + 'static {
+    let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
+    tokio::spawn(async move {
+        tracing::info!("Running songs query");
+        send_or_error(&tx, GetPlaylistSongsProgressUpdate::Loading).await;
+        let api = match api.get().await {
+            Err(e) => {
+                error!("Error getting API");
+                send_or_error(
+                    tx,
+                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e.into()),
+                )
+                .await;
+                return;
+            }
+            Ok(api) => api,
+        };
+        let query = ytmapi_rs::query::GetPlaylistTracksQuery::new((&playlist_id).into());
+        // TODO: Streaming
+        let first_tracks = query_api_with_retry(&api, query).await;
+        match first_tracks {
+            Ok(t) => {
+                info!("Sending caller tracks for {:?}", playlist_id);
+                send_or_error(&tx, GetPlaylistSongsProgressUpdate::Songs(t)).await;
+            }
+            Err(e) => {
+                error!("Error with GetPlaylistTracksQuery");
+                send_or_error(
+                    &tx,
+                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e),
+                )
+                .await;
+                return;
+            }
+        }
+        send_or_error(tx, GetPlaylistSongsProgressUpdate::AllSongsSent).await;
     });
     ReceiverStream::new(rx)
 }

@@ -8,8 +8,8 @@ use crate::app::server::{
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumArtState, AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID,
-    Percentage, PlayState, SongListComponent,
+    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
+    ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::draw_table;
@@ -46,7 +46,7 @@ pub const DEFAULT_UI_VOLUME: Percentage = Percentage(50);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Playlist {
-    pub list: AlbumSongsList,
+    pub list: BrowserSongsList,
     pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
     pub queue_status: QueueState,
