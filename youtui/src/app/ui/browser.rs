@@ -458,8 +458,8 @@ impl Browser {
     pub fn handle_change_search_type(&mut self) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.variant = BrowserVariant::SongSearch,
-            BrowserVariant::SongSearch => self.variant = BrowserVariant::ArtistSearch,
-            BrowserVariant::PlaylistSearch => self.variant = BrowserVariant::PlaylistSearch,
+            BrowserVariant::SongSearch => self.variant = BrowserVariant::PlaylistSearch,
+            BrowserVariant::PlaylistSearch => self.variant = BrowserVariant::ArtistSearch,
         }
     }
 }
