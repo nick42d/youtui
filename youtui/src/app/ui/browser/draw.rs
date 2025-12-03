@@ -5,6 +5,9 @@ use super::artistsearch::{self, ArtistSearchBrowser};
 use super::shared_components::SearchBlock;
 use super::songsearch::SongSearchBrowser;
 use crate::app::component::actionhandler::Suggestable;
+use crate::app::ui::browser::playlistsearch::search_panel::PlaylistInputRouting;
+use crate::app::ui::browser::playlistsearch::songs_panel::PlaylistSongsInputRouting;
+use crate::app::ui::browser::playlistsearch::{self, PlaylistSearchBrowser};
 use crate::app::view::SortableTableView;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
@@ -29,6 +32,9 @@ pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected:
         }
         super::BrowserVariant::SongSearch => {
             draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
+        }
+        super::BrowserVariant::PlaylistSearch => {
+            draw_playlist_search_browser(f, &mut browser.playlist_search_browser, chunk, selected)
         }
     }
 }
@@ -66,6 +72,62 @@ pub fn draw_artist_search_browser(
         draw_search_box(
             f,
             "Search Artists",
+            &mut browser.artist_search_panel.search,
+            s[0],
+        );
+        // Should this be part of draw_search_box
+        if browser.artist_search_panel.has_search_suggestions() {
+            draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
+        }
+    }
+    browser.album_songs_panel.widget_state =
+        draw_sortable_table(f, &browser.album_songs_panel, layout[1], albumsongsselected);
+    if browser.album_songs_panel.sort.shown {
+        browser.album_songs_panel.sort.state =
+            draw_sort_popup(f, &browser.album_songs_panel, layout[1]);
+    }
+    if browser.album_songs_panel.filter.shown {
+        draw_filter_popup(
+            f,
+            &mut browser.album_songs_panel.filter.filter_text,
+            layout[1],
+        );
+    }
+}
+pub fn draw_playlist_search_browser(
+    f: &mut Frame,
+    browser: &mut PlaylistSearchBrowser,
+    chunk: Rect,
+    selected: bool,
+) {
+    let layout = Layout::new(
+        ratatui::prelude::Direction::Horizontal,
+        [Constraint::Max(30), Constraint::Min(0)],
+    )
+    .split(chunk);
+    // Potentially could handle this better.
+    let albumsongsselected = selected
+        && browser.input_routing == playlistsearch::InputRouting::Song
+        && browser.album_songs_panel.route == PlaylistSongsInputRouting::List;
+    let playlistselected = !albumsongsselected
+        && selected
+        && browser.input_routing == playlistsearch::InputRouting::Playlist
+        && browser.artist_search_panel.route == PlaylistInputRouting::List;
+
+    if !browser.artist_search_panel.search_popped {
+        browser.artist_search_panel.widget_state =
+            draw_list(f, &browser.artist_search_panel, layout[0], playlistselected);
+    } else {
+        let s = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints([Constraint::Length(3), Constraint::Min(0)])
+            .split(layout[0]);
+        browser.artist_search_panel.widget_state =
+            draw_list(f, &browser.artist_search_panel, s[1], playlistselected);
+        draw_search_box(
+            f,
+            "Search Playlists",
             &mut browser.artist_search_panel.search,
             s[0],
         );

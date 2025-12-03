@@ -3,6 +3,7 @@ use super::album_art_downloader::AlbumArt;
 use super::api::GetArtistSongsProgressUpdate;
 use super::player::{DecodedInMemSong, Player};
 use super::song_downloader::{DownloadProgressUpdate, InMemSong};
+use crate::app::server::api::GetPlaylistSongsProgressUpdate;
 use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
@@ -14,8 +15,10 @@ use async_callback_manager::{BackendStreamingTask, BackendTask};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, VideoID};
-use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
+use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
+
+const MAX_PLAYLIST_SONGS: usize = 500;
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -36,7 +39,11 @@ pub struct SearchArtists(pub String);
 #[derive(Debug)]
 pub struct SearchSongs(pub String);
 #[derive(Debug)]
+pub struct SearchPlaylists(pub String);
+#[derive(Debug)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
+#[derive(Debug)]
+pub struct GetPlaylistSongs(pub PlaylistID<'static>);
 
 #[derive(Debug)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
@@ -162,6 +169,17 @@ impl BackendTask<ArcServer> for SearchSongs {
         async move { backend.api.search_songs(self.0).await }
     }
 }
+impl BackendTask<ArcServer> for SearchPlaylists {
+    type Output = Result<Vec<SearchResultPlaylist>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.api.search_playlists(self.0).await }
+    }
+}
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     type Output = GetArtistSongsProgressUpdate;
     type MetadataType = TaskMetadata;
@@ -171,6 +189,17 @@ impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
         backend.api.get_artist_songs(self.0)
+    }
+}
+impl BackendStreamingTask<ArcServer> for GetPlaylistSongs {
+    type Output = GetPlaylistSongsProgressUpdate;
+    type MetadataType = TaskMetadata;
+    fn into_stream(
+        self,
+        backend: &ArcServer,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        let backend = backend.clone();
+        backend.api.get_playlist_songs(self.0, MAX_PLAYLIST_SONGS)
     }
 }
 

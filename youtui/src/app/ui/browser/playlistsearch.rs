@@ -3,8 +3,8 @@ use crate::app::AppCallback;
 use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::api::GetArtistSongsProgressUpdate;
-use crate::app::server::{GetArtistSongs, HandleApiError, SearchArtists};
+use crate::app::server::api::{GetArtistSongsProgressUpdate, GetPlaylistSongsProgressUpdate};
+use crate::app::server::{GetArtistSongs, HandleApiError, SearchArtists, SearchPlaylists};
 use crate::app::structures::SongListComponent;
 use crate::app::ui::ListStatus;
 use crate::app::ui::action::{AppAction, TextEntryAction};
@@ -21,8 +21,10 @@ use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use std::mem;
 use tracing::{error, warn};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, Thumbnail};
-use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, Thumbnail, YoutubeID};
+use ytmapi_rs::parse::{
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist, SearchResultPlaylist,
+};
 
 pub mod search_panel;
 pub mod songs_panel;
@@ -260,7 +262,7 @@ impl PlaylistSearchBrowser {
             ),
         };
         AsyncTask::new_future_chained(
-            SearchArtists(search_query),
+            SearchPlaylists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
         )
@@ -270,16 +272,19 @@ impl PlaylistSearchBrowser {
         self.change_routing(InputRouting::Song);
         self.album_songs_panel.list.clear();
 
-        let Some(cur_artist_id) = self
-            .artist_search_panel
-            .list
-            .get(selected)
-            .cloned()
-            .map(|a| a.browse_id)
-        else {
-            tracing::warn!("Tried to get item from list with index out of range");
-            return AsyncTask::new_no_op();
-        };
+        // let Some(cur_artist_id) = self
+        //     .artist_search_panel
+        //     .list
+        //     .get(selected)
+        //     .cloned()
+        //     .map(|a| a.browse_id)
+        // else {
+        //     tracing::warn!("Tried to get item from list with index out of range");
+        //     return AsyncTask::new_no_op();
+        // };
+
+        // TODO: change to get songs for playlist
+        let cur_artist_id = ArtistChannelID::from_raw("TODO");
         let cur_artist_id_clone = cur_artist_id.clone();
         let handler = |this: &mut Self, item| {
             match item {
@@ -467,7 +472,7 @@ impl PlaylistSearchBrowser {
     pub fn handle_song_list_loading(&mut self) {
         self.album_songs_panel.list.state = ListStatus::Loading;
     }
-    pub fn replace_artist_list(&mut self, artist_list: Vec<SearchResultArtist>) {
+    pub fn replace_artist_list(&mut self, artist_list: Vec<SearchResultPlaylist>) {
         self.artist_search_panel.list = artist_list;
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
