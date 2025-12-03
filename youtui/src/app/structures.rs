@@ -38,7 +38,7 @@ impl<T> AsRef<T> for MaybeRc<T> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct AlbumSongsList {
+pub struct BrowserSongsList {
     pub state: ListStatus,
     list: Vec<ListSong>,
     pub next_id: ListSongID,
@@ -205,9 +205,9 @@ impl ListSong {
     }
 }
 
-impl Default for AlbumSongsList {
+impl Default for BrowserSongsList {
     fn default() -> Self {
-        AlbumSongsList {
+        BrowserSongsList {
             state: ListStatus::New,
             list: Vec::new(),
             next_id: ListSongID(0),
@@ -215,7 +215,7 @@ impl Default for AlbumSongsList {
     }
 }
 
-impl AlbumSongsList {
+impl BrowserSongsList {
     pub fn get_list_iter(&self) -> std::slice::Iter<'_, ListSong> {
         self.list.iter()
     }

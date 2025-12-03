@@ -212,7 +212,7 @@ impl PlaylistSearchBrowser {
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if self.is_text_handling()
             && self.artist_search_panel.search_popped
-            && self.input_routing == InputRouting::Artist
+            && self.input_routing == InputRouting::Playlist
         {
             match action {
                 TextEntryAction::Submit => {

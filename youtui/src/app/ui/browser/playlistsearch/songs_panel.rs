@@ -2,8 +2,7 @@ use crate::app::component::actionhandler::{
     Action, ComponentEffect, KeyRouter, Scrollable, TextHandler,
 };
 use crate::app::structures::{
-    ListSong, ListSongDisplayableField, ListStatus, Percentage, PlaylistSongsList,
-    SongListComponent,
+    BrowserSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
 };
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::get_sort_keybinds;
@@ -34,7 +33,7 @@ pub enum PlaylistSongsInputRouting {
 
 #[derive(Clone)]
 pub struct PlaylistSongsPanel {
-    pub list: PlaylistSongsList,
+    pub list: BrowserSongsList,
     pub route: PlaylistSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
