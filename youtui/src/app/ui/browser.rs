@@ -5,6 +5,9 @@ use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, DelegateScrollable, DominantKeyRouter, KeyRouter,
     Scrollable, TextHandler, YoutuiEffect, apply_action_mapped,
 };
+use crate::app::ui::browser::playlistsearch::PlaylistSearchBrowser;
+use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
+use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
 use crate::app::view::DrawableMut;
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -30,12 +33,14 @@ enum BrowserVariant {
     #[default]
     ArtistSearch,
     SongSearch,
+    PlaylistSearch,
 }
 
 pub struct Browser {
     variant: BrowserVariant,
     artist_search_browser: ArtistSearchBrowser,
     song_search_browser: SongSearchBrowser,
+    playlist_search_browser: PlaylistSearchBrowser,
 }
 impl_youtui_component!(Browser);
 
@@ -70,12 +75,16 @@ impl DelegateScrollable for Browser {
         match self.variant {
             BrowserVariant::ArtistSearch => &mut self.artist_search_browser as &mut dyn Scrollable,
             BrowserVariant::SongSearch => &mut self.song_search_browser as &mut dyn Scrollable,
+            BrowserVariant::PlaylistSearch => {
+                &mut self.playlist_search_browser as &mut dyn Scrollable
+            }
         }
     }
     fn delegate_ref(&self) -> &dyn Scrollable {
         match self.variant {
             BrowserVariant::ArtistSearch => &self.artist_search_browser as &dyn Scrollable,
             BrowserVariant::SongSearch => &self.song_search_browser as &dyn Scrollable,
+            BrowserVariant::PlaylistSearch => &self.playlist_search_browser as &dyn Scrollable,
         }
     }
 }
@@ -88,6 +97,11 @@ impl ActionHandler<BrowserSearchAction> for Browser {
             BrowserVariant::SongSearch => apply_action_mapped(self, action, |this: &mut Self| {
                 &mut this.song_search_browser
             }),
+            BrowserVariant::PlaylistSearch => {
+                apply_action_mapped(self, action, |this: &mut Self| {
+                    &mut this.playlist_search_browser
+                })
+            }
         }
     }
 }
@@ -99,8 +113,8 @@ impl ActionHandler<BrowserArtistSongsAction> for Browser {
                     &mut this.artist_search_browser
                 });
             }
-            BrowserVariant::SongSearch => warn!(
-                "Received action {:?} but song artist search browser not active",
+            _ => warn!(
+                "Received action {:?} but artist search browser not active",
                 action
             ),
         };
@@ -115,8 +129,8 @@ impl ActionHandler<BrowserArtistsAction> for Browser {
                     &mut this.artist_search_browser
                 });
             }
-            BrowserVariant::SongSearch => warn!(
-                "Received action {:?} but song artist search browser not active",
+            _ => warn!(
+                "Received action {:?} but artist search browser not active",
                 action
             ),
         }
@@ -131,8 +145,43 @@ impl ActionHandler<BrowserSongsAction> for Browser {
                     &mut this.song_search_browser
                 });
             }
-            BrowserVariant::ArtistSearch => warn!(
+            _ => warn!(
                 "Received action {:?} but song search browser not active",
+                action
+            ),
+        }
+        YoutuiEffect::new_no_op()
+    }
+}
+impl ActionHandler<BrowserPlaylistsAction> for Browser {
+    fn apply_action(&mut self, action: BrowserPlaylistsAction) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::PlaylistSearch => {
+                return apply_action_mapped(self, action, |this: &mut Self| {
+                    &mut this.playlist_search_browser
+                });
+            }
+            _ => warn!(
+                "Received action {:?} but playlist search browser not active",
+                action
+            ),
+        }
+        YoutuiEffect::new_no_op()
+    }
+}
+impl ActionHandler<BrowserPlaylistSongsAction> for Browser {
+    fn apply_action(
+        &mut self,
+        action: BrowserPlaylistSongsAction,
+    ) -> impl Into<YoutuiEffect<Self>> {
+        match self.variant {
+            BrowserVariant::PlaylistSearch => {
+                return apply_action_mapped(self, action, |this: &mut Self| {
+                    &mut this.playlist_search_browser
+                });
+            }
+            _ => warn!(
+                "Received action {:?} but playlist search browser not active",
                 action
             ),
         }
@@ -169,6 +218,11 @@ impl ActionHandler<FilterAction> for Browser {
                 .apply_action(action)
                 .into()
                 .map(|this: &mut Self| &mut this.song_search_browser),
+            BrowserVariant::PlaylistSearch => self
+                .playlist_search_browser
+                .apply_action(action)
+                .into()
+                .map(|this: &mut Self| &mut this.playlist_search_browser),
         }
     }
 }
@@ -185,6 +239,11 @@ impl ActionHandler<SortAction> for Browser {
                 .apply_action(action)
                 .into()
                 .map(|this: &mut Self| &mut this.song_search_browser),
+            BrowserVariant::PlaylistSearch => self
+                .playlist_search_browser
+                .apply_action(action)
+                .into()
+                .map(|this: &mut Self| &mut this.playlist_search_browser),
         }
     }
 }
@@ -193,24 +252,28 @@ impl TextHandler for Browser {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.is_text_handling(),
             BrowserVariant::SongSearch => self.song_search_browser.is_text_handling(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.is_text_handling(),
         }
     }
     fn get_text(&self) -> &str {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.get_text(),
             BrowserVariant::SongSearch => self.song_search_browser.get_text(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.get_text(),
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.replace_text(text),
             BrowserVariant::SongSearch => self.song_search_browser.replace_text(text),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.replace_text(text),
         }
     }
     fn clear_text(&mut self) -> bool {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.clear_text(),
             BrowserVariant::SongSearch => self.song_search_browser.clear_text(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.clear_text(),
         }
     }
     fn handle_text_event_impl(
@@ -226,6 +289,10 @@ impl TextHandler for Browser {
                 .song_search_browser
                 .handle_text_event_impl(event)
                 .map(|effect| effect.map(|this: &mut Self| &mut this.song_search_browser)),
+            BrowserVariant::PlaylistSearch => self
+                .playlist_search_browser
+                .handle_text_event_impl(event)
+                .map(|effect| effect.map(|this: &mut Self| &mut this.playlist_search_browser)),
         }
     }
 }
@@ -267,11 +334,14 @@ impl KeyRouter<AppAction> for Browser {
         // dominant.
         Either::Right(
             match self.variant {
-                BrowserVariant::SongSearch => {
-                    Either::Left(self.song_search_browser.get_active_keybinds(config))
-                }
-                BrowserVariant::ArtistSearch => {
-                    Either::Right(self.artist_search_browser.get_active_keybinds(config))
+                BrowserVariant::SongSearch => Either::Left(Either::Left(
+                    self.song_search_browser.get_active_keybinds(config),
+                )),
+                BrowserVariant::ArtistSearch => Either::Left(Either::Right(
+                    self.artist_search_browser.get_active_keybinds(config),
+                )),
+                BrowserVariant::PlaylistSearch => {
+                    Either::Right(self.playlist_search_browser.get_active_keybinds(config))
                 }
             }
             .chain(std::iter::once(&config.keybinds.browser)),
@@ -287,6 +357,10 @@ impl DominantKeyRouter<AppAction> for Browser {
             BrowserVariant::ArtistSearch => {
                 self.artist_search_browser.album_songs_panel.sort.shown
                     || self.artist_search_browser.album_songs_panel.filter.shown
+            }
+            BrowserVariant::PlaylistSearch => {
+                self.playlist_search_browser.album_songs_panel.sort.shown
+                    || self.playlist_search_browser.album_songs_panel.filter.shown
             }
         }
     }
@@ -304,6 +378,19 @@ impl DominantKeyRouter<AppAction> for Browser {
                         Either::Right(std::iter::once(&config.keybinds.sort))
                     }
                     artistsearch::songs_panel::AlbumSongsInputRouting::Filter => {
+                        Either::Right(std::iter::once(&config.keybinds.filter))
+                    }
+                }
+            }
+            BrowserVariant::PlaylistSearch => {
+                match self.playlist_search_browser.album_songs_panel.route {
+                    playlistsearch::songs_panel::PlaylistSongsInputRouting::List => {
+                        Either::Left(std::iter::empty())
+                    }
+                    playlistsearch::songs_panel::PlaylistSongsInputRouting::Sort => {
+                        Either::Right(std::iter::once(&config.keybinds.sort))
+                    }
+                    playlistsearch::songs_panel::PlaylistSongsInputRouting::Filter => {
                         Either::Right(std::iter::once(&config.keybinds.filter))
                     }
                 }
@@ -328,17 +415,20 @@ impl Browser {
             variant: Default::default(),
             artist_search_browser: ArtistSearchBrowser::new(),
             song_search_browser: SongSearchBrowser::new(),
+            playlist_search_browser: PlaylistSearchBrowser::new(),
         }
     }
     pub fn left(&mut self) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.left(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.left(),
             BrowserVariant::SongSearch => (),
         }
     }
     pub fn right(&mut self) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.right(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.right(),
             BrowserVariant::SongSearch => (),
         }
     }
@@ -352,18 +442,24 @@ impl Browser {
                 .song_search_browser
                 .handle_text_entry_action(action)
                 .map(|this: &mut Self| &mut this.song_search_browser),
+            BrowserVariant::PlaylistSearch => self
+                .playlist_search_browser
+                .handle_text_entry_action(action)
+                .map(|this: &mut Self| &mut this.playlist_search_browser),
         }
     }
     pub fn handle_toggle_search(&mut self) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.handle_toggle_search(),
             BrowserVariant::SongSearch => self.song_search_browser.handle_toggle_search(),
+            BrowserVariant::PlaylistSearch => self.playlist_search_browser.handle_toggle_search(),
         }
     }
     pub fn handle_change_search_type(&mut self) {
         match self.variant {
             BrowserVariant::ArtistSearch => self.variant = BrowserVariant::SongSearch,
             BrowserVariant::SongSearch => self.variant = BrowserVariant::ArtistSearch,
+            BrowserVariant::PlaylistSearch => self.variant = BrowserVariant::PlaylistSearch,
         }
     }
 }
