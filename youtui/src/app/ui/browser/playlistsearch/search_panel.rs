@@ -23,6 +23,7 @@ pub enum PlaylistInputRouting {
 }
 
 /// Consolidation of the two SearchResultPlaylist types.
+#[derive(Clone, Debug)]
 pub struct NonPodcastSearchResultPlaylist {
     pub title: String,
     pub playlist_id: PlaylistID<'static>,
