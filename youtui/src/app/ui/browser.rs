@@ -359,8 +359,12 @@ impl DominantKeyRouter<AppAction> for Browser {
                     || self.artist_search_browser.album_songs_panel.filter.shown
             }
             BrowserVariant::PlaylistSearch => {
-                self.playlist_search_browser.album_songs_panel.sort.shown
-                    || self.playlist_search_browser.album_songs_panel.filter.shown
+                self.playlist_search_browser.playlist_songs_panel.sort.shown
+                    || self
+                        .playlist_search_browser
+                        .playlist_songs_panel
+                        .filter
+                        .shown
             }
         }
     }
@@ -383,7 +387,7 @@ impl DominantKeyRouter<AppAction> for Browser {
                 }
             }
             BrowserVariant::PlaylistSearch => {
-                match self.playlist_search_browser.album_songs_panel.route {
+                match self.playlist_search_browser.playlist_songs_panel.route {
                     playlistsearch::songs_panel::PlaylistSongsInputRouting::List => {
                         Either::Left(std::iter::empty())
                     }

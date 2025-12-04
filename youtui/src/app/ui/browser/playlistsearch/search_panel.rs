@@ -11,7 +11,8 @@ use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::iter::Iterator;
-use ytmapi_rs::common::SearchSuggestion;
+use tracing::warn;
+use ytmapi_rs::common::{PlaylistID, SearchSuggestion};
 use ytmapi_rs::parse::SearchResultPlaylist;
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -21,8 +22,37 @@ pub enum PlaylistInputRouting {
     List,
 }
 
+/// Consolidation of the two SearchResultPlaylist types.
+pub struct NonPodcastSearchResultPlaylist {
+    pub title: String,
+    pub playlist_id: PlaylistID<'static>,
+}
+
+impl NonPodcastSearchResultPlaylist {
+    pub fn new(p: SearchResultPlaylist) -> Option<NonPodcastSearchResultPlaylist> {
+        match p {
+            SearchResultPlaylist::Featured(p) => Some(NonPodcastSearchResultPlaylist {
+                title: p.title,
+                playlist_id: p.playlist_id,
+            }),
+            SearchResultPlaylist::Community(p) => Some(NonPodcastSearchResultPlaylist {
+                title: p.title,
+                playlist_id: p.playlist_id,
+            }),
+            SearchResultPlaylist::Podcast(_) => None,
+            other => {
+                warn!(
+                    "New SearchResultPlaylist type {:?} has been implemented by ytmapi-rs and this is currently ignored by youtui",
+                    other
+                );
+                None
+            }
+        }
+    }
+}
+
 pub struct PlaylistSearchPanel {
-    pub list: Vec<SearchResultPlaylist>,
+    pub list: Vec<NonPodcastSearchResultPlaylist>,
     // Duplicate of search popped?
     // Could be a function instead.
     pub route: PlaylistInputRouting,
@@ -113,7 +143,7 @@ impl KeyRouter<AppAction> for PlaylistSearchPanel {
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         [
-            &config.keybinds.browser_artists,
+            &config.keybinds.browser_playlists,
             &config.keybinds.browser_search,
         ]
         .into_iter()
@@ -123,7 +153,7 @@ impl KeyRouter<AppAction> for PlaylistSearchPanel {
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
-            PlaylistInputRouting::List => std::iter::once(&config.keybinds.browser_artists),
+            PlaylistInputRouting::List => std::iter::once(&config.keybinds.browser_playlists),
             PlaylistInputRouting::Search => std::iter::once(&config.keybinds.browser_search),
         }
     }
@@ -158,12 +188,7 @@ impl ListView for PlaylistSearchPanel {
     fn get_items_display(&self) -> Vec<&Self::DisplayItem> {
         self.list
             .iter()
-            .map(|search_result| match search_result {
-                SearchResultPlaylist::Featured(r) => &r.title,
-                SearchResultPlaylist::Community(r) => &r.title,
-                SearchResultPlaylist::Podcast(r) => &r.title,
-                _ => todo!(),
-            })
+            .map(|search_result| &search_result.title)
             .collect()
     }
     fn get_title(&self) -> Cow<'_, str> {

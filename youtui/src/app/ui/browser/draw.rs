@@ -108,44 +108,52 @@ pub fn draw_playlist_search_browser(
     // Potentially could handle this better.
     let albumsongsselected = selected
         && browser.input_routing == playlistsearch::InputRouting::Song
-        && browser.album_songs_panel.route == PlaylistSongsInputRouting::List;
+        && browser.playlist_songs_panel.route == PlaylistSongsInputRouting::List;
     let playlistselected = !albumsongsselected
         && selected
         && browser.input_routing == playlistsearch::InputRouting::Playlist
-        && browser.artist_search_panel.route == PlaylistInputRouting::List;
+        && browser.playlist_search_panel.route == PlaylistInputRouting::List;
 
-    if !browser.artist_search_panel.search_popped {
-        browser.artist_search_panel.widget_state =
-            draw_list(f, &browser.artist_search_panel, layout[0], playlistselected);
+    if !browser.playlist_search_panel.search_popped {
+        browser.playlist_search_panel.widget_state = draw_list(
+            f,
+            &browser.playlist_search_panel,
+            layout[0],
+            playlistselected,
+        );
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(layout[0]);
-        browser.artist_search_panel.widget_state =
-            draw_list(f, &browser.artist_search_panel, s[1], playlistselected);
+        browser.playlist_search_panel.widget_state =
+            draw_list(f, &browser.playlist_search_panel, s[1], playlistselected);
         draw_search_box(
             f,
             "Search Playlists",
-            &mut browser.artist_search_panel.search,
+            &mut browser.playlist_search_panel.search,
             s[0],
         );
         // Should this be part of draw_search_box
-        if browser.artist_search_panel.has_search_suggestions() {
-            draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
+        if browser.playlist_search_panel.has_search_suggestions() {
+            draw_search_suggestions(f, &browser.playlist_search_panel.search, s[0], layout[0])
         }
     }
-    browser.album_songs_panel.widget_state =
-        draw_sortable_table(f, &browser.album_songs_panel, layout[1], albumsongsselected);
-    if browser.album_songs_panel.sort.shown {
-        browser.album_songs_panel.sort.state =
-            draw_sort_popup(f, &browser.album_songs_panel, layout[1]);
+    browser.playlist_songs_panel.widget_state = draw_sortable_table(
+        f,
+        &browser.playlist_songs_panel,
+        layout[1],
+        albumsongsselected,
+    );
+    if browser.playlist_songs_panel.sort.shown {
+        browser.playlist_songs_panel.sort.state =
+            draw_sort_popup(f, &browser.playlist_songs_panel, layout[1]);
     }
-    if browser.album_songs_panel.filter.shown {
+    if browser.playlist_songs_panel.filter.shown {
         draw_filter_popup(
             f,
-            &mut browser.album_songs_panel.filter.filter_text,
+            &mut browser.playlist_songs_panel.filter.filter_text,
             layout[1],
         );
     }
