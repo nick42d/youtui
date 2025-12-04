@@ -49,10 +49,8 @@ pub enum BrowserPlaylistSongsAction {
     Sort,
     PlaySong,
     PlaySongs,
-    PlayAlbum,
     AddSongToPlaylist,
     AddSongsToPlaylist,
-    AddAlbumToPlaylist,
 }
 
 impl Action for BrowserPlaylistSongsAction {
@@ -63,10 +61,8 @@ impl Action for BrowserPlaylistSongsAction {
         match &self {
             BrowserPlaylistSongsAction::PlaySong => "Play song",
             BrowserPlaylistSongsAction::PlaySongs => "Play songs",
-            BrowserPlaylistSongsAction::PlayAlbum => "Play album",
             BrowserPlaylistSongsAction::AddSongToPlaylist => "Add song to playlist",
             BrowserPlaylistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            BrowserPlaylistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
             BrowserPlaylistSongsAction::Sort => "Sort",
             BrowserPlaylistSongsAction::Filter => "Filter",
         }
@@ -240,7 +236,7 @@ impl KeyRouter<AppAction> for PlaylistSongsPanel {
         &self,
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        std::iter::once(&config.keybinds.browser_artist_songs)
+        std::iter::once(&config.keybinds.browser_playlist_songs)
     }
     fn get_active_keybinds<'a>(
         &self,
@@ -248,7 +244,8 @@ impl KeyRouter<AppAction> for PlaylistSongsPanel {
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
             PlaylistSongsInputRouting::List => {
-                Either::Left(std::iter::once(&config.keybinds.browser_artist_songs))
+                // TODO: Make unique
+                Either::Left(std::iter::once(&config.keybinds.browser_playlist_songs))
             }
             PlaylistSongsInputRouting::Filter => {
                 Either::Left(std::iter::once(&config.keybinds.filter))

@@ -9,7 +9,7 @@ use crate::app::structures::SongListComponent;
 use crate::app::ui::ListStatus;
 use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::ui::browser::playlistsearch::search_panel::{
-    BrowserPlaylistsAction, PlaylistSearchPanel,
+    BrowserPlaylistsAction, NonPodcastSearchResultPlaylist, PlaylistSearchPanel,
 };
 use crate::app::ui::browser::playlistsearch::songs_panel::{
     BrowserPlaylistSongsAction, PlaylistSongsPanel,
@@ -32,8 +32,8 @@ pub mod songs_panel;
 pub struct PlaylistSearchBrowser {
     pub input_routing: InputRouting,
     pub prev_input_routing: InputRouting,
-    pub artist_search_panel: PlaylistSearchPanel,
-    pub album_songs_panel: PlaylistSongsPanel,
+    pub playlist_search_panel: PlaylistSearchPanel,
+    pub playlist_songs_panel: PlaylistSongsPanel,
 }
 impl_youtui_component!(PlaylistSearchBrowser);
 
@@ -56,14 +56,14 @@ impl InputRouting {
 impl Scrollable for PlaylistSearchBrowser {
     fn increment_list(&mut self, amount: isize) {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.increment_list(amount),
-            InputRouting::Song => self.album_songs_panel.increment_list(amount),
+            InputRouting::Playlist => self.playlist_search_panel.increment_list(amount),
+            InputRouting::Song => self.playlist_songs_panel.increment_list(amount),
         }
     }
     fn is_scrollable(&self) -> bool {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.is_scrollable(),
-            InputRouting::Song => self.album_songs_panel.is_scrollable(),
+            InputRouting::Playlist => self.playlist_search_panel.is_scrollable(),
+            InputRouting::Song => self.playlist_songs_panel.is_scrollable(),
         }
     }
 }
@@ -71,26 +71,26 @@ impl Scrollable for PlaylistSearchBrowser {
 impl TextHandler for PlaylistSearchBrowser {
     fn is_text_handling(&self) -> bool {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.is_text_handling(),
-            InputRouting::Song => self.album_songs_panel.is_text_handling(),
+            InputRouting::Playlist => self.playlist_search_panel.is_text_handling(),
+            InputRouting::Song => self.playlist_songs_panel.is_text_handling(),
         }
     }
     fn get_text(&self) -> &str {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.get_text(),
-            InputRouting::Song => self.album_songs_panel.get_text(),
+            InputRouting::Playlist => self.playlist_search_panel.get_text(),
+            InputRouting::Song => self.playlist_songs_panel.get_text(),
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.replace_text(text),
-            InputRouting::Song => self.album_songs_panel.replace_text(text),
+            InputRouting::Playlist => self.playlist_search_panel.replace_text(text),
+            InputRouting::Song => self.playlist_songs_panel.replace_text(text),
         }
     }
     fn clear_text(&mut self) -> bool {
         match self.input_routing {
-            InputRouting::Playlist => self.artist_search_panel.is_text_handling(),
-            InputRouting::Song => self.album_songs_panel.is_text_handling(),
+            InputRouting::Playlist => self.playlist_search_panel.is_text_handling(),
+            InputRouting::Song => self.playlist_songs_panel.is_text_handling(),
         }
     }
     fn handle_text_event_impl(
@@ -99,22 +99,22 @@ impl TextHandler for PlaylistSearchBrowser {
     ) -> Option<ComponentEffect<Self>> {
         match self.input_routing {
             InputRouting::Playlist => self
-                .artist_search_panel
+                .playlist_search_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.artist_search_panel)),
+                .map(|effect| effect.map(|this: &mut Self| &mut this.playlist_search_panel)),
             InputRouting::Song => self
-                .album_songs_panel
+                .playlist_songs_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.album_songs_panel)),
+                .map(|effect| effect.map(|this: &mut Self| &mut this.playlist_songs_panel)),
         }
     }
 }
 impl ActionHandler<FilterAction> for PlaylistSearchBrowser {
     fn apply_action(&mut self, action: FilterAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            FilterAction::Close => self.album_songs_panel.toggle_filter(),
-            FilterAction::Apply => self.album_songs_panel.apply_filter(),
-            FilterAction::ClearFilter => self.album_songs_panel.clear_filter(),
+            FilterAction::Close => self.playlist_songs_panel.toggle_filter(),
+            FilterAction::Apply => self.playlist_songs_panel.apply_filter(),
+            FilterAction::ClearFilter => self.playlist_songs_panel.clear_filter(),
         };
         AsyncTask::new_no_op()
     }
@@ -122,10 +122,10 @@ impl ActionHandler<FilterAction> for PlaylistSearchBrowser {
 impl ActionHandler<SortAction> for PlaylistSearchBrowser {
     fn apply_action(&mut self, action: SortAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            SortAction::SortSelectedAsc => self.album_songs_panel.handle_sort_cur_asc(),
-            SortAction::SortSelectedDesc => self.album_songs_panel.handle_sort_cur_desc(),
-            SortAction::Close => self.album_songs_panel.close_sort(),
-            SortAction::ClearSort => self.album_songs_panel.handle_clear_sort(),
+            SortAction::SortSelectedAsc => self.playlist_songs_panel.handle_sort_cur_asc(),
+            SortAction::SortSelectedDesc => self.playlist_songs_panel.handle_sort_cur_desc(),
+            SortAction::Close => self.playlist_songs_panel.close_sort(),
+            SortAction::ClearSort => self.playlist_songs_panel.handle_clear_sort(),
         }
         AsyncTask::new_no_op()
     }
@@ -141,10 +141,10 @@ impl ActionHandler<BrowserSearchAction> for PlaylistSearchBrowser {
     fn apply_action(&mut self, action: BrowserSearchAction) -> impl Into<YoutuiEffect<Self>> {
         match action {
             BrowserSearchAction::PrevSearchSuggestion => {
-                self.artist_search_panel.search.increment_list(-1)
+                self.playlist_search_panel.search.increment_list(-1)
             }
             BrowserSearchAction::NextSearchSuggestion => {
-                self.artist_search_panel.search.increment_list(1)
+                self.playlist_search_panel.search.increment_list(1)
             }
         }
         AsyncTask::new_no_op()
@@ -156,20 +156,16 @@ impl ActionHandler<BrowserPlaylistSongsAction> for PlaylistSearchBrowser {
         action: BrowserPlaylistSongsAction,
     ) -> impl Into<YoutuiEffect<Self>> {
         match action {
-            BrowserPlaylistSongsAction::PlayAlbum => return self.play_album().into(),
             BrowserPlaylistSongsAction::PlaySong => return self.play_song().into(),
             BrowserPlaylistSongsAction::PlaySongs => return self.play_songs().into(),
-            BrowserPlaylistSongsAction::AddAlbumToPlaylist => {
-                return self.add_album_to_playlist().into();
-            }
             BrowserPlaylistSongsAction::AddSongToPlaylist => {
                 return self.add_song_to_playlist().into();
             }
             BrowserPlaylistSongsAction::AddSongsToPlaylist => {
                 return self.add_songs_to_playlist().into();
             }
-            BrowserPlaylistSongsAction::Sort => self.album_songs_panel.handle_pop_sort(),
-            BrowserPlaylistSongsAction::Filter => self.album_songs_panel.toggle_filter(),
+            BrowserPlaylistSongsAction::Sort => self.playlist_songs_panel.handle_pop_sort(),
+            BrowserPlaylistSongsAction::Filter => self.playlist_songs_panel.toggle_filter(),
         }
         YoutuiEffect::new_no_op()
     }
@@ -179,9 +175,9 @@ impl KeyRouter<AppAction> for PlaylistSearchBrowser {
         &self,
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        self.artist_search_panel
+        self.playlist_search_panel
             .get_all_keybinds(config)
-            .chain(self.album_songs_panel.get_all_keybinds(config))
+            .chain(self.playlist_songs_panel.get_all_keybinds(config))
     }
     fn get_active_keybinds<'a>(
         &self,
@@ -189,9 +185,11 @@ impl KeyRouter<AppAction> for PlaylistSearchBrowser {
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.input_routing {
             InputRouting::Playlist => {
-                Either::Left(self.artist_search_panel.get_active_keybinds(config))
+                Either::Left(self.playlist_search_panel.get_active_keybinds(config))
             }
-            InputRouting::Song => Either::Right(self.album_songs_panel.get_active_keybinds(config)),
+            InputRouting::Song => {
+                Either::Right(self.playlist_songs_panel.get_active_keybinds(config))
+            }
         }
     }
 }
@@ -201,8 +199,8 @@ impl PlaylistSearchBrowser {
         Self {
             input_routing: Default::default(),
             prev_input_routing: Default::default(),
-            artist_search_panel: PlaylistSearchPanel::new(),
-            album_songs_panel: PlaylistSongsPanel::new(),
+            playlist_search_panel: PlaylistSearchPanel::new(),
+            playlist_songs_panel: PlaylistSongsPanel::new(),
         }
     }
     pub fn left(&mut self) {
@@ -213,7 +211,7 @@ impl PlaylistSearchBrowser {
     }
     pub fn handle_text_entry_action(&mut self, action: TextEntryAction) -> ComponentEffect<Self> {
         if self.is_text_handling()
-            && self.artist_search_panel.search_popped
+            && self.playlist_search_panel.search_popped
             && self.input_routing == InputRouting::Playlist
         {
             match action {
@@ -232,22 +230,22 @@ impl PlaylistSearchBrowser {
         AsyncTask::new_no_op()
     }
     pub fn handle_toggle_search(&mut self) {
-        if self.artist_search_panel.search_popped {
-            self.artist_search_panel.close_search();
+        if self.playlist_search_panel.search_popped {
+            self.playlist_search_panel.close_search();
             self.revert_routing();
         } else {
-            self.artist_search_panel.open_search();
+            self.playlist_search_panel.open_search();
             self.change_routing(InputRouting::Playlist);
         }
     }
     pub fn search(&mut self) -> ComponentEffect<Self> {
-        self.artist_search_panel.close_search();
-        let search_query = self.artist_search_panel.search.get_text().to_string();
-        self.artist_search_panel.clear_text();
+        self.playlist_search_panel.close_search();
+        let search_query = self.playlist_search_panel.search.get_text().to_string();
+        self.playlist_search_panel.clear_text();
 
         let handler = |this: &mut Self, results| match results {
             Ok(artists) => {
-                this.replace_artist_list(artists);
+                this.replace_playlist_list(artists);
                 AsyncTask::new_no_op()
             }
             Err(error) => AsyncTask::new_future(
@@ -268,9 +266,9 @@ impl PlaylistSearchBrowser {
         )
     }
     pub fn get_songs(&mut self) -> ComponentEffect<Self> {
-        let selected = self.artist_search_panel.get_selected_item();
+        let selected = self.playlist_search_panel.get_selected_item();
         self.change_routing(InputRouting::Song);
-        self.album_songs_panel.list.clear();
+        self.playlist_songs_panel.list.clear();
 
         // let Some(cur_artist_id) = self
         //     .artist_search_panel
@@ -317,8 +315,8 @@ impl PlaylistSearchBrowser {
     }
     pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_song_idx = self.album_songs_panel.get_selected_item();
-        if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_song_idx) {
+        let cur_song_idx = self.playlist_songs_panel.get_selected_item();
+        if let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_song_idx) {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylistAndPlay(vec![
@@ -330,9 +328,9 @@ impl PlaylistSearchBrowser {
     }
     pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_panel.get_selected_item();
+        let cur_idx = self.playlist_songs_panel.get_selected_item();
         let song_list = self
-            .album_songs_panel
+            .playlist_songs_panel
             .get_filtered_list_iter()
             .skip(cur_idx)
             .cloned()
@@ -346,9 +344,9 @@ impl PlaylistSearchBrowser {
     }
     pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_panel.get_selected_item();
+        let cur_idx = self.playlist_songs_panel.get_selected_item();
         let song_list = self
-            .album_songs_panel
+            .playlist_songs_panel
             .get_filtered_list_iter()
             .skip(cur_idx)
             .cloned()
@@ -360,8 +358,8 @@ impl PlaylistSearchBrowser {
     }
     pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_panel.get_selected_item();
-        if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) {
+        let cur_idx = self.playlist_songs_panel.get_selected_item();
+        if let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) {
             return (
                 AsyncTask::new_no_op(),
                 Some(AppCallback::AddSongsToPlaylist(vec![cur_song.clone()])),
@@ -371,8 +369,8 @@ impl PlaylistSearchBrowser {
     }
     pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_panel.get_selected_item();
-        let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
+        let cur_idx = self.playlist_songs_panel.get_selected_item();
+        let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
         // Assert: If you're calling this function, all the songs in list must have an
@@ -382,7 +380,7 @@ impl PlaylistSearchBrowser {
             return (AsyncTask::new_no_op(), None);
         };
         let song_list = self
-            .album_songs_panel
+            .playlist_songs_panel
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
@@ -400,8 +398,8 @@ impl PlaylistSearchBrowser {
     }
     pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
         // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.album_songs_panel.get_selected_item();
-        let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
+        let cur_idx = self.playlist_songs_panel.get_selected_item();
+        let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
         // Assert: If you're calling this function, all the songs in list must have an
@@ -411,7 +409,7 @@ impl PlaylistSearchBrowser {
             return (AsyncTask::new_no_op(), None);
         };
         let song_list = self
-            .album_songs_panel
+            .playlist_songs_panel
             .list
             // Even if list is filtered, still play the whole album.
             .get_list_iter()
@@ -435,7 +433,7 @@ impl PlaylistSearchBrowser {
         artist_id: ArtistChannelID<'static>,
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
-        self.album_songs_panel.list.state = ListStatus::Error;
+        self.playlist_songs_panel.list.state = ListStatus::Error;
         AsyncTask::new_future(
             HandleApiError {
                 error,
@@ -467,19 +465,23 @@ impl PlaylistSearchBrowser {
         )
     }
     pub fn handle_song_list_loaded(&mut self) {
-        self.album_songs_panel.list.state = ListStatus::Loaded;
+        self.playlist_songs_panel.list.state = ListStatus::Loaded;
     }
     pub fn handle_song_list_loading(&mut self) {
-        self.album_songs_panel.list.state = ListStatus::Loading;
+        self.playlist_songs_panel.list.state = ListStatus::Loading;
     }
-    pub fn replace_artist_list(&mut self, artist_list: Vec<SearchResultPlaylist>) {
-        self.artist_search_panel.list = artist_list;
+    pub fn replace_playlist_list(&mut self, playlist_list: Vec<SearchResultPlaylist>) {
+        // TODO: See if allocation can be removed.
+        self.playlist_search_panel.list = playlist_list
+            .into_iter()
+            .filter_map(NonPodcastSearchResultPlaylist::new)
+            .collect();
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
         self.increment_cur_list(0);
     }
     pub fn handle_no_songs_found(&mut self) {
-        self.album_songs_panel.list.state = ListStatus::Loaded;
+        self.playlist_songs_panel.list.state = ListStatus::Loaded;
     }
     pub fn handle_append_song_list(
         &mut self,
@@ -489,26 +491,26 @@ impl PlaylistSearchBrowser {
         artists: Vec<ParsedSongArtist>,
         thumbnails: Vec<Thumbnail>,
     ) {
-        self.album_songs_panel
+        self.playlist_songs_panel
             .list
             .append_raw_album_songs(song_list, album, year, artists, thumbnails);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
-        if let Err(e) = self.album_songs_panel.apply_all_sort_commands() {
+        if let Err(e) = self.playlist_songs_panel.apply_all_sort_commands() {
             error!("Error <{e}> sorting album songs panel");
         }
-        self.album_songs_panel.list.state = ListStatus::InProgress;
+        self.playlist_songs_panel.list.state = ListStatus::InProgress;
     }
     pub fn handle_songs_found(&mut self) {
-        self.album_songs_panel.handle_songs_found()
+        self.playlist_songs_panel.handle_songs_found()
     }
     fn increment_cur_list(&mut self, increment: isize) {
         match self.input_routing {
             InputRouting::Playlist => {
-                self.artist_search_panel.increment_list(increment);
+                self.playlist_search_panel.increment_list(increment);
             }
             InputRouting::Song => {
-                self.album_songs_panel.increment_list(increment);
+                self.playlist_songs_panel.increment_list(increment);
             }
         };
     }

@@ -3,6 +3,8 @@ use crate::app::ui::action::{AppAction, HelpAction, ListAction, TextEntryAction}
 use crate::app::ui::browser::BrowserAction;
 use crate::app::ui::browser::artistsearch::search_panel::BrowserArtistsAction;
 use crate::app::ui::browser::artistsearch::songs_panel::BrowserArtistSongsAction;
+use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
+use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
 use crate::app::ui::browser::shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use crate::app::ui::browser::songsearch::BrowserSongsAction;
 use crate::app::ui::logger::LoggerAction;
@@ -73,9 +75,11 @@ pub struct YoutuiKeymap {
     pub playlist: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub browser: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub browser_artists: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser_playlists: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub browser_search: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub browser_songs: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub browser_artist_songs: BTreeMap<Keybind, KeyActionTree<AppAction>>,
+    pub browser_playlist_songs: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub help: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub sort: BTreeMap<Keybind, KeyActionTree<AppAction>>,
     pub filter: BTreeMap<Keybind, KeyActionTree<AppAction>>,
@@ -91,9 +95,11 @@ pub struct YoutuiKeymapIR {
     pub playlist: BTreeMap<Keybind, KeyStringTree>,
     pub browser: BTreeMap<Keybind, KeyStringTree>,
     pub browser_artists: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_playlists: BTreeMap<Keybind, KeyStringTree>,
     pub browser_search: BTreeMap<Keybind, KeyStringTree>,
     pub browser_songs: BTreeMap<Keybind, KeyStringTree>,
     pub browser_artist_songs: BTreeMap<Keybind, KeyStringTree>,
+    pub browser_playlist_songs: BTreeMap<Keybind, KeyStringTree>,
     pub help: BTreeMap<Keybind, KeyStringTree>,
     pub sort: BTreeMap<Keybind, KeyStringTree>,
     pub filter: BTreeMap<Keybind, KeyStringTree>,
@@ -110,9 +116,11 @@ pub struct YoutuiModeNamesIR {
     playlist: BTreeMap<Keybind, ModeNameEnum>,
     browser: BTreeMap<Keybind, ModeNameEnum>,
     browser_artists: BTreeMap<Keybind, ModeNameEnum>,
+    browser_playlists: BTreeMap<Keybind, ModeNameEnum>,
     browser_search: BTreeMap<Keybind, ModeNameEnum>,
     browser_songs: BTreeMap<Keybind, ModeNameEnum>,
     browser_artist_songs: BTreeMap<Keybind, ModeNameEnum>,
+    browser_playlist_songs: BTreeMap<Keybind, ModeNameEnum>,
     help: BTreeMap<Keybind, ModeNameEnum>,
     sort: BTreeMap<Keybind, ModeNameEnum>,
     filter: BTreeMap<Keybind, ModeNameEnum>,
@@ -137,6 +145,8 @@ impl Default for YoutuiKeymap {
             text_entry: default_text_entry_keybinds(),
             list: default_list_keybinds(),
             log: default_log_keybinds(),
+            browser_playlists: default_browser_playlists_keybinds(),
+            browser_playlist_songs: default_browser_playlist_songs_keybinds(),
         }
     }
 }
@@ -157,6 +167,8 @@ impl YoutuiKeymap {
             list,
             log,
             browser_artist_songs,
+            browser_playlists,
+            browser_playlist_songs,
         } = keys;
         let YoutuiModeNamesIR {
             global: mut global_mode_names,
@@ -172,6 +184,8 @@ impl YoutuiKeymap {
             list: mut list_mode_names,
             log: mut log_mode_names,
             browser_artist_songs: mut browser_artist_songs_mode_names,
+            browser_playlists: mut browser_playlists_mode_names,
+            browser_playlist_songs: mut browser_playlist_songs_mode_names,
         } = mode_names;
 
         let global = global
@@ -207,6 +221,18 @@ impl YoutuiKeymap {
             })
             .collect::<Result<BTreeMap<_, _>>>()
             .context("Browser artists keybinds parse failed")?;
+        let browser_playlists = browser_playlists
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(
+                    &k,
+                    v,
+                    Some(&mut browser_playlists_mode_names),
+                )?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser playlists keybinds parse failed")?;
         let browser_search = browser_search
             .into_iter()
             .map(|(k, v)| {
@@ -237,6 +263,18 @@ impl YoutuiKeymap {
             })
             .collect::<Result<BTreeMap<_, _>>>()
             .context("Browser artist songs keybinds parse failed")?;
+        let browser_playlist_songs = browser_playlist_songs
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(
+                    &k,
+                    v,
+                    Some(&mut browser_playlist_songs_mode_names),
+                )?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser playlist songs keybinds parse failed")?;
         let text_entry = text_entry
             .into_iter()
             .map(|(k, v)| {
@@ -290,9 +328,11 @@ impl YoutuiKeymap {
         merge_keymaps(&mut keymap.playlist, playlist);
         merge_keymaps(&mut keymap.browser, browser);
         merge_keymaps(&mut keymap.browser_artists, browser_artists);
+        merge_keymaps(&mut keymap.browser_playlists, browser_playlists);
         merge_keymaps(&mut keymap.browser_search, browser_search);
         merge_keymaps(&mut keymap.browser_songs, browser_songs);
         merge_keymaps(&mut keymap.browser_artist_songs, browser_artist_songs);
+        merge_keymaps(&mut keymap.browser_playlist_songs, browser_playlist_songs);
         merge_keymaps(&mut keymap.text_entry, text_entry);
         merge_keymaps(&mut keymap.help, help);
         merge_keymaps(&mut keymap.sort, sort);
@@ -303,9 +343,11 @@ impl YoutuiKeymap {
         remove_action_from_keymap(&mut keymap.playlist, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.browser, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.browser_artists, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser_playlists, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.browser_search, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.browser_songs, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.browser_artist_songs, &AppAction::NoOp);
+        remove_action_from_keymap(&mut keymap.browser_playlist_songs, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.text_entry, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.help, &AppAction::NoOp);
         remove_action_from_keymap(&mut keymap.sort, &AppAction::NoOp);
@@ -336,6 +378,8 @@ impl YoutuiKeymap {
             list,
             log,
             browser_artist_songs,
+            browser_playlists,
+            browser_playlist_songs,
         } = keys;
         let YoutuiModeNamesIR {
             global: mut global_mode_names,
@@ -351,6 +395,8 @@ impl YoutuiKeymap {
             list: mut list_mode_names,
             log: mut log_mode_names,
             browser_artist_songs: mut browser_artist_songs_mode_names,
+            browser_playlists: mut browser_playlists_mode_names,
+            browser_playlist_songs: mut browser_playlist_songs_mode_names,
         } = mode_names;
 
         let global = global
@@ -386,6 +432,18 @@ impl YoutuiKeymap {
             })
             .collect::<Result<BTreeMap<_, _>>>()
             .context("Browser artists keybinds parse failed")?;
+        let browser_playlists = browser_playlists
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(
+                    &k,
+                    v,
+                    Some(&mut browser_playlists_mode_names),
+                )?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser playlists keybinds parse failed")?;
         let browser_search = browser_search
             .into_iter()
             .map(|(k, v)| {
@@ -416,6 +474,18 @@ impl YoutuiKeymap {
             })
             .collect::<Result<BTreeMap<_, _>>>()
             .context("Browser artist songs keybinds parse failed")?;
+        let browser_playlist_songs = browser_playlist_songs
+            .into_iter()
+            .map(|(k, v)| {
+                let v = KeyActionTree::try_from_stringy(
+                    &k,
+                    v,
+                    Some(&mut browser_playlist_songs_mode_names),
+                )?;
+                Ok((k, v))
+            })
+            .collect::<Result<BTreeMap<_, _>>>()
+            .context("Browser playlist songs keybinds parse failed")?;
         let text_entry = text_entry
             .into_iter()
             .map(|(k, v)| {
@@ -478,6 +548,8 @@ impl YoutuiKeymap {
             text_entry,
             list,
             log,
+            browser_playlists,
+            browser_playlist_songs,
         })
     }
 }
@@ -740,6 +812,14 @@ fn default_browser_artists_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppActi
         )),
     )])
 }
+fn default_browser_playlists_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
+    FromIterator::from_iter([(
+        Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+        KeyActionTree::new_key(AppAction::BrowserPlaylists(
+            BrowserPlaylistsAction::DisplaySelectedPlaylist,
+        )),
+    )])
+}
 fn default_browser_search_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
     FromIterator::from_iter([
         (
@@ -810,6 +890,56 @@ fn default_browser_artist_songs_keybinds() -> BTreeMap<Keybind, KeyActionTree<Ap
                         Keybind::new_unmodified(crossterm::event::KeyCode::Char('A')),
                         KeyActionTree::new_key(AppAction::BrowserArtistSongs(
                             BrowserArtistSongsAction::AddAlbumToPlaylist,
+                        )),
+                    ),
+                ],
+                "Play".into(),
+            ),
+        ),
+    ])
+}
+fn default_browser_playlist_songs_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
+    FromIterator::from_iter([
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(3)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::BrowserPlaylistSongs(BrowserPlaylistSongsAction::Filter),
+                KeyActionVisibility::Global,
+            ),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::F(4)),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::BrowserPlaylistSongs(BrowserPlaylistSongsAction::Sort),
+                KeyActionVisibility::Global,
+            ),
+        ),
+        (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+            KeyActionTree::new_mode(
+                [
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Char(' ')),
+                        KeyActionTree::new_key(AppAction::BrowserPlaylistSongs(
+                            BrowserPlaylistSongsAction::AddSongToPlaylist,
+                        )),
+                    ),
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Char('p')),
+                        KeyActionTree::new_key(AppAction::BrowserPlaylistSongs(
+                            BrowserPlaylistSongsAction::PlaySongs,
+                        )),
+                    ),
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
+                        KeyActionTree::new_key(AppAction::BrowserPlaylistSongs(
+                            BrowserPlaylistSongsAction::PlaySong,
+                        )),
+                    ),
+                    (
+                        Keybind::new_unmodified(crossterm::event::KeyCode::Char('P')),
+                        KeyActionTree::new_key(AppAction::BrowserPlaylistSongs(
+                            BrowserPlaylistSongsAction::AddSongsToPlaylist,
                         )),
                     ),
                 ],
