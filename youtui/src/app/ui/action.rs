@@ -127,8 +127,8 @@ impl Action for AppAction {
             AppAction::TextEntry(a) => a.context(),
             AppAction::List(a) => a.context(),
             AppAction::BrowserSongs(a) => a.context(),
-            AppAction::BrowserPlaylists(browser_playlists_action) => todo!(),
-            AppAction::BrowserPlaylistSongs(browser_playlist_songs_action) => todo!(),
+            AppAction::BrowserPlaylists(a) => a.context(),
+            AppAction::BrowserPlaylistSongs(a) => a.context(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<'_, str> {
@@ -156,8 +156,8 @@ impl Action for AppAction {
             AppAction::TextEntry(a) => a.describe(),
             AppAction::List(a) => a.describe(),
             AppAction::BrowserSongs(a) => a.describe(),
-            AppAction::BrowserPlaylists(browser_playlists_action) => todo!(),
-            AppAction::BrowserPlaylistSongs(browser_playlist_songs_action) => todo!(),
+            AppAction::BrowserPlaylists(a) => a.describe(),
+            AppAction::BrowserPlaylistSongs(a) => a.describe(),
         }
     }
 }
