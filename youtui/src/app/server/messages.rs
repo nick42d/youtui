@@ -18,8 +18,6 @@ use std::time::Duration;
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
 use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
 
-const MAX_PLAYLIST_SONGS: usize = 500;
-
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
     PlayingSong,
@@ -43,7 +41,10 @@ pub struct SearchPlaylists(pub String);
 #[derive(Debug)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
 #[derive(Debug)]
-pub struct GetPlaylistSongs(pub PlaylistID<'static>);
+pub struct GetPlaylistSongs {
+    pub playlist_id: PlaylistID<'static>,
+    pub max_songs: usize,
+}
 
 #[derive(Debug)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
@@ -199,7 +200,9 @@ impl BackendStreamingTask<ArcServer> for GetPlaylistSongs {
         backend: &ArcServer,
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
-        backend.api.get_playlist_songs(self.0, MAX_PLAYLIST_SONGS)
+        backend
+            .api
+            .get_playlist_songs(self.playlist_id, self.max_songs)
     }
 }
 

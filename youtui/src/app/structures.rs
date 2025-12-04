@@ -8,7 +8,10 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::{AlbumID, Explicit, Thumbnail, VideoID};
-use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultSong};
+use ytmapi_rs::parse::{
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, PlaylistItem, PlaylistSong, PlaylistUploadSong,
+    PlaylistVideo, SearchResultSong,
+};
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
@@ -239,7 +242,8 @@ impl BrowserSongsList {
         self.state = ListStatus::New;
         self.list.clear();
     }
-    // Naive implementation
+    // Naive implementation because it stores the APIs fields directly.
+    // Should implement our own types.
     pub fn append_raw_album_songs(
         &mut self,
         raw_list: Vec<AlbumSong>,
@@ -265,7 +269,11 @@ impl BrowserSongsList {
             );
         }
     }
-    // Naive implementation
+    pub fn append_raw_playlist_items(&mut self, raw_list: Vec<PlaylistItem>) {
+        for song in raw_list {
+            self.add_raw_playlist_item(song);
+        }
+    }
     pub fn append_raw_search_result_songs(&mut self, raw_list: Vec<SearchResultSong>) {
         for song in raw_list {
             self.add_raw_search_result_song(song);
@@ -335,6 +343,68 @@ impl BrowserSongsList {
             plays,
             title,
             explicit,
+            duration_string: duration,
+            thumbnails: MaybeRc::Owned(thumbnails),
+            album_art: Default::default(),
+        });
+        id
+    }
+    fn add_raw_playlist_item(&mut self, item: PlaylistItem) -> ListSongID {
+        let id = self.create_next_id();
+        // TODO: Tidy impl
+        let (title, video_id, duration, artists, album, thumbnails) = match item {
+            PlaylistItem::Song(PlaylistSong {
+                video_id,
+                album,
+                duration,
+                title,
+                artists,
+                thumbnails,
+                // TODO: this field currently unused.
+                explicit,
+                ..
+            }) => (
+                title,
+                video_id,
+                duration,
+                Some(artists),
+                Some(album),
+                thumbnails,
+            ),
+            PlaylistItem::Video(PlaylistVideo {
+                video_id,
+                duration,
+                title,
+                thumbnails,
+                ..
+            }) => (title, video_id, duration, None, None, thumbnails),
+            // Episode has no video id...
+            PlaylistItem::Episode(_) => todo!(),
+            PlaylistItem::UploadSong(PlaylistUploadSong {
+                video_id,
+                duration,
+                title,
+                artists,
+                album,
+                thumbnails,
+                ..
+                // Album and Artist type (eg ParsedUploadAlbum) returned from API is different to album type returned from PlaylistSong.
+                // TODO: Still bring through album details.
+            }) => (title, video_id, duration, None, None, thumbnails),
+        };
+        self.list.push(ListSong {
+            download_status: DownloadStatus::None,
+            id,
+            year: None,
+            artists: MaybeRc::Owned(artists.unwrap_or_default()),
+            album: album.map(MaybeRc::Owned),
+            actual_duration: None,
+            video_id,
+            track_no: None,
+            plays: String::new(),
+            title,
+            // TODO: Allow a value when unknown or improve API.
+            explicit: Explicit::IsExplicit,
             duration_string: duration,
             thumbnails: MaybeRc::Owned(thumbnails),
             album_art: Default::default(),

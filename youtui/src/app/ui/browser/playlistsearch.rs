@@ -4,7 +4,9 @@ use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::api::{GetArtistSongsProgressUpdate, GetPlaylistSongsProgressUpdate};
-use crate::app::server::{GetArtistSongs, HandleApiError, SearchArtists, SearchPlaylists};
+use crate::app::server::{
+    GetArtistSongs, GetPlaylistSongs, HandleApiError, SearchArtists, SearchPlaylists,
+};
 use crate::app::structures::SongListComponent;
 use crate::app::ui::ListStatus;
 use crate::app::ui::action::{AppAction, TextEntryAction};
@@ -21,10 +23,13 @@ use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use std::mem;
 use tracing::{error, warn};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, Thumbnail, YoutubeID};
+use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, Thumbnail, YoutubeID};
 use ytmapi_rs::parse::{
-    AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultArtist, SearchResultPlaylist,
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, PlaylistItem, SearchResultArtist,
+    SearchResultPlaylist,
 };
+
+const MAX_PLAYLIST_SONGS: usize = 1000;
 
 pub mod search_panel;
 pub mod songs_panel;
@@ -270,45 +275,38 @@ impl PlaylistSearchBrowser {
         self.change_routing(InputRouting::Song);
         self.playlist_songs_panel.list.clear();
 
-        // let Some(cur_artist_id) = self
-        //     .artist_search_panel
-        //     .list
-        //     .get(selected)
-        //     .cloned()
-        //     .map(|a| a.browse_id)
-        // else {
-        //     tracing::warn!("Tried to get item from list with index out of range");
-        //     return AsyncTask::new_no_op();
-        // };
+        let Some(cur_playlist_id) = self
+            .playlist_search_panel
+            .list
+            .get(selected)
+            .cloned()
+            .map(|a| a.playlist_id)
+        else {
+            tracing::warn!("Tried to get item from list with index out of range");
+            return AsyncTask::new_no_op();
+        };
 
-        // TODO: change to get songs for playlist
-        let cur_artist_id = ArtistChannelID::from_raw("TODO");
-        let cur_artist_id_clone = cur_artist_id.clone();
+        let cur_playlist_id_clone = cur_playlist_id.clone();
         let handler = |this: &mut Self, item| {
             match item {
-                GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
-                GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
-                GetArtistSongsProgressUpdate::GetArtistAlbumsError(e) => {
-                    return this.handle_search_artist_error(cur_artist_id_clone, e);
+                GetPlaylistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
+                GetPlaylistSongsProgressUpdate::Songs(playlist_items) => {
+                    this.handle_append_song_list(playlist_items)
                 }
-                GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error } => {
-                    return this.handle_get_album_songs_error(cur_artist_id_clone, album_id, error);
+                GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e) => {
+                    return this.handle_search_playlist_error(cur_playlist_id_clone, e);
                 }
-                GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
-                GetArtistSongsProgressUpdate::Songs {
-                    song_list,
-                    album,
-                    year,
-                    artists,
-                    thumbnails,
-                } => this.handle_append_song_list(song_list, album, year, artists, thumbnails),
-                GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+                GetPlaylistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+                GetPlaylistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
             }
             AsyncTask::new_no_op()
         };
 
         AsyncTask::new_stream_chained(
-            GetArtistSongs(cur_artist_id),
+            GetPlaylistSongs {
+                playlist_id: cur_playlist_id,
+                max_songs: MAX_PLAYLIST_SONGS,
+            },
             handler,
             Some(Constraint::new_kill_same_type()),
         )
@@ -367,98 +365,16 @@ impl PlaylistSearchBrowser {
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.playlist_songs_panel.get_selected_item();
-        let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) else {
-            return (AsyncTask::new_no_op(), None);
-        };
-        // Assert: If you're calling this function, all the songs in list must have an
-        // album field!
-        let Some(ref cur_album) = cur_song.album else {
-            error!("Expected album details to be in list but they are missing!");
-            return (AsyncTask::new_no_op(), None);
-        };
-        let song_list = self
-            .playlist_songs_panel
-            .list
-            // Even if list is filtered, still play the whole album.
-            .get_list_iter()
-            .filter(|song| {
-                song.album
-                    .as_ref()
-                    .is_some_and(|album| album.as_ref().id == cur_album.id)
-            })
-            .cloned()
-            .collect();
-        (
-            AsyncTask::new_no_op(),
-            Some(AppCallback::AddSongsToPlaylist(song_list)),
-        )
-    }
-    pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
-        let cur_idx = self.playlist_songs_panel.get_selected_item();
-        let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) else {
-            return (AsyncTask::new_no_op(), None);
-        };
-        // Assert: If you're calling this function, all the songs in list must have an
-        // album field!
-        let Some(ref cur_album) = cur_song.album else {
-            error!("Expected album details to be in list but they are missing!");
-            return (AsyncTask::new_no_op(), None);
-        };
-        let song_list = self
-            .playlist_songs_panel
-            .list
-            // Even if list is filtered, still play the whole album.
-            .get_list_iter()
-            .filter(|song| {
-                song.album
-                    .as_ref()
-                    .is_some_and(|album| album.as_ref().id == cur_album.id)
-            })
-            // XXX: Could instead be inside an Rc.
-            .cloned()
-            .collect();
-        (
-            AsyncTask::new_no_op(),
-            Some(AppCallback::AddSongsToPlaylistAndPlay(song_list)),
-        )
-
-        // XXX: Do we want to indicate that song has been added to playlist?
-    }
-    pub fn handle_search_artist_error(
+    pub fn handle_search_playlist_error(
         &mut self,
-        artist_id: ArtistChannelID<'static>,
+        playlist_id: PlaylistID<'static>,
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
         self.playlist_songs_panel.list.state = ListStatus::Error;
         AsyncTask::new_future(
             HandleApiError {
                 error,
-                message: format!("Error searching for artist {artist_id:?} albums"),
-            },
-            |_, _| {},
-            None,
-        )
-    }
-    // TODO: Handle this in the UI also.
-    pub fn handle_get_album_songs_error(
-        &mut self,
-        artist_id: ArtistChannelID<'static>,
-        album_id: AlbumID<'static>,
-        error: anyhow::Error,
-    ) -> ComponentEffect<Self> {
-        warn!(
-            "Received a get_album_songs_error. This will be logged but is not visible in the main ui!"
-        );
-        AsyncTask::new_future(
-            HandleApiError {
-                error,
-                message: format!(
-                    "Error getting songs for album {album_id:?}, artist {artist_id:?}"
-                ),
+                message: format!("Error searching for playlist {playlist_id:?} tracks"),
             },
             |_, _| {},
             None,
@@ -483,26 +399,16 @@ impl PlaylistSearchBrowser {
     pub fn handle_no_songs_found(&mut self) {
         self.playlist_songs_panel.list.state = ListStatus::Loaded;
     }
-    pub fn handle_append_song_list(
-        &mut self,
-        song_list: Vec<AlbumSong>,
-        album: ParsedSongAlbum,
-        year: String,
-        artists: Vec<ParsedSongArtist>,
-        thumbnails: Vec<Thumbnail>,
-    ) {
+    pub fn handle_append_song_list(&mut self, song_list: Vec<PlaylistItem>) {
         self.playlist_songs_panel
             .list
-            .append_raw_album_songs(song_list, album, year, artists, thumbnails);
+            .append_raw_playlist_items(song_list);
         // If sort commands exist, sort the list.
         // Naive - can result in multiple calls to sort every time songs are appended.
         if let Err(e) = self.playlist_songs_panel.apply_all_sort_commands() {
             error!("Error <{e}> sorting album songs panel");
         }
         self.playlist_songs_panel.list.state = ListStatus::InProgress;
-    }
-    pub fn handle_songs_found(&mut self) {
-        self.playlist_songs_panel.handle_songs_found()
     }
     fn increment_cur_list(&mut self, increment: isize) {
         match self.input_routing {
