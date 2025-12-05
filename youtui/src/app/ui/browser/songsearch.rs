@@ -10,7 +10,7 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::{HandleApiError, SearchSongs};
 use crate::app::structures::{
-    AlbumSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
+    BrowserSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
 };
 use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{
@@ -31,7 +31,7 @@ use ytmapi_rs::parse::SearchResultSong;
 
 pub struct SongSearchBrowser {
     pub input_routing: InputRouting,
-    song_list: AlbumSongsList,
+    song_list: BrowserSongsList,
     cur_selected: usize,
     pub search_popped: bool,
     pub search: SearchBlock,

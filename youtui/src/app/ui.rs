@@ -282,6 +282,12 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::BrowserSongs(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
+            AppAction::BrowserPlaylists(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
+            }
+            AppAction::BrowserPlaylistSongs(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
+            }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),
             AppAction::NoOp => (),
