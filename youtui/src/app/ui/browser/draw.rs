@@ -8,7 +8,7 @@ use crate::app::component::actionhandler::Suggestable;
 use crate::app::ui::browser::playlistsearch::search_panel::PlaylistInputRouting;
 use crate::app::ui::browser::playlistsearch::songs_panel::PlaylistSongsInputRouting;
 use crate::app::ui::browser::playlistsearch::{self, PlaylistSearchBrowser};
-use crate::app::view::SortableTableView;
+use crate::app::view::AdvancedTableView;
 use crate::app::view::draw::{draw_list, draw_sortable_table};
 use crate::drawutils::{
     ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
@@ -21,9 +21,6 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
 use ytmapi_rs::common::{SuggestionType, TextRun};
-
-// Popups look aesthetically weird when really small, so setting a minimum.
-const MIN_POPUP_WIDTH: usize = 20;
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
     match browser.variant {
@@ -80,19 +77,12 @@ pub fn draw_artist_search_browser(
             draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
         }
     }
-    browser.album_songs_panel.widget_state =
-        draw_sortable_table(f, &browser.album_songs_panel, layout[1], albumsongsselected);
-    if browser.album_songs_panel.sort.shown {
-        browser.album_songs_panel.sort.state =
-            draw_sort_popup(f, &browser.album_songs_panel, layout[1]);
-    }
-    if browser.album_songs_panel.filter.shown {
-        draw_filter_popup(
-            f,
-            &mut browser.album_songs_panel.filter.filter_text,
-            layout[1],
-        );
-    }
+    draw_sortable_table(
+        f,
+        &mut browser.album_songs_panel,
+        layout[1],
+        albumsongsselected,
+    );
 }
 pub fn draw_playlist_search_browser(
     f: &mut Frame,
@@ -140,23 +130,12 @@ pub fn draw_playlist_search_browser(
             draw_search_suggestions(f, &browser.playlist_search_panel.search, s[0], layout[0])
         }
     }
-    browser.playlist_songs_panel.widget_state = draw_sortable_table(
+    draw_sortable_table(
         f,
-        &browser.playlist_songs_panel,
+        &mut browser.playlist_songs_panel,
         layout[1],
         albumsongsselected,
     );
-    if browser.playlist_songs_panel.sort.shown {
-        browser.playlist_songs_panel.sort.state =
-            draw_sort_popup(f, &browser.playlist_songs_panel, layout[1]);
-    }
-    if browser.playlist_songs_panel.filter.shown {
-        draw_filter_popup(
-            f,
-            &mut browser.playlist_songs_panel.filter.filter_text,
-            layout[1],
-        );
-    }
 }
 pub fn draw_song_search_browser(
     f: &mut Frame,
@@ -165,79 +144,25 @@ pub fn draw_song_search_browser(
     selected: bool,
 ) {
     if !browser.search_popped {
-        browser.widget_state = draw_sortable_table(f, browser, chunk, selected);
+        draw_sortable_table(f, browser, chunk, selected);
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(chunk);
-        browser.widget_state = draw_sortable_table(f, browser, s[1], false);
+        draw_sortable_table(f, browser, s[1], false);
         draw_search_box(f, "Search Songs", &mut browser.search, s[0]);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
             draw_search_suggestions(f, &browser.search, s[0], chunk)
         }
     }
-    if browser.sort.shown {
-        browser.sort.state = draw_sort_popup(f, browser, chunk);
-    }
-    if browser.filter.shown {
-        draw_filter_popup(f, &mut browser.filter.filter_text, chunk);
-    }
-}
-
-/// Returns a new ListState for the sort popup.
-fn draw_sort_popup(f: &mut Frame, table: &impl SortableTableView, chunk: Rect) -> ListState {
-    let title = "Sort";
-    let sortable_columns = table.get_sortable_columns();
-    let headers: Vec<_> = table
-        .get_headings()
-        .enumerate()
-        .filter_map(|(i, h)| {
-            if sortable_columns.contains(&i) {
-                // TODO: Remove allocation
-                Some(ListItem::new(h))
-            } else {
-                None
-            }
-        })
-        // TODO: Remove allocation
-        .collect();
-    let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
-    // List looks a bit nicer with a minimum width, so passing a hardcoded minimum
-    // here.
-    let width = max_header_len.max(title.len()).max(MIN_POPUP_WIDTH) + 2;
-    let height = sortable_columns.len() + 2;
-    let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);
-    // TODO: Save the state.
-    let mut state = table
-        .get_sort_popup_state()
-        .with_selected(Some(table.get_sort_popup_cur()));
-    let list = List::new(headers)
-        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
-        .block(
-            Block::new()
-                .title(title)
-                .borders(Borders::ALL)
-                .border_style(Style::new().fg(SELECTED_BORDER_COLOUR)),
-        );
-    f.render_widget(Clear, popup_chunk);
-    f.render_stateful_widget(list, popup_chunk, &mut state);
-    state
-}
-
-fn draw_filter_popup(f: &mut Frame, state: &mut TextInputState, chunk: Rect) {
-    let title = "Filter";
-    // Hardocde dimensions of filter input.
-    let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
-    f.render_widget(Clear, popup_chunk);
-    draw_text_box(f, title, state, popup_chunk);
 }
 
 /// Draw a text input box
 // TODO: Shift to a more general module.
-fn draw_text_box(
+pub fn draw_text_box(
     f: &mut Frame,
     title: impl AsRef<str>,
     contents: &mut TextInputState,

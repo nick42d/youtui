@@ -10,7 +10,7 @@ use crate::app::ui::browser::shared_components::{
     FilterManager, SortManager, get_adjusted_list_column,
 };
 use crate::app::view::{
-    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+    AdvancedTableView, BasicConstraint, FilterString, Loadable, SortDirection, TableFilterCommand,
     TableSortCommand, TableView,
 };
 use crate::config::Config;
@@ -329,7 +329,7 @@ impl TableView for PlaylistSongsPanel {
         None
     }
 }
-impl SortableTableView for PlaylistSongsPanel {
+impl AdvancedTableView for PlaylistSongsPanel {
     fn get_sortable_columns(&self) -> &[usize] {
         &[1, 4]
     }
@@ -382,7 +382,19 @@ impl SortableTableView for PlaylistSongsPanel {
     fn get_sort_popup_cur(&self) -> usize {
         self.sort.cur
     }
-    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
-        self.sort.state.clone()
+    fn sort_popup_shown(&self) -> bool {
+        self.sort.shown
+    }
+    fn filter_popup_shown(&self) -> bool {
+        self.filter.shown
+    }
+    fn get_sort_state(&self) -> &ratatui::widgets::ListState {
+        &self.sort.state
+    }
+    fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
+        &mut self.sort.state
+    }
+    fn get_filter_state(&self) -> &std::cell::RefCell<rat_text::text_input::TextInputState> {
+        &self.filter.filter_text
     }
 }

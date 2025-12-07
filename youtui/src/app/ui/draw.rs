@@ -7,12 +7,14 @@ use crate::drawutils::{
 };
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use ratatui::Frame;
+use ratatui::buffer::Buffer;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{block, line};
 use ratatui::widgets::{
-    Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
+    Block, Borders, Clear, ListState, Row, Scrollbar, ScrollbarOrientation, ScrollbarState,
+    StatefulWidget, Table, TableState,
 };
 use ratatui_image::picker::Picker;
 use std::borrow::Cow;

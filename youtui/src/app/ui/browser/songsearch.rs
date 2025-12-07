@@ -14,7 +14,7 @@ use crate::app::structures::{
 };
 use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{
-    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+    AdvancedTableView, BasicConstraint, FilterString, Loadable, SortDirection, TableFilterCommand,
     TableSortCommand, TableView,
 };
 use crate::config::Config;
@@ -287,7 +287,7 @@ impl TableView for SongSearchBrowser {
         Box::new(["Song", "Artist", "Album", "Duration", "Plays"].into_iter())
     }
 }
-impl SortableTableView for SongSearchBrowser {
+impl AdvancedTableView for SongSearchBrowser {
     fn get_sortable_columns(&self) -> &[usize] {
         &[0, 1, 2]
     }
@@ -342,6 +342,12 @@ impl SortableTableView for SongSearchBrowser {
             self.get_filtered_list_iter()
                 .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
         )
+    }
+    fn sort_popup_shown(&self) -> bool {
+        self.sort.shown
+    }
+    fn filter_popup_shown(&self) -> bool {
+        self.filter.shown
     }
 }
 

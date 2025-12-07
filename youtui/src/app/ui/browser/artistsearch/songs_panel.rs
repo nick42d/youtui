@@ -10,7 +10,7 @@ use crate::app::ui::browser::shared_components::{
     FilterManager, SortManager, get_adjusted_list_column,
 };
 use crate::app::view::{
-    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
+    AdvancedTableView, BasicConstraint, FilterString, Loadable, SortDirection, TableFilterCommand,
     TableSortCommand, TableView,
 };
 use crate::config::Config;
@@ -20,6 +20,7 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::iter::Iterator;
 use tracing::warn;
 
@@ -332,7 +333,7 @@ impl TableView for AlbumSongsPanel {
         None
     }
 }
-impl SortableTableView for AlbumSongsPanel {
+impl AdvancedTableView for AlbumSongsPanel {
     fn get_sortable_columns(&self) -> &[usize] {
         &[1, 4]
     }
@@ -385,7 +386,10 @@ impl SortableTableView for AlbumSongsPanel {
     fn get_sort_popup_cur(&self) -> usize {
         self.sort.cur
     }
-    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
-        self.sort.state.clone()
+    fn sort_popup_shown(&self) -> bool {
+        self.sort.shown
+    }
+    fn filter_popup_shown(&self) -> bool {
+        self.filter.shown
     }
 }

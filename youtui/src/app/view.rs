@@ -1,9 +1,11 @@
 /// Traits related to viewable application components.
 use super::structures::{ListSong, ListSongDisplayableField, Percentage};
+use rat_text::text_input::TextInputState;
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
 use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::fmt::Display;
 
 pub mod draw;
@@ -145,11 +147,10 @@ pub fn basic_constraints_to_table_constraints(
 
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView: Loadable {
+    fn get_state(&self) -> &TableState;
+    fn get_mut_state(&mut self) -> &mut TableState;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    /// Get an owned version of the widget state, e.g scroll offset position.
-    /// In practice this will clone, and this is acceptable due to the low cost.
-    fn get_state(&self) -> TableState;
     // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
     // SortableTable), as possible we don't want to sort the Playlist (what happens
     // to play order, for eg). Could have a "commontitle" trait to prevent the
@@ -169,7 +170,14 @@ pub trait TableView: Loadable {
         self.get_items().len()
     }
 }
-pub trait SortableTableView: TableView {
+/// TableView with built in filtering and sorting.
+pub trait AdvancedTableView: TableView {
+    fn get_sort_state(&self) -> &ListState;
+    fn get_mut_sort_state(&mut self) -> &mut ListState;
+    /// Implementor should ensure this is a non-overlapping borrow with all
+    /// other trait methods.
+    fn get_filter_state(&self) -> &RefCell<TextInputState>;
+    fn sort_popup_shown(&self) -> bool;
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
     /// Add a new TableSortCommand and sort the table.
@@ -177,6 +185,7 @@ pub trait SortableTableView: TableView {
     /// sortable columns.
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
     fn clear_sort_commands(&mut self);
+    fn filter_popup_shown(&self) -> bool;
     // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];
     // This can't be ExactSized as return type may be Filter<T>
@@ -188,8 +197,6 @@ pub trait SortableTableView: TableView {
     fn clear_filter_commands(&mut self);
     // SortableTableView should maintain it's own popup state.
     fn get_sort_popup_cur(&self) -> usize;
-    // SortableTableView should maintain it's own popup state.
-    fn get_sort_popup_state(&self) -> ListState;
 }
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView: Loadable {

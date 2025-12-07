@@ -133,7 +133,7 @@ impl TextHandler for Playlist {
 
 impl DrawableMut for Playlist {
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
-        self.widget_state = draw_table(f, self, chunk, selected);
+        draw_table(f, self, chunk, selected);
     }
 }
 
@@ -159,8 +159,8 @@ impl TableView for Playlist {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> TableState {
-        self.widget_state.clone()
+    fn get_state(&self) -> &TableState {
+        &self.widget_state
     }
     fn get_title(&self) -> Cow<'_, str> {
         format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
@@ -218,6 +218,10 @@ impl TableView for Playlist {
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()
+    }
+
+    fn get_mut_state(&mut self) -> &mut TableState {
+        todo!()
     }
 }
 

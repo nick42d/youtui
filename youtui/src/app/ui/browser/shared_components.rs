@@ -6,6 +6,7 @@ use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]
@@ -20,7 +21,7 @@ impl_youtui_component!(SearchBlock);
 #[derive(Clone, Default)]
 pub struct FilterManager {
     pub filter_commands: Vec<TableFilterCommand>,
-    pub filter_text: TextInputState,
+    pub filter_text: RefCell<TextInputState>,
     pub shown: bool,
 }
 impl_youtui_component!(FilterManager);
