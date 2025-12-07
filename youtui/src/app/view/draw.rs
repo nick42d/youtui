@@ -3,9 +3,10 @@ use super::{
 };
 use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
 use crate::app::ui::draw::draw_text_box;
-use crate::app::view::{ListView, Loadable};
+use crate::app::view::{BasicConstraint, ListView, Loadable};
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
+    TEXT_COLOUR,
 };
 use itertools::Either;
 use rat_text::HasScreenCursor;
@@ -19,6 +20,7 @@ use ratatui::widgets::{
     Block, Borders, Cell, Clear, List, ListItem, ListState, Paragraph, Row, Scrollbar,
     ScrollbarOrientation, ScrollbarState, StatefulWidget, Table, TableState, Widget,
 };
+use std::borrow::Cow;
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 pub const MIN_POPUP_WIDTH: usize = 20;
@@ -109,31 +111,58 @@ pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)
 where
     T: TableView,
 {
+    let items = table.get_items();
+    let len = items.len();
+    *table.get_mut_state() = draw_table_impl(
+        f,
+        chunk,
+        selected,
+        table.get_selected_item(),
+        table.get_highlighted_row(),
+        table.get_state(),
+        items,
+        len,
+        table.get_layout(),
+        table.get_headings(),
+        table.get_title(),
+    );
+}
+
+pub fn draw_table_impl<'a>(
+    f: &mut Frame,
+    chunk: Rect,
+    selected: bool,
+    cur: usize,
+    highlighted: Option<usize>,
+    state: &TableState,
+    items: impl Iterator<Item = impl Iterator<Item = Cow<'a, str>> + 'a> + 'a,
+    len: usize,
+    layout: &'a [BasicConstraint],
+    headings: impl Iterator<Item = &'static str>,
+    title: Cow<'a, str>,
+) -> TableState {
+    // TableState is cheap to clone
     // Set the state to the currently selected item.
-    let selected_item = table.get_selected_item();
-    table.get_mut_state().select(Some(selected_item));
-    let cur_highlighted = table.get_highlighted_row();
-    // TODO: theming
-    let table_items = table.get_items().enumerate().map(|(idx, items)| {
-        if Some(idx) == cur_highlighted {
+    let mut new_state = state.clone();
+    new_state.select(Some(cur));
+    let table_items = items.enumerate().map(|(idx, items)| {
+        if Some(idx) == highlighted {
             Row::new(items).bold().italic()
         } else {
             Row::new(items)
         }
+        .style(Style::new().fg(TEXT_COLOUR))
     });
-    let number_items = table.len();
     // Minus for height of block and heading.
     let table_height = chunk.height.saturating_sub(4) as usize;
-    let table_widths = basic_constraints_to_table_constraints(
-        table.get_layout(),
-        chunk.width.saturating_sub(2),
-        1,
-    ); // Minus block
-    let heading_names = table.get_headings();
+    let table_widths =
+
+     // Minus block
+    basic_constraints_to_table_constraints(layout, chunk.width.saturating_sub(2), 1);
     let table_widget = Table::new(table_items, table_widths)
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
-            Row::new(heading_names).style(
+            Row::new(headings).style(
                 Style::default()
                     .add_modifier(Modifier::BOLD)
                     .fg(TABLE_HEADINGS_COLOUR),
@@ -145,13 +174,10 @@ where
         .track_symbol(Some(line::VERTICAL))
         .begin_symbol(None)
         .end_symbol(None);
-    let scrollable_lines = number_items.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, table.get_title(), None, chunk, selected);
-    let pos = table.get_state().offset().min(scrollable_lines);
-    // TableState is cheap to clone
-    let mut new_state = table.get_state().clone();
-    f.render_stateful_widget(table_widget, inner_chunk, &mut new_state);
-    *table.get_mut_state() = new_state;
+    let scrollable_lines = len.saturating_sub(table_height);
+    let inner_chunk = draw_panel(f, title, None, chunk, selected);
+    let pos = state.offset().min(scrollable_lines);
+    let new_state = move_render_stateful_widget(f, table_widget, inner_chunk, new_state);
     // Call this after rendering table, as offset is mutated.
     let mut scrollbar_state = ScrollbarState::default()
         .position(pos)
@@ -164,6 +190,7 @@ where
         }),
         &mut scrollbar_state,
     );
+    new_state
 }
 
 pub fn draw_sortable_table(

@@ -164,7 +164,7 @@ pub trait TableView {
         &self,
     ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_;
     // XXX: This doesn't need to be so fancy - could return a static slice.
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
+    fn get_headings(&self) -> impl Iterator<Item = &'static str>;
     // Not a particularly useful function for a sortabletableview
     fn len(&self) -> usize {
         self.get_items().len()
