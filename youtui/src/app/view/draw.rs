@@ -17,11 +17,24 @@ use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{
     Block, Borders, Cell, Clear, List, ListItem, ListState, Paragraph, Row, Scrollbar,
-    ScrollbarOrientation, ScrollbarState, Table, TableState,
+    ScrollbarOrientation, ScrollbarState, StatefulWidget, Table, TableState, Widget,
 };
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 pub const MIN_POPUP_WIDTH: usize = 20;
+
+/// Helper function that calls get_stateful_widget but consumes the state and
+/// returns the modified version instead of mutating in place
+pub fn move_render_stateful_widget<W: StatefulWidget>(
+    f: &mut Frame,
+    widget: W,
+    area: Rect,
+    state: W::State,
+) -> W::State {
+    let mut state = state;
+    f.render_stateful_widget(widget, area, &mut state);
+    state
+}
 
 pub fn get_table_sort_character_array(
     sort_commands: &[TableSortCommand],
@@ -79,30 +92,17 @@ pub fn draw_panel<S: AsRef<str>>(
     }
 }
 
-pub fn draw_list<L>(f: &mut Frame, list: &L, chunk: Rect, selected: bool) -> ListState
-where
-    L: ListView,
-{
-    let mut state = list.get_state();
-    state.select(Some(list.get_selected_item()));
+pub fn draw_list<L>(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected: bool) {
+    let selected_item = list.get_selected_item();
+    list.get_mut_state().select(Some(selected_item));
     // TODO: Scroll bars
     let list_title = list.get_title();
-    let list_len = list.len();
-    let list_items: Vec<_> = list
-        .get_items_display()
-        .iter()
-        // We are allocating here, as list item only implements Display (not Into<Cow>). Consider
-        // changing this.
-        .map(|item| ListItem::new(item.to_string()))
-        // We are allocating here, as List::new won't take an iterator. May change in future.
-        .collect();
-    // TODO: Better title for list
-    let _title = format!("{list_title} - {list_len} items");
     let list_widget =
-        List::new(list_items).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
+        List::new(list.get_items()).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     let inner_chunk = draw_panel(f, list_title, None, chunk, selected);
-    f.render_stateful_widget(list_widget, inner_chunk, &mut state);
-    state
+    // ListState is cheap to clone
+    *list.get_mut_state() =
+        move_render_stateful_widget(f, list_widget, inner_chunk, list.get_state().clone());
 }
 
 pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)

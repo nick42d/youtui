@@ -191,7 +191,7 @@ pub trait AdvancedTableView: TableView {
     // This can't be ExactSized as return type may be Filter<T>
     fn get_filtered_items(
         &self,
-    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
+    ) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_;
     fn get_filter_commands(&self) -> &[TableFilterCommand];
     fn push_filter_command(&mut self, filter_command: TableFilterCommand);
     fn clear_filter_commands(&mut self);
@@ -199,17 +199,15 @@ pub trait AdvancedTableView: TableView {
     fn get_sort_popup_cur(&self) -> usize;
 }
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: Loadable {
-    type DisplayItem: Display;
+pub trait ListView {
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    /// Get an owned version of the widget state, e.g scroll offset position.
-    /// In practice this will clone, and this is acceptable due to the low cost.
-    fn get_state(&self) -> ListState;
+    fn get_state(&self) -> &ListState;
+    fn get_mut_state(&mut self) -> &mut ListState;
     fn get_title(&self) -> Cow<'_, str>;
-    fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
+    fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_;
     fn len(&self) -> usize {
-        self.get_items_display().len()
+        self.get_items().len()
     }
 }
 // A drawable part of the application.

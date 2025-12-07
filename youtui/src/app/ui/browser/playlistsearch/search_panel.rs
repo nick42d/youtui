@@ -172,27 +172,22 @@ impl Scrollable for PlaylistSearchPanel {
         self.route == PlaylistInputRouting::List
     }
 }
-impl Loadable for PlaylistSearchPanel {
-    fn is_loading(&self) -> bool {
-        // This is just a basic list without a loading function.
-        false
-    }
-}
 impl ListView for PlaylistSearchPanel {
     fn get_selected_item(&self) -> usize {
         self.selected
     }
-    type DisplayItem = String;
-    fn get_state(&self) -> ratatui::widgets::ListState {
-        self.widget_state.clone()
-    }
-    fn get_items_display(&self) -> Vec<&Self::DisplayItem> {
-        self.list
-            .iter()
-            .map(|search_result| &search_result.title)
-            .collect()
-    }
     fn get_title(&self) -> Cow<'_, str> {
         "Playlists".into()
+    }
+    fn get_state(&self) -> &ratatui::widgets::ListState {
+        &self.widget_state
+    }
+    fn get_mut_state(&mut self) -> &mut ListState {
+        &mut self.widget_state
+    }
+    fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_ {
+        self.list
+            .iter()
+            .map(|search_result| (&search_result.title).into())
     }
 }
