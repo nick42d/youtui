@@ -94,7 +94,7 @@ pub fn draw_panel<S: AsRef<str>>(
     }
 }
 
-pub fn draw_list<L>(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected: bool) {
+pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected: bool) {
     let selected_item = list.get_selected_item();
     list.get_mut_state().select(Some(selected_item));
     // TODO: Scroll bars

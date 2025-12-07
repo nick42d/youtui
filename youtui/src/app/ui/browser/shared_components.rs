@@ -126,19 +126,19 @@ impl TextHandler for FilterManager {
         true
     }
     fn get_text(&self) -> &str {
-        self.filter_text.text()
+        self.filter_text.try_borrow().unwrap().text()
     }
     fn replace_text(&mut self, text: impl Into<String>) {
-        self.filter_text.set_text(text)
+        self.filter_text.get_mut().set_text(text)
     }
     fn clear_text(&mut self) -> bool {
-        self.filter_text.clear()
+        self.filter_text.get_mut().clear()
     }
     fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
-        match handle_events(&mut self.filter_text, true, event) {
+        match handle_events(&mut self.filter_text.get_mut(), true, event) {
             rat_text::event::TextOutcome::Continue => None,
             rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),

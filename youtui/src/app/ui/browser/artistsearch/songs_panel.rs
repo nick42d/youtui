@@ -151,7 +151,7 @@ impl AlbumSongsPanel {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_text.clear();
+            self.filter.filter_text.get_mut().clear();
             self.route = AlbumSongsInputRouting::Filter;
         } else {
             self.route = AlbumSongsInputRouting::List;
@@ -326,7 +326,7 @@ impl TableView for AlbumSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
         Box::new(b)
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
         Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
     }
     fn get_highlighted_row(&self) -> Option<usize> {

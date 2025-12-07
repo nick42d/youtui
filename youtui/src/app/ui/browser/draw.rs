@@ -56,16 +56,19 @@ pub fn draw_artist_search_browser(
         && browser.artist_search_panel.route == ArtistInputRouting::List;
 
     if !browser.artist_search_panel.search_popped {
-        browser.artist_search_panel.widget_state =
-            draw_list(f, &browser.artist_search_panel, layout[0], artistselected);
+        draw_list(
+            f,
+            &mut browser.artist_search_panel,
+            layout[0],
+            artistselected,
+        );
     } else {
         let s = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(layout[0]);
-        browser.artist_search_panel.widget_state =
-            draw_list(f, &browser.artist_search_panel, s[1], artistselected);
+        draw_list(f, &mut browser.artist_search_panel, s[1], artistselected);
         draw_search_box(
             f,
             "Search Artists",
@@ -104,9 +107,9 @@ pub fn draw_playlist_search_browser(
         && browser.playlist_search_panel.route == PlaylistInputRouting::List;
 
     if !browser.playlist_search_panel.search_popped {
-        browser.playlist_search_panel.widget_state = draw_list(
+        draw_list(
             f,
-            &browser.playlist_search_panel,
+            &mut browser.playlist_search_panel,
             artists_chunk,
             playlistselected,
         );
@@ -119,9 +122,9 @@ pub fn draw_playlist_search_browser(
         else {
             unreachable!("Defined 2 constraints")
         };
-        browser.playlist_search_panel.widget_state = draw_list(
+        draw_list(
             f,
-            &browser.playlist_search_panel,
+            &mut browser.playlist_search_panel,
             search_panel_chunk,
             playlistselected,
         );

@@ -244,8 +244,8 @@ impl TableView for SongSearchBrowser {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> TableState {
-        self.widget_state.clone()
+    fn get_state(&self) -> &TableState {
+        &self.widget_state
     }
     fn get_title(&self) -> std::borrow::Cow<'_, str> {
         match self.song_list.state {
@@ -276,15 +276,18 @@ impl TableView for SongSearchBrowser {
     }
     fn get_items(
         &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_ {
         let b = self
             .song_list
             .get_list_iter()
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
         Box::new(b)
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
         Box::new(["Song", "Artist", "Album", "Duration", "Plays"].into_iter())
+    }
+    fn get_mut_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
     }
 }
 impl AdvancedTableView for SongSearchBrowser {
@@ -331,12 +334,9 @@ impl AdvancedTableView for SongSearchBrowser {
     fn get_sort_popup_cur(&self) -> usize {
         self.sort.cur
     }
-    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
-        self.sort.state.clone()
-    }
     fn get_filtered_items(
         &self,
-    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    ) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_ {
         // We are doing a lot here every draw cycle!
         Box::new(
             self.get_filtered_list_iter()
@@ -348,6 +348,15 @@ impl AdvancedTableView for SongSearchBrowser {
     }
     fn filter_popup_shown(&self) -> bool {
         self.filter.shown
+    }
+    fn get_sort_state(&self) -> &ratatui::widgets::ListState {
+        &self.sort.state
+    }
+    fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
+        &mut self.sort.state
+    }
+    fn get_filter_state(&self) -> &std::cell::RefCell<rat_text::text_input::TextInputState> {
+        &self.filter.filter_text
     }
 }
 
@@ -430,7 +439,7 @@ impl SongSearchBrowser {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_text.clear();
+            self.filter.filter_text.get_mut().clear();
             self.input_routing = InputRouting::Filter;
         } else {
             self.input_routing = InputRouting::List;

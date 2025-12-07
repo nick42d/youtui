@@ -146,7 +146,7 @@ impl PlaylistSongsPanel {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_text.clear();
+            self.filter.filter_text.get_mut().clear();
             self.route = PlaylistSongsInputRouting::Filter;
         } else {
             self.route = PlaylistSongsInputRouting::List;
