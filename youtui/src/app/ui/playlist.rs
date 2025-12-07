@@ -12,7 +12,7 @@ use crate::app::structures::{
     ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
-use crate::app::view::draw::draw_table;
+use crate::app::view::draw::{draw_loadable_mut, draw_table};
 use crate::app::view::{BasicConstraint, DrawableMut, Loadable, TableView};
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
@@ -133,7 +133,7 @@ impl TextHandler for Playlist {
 
 impl DrawableMut for Playlist {
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
-        draw_table(f, self, chunk, selected);
+        draw_loadable_mut(f, self, chunk, |t, f, c| draw_table(f, t, c, selected));
     }
 }
 

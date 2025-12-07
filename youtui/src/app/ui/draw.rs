@@ -6,6 +6,7 @@ use crate::drawutils::{
     left_bottom_corner_rect,
 };
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::Frame;
 use ratatui::buffer::Buffer;
 use ratatui::layout::{Constraint, Direction, Layout};
@@ -229,4 +230,31 @@ fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
         }),
         &mut scrollbar_state,
     )
+}
+
+/// Draw a text input box
+pub fn draw_text_box(
+    f: &mut Frame,
+    title: impl AsRef<str>,
+    contents: &mut TextInputState,
+    chunk: Rect,
+) {
+    let block_widget = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
+        .title(title.as_ref());
+    let text_chunk = block_widget.inner(chunk);
+    let text_chunk = Rect {
+        x: text_chunk.x,
+        y: text_chunk.y,
+        width: text_chunk.width.saturating_sub(1),
+        height: text_chunk.height,
+    };
+    // TODO: Scrolling, if input larger than box.
+    let text_widget = TextInput::new();
+    f.render_widget(block_widget, chunk);
+    f.render_stateful_widget(text_widget, text_chunk, contents);
+    if let Some(cursor_pos) = contents.screen_cursor() {
+        f.set_cursor_position(cursor_pos)
+    };
 }

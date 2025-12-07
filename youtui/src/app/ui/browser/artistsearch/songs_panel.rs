@@ -290,8 +290,8 @@ impl TableView for AlbumSongsPanel {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> ratatui::widgets::TableState {
-        self.widget_state.clone()
+    fn get_state(&self) -> &ratatui::widgets::TableState {
+        &self.widget_state
     }
     fn get_title(&self) -> Cow<'_, str> {
         match self.list.state {
@@ -319,7 +319,7 @@ impl TableView for AlbumSongsPanel {
     }
     fn get_items(
         &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_ {
         let b = self
             .list
             .get_list_iter()
@@ -331,6 +331,9 @@ impl TableView for AlbumSongsPanel {
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         None
+    }
+    fn get_mut_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
     }
 }
 impl AdvancedTableView for AlbumSongsPanel {
@@ -391,5 +394,14 @@ impl AdvancedTableView for AlbumSongsPanel {
     }
     fn filter_popup_shown(&self) -> bool {
         self.filter.shown
+    }
+    fn get_sort_state(&self) -> &ratatui::widgets::ListState {
+        &self.sort.state
+    }
+    fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
+        &mut self.sort.state
+    }
+    fn get_filter_state(&self) -> &RefCell<rat_text::text_input::TextInputState> {
+        &self.filter.filter_text
     }
 }

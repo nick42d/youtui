@@ -2,7 +2,8 @@ use super::{
     AdvancedTableView, TableSortCommand, TableView, basic_constraints_to_table_constraints,
 };
 use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
-use crate::app::view::ListView;
+use crate::app::ui::draw::draw_text_box;
+use crate::app::view::{ListView, Loadable};
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
 };
@@ -146,27 +147,23 @@ where
         .end_symbol(None);
     let scrollable_lines = number_items.saturating_sub(table_height);
     let inner_chunk = draw_panel(f, table.get_title(), None, chunk, selected);
-    if table.is_loading() {
-        draw_loading(f, inner_chunk);
-    } else {
-        let pos = table.get_state().offset().min(scrollable_lines);
-        // TableState is cheap to clone
-        let mut new_state = table.get_state().clone();
-        f.render_stateful_widget(table_widget, inner_chunk, &mut new_state);
-        *table.get_mut_state() = new_state;
-        // Call this after rendering table, as offset is mutated.
-        let mut scrollbar_state = ScrollbarState::default()
-            .position(pos)
-            .content_length(scrollable_lines);
-        f.render_stateful_widget(
-            scrollbar,
-            chunk.inner(Margin {
-                vertical: 1,
-                horizontal: 0,
-            }),
-            &mut scrollbar_state,
-        );
-    };
+    let pos = table.get_state().offset().min(scrollable_lines);
+    // TableState is cheap to clone
+    let mut new_state = table.get_state().clone();
+    f.render_stateful_widget(table_widget, inner_chunk, &mut new_state);
+    *table.get_mut_state() = new_state;
+    // Call this after rendering table, as offset is mutated.
+    let mut scrollbar_state = ScrollbarState::default()
+        .position(pos)
+        .content_length(scrollable_lines);
+    f.render_stateful_widget(
+        scrollbar,
+        chunk.inner(Margin {
+            vertical: 1,
+            horizontal: 0,
+        }),
+        &mut scrollbar_state,
+    );
 }
 
 pub fn draw_sortable_table(
@@ -242,26 +239,22 @@ pub fn draw_sortable_table(
         chunk,
         selected,
     );
-    if table.is_loading() {
-        draw_loading(f, inner_chunk)
-    } else {
-        // Clone of TableState is cheap
-        let mut new_table_state = table.get_state().clone();
-        f.render_stateful_widget(table_widget, inner_chunk, &mut new_table_state);
-        *table.get_mut_state() = new_table_state;
-        // Call this after rendering table, as offset is mutated.
-        let mut scrollbar_state = ScrollbarState::default()
-            .position(table.get_state().offset().min(scrollable_lines))
-            .content_length(scrollable_lines);
-        f.render_stateful_widget(
-            scrollbar,
-            chunk.inner(Margin {
-                vertical: 1,
-                horizontal: 0,
-            }),
-            &mut scrollbar_state,
-        )
-    };
+    // Clone of TableState is cheap
+    let mut new_table_state = table.get_state().clone();
+    f.render_stateful_widget(table_widget, inner_chunk, &mut new_table_state);
+    *table.get_mut_state() = new_table_state;
+    // Call this after rendering table, as offset is mutated.
+    let mut scrollbar_state = ScrollbarState::default()
+        .position(table.get_state().offset().min(scrollable_lines))
+        .content_length(scrollable_lines);
+    f.render_stateful_widget(
+        scrollbar,
+        chunk.inner(Margin {
+            vertical: 1,
+            horizontal: 0,
+        }),
+        &mut scrollbar_state,
+    );
 
     if table.sort_popup_shown() {
         draw_sort_popup(f, table, chunk);
@@ -272,9 +265,17 @@ pub fn draw_sortable_table(
     }
 }
 
-pub fn draw_loading(f: &mut Frame, chunk: Rect) {
-    let loading = Paragraph::new("Loading");
-    f.render_widget(loading, chunk);
+pub fn draw_loadable_mut<T: Loadable>(
+    f: &mut Frame,
+    t: &mut T,
+    chunk: Rect,
+    draw_call: impl FnOnce(&mut T, &mut Frame, Rect),
+) {
+    if t.is_loading() {
+        let loading = Paragraph::new("Loading");
+        return f.render_widget(loading, chunk);
+    };
+    draw_call(t, f, chunk);
 }
 
 /// Returns a new ListState for the sort popup.
@@ -328,32 +329,4 @@ fn draw_filter_popup(f: &mut Frame, table: &mut impl AdvancedTableView, chunk: R
         .try_borrow_mut()
         .expect("This only place filter text_state is mutably borrowed");
     draw_text_box(f, title, &mut *text_state, popup_chunk);
-}
-
-/// Draw a text input box
-// TODO: Shift to a more general module.
-pub fn draw_text_box(
-    f: &mut Frame,
-    title: impl AsRef<str>,
-    contents: &mut TextInputState,
-    chunk: Rect,
-) {
-    let block_widget = Block::default()
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
-        .title(title.as_ref());
-    let text_chunk = block_widget.inner(chunk);
-    let text_chunk = Rect {
-        x: text_chunk.x,
-        y: text_chunk.y,
-        width: text_chunk.width.saturating_sub(1),
-        height: text_chunk.height,
-    };
-    // TODO: Scrolling, if input larger than box.
-    let text_widget = TextInput::new();
-    f.render_widget(block_widget, chunk);
-    f.render_stateful_widget(text_widget, text_chunk, contents);
-    if let Some(cursor_pos) = contents.screen_cursor() {
-        f.set_cursor_position(cursor_pos)
-    };
 }

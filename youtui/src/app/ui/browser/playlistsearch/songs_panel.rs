@@ -20,7 +20,7 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::iter::Iterator;
+use std::iter::{ExactSizeIterator, Iterator};
 use tracing::warn;
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -54,10 +54,10 @@ pub enum BrowserPlaylistSongsAction {
 }
 
 impl Action for BrowserPlaylistSongsAction {
-    fn context(&self) -> std::borrow::Cow<'_, str> {
+    fn context(&self) -> Cow<'_, str> {
         "Artist Songs Panel".into()
     }
-    fn describe(&self) -> std::borrow::Cow<'_, str> {
+    fn describe(&self) -> Cow<'_, str> {
         match &self {
             BrowserPlaylistSongsAction::PlaySong => "Play song",
             BrowserPlaylistSongsAction::PlaySongs => "Play songs",
@@ -286,7 +286,7 @@ impl TableView for PlaylistSongsPanel {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> ratatui::widgets::TableState {
+    fn get_state(&self) -> &ratatui::widgets::TableState {
         self.widget_state.clone()
     }
     fn get_title(&self) -> Cow<'_, str> {
@@ -315,7 +315,8 @@ impl TableView for PlaylistSongsPanel {
     }
     fn get_items(
         &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    ) -> impl ExactSizeIterator + Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_
+    {
         let b = self
             .list
             .get_list_iter()
@@ -327,6 +328,10 @@ impl TableView for PlaylistSongsPanel {
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         None
+    }
+
+    fn get_mut_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
     }
 }
 impl AdvancedTableView for PlaylistSongsPanel {

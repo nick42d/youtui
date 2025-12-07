@@ -146,7 +146,7 @@ pub fn basic_constraints_to_table_constraints(
 }
 
 /// A struct that we are able to draw a table from using the underlying data.
-pub trait TableView: Loadable {
+pub trait TableView {
     fn get_state(&self) -> &TableState;
     fn get_mut_state(&mut self) -> &mut TableState;
     /// An item will always be selected.
@@ -162,7 +162,7 @@ pub trait TableView: Loadable {
     // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
     fn get_items(
         &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
+    ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
     // Not a particularly useful function for a sortabletableview
