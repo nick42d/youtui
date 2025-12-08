@@ -179,10 +179,8 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(
-        &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
-        Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+        self.list.get_list_iter().enumerate().map(|(i, ls)| {
             let first_field = if Some(i) == self.get_cur_playing_index() {
                 match self.play_status {
                     PlayState::NotPlaying => ">>>".to_string(),
@@ -195,26 +193,22 @@ impl TableView for Playlist {
             } else {
                 (i + 1).to_string()
             };
-            Box::new(
-                iter::once(first_field.to_string().into()).chain(ls.get_fields([
-                    ListSongDisplayableField::DownloadStatus,
-                    ListSongDisplayableField::TrackNo,
-                    ListSongDisplayableField::Artists,
-                    ListSongDisplayableField::Album,
-                    ListSongDisplayableField::Song,
-                    ListSongDisplayableField::Duration,
-                    ListSongDisplayableField::Year,
-                ])),
-            ) as Box<dyn Iterator<Item = Cow<str>>>
-        }))
+            iter::once(first_field.to_string().into()).chain(ls.get_fields([
+                ListSongDisplayableField::DownloadStatus,
+                ListSongDisplayableField::TrackNo,
+                ListSongDisplayableField::Artists,
+                ListSongDisplayableField::Album,
+                ListSongDisplayableField::Song,
+                ListSongDisplayableField::Duration,
+                ListSongDisplayableField::Year,
+            ]))
+        })
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
-        Box::new(
-            [
-                "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
-            ]
-            .into_iter(),
-        )
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
+        [
+            "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
+        ]
+        .into_iter()
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()

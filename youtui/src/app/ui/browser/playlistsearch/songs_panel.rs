@@ -102,8 +102,8 @@ impl PlaylistSongsPanel {
         }
         Ok(())
     }
-    pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        Box::new(self.list.get_list_iter().filter(move |ls| {
+    pub fn get_filtered_list_iter(&self) -> impl Iterator<Item = &ListSong> {
+        self.list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
             self.get_filter_commands()
@@ -116,7 +116,7 @@ impl PlaylistSongsPanel {
                     ); // If we find a match for each filter, can display the row.
                     acc && match_found
                 })
-        }))
+        })
     }
     pub fn apply_filter(&mut self) {
         let filter = self.filter.get_text().to_string();
@@ -287,7 +287,7 @@ impl TableView for PlaylistSongsPanel {
         self.cur_selected
     }
     fn get_state(&self) -> &ratatui::widgets::TableState {
-        self.widget_state.clone()
+        &self.widget_state
     }
     fn get_title(&self) -> Cow<'_, str> {
         match self.list.state {
@@ -315,16 +315,13 @@ impl TableView for PlaylistSongsPanel {
     }
     fn get_items(
         &self,
-    ) -> impl ExactSizeIterator + Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_
-    {
-        let b = self
-            .list
+    ) -> impl ExactSizeIterator + Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+        self.list
             .get_list_iter()
-            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
-        Box::new(b)
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
-        Box::new(["#", "Album", "Song", "Duration", "Year"].into_iter())
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
+        ["#", "Album", "Song", "Duration", "Year"].into_iter()
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         None
@@ -363,14 +360,10 @@ impl AdvancedTableView for PlaylistSongsPanel {
     fn get_sort_commands(&self) -> &[TableSortCommand] {
         &self.sort.sort_commands
     }
-    fn get_filtered_items(
-        &self,
-    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
         // We are doing a lot here every draw cycle!
-        Box::new(
-            self.get_filtered_list_iter()
-                .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
-        )
+        self.get_filtered_list_iter()
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_filterable_columns(&self) -> &[usize] {
         &[1, 2, 4]

@@ -160,9 +160,7 @@ pub trait TableView {
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
     // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
-    fn get_items(
-        &self,
-    ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_;
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
     // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> impl Iterator<Item = &'static str>;
     // Not a particularly useful function for a sortabletableview
@@ -189,9 +187,7 @@ pub trait AdvancedTableView: TableView {
     // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];
     // This can't be ExactSized as return type may be Filter<T>
-    fn get_filtered_items(
-        &self,
-    ) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_;
+    fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
     fn get_filter_commands(&self) -> &[TableFilterCommand];
     fn push_filter_command(&mut self, filter_command: TableFilterCommand);
     fn clear_filter_commands(&mut self);

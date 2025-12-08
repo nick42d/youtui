@@ -274,17 +274,13 @@ impl TableView for SongSearchBrowser {
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
-    fn get_items(
-        &self,
-    ) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_ {
-        let b = self
-            .song_list
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+        self.song_list
             .get_list_iter()
-            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
-        Box::new(b)
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_headings(&self) -> impl Iterator<Item = &'static str> {
-        Box::new(["Song", "Artist", "Album", "Duration", "Plays"].into_iter())
+        ["Song", "Artist", "Album", "Duration", "Plays"].into_iter()
     }
     fn get_mut_state(&mut self) -> &mut TableState {
         &mut self.widget_state
@@ -334,14 +330,10 @@ impl AdvancedTableView for SongSearchBrowser {
     fn get_sort_popup_cur(&self) -> usize {
         self.sort.cur
     }
-    fn get_filtered_items(
-        &self,
-    ) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_ {
+    fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
         // We are doing a lot here every draw cycle!
-        Box::new(
-            self.get_filtered_list_iter()
-                .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
-        )
+        self.get_filtered_list_iter()
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn sort_popup_shown(&self) -> bool {
         self.sort.shown
@@ -395,8 +387,8 @@ impl SongSearchBrowser {
         }
         Ok(())
     }
-    pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        Box::new(self.song_list.get_list_iter().filter(move |ls| {
+    pub fn get_filtered_list_iter(&self) -> impl Iterator<Item = &ListSong> + '_ {
+        self.song_list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
             self.get_filter_commands()
@@ -409,7 +401,7 @@ impl SongSearchBrowser {
                     ); // If we find a match for each filter, can display the row.
                     acc && match_found
                 })
-        }))
+        })
     }
     pub fn apply_filter(&mut self) {
         let filter = self.filter.get_text().to_string();
