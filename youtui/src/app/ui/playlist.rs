@@ -8,8 +8,8 @@ use crate::app::server::{
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
-    ListSongID, Percentage, PlayState, SongListComponent,
+    AlbumArtState, AlbumOrUploadAlbumID, BrowserSongsList, DownloadStatus, ListSong, ListSongAlbum,
+    ListSongDisplayableField, ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::{draw_loadable_mut, draw_table};
@@ -33,7 +33,7 @@ use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
-use ytmapi_rs::common::{AlbumID, Thumbnail};
+use ytmapi_rs::common::{AlbumID, Thumbnail, UploadAlbumID, VideoID};
 
 #[cfg(test)]
 mod tests;
@@ -473,6 +473,25 @@ impl Playlist {
                 .max_by_key(|thumbs| thumbs.height * thumbs.width)
                 .map(|thumb| thumb.url.clone())
         };
+        #[derive(Hash)]
+        enum ThumbnailID<'a> {
+            Album(AlbumID<'a>),
+            UploadAlbum(UploadAlbumID<'a>),
+            Video(VideoID<'a>),
+        }
+        fn get_thumbnail_id(song: &ListSong) -> ThumbnailID {
+            match song.album {
+                Some(ListSongAlbum {
+                    id: AlbumOrUploadAlbumID::Album(a),
+                    ..
+                }) => todo!(),
+                Some(ListSongAlbum {
+                    id: AlbumOrUploadAlbumID::UploadAlbumID(a),
+                    ..
+                }) => todo!(),
+                None => todo!(),
+            }
+        }
         let albums = song_list
             .iter_mut()
             .filter_map(|song| {
@@ -482,7 +501,7 @@ impl Playlist {
                 };
                 Some((song.album.as_deref().map(|album| &album.id)?, thumb_url))
             })
-            .collect::<HashMap<&AlbumID, String>>();
+            .collect::<HashMap<&ThumbnailID<'a>, String>>();
         let effect = albums
             .into_iter()
             .map(|(album_id, thumbnail_url)| {

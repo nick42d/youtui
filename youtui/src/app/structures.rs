@@ -144,7 +144,7 @@ enum ArtistOrUploadArtistID {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum AlbumOrUploadAlbumID {
+pub enum AlbumOrUploadAlbumID {
     Album(AlbumID<'static>),
     UploadAlbum(UploadAlbumID<'static>),
 }
